@@ -9,7 +9,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Collection", GetCollectionFile, SetCollectionFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_AssetCollection")),
+    EZ_ACCESSOR_PROPERTY("Collection", GetCollectionFile, SetCollectionFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_AssetCollection", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES

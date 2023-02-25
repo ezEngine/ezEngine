@@ -70,8 +70,9 @@ ezTestAppRun ezEditorTestProject::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInv
     ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
 
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::TransformError], 0);
-    EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingDependency], 0);
-    EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingReference], 0);
+    EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingTransformDependency], 0);
+    EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingThumbnailDependency], 0);
+    EZ_TEST_INT(sections[ezAssetInfo::TransformState::CircularDependency], 0);
   }
   return ezTestAppRun::Quit;
 }

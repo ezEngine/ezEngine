@@ -15,6 +15,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTemporaryAttribute, 1, ezRTTIDefaultAllocator<ezTemporaryAttribute>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezDependencyFlags, 1)
+  EZ_BITFLAGS_CONSTANTS(ezDependencyFlags::Package, ezDependencyFlags::Thumbnail, ezDependencyFlags::Transform)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<ezCategoryAttribute>)
 {
   EZ_BEGIN_PROPERTIES
@@ -281,6 +285,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFileBrowserAttribute, 1, ezRTTIDefaultAllocato
   {
     EZ_MEMBER_PROPERTY("Title", m_sDialogTitle),
     EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+    EZ_MEMBER_PROPERTY("CustomAction", m_sCustomAction),
+    EZ_BITFLAGS_MEMBER_PROPERTY("DependencyFlags", ezDependencyFlags, m_DependencyFlags),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -296,6 +302,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetBrowserAttribute, 1, ezRTTIDefaultAllocat
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+    EZ_BITFLAGS_MEMBER_PROPERTY("DependencyFlags", ezDependencyFlags, m_DependencyFlags),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS

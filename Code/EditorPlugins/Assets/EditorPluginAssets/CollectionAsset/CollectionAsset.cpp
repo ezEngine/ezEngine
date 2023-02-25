@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetEntry, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sLookupName),
-    EZ_MEMBER_PROPERTY("Asset", m_sRedirectionAsset)->AddAttributes(new ezAssetBrowserAttribute(""))
+    EZ_MEMBER_PROPERTY("Asset", m_sRedirectionAsset)->AddAttributes(new ezAssetBrowserAttribute("", ezDependencyFlags::Package))
   }
   EZ_END_PROPERTIES;
 }
@@ -70,39 +70,10 @@ static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
   {
     const ezAssetDocumentInfo* pDocInfo = pInfo->m_pAssetInfo->m_Info.Borrow();
 
-    for (const ezString& doc : pDocInfo->m_AssetTransformDependencies)
+    for (const ezString& doc : pDocInfo->m_PackageDependencies)
     {
       InsertEntry(doc, {}, inout_found);
     }
-
-    for (const ezString& doc : pDocInfo->m_RuntimeDependencies)
-    {
-      InsertEntry(doc, {}, inout_found);
-    }
-  }
-}
-
-void ezCollectionAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  // TODO: why are collections not marked as needs-transform, out of the box, when a dependency changes ?
-
-  SUPER::UpdateAssetDocumentInfo(pInfo);
-
-  const ezCollectionAssetData* pProp = GetProperties();
-
-  ezMap<ezString, ezCollectionEntry> entries;
-
-  for (const auto& e : pProp->m_Entries)
-  {
-    if (e.m_sRedirectionAsset.IsEmpty())
-      continue;
-
-    InsertEntry(e.m_sRedirectionAsset, e.m_sLookupName, entries);
-  }
-
-  for (auto it : entries)
-  {
-    pInfo->m_AssetTransformDependencies.Insert(it.Value().m_sResourceID);
   }
 }
 

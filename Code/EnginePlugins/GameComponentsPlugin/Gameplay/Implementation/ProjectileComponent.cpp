@@ -21,7 +21,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
     EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
@@ -38,9 +38,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("GravityMultiplier", m_fGravityMultiplier),
     EZ_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("OnTimeoutSpawn", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_ACCESSOR_PROPERTY("OnTimeoutSpawn", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
   EZ_END_PROPERTIES;

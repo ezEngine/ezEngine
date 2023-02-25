@@ -156,7 +156,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 10, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("EditorShortcut", m_iEditorShortcut)->AddAttributes(new ezDefaultValueAttribute(-1), new ezClampValueAttribute(-1, 9)),
     EZ_ENUM_ACCESSOR_PROPERTY("UsageHint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
-    EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Target")),
+    EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Target", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("RenderTargetOffset", GetRenderTargetRectOffset, SetRenderTargetRectOffset)->AddAttributes(new ezClampValueAttribute(ezVec2(0.0f), ezVec2(0.9f))),
     EZ_ACCESSOR_PROPERTY("RenderTargetSize", GetRenderTargetRectSize, SetRenderTargetRectSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f)), new ezClampValueAttribute(ezVec2(0.1f), ezVec2(1.0f))),
     EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 4.0f)),

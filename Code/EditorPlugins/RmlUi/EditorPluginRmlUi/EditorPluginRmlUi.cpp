@@ -19,6 +19,7 @@ void OnLoadPlugin()
       ezStandardMenus::MapActions("RmlUiAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezProjectActions::MapActions("RmlUiAssetMenuBar");
       ezDocumentActions::MapActions("RmlUiAssetMenuBar", "Menu.File", false);
+      ezAssetActions::MapMenuActions("RmlUiAssetMenuBar", "Menu.File");
       ezCommandHistoryActions::MapActions("RmlUiAssetMenuBar", "Menu.Edit");
     }
 
@@ -27,7 +28,7 @@ void OnLoadPlugin()
       ezActionMapManager::RegisterActionMap("RmlUiAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("RmlUiAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("RmlUiAssetToolBar", "");
-      ezAssetActions::MapActions("RmlUiAssetToolBar", true);
+      ezAssetActions::MapToolBarActions("RmlUiAssetToolBar", true);
     }
   }
 }

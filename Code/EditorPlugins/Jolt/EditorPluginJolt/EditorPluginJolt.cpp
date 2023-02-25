@@ -32,6 +32,7 @@ void OnLoadPlugin()
       ezStandardMenus::MapActions("JoltCollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezProjectActions::MapActions("JoltCollisionMeshAssetMenuBar");
       ezDocumentActions::MapActions("JoltCollisionMeshAssetMenuBar", "Menu.File", false);
+      ezAssetActions::MapMenuActions("JoltCollisionMeshAssetMenuBar", "Menu.File");
       ezCommandHistoryActions::MapActions("JoltCollisionMeshAssetMenuBar", "Menu.Edit");
     }
 
@@ -40,7 +41,7 @@ void OnLoadPlugin()
       ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("JoltCollisionMeshAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("JoltCollisionMeshAssetToolBar", "");
-      ezAssetActions::MapActions("JoltCollisionMeshAssetToolBar", true);
+      ezAssetActions::MapToolBarActions("JoltCollisionMeshAssetToolBar", true);
       ezCommonAssetActions::MapActions("JoltCollisionMeshAssetToolBar", "", ezCommonAssetUiState::Grid);
     }
   }

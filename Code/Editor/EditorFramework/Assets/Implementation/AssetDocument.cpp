@@ -93,8 +93,9 @@ ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
 {
   ezAssetDocumentInfo* pInfo = static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
 
-  pInfo->m_AssetTransformDependencies.Clear();
-  pInfo->m_RuntimeDependencies.Clear();
+  pInfo->m_TransformDependencies.Clear();
+  pInfo->m_ThumbnailDependencies.Clear();
+  pInfo->m_PackageDependencies.Clear();
   pInfo->m_Outputs.Clear();
   pInfo->m_uiSettingsHash = GetDocumentHash();
   pInfo->m_sAssetsDocumentTypeName.Assign(GetDocumentTypeName());
@@ -102,8 +103,9 @@ ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
   UpdateAssetDocumentInfo(pInfo);
 
   // In case someone added an empty reference.
-  pInfo->m_AssetTransformDependencies.Remove(ezString());
-  pInfo->m_RuntimeDependencies.Remove(ezString());
+  pInfo->m_TransformDependencies.Remove(ezString());
+  pInfo->m_ThumbnailDependencies.Remove(ezString());
+  pInfo->m_PackageDependencies.Remove(ezString());
 
   return ezDocument::InternalSaveDocument(callback);
 }
@@ -158,7 +160,7 @@ void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezA
     if (pMeta->m_CreateFromPrefab.IsValid())
     {
       ezStringBuilder tmp;
-      pInfo->m_AssetTransformDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
+      pInfo->m_TransformDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
     m_DocumentObjectMetaData->EndReadMetaData();
@@ -185,7 +187,8 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     {
       bInsidePrefab = true;
       ezStringBuilder tmp;
-      pInfo->m_RuntimeDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
+      pInfo->m_TransformDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
+      pInfo->m_ThumbnailDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab, tmp));
     }
 
     m_DocumentObjectMetaData->EndReadMetaData();
@@ -199,10 +202,20 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
       continue;
 
-    bool bIsReference = pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr;
-    bool bIsDependency = pProp->GetAttributeByType<ezFileBrowserAttribute>() != nullptr;
+    ezBitflags<ezDependencyFlags> depFlags;
+
+    if (auto pAttr = pProp->GetAttributeByType<ezAssetBrowserAttribute>())
+    {
+      depFlags |= pAttr->GetDependencyFlags();
+    }
+
+    if (auto pAttr = pProp->GetAttributeByType<ezFileBrowserAttribute>())
+    {
+      depFlags |= pAttr->GetDependencyFlags();
+    }
+
     // add all strings that are marked as asset references or file references
-    if (bIsDependency || bIsReference)
+    if (depFlags != 0)
     {
       switch (pProp->GetCategory())
       {
@@ -219,18 +232,23 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                 continue;
             }
 
-            const ezVariant& var = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
+            const ezVariant& value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
 
-            if (var.IsA<ezString>())
+            if (value.IsA<ezString>())
             {
-              if (bIsDependency)
-                pInfo->m_AssetTransformDependencies.Insert(var.Get<ezString>());
-              else
-                pInfo->m_RuntimeDependencies.Insert(var.Get<ezString>());
+              if (depFlags.IsSet(ezDependencyFlags::Transform))
+                pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+
+              if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
+                pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+
+              if (depFlags.IsSet(ezDependencyFlags::Package))
+                pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
             }
           }
         }
         break;
+
         case ezPropertyCategory::Array:
         case ezPropertyCategory::Set:
         {
@@ -250,10 +268,14 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                 {
                   continue;
                 }
-                if (bIsDependency)
-                  pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
-                else
-                  pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
+                if (depFlags.IsSet(ezDependencyFlags::Transform))
+                  pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
+                  pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Package))
+                  pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
               }
             }
             else
@@ -261,15 +283,21 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
               for (ezInt32 i = 0; i < iCount; ++i)
               {
                 ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i);
-                if (bIsDependency)
-                  pInfo->m_AssetTransformDependencies.Insert(value.Get<ezString>());
-                else
-                  pInfo->m_RuntimeDependencies.Insert(value.Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Transform))
+                  pInfo->m_TransformDependencies.Insert(value.Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
+                  pInfo->m_ThumbnailDependencies.Insert(value.Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Package))
+                  pInfo->m_PackageDependencies.Insert(value.Get<ezString>());
               }
             }
           }
         }
         break;
+
         case ezPropertyCategory::Map:
           // #TODO Search for exposed params that reference assets.
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
@@ -287,24 +315,34 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
                 {
                   continue;
                 }
-                if (bIsDependency)
-                  pInfo->m_AssetTransformDependencies.Insert(it.Value().Get<ezString>());
-                else
-                  pInfo->m_RuntimeDependencies.Insert(it.Value().Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Transform))
+                  pInfo->m_TransformDependencies.Insert(it.Value().Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
+                  pInfo->m_ThumbnailDependencies.Insert(it.Value().Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Package))
+                  pInfo->m_PackageDependencies.Insert(it.Value().Get<ezString>());
               }
             }
             else
             {
               for (auto it : varDict)
               {
-                if (bIsDependency)
-                  pInfo->m_AssetTransformDependencies.Insert(it.Value().Get<ezString>());
-                else
-                  pInfo->m_RuntimeDependencies.Insert(it.Value().Get<ezString>());
+                if (depFlags.IsSet(ezDependencyFlags::Transform))
+                  pInfo->m_TransformDependencies.Insert(it.Value().Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Thumbnail))
+                  pInfo->m_ThumbnailDependencies.Insert(it.Value().Get<ezString>());
+
+                if (depFlags.IsSet(ezDependencyFlags::Package))
+                  pInfo->m_PackageDependencies.Insert(it.Value().Get<ezString>());
               }
             }
           }
           break;
+
         default:
           break;
       }
@@ -362,7 +400,8 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   {
     typesSorted.PushBack(pType);
   }
-  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
+  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b)
+    { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
   for (const ezRTTI* pType : typesSorted)
   {
     uiHash = ezHashingUtils::xxHash64(pType->GetTypeName(), std::strlen(pType->GetTypeName()), uiHash);
@@ -406,7 +445,8 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus {
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus
+    {
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
       ezTransformStatus ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
@@ -719,7 +759,8 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
   GetEditorEngineConnection()->SendMessage(&msg);
 
   ezDataBuffer data;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  {
     ezCreateThumbnailMsgToEditor* pThumbnailMsg = ezDynamicCast<ezCreateThumbnailMsgToEditor*>(pMsg);
     data = pThumbnailMsg->m_ThumbnailData;
     return true;
@@ -791,7 +832,8 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezAssetDocument::AddSyncObject(ezEditorEngineSyncObject* pSync) const
 {
-  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
+  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync)
+    { RemoveSyncObject(pSync); });
 
   m_SyncObjects.PushBack(pSync);
   m_AllSyncObjects[pSync->GetGuid()] = pSync;

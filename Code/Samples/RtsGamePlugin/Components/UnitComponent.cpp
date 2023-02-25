@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
   {
     EZ_MEMBER_PROPERTY("MaxHealth", m_uiMaxHealth)->AddAttributes(new ezDefaultValueAttribute(100)),
     EZ_MEMBER_PROPERTY("CurHealth", m_uiCurHealth),
-    EZ_ACCESSOR_PROPERTY("OnDestroyedPrefab", GetOnDestroyedPrefab, SetOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_ACCESSOR_PROPERTY("OnDestroyedPrefab", GetOnDestroyedPrefab, SetOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
 

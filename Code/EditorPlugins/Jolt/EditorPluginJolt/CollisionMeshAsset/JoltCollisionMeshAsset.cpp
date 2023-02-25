@@ -341,7 +341,7 @@ void ezJoltCollisionMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentIn
   {
     // remove the mesh file dependency, if it is not actually used
     const auto& sMeshFile = GetProperties()->m_sMeshFile;
-    pInfo->m_AssetTransformDependencies.Remove(sMeshFile);
+    pInfo->m_TransformDependencies.Remove(sMeshFile);
   }
 }
 

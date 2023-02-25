@@ -1,5 +1,6 @@
 #include <EditorPluginScene/EditorPluginScenePCH.h>
 
+#include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
@@ -114,6 +115,7 @@ void OnLoadPlugin()
     ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::Panels | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
     ezProjectActions::MapActions(szMenuBar);
     ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
+    ezAssetActions::MapMenuActions(szMenuBar, "Menu.File");
     ezDocumentActions::MapToolsActions(szMenuBar, "Menu.Tools");
     ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
     ezTransformGizmoActions::MapMenuActions(szMenuBar, "Menu.Edit");
@@ -159,9 +161,12 @@ void OnLoadPlugin()
   ezQuadViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
   // Visualizers
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
-  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
+  ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxReflectionProbeVisualizerAttribute>(), [](const ezRTTI* pRtti) -> ezVisualizerAdapter*
+    { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").IgnoreResult();

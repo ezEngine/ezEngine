@@ -28,7 +28,5 @@ public:
   ezCollectionAssetDocument(const char* szDocumentPath);
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 };

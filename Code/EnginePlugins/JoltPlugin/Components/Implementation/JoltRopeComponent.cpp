@@ -39,7 +39,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 1, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(0.01f), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+      EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
       EZ_MEMBER_PROPERTY("ContinuousCollisionDetection", m_bCCD),

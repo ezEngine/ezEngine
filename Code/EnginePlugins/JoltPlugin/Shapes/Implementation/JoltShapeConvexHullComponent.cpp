@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltShapeConvexHullComponent, 1, ezComponentMode::Stat
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Convex")),
+    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
 }

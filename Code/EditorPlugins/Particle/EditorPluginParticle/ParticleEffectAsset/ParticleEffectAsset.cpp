@@ -211,7 +211,7 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
         if (pType->m_RenderMode != ezParticleTypeRenderMode::Distortion)
         {
           // remove unused dependencies
-          pInfo->m_AssetTransformDependencies.Remove(pType->m_sDistortionTexture);
+          pInfo->m_TransformDependencies.Remove(pType->m_sDistortionTexture);
         }
       }
 
@@ -220,7 +220,7 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
         if (pType->m_RenderMode != ezParticleTypeRenderMode::Distortion)
         {
           // remove unused dependencies
-          pInfo->m_AssetTransformDependencies.Remove(pType->m_sDistortionTexture);
+          pInfo->m_TransformDependencies.Remove(pType->m_sDistortionTexture);
         }
       }
     }

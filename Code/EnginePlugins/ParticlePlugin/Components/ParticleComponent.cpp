@@ -65,7 +65,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Particle_Effect")),
+    EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Particle_Effect", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("SpawnAtStart", m_bSpawnAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction2, m_OnFinishedAction),
     EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),

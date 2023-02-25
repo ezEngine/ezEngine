@@ -176,11 +176,11 @@ void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
     case ezTextureCubeChannelMappingEnum::RGBA1:
     {
       // remove file dependencies, that aren't used
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile1());
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile2());
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile3());
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile4());
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile5());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile1());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile2());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile3());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile4());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile5());
       break;
     }
 

@@ -336,6 +336,31 @@ private:
   ezUntrackedString m_sConstantValueProperty;
 };
 
+/// \brief Defines how a reference set by ezFileBrowserAttribute is treated.
+struct ezDependencyFlags
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None = 0,
+    Thumbnail = EZ_BIT(0), ///< This reference is a dependency to generating a thumbnail.
+    Transform = EZ_BIT(1), ///< This reference is a dependency to transforming this asset.
+    Package = EZ_BIT(2),   ///< This reference is needs to be packaged as it is used at runtime by this asset.
+    Default = 0
+  };
+
+  struct Bits
+  {
+    StorageType Thumbnail : 1;
+    StorageType Transform : 1;
+    StorageType Package : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezDependencyFlags);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDependencyFlags);
+
 /// \brief A property attribute that indicates that the string property should display a file browsing button.
 ///
 /// Allows to specify the title for the browse dialog and the allowed file types.
@@ -354,21 +379,24 @@ public:
   static constexpr const char* CubemapsLdrAndHdr = "*.dds;*.hdr";
 
   ezFileBrowserAttribute() = default;
-  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter, const char* szCustomAction = nullptr)
+  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter, const char* szCustomAction = nullptr, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
   {
     m_sDialogTitle = szDialogTitle;
     m_sTypeFilter = szTypeFilter;
     m_sCustomAction = szCustomAction;
+    m_DependencyFlags = depencyFlags;
   }
 
   const char* GetDialogTitle() const { return m_sDialogTitle; }
   const char* GetTypeFilter() const { return m_sTypeFilter; }
   const char* GetCustomAction() const { return m_sCustomAction; }
+  ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
 private:
   ezUntrackedString m_sDialogTitle;
   ezUntrackedString m_sTypeFilter;
   ezUntrackedString m_sCustomAction;
+  ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
 /// \brief A property attribute that indicates that the string property is actually an asset reference.
@@ -381,7 +409,11 @@ class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   ezAssetBrowserAttribute() = default;
-  ezAssetBrowserAttribute(const char* szTypeFilter) { SetTypeFilter(szTypeFilter); }
+  ezAssetBrowserAttribute(const char* szTypeFilter, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  {
+    m_DependencyFlags = depencyFlags;
+    SetTypeFilter(szTypeFilter);
+  }
 
   void SetTypeFilter(const char* szTypeFilter)
   {
@@ -389,9 +421,11 @@ public:
     m_sTypeFilter = sTemp;
   }
   const char* GetTypeFilter() const { return m_sTypeFilter; }
+  ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
 private:
   ezUntrackedString m_sTypeFilter;
+  ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
 /// \brief Can be used on integer properties to display them as enums. The valid enum values and their names may change at runtime.

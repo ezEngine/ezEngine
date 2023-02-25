@@ -92,7 +92,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezProjectActions::MapActions("SettingsTabMenuBar");
 
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar").IgnoreResult();
-    ezAssetActions::MapActions("AssetBrowserToolBar", false);
+    ezAssetActions::MapToolBarActions("AssetBrowserToolBar", false);
 
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtFilePropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtAssetPropertyWidget(); });

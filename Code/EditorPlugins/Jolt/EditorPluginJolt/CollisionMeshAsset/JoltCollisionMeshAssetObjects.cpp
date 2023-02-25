@@ -9,7 +9,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezJoltSurfaceResourceSlot, ezNoBase, 1, ezRTTIDef
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("Exclude", m_bExclude),
   }
   EZ_END_PROPERTIES;
@@ -45,7 +45,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 1, ezRTTIDef
     EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes)),
     EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
-    EZ_MEMBER_PROPERTY("Surface", m_sConvexMeshSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_MEMBER_PROPERTY("Surface", m_sConvexMeshSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
 }
