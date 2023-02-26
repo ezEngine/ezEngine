@@ -318,6 +318,7 @@ public:
 
   ///@}
 
+  void InvalidateAssetsWithTransformState(ezAssetInfo::TransformState state);
 
 public:
   ezEvent<const ezAssetCuratorEvent&> m_Events;
@@ -360,8 +361,7 @@ private:
   /// \name Asset Hashing and Status Updates (AssetUpdates.cpp)
   ///@{
 
-  ezAssetInfo::TransformState HashAsset(
-    ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies, ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
+  ezAssetInfo::TransformState HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies, ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
   bool AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
 
   ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
@@ -377,6 +377,7 @@ private:
 
   void RemoveAssetTransformState(const ezUuid& assetGuid);
   void InvalidateAssetTransformState(const ezUuid& assetGuid);
+
   ezAssetInfo::TransformState UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
   void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
   void UpdateAssetTransformLog(const ezUuid& assetGuid, ezDynamicArray<ezLogEntry>& logEntries);

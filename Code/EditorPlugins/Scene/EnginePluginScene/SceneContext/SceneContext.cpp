@@ -797,8 +797,22 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
   }
 }
 
-bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
+  if (!m_Context.m_UnknownTypes.IsEmpty())
+  {
+    ezStringBuilder s;
+
+    s.Append("Scene / prefab export failed: ");
+
+    for (const ezString& sType : m_Context.m_UnknownTypes)
+    {
+      s.AppendFormat("'{}' is unknown. ", sType);
+    }
+
+    return ezStatus(s.GetView());
+  }
+
   // make sure the world has been updated at least once, otherwise components aren't initialized
   // and messages for geometry extraction won't be delivered
   // this is necessary for the scene export modifiers to work
@@ -842,7 +856,10 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
   }
 
   // do the actual file writing
-  return file.Close().Succeeded();
+  if (file.Close().Failed())
+    return ezStatus(ezFmt("Writing to '{}' failed.", pMsg->m_sOutputFile));
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const
@@ -922,7 +939,8 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+    { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
 
   file << exposedParams.GetCount();
 

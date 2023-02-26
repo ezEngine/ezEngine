@@ -62,7 +62,7 @@ protected:
 
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual bool ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
+  virtual ezStatus ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
   void ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const;
 
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;

@@ -233,7 +233,8 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).IgnoreResult();
 
   ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
-  waitDialog.m_OnIdle = [this]() -> bool {
+  waitDialog.m_OnIdle = [this]() -> bool
+  {
     if (m_pRemoteProcess->IsConnected())
       return false;
 
@@ -325,7 +326,8 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
 
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  {
     ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
     if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
     {
@@ -398,16 +400,18 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   {
     docs.PushBack(it.Value());
   }
-  docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b) {
+  docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b)
+    {
     if (a->IsMainDocument() != b->IsMainDocument())
       return a->IsMainDocument();
-    return a < b;
-  });
+    return a < b; });
 
   for (ezAssetDocument* pDoc : docs)
   {
     SendDocumentOpenMessage(pDoc, true);
   }
+
+  ezAssetCurator::GetSingleton()->InvalidateAssetsWithTransformState(ezAssetInfo::TransformState::TransformError);
 
   ezLog::Success("Engine Process is running");
 

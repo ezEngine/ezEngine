@@ -214,6 +214,8 @@ public:
   /// \brief Instructs the engine to reload its resources
   void ReloadEngineResources();
 
+  void RestartEngineProcessIfPluginsChanged();
+
 Q_SIGNALS:
   void IdleEvent();
 
@@ -251,7 +253,6 @@ private:
   void LoadProjectPreferences();
   void StoreEnginePluginModificationTimes();
   bool CheckForEnginePluginModifications();
-  void RestartEngineProcessIfPluginsChanged();
   void SaveAllOpenDocuments();
 
   void ReadTagRegistry();

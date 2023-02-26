@@ -333,6 +333,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEditor, 1, ezRTTIDefaultAll
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("OutputSuccess", m_bOutputSuccess),
+    EZ_MEMBER_PROPERTY("FailureMsg", m_sFailureMsg),
   }
   EZ_END_PROPERTIES;
 }

@@ -79,7 +79,7 @@ inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFileStatus& re
 void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 {
   // Don't update the existance state, it is handled via ezAssetCurator::SetAssetExistanceState
-  //m_ExistanceState = rhs->m_ExistanceState;
+  // m_ExistanceState = rhs->m_ExistanceState;
   m_TransformState = rhs->m_TransformState;
   m_pDocumentTypeDescriptor = rhs->m_pDocumentTypeDescriptor;
   m_sAbsolutePath = std::move(rhs->m_sAbsolutePath);
@@ -152,7 +152,8 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
   m_pWatcher = EZ_DEFAULT_NEW(ezAssetWatcher, m_FileSystemConfig);
   m_pAssetTableWriter = EZ_DEFAULT_NEW(ezAssetTableWriter, m_FileSystemConfig);
 
-  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "AssetCuratorUpdateCache", [this]() {
+  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "AssetCuratorUpdateCache", [this]()
+    {
     EZ_LOCK(m_CuratorMutex);
     LoadCaches();
 
@@ -638,7 +639,8 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
   // TODO: This is the old slow code path that will find the longest substring match.
   // Should be removed or folded into FindBestMatchForFile once it's surely not needed anymore.
 
-  auto FindAsset = [this](ezStringView sPathView) -> ezAssetInfo* {
+  auto FindAsset = [this](ezStringView sPathView) -> ezAssetInfo*
+  {
     // try to find the 'exact' relative path
     // otherwise find the shortest possible path
     ezUInt32 uiMinLength = 0xFFFFFFFF;
@@ -803,6 +805,18 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
 ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_uiAssetHash, ezUInt64& out_uiThumbHash, bool bForce)
 {
   return ezAssetCurator::UpdateAssetTransformState(assetGuid, out_uiAssetHash, out_uiThumbHash, bForce);
+}
+
+void ezAssetCurator::InvalidateAssetsWithTransformState(ezAssetInfo::TransformState state)
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezHashSet<ezUuid> allWithState = m_TransformState[state];
+
+  for (const auto& asset : allWithState)
+  {
+    InvalidateAssetTransformState(asset);
+  }
 }
 
 ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
@@ -1006,7 +1020,8 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& ref_sFile, ezArra
   {
     EZ_LOCK(m_CuratorMutex);
 
-    auto SearchFile = [this](ezStringBuilder& ref_sName) -> bool {
+    auto SearchFile = [this](ezStringBuilder& ref_sName) -> bool
+    {
       for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
       {
         if (it.Value().m_Status != ezFileStatus::Status::Valid)
@@ -1057,7 +1072,8 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool
   ezSet<ezUuid> todoList;
   todoList.Insert(assetGuid);
 
-  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset) {
+  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset)
+  {
     auto it = inverseTracker.Find(sAsset);
     if (it.IsValid())
     {

@@ -16,7 +16,7 @@ ezInternal::NewInstance<void> ezRttiConverterReader::CreateObjectFromNode(const 
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
   if (pRtti == nullptr)
   {
-    ezLog::Error("RTTI type '{0}' is unknown, CreateObjectFromNode failed.", pNode->GetType());
+    m_pContext->OnUnknownTypeError(pNode->GetType());
     return nullptr;
   }
 

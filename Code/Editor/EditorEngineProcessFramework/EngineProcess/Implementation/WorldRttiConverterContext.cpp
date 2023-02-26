@@ -12,13 +12,16 @@ void ezWorldRttiConverterContext::Clear()
 
   m_OtherPickingMap.Clear();
   m_ComponentPickingMap.Clear();
-}
 
+  m_UnknownTypes.Clear();
+}
 
 void ezWorldRttiConverterContext::DeleteExistingObjects()
 {
   if (m_pWorld == nullptr)
     return;
+
+  m_UnknownTypes.Clear();
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
@@ -266,4 +269,11 @@ ezUuid ezWorldRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const voi
     return m_ComponentMap.GetGuid(pComponent->GetHandle());
   }
   return ezRttiConverterContext::GetObjectGUID(pRtti, pObject);
+}
+
+void ezWorldRttiConverterContext::OnUnknownTypeError(ezStringView sTypeName)
+{
+  ezRttiConverterContext::OnUnknownTypeError(sTypeName);
+
+  m_UnknownTypes.Insert(sTypeName);
 }

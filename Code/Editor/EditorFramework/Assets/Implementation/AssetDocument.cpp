@@ -271,7 +271,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
         }
         break;
         case ezPropertyCategory::Map:
-          //#TODO Search for exposed params that reference assets.
+          // #TODO Search for exposed params that reference assets.
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
           {
             ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
@@ -362,7 +362,8 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   {
     typesSorted.PushBack(pType);
   }
-  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
+  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b)
+    { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
   for (const ezRTTI* pType : typesSorted)
   {
     uiHash = ezHashingUtils::xxHash64(pType->GetTypeName(), std::strlen(pType->GetTypeName()), uiHash);
@@ -406,7 +407,8 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus {
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezTransformStatus
+    {
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), szOutputTag, pAssetProfile);
       ezTransformStatus ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
@@ -657,10 +659,11 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
 
   GetEditorEngineConnection()->SendMessage(&msg);
 
-  bool bSuccess = false;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg) -> bool {
+  ezStatus status(EZ_FAILURE);
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&status](ezProcessMessage* pMsg) -> bool
+  {
     ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
-    bSuccess = pMsg2->m_bOutputSuccess;
+    status = ezStatus(pMsg2->m_bOutputSuccess ? EZ_SUCCESS : EZ_FAILURE, pMsg2->m_sFailureMsg);
     return true;
   };
 
@@ -670,9 +673,9 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   }
   else
   {
-    if (!bSuccess)
+    if (status.Failed())
     {
-      return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" failed.", GetDocumentTypeName(), msg.m_sOutputFile));
+      return status;
     }
 
     ezLog::Success("{0} \"{1}\" has been exported.", GetDocumentTypeName(), msg.m_sOutputFile);
@@ -719,7 +722,8 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
   GetEditorEngineConnection()->SendMessage(&msg);
 
   ezDataBuffer data;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  {
     ezCreateThumbnailMsgToEditor* pThumbnailMsg = ezDynamicCast<ezCreateThumbnailMsgToEditor*>(pMsg);
     data = pThumbnailMsg->m_ThumbnailData;
     return true;
@@ -791,7 +795,8 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezAssetDocument::AddSyncObject(ezEditorEngineSyncObject* pSync) const
 {
-  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
+  pSync->Configure(GetGuid(), [this](ezEditorEngineSyncObject* pSync)
+    { RemoveSyncObject(pSync); });
 
   m_SyncObjects.PushBack(pSync);
   m_AllSyncObjects[pSync->GetGuid()] = pSync;

@@ -61,6 +61,8 @@ public:
   {
     if (const ezProcessAssetMsg* pMsg = ezDynamicCast<const ezProcessAssetMsg*>(e.m_pMessage))
     {
+      ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged();
+
       ezProcessAssetResponseMsg msg;
       {
         ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
