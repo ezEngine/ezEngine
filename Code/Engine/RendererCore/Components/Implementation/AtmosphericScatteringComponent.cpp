@@ -87,13 +87,11 @@ void ezAtmosphericScatteringComponent::OnMsgExtractRenderData(ezMsgExtractRender
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCamera()->IsOrthographic())
     return;
 
-
-  ezVec3 sunDirection = GetOwner()->GetGlobalTransform().m_qRotation * ezVec3(-1, 0, 0);
+  UpdateMaterials();
 
   ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
   {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_GlobalTransform.m_vPosition.SetZero(); // skybox should always be at the origin
+    pRenderData->m_GlobalTransform = ezTransform::IdentityTransform();
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_hMaterial = m_hMaterial;
@@ -127,11 +125,14 @@ void ezAtmosphericScatteringComponent::OnActivated()
   UpdateMaterials();
 }
 
-void ezAtmosphericScatteringComponent::UpdateMaterials()
+void ezAtmosphericScatteringComponent::UpdateMaterials() const
 {
   if (m_hMaterial.IsValid())
   {
     ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+
+    ezVec3 sunDirection = GetOwner()->GetGlobalTransform().m_qRotation * ezVec3(-1, 0, 0);
+    pMaterial->SetParameter("SunDir", sunDirection);
 
     pMaterial->PreserveCurrentDesc();
   }

@@ -37,7 +37,7 @@ public:
 
 private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-  void UpdateMaterials();
+  void UpdateMaterials() const;
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;

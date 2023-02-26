@@ -15,14 +15,7 @@ VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 Permutation BLEND_MODE;
 
-float MaskThreshold @Default(0.25);
-float ExposureBias;
-bool InverseTonemap;
-bool UseFog @Default(true);
-float VirtualDistance @Default(1000.0f);
-
-TextureCube CubeMap;
-Color BaseColor @Default(Color(1.0, 1.0, 1.0));
+float3 SunDir @Default(float3(1.0f, 0.0f, 0.0f));
 
 [RENDERSTATE]
 
@@ -36,12 +29,7 @@ DepthWrite = false
 
 CONSTANT_BUFFER(ezMaterialConstants, 1)
 {
-  COLOR4F(BaseColor);
-  FLOAT1(MaskThreshold);
-  FLOAT1(ExposureBias);
-  BOOL1(InverseTonemap);
-  BOOL1(UseFog);
-  FLOAT1(VirtualDistance);
+  FLOAT3(SunDir);
 };
 
 [VERTEXSHADER]
@@ -62,7 +50,7 @@ VS_OUT main(VS_IN Input)
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
 
   Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
-  Output.ViewDirection = mul(transpose(objectToWorld), mul(GetCameraToWorldMatrix(), dir)).xyz;
+  Output.ViewDirection = mul(GetCameraToWorldMatrix(), dir).xyz;
 
   return Output;
 }
@@ -80,12 +68,12 @@ void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 
 [PIXELSHADER]
 
+#include <Shaders/Materials/AtmosphericScattering.h>
+
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
 
 #include <Shaders/Materials/MaterialPixelShader.h>
-
-TextureCube CubeMap;
-SamplerState CubeMap_AutoSampler;
+#include <Shaders/Materials/AtmosphericScattering.h>
 
 
 float3 GetNormal()
@@ -95,24 +83,34 @@ float3 GetNormal()
 
 float3 GetDiffuseColor()
 {
-  float3 color = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).rgb;
-
-  color *= BaseColor.rgb;
-  float weight = exp2(ExposureBias);
-
-  if (InverseTonemap)
-  {
-    float luminance = GetLuminance(color);
-    weight *= rcp(max(1.0f - luminance, 0.001f));
-  }
-
-  color *= weight;
-
-  if (UseFog)
-  {
-    float3 worldPos = normalize(G.Input.ViewDirection) * VirtualDistance;
-    color = ApplyFog(color, worldPos);
-  }
+  float3 camera_position = float3(0.0, 0.0, PLANET_RADIUS + 300.0);
+  
+  float3 viewDir = normalize(G.Input.ViewDirection);
+  
+  float4 scene = render_scene(camera_position, viewDir, SunDir);
+  
+  float3 color = calculate_scattering(
+	camera_position,				// the position of the camera
+	float3(viewDir.x, viewDir.y, viewDir.z), 			            // the camera vector (ray direction of this pixel)
+	scene.w, 						// max dist, essentially the scene depth
+	scene.xyz,						// scene color, the color of the current pixel being rendered
+	SunDir,						    // light direction
+	(40.0).xxx,						// light intensity, 40 looks nice
+	PLANET_POS,						// position of the planet
+	PLANET_RADIUS,                  // radius of the planet in meters
+	ATMOS_RADIUS,                   // radius of the atmosphere in meters
+	RAY_BETA,						// Rayleigh scattering coefficient
+	MIE_BETA,                       // Mie scattering coefficient
+	ABSORPTION_BETA,                // Absorbtion coefficient
+	AMBIENT_BETA,					// ambient scattering, turned off for now. This causes the air to glow a bit when no light reaches it
+	ATMOS_G,                        // Mie preferred scattering direction
+	HEIGHT_RAY,                     // Rayleigh scale height
+	HEIGHT_MIE,                     // Mie scale height
+	HEIGHT_ABSORPTION,				// the height at which the most absorption happens
+	ABSORPTION_FALLOFF,				// how fast the absorption falls off from the absorption height 
+	PRIMARY_STEPS, 					// steps in the ray direction 
+	LIGHT_STEPS 					// steps in the light direction
+  );
 
   return color;
 }
@@ -129,11 +127,5 @@ float GetRoughness()
 
 float GetOpacity()
 {
-  float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(G.Input.ViewDirection)).a * BaseColor.a;
-
-  #if BLEND_MODE == BLEND_MODE_MASKED
-    return opacity - MaskThreshold;
-  #else
-    return opacity;
-  #endif
+  return 1.0f;
 }
