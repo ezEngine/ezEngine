@@ -1,0 +1,120 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+TWO_SIDED = TRUE
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+CAMERA_MODE
+SHADING_QUALITY
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE;
+
+float3 SunDir @Default(float3(1.0f, 0.0f, 0.0f));
+
+Texture3D NoiseMap;
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+DepthWrite = false
+
+[SHADER]
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  FLOAT3(SunDir);
+};
+
+[VERTEXSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT Output = FillVertexData(Input);
+  
+  float2 ScreenPos = sign(Input.Position.xy);
+  float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));
+  dir.w = 0.0;
+    
+  ezPerInstanceData data = GetInstanceData();
+  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
+
+  Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
+  Output.ViewDirection = mul(GetCameraToWorldMatrix(), dir).xyz;
+
+  return Output;
+}
+
+[GEOMETRYSHADER]
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.ViewDirection = input.ViewDirection;
+}
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+Texture3D NoiseMap;
+SamplerState NoiseMap_AutoSampler;
+
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+#include <Shaders/Materials/CloudHelpers.h>
+
+float4 TraceClouds()
+{
+  float3 camera_position = float3(0.0, 0.0, PLANET_RADIUS + 300.0);
+  
+  float3 viewDir = normalize(G.Input.ViewDirection);
+  
+  float2 cloudStartDistance = ray_sphere_intersect(camera_position, viewDir, PLANET_RADIUS + CLOUD_START);
+  
+  float3 cloudStartPoint = camera_position + viewDir * cloudStartDistance.y;
+  
+  float coverage = cloudCoverage(cloudStartPoint.xy, 0.20f);
+  
+  return float4(1.0f, 0.0f, 0.0f, coverage);
+}
+
+
+float3 GetNormal()
+{
+  return float3(0.0f, 0.0f, 1.0f);
+}
+
+float3 GetDiffuseColor()
+{
+	return float3(TraceClouds().w, 0.0f, 0.0f);
+}
+
+float3 GetSpecularColor()
+{
+  return 0.0f;
+}
+
+float GetRoughness()
+{
+  return 1.0f;
+}
+
+float GetOpacity()
+{
+  return TraceClouds().w;
+}
