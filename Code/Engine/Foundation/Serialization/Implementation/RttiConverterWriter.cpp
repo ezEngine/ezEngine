@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Types/ScopeExit.h>
@@ -10,6 +11,11 @@ void ezRttiConverterContext::Clear()
   m_GuidToObject.Clear();
   m_ObjectToGuid.Clear();
   m_QueuedObjects.Clear();
+}
+
+void ezRttiConverterContext::OnUnknownTypeError(ezStringView sTypeName)
+{
+  ezLog::Error("RTTI type '{0}' is unknown, CreateObjectFromNode failed.", sTypeName);
 }
 
 ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const

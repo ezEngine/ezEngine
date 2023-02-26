@@ -271,7 +271,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
         }
         break;
         case ezPropertyCategory::Map:
-          //#TODO Search for exposed params that reference assets.
+          // #TODO Search for exposed params that reference assets.
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String)
           {
             ezVariant value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
@@ -657,10 +657,10 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
 
   GetEditorEngineConnection()->SendMessage(&msg);
 
-  bool bSuccess = false;
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&bSuccess](ezProcessMessage* pMsg) -> bool {
+  ezStatus status(EZ_FAILURE);
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&status](ezProcessMessage* pMsg) -> bool {
     ezExportDocumentMsgToEditor* pMsg2 = ezDynamicCast<ezExportDocumentMsgToEditor*>(pMsg);
-    bSuccess = pMsg2->m_bOutputSuccess;
+    status = ezStatus(pMsg2->m_bOutputSuccess ? EZ_SUCCESS : EZ_FAILURE, pMsg2->m_sFailureMsg);
     return true;
   };
 
@@ -670,9 +670,9 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
   }
   else
   {
-    if (!bSuccess)
+    if (status.Failed())
     {
-      return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" failed.", GetDocumentTypeName(), msg.m_sOutputFile));
+      return status;
     }
 
     ezLog::Success("{0} \"{1}\" has been exported.", GetDocumentTypeName(), msg.m_sOutputFile);

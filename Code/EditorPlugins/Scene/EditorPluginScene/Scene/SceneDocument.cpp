@@ -1436,6 +1436,11 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 
 ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
 {
+  if (GetUnknownObjectTypeInstances() > 0)
+  {
+    return ezTransformStatus("Can't export scene/prefab when it contains unknown object types.");
+  }
+
   // #TODO export layers
   auto saveres = SaveDocument();
 

@@ -79,7 +79,7 @@ inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFileStatus& re
 void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 {
   // Don't update the existance state, it is handled via ezAssetCurator::SetAssetExistanceState
-  //m_ExistanceState = rhs->m_ExistanceState;
+  // m_ExistanceState = rhs->m_ExistanceState;
   m_TransformState = rhs->m_TransformState;
   m_pDocumentTypeDescriptor = rhs->m_pDocumentTypeDescriptor;
   m_sAbsolutePath = std::move(rhs->m_sAbsolutePath);
@@ -803,6 +803,18 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
 ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_uiAssetHash, ezUInt64& out_uiThumbHash, bool bForce)
 {
   return ezAssetCurator::UpdateAssetTransformState(assetGuid, out_uiAssetHash, out_uiThumbHash, bForce);
+}
+
+void ezAssetCurator::InvalidateAssetsWithTransformState(ezAssetInfo::TransformState state)
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezHashSet<ezUuid> allWithState = m_TransformState[state];
+
+  for (const auto& asset : allWithState)
+  {
+    InvalidateAssetTransformState(asset);
+  }
 }
 
 ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)

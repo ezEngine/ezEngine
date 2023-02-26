@@ -203,7 +203,11 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     const ezExportDocumentMsgToEngine* pMsg2 = static_cast<const ezExportDocumentMsgToEngine*>(pMsg);
     ezExportDocumentMsgToEditor ret;
     ret.m_DocumentGuid = pMsg->m_DocumentGuid;
-    ret.m_bOutputSuccess = ExportDocument(pMsg2);
+
+    ezStatus res = ExportDocument(pMsg2);
+    ret.m_bOutputSuccess = res.Succeeded();
+    ret.m_sFailureMsg = res.m_sMessage;
+
     if (!ret.m_bOutputSuccess)
     {
       ezLog::Error("Could not export to file '{0}'.", pMsg2->m_sOutputFile);
@@ -496,10 +500,9 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   }
 }
 
-bool ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+ezStatus ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
-  ezLog::Error("Export document not implemented for '{0}'", GetDynamicRTTI()->GetTypeName());
-  return false;
+  return ezStatus(ezFmt("Export document not implemented for '{0}'", GetDynamicRTTI()->GetTypeName()));
 }
 
 

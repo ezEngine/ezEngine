@@ -401,13 +401,14 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b) {
     if (a->IsMainDocument() != b->IsMainDocument())
       return a->IsMainDocument();
-    return a < b;
-  });
+    return a < b; });
 
   for (ezAssetDocument* pDoc : docs)
   {
     SendDocumentOpenMessage(pDoc, true);
   }
+
+  ezAssetCurator::GetSingleton()->InvalidateAssetsWithTransformState(ezAssetInfo::TransformState::TransformError);
 
   ezLog::Success("Engine Process is running");
 
