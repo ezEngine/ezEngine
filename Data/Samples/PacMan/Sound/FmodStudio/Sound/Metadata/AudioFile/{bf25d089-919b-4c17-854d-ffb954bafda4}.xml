@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="AudioFile" id="{bf25d089-919b-4c17-854d-ffb954bafda4}">
+		<property name="assetPath">
+			<value>336933__the-sacha-rush__coin4.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.14018140589569161</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{29052a86-4978-4bf0-bda6-df30aa0b1f9b}</destination>
+		</relationship>
+	</object>
+</objects>
