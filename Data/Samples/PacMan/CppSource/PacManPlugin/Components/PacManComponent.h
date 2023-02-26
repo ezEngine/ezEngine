@@ -3,8 +3,8 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
-#include <PacManPlugin/PacManPluginDLL.h>
 #include <GameEngine/Gameplay/InputComponent.h>
+#include <PacManPlugin/PacManPluginDLL.h>
 
 using PacManComponentManager = ezComponentManagerSimple<class PacManComponent, ezComponentUpdateType::WhenSimulating>;
 
