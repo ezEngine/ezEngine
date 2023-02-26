@@ -986,6 +986,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
     ezHybridArray<ezAbstractProperty*, 16> Textures2D;
     ezHybridArray<ezAbstractProperty*, 16> TexturesCube;
+    ezHybridArray<ezAbstractProperty*, 16> Textures3D;
     ezHybridArray<ezAbstractProperty*, 16> Permutations;
     ezHybridArray<ezAbstractProperty*, 16> Constants;
 
@@ -1019,6 +1020,10 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
         else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture Cube"))
         {
           TexturesCube.PushBack(pProp);
+        }
+        else if(ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture 3D"))
+        {
+          Textures3D.PushBack(pProp);
         }
         else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation"))
         {
@@ -1084,6 +1089,21 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
       for (auto pProp : TexturesCube)
       {
         const char* szName = pProp->GetPropertyName();
+        sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
+
+        stream << szName;
+        stream << sValue;
+      }
+    }
+
+    // write out 3d textures
+    {
+      const ezUInt16 uiTextures = Textures3D.GetCount();
+      stream << uiTextures;
+
+      for(ezUInt16 p = 0; p < uiTextures; ++p)
+      {
+        const char* szName = Textures3D[p]->GetPropertyName();
         sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
         stream << szName;

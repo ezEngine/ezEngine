@@ -38,6 +38,14 @@ struct ezMaterialResourceDescriptor
     EZ_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
+  struct Texture3DBinding
+  {
+    ezHashedString m_Name;
+    ezTexture3DResourceHandle m_Value;
+
+    EZ_FORCE_INLINE bool operator==(const Texture2DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
+  };
+
   void Clear();
 
   bool operator==(const ezMaterialResourceDescriptor& other) const;
@@ -53,6 +61,7 @@ struct ezMaterialResourceDescriptor
   ezDynamicArray<Texture2DBinding> m_Texture2DBindings;
   ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings;
   ezRenderData::Category m_RenderDataCategory;
+  ezDynamicArray<Texture3DBinding> m_Texture3DBindings;
 };
 
 class EZ_RENDERERCORE_DLL ezMaterialResource final : public ezResource
@@ -79,6 +88,10 @@ public:
   void SetTextureCubeBinding(const ezHashedString& sName, const ezTextureCubeResourceHandle& value);
   void SetTextureCubeBinding(const char* szName, const ezTextureCubeResourceHandle& value);
   ezTextureCubeResourceHandle GetTextureCubeBinding(const ezTempHashedString& sName);
+  
+  void SetTexture3DBinding(const ezHashedString& sName, const ezTexture3DResourceHandle& value);
+  void SetTexture3DBinding(const char* szName, const ezTexture3DResourceHandle& value);
+  ezTexture3DResourceHandle GetTexture3DBinding(const ezTempHashedString& sName);
 
   ezRenderData::Category GetRenderDataCategory();
 
@@ -139,6 +152,7 @@ private:
     ezHashTable<ezHashedString, ezVariant> m_Parameters;
     ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_Texture2DBindings;
     ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
+	ezHashTable<ezHashedString, ezTexture3DResourceHandle> m_Texture3DBindings;
     ezRenderData::Category m_RenderDataCategory;
 
     void Reset();

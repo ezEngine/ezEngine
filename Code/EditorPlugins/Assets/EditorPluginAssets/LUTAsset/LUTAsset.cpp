@@ -30,51 +30,70 @@ ezTransformStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTarge
   ezFileStats Stats;
   bool bStat = ezOSFile::GetFileStats(props->GetAbsoluteInputFilePath(), Stats).Succeeded();
 
+  ezStringBuilder inputPath = props->GetAbsoluteInputFilePath();
+
   ezFileReader cubeFile;
-  if (!bStat || cubeFile.Open(props->GetAbsoluteInputFilePath()).Failed())
+  if (!bStat || cubeFile.Open(inputPath).Failed())
   {
-    return ezStatus(ezFmt("Couldn't open CUBE file '{0}'.", props->GetAbsoluteInputFilePath()));
+    return ezStatus(ezFmt("Couldn't open CUBE file '{0}'.", inputPath));
   }
-
-  ezAdobeCUBEReader cubeReader;
-  auto parseRes = cubeReader.ParseFile(cubeFile);
-  if (parseRes.Failed())
-    return parseRes;
-
-  const ezUInt32 lutSize = cubeReader.GetLUTSize();
-
-  // Build an ezImage from the data
-  ezImageHeader imgHeader;
-  imgHeader.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
-  imgHeader.SetWidth(lutSize);
-  imgHeader.SetHeight(lutSize);
-  imgHeader.SetDepth(lutSize);
 
   ezImage img;
-  img.ResetAndAlloc(imgHeader);
-
-  if (!img.IsValid())
+  bool isDDS = false;
+  if (inputPath.GetFileExtension() == "cube")
   {
-    return ezStatus("Allocated ezImage for LUT data is not valid.");
-  }
+    ezAdobeCUBEReader cubeReader;
+    auto parseRes = cubeReader.ParseFile(cubeFile);
+    if (parseRes.Failed())
+      return parseRes;
 
+    const ezUInt32 lutSize = cubeReader.GetLUTSize();
 
+    // Build an ezImage from the data
+    ezImageHeader imgHeader;
+    imgHeader.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
+    imgHeader.SetWidth(lutSize);
+    imgHeader.SetHeight(lutSize);
+    imgHeader.SetDepth(lutSize);
 
-  for (ezUInt32 b = 0; b < lutSize; ++b)
-  {
-    for (ezUInt32 g = 0; g < lutSize; ++g)
+    img.ResetAndAlloc(imgHeader);
+
+    if (!img.IsValid())
     {
-      for (ezUInt32 r = 0; r < lutSize; ++r)
+      return ezStatus("Allocated ezImage for LUT data is not valid.");
+    }
+
+
+
+    for (ezUInt32 b = 0; b < lutSize; ++b)
+    {
+      for (ezUInt32 g = 0; g < lutSize; ++g)
       {
-        const ezVec3 val = cubeReader.GetLUTEntry(r, g, b);
+        for (ezUInt32 r = 0; r < lutSize; ++r)
+        {
+          const ezVec3 val = cubeReader.GetLUTEntry(r, g, b);
 
-        ezColor col(val.x, val.y, val.z);
-        ezColorGammaUB colUb(col);
+          ezColor col(val.x, val.y, val.z);
+          ezColorGammaUB colUb(col);
 
-        ezColorGammaUB* pPixel = img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, r, g, b);
+          ezColorGammaUB* pPixel = img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, r, g, b);
 
-        *pPixel = colUb;
+          *pPixel = colUb;
+        }
       }
+    }
+  }
+  else
+  {
+    isDDS = true;
+    if(img.LoadFrom(inputPath).Failed())
+    {
+      return ezStatus(ezFmt("Failed to load dds file {0}", inputPath));
+    }
+
+    if(img.GetDepth() == 1)
+    {
+      return ezStatus(ezFmt("File {0} is not a 3D texture", inputPath));
     }
   }
 
@@ -83,10 +102,20 @@ ezTransformStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTarge
   EZ_SUCCEED_OR_RETURN(AssetHeader.Write(file));
 
   ezTexFormat texFormat;
-  texFormat.m_bSRGB = true;
-  texFormat.m_AddressModeU = ezImageAddressMode::Clamp;
-  texFormat.m_AddressModeV = ezImageAddressMode::Clamp;
-  texFormat.m_AddressModeW = ezImageAddressMode::Clamp;
+  if(isDDS)
+  {
+    texFormat.m_bSRGB = false;
+    texFormat.m_AddressModeU = ezImageAddressMode::Repeat;
+    texFormat.m_AddressModeV = ezImageAddressMode::Repeat;
+    texFormat.m_AddressModeW = ezImageAddressMode::Repeat;
+  }
+  else
+  {
+    texFormat.m_bSRGB = true;
+    texFormat.m_AddressModeU = ezImageAddressMode::Clamp;
+    texFormat.m_AddressModeV = ezImageAddressMode::Clamp;
+    texFormat.m_AddressModeW = ezImageAddressMode::Clamp;
+  }
   texFormat.m_TextureFilter = ezTextureFilterSetting::FixedBilinear;
 
   texFormat.WriteTextureHeader(file);
@@ -109,6 +138,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezLUTAssetDocumentGenerator::ezLUTAssetDocumentGenerator()
 {
   AddSupportedFileType("cube");
+  AddSupportedFileType("dds");
 }
 
 ezLUTAssetDocumentGenerator::~ezLUTAssetDocumentGenerator() = default;
