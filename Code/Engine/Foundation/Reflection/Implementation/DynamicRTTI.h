@@ -9,28 +9,38 @@
 /// This macro extends a class, such that it is now able to return its own type information via GetDynamicRTTI(),
 /// which is a virtual function, that is reimplemented on each type. A class needs to be derived from ezReflectedClass
 /// (at least indirectly) for this.
-#define EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE)                      \
-  EZ_ALLOW_PRIVATE_PROPERTIES(SELF);                                              \
-                                                                                  \
-public:                                                                           \
-  typedef BASE_TYPE SUPER;                                                        \
-  EZ_ALWAYS_INLINE static const ezRTTI* GetStaticRTTI() { return &SELF::s_RTTI; } \
-                                                                                  \
-private:                                                                          \
-  static ezRTTI s_RTTI;                                                           \
+#define EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE) \
+  EZ_ALLOW_PRIVATE_PROPERTIES(SELF);                         \
+                                                             \
+public:                                                      \
+  using OWNTYPE = SELF;                                      \
+  using SUPER = BASE_TYPE;                                   \
+  EZ_ALWAYS_INLINE static const ezRTTI* GetStaticRTTI()      \
+  {                                                          \
+    return &SELF::s_RTTI;                                    \
+  }                                                          \
+                                                             \
+private:                                                     \
+  static ezRTTI s_RTTI;                                      \
   EZ_REFLECTION_DEBUG_CODE
 
 
-#define EZ_ADD_DYNAMIC_REFLECTION(SELF, BASE_TYPE)     \
-  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE) \
-public:                                                \
-  virtual const ezRTTI* GetDynamicRTTI() const override { return &SELF::s_RTTI; }
+#define EZ_ADD_DYNAMIC_REFLECTION(SELF, BASE_TYPE)      \
+  EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE)  \
+public:                                                 \
+  virtual const ezRTTI* GetDynamicRTTI() const override \
+  {                                                     \
+    return &SELF::s_RTTI;                               \
+  }
 
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_COMPILER_MSVC)
 
-#  define EZ_REFLECTION_DEBUG_CODE \
-    static const ezRTTI* ReflectionDebug_GetParentType() { return __super::GetStaticRTTI(); }
+#  define EZ_REFLECTION_DEBUG_CODE                       \
+    static const ezRTTI* ReflectionDebug_GetParentType() \
+    {                                                    \
+      return __super::GetStaticRTTI();                   \
+    }
 
 #  define EZ_REFLECTION_DEBUG_GETPARENTFUNC &OwnType::ReflectionDebug_GetParentType
 

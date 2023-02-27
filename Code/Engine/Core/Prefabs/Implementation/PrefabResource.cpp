@@ -47,6 +47,24 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& ref_world, const ezTransform& 
   }
 }
 
+ezPrefabResource::InstantiateResult ezPrefabResource::InstantiatePrefab(const ezPrefabResourceHandle& hPrefab, bool bBlockTillLoaded, ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues /*= nullptr*/)
+{
+  ezResourceLock<ezPrefabResource> pPrefab(hPrefab, bBlockTillLoaded ? ezResourceAcquireMode::BlockTillLoaded_NeverFail : ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+
+  switch (pPrefab.GetAcquireResult())
+  {
+    case ezResourceAcquireResult::Final:
+      pPrefab->InstantiatePrefab(ref_world, rootTransform, options, pExposedParamValues);
+      return InstantiateResult::Success;
+
+    case ezResourceAcquireResult::LoadingFallback:
+      return InstantiateResult::NotYetLoaded;
+
+    default:
+      return InstantiateResult::Error;
+  }
+}
+
 void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezDynamicArray<ezGameObject*>& createdChildObjects, const ezDynamicArray<ezGameObject*>& createdRootObjects) const
 {
   const ezUInt32 uiNumParamDescs = m_PrefabParamDescs.GetCount();
@@ -184,7 +202,8 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     }
 
     // sort exposed parameter descriptions by name hash for quicker access
-    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+      { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
   }
 
   res.m_State = ezResourceState::Loaded;

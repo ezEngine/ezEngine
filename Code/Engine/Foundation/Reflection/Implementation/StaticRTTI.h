@@ -127,23 +127,26 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 /// \brief Declares a type to be statically reflectable. Insert this into the header of a type to enable reflection on it.
 /// This is not needed if the type is already dynamically reflectable.
-#define EZ_DECLARE_REFLECTABLE_TYPE(Linkage, TYPE)                                                   \
-  namespace ezInternal                                                                               \
-  {                                                                                                  \
-    template <>                                                                                      \
-    struct Linkage ezStaticRTTIWrapper<TYPE>                                                         \
-    {                                                                                                \
-      static ezRTTI s_RTTI;                                                                          \
-    };                                                                                               \
-                                                                                                     \
-    /* This specialization calls the function to get the RTTI data */                                \
-    /* This code might get duplicated in different DLLs, but all   */                                \
-    /* will call the same function, so the RTTI object is unique   */                                \
-    template <>                                                                                      \
-    struct ezStaticRTTI<TYPE>                                                                        \
-    {                                                                                                \
-      EZ_ALWAYS_INLINE static const ezRTTI* GetRTTI() { return &ezStaticRTTIWrapper<TYPE>::s_RTTI; } \
-    };                                                                                               \
+#define EZ_DECLARE_REFLECTABLE_TYPE(Linkage, TYPE)                    \
+  namespace ezInternal                                                \
+  {                                                                   \
+    template <>                                                       \
+    struct Linkage ezStaticRTTIWrapper<TYPE>                          \
+    {                                                                 \
+      static ezRTTI s_RTTI;                                           \
+    };                                                                \
+                                                                      \
+    /* This specialization calls the function to get the RTTI data */ \
+    /* This code might get duplicated in different DLLs, but all   */ \
+    /* will call the same function, so the RTTI object is unique   */ \
+    template <>                                                       \
+    struct ezStaticRTTI<TYPE>                                         \
+    {                                                                 \
+      EZ_ALWAYS_INLINE static const ezRTTI* GetRTTI()                 \
+      {                                                               \
+        return &ezStaticRTTIWrapper<TYPE>::s_RTTI;                    \
+      }                                                               \
+    };                                                                \
   }
 
 /// \brief Insert this into a class/struct to enable properties that are private members.
@@ -169,8 +172,8 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, BaseType, AllocatorType)              \
   ezRTTI GetRTTI(Type*)                                                            \
   {                                                                                \
-    typedef Type OwnType;                                                          \
-    typedef BaseType OwnBaseType;                                                  \
+    using OwnType = Type;                                                          \
+    using OwnBaseType = BaseType;                                                  \
     static AllocatorType Allocator;                                                \
     static ezBitflags<ezTypeFlags> flags = ezInternal::DetermineTypeFlags<Type>(); \
     static ezArrayPtr<ezAbstractProperty*> Properties;                             \

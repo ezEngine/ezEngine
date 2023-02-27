@@ -2,6 +2,34 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{2387156766561140700,4134506001911948696}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9142450672894588828,14997631183263935798}}
+			Uuid{u4{8716546105024716801,4520913839205095843}}
+		}
+		f %DefaultValue{0x00000040}
+		s %Name{"Speed"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{8716546105024716801,4520913839205095843}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x00002041}
+		f %Min{0xCDCCCC3D}
+	}
+}
+o
+{
 	Uuid %id{u4{217438266433892510,4983766275092614017}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -11,7 +39,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{217438266433892510,4983766275092614017}}
-		u4 %Hash{15188399301703939500}
+		u4 %Hash{12294411899439105838}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9078382375980872670,16707838057642429157}}
@@ -39,6 +67,16 @@ o
 }
 o
 {
+	Uuid %id{u4{9142450672894588828,14997631183263935798}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x00000040}
+	}
+}
+o
+{
 	Uuid %id{u4{9078382375980872670,16707838057642429157}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
@@ -47,6 +85,7 @@ o
 		VarArray %Parameters
 		{
 			Uuid{u4{13506464389976463092,14737619702569344960}}
+			Uuid{u4{2387156766561140700,4134506001911948696}}
 		}
 	}
 }
@@ -140,6 +179,19 @@ o
 	p
 	{
 		b %Active{1}
+		f %Speed{0x00000040}
+	}
+}
+o
+{
+	Uuid %id{u4{6187392311862165635,4914948585091481427}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Speed"}
+		Uuid %Object{u4{10590676799804174770,4897134529118525005}}
+		s %PropertyPath{"Speed"}
 	}
 }
 o
@@ -193,6 +245,7 @@ o
 			Uuid{u4{17147288323596339374,5487769630091240025}}
 			Uuid{u4{12965442568237795746,5762669850631858665}}
 			Uuid{u4{1660278929680366758,4933839133806966189}}
+			Uuid{u4{6187392311862165635,4914948585091481427}}
 		}
 	}
 }
@@ -375,16 +428,6 @@ o
 		s %Name{"AddAngularImpulse"}
 		Uuid %ReturnValue{u4{18148104322014540262,3265107824057576881}}
 		s %Type{"ezFunctionType::Member"}
-	}
-}
-o
-{
-	Uuid %id{u4{14996993303208357443,152609531109504750}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"PacMan"}
 	}
 }
 o
@@ -1452,11 +1495,8 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes
-		{
-			Uuid{u4{14996993303208357443,152609531109504750}}
-		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"PacManPlugin"}
