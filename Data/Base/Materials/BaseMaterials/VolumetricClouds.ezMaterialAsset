@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/VolumetricClouds.ezShader"}
 		}
 		Uuid %DocumentID{u4{2488574320626999175,5462427166387230701}}
-		u4 %Hash{15950801964858584185}
+		u4 %Hash{373968939576908612}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -30,7 +30,8 @@ o
 	u3 %v{2}
 	p
 	{
-		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
+		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
+		s %NoiseMap{""}
 		Vec3 %SunDir{f{0x0000803F,0,0}}
 	}
 }
@@ -225,6 +226,7 @@ o
 		{
 			Uuid{u4{5510832255302711063,17507208148756757833}}
 			Uuid{u4{9993927920492497106,16961864007753525476}}
+			Uuid{u4{10104965417738641261,10886789543987320205}}
 		}
 		s %TypeName{"Shaders/Materials/VolumetricClouds.ezShader"}
 		u3 %TypeVersion{2}
@@ -242,12 +244,50 @@ o
 }
 o
 {
+	Uuid %id{u4{10104965417738641261,10886789543987320205}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1092770215835297027,14879173320004523086}}
+			Uuid{u4{11316745703687198569,12603286873723587813}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"NoiseMap"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{11316745703687198569,12603286873723587813}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Filter{";CompatibleAsset_Texture_3D;"}
+	}
+}
+o
+{
 	Uuid %id{u4{5652750197221142835,14489503122854259585}}
 	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
 	p
 	{
 		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{1092770215835297027,14879173320004523086}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture 3D"}
 	}
 }
 o

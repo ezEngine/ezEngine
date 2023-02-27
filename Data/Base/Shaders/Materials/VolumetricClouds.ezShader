@@ -84,13 +84,18 @@ float4 TraceClouds()
   
   float3 viewDir = normalize(G.Input.ViewDirection);
   
+  if(viewDir.z < 0.1f)
+  {
+    return float4(0.0f, 0.0f, 0.0f, 0.0f);
+  }
+  
   float2 cloudStartDistance = ray_sphere_intersect(camera_position, viewDir, PLANET_RADIUS + CLOUD_START);
   
   float3 cloudStartPoint = camera_position + viewDir * cloudStartDistance.y;
   
-  float coverage = cloudCoverage(cloudStartPoint.xy, 0.20f);
+  float coverage = cloudCoverage(cloudStartPoint.xy * 0.0001f, 0.15f);
   
-  return float4(1.0f, 0.0f, 0.0f, coverage);
+  return float4(1.0f, 1.0f, 1.0f, saturate(coverage));
 }
 
 
@@ -101,7 +106,8 @@ float3 GetNormal()
 
 float3 GetDiffuseColor()
 {
-	return float3(TraceClouds().w, 0.0f, 0.0f);
+	float4 clouds = TraceClouds();
+    return clouds.rgb;
 }
 
 float3 GetSpecularColor()
@@ -116,5 +122,5 @@ float GetRoughness()
 
 float GetOpacity()
 {
-  return TraceClouds().w;
+  return TraceClouds().a;
 }

@@ -11,6 +11,7 @@
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
+using ezTexture3DResourceHandle = ezTypedResourceHandle<class ezTexture3DResource>;
 
 struct ezMaterialResourceDescriptor
 {
@@ -43,7 +44,7 @@ struct ezMaterialResourceDescriptor
     ezHashedString m_Name;
     ezTexture3DResourceHandle m_Value;
 
-    EZ_FORCE_INLINE bool operator==(const Texture2DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
+    EZ_FORCE_INLINE bool operator==(const Texture3DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
   void Clear();

@@ -72,7 +72,8 @@ void ezVolumetricCloudsComponent::Initialize()
     m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(cubeMapMaterialName, std::move(desc), cubeMapMaterialName);
   }
 
-  m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ faa1b9db-72ec-4c99-af9a-82bcb18fbcf3 }"); // CloudNoise.ezLUTAsset
+  //m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ faa1b9db-72ec-4c99-af9a-82bcb18fbcf3 }"); // CloudNoise.ezLUTAsset
+  m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ 68eb18b0-726b-4836-947c-209261299239 }"); // CloudNoise.ezLUTAsset
   if(!m_hNoiseLut.IsValid())
   {
     ezLog::Error("Failed to find resource CloudNoise.ezLUTAsset (faa1b9db-72ec-4c99-af9a-82bcb18fbcf3)");
@@ -139,8 +140,7 @@ void ezVolumetricCloudsComponent::UpdateMaterials() const
 
     ezVec3 sunDirection = GetOwner()->GetGlobalTransform().m_qRotation * ezVec3(-1, 0, 0);
     pMaterial->SetParameter("SunDir", sunDirection);
-    // TODO implement
-    //pMaterial->SetParameter("NoiseMap", m_hNoiseLut);
+    pMaterial->SetTexture3DBinding("NoiseMap", m_hNoiseLut);
 
     pMaterial->PreserveCurrentDesc();
   }
