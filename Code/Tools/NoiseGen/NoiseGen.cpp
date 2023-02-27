@@ -155,29 +155,31 @@ ezApplication::Execution ezNoiseGen::Run()
   SetReturnCode(-1);
 
   ezImageHeader header;
-  header.SetWidth(128);
-  header.SetHeight(128);
-  header.SetDepth(128);
+  header.SetWidth(2);
+  header.SetHeight(2);
+  header.SetDepth(2);
   header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
 
   ezImage noiseCube;
   noiseCube.ResetAndAlloc(header);
 
-  const float halfPixelSize = 0.5f / 128.0f;
-  const float invSize = 1.0f / 128.0f;
+  auto mem = noiseCube.GetByteBlobPtr();
+  memset(mem.GetPtr(), 0, mem.GetCount());
+
+  /*const float invSize = 1.0f / (128.0f - 1.0f);
 
   float frequency = 4.0f;
 
   for(uint32_t slice = 0; slice < 128; slice++)
   {
-    float uvZ = halfPixelSize + static_cast<float>(slice) * invSize;
+    float uvZ = static_cast<float>(slice) * invSize;
     for(uint32_t y =0; y < 128; y++)
     {
       auto curPixel = noiseCube.GetPixelPointer<ezColorLinearUB>(0, 0, 0, 0, y, slice);
-      float uvY = halfPixelSize + static_cast<float>(y) * invSize;
+      float uvY = static_cast<float>(y) * invSize;
       for(uint32_t x=0; x < 128; x++,curPixel++)
       {
-        float uvX = halfPixelSize + static_cast<float>(x) * invSize;
+        float uvX = static_cast<float>(x) * invSize;
 
         const ezVec3 uvw(uvX, uvY, uvZ);
 
@@ -191,7 +193,7 @@ ezApplication::Execution ezNoiseGen::Run()
         curPixel->a = floatToUint8(worleyFbm(uvw, frequency * 4.0f));
       }
     }
-  }
+  }*/
 
   ezStringBuilder appDir = ezOSFile::GetCurrentWorkingDirectory();
   appDir.AppendPath("output.dds");

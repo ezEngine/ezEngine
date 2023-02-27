@@ -6,26 +6,55 @@
 // http://www.diva-portal.org/smash/get/diva2:1223894/FULLTEXT01.pdf
 
 #define PLANET_RADIUS 6371e3 /* radius of the planet */
-#define CLOUD_START 1500
-#define CLOUD_END 2000
+#define CLOUD_START 600
+#define CLOUD_END 800
 
-float remap(float x, float a, float b, float c, float d)
+float remap(float original_value, float original_min, float original_max, float new_min, float new_max)
 {
-    return (((x - a) / (b - a)) * (d - c)) + c;
+    return new_min + (((original_value - original_min) / (original_max - original_min)) * (new_max - new_min));
 }
 
-float cloudCoverage(float2 xy, float coverage)
+float GetWeatherData(float2 xy, float coverage)
 {
 	float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, float3(xy.x, xy.y, 0.0f));
-	float wfbm = noise.x * .625 +
+	/*float wfbm = noise.x * .625 +
 				 noise.y * .125 +
 			     noise.z * .25; 
 				 
 	// cloud shape modeled after the GPU Pro 7 chapter
     float cloud = remap(noise.w, wfbm - 1., 1., 0., 1.);
-    cloud = remap(cloud, 1.0f - coverage, 1., 0., 1.); // fake cloud coverage
+    cloud = remap(cloud, 1.0f - coverage, 1., 0., 1.); // fake cloud coverage*/
 	
-	return cloud;
+	return remap(noise.x, coverage, 1.0, 0.0, 1.0);
+}
+
+float HeightProfile(float height, float start_height, float end_height, float hardness)
+{
+    height -= start_height;
+    float grad = saturate(height / (end_height - start_height));
+    grad = saturate(1.0f - abs(grad - 0.5f) * 2.0f);
+    grad = saturate(grad * hardness);
+    
+    return grad;
+}
+
+float SampleCloudDensity(float3 p, float weatherData)
+{    
+    float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, p * 0.001);
+    
+    float low_freq_fbm = (noise.g * 0.625) + (noise.b * 0.25) + (noise.a * 0.125);
+    
+    float base_cloud = remap(noise.r, -(1.0 - low_freq_fbm), 1.0, 0.0, 1.0);
+    
+    base_cloud *= HeightProfile(p.z, CLOUD_START, CLOUD_END, 8.0f);
+    
+    float base_cloud_with_coverage = remap(base_cloud, weatherData, 1.0, 0.0, 1.0);
+    base_cloud_with_coverage *= weatherData;
+    
+    return base_cloud_with_coverage;
+    
+    //return p.z > CLOUD_START ? 1.0f : 0.0f;
+    //return p.z > 1500.0f ? 1.0f : 0.0f;
 }
 
 float2 ray_sphere_intersect(
