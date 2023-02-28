@@ -36,7 +36,7 @@ CONSTANT_BUFFER(ezMaterialConstants, 1)
 
 [VERTEXSHADER]
 
-#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
 
 #include <Shaders/Materials/MaterialVertexShader.h>
 
@@ -53,17 +53,20 @@ VS_OUT main(VS_IN Input)
 
   Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
   Output.ViewDirection = mul(GetCameraToWorldMatrix(), dir).xyz;
+  
+  Output.CameraPos = mul(GetCameraToWorldMatrix(), float4(0.0f, 0.0f, 0.0f, 1.0f)).xyz;
 
   return Output;
 }
 
 [GEOMETRYSHADER]
 
-#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
 
 void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 {
   output.ViewDirection = input.ViewDirection;
+  output.CameraPos = input.CameraPos;
 }
 
 #include <Shaders/Materials/MaterialStereoGeometryShader.h>
@@ -73,7 +76,7 @@ void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 Texture3D NoiseMap;
 SamplerState NoiseMap_AutoSampler;
 
-#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0;
+#define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 #include <Shaders/Materials/CloudHelpers.h>
@@ -86,25 +89,33 @@ float4 TraceClouds()
   
   float3 viewDir = normalize(G.Input.ViewDirection);
   
+#ifndef SINGLE_CLOUD
   if(viewDir.z < 0.1f)
   {
     return float4(0.0f, 0.0f, 0.0f, 0.0f);
   }
+#endif
   
   float2 cloudStartDistance = ray_sphere_intersect(camera_position, viewDir, PLANET_RADIUS + CLOUD_START);
   
+#ifdef SINGLE_CLOUD
+  float3 curSamplePoint = G.Input.CameraPos + viewDir * 2.0f;
+  float stepSize = 0.2f;
+#else
   float3 curSamplePoint = offset_over_sealevel + viewDir * cloudStartDistance.y;
-  
-  
-  
   float stepSize = 2.0f;
+#endif
+  
+  
+  
+
   
   float density = 0.0;
   
-  for(int i=0; i < 32; i++)
+  for(int i=0; i < 64; i++)
   {
-    //float weatherData = GetWeatherData(curSamplePoint.xy * 0.0001f, 0.15f);
-    density += SampleCloudDensity(curSamplePoint, 0.2f);
+    float weatherData = GetWeatherData(curSamplePoint.xy);
+    density += SampleCloudDensity(curSamplePoint, weatherData) * 0.1;
     curSamplePoint += viewDir * stepSize;
   }
   

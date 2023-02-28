@@ -5,17 +5,34 @@
 // https://media.contentapi.ea.com/content/dam/eacom/frostbite/files/s2016-pbs-frostbite-sky-clouds-new.pdf
 // http://www.diva-portal.org/smash/get/diva2:1223894/FULLTEXT01.pdf
 
+
+#define SINGLE_CLOUD
+
 #define PLANET_RADIUS 6371e3 /* radius of the planet */
+
+#ifdef SINGLE_CLOUD,
+#define CLOUD_START 0
+#define CLOUD_END 4
+#else
 #define CLOUD_START 600
 #define CLOUD_END 800
+#endif
+
 
 float remap(float original_value, float original_min, float original_max, float new_min, float new_max)
 {
     return new_min + (((original_value - original_min) / (original_max - original_min)) * (new_max - new_min));
 }
 
-float GetWeatherData(float2 xy, float coverage)
+float GetWeatherData(float2 xy)
 {
+    #ifdef SINGLE_CLOUD
+    float grad = length(xy);
+    grad = 1.0f - saturate(grad / 10.0f);
+    grad = saturate(grad * 1.5f);
+    return grad * 0.8;
+    #else
+    
 	float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, float3(xy.x, xy.y, 0.0f));
 	/*float wfbm = noise.x * .625 +
 				 noise.y * .125 +
@@ -26,11 +43,12 @@ float GetWeatherData(float2 xy, float coverage)
     cloud = remap(cloud, 1.0f - coverage, 1., 0., 1.); // fake cloud coverage*/
 	
 	return remap(noise.x, coverage, 1.0, 0.0, 1.0);
+    #endif
 }
 
-float HeightProfile(float height, float start_height, float end_height, float hardness)
+float HeightProfile(float3 p, float start_height, float end_height, float hardness)
 {
-    height -= start_height;
+    float height = p.z - start_height;
     float grad = saturate(height / (end_height - start_height));
     grad = saturate(1.0f - abs(grad - 0.5f) * 2.0f);
     grad = saturate(grad * hardness);
@@ -40,18 +58,20 @@ float HeightProfile(float height, float start_height, float end_height, float ha
 
 float SampleCloudDensity(float3 p, float weatherData)
 {    
-    float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, p * 0.001);
+    //return HeightProfile(p, CLOUD_START, CLOUD_END, 8.0f);
+
+    float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, p * 0.05);
     
     float low_freq_fbm = (noise.g * 0.625) + (noise.b * 0.25) + (noise.a * 0.125);
     
-    float base_cloud = remap(noise.r, -(1.0 - low_freq_fbm), 1.0, 0.0, 1.0);
+    float base_cloud = remap(noise.r, low_freq_fbm - 1.0, 1.0, 0.0, 1.0);
     
-    base_cloud *= HeightProfile(p.z, CLOUD_START, CLOUD_END, 8.0f);
+    base_cloud *= HeightProfile(p, CLOUD_START, CLOUD_END, 1.5f);
     
-    float base_cloud_with_coverage = remap(base_cloud, weatherData, 1.0, 0.0, 1.0);
+    float base_cloud_with_coverage = remap(base_cloud, (1.0f - weatherData), 1.0, 0.0, 1.0);
     base_cloud_with_coverage *= weatherData;
     
-    return base_cloud_with_coverage;
+    return saturate(base_cloud_with_coverage);
     
     //return p.z > CLOUD_START ? 1.0f : 0.0f;
     //return p.z > 1500.0f ? 1.0f : 0.0f;

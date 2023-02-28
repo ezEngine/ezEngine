@@ -73,8 +73,8 @@ void ezVolumetricCloudsComponent::Initialize()
   }
 
   //m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ faa1b9db-72ec-4c99-af9a-82bcb18fbcf3 }"); // CloudNoise.ezLUTAsset (home-work)
-  //m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ 68eb18b0-726b-4836-947c-209261299239 }"); // CloudNoise.ezLUTAsset (work)
-  m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ f9eb17ec-7a4c-4b74-b51a-4bf2656e4b10 }"); // CloudNoise.ezLUTAsset (home-home)
+  m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ 68eb18b0-726b-4836-947c-209261299239 }"); // CloudNoise.ezLUTAsset (work)
+  //m_hNoiseLut = ezResourceManager::LoadResource<ezTexture3DResource>("{ f9eb17ec-7a4c-4b74-b51a-4bf2656e4b10 }"); // CloudNoise.ezLUTAsset (home-home)
   if(!m_hNoiseLut.IsValid())
   {
     ezLog::Error("Failed to find resource CloudNoise.ezLUTAsset (faa1b9db-72ec-4c99-af9a-82bcb18fbcf3)");
