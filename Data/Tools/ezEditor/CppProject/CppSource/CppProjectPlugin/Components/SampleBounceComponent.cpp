@@ -59,7 +59,7 @@ void SampleBounceComponent::SerializeComponent(ezWorldWriter& stream) const
   {
     // do custom serialization, for example:
     // s << m_fAmplitude;
-    // s << m_Speed;    
+    // s << m_Speed;
   }
 }
 

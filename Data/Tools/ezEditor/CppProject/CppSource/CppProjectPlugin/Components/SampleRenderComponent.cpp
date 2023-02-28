@@ -95,7 +95,7 @@ void SampleRenderComponent::DeserializeComponent(ezWorldReader& stream)
     // s >> m_Color;
     // s >> m_hTexture;
     // s >> m_RenderTypes;
-  }  
+  }
 }
 
 void SampleRenderComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
