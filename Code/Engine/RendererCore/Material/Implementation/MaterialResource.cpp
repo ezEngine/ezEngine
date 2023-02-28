@@ -449,7 +449,7 @@ void ezMaterialResource::SetTexture3DBinding(const char* szName, const ezTexture
   ezTempHashedString sName(szName);
 
   ezUInt32 uiIndex = ezInvalidIndex;
-  for (ezUInt32 i = 0; i < m_mDesc.m_Texture2DBindings.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_mDesc.m_Texture3DBindings.GetCount(); ++i)
   {
     if (m_mDesc.m_Texture3DBindings[i].m_Name == sName)
     {
