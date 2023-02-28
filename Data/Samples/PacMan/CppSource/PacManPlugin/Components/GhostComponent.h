@@ -22,7 +22,7 @@ protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // SampleBounceComponent
+  // GhostComponent
 
 public:
   GhostComponent();
@@ -31,7 +31,11 @@ public:
 private:
   void Update();
 
-  ezUInt32 m_uiDirection = 0;
+  WalkDirection m_Direction = WalkDirection::Up;
 
   ezPrefabResourceHandle m_hDisappear;
+
+  ezSharedPtr<ezBlackboard> m_pStateBlackboard;
+
+  float m_fSpeed = 2.0f;
 };

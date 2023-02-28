@@ -34,6 +34,16 @@ class EZ_CORE_DLL ezPrefabResource : public ezResource
 public:
   ezPrefabResource();
 
+  enum class InstantiateResult : ezUInt8
+  {
+    Success,
+    NotYetLoaded,
+    Error,
+  };
+
+  /// \brief Helper function to instantiate a prefab without having to deal with resource acquisition.
+  static ezPrefabResource::InstantiateResult InstantiatePrefab(const ezPrefabResourceHandle& hPrefab, bool bBlockTillLoaded, ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options = {}, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues = nullptr);
+
   /// \brief Creates an instance of this prefab in the given world.
   void InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues = nullptr);
 

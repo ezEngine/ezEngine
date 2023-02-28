@@ -48,8 +48,19 @@ void SampleBounceComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
-  s << m_fAmplitude;
-  s << m_Speed;
+  if (OWNTYPE::GetStaticRTTI()->GetTypeVersion() == 1)
+  {
+    // this automatically serializes all properties
+    // if you need more control, increase the component 'version' at the top of this file
+    // and then use the code path below for manual serialization
+    ezReflectionSerializer::WriteObjectToBinary(s, GetDynamicRTTI(), this);
+  }
+  else
+  {
+    // do custom serialization, for example:
+    // s << m_fAmplitude;
+    // s << m_Speed;
+  }
 }
 
 void SampleBounceComponent::DeserializeComponent(ezWorldReader& stream)
@@ -59,6 +70,17 @@ void SampleBounceComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
-  s >> m_fAmplitude;
-  s >> m_Speed;
+  if (uiVersion == 1)
+  {
+    // this automatically de-serializes all properties
+    // if you need more control, increase the component 'version' at the top of this file
+    // and then use the code path below for manual de-serialization
+    ezReflectionSerializer::ReadObjectPropertiesFromBinary(s, *GetDynamicRTTI(), this);
+  }
+  else
+  {
+    // do custom de-serialization, for example:
+    // s >> m_fAmplitude;
+    // s >> m_Speed;
+  }
 }

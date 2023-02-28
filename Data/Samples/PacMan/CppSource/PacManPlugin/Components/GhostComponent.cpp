@@ -1,22 +1,18 @@
 #include <PacManPlugin/PacManPluginPCH.h>
 
-#include <Core/Interfaces/PhysicsWorldModule.h>
-#include <Core/Utils/Blackboard.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <PacManPlugin/Components/GhostComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(GhostComponent, 1 /* version */, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(GhostComponent, 1 /* version */, ezComponentMode::Dynamic) // 'Dynamic' because we want to change the owner's transform
 {
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //  EZ_MEMBER_PROPERTY("Amplitude", m_fAmplitude)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
-  //  EZ_MEMBER_PROPERTY("Speed", m_Speed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90))),
-  //}
-  //EZ_END_PROPERTIES;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+  }
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
@@ -34,25 +30,27 @@ void GhostComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
+  ezHashedString hs;
+  hs.Assign("Stats");
+  m_pStateBlackboard = ezBlackboard::GetOrCreateGlobal(hs);
+
+  // preload our disappear effect for when the player wins
   m_hDisappear = ezResourceManager::LoadResource<ezPrefabResource>("{ bad55bab-9701-484c-b3f2-90caeb206716 }");
   ezResourceManager::PreloadResource(m_hDisappear);
 }
 
 void GhostComponent::Update()
 {
-  if (auto pBlackboard = ezBlackboard::FindGlobal(ezTempHashedString("Stats")))
+  // check the blackboard for whether the player just won
   {
-    const ezInt32 iState = pBlackboard->GetEntryValue(ezTempHashedString("PacManState"), 1).Get<ezInt32>();
+    const PacManState state = static_cast<PacManState>(m_pStateBlackboard->GetEntryValue(ezTempHashedString("PacManState"), PacManState::Alive).Get<ezInt32>());
 
-    if (iState == 2)
+    if (state == PacManState::WonGame)
     {
-      ezResourceLock<ezPrefabResource> pPrefab(m_hDisappear, ezResourceAcquireMode::BlockTillLoaded);
-      if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
-      {
-        pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), {});
-      }
+      // create the 'disappear' effect
+      ezPrefabResource::InstantiatePrefab(m_hDisappear, true, *GetWorld(), GetOwner()->GetGlobalTransform());
 
-      // player won! -> delete yourself
+      // and delete yourself at the end of the frame
       GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
       return;
     }
@@ -62,6 +60,9 @@ void GhostComponent::Update()
 
   if (ezPhysicsWorldModuleInterface* pPhysics = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>())
   {
+    // do four raycasts into each direction, to detect which direction would be free to walk into
+    // if the forwards direction is blocked, we want the ghost to turn
+
     ezPhysicsCastResult res;
     ezPhysicsQueryParameters params;
     params.m_ShapeTypes = ezPhysicsShapeType::Static;
@@ -77,17 +78,20 @@ void GhostComponent::Update()
 
   ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
 
-  while (bWall[m_uiDirection])
+  // if the direction into which the ghost currently walks is occluded, randomly turn left or right and check again
+  while (bWall[m_Direction])
   {
-    m_uiDirection = (m_uiDirection + rng.IntMinMax(-1, 1)) % 4;
+    m_Direction = static_cast<WalkDirection>((m_Direction + rng.IntMinMax(-1, 1)) % 4);
   }
 
+  // now just change the rotation of the ghost to point into the current direction
   ezQuat rotation;
-  rotation.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(m_uiDirection * 90));
+  rotation.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(m_Direction * 90));
   GetOwner()->SetGlobalRotation(rotation);
 
+  // and communicate to the character controller component, that it should move forwards at a fixed speed
   ezMsgMoveCharacterController msg;
-  msg.m_fMoveForwards = 2.0f;
+  msg.m_fMoveForwards = m_fSpeed;
   GetOwner()->SendMessage(msg);
 }
 
@@ -97,7 +101,7 @@ void GhostComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
-  if (GhostComponent::GetStaticRTTI()->GetTypeVersion() == 1)
+  if (OWNTYPE::GetStaticRTTI()->GetTypeVersion() == 1)
   {
     ezReflectionSerializer::WriteObjectToBinary(s, GetDynamicRTTI(), this);
   }
