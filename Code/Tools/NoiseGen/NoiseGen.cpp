@@ -112,9 +112,9 @@ float worleyFbm(ezVec3 p, float freq)
          worleyNoise(p * freq * 4.0f, freq * 4.0f) * 0.125f;
 }
 
-float remap(float x, float a, float b, float c, float d)
+float remap(float original_value, float original_min, float original_max, float new_min, float new_max)
 {
-  return (((x - a) / (b - a)) * (d - c)) + c;
+  return new_min + (((original_value - original_min) / (original_max - original_min)) * (new_max - new_min));
 }
 
 ezResult ezNoiseGen::BeforeCoreSystemsStartup()
@@ -155,18 +155,18 @@ ezApplication::Execution ezNoiseGen::Run()
   SetReturnCode(-1);
 
   ezImageHeader header;
-  header.SetWidth(2);
-  header.SetHeight(2);
-  header.SetDepth(2);
+  header.SetWidth(128);
+  header.SetHeight(128);
+  header.SetDepth(128);
   header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
 
   ezImage noiseCube;
   noiseCube.ResetAndAlloc(header);
 
-  auto mem = noiseCube.GetByteBlobPtr();
-  memset(mem.GetPtr(), 0, mem.GetCount());
+  //auto mem = noiseCube.GetByteBlobPtr();
+  //memset(mem.GetPtr(), 0, mem.GetCount());
 
-  /*const float invSize = 1.0f / (128.0f - 1.0f);
+  const float invSize = 1.0f / (128.0f - 1.0f);
 
   float frequency = 4.0f;
 
@@ -186,14 +186,14 @@ ezApplication::Execution ezNoiseGen::Run()
         float perlinFbm = ezMath::Lerp(1.0f, perlinfbm(uvw, frequency, 7), 0.5f);
         perlinFbm = ezMath::Abs(perlinFbm * 2.0f - 1.0f);
 
-        *curPixel = {};
-        curPixel->r = floatToUint8(perlinFbm);
-        curPixel->g = floatToUint8(worleyFbm(uvw, frequency));
+        float baseWorley = worleyFbm(uvw, frequency);
+        curPixel->g = floatToUint8(baseWorley);
         curPixel->b = floatToUint8(worleyFbm(uvw, frequency * 2.0f));
         curPixel->a = floatToUint8(worleyFbm(uvw, frequency * 4.0f));
+        curPixel->r = floatToUint8(remap(perlinFbm, 0.0f, 1.0f, baseWorley, 1.0f));
       }
     }
-  }*/
+  }
 
   ezStringBuilder appDir = ezOSFile::GetCurrentWorkingDirectory();
   appDir.AppendPath("output.dds");
