@@ -7,6 +7,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
+#include <Shlobj.h>
+
 ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
   : QDialog(pParent)
 {
@@ -272,6 +274,67 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
 
     ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
   }
+}
+
+void ezQtCppProjectDlg::on_CompileSolution_clicked()
+{
+  ezStringBuilder sVsWhere;
+
+  wchar_t* pPath = nullptr;
+  if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_ProgramFilesX86, KF_FLAG_DEFAULT, nullptr, &pPath)))
+  {
+    sVsWhere = ezStringWChar(pPath);
+    sVsWhere.AppendPath("Microsoft Visual Studio/Installer/vswhere.exe");
+
+    CoTaskMemFree(pPath);
+  }
+  else
+  {
+    return;
+  }
+
+  ezStringBuilder sMsBuildPath;
+
+  {
+    ezStringBuilder sStdOut;
+    ezProcessOptions po;
+    po.m_sProcess = sVsWhere;
+    po.AddCommandLine("-latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe");
+    po.m_bHideConsoleWindow = true;
+    po.m_onStdOut = [&](ezStringView res)
+    { sStdOut.Append(res); };
+
+    if (ezProcess::Execute(po).Failed())
+      return;
+
+    sMsBuildPath = sStdOut;
+    sMsBuildPath.Trim("\n\r");
+    sMsBuildPath.MakeCleanPath();
+  }
+
+  {
+
+    ezStringBuilder sMsBuildCmd;
+    sMsBuildCmd.AppendFormat("\"{}\"", GetSolutionFile());
+    sMsBuildCmd.AppendFormat(" /m /nr:false"); // multi-threaded compilation
+    sMsBuildCmd.AppendFormat(" /t:Build");
+    sMsBuildCmd.AppendFormat(" /p:Configuration={}", BUILDSYSTEM_BUILDTYPE);
+    sMsBuildCmd.AppendFormat(" /p:Platform=x64");
+
+    ezStringBuilder sStdOut;
+    ezProcessOptions po;
+    po.m_sProcess = sMsBuildPath;
+    po.AddCommandLine(sMsBuildCmd);
+    po.m_bHideConsoleWindow = true;
+    po.m_onStdOut = [&](ezStringView res)
+    { sStdOut.Append(res); };
+
+    if (ezProcess::Execute(po).Failed())
+      return;
+  }
+  // Run(msBuildPath, $"\"{solutionProjectPath}\" {(buildInfo.Multicore ? "/m /nr:false" : "")} /t:{(buildInfo.RebuildAppx ? "Rebuild" : "Build")} /p:Configuration={buildInfo.Configuration} /p:Platform={buildInfo.BuildPlatform} {(string.IsNullOrEmpty(buildInfo.PlatformToolset) ? string.Empty : $"/p:PlatformToolset={buildInfo.PlatformToolset}")} {GetMSBuildLoggingCommand(buildInfo.LogDirectory, "buildAppx.log")}",
+
+  // ezQtUiServices::GetSingleton()->MessageBoxInformation(sResult);
 }
 
 void ezQtCppProjectDlg::UpdateUI()

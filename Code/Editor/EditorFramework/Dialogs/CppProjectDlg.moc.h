@@ -21,6 +21,7 @@ private Q_SLOTS:
   void on_Generator_currentIndexChanged(int);
   void on_OpenSolution_clicked();
   void on_GenerateSolution_clicked();
+  void on_CompileSolution_clicked();
 
 private:
   void UpdateUI();
