@@ -81,6 +81,19 @@ SamplerState NoiseMap_AutoSampler;
 #include <Shaders/Materials/MaterialPixelShader.h>
 #include <Shaders/Materials/CloudHelpers.h>
 
+float LightRay(float3 start, float3 dir)
+{
+  float stepL = 0.1f;
+  float density = 0.0;
+  for(int i=0; i < 20; i++)
+  {
+    start += dir * stepL;
+    float weatherData = GetWeatherData(start.xy);
+    density += SampleCloudDensity(start, weatherData);    
+  }
+  return density;
+}
+
 float4 TraceClouds()
 {
   float3 offset_over_sealevel = float3(0.0, 0.0, 300.0);
@@ -112,16 +125,27 @@ float4 TraceClouds()
   
   float density = 0.0;
   
+  float3 color = float3(0.0f, 0.0f, 0.0f);
+  
   for(int i=0; i < 64; i++)
   {
     float weatherData = GetWeatherData(curSamplePoint.xy);
-    density += SampleCloudDensity(curSamplePoint, weatherData) * 0.1;
+    float curDensity = SampleCloudDensity(curSamplePoint, weatherData);
     curSamplePoint += viewDir * stepSize;
+	
+	if(curDensity > 0.0f)
+	{
+		density += curDensity;
+		
+		float densityOnLightRay = LightRay(curSamplePoint, SunDir);
+		
+		color += float3(1.0f, 1.0f, 1.0f) * exp(-densityOnLightRay) * exp(-density) * 0.5;
+	}
   }
   
-  density = saturate(density);
+  density = 1.0f - exp(-density);
   
-  return float4(1.0f, 1.0f, 1.0f, saturate(density));
+  return float4(color, saturate(density));
 }
 
 

@@ -12,7 +12,7 @@
 
 #ifdef SINGLE_CLOUD,
 #define CLOUD_START 0
-#define CLOUD_END 4
+#define CLOUD_END 6
 #else
 #define CLOUD_START 600
 #define CLOUD_END 800
@@ -71,7 +71,7 @@ float SampleCloudDensity(float3 p, float weatherData)
     float base_cloud_with_coverage = remap(base_cloud, (1.0f - weatherData), 1.0, 0.0, 1.0);
     base_cloud_with_coverage *= weatherData;
     
-    return saturate(base_cloud_with_coverage);
+    return saturate(base_cloud_with_coverage) * 4.0;
     
     //return p.z > CLOUD_START ? 1.0f : 0.0f;
     //return p.z > 1500.0f ? 1.0f : 0.0f;
