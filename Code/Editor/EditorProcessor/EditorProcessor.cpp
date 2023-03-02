@@ -6,6 +6,8 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessorMessages.h>
+#include <EditorFramework/CodeGen/CppProject.h>
+#include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
@@ -61,11 +63,15 @@ public:
   {
     if (const ezProcessAssetMsg* pMsg = ezDynamicCast<const ezProcessAssetMsg*>(e.m_pMessage))
     {
-      ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged();
+      if (pMsg->m_sAssetPath.HasExtension("ezPrefab") || pMsg->m_sAssetPath.HasExtension("ezScene"))
+      {
+        ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+      }
 
       ezProcessAssetResponseMsg msg;
       {
-        ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
+        ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void
+          { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
           ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
@@ -164,11 +170,33 @@ public:
 
     if (!sTransformProfile.IsEmpty())
     {
-      ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
+      if (ezQtEditorApp::GetSingleton()->OpenProject(sProject).Failed())
+      {
+        SetReturnCode(2);
+        return ezApplication::Execution::Quit;
+      }
+
+      // before we transform any assets, make sure the C++ code is properly built
+      {
+        ezCppSettings cppSettings;
+        if (cppSettings.Load().Succeeded())
+        {
+          ezStringBuilder sOutput;
+
+          if (ezCppProject::BuildCodeIfNecessary(cppSettings, sOutput).Failed())
+          {
+            SetReturnCode(3);
+            return ezApplication::Execution::Quit;
+          }
+
+          ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+        }
+      }
 
       bool bTransform = true;
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]() {
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]()
+        {
         if (!bTransform)
           return;
 
@@ -206,7 +234,8 @@ public:
     {
       ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
+        {
         ezAssetCurator::GetSingleton()->ResaveAllAssets();
         
           if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
@@ -229,7 +258,8 @@ public:
         m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
 
         ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
-        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
+          {
           static bool bRecursionBlock = false;
           if (bRecursionBlock)
             return;

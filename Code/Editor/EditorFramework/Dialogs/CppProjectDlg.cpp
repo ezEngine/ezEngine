@@ -1,5 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/CodeGen/CppProject.h>
+#include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/Dialogs/CppProjectDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -14,25 +16,61 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
 {
   setupUi(this);
 
-  Generator->addItem("Visual Studio 2019");
-  Generator->addItem("Visual Studio 2022");
-  Generator->setCurrentIndex(1);
+  m_CppSettings.Load().IgnoreResult();
+
+  {
+    ezQtScopedBlockSignals _1(PluginName);
+    PluginName->setPlaceholderText(ezToolsProject::GetSingleton()->GetProjectName(true).GetData());
+    PluginName->setText(m_CppSettings.m_sPluginName.GetData());
+  }
+
+  if (ezCppProject::ExistsProjectCMakeListsTxt())
+  {
+    PluginName->setToolTip("The name cannot be changed once the CppSource folder has been created.");
+    PluginName->setEnabled(false);
+  }
+
+  {
+    ezQtScopedBlockSignals _1(Generator);
+    Generator->addItem("None");
+    Generator->addItem("Visual Studio 2019");
+    Generator->addItem("Visual Studio 2022");
+
+    if (m_CppSettings.m_Compiler == ezCppSettings::Compiler::Vs2019)
+    {
+      Generator->setCurrentIndex(1);
+    }
+    else if (m_CppSettings.m_Compiler == ezCppSettings::Compiler::Vs2022)
+    {
+      Generator->setCurrentIndex(2);
+    }
+    else
+    {
+      Generator->setCurrentIndex(0);
+    }
+  }
 
   UpdateUI();
 }
 
-ezResult ezQtCppProjectDlg::GenerateSolution()
+ezResult ezQtCppProjectDlg::RunCMake()
 {
+  if (m_CppSettings.m_sPluginName.IsEmpty())
+  {
+    m_CppSettings.m_sPluginName = PluginName->placeholderText().toUtf8().data();
+  }
+
+  m_CppSettings.Save().IgnoreResult();
+
   if (ezSystemInformation::IsDebuggerAttached())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning("When a debugger is attached, CMake can fail with the error that no C/C++ compiler can be found.");
   }
 
-  ezProgressRange progress("Generating Solution", 4, false);
-  progress.SetStepWeighting(0, 0.05f);
+  ezProgressRange progress("Generating Solution", 2, false);
+  progress.SetStepWeighting(0, 0.2f);
   progress.SetStepWeighting(1, 0.1f);
-  progress.SetStepWeighting(2, 0.1f);
-  progress.SetStepWeighting(3, 1.0f);
+  progress.SetStepWeighting(2, 0.8f);
 
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -42,163 +80,25 @@ ezResult ezQtCppProjectDlg::GenerateSolution()
   EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
   EZ_SCOPE_EXIT(UpdateUI());
 
-  const ezString sRealProjectName = ezToolsProject::GetSingleton()->GetProjectName(false);
-  const ezString sProjectName = ezToolsProject::GetSingleton()->GetProjectName(true);
-
-  if (sRealProjectName != sProjectName)
   {
-    if (ezQtUiServices::MessageBoxQuestion(ezFmt("The project's name '{}' contains characters and/or whitespace that can't be used in C++ identifiers.\n\nInstead the adjusted name '{}' will be used.\n\nIf you don't want this, you need to rename your project (rename the folder in which it resides) and try again.\n\nDo you want to continue?", sRealProjectName, sProjectName), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
+    progress.BeginNextStep("Populate with Default Sources");
+    EZ_SUCCEED_OR_RETURN(ezCppProject::PopulateWithDefaultSources(m_CppSettings, output));
+  }
+
+  {
+    progress.BeginNextStep("Clean Build Directory");
+
+    if (ezCppProject::CleanBuildDir(m_CppSettings).Failed())
     {
-      output.AppendFormat("User doesn't like auto-generated project name '{}' :(", sProjectName);
-      return EZ_FAILURE;
+      output.AppendFormat("Couldn't delete build output directory:\n{}\n\nProject is probably already open in Visual Studio.\n", ezCppProject::GetBuildDir(m_CppSettings));
     }
   }
 
-  ezStringBuilder sProjectNameUpper = sProjectName;
-  sProjectNameUpper.ToUpper();
-
-  const ezStringBuilder sTargetDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
-
-  ezStringBuilder sSourceDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-  sSourceDir.AppendPath("CppProject");
-
-  ezDynamicArray<ezFileStats> items;
-  ezOSFile::GatherAllItemsInFolder(items, sSourceDir, ezFileSystemIteratorFlags::ReportFilesRecursive);
-
-  struct FileToCopy
-  {
-    ezString m_sSource;
-    ezString m_sDestination;
-  };
-
-  ezHybridArray<FileToCopy, 32> filesCopied;
-
-  // gather files
-  {
-    progress.BeginNextStep("Gathering source files");
-
-    for (const auto& item : items)
-    {
-      ezStringBuilder srcPath, dstPath;
-      item.GetFullPath(srcPath);
-
-      dstPath = srcPath;
-      dstPath.MakeRelativeTo(sSourceDir).IgnoreResult();
-
-      dstPath.ReplaceAll("CppProject", sProjectName);
-      dstPath.Prepend(sTargetDir, "/");
-      dstPath.MakeCleanPath();
-
-      // don't copy files over that already exist (and may have edits)
-      if (ezOSFile::ExistsFile(dstPath))
-      {
-        // if any file already exists, don't copy non-existing (user might have deleted unwanted sample files)
-        filesCopied.Clear();
-        break;
-      }
-
-      auto& ftc = filesCopied.ExpandAndGetRef();
-      ftc.m_sSource = srcPath;
-      ftc.m_sDestination = dstPath;
-    }
-  }
-
-  // Copy files
-  {
-    progress.BeginNextStep("Copying sources");
-
-    for (const auto& ftc : filesCopied)
-    {
-      if (ezOSFile::CopyFile(ftc.m_sSource, ftc.m_sDestination).Failed())
-      {
-        output.AppendFormat("Failed to copy a file.\nSource: '{}'\nDestination: '{}'\n", ftc.m_sSource, ftc.m_sDestination);
-        return EZ_FAILURE;
-      }
-    }
-  }
-
-  // Modify sources
-  {
-    progress.BeginNextStep("Modifying sources");
-
-    for (const auto& filePath : filesCopied)
-    {
-      ezStringBuilder content;
-
-      {
-        ezFileReader file;
-        if (file.Open(filePath.m_sDestination).Failed())
-        {
-          output.AppendFormat("Failed to open C++ project file for reading.\nSource: '{}'\n", filePath.m_sDestination);
-          return EZ_FAILURE;
-        }
-
-        content.ReadAll(file);
-      }
-
-      content.ReplaceAll("CppProject", sProjectName);
-      content.ReplaceAll("CPPPROJECT", sProjectNameUpper);
-
-      {
-        ezFileWriter file;
-        if (file.Open(filePath.m_sDestination).Failed())
-        {
-          output.AppendFormat("Failed to open C++ project file for writing.\nSource: '{}'\n", filePath.m_sDestination);
-          return EZ_FAILURE;
-        }
-
-        file.WriteBytes(content.GetData(), content.GetElementCount()).IgnoreResult();
-      }
-    }
-  }
   // run CMake
   {
     progress.BeginNextStep("Running CMake");
 
-    const ezString sSdkDir = ezFileSystem::GetSdkRootDirectory();
-    const ezString sBuildDir = GetBuildDir();
-    const ezString sSolutionFile = GetSolutionFile();
-
-    if (ezOSFile::ExistsDirectory(sBuildDir) && ezOSFile::DeleteFolder(sBuildDir).Failed())
-    {
-      output.AppendFormat("Couldn't delete build output directory:\n{}\n\nProject is probably already open in Visual Studio.\n", sBuildDir);
-    }
-
-    ezStringBuilder tmp;
-
-    QStringList args;
-    args << "-S";
-    args << GetTargetDir().GetData();
-
-    tmp.Format("-DEZ_SDK_DIR:PATH={}", sSdkDir);
-    args << tmp.GetData();
-
-    tmp.Format("-DEZ_BUILDTYPE_ONLY:STRING={}", BUILDSYSTEM_BUILDTYPE);
-    args << tmp.GetData();
-
-    args << "-G";
-    args << GetGeneratorCMake().GetData();
-
-    args << "-B";
-    args << sBuildDir.GetData();
-
-    args << "-A";
-    args << "x64";
-
-    ezLogSystemToBuffer log;
-
-    ezStatus res = ezQtEditorApp::GetSingleton()->ExecuteTool("cmake/bin/cmake", args, 120, &log, ezLogMsgType::InfoMsg);
-
-    if (res.Failed())
-    {
-      output.AppendFormat("Solution generation failed:\n\n");
-      output.AppendFormat("{}\n", log.m_sBuffer);
-      output.AppendFormat("{}\n", res.m_sMessage);
-      return EZ_FAILURE;
-    }
-
-    output.AppendFormat("Generated solution successfully.\n\n");
-    output.AppendFormat("{}\n", log.m_sBuffer);
+    EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMake(m_CppSettings, output));
   }
 
   return EZ_SUCCESS;
@@ -221,12 +121,25 @@ void ezQtCppProjectDlg::on_OpenBuildFolder_clicked()
 
 void ezQtCppProjectDlg::on_Generator_currentIndexChanged(int)
 {
+  switch (Generator->currentIndex())
+  {
+    case 0:
+      m_CppSettings.m_Compiler = ezCppSettings::Compiler::None;
+      break;
+    case 1:
+      m_CppSettings.m_Compiler = ezCppSettings::Compiler::Vs2019;
+      break;
+    case 2:
+      m_CppSettings.m_Compiler = ezCppSettings::Compiler::Vs2022;
+      break;
+  }
+
   UpdateUI();
 }
 
 void ezQtCppProjectDlg::on_OpenSolution_clicked()
 {
-  if (!ezQtUiServices::OpenFileInDefaultProgram(GetSolutionFile()))
+  if (!ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(m_CppSettings)))
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning("Opening the solution failed.");
   }
@@ -234,13 +147,13 @@ void ezQtCppProjectDlg::on_OpenSolution_clicked()
 
 void ezQtCppProjectDlg::on_GenerateSolution_clicked()
 {
-  if (ezOSFile::ExistsFile(GetSolutionFile()))
+  if (ezCppProject::ExistsSolution(m_CppSettings))
   {
     if (ezQtUiServices::MessageBoxQuestion("The solution already exists, do you want to recreate it?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
       return;
   }
 
-  if (GenerateSolution().Failed())
+  if (RunCMake().Failed())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning("Generating the solution failed. Check the log output for details.");
   }
@@ -254,7 +167,7 @@ void ezQtCppProjectDlg::on_GenerateSolution_clicked()
       on_OpenSolution_clicked();
     }
 
-    ezStringBuilder sProjectName = ezToolsProject::GetSingleton()->GetProjectName(true);
+    ezStringBuilder sProjectName = m_CppSettings.m_sPluginName;
     ezStringBuilder sPluginName(sProjectName, "Plugin");
 
     ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
@@ -335,70 +248,23 @@ void ezQtCppProjectDlg::on_CompileSolution_clicked()
   // Run(msBuildPath, $"\"{solutionProjectPath}\" {(buildInfo.Multicore ? "/m /nr:false" : "")} /t:{(buildInfo.RebuildAppx ? "Rebuild" : "Build")} /p:Configuration={buildInfo.Configuration} /p:Platform={buildInfo.BuildPlatform} {(string.IsNullOrEmpty(buildInfo.PlatformToolset) ? string.Empty : $"/p:PlatformToolset={buildInfo.PlatformToolset}")} {GetMSBuildLoggingCommand(buildInfo.LogDirectory, "buildAppx.log")}",
 
   // ezQtUiServices::GetSingleton()->MessageBoxInformation(sResult);
+
+}
+
+void ezQtCppProjectDlg::on_PluginName_textEdited(const QString& text)
+{
+  m_CppSettings.m_sPluginName = PluginName->text().toUtf8().data();
+
+  UpdateUI();
 }
 
 void ezQtCppProjectDlg::UpdateUI()
 {
-  PluginLocation->setText(GetTargetDir().GetData());
-  BuildFolder->setText(GetBuildDir().GetData());
+  PluginLocation->setText(ezCppProject::GetTargetSourceDir().GetData());
+  BuildFolder->setText(ezCppProject::GetBuildDir(m_CppSettings).GetData());
 
+  GenerateSolution->setEnabled(m_CppSettings.m_Compiler != ezCppSettings::Compiler::None);
   OpenPluginLocation->setEnabled(ezOSFile::ExistsDirectory(PluginLocation->text().toUtf8().data()));
   OpenBuildFolder->setEnabled(ezOSFile::ExistsDirectory(BuildFolder->text().toUtf8().data()));
-  OpenSolution->setEnabled(ezOSFile::ExistsFile(GetSolutionFile()));
-}
-
-ezString ezQtCppProjectDlg::GetTargetDir() const
-{
-  ezStringBuilder sTargetDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sTargetDir.AppendPath("CppSource");
-
-  return sTargetDir;
-}
-
-ezString ezQtCppProjectDlg::GetBuildDir() const
-{
-  ezStringBuilder sBuildDir;
-  sBuildDir.Format("{}/Build/{}", GetTargetDir(), GetGeneratorFolder());
-
-  return sBuildDir;
-}
-
-ezString ezQtCppProjectDlg::GetSolutionFile() const
-{
-  ezStringBuilder sSolutionFile;
-  sSolutionFile = GetBuildDir();
-  sSolutionFile.AppendPath(ezToolsProject::GetSingleton()->GetProjectName(true));
-  sSolutionFile.Append(".sln");
-
-  return sSolutionFile;
-}
-
-ezString ezQtCppProjectDlg::GetGeneratorCMake() const
-{
-  switch (Generator->currentIndex())
-  {
-    case 0:
-      return "Visual Studio 16 2019";
-    case 1:
-      return "Visual Studio 17 2022";
-
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
-  return "";
-}
-
-ezString ezQtCppProjectDlg::GetGeneratorFolder() const
-{
-  switch (Generator->currentIndex())
-  {
-    case 0:
-      return "Vs2019x64";
-    case 1:
-      return "Vs2022x64";
-
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
-  return "";
+  OpenSolution->setEnabled(ezCppProject::ExistsSolution(m_CppSettings));
 }

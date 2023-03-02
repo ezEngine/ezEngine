@@ -2,6 +2,7 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 
+#include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/ui_CppProjectDlg.h>
 #include <Foundation/Strings/String.h>
 #include <QDialog>
@@ -21,15 +22,13 @@ private Q_SLOTS:
   void on_Generator_currentIndexChanged(int);
   void on_OpenSolution_clicked();
   void on_GenerateSolution_clicked();
+  void on_PluginName_textEdited(const QString& text);
   void on_CompileSolution_clicked();
 
 private:
   void UpdateUI();
 
-  ezString GetTargetDir() const;
-  ezString GetBuildDir() const;
-  ezString GetSolutionFile() const;
-  ezString GetGeneratorCMake() const;
-  ezString GetGeneratorFolder() const;
-  ezResult GenerateSolution();
+  ezResult RunCMake();
+
+  ezCppSettings m_CppSettings;
 };

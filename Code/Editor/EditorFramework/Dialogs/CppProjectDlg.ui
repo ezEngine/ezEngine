@@ -19,6 +19,20 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>C++ plugin name:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="PluginName">
+     <property name="readOnly">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label">
      <property name="text">
       <string>C++ plugin location:</string>

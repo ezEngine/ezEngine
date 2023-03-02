@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>351</width>
-    <height>183</height>
+    <height>220</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -30,6 +30,13 @@
     <normaloff>:/EditorPluginScene/Icons/SceneExport16.png</normaloff>:/EditorPluginScene/Icons/SceneExport16.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="CompileCpp">
+     <property name="text">
+      <string>Compile C++ Plugin</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QCheckBox" name="TransformAll">
      <property name="text">
