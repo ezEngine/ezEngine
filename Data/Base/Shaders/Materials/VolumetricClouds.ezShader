@@ -83,8 +83,11 @@ SamplerState NoiseMap_AutoSampler;
 
 float LightRay(float3 start, float3 dir)
 {
-  float stepL = 0.02f;
+  float stepL = 0.2f;
+  float initialOffset = stepL * noise1D(dot(start, float3(12.256, 2.646, 6.356)));
   float density = 0.0;
+  
+  start += initialOffset * dir;
   for(int i=0; i < 20; i++)
   {
     start += dir * stepL;
@@ -136,16 +139,13 @@ float4 TraceClouds()
   
 #ifdef SINGLE_CLOUD
   float3 curSamplePoint = G.Input.CameraPos + viewDir * 2.0f;
-  float stepSize = 0.2f;
+  float stepSize = 0.3f;
 #else
   float3 curSamplePoint = offset_over_sealevel + viewDir * cloudStartDistance.y;
   float stepSize = 2.0f;
 #endif
-  
-  
- 
-  
-  float density = 0.0;
+    
+  float totalTransmittance = 1.0;
   
   float3 color = float3(0.0f, 0.0f, 0.0f);
   
@@ -154,24 +154,33 @@ float4 TraceClouds()
   for(int i=0; i < 64; i++)
   {
     float weatherData = GetWeatherData(curSamplePoint.xy);
-    float curDensity = SampleCloudDensity(curSamplePoint, weatherData);
+    float curDensity = SampleCloudDensity(curSamplePoint, weatherData) * 3.0;
     curSamplePoint += viewDir * stepSize;
 	
-	if(curDensity > 0.0f)
-	{
-		density += curDensity;
+	if(curDensity > 0.0f && totalTransmittance > 0.0f)
+	{	
+		float transmittance = exp(-curDensity * stepSize);
 		
 		float densityOnLightRay = LightRay(curSamplePoint, SunDir);
 		
-		color += float3(1.0f, 1.0f, 1.0f) * exp(-densityOnLightRay) * exp(-density) * 0.1;
+		float powder_sugar_effect = 1.0 - exp(-densityOnLightRay * 2.0);
+		float beers_law = exp(-densityOnLightRay);
+		float light_energy = 2.0 * beers_law * powder_sugar_effect * HenyeyGreenstein(SunDir, viewDir, 0.2) + 0.05;
+		
+		color += float3(1.0, 1.0, 1.0) * (totalTransmittance * (light_energy - light_energy * transmittance) / curDensity);
+		
+		totalTransmittance *= transmittance;
+		
+		if(totalTransmittance <= 0.001)
+		{
+			totalTransmittance = 0.0;
+		}
 	}
   }
   
-  density = 1.0f - exp(-density);
+  color += float3(0.08, 0.1, 0.15) * 2.0; // ambient
   
-  color += float3(0.08, 0.1, 0.15); // ambient
-  
-  return float4(color, saturate(density));
+  return float4(color, saturate(1.0 - totalTransmittance));
 }
 
 

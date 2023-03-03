@@ -24,13 +24,25 @@ float remap(float original_value, float original_min, float original_max, float 
     return new_min + (((original_value - original_min) / (original_max - original_min)) * (new_max - new_min));
 }
 
+float HenyeyGreenstein(float3 inLightVector, float3 inViewVector, float inG)
+{
+	float cos_angle = dot(inLightVector, inViewVector);
+	return ((1.0 - inG * inG) / pow((1.0 + inG * inG - 2.0 * inG * cos_angle), 3.0 / 2.0)) / 4.0 * 3.1415;
+}
+
+// Noise generation functions (by iq)
+float noise1D( float n )
+{
+    return frac(sin(n)*43758.5453);
+}
+
 float GetWeatherData(float2 xy)
 {
     #ifdef SINGLE_CLOUD
     float grad = length(xy);
     grad = 1.0f - saturate(grad / 10.0f);
     grad = saturate(grad * 1.5f);
-    return grad * 0.5;
+    return grad * 0.6;
 	//return 0.2;
     #else
     
@@ -61,7 +73,7 @@ float SampleCloudDensity(float3 p, float weatherData)
 {    
     //return HeightProfile(p, CLOUD_START, CLOUD_END, 8.0f);
 
-    float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, p * 0.05 + (0.3).xxx);
+    float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, p * 0.1 + (0.3).xxx);
     
     float low_freq_fbm = (noise.g * 0.625) + (noise.b * 0.25) + (noise.a * 0.125);
     
@@ -73,7 +85,7 @@ float SampleCloudDensity(float3 p, float weatherData)
     base_cloud_with_coverage *= 1.0 - weatherData;
 	//float base_cloud_with_coverage = base_cloud * weatherData;
     
-    return max(base_cloud_with_coverage * 1.5, 0.0);
+    return max(base_cloud_with_coverage, 0.0);
     
     //return p.z > CLOUD_START ? 1.0f : 0.0f;
     //return p.z > 1500.0f ? 1.0f : 0.0f;

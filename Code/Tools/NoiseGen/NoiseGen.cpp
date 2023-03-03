@@ -15,17 +15,44 @@ ezNoiseGen::ezNoiseGen()
 
 ezVec3 hash33(ezVec3 p)
 {
-  ezVec3U32 q = ezVec3U32(static_cast<uint32_t>(p.x), static_cast<uint32_t>(p.y), static_cast<uint32_t>(p.z)).CompMul(UI3);
+  ezVec3U32 q = ezVec3U32(static_cast<uint32_t>(static_cast<int32_t>(p.x)), static_cast<uint32_t>(static_cast<int32_t>(p.y)), static_cast<uint32_t>(static_cast<int32_t>(p.z))).CompMul(UI3);
   q = (q.x ^ q.y ^ q.z) * UI3;
   return ezVec3(-1.0f) + (ezVec3(static_cast<float>(q.x), static_cast<float>(q.y), static_cast<float>(q.z)) * (UIF * 2.0f));
+}
+
+// frac behaves differently than ezMath::Fraction
+float frac(float x)
+{
+  return x - floorf(x);
+}
+
+ezVec3 frac(const ezVec3& x)
+{
+  return ezVec3(frac(x.x), frac(x.y), frac(x.z));
+}
+
+// mod2 behaves differently than ezMath::mod
+float mod2(float x, float y)
+{
+  return x - y * floorf(x / y);
+}
+
+ezVec3 mod2(const ezVec3& x, float y)
+{
+  return ezVec3(mod2(x.x, y), mod2(x.y, y), mod2(x.z, y));
+}
+
+ezVec3 floor(const ezVec3& v)
+{
+  return ezVec3(floorf(v.x), floorf(v.y), floorf(v.z));
 }
 
 // Gradient noise by iq (modified to be tileable)
 float gradientNoise(ezVec3 x, float freq)
 {
   // grid
-  ezVec3 p(ezMath::Floor(x.x), ezMath::Floor(x.y), ezMath::Floor(x.z));
-  ezVec3 w(ezMath::Fraction(x.x), ezMath::Fraction(x.y), ezMath::Fraction(x.z));
+  ezVec3 p(floor(x));
+  ezVec3 w(frac(x));
 
   // quintic interpolant
   ezVec3 u = w.CompMul(w).CompMul(w).CompMul(w.CompMul(w * 6.0f - ezVec3(15.0f)) + ezVec3(10.0f));
@@ -77,21 +104,22 @@ float perlinfbm(ezVec3 p, float freq, int octaves)
   return noise;
 }
 
+
 // Tileable 3D worley noise
 float worleyNoise(ezVec3 uv, float freq)
 {
-  ezVec3 id(ezMath::Floor(uv.x), ezMath::Floor(uv.y), ezMath::Floor(uv.z));
-  ezVec3 p(ezMath::Fraction(uv.x), ezMath::Fraction(uv.y), ezMath::Fraction(uv.z));;
+  ezVec3 id(floor(uv));
+  ezVec3 p(frac(uv));
 
   float minDist = 10000.0f;
-  for (float x = -1.; x <= 1.; ++x)
+  for (float x = -1.f; x <= 1.0f; x += 1.0f)
   {
-    for (float y = -1.; y <= 1.; ++y)
+    for (float y = -1.0f; y <= 1.0f; y += 1.0f)
     {
-      for (float z = -1.; z <= 1.; ++z)
+      for (float z = -1.0f; z <= 1.0f; z += 1.0f)
       {
         ezVec3 offset = ezVec3(x, y, z);
-        ezVec3 h = hash33((id + offset).Mod(freq)) * 0.5f + ezVec3(0.5f);
+        ezVec3 h = hash33(mod2(id + offset, freq)) * 0.5f + ezVec3(0.5f);
         h += offset;
         ezVec3 d = p - h;
         minDist = ezMath::Min(minDist, d.Dot(d));
@@ -100,7 +128,8 @@ float worleyNoise(ezVec3 uv, float freq)
   }
 
   // inverted worley noise
-  return 1. - minDist;
+  return 1.0f - minDist;
+  //return ezMath::Mod(id.y + 1.0f, freq) * 0.1f;
 }
 
 // Tileable Worley fbm inspired by Andrew Schneider's Real-Time Volumetric Cloudscapes
@@ -166,20 +195,20 @@ ezApplication::Execution ezNoiseGen::Run()
   //auto mem = noiseCube.GetByteBlobPtr();
   //memset(mem.GetPtr(), 0, mem.GetCount());
 
-  const float invSize = 1.0f / (128.0f - 1.0f);
+  const float invSize = 1.0f / (128.0f);
 
   float frequency = 4.0f;
 
   for(uint32_t slice = 0; slice < 128; slice++)
   {
-    float uvZ = static_cast<float>(slice) * invSize;
+    float uvZ = static_cast<float>(slice) * invSize + (invSize / 2.0);
     for(uint32_t y =0; y < 128; y++)
     {
       auto curPixel = noiseCube.GetPixelPointer<ezColorLinearUB>(0, 0, 0, 0, y, slice);
-      float uvY = static_cast<float>(y) * invSize;
+      float uvY = 1.0f - (static_cast<float>(y) * invSize + (invSize / 2.0));
       for(uint32_t x=0; x < 128; x++,curPixel++)
       {
-        float uvX = static_cast<float>(x) * invSize;
+        float uvX = static_cast<float>(x) * invSize + (invSize / 2.0);
 
         const ezVec3 uvw(uvX, uvY, uvZ);
 
@@ -191,6 +220,7 @@ ezApplication::Execution ezNoiseGen::Run()
         curPixel->b = floatToUint8(worleyFbm(uvw, frequency * 2.0f));
         curPixel->a = floatToUint8(worleyFbm(uvw, frequency * 4.0f));
         curPixel->r = floatToUint8(remap(perlinFbm, 0.0f, 1.0f, baseWorley, 1.0f));
+
       }
     }
   }
