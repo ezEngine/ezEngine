@@ -18,4 +18,5 @@ public:
 
   ezString m_sPluginName;
   Compiler m_Compiler = Compiler::None;
+  mutable ezString m_sMsBuildPath;
 };

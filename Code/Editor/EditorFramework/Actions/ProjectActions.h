@@ -52,7 +52,10 @@ public:
   static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
 
+  static ezActionDescriptorHandle s_hCppProjectMenu;
   static ezActionDescriptorHandle s_hSetupCppProject;
+  static ezActionDescriptorHandle s_hOpenCppProject;
+  static ezActionDescriptorHandle s_hCompileCppProject;
 };
 
 ///
@@ -112,6 +115,8 @@ public:
     ImportAsset,
     AssetProfiles,
     SetupCppProject,
+    OpenCppProject,
+    CompileCppProject,
     ShowDocsAndCommunity,
     ExportProject,
     PluginSelection,

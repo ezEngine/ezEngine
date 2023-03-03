@@ -181,9 +181,7 @@ public:
         ezCppSettings cppSettings;
         if (cppSettings.Load().Succeeded())
         {
-          ezStringBuilder sOutput;
-
-          if (ezCppProject::BuildCodeIfNecessary(cppSettings, sOutput).Failed())
+          if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
           {
             SetReturnCode(3);
             return ezApplication::Execution::Quit;

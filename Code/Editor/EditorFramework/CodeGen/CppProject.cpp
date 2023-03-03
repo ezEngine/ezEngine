@@ -4,8 +4,11 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/System/Process.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+
+#include <Shlobj.h>
 
 ezString ezCppProject::GetTargetSourceDir()
 {
@@ -80,7 +83,7 @@ bool ezCppProject::ExistsProjectCMakeListsTxt()
   return ezOSFile::ExistsFile(sPath);
 }
 
-ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput)
+ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
 {
   const ezString sProjectName = cfg.m_sPluginName;
 
@@ -137,7 +140,7 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezSt
     {
       if (ezOSFile::CopyFile(ftc.m_sSource, ftc.m_sDestination).Failed())
       {
-        inout_sOutput.AppendFormat("Failed to copy a file.\nSource: '{}'\nDestination: '{}'\n", ftc.m_sSource, ftc.m_sDestination);
+        ezLog::Error("Failed to copy a file.\nSource: '{}'\nDestination: '{}'\n", ftc.m_sSource, ftc.m_sDestination);
         return EZ_FAILURE;
       }
     }
@@ -153,7 +156,7 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezSt
         ezFileReader file;
         if (file.Open(filePath.m_sDestination).Failed())
         {
-          inout_sOutput.AppendFormat("Failed to open C++ project file for reading.\nSource: '{}'\n", filePath.m_sDestination);
+          ezLog::Error("Failed to open C++ project file for reading.\nSource: '{}'\n", filePath.m_sDestination);
           return EZ_FAILURE;
         }
 
@@ -167,7 +170,7 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezSt
         ezFileWriter file;
         if (file.Open(filePath.m_sDestination).Failed())
         {
-          inout_sOutput.AppendFormat("Failed to open C++ project file for writing.\nSource: '{}'\n", filePath.m_sDestination);
+          ezLog::Error("Failed to open C++ project file for writing.\nSource: '{}'\n", filePath.m_sDestination);
           return EZ_FAILURE;
         }
 
@@ -189,11 +192,11 @@ ezResult ezCppProject::CleanBuildDir(const ezCppSettings& cfg)
   return ezOSFile::DeleteFolder(sBuildDir);
 }
 
-ezResult ezCppProject::RunCMake(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput)
+ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
 {
   if (!ExistsProjectCMakeListsTxt())
   {
-    inout_sOutput.AppendFormat("No CMakeLists.txt exists in target source directory '{}'", GetTargetSourceDir());
+    ezLog::Error("No CMakeLists.txt exists in target source directory '{}'", GetTargetSourceDir());
     return EZ_FAILURE;
   }
 
@@ -228,18 +231,15 @@ ezResult ezCppProject::RunCMake(const ezCppSettings& cfg, ezStringBuilder& inout
 
   if (res.Failed())
   {
-    inout_sOutput.AppendFormat("Solution generation failed:\n\n");
-    inout_sOutput.AppendFormat("{}\n", log.m_sBuffer);
-    inout_sOutput.AppendFormat("{}\n", res.m_sMessage);
+    ezLog::Error("Solution generation failed:\n\n{}\n{}\n", log.m_sBuffer, res.m_sMessage);
     return EZ_FAILURE;
   }
 
-  inout_sOutput.AppendFormat("Generated solution successfully.\n\n");
-  inout_sOutput.AppendFormat("{}\n", log.m_sBuffer);
+  ezLog::Success("Solution generated.\n\n{}\n", log.m_sBuffer);
   return EZ_SUCCESS;
 }
 
-ezResult ezCppProject::RunCMakeIfNecessary(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput)
+ezResult ezCppProject::RunCMakeIfNecessary(const ezCppSettings& cfg)
 {
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
@@ -247,23 +247,120 @@ ezResult ezCppProject::RunCMakeIfNecessary(const ezCppSettings& cfg, ezStringBui
   if (ezCppProject::ExistsSolution(cfg))
     return EZ_SUCCESS;
 
-  return ezCppProject::RunCMake(cfg, inout_sOutput);
+  return ezCppProject::RunCMake(cfg);
 }
 
-ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput)
+ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 {
-  return EZ_SUCCESS;
+  EZ_LOG_BLOCK("Compile Solution");
+
+  if (cfg.m_sMsBuildPath.IsEmpty())
+  {
+    ezLog::Error("MSBuild path is not available.");
+    return EZ_FAILURE;
+  }
+
+  ezHybridArray<ezString, 32> errors;
+
+  ezProcessOptions po;
+  po.m_sProcess = cfg.m_sMsBuildPath;
+  po.m_bHideConsoleWindow = true;
+  po.m_onStdOut = [&](ezStringView res)
+  {
+    if (res.FindSubString_NoCase("error") != nullptr)
+      errors.PushBack(res);
+  };
+
+  po.AddArgument(ezCppProject::GetSolutionPath(cfg));
+  po.AddArgument("/m"); // multi-threaded compilation
+  po.AddArgument("/nr:false");
+  po.AddArgument("/t:Build");
+  po.AddArgument("/p:Configuration={}", BUILDSYSTEM_BUILDTYPE);
+  po.AddArgument("/p:Platform=x64");
+
+  ezStringBuilder sMsBuildCmd;
+  po.BuildCommandLineString(sMsBuildCmd);
+  ezLog::Dev("Running MSBuild: {}", sMsBuildCmd);
+
+  ezInt32 iReturnCode = 0;
+  if (ezProcess::Execute(po, &iReturnCode).Failed())
+  {
+    ezLog::Error("MSBuild failed to run.");
+    return EZ_FAILURE;
+  }
+
+  if (iReturnCode == 0)
+  {
+    ezLog::Success("Compiled C++ solution.");
+    return EZ_SUCCESS;
+  }
+
+  ezLog::Error("MSBuild failed with return code {}", iReturnCode);
+
+  for (const auto& err : errors)
+  {
+    ezLog::Error(err);
+  }
+
+  return EZ_FAILURE;
 }
 
-ezResult ezCppProject::BuildCodeIfNecessary(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput)
+ezResult ezCppProject::BuildCodeIfNecessary(const ezCppSettings& cfg)
 {
+  EZ_SUCCEED_OR_RETURN(ezCppProject::FindMsBuild(cfg));
+
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
 
   if (!ezCppProject::ExistsSolution(cfg))
   {
-    EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMake(cfg, inout_sOutput));
+    EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMake(cfg));
   }
 
-  return CompileSolution(cfg, inout_sOutput);
+  return CompileSolution(cfg);
+}
+
+ezResult ezCppProject::FindMsBuild(const ezCppSettings& cfg)
+{
+  if (!cfg.m_sMsBuildPath.IsEmpty())
+    return EZ_SUCCESS;
+
+  ezStringBuilder sVsWhere;
+
+  wchar_t* pPath = nullptr;
+  if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_ProgramFilesX86, KF_FLAG_DEFAULT, nullptr, &pPath)))
+  {
+    sVsWhere = ezStringWChar(pPath);
+    sVsWhere.AppendPath("Microsoft Visual Studio/Installer/vswhere.exe");
+
+    CoTaskMemFree(pPath);
+  }
+  else
+  {
+    ezLog::Error("Could not find the 'Program Files (x86)' folder.");
+    return EZ_FAILURE;
+  }
+
+  ezStringBuilder sStdOut;
+  ezProcessOptions po;
+  po.m_sProcess = sVsWhere;
+  po.m_bHideConsoleWindow = true;
+  po.m_onStdOut = [&](ezStringView res)
+  { sStdOut.Append(res); };
+
+  // TODO: search for VS2022 or VS2019 depending on cfg
+  po.AddCommandLine("-latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe");
+
+  if (ezProcess::Execute(po).Failed())
+  {
+    ezLog::Error("Executing vsWhere.exe failed. Do you have the correct version of Visual Studio installed?");
+    return EZ_FAILURE;
+  }
+
+  sStdOut.Trim("\n\r");
+  sStdOut.MakeCleanPath();
+
+  cfg.m_sMsBuildPath = sStdOut;
+
+  return EZ_SUCCESS;
 }

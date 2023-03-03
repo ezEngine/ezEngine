@@ -19,15 +19,17 @@ struct EZ_EDITORFRAMEWORK_DLL ezCppProject
 
   static bool ExistsProjectCMakeListsTxt();
 
-  static ezResult PopulateWithDefaultSources(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput);
+  static ezResult PopulateWithDefaultSources(const ezCppSettings& cfg);
 
   static ezResult CleanBuildDir(const ezCppSettings& cfg);
 
-  static ezResult RunCMake(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput);
+  static ezResult RunCMake(const ezCppSettings& cfg);
 
-  static ezResult RunCMakeIfNecessary(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput);
+  static ezResult RunCMakeIfNecessary(const ezCppSettings& cfg);
 
-  static ezResult CompileSolution(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput);
+  static ezResult CompileSolution(const ezCppSettings& cfg);
 
-  static ezResult BuildCodeIfNecessary(const ezCppSettings& cfg, ezStringBuilder& inout_sOutput);
+  static ezResult BuildCodeIfNecessary(const ezCppSettings& cfg);
+
+  static ezResult FindMsBuild(const ezCppSettings& cfg);
 };
