@@ -70,8 +70,7 @@ public:
 
       ezProcessAssetResponseMsg msg;
       {
-        ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void
-          { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
+        ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
           ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
@@ -193,8 +192,7 @@ public:
 
       bool bTransform = true;
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]()
-        {
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]() {
         if (!bTransform)
           return;
 
@@ -232,8 +230,7 @@ public:
     {
       ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
-        {
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
         ezAssetCurator::GetSingleton()->ResaveAllAssets();
         
           if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
@@ -256,8 +253,7 @@ public:
         m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
 
         ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
-        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
-          {
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
           static bool bRecursionBlock = false;
           if (bRecursionBlock)
             return;
