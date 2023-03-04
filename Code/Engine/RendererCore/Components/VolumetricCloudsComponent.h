@@ -43,4 +43,5 @@ private:
   ezMaterialResourceHandle m_hMaterial;
 
   ezTexture3DResourceHandle m_hNoiseLut;
+  ezTexture3DResourceHandle m_hDetailNoiseLut;
 };

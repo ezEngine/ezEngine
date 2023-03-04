@@ -76,6 +76,9 @@ void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
 Texture3D NoiseMap;
 SamplerState NoiseMap_AutoSampler;
 
+Texture3D DetailNoiseMap;
+SamplerState DetailNoiseMap_AutoSampler;
+
 #define CUSTOM_INTERPOLATOR float3 ViewDirection : TEXCOORD0; float3 CameraPos : TEXCOORD1;
 
 #include <Shaders/Materials/MaterialPixelShader.h>
@@ -139,7 +142,7 @@ float4 TraceClouds()
   
 #ifdef SINGLE_CLOUD
   float3 curSamplePoint = G.Input.CameraPos + viewDir * 2.0f;
-  float stepSize = 0.3f;
+  float stepSize = 0.15f;
 #else
   float3 curSamplePoint = offset_over_sealevel + viewDir * cloudStartDistance.y;
   float stepSize = 2.0f;
@@ -151,7 +154,7 @@ float4 TraceClouds()
   
   curSamplePoint += viewDir * stepSize * noise(viewDir.xy * 512.0);
   
-  for(int i=0; i < 64; i++)
+  for(int i=0; i < 128; i++)
   {
     float weatherData = GetWeatherData(curSamplePoint.xy);
     float curDensity = SampleCloudDensity(curSamplePoint, weatherData) * 3.0;
@@ -164,10 +167,10 @@ float4 TraceClouds()
 		float densityOnLightRay = LightRay(curSamplePoint, SunDir);
 		
 		float powder_sugar_effect = 1.0 - exp(-densityOnLightRay * 2.0);
-		float beers_law = exp(-densityOnLightRay);
+		float beers_law = exp(-densityOnLightRay * 6.0);
 		float light_energy = 2.0 * beers_law * powder_sugar_effect * HenyeyGreenstein(SunDir, viewDir, 0.2) + 0.05;
 		
-		color += float3(1.0, 1.0, 1.0) * (totalTransmittance * (light_energy - light_energy * transmittance) / curDensity);
+		color += float3(3.0, 3.0, 3.0) * (totalTransmittance * (light_energy - light_energy * transmittance) / curDensity);
 		
 		totalTransmittance *= transmittance;
 		

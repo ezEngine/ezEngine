@@ -12,7 +12,7 @@
 
 #ifdef SINGLE_CLOUD,
 #define CLOUD_START 0
-#define CLOUD_END 12
+#define CLOUD_END 30
 #else
 #define CLOUD_START 600
 #define CLOUD_END 800
@@ -42,8 +42,8 @@ float GetWeatherData(float2 xy)
     float grad = length(xy);
     grad = 1.0f - saturate(grad / 10.0f);
     grad = saturate(grad * 1.5f);
-    return grad * 0.6;
-	//return 0.2;
+    //return grad * 0.4;
+	return 0.2;
     #else
     
 	float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, float3(xy.x, xy.y, 0.0f));
@@ -73,17 +73,26 @@ float SampleCloudDensity(float3 p, float weatherData)
 {    
     //return HeightProfile(p, CLOUD_START, CLOUD_END, 8.0f);
 
-    float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, p * 0.1 + (0.3).xxx);
+    float4 noise = NoiseMap.Sample(NoiseMap_AutoSampler, p * 0.09);
     
     float low_freq_fbm = (noise.g * 0.625) + (noise.b * 0.25) + (noise.a * 0.125);
     
     float base_cloud = remap(noise.r, low_freq_fbm - 1.0, 1.0, 0.0, 1.0);
     
-    base_cloud *= HeightProfile(p, CLOUD_START, CLOUD_END, 1.5f);
+    base_cloud *= HeightProfile(p, CLOUD_START, CLOUD_END, 1.2f);
     
     float base_cloud_with_coverage = remap(base_cloud, 1.0 - weatherData, 1.0, 0.0, 1.0);
-    base_cloud_with_coverage *= 1.0 - weatherData;
+    //base_cloud_with_coverage *= 1.0 - weatherData;
 	//float base_cloud_with_coverage = base_cloud * weatherData;
+    
+    float3 detailNoise = DetailNoiseMap.Sample(DetailNoiseMap_AutoSampler, p * 0.009).rgb;
+    
+    float detailFbm = (detailNoise.r * 0.625) + (detailNoise.g * 0.25) + (detailNoise.b * 0.125);
+    
+    //float highFreqMultiplier = lerp(detailFbm, 1.0 - detailFbm, saturate(p.z - CLOUD_START) / (CLOUD_END - CLOUD_START));
+    float highFreqMultiplier = 1.0 - detailFbm;
+    
+    float final_cloud = remap(base_cloud_with_coverage, highFreqMultiplier * 0.2, 1.0, 0.0, 1.0);
     
     return max(base_cloud_with_coverage, 0.0);
     
