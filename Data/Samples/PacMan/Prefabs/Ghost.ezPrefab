@@ -432,6 +432,16 @@ o
 }
 o
 {
+	Uuid %id{u4{14996993303208357443,152609531109504750}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"PacMan"}
+	}
+}
+o
+{
 	Uuid %id{u4{8669475383504797179,171968258323293889}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1495,12 +1505,18 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Attributes
+		{
+			Uuid{u4{14996993303208357443,152609531109504750}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"PacManPlugin"}
-		VarArray %Properties{}
+		VarArray %Properties
+		{
+			Uuid{u4{9476820096914996971,8165259652525130524}}
+		}
 		s %TypeName{"GhostComponent"}
 		u3 %TypeVersion{1}
 	}
@@ -1578,6 +1594,24 @@ o
 	{
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Reference"}
 		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{9476820096914996971,8165259652525130524}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4768549720685373899,17877269092748179913}}
+			Uuid{u4{6953640505708317071,16799255707180156881}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Speed"}
+		s %Type{"float"}
 	}
 }
 o
@@ -2783,6 +2817,17 @@ o
 }
 o
 {
+	Uuid %id{u4{6953640505708317071,16799255707180156881}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x00002041}
+		f %Min{0xCDCCCC3D}
+	}
+}
+o
+{
 	Uuid %id{u4{10532438201304668756,16838845887497214935}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -2915,6 +2960,16 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"ezOnJoltContact::SlideReactions"}
 		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{4768549720685373899,17877269092748179913}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x00000040}
 	}
 }
 o
