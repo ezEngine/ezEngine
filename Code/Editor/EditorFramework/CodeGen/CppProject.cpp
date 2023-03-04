@@ -8,7 +8,9 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-#include <Shlobj.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <Shlobj.h>
+#endif
 
 ezEvent<const ezCppSettings&> ezCppProject::s_ChangeEvents;
 
@@ -349,6 +351,7 @@ ezResult ezCppProject::FindMsBuild(const ezCppSettings& cfg)
   if (!cfg.m_sMsBuildPath.IsEmpty())
     return EZ_SUCCESS;
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder sVsWhere;
 
   wchar_t* pPath = nullptr;
@@ -384,8 +387,10 @@ ezResult ezCppProject::FindMsBuild(const ezCppSettings& cfg)
   sStdOut.MakeCleanPath();
 
   cfg.m_sMsBuildPath = sStdOut;
-
   return EZ_SUCCESS;
+#else
+  return EZ_FAILURE;
+#endif
 }
 
 void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
