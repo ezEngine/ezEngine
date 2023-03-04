@@ -5,6 +5,7 @@
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Time/Timestamp.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Uuid.h>
 

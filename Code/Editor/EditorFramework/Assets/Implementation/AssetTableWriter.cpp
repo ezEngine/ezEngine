@@ -123,7 +123,10 @@ ezAssetTableWriter::ezAssetTableWriter(const ezApplicationFileSystemConfig& file
       ezLog::Error("Failed to resolve data directory named '{}' at '{}'", m_FileSystemConfig.m_DataDirs[i].m_sRootName, m_FileSystemConfig.m_DataDirs[i].m_sDataDirSpecialPath);
       m_DataDirRoots.PushBack({});
     }
-    m_DataDirRoots.PushBack(sDataDirPath);
+    else
+    {
+      m_DataDirRoots.PushBack(sDataDirPath);
+    }
   }
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetTableWriter::AssetCuratorEvents, this));

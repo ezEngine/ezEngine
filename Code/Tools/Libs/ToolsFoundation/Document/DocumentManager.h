@@ -13,7 +13,7 @@ public:
 
   static const ezHybridArray<ezDocumentManager*, 16>& GetAllDocumentManagers() { return s_AllDocumentManagers; }
 
-  static ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc);
+  static ezResult FindDocumentTypeFromPath(ezStringView sPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc);
 
   ezStatus CanOpenDocument(const char* szFilePath) const;
 
@@ -45,18 +45,18 @@ public:
   /// \brief Returns a list of all currently open documents that are managed by this document manager
   const ezDynamicArray<ezDocument*>& GetAllOpenDocuments() const { return m_AllOpenDocuments; }
 
-  ezDocument* GetDocumentByPath(const char* szPath) const;
+  ezDocument* GetDocumentByPath(ezStringView sPath) const;
 
   static ezDocument* GetDocumentByGuid(const ezUuid& guid);
 
   /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
   /// was open and needed to be closed.
-  static bool EnsureDocumentIsClosedInAllManagers(const char* szPath);
+  static bool EnsureDocumentIsClosedInAllManagers(ezStringView sPath);
 
   /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
   /// was open and needed to be closed. This function only operates on documents opened by this manager. Use EnsureDocumentIsClosedInAllManagers() to
   /// close documents of any type.
-  bool EnsureDocumentIsClosed(const char* szPath);
+  bool EnsureDocumentIsClosed(ezStringView sPath);
 
   void CloseAllDocumentsOfManager();
   static void CloseAllDocuments();

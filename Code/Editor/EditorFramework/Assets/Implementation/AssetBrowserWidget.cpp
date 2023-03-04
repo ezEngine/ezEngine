@@ -7,6 +7,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   : QWidget(pParent)
@@ -460,18 +461,18 @@ void ezQtAssetBrowserWidget::UpdateDirectoryTree()
     pNewParent->setExpanded(true);
   }
 
-  const ezSet<ezString>& Folders = ezAssetCurator::GetSingleton()->GetAllAssetFolders();
+  auto Folders = ezFileSystemModel::GetSingleton()->GetFolders();
 
-  if (m_uiKnownAssetFolderCount == Folders.GetCount())
+  if (m_uiKnownAssetFolderCount == Folders->GetCount())
     return;
 
-  m_uiKnownAssetFolderCount = Folders.GetCount();
+  m_uiKnownAssetFolderCount = Folders->GetCount();
 
   ezStringBuilder tmp;
 
-  for (const auto& sDir : Folders)
+  for (const auto& sDir : *Folders)
   {
-    tmp = sDir;
+    tmp = sDir.Key();
 
     if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(tmp))
       continue;

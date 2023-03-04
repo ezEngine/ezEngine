@@ -1770,7 +1770,7 @@ bool ezTestInt(ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, const
   if (i1 != i2)
   {
     char szErrorText[256];
-    safeprintf(szErrorText, 256, "Failure: '%s' (%i) does not equal '%s' (%i)", szI1, i1, szI2, i2);
+    safeprintf(szErrorText, 256, "Failure: '%s' (%lli) does not equal '%s' (%lli)", szI1, i1, szI2, i2);
 
     OUTPUT_TEST_ERROR
   }
