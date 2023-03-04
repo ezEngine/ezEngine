@@ -4,6 +4,8 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
+class ezCppSettings;
+
 ///
 class EZ_EDITORFRAMEWORK_DLL ezProjectActions
 {
@@ -129,6 +131,7 @@ public:
 
 private:
   void ProjectEventHandler(const ezToolsProjectEvent& e);
+  void CppEventHandler(const ezCppSettings& e);
 
   ButtonType m_ButtonType;
 };

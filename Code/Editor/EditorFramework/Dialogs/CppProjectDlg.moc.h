@@ -23,12 +23,10 @@ private Q_SLOTS:
   void on_OpenSolution_clicked();
   void on_GenerateSolution_clicked();
   void on_PluginName_textEdited(const QString& text);
-  void on_CompileSolution_clicked();
 
 private:
   void UpdateUI();
 
-  ezResult RunCMake();
-
+  ezCppSettings m_OldCppSettings;
   ezCppSettings m_CppSettings;
 };

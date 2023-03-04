@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Open C++ Project</string>
+   <string>Setup C++ Plugin</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
@@ -172,13 +172,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <item>
-      <widget class="QPushButton" name="CompileSolution">
-       <property name="text">
-        <string>Compile Solution</string>
-       </property>
-      </widget>
-     </item>
      <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">

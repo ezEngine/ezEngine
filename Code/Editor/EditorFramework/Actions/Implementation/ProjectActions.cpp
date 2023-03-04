@@ -105,7 +105,7 @@ void ezProjectActions::RegisterActions()
 
   s_hCppProjectMenu = EZ_REGISTER_MENU("Project.Cpp");
   s_hSetupCppProject = EZ_REGISTER_ACTION_1("Project.SetupCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::SetupCppProject);
-  s_hOpenCppProject = EZ_REGISTER_ACTION_1("Project.OpenCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenCppProject);
+  s_hOpenCppProject = EZ_REGISTER_ACTION_1("Project.OpenCppProject", ezActionScope::Global, "Project", "Ctrl+Shift+O", ezProjectAction, ezProjectAction::ButtonType::OpenCppProject);
   s_hCompileCppProject = EZ_REGISTER_ACTION_1("Project.CompileCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CompileCppProject);
 
   s_hDocsAndCommunity = EZ_REGISTER_ACTION_1("Editor.DocsAndCommunity", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::ShowDocsAndCommunity);
@@ -424,6 +424,14 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 
     ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
+
+  if (m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject)
+  {
+    SetEnabled(ezCppProject::ExistsProjectCMakeListsTxt());
+
+    ezCppProject::s_ChangeEvents.AddEventHandler(ezMakeDelegate(&ezProjectAction::CppEventHandler, this));
+  }
 }
 
 ezProjectAction::~ezProjectAction()
@@ -448,11 +456,30 @@ ezProjectAction::~ezProjectAction()
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
+
+  if (m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject)
+  {
+    ezCppProject::s_ChangeEvents.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::CppEventHandler, this));
+  }
 }
 
 void ezProjectAction::ProjectEventHandler(const ezToolsProjectEvent& e)
 {
-  SetEnabled(ezToolsProject::IsProjectOpen());
+  if (m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject)
+  {
+    SetEnabled(ezCppProject::ExistsProjectCMakeListsTxt());
+  }
+  else
+  {
+    SetEnabled(ezToolsProject::IsProjectOpen());
+  }
+}
+
+void ezProjectAction::CppEventHandler(const ezCppSettings& e)
+{
+  SetEnabled(ezCppProject::ExistsProjectCMakeListsTxt());
 }
 
 void ezProjectAction::Execute(const ezVariant& value)

@@ -10,6 +10,8 @@
 
 #include <Shlobj.h>
 
+ezEvent<const ezCppSettings&> ezCppProject::s_ChangeEvents;
+
 ezString ezCppProject::GetTargetSourceDir()
 {
   ezStringBuilder sTargetDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
@@ -78,6 +80,9 @@ bool ezCppProject::ExistsSolution(const ezCppSettings& cfg)
 
 bool ezCppProject::ExistsProjectCMakeListsTxt()
 {
+  if (!ezToolsProject::IsProjectOpen())
+    return false;
+
   ezStringBuilder sPath = GetTargetSourceDir();
   sPath.AppendPath("CMakeLists.txt");
   return ezOSFile::ExistsFile(sPath);
@@ -85,6 +90,9 @@ bool ezCppProject::ExistsProjectCMakeListsTxt()
 
 ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
 {
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+
   const ezString sProjectName = cfg.m_sPluginName;
 
   ezStringBuilder sProjectNameUpper = cfg.m_sPluginName;
@@ -179,11 +187,15 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
     }
   }
 
+  s_ChangeEvents.Broadcast(cfg);
   return EZ_SUCCESS;
 }
 
 ezResult ezCppProject::CleanBuildDir(const ezCppSettings& cfg)
 {
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+
   const ezString sBuildDir = GetBuildDir(cfg);
 
   if (!ezOSFile::ExistsDirectory(sBuildDir))
@@ -194,6 +206,9 @@ ezResult ezCppProject::CleanBuildDir(const ezCppSettings& cfg)
 
 ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
 {
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+
   if (!ExistsProjectCMakeListsTxt())
   {
     ezLog::Error("No CMakeLists.txt exists in target source directory '{}'", GetTargetSourceDir());
@@ -235,7 +250,14 @@ ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
     return EZ_FAILURE;
   }
 
+  if (!ExistsSolution(cfg))
+  {
+    ezLog::Error("CMake did not generate the expected solution. Did you attempt to rename it? If so, you may need to delete the top-level CMakeLists.txt file and set up the C++ project again.");
+    return EZ_FAILURE;
+  }
+
   ezLog::Success("Solution generated.\n\n{}\n", log.m_sBuffer);
+  s_ChangeEvents.Broadcast(cfg);
   return EZ_SUCCESS;
 }
 
@@ -252,6 +274,9 @@ ezResult ezCppProject::RunCMakeIfNecessary(const ezCppSettings& cfg)
 
 ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 {
+  QApplication::setOverrideCursor(Qt::WaitCursor);
+  EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+
   EZ_LOG_BLOCK("Compile Solution");
 
   if (cfg.m_sMsBuildPath.IsEmpty())
@@ -363,4 +388,27 @@ ezResult ezCppProject::FindMsBuild(const ezCppSettings& cfg)
   cfg.m_sMsBuildPath = sStdOut;
 
   return EZ_SUCCESS;
+}
+
+void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
+{
+  const ezStringBuilder sPluginName(cfg.m_sPluginName, "Plugin");
+
+  ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
+
+  ezStringBuilder txt;
+  bundles.m_Plugins.Remove(sPluginName);
+  ezPluginBundle& plugin = bundles.m_Plugins[sPluginName];
+  plugin.m_bLoadCopy = true;
+  plugin.m_bSelected = true;
+  plugin.m_bMissing = true;
+  plugin.m_LastModificationTime.Invalidate();
+  plugin.m_ExclusiveFeatures.PushBack("ProjectPlugin");
+  txt.Set("'", cfg.m_sPluginName, "' project plugin");
+  plugin.m_sDisplayName = txt;
+  txt.Set("C++ code for the '", cfg.m_sPluginName, "' project.");
+  plugin.m_sDescription = txt;
+  plugin.m_RuntimePlugins.PushBack(sPluginName);
+
+  ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
 }
