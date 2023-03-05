@@ -4,6 +4,8 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
+class ezCppSettings;
+
 ///
 class EZ_EDITORFRAMEWORK_DLL ezProjectActions
 {
@@ -52,7 +54,10 @@ public:
   static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
 
+  static ezActionDescriptorHandle s_hCppProjectMenu;
   static ezActionDescriptorHandle s_hSetupCppProject;
+  static ezActionDescriptorHandle s_hOpenCppProject;
+  static ezActionDescriptorHandle s_hCompileCppProject;
 };
 
 ///
@@ -112,6 +117,8 @@ public:
     ImportAsset,
     AssetProfiles,
     SetupCppProject,
+    OpenCppProject,
+    CompileCppProject,
     ShowDocsAndCommunity,
     ExportProject,
     PluginSelection,
@@ -124,6 +131,7 @@ public:
 
 private:
   void ProjectEventHandler(const ezToolsProjectEvent& e);
+  void CppEventHandler(const ezCppSettings& e);
 
   ButtonType m_ButtonType;
 };

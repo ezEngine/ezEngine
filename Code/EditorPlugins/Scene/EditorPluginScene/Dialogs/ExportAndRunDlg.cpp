@@ -1,5 +1,6 @@
 #include <EditorPluginScene/EditorPluginScenePCH.h>
 
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
 #include <EditorPluginScene/Dialogs/ExportAndRunDlg.moc.h>
@@ -8,6 +9,7 @@
 
 bool ezQtExportAndRunDlg::s_bTransformAll = true;
 bool ezQtExportAndRunDlg::s_bUpdateThumbnail = false;
+bool ezQtExportAndRunDlg::s_bCompileCpp = true;
 
 static int s_iLastPlayerApp = 0;
 
@@ -32,6 +34,8 @@ ezQtExportAndRunDlg::ezQtExportAndRunDlg(QWidget* pParent)
   }
 
   ToolCombo->setCurrentIndex(s_iLastPlayerApp);
+
+  m_CppSettings.Load().IgnoreResult();
 }
 
 void ezQtExportAndRunDlg::PullFromUI()
@@ -39,6 +43,7 @@ void ezQtExportAndRunDlg::PullFromUI()
   s_bTransformAll = TransformAll->isChecked();
   s_bUpdateThumbnail = UpdateThumbnail->isChecked();
   s_iLastPlayerApp = ToolCombo->currentIndex();
+  s_bCompileCpp = CompileCpp->isChecked();
 
   ezProjectPreferencesUser* pPref = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
   pPref->m_PlayerApps.Clear();
@@ -60,6 +65,17 @@ void ezQtExportAndRunDlg::showEvent(QShowEvent* e)
   TransformAll->setChecked(s_bTransformAll);
   UpdateThumbnail->setChecked(s_bUpdateThumbnail);
   PlayerCmdLine->setPlainText(m_sCmdLine.GetData());
+
+  if (!ezCppProject::ExistsProjectCMakeListsTxt())
+  {
+    CompileCpp->setEnabled(false);
+    CompileCpp->setToolTip("This project doesn't have a C++ plugin.");
+    CompileCpp->setChecked(false);
+  }
+  else
+  {
+    CompileCpp->setChecked(s_bCompileCpp);
+  }
 }
 
 void ezQtExportAndRunDlg::on_ExportOnly_clicked()

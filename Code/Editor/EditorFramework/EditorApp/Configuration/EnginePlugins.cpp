@@ -67,10 +67,13 @@ bool ezQtEditorApp::CheckForEnginePluginModifications()
   return false;
 }
 
-void ezQtEditorApp::RestartEngineProcessIfPluginsChanged()
+void ezQtEditorApp::RestartEngineProcessIfPluginsChanged(bool bForce)
 {
-  if (m_LastPluginModificationCheck + ezTime::Seconds(2) > ezTime::Now())
-    return;
+  if (!bForce)
+  {
+    if (m_LastPluginModificationCheck + ezTime::Seconds(2) > ezTime::Now())
+      return;
+  }
 
   m_LastPluginModificationCheck = ezTime::Now();
 

@@ -214,7 +214,7 @@ public:
   /// \brief Instructs the engine to reload its resources
   void ReloadEngineResources();
 
-  void RestartEngineProcessIfPluginsChanged();
+  void RestartEngineProcessIfPluginsChanged(bool bForce);
 
 Q_SIGNALS:
   void IdleEvent();

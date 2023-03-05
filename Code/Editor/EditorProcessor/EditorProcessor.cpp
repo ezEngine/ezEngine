@@ -6,6 +6,8 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessorMessages.h>
+#include <EditorFramework/CodeGen/CppProject.h>
+#include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
@@ -61,7 +63,10 @@ public:
   {
     if (const ezProcessAssetMsg* pMsg = ezDynamicCast<const ezProcessAssetMsg*>(e.m_pMessage))
     {
-      ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged();
+      if (pMsg->m_sAssetPath.HasExtension("ezPrefab") || pMsg->m_sAssetPath.HasExtension("ezScene"))
+      {
+        ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+      }
 
       ezProcessAssetResponseMsg msg;
       {
@@ -164,7 +169,26 @@ public:
 
     if (!sTransformProfile.IsEmpty())
     {
-      ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
+      if (ezQtEditorApp::GetSingleton()->OpenProject(sProject).Failed())
+      {
+        SetReturnCode(2);
+        return ezApplication::Execution::Quit;
+      }
+
+      // before we transform any assets, make sure the C++ code is properly built
+      {
+        ezCppSettings cppSettings;
+        if (cppSettings.Load().Succeeded())
+        {
+          if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
+          {
+            SetReturnCode(3);
+            return ezApplication::Execution::Quit;
+          }
+
+          ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+        }
+      }
 
       bool bTransform = true;
 
