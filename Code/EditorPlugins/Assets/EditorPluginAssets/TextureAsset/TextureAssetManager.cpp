@@ -109,7 +109,7 @@ ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetD
     sRelativePath.MakeRelativeTo(szDataDirectory).IgnoreResult();
     sRelativePath.RemoveFileExtension();
     sRelativePath.Append("-lowres");
-    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezTexture2D", false /* should be true, but pAssetProfile is null here */);
+    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezTexture2D", true);
     return sRelativePath;
   }
 
