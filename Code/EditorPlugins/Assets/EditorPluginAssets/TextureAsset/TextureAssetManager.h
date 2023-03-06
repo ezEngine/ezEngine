@@ -32,6 +32,8 @@ private:
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }
 
+  ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const;
+
 private:
   ezAssetDocumentTypeDescriptor m_DocTypeDesc;
   ezAssetDocumentTypeDescriptor m_DocTypeDesc2;

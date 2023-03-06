@@ -351,6 +351,12 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
+  if (!m_bIsRenderTarget)
+  {
+    // currently not working well enough
+    //pInfo->m_Outputs.Insert("LOWRES");
+  }
+
   for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
   {
     // remove unused dependencies
@@ -376,6 +382,13 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
 ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
+  ezStringBuilder sTargetFile = szTargetFile;
+
+  if (ezStringUtils::IsEqual(szOutputTag, "LOWRES"))
+  {
+    sTargetFile.ReplaceFirst("-lowres", "");
+  }
+
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
   const auto* pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
@@ -385,7 +398,7 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
   if (m_bIsRenderTarget)
   {
     ezDeferredFileWriter file;
-    file.SetOutput(szTargetFile);
+    file.SetOutput(sTargetFile);
 
     EZ_SUCCEED_OR_RETURN(AssetHeader.Write(file));
 
@@ -469,7 +482,7 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
 
 
     if (file.Close().Failed())
-      return ezTransformStatus(ezFmt("Writing to target file failed: '{0}'", szTargetFile));
+      return ezTransformStatus(ezFmt("Writing to target file failed: '{0}'", sTargetFile));
 
     return ezTransformStatus();
   }
@@ -477,14 +490,14 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
   {
     const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
 
-    ezTransformStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail, pAssetConfig);
+    ezTransformStatus result = RunTexConv(sTargetFile, AssetHeader, bUpdateThumbnail, pAssetConfig);
 
     ezFileStats stat;
-    if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
+    if (ezOSFile::GetFileStats(sTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
     {
       // if the file was touched, but nothing written to it, delete the file
       // might happen if TexConv crashed or had an error
-      ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
+      ezOSFile::DeleteFile(sTargetFile).IgnoreResult();
 
       if (result.Succeeded())
         result = ezTransformStatus("TexConv did not write an output file");

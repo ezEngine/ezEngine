@@ -1952,7 +1952,18 @@ void ezAssetCurator::ClearAssetCaches()
       if (pAsset->GetManager()->GetAssetTypeOutputReliability() != ezAssetDocumentManager::OutputReliability::Perfect)
         continue;
 
+      for (const auto& output : pAsset->m_Info->m_Outputs)
+      {
+        filePath = pAsset->GetManager()->GetAbsoluteOutputFileName(pAsset->m_pDocumentTypeDescriptor, pAsset->m_sAbsolutePath, output);
+        filePath.MakeCleanPath();
+        keepAssets.Insert(filePath);
+      }
+
       filePath = pAsset->GetManager()->GetAbsoluteOutputFileName(pAsset->m_pDocumentTypeDescriptor, pAsset->m_sAbsolutePath, nullptr);
+      filePath.MakeCleanPath();
+      keepAssets.Insert(filePath);
+
+      filePath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_sAbsolutePath);
       filePath.MakeCleanPath();
       keepAssets.Insert(filePath);
     }
@@ -1962,6 +1973,9 @@ void ezAssetCurator::ClearAssetCaches()
     {
       iter.GetStats().GetFullPath(filePath);
       filePath.MakeCleanPath();
+
+      if (filePath.EndsWith_NoCase("-lowres.ezTexture2D")) // HACK: Texture2D assets have an additional output, that is currently not tracked separately by the curator
+        continue;
 
       if (keepAssets.Contains(filePath))
         continue;

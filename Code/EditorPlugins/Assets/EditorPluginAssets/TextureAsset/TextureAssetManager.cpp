@@ -84,8 +84,7 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-void ezTextureAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
   out_pDocument = pDoc;
@@ -100,4 +99,19 @@ void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicA
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
   inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
+}
+
+ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
+{
+  if (ezStringUtils::IsEqual(szOutputTag, "LOWRES"))
+  {
+    ezStringBuilder sRelativePath(szDocumentPath);
+    sRelativePath.MakeRelativeTo(szDataDirectory).IgnoreResult();
+    sRelativePath.RemoveFileExtension();
+    sRelativePath.Append("-lowres");
+    ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezTexture2D", false /* should be true, but pAssetProfile is null here */);
+    return sRelativePath;
+  }
+
+  return SUPER::GetRelativeOutputFileName(pTypeDescriptor, szDataDirectory, szDocumentPath, szOutputTag, pAssetProfile);
 }
