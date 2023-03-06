@@ -1931,4 +1931,52 @@ void ezAssetCurator::SaveCaches()
 
 void ezAssetCurator::ClearAssetCaches()
 {
+  const bool bWasRunning = ezAssetProcessor::GetSingleton()->GetProcessTaskState() == ezAssetProcessor::ProcessTaskState::Running;
+
+  if (bWasRunning)
+  {
+    ezAssetProcessor::GetSingleton()->StopProcessTask(true);
+  }
+
+  {
+    EZ_LOCK(m_CuratorMutex);
+
+    ezStringBuilder filePath;
+
+    ezSet<ezString> keepAssets;
+    ezSet<ezString> filesToDelete;
+
+    for (auto it : m_KnownAssets)
+    {
+      auto* pAsset = it.Value();
+      if (pAsset->GetManager()->GetAssetTypeOutputReliability() != ezAssetDocumentManager::OutputReliability::Perfect)
+        continue;
+
+      filePath = pAsset->GetManager()->GetAbsoluteOutputFileName(pAsset->m_pDocumentTypeDescriptor, pAsset->m_sAbsolutePath, nullptr);
+      filePath.MakeCleanPath();
+      keepAssets.Insert(filePath);
+    }
+
+    ezFileSystemIterator iter;
+    for (ezFileSystem::StartSearch(iter, "AssetCache/", ezFileSystemIteratorFlags::ReportFilesRecursive); iter.IsValid(); iter.Next())
+    {
+      iter.GetStats().GetFullPath(filePath);
+      filePath.MakeCleanPath();
+
+      if (keepAssets.Contains(filePath))
+        continue;
+
+      filesToDelete.Insert(filePath);
+    }
+
+    for (const ezString& file : filesToDelete)
+    {
+      ezOSFile::DeleteFile(file).IgnoreResult();
+    }
+  }
+
+  if (bWasRunning)
+  {
+    ezAssetProcessor::GetSingleton()->StartProcessTask();
+  }
 }
