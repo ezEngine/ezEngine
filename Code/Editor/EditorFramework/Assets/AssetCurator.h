@@ -398,7 +398,6 @@ private:
   ///@{
 
 public:
-
   /// \brief Deletes all files in all asset caches, except for the asset outputs that exceed the threshold.
   ///
   /// -> OutputReliability::Perfect -> deletes everything
