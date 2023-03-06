@@ -1044,6 +1044,10 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
 
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
+  // delay adding ambient light until the scene isn't empty, to prevent adding two skylights
+  if (GetWorld()->GetObjectCount() == 0)
+    return;
+
   ezSkyLightComponentManager* pSkyMan = GetWorld()->GetComponentManager<ezSkyLightComponentManager>();
   if (pSkyMan == nullptr || pSkyMan->GetSingletonComponent() == nullptr)
   {
