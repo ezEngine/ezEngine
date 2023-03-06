@@ -47,6 +47,7 @@ ezActionDescriptorHandle ezProjectActions::s_hImportAsset;
 ezActionDescriptorHandle ezProjectActions::s_hAssetProfiles;
 ezActionDescriptorHandle ezProjectActions::s_hExportProject;
 ezActionDescriptorHandle ezProjectActions::s_hPluginSelection;
+ezActionDescriptorHandle ezProjectActions::s_hClearAssetCaches;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
@@ -93,6 +94,7 @@ void ezProjectActions::RegisterActions()
   s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction, ezProjectAction::ButtonType::ImportAsset);
   s_hAssetProfiles = EZ_REGISTER_ACTION_1("Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::AssetProfiles);
   s_hExportProject = EZ_REGISTER_ACTION_1("Project.ExportProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ExportProject);
+  s_hClearAssetCaches = EZ_REGISTER_ACTION_1("Project.ClearAssetCaches", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ClearAssetCaches);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -142,6 +144,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hDataDirectories);
   ezActionManager::UnregisterAction(s_hWindowConfig);
   ezActionManager::UnregisterAction(s_hImportAsset);
+  ezActionManager::UnregisterAction(s_hClearAssetCaches);
   ezActionManager::UnregisterAction(s_hInputConfig);
   ezActionManager::UnregisterAction(s_hAssetProfiles);
   ezActionManager::UnregisterAction(s_hCppProjectMenu);
@@ -190,6 +193,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hLaunchInspector, "Menu.Tools/ToolsCategory", 3.5f);
   pMap->MapAction(s_hSaveProfiling, "Menu.Tools/ToolsCategory", 4.0f);
   pMap->MapAction(s_hOpenVsCode, "Menu.Tools/ToolsCategory", 5.0f);
+  pMap->MapAction(s_hClearAssetCaches, "Menu.Tools/ToolsCategory", 6.0f);
 
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
   pMap->MapAction(s_hPreferencesDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
@@ -400,6 +404,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::ShowDocsAndCommunity:
       // SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
       break;
+    case ezProjectAction::ButtonType::ClearAssetCaches:
+      // SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
+      break;
   }
 
   if (m_ButtonType == ButtonType::CloseProject ||
@@ -418,6 +425,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       m_ButtonType == ButtonType::OpenCppProject ||
       m_ButtonType == ButtonType::CompileCppProject ||
       m_ButtonType == ButtonType::ExportProject ||
+      m_ButtonType == ButtonType::ClearAssetCaches ||
       m_ButtonType == ButtonType::PluginSelection)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
@@ -452,6 +460,7 @@ ezProjectAction::~ezProjectAction()
       m_ButtonType == ButtonType::OpenCppProject ||
       m_ButtonType == ButtonType::CompileCppProject ||
       m_ButtonType == ButtonType::ExportProject ||
+      m_ButtonType == ButtonType::ClearAssetCaches ||
       m_ButtonType == ButtonType::PluginSelection)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
@@ -580,10 +589,13 @@ void ezProjectAction::Execute(const ezVariant& value)
     case ezProjectAction::ButtonType::ExportProject:
     {
       ezQtExportProjectDlg dlg(nullptr);
-      if (dlg.exec() == QDialog::Accepted)
-      {
-        // TODO
-      }
+      dlg.exec();
+    }
+    break;
+
+    case ezProjectAction::ButtonType::ClearAssetCaches:
+    {
+      ezAssetCurator::GetSingleton()->ClearAssetCaches();
     }
     break;
 
@@ -674,7 +686,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezStringBuilder sEngineProfilingFile;
       {
         // Wait for engine process response
-        auto callback = [&](ezProcessMessage* pMsg) -> bool {
+        auto callback = [&](ezProcessMessage* pMsg) -> bool
+        {
           auto pSimpleCfg = static_cast<ezSaveProfilingResponseToEditor*>(pMsg);
           sEngineProfilingFile = pSimpleCfg->m_sProfilingFile;
           return true;

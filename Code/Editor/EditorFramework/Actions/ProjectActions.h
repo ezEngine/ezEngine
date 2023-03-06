@@ -53,6 +53,7 @@ public:
   static ezActionDescriptorHandle s_hSaveProfiling;
   static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
+  static ezActionDescriptorHandle s_hClearAssetCaches;
 
   static ezActionDescriptorHandle s_hCppProjectMenu;
   static ezActionDescriptorHandle s_hSetupCppProject;
@@ -122,6 +123,7 @@ public:
     ShowDocsAndCommunity,
     ExportProject,
     PluginSelection,
+    ClearAssetCaches,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

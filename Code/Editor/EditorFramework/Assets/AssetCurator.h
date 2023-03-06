@@ -394,6 +394,13 @@ private:
   void SaveCaches();
 
   ///@}
+  /// \name Utilities
+  ///@{
+
+public:
+  void ClearAssetCaches();
+
+  ///@}
 
 private:
   friend class ezUpdateTask;
