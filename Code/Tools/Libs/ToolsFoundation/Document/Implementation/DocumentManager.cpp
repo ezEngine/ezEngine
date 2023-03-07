@@ -417,7 +417,7 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
   s_Events.Broadcast(e);
 
   pDocument->BeforeClosing();
-  delete pDocument;// the pointer in e.m_pDocument won't be valid anymore at broadcast time, it is only sent for comparison purposes, not to be dereferenced
+  delete pDocument; // the pointer in e.m_pDocument won't be valid anymore at broadcast time, it is only sent for comparison purposes, not to be dereferenced
 
   e.m_Type = Event::Type::DocumentClosed;
   s_Events.Broadcast(e);
