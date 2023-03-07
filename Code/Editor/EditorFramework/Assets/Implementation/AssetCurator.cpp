@@ -1988,6 +1988,8 @@ void ezAssetCurator::ClearAssetCaches(ezAssetDocumentManager::OutputReliability 
     }
   }
 
+  ezAssetCurator::CheckFileSystem();
+
   ezAssetCurator::ProcessAllCoreAssets();
 
   if (bWasRunning)

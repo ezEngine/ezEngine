@@ -403,7 +403,7 @@ void ezSceneContext::HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* pM
   m_bRenderSelectionBoxes = pMsg->m_bRenderSelectionBoxes;
 
   if (pMsg->m_bAddAmbientLight)
-    AddAmbientLight(true);
+    AddAmbientLight(true, false);
   else
     RemoveAmbientLight();
 }
@@ -954,14 +954,13 @@ void ezSceneContext::OnThumbnailViewContextCreated()
   // make sure there is ambient light in the thumbnails
   // TODO: should check whether this is a prefab (info currently not available in ezSceneContext)
   RemoveAmbientLight();
-  AddAmbientLight(false);
+  AddAmbientLight(false, true);
 }
 
 void ezSceneContext::OnDestroyThumbnailViewContext()
 {
   RemoveAmbientLight();
 }
-
 
 void ezSceneContext::UpdateDocumentContext()
 {
@@ -1037,7 +1036,7 @@ bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThu
   return result;
 }
 
-void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
+void ezSceneContext::AddAmbientLight(bool bSetEditorTag, bool bForce)
 {
   if (!m_hSkyLight.IsInvalidated() || !m_hDirectionalLight.IsInvalidated())
     return;
@@ -1045,7 +1044,7 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
   // delay adding ambient light until the scene isn't empty, to prevent adding two skylights
-  if (GetWorld()->GetObjectCount() == 0)
+  if (!bForce && GetWorld()->GetObjectCount() == 0)
     return;
 
   ezSkyLightComponentManager* pSkyMan = GetWorld()->GetComponentManager<ezSkyLightComponentManager>();

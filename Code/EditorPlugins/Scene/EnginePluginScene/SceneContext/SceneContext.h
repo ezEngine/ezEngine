@@ -78,7 +78,7 @@ private:
     ezTag m_Tag;
   };
 
-  void AddAmbientLight(bool bSetEditorTag);
+  void AddAmbientLight(bool bSetEditorTag, bool bForce);
   void RemoveAmbientLight();
 
   void HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg);
