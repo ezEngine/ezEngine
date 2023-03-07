@@ -903,7 +903,7 @@ void ezProfilingSystem::SetDiscardThreshold(ezTime threshold) {}
 
 void ezProfilingSystem::StartNewFrame() {}
 
-void ezProfilingSystem::AddCPUScope(ezStringView sName, ezStringView sFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout) {}
+void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout) {}
 
 void ezProfilingSystem::Initialize() {}
 
