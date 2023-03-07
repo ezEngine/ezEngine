@@ -11,6 +11,8 @@ public:
   ezRenderPipelineAssetManager();
   ~ezRenderPipelineAssetManager();
 
+  virtual OutputReliability GetAssetTypeOutputReliability() const override { return ezAssetDocumentManager::OutputReliability::Perfect; }
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 

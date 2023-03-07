@@ -394,6 +394,18 @@ private:
   void SaveCaches();
 
   ///@}
+  /// \name Utilities
+  ///@{
+
+public:
+  /// \brief Deletes all files in all asset caches, except for the asset outputs that exceed the threshold.
+  ///
+  /// -> OutputReliability::Perfect -> deletes everything
+  /// -> OutputReliability::Good -> keeps the 'Perfect' files
+  /// -> OutputReliability::Unknown -> keeps the 'Good' and 'Perfect' files
+  void ClearAssetCaches(ezAssetDocumentManager::OutputReliability threshold);
+
+  ///@}
 
 private:
   friend class ezUpdateTask;

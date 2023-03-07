@@ -76,8 +76,7 @@ ezComponent* ezSettingsComponentManager<ComponentType>::CreateComponentStorage()
 {
   if (!m_Components.IsEmpty())
   {
-    ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.",
-      ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
   }
 
   m_Components.PushBack(EZ_NEW(GetAllocator(), ComponentType));

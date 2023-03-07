@@ -291,8 +291,7 @@ void ezGALCommandEncoder::CopyBufferRegion(
   }
 }
 
-void ezGALCommandEncoder::UpdateBuffer(
-  ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode)
+void ezGALCommandEncoder::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode)
 {
   AssertRenderingThread();
 

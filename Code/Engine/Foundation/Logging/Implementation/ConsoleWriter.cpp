@@ -58,7 +58,7 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       printf("----- %s (%.6f sec)-----\n\n", eventData.m_sText.GetData(sTemp1), eventData.m_fSeconds);
 #else
-      printf("----- %s (%s)-----\n\n", eventData.m_szText, "timing info not available");
+      printf("----- %s (%s)-----\n\n", eventData.m_sText.GetData(sTemp1), "timing info not available");
 #endif
       break;
 

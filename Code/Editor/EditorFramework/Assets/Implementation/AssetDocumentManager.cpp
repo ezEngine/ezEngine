@@ -127,12 +127,12 @@ ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const ezAssetDocument
 
 ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
-  const ezPlatformProfile* sPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
+  const ezPlatformProfile* pPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
   EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
 
   ezStringBuilder sRelativePath(szDocumentPath);
   sRelativePath.MakeRelativeTo(szDataDirectory).IgnoreResult();
-  GenerateOutputFilename(sRelativePath, sPlatform, pTypeDesc->m_sResourceFileExtension, GeneratesProfileSpecificAssets());
+  GenerateOutputFilename(sRelativePath, pPlatform, pTypeDesc->m_sResourceFileExtension, GeneratesProfileSpecificAssets());
 
   return sRelativePath;
 }
@@ -217,7 +217,10 @@ void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRela
   inout_sRelativeDocumentPath.MakeCleanPath();
 
   if (bPlatformSpecific)
-    inout_sRelativeDocumentPath.Prepend(pAssetProfile->GetConfigName(), "/");
+  {
+    const ezPlatformProfile* pPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
+    inout_sRelativeDocumentPath.Prepend(pPlatform->GetConfigName(), "/");
+  }
   else
     inout_sRelativeDocumentPath.Prepend("Common/");
 }

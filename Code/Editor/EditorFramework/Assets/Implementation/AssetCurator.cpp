@@ -1924,3 +1924,77 @@ void ezAssetCurator::SaveCaches()
 
   ezLog::Debug("Asset Curator SaveCaches: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
 }
+
+void ezAssetCurator::ClearAssetCaches(ezAssetDocumentManager::OutputReliability threshold)
+{
+  const bool bWasRunning = ezAssetProcessor::GetSingleton()->GetProcessTaskState() == ezAssetProcessor::ProcessTaskState::Running;
+
+  if (bWasRunning)
+  {
+    // pause background asset processing while we delete files
+    ezAssetProcessor::GetSingleton()->StopProcessTask(true);
+  }
+
+  {
+    EZ_LOCK(m_CuratorMutex);
+
+    ezStringBuilder filePath;
+
+    ezSet<ezString> keepAssets;
+    ezSet<ezString> filesToDelete;
+
+    // for all assets, gather their outputs and check which ones we want to keep
+    // e.g. textures are perfectly reliable, and even when clearing the cache we can keep them, also because they cost a lot of time to regenerate
+    for (auto it : m_KnownAssets)
+    {
+      auto* pAsset = it.Value();
+      if (pAsset->GetManager()->GetAssetTypeOutputReliability() > threshold)
+      {
+        // check additional outputs
+        for (const auto& output : pAsset->m_Info->m_Outputs)
+        {
+          filePath = pAsset->GetManager()->GetAbsoluteOutputFileName(pAsset->m_pDocumentTypeDescriptor, pAsset->m_sAbsolutePath, output);
+          filePath.MakeCleanPath();
+          keepAssets.Insert(filePath);
+        }
+
+        filePath = pAsset->GetManager()->GetAbsoluteOutputFileName(pAsset->m_pDocumentTypeDescriptor, pAsset->m_sAbsolutePath, nullptr);
+        filePath.MakeCleanPath();
+        keepAssets.Insert(filePath);
+
+        // and also keep the thumbnail
+        filePath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_sAbsolutePath);
+        filePath.MakeCleanPath();
+        keepAssets.Insert(filePath);
+      }
+    }
+
+    // iterate over all AssetCache folders in all data directories and gather the list of files for deletion
+    ezFileSystemIterator iter;
+    for (ezFileSystem::StartSearch(iter, "AssetCache/", ezFileSystemIteratorFlags::ReportFilesRecursive); iter.IsValid(); iter.Next())
+    {
+      iter.GetStats().GetFullPath(filePath);
+      filePath.MakeCleanPath();
+
+      if (keepAssets.Contains(filePath))
+        continue;
+
+      filesToDelete.Insert(filePath);
+    }
+
+    for (const ezString& file : filesToDelete)
+    {
+      ezOSFile::DeleteFile(file).IgnoreResult();
+    }
+  }
+
+  ezAssetCurator::CheckFileSystem();
+
+  ezAssetCurator::ProcessAllCoreAssets();
+
+  if (bWasRunning)
+  {
+    // restart background asset processing
+    ezAssetProcessor::GetSingleton()->StartProcessTask();
+  }
+}

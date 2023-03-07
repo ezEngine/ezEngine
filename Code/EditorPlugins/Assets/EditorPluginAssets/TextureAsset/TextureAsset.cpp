@@ -351,6 +351,12 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
+  if (!m_bIsRenderTarget)
+  {
+    // every 2D texture also generates a "-lowres" output, which is used to be embedded into materials for quick streaming
+    pInfo->m_Outputs.Insert("LOWRES");
+  }
+
   for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
   {
     // remove unused dependencies
@@ -376,6 +382,12 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
 ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
+  if (ezStringUtils::IsEqual(szOutputTag, "LOWRES"))
+  {
+    // no need to generate this file, it will be generated together with the main output
+    return ezTransformStatus();
+  }
+
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
   const auto* pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
