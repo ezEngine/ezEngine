@@ -177,7 +177,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T* pDestination, size_t uiCount)
 }
 
 template <typename T, size_t N>
-EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T (&destination)[N])
+EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFillArray(T (&destination)[N])
 {
   return ZeroFill(destination, N);
 }
@@ -189,7 +189,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFill(T* pDestination, ezUInt8 uiByte
 }
 
 template <typename T, size_t N>
-EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFill(T (&destination)[N], ezUInt8 uiBytePattern)
+EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFillArray(T (&destination)[N], ezUInt8 uiBytePattern)
 {
   return PatternFill(destination, uiBytePattern, N);
 }

@@ -277,7 +277,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 5);
 
     // T[N] overload
-    ezMemoryUtils::ZeroFill(uiRawData);
+    ezMemoryUtils::ZeroFillArray(uiRawData);
 
     EZ_TEST_INT(uiRawData[0], 0);
     EZ_TEST_INT(uiRawData[1], 0);
@@ -306,7 +306,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 5);
 
     // T[N] overload
-    ezMemoryUtils::PatternFill(uiRawData, 0xCD);
+    ezMemoryUtils::PatternFillArray(uiRawData, 0xCD);
 
     EZ_TEST_INT(uiRawData[0], 0xCD);
     EZ_TEST_INT(uiRawData[1], 0xCD);

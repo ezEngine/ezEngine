@@ -10,8 +10,8 @@ namespace
   {
     ezImageFormatMetaData()
     {
-      ezMemoryUtils::ZeroFill(m_uiBitsPerChannel);
-      ezMemoryUtils::ZeroFill(m_uiChannelMasks);
+      ezMemoryUtils::ZeroFillArray(m_uiBitsPerChannel);
+      ezMemoryUtils::ZeroFillArray(m_uiChannelMasks);
 
       m_planeData.SetCount(1);
     }
