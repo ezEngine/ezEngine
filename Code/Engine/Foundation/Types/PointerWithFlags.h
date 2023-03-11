@@ -107,7 +107,7 @@ public:
   bool operator!=(std::nullptr_t) const { return !(*this == nullptr); }
 
   /// \brief Checks whether the pointer part is not nullptr (flags are ignored)
-  operator bool() const { return GetPtr() != nullptr; }
+  explicit operator bool() const { return GetPtr() != nullptr; }
 
   /// \brief Dereferences the pointer
   const PtrType* operator->() const { return GetPtr(); }
