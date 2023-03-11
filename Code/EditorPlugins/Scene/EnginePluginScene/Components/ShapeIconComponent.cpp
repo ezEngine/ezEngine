@@ -16,23 +16,3 @@ EZ_END_COMPONENT_TYPE
 
 ezShapeIconComponent::ezShapeIconComponent() = default;
 ezShapeIconComponent::~ezShapeIconComponent() = default;
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_RemoveShapeIconComponents>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport)
-{
-  EZ_LOCK(ref_world.GetWriteMarker());
-
-  if (ezShapeIconComponentManager* pSiMan = ref_world.GetComponentManager<ezShapeIconComponentManager>())
-  {
-    for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
-    {
-      pSiMan->DeleteComponent(it->GetHandle());
-    }
-  }
-}

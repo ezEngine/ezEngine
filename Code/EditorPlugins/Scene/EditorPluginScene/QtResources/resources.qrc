@@ -85,8 +85,10 @@
     <file>ezStateMachineComponent.svg</file>
     <file>ezOccluderComponent.png</file>
     <file>ezForwardEventsToGameStateComponent.png</file>
+	<file>ezPathComponent.png</file>
 	<file>ezCommentComponent.png</file>
 	<file>ezCameraShakeVolumeSphereComponent.png</file>
+	<file>ezPathNodeComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>
