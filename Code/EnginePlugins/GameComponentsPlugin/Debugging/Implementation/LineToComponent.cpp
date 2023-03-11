@@ -102,8 +102,7 @@ ezLineToComponentManager::ezLineToComponentManager(ezWorld* pWorld)
 
 void ezLineToComponentManager::Initialize()
 {
-  auto desc =
-    ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezLineToComponentManager::Update, this), "ezLineToComponentManager::Update");
+  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezLineToComponentManager::Update, this), "ezLineToComponentManager::Update");
   desc.m_bOnlyUpdateWhenSimulating = false;
   desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
 

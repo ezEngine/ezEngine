@@ -555,7 +555,7 @@ void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
   if (len <= 0)
     return;
 
-  const double fLerpFactor = (tCP.m_Position.x - pCP.m_Position.x) / (nCP.m_Position.x - pCP.m_Position.x);
+  const double fLerpFactor = (tCP.m_Position.x - pCP.m_Position.x) / len;
 
   const ezVec2d dirP = (tCP.m_Position - pCP.m_Position) * 0.3333333333;
   const ezVec2d dirN = (nCP.m_Position - tCP.m_Position) * 0.3333333333;

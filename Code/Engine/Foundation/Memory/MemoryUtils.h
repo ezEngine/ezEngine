@@ -27,7 +27,7 @@ public:
   ///
   /// You should use 'DefaultConstruct' instead if default construction is needed for trivial types as well.
   template <typename T>
-  static void Construct(T* pDestination, size_t uiCount); // [tested]
+  static void Construct(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Returns a function pointer to construct an instance of T. Returns nullptr for trivial types.
   template <typename T>
@@ -36,7 +36,7 @@ public:
   /// \brief Default constructs \a uiCount objects of type T in a raw buffer at \a pDestination regardless of T being a class, POD or
   /// trivial.
   template <typename T>
-  static void DefaultConstruct(T* pDestination, size_t uiCount); // [tested]
+  static void DefaultConstruct(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Returns a function pointer to construct an instance of T. Always returns a constructor function regardless of T being a class,
   /// POD or trivial.
@@ -45,7 +45,7 @@ public:
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination, by creating \a uiCount copies of \a copy.
   template <typename Destination, typename Source>
-  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount); // [tested]
+  static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount = 1); // [tested]
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by
   /// using copy construction.
@@ -63,7 +63,7 @@ public:
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by
   /// using move construction.
   template <typename T>
-  static void MoveConstruct(T* pDestination, T* pSource, size_t uiCount);
+  static void MoveConstruct(T* pDestination, T* pSource, size_t uiCount = 1);
 
   /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was
   /// called with a rvalue reference or a const reference to \a source.
@@ -74,11 +74,11 @@ public:
   /// using move construction if availble, otherwise by copy construction. Calls destructor of source elements in any case (if it is a non
   /// primitive or memrelocatable type).
   template <typename T>
-  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount);
+  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount = 1);
 
   /// \brief Destructs \a uiCount objects of type T at \a pDestination.
   template <typename T>
-  static void Destruct(T* pDestination, size_t uiCount); // [tested]
+  static void Destruct(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Returns a function pointer to destruct an instance of T. Returns nullptr for POD-types.
   template <typename T>
@@ -88,7 +88,7 @@ public:
   ///
   /// If the two buffers overlap use CopyOverlapped instead.
   template <typename T>
-  static void Copy(T* pDestination, const T* pSource, size_t uiCount); // [tested]
+  static void Copy(T* pDestination, const T* pSource, size_t uiCount = 1); // [tested]
 
   /// \brief Copies exactly \a uiNumBytesToCopy from \a pSource to \a pDestination, independent of the involved types and their sizes.
   static void RawByteCopy(void* pDestination, const void* pSource, size_t uiNumBytesToCopy);
@@ -97,17 +97,17 @@ public:
   ///
   /// The two buffers may overlap when using this method.
   template <typename T>
-  static void CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount);
+  static void CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount = 1);
 
   /// \brief Moves objects of type T from \a pSource to \a pDestination.
   template <typename T>
-  static void Relocate(T* pDestination, T* pSource, size_t uiCount); // [tested]
+  static void Relocate(T* pDestination, T* pSource, size_t uiCount = 1); // [tested]
 
   /// \brief Moves objects of type T from \a pSource to \a pDestination.
   ///
   /// The two buffers may overlap when using this method.
   template <typename T>
-  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount); // [tested]
+  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount = 1); // [tested]
 
   /// \brief Moves \a uiCount objects in \a pDestination by one object and copies \a source to the free space.
   template <typename T>
@@ -127,19 +127,19 @@ public:
 
   /// \brief Zeros every byte in the provided memory buffer.
   template <typename T>
-  static void ZeroFill(T* pDestination, size_t uiCount); // [tested]
+  static void ZeroFill(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Zeros every byte in the provided memory buffer.
   template <typename T, size_t N>
-  static void ZeroFill(T (&destination)[N]); // [tested]
+  static void ZeroFillArray(T (&destination)[N]); // [tested]
 
   /// \brief Fills every byte of the provided buffer with the given value
   template <typename T>
-  static void PatternFill(T* pDestination, ezUInt8 uiBytePattern, size_t uiCount); // [tested]
+  static void PatternFill(T* pDestination, ezUInt8 uiBytePattern, size_t uiCount = 1); // [tested]
 
   /// \brief Fills every byte of the provided buffer with the given value
   template <typename T, size_t N>
-  static void PatternFill(T (&destination)[N], ezUInt8 uiBytePattern); // [tested]
+  static void PatternFillArray(T (&destination)[N], ezUInt8 uiBytePattern); // [tested]
 
   /// \brief Compares two buffers of raw memory byte wise.
   template <typename T>

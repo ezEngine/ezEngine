@@ -3,7 +3,7 @@
 template <typename T>
 EZ_ALWAYS_INLINE ezAmbientCube<T>::ezAmbientCube()
 {
-  ezMemoryUtils::ZeroFill(m_Values);
+  ezMemoryUtils::ZeroFillArray(m_Values);
 }
 
 template <typename T>
