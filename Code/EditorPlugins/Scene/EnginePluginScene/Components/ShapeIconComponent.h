@@ -2,9 +2,8 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
-#include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 
-typedef ezComponentManager<class ezShapeIconComponent, ezBlockStorageType::Compact> ezShapeIconComponentManager;
+using ezShapeIconComponentManager = ezComponentManager<class ezShapeIconComponent, ezBlockStorageType::Compact>;
 
 /// \brief This is a dummy component that the editor creates on all 'empty' nodes for the sole purpose to render a shape icon and enable picking.
 ///
@@ -19,14 +18,4 @@ class EZ_ENGINEPLUGINSCENE_DLL ezShapeIconComponent : public ezComponent
 public:
   ezShapeIconComponent();
   ~ezShapeIconComponent();
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemoveShapeIconComponents : public ezSceneExportModifier
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_RemoveShapeIconComponents, ezSceneExportModifier);
-
-public:
-  virtual void ModifyWorld(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport) override;
 };
