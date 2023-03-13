@@ -54,7 +54,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPathComponent, 1, ezComponentMode::Static)
   {
     EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezPathComponentFlags, GetPathFlags, SetPathFlags)->AddAttributes(new ezDefaultValueAttribute(ezPathComponentFlags::VisualizePath)),
     EZ_ACCESSOR_PROPERTY("Closed", GetClosed,SetClosed),
-    EZ_ACCESSOR_PROPERTY("Detail", GetLinearizationError, SetLinearizationError)->AddAttributes(new ezDefaultValueAttribute(0.01f), new ezClampValueAttribute(1.0f, 0.001f)),
+    EZ_ACCESSOR_PROPERTY("Detail", GetLinearizationError, SetLinearizationError)->AddAttributes(new ezDefaultValueAttribute(0.01f), new ezClampValueAttribute(0.001f, 1.0f)),
     EZ_ARRAY_ACCESSOR_PROPERTY("Nodes", Nodes_GetCount, Nodes_GetNode, Nodes_SetNode, Nodes_Insert, Nodes_Remove),
   }
   EZ_END_PROPERTIES;
@@ -630,17 +630,29 @@ static void GeneratePathSegment(ezUInt32 uiCp0, ezUInt32 uiCp1, ezArrayPtr<const
 
 static void ComputeSegmentUpVector(ezArrayPtr<ezPathComponent::LinearizedElement> segmentElements, ezUInt32 uiCp0, ezUInt32 uiCp1, const ezArrayPtr<const ezPathComponent::ControlPoint> points, const ezArrayPtr<const ezVec3> cpUp, const ezArrayPtr<const ezVec3> tangents, const ezVec3& vWorldUp)
 {
-  const double fSegmentLength = ComputePathLength(segmentElements);
-  const double fInvSegmentLength = 1.0 / fSegmentLength;
-
-  double fCurDist = 0.0;
-  ezVec3 vPrevPos = segmentElements[0].m_vPosition;
-
   const auto& cp0 = points[uiCp0];
   const auto& cp1 = points[uiCp1];
 
   const ezVec3 cp0up = cpUp[uiCp0];
   const ezVec3 cp1up = cpUp[uiCp1];
+
+  const double fSegmentLength = ComputePathLength(segmentElements);
+
+  if (fSegmentLength <= 0.00001f)
+  {
+    for (ezUInt32 t = 0; t < segmentElements.GetCount(); ++t)
+    {
+      segmentElements[t].m_vUpDirection = cp1up;
+    }
+
+    return;
+  }
+
+  const double fInvSegmentLength = 1.0 / fSegmentLength;
+
+  double fCurDist = 0.0;
+  ezVec3 vPrevPos = segmentElements[0].m_vPosition;
+
 
   for (ezUInt32 t = 0; t < segmentElements.GetCount(); ++t)
   {

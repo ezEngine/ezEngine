@@ -54,7 +54,11 @@ void ezFollowPathComponent::Update(bool bForce)
 
   ezGameObject* pPathObject = nullptr;
   if (!pWorld->TryGetObject(m_hPathObject, pPathObject))
+  {
+    // no need to retry this again
+    m_hPathObject.Invalidate();
     return;
+  }
 
   ezPathComponent* pPathComponent;
   if (!pPathObject->TryGetComponentOfBaseType(pPathComponent))
@@ -242,6 +246,23 @@ void ezFollowPathComponent::OnActivated()
 void ezFollowPathComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
+
+  // if no path reference was set, search the parent objects for a path
+  if (m_hPathObject.IsInvalidated())
+  {
+    ezGameObject* pParent = GetOwner()->GetParent();
+    while (pParent != nullptr)
+    {
+      ezPathComponent* pPath = nullptr;
+      if (pParent->TryGetComponentOfBaseType(pPath))
+      {
+        m_hPathObject = pPath->GetOwner()->GetHandle();
+        break;
+      }
+
+      pParent = pParent->GetParent();
+    }
+  }
 
   // initialize sampler
   SetDistanceAlongPath(m_fStartDistance);

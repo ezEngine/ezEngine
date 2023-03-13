@@ -89,6 +89,7 @@
 	<file>ezCommentComponent.png</file>
 	<file>ezCameraShakeVolumeSphereComponent.png</file>
 	<file>ezPathNodeComponent.png</file>
+	<file>ezFollowPathComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>
