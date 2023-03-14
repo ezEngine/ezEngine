@@ -411,7 +411,7 @@ void ezQtEditorApp::SetupNewProject()
   // write the default window config
   {
     ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-    sPath.AppendPath("Window.ddl");
+    sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
     ezWindowCreationDesc desc;
     desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
@@ -421,7 +421,7 @@ void ezQtEditorApp::SetupNewProject()
   // write a stub input mapping
   {
     ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-    sPath.AppendPath("InputConfig.ddl");
+    sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
     ezDeferredFileWriter file;
     file.SetOutput(sPath);

@@ -22,7 +22,7 @@ enum class ezFmodSpeakerMode : ezUInt8
   Mode7Point1,
 };
 
-/// \brief The fmod configuration to be used on a specific platform
+/// \brief The Fmod configuration to be used on a specific platform
 struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
 {
   ezString m_sMasterSoundBank;
@@ -38,11 +38,13 @@ struct EZ_FMODPLUGIN_DLL ezFmodConfiguration
   bool operator!=(const ezFmodConfiguration& rhs) const { return !operator==(rhs); }
 };
 
-/// \brief All available fmod platform configurations
+/// \brief All available Fmod platform configurations
 struct EZ_FMODPLUGIN_DLL ezFmodAssetProfiles
 {
-  ezResult Save(const char* szFile) const;
-  ezResult Load(const char* szFile);
+  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/FmodConfig.ddl"_ezsv;
+
+  ezResult Save(ezStringView sFile = s_sConfigFile) const;
+  ezResult Load(ezStringView sFile = s_sConfigFile);
 
   ezMap<ezString, ezFmodConfiguration> m_AssetProfiles;
 };
@@ -60,13 +62,13 @@ public:
   FMOD::Studio::System* GetStudioSystem() const { return m_pStudioSystem; }
   FMOD::System* GetLowLevelSystem() const { return m_pLowLevelSystem; }
 
-  /// \brief Can be called before startup to load the fmod configs from a different file.
-  /// Otherwise will automatically be loaded by fmod startup with the default path ":project/FmodConfig.ddl"
-  virtual void LoadConfiguration(const char* szFile) override;
+  /// \brief Can be called before startup to load the Fmod configs from a different file.
+  /// Otherwise will automatically be loaded by Fmod startup with the default path.
+  virtual void LoadConfiguration(ezStringView sFile) override;
 
-  /// \brief By default the fmod integration will auto-detect the platform (and thus the config) to use.
+  /// \brief By default the Fmod integration will auto-detect the platform (and thus the config) to use.
   /// Calling this before startup allows to override which configuration is used.
-  virtual void SetOverridePlatform(const char* szPlatform) override;
+  virtual void SetOverridePlatform(ezStringView sPlatform) override;
 
   /// \brief Automatically called by the plugin every time ezGameApplicationExecutionEvent::BeforeUpdatePlugins is fired.
   virtual void UpdateSound() override;
@@ -87,9 +89,9 @@ public:
   /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance or 'Speech'.
-  /// Note that the fmod strings banks are never loaded, so the given string must be a GUID (fmod Studio -> Copy GUID).
-  virtual void SetSoundGroupVolume(const char* szVcaGroupGuid, float fVolume) override;
-  virtual float GetSoundGroupVolume(const char* szVcaGroupGuid) const override;
+  /// Note that the Fmod strings banks are never loaded, so the given string must be a GUID (Fmod Studio -> Copy GUID).
+  virtual void SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume) override;
+  virtual float GetSoundGroupVolume(ezStringView sVcaGroupGuid) const override;
   void UpdateSoundGroupVolumes();
 
   /// \brief Default is 1. Allows to set how many virtual listeners the sound is mixed for (split screen game play).

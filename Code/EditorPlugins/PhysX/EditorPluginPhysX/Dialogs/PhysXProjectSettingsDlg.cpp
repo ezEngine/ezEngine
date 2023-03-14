@@ -66,11 +66,10 @@ void ezQtPhysxProjectSettingsDlg::SetupTable()
 
 ezResult ezQtPhysxProjectSettingsDlg::Save()
 {
-  const char* szFile = ":project/RuntimeConfigs/CollisionLayers.cfg";
-  if (m_Config.Save(szFile).Failed())
+  if (m_Config.Save().Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Failed to save the Collision Layer file\n'{0}'", szFile);
+    sError.Format("Failed to save the Collision Layer file");
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
@@ -84,7 +83,7 @@ ezResult ezQtPhysxProjectSettingsDlg::Save()
 
 ezResult ezQtPhysxProjectSettingsDlg::Load()
 {
-  auto res = m_Config.Load(":project/RuntimeConfigs/CollisionLayers.cfg");
+  auto res = m_Config.Load();
 
   if (res.Failed())
   {

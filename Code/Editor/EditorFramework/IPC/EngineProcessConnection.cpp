@@ -146,10 +146,19 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
 
   {
     ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-    sWndCfgPath.AppendPath("Window.ddl");
+    sWndCfgPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-    args << "-wnd";
-    args << sWndCfgPath.GetData();
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+    ezStringBuilder sWndCfgPathOld = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sWndCfgPathOld.AppendPath("Window.ddl");
+    sWndCfgPath = ezFileSystem::MigrateFileLocation(sWndCfgPathOld, sWndCfgPath);
+#endif
+
+    if (ezFileSystem::ExistsFile(sWndCfgPath))
+    {
+      args << "-wnd";
+      args << sWndCfgPath.GetData();
+    }
   }
 
   // set up the EditorEngineProcess telemetry server on a different port

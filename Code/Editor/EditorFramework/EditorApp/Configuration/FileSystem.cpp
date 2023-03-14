@@ -51,7 +51,7 @@ void ezQtEditorApp::SetupDataDirectories()
 
   ezFileSystem::SetSpecialDirectory("project", sPath);
 
-  sPath.AppendPath("DataDirectories.ddl");
+  sPath.AppendPath("RuntimeConfigs/DataDirectories.ddl");
   // we cannot use the default ":project/" path here, because that data directory will only be configured a few lines below
   // so instead we use the absolute path directly
   m_FileSystemConfig.Load(sPath);

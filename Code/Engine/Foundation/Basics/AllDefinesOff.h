@@ -90,3 +90,6 @@
 
 // Application entry point code injection (undef and redefine in UserConfig.h if needed)
 #define EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION
+
+// Whether 'RuntimeConfigs' files should be searched in the old location
+#define EZ_MIGRATE_RUNTIMECONFIGS EZ_OFF

@@ -135,10 +135,10 @@ bool ezFmodConfiguration::operator==(const ezFmodConfiguration& rhs) const
   return true;
 }
 
-ezResult ezFmodAssetProfiles::Save(const char* szFile) const
+ezResult ezFmodAssetProfiles::Save(ezStringView sFile) const
 {
   ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   ezOpenDdlWriter ddl;
   ddl.SetOutputStream(&file);
@@ -158,12 +158,19 @@ ezResult ezFmodAssetProfiles::Save(const char* szFile) const
   return EZ_SUCCESS;
 }
 
-ezResult ezFmodAssetProfiles::Load(const char* szFile)
+ezResult ezFmodAssetProfiles::Load(ezStringView sFile)
 {
   m_AssetProfiles.Clear();
 
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  if (sFile == s_sConfigFile)
+  {
+    sFile = ezFileSystem::MigrateFileLocation(":project/FmodConfig.ddl", s_sConfigFile);
+  }
+#endif
+
   ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   ezOpenDdlReader ddl;
   EZ_SUCCEED_OR_RETURN(ddl.ParseDocument(file));

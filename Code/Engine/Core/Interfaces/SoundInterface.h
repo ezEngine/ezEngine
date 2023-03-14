@@ -6,13 +6,13 @@
 class ezSoundInterface
 {
 public:
-  /// \brief Can be called before startup to load the fmod configs from a different file.
-  /// Otherwise will automatically be loaded by fmod startup with the default path ":project/FmodConfig.ddl"
-  virtual void LoadConfiguration(const char* szFile) = 0;
+  /// \brief Can be called before startup to load the configs from a different file.
+  /// Otherwise will automatically be loaded by the sound system startup with the default path.
+  virtual void LoadConfiguration(ezStringView sFile) = 0;
 
-  /// \brief By default the fmod integration will auto-detect the platform (and thus the config) to use.
+  /// \brief By default the integration should auto-detect the platform (and thus the config) to use.
   /// Calling this before startup allows to override which configuration is used.
-  virtual void SetOverridePlatform(const char* szPlatform) = 0;
+  virtual void SetOverridePlatform(ezStringView sPlatform) = 0;
 
   /// \brief Has to be called once per frame to update all sounds
   virtual void UpdateSound() = 0;
@@ -33,9 +33,9 @@ public:
   /// \brief Specifies the volume for a VCA ('Voltage Control Amplifier').
   ///
   /// This is used to control the volume of high level sound groups, such as 'Effects', 'Music', 'Ambiance' or 'Speech'.
-  /// Note that the fmod strings banks are never loaded, so the given string must be a GUID (fmod Studio -> Copy GUID).
-  virtual void SetSoundGroupVolume(const char* szVcaGroupGuid, float fVolume) = 0;
-  virtual float GetSoundGroupVolume(const char* szVcaGroupGuid) const = 0;
+  /// Note that the Fmod strings banks are never loaded, so the given string must be a GUID (Fmod Studio -> Copy GUID).
+  virtual void SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume) = 0;
+  virtual float GetSoundGroupVolume(ezStringView sVcaGroupGuid) const = 0;
 
   /// \brief Default is 1. Allows to set how many virtual listeners the sound is mixed for (split screen game play).
   virtual void SetNumListeners(ezUInt8 uiNumListeners) = 0;

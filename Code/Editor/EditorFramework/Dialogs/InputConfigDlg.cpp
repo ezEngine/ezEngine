@@ -10,9 +10,14 @@ void UpdateInputDynamicEnumValues()
 {
   ezHybridArray<ezGameAppInputConfig, 32> Actions;
 
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
-  sPath.PathParentDirectory();
-  sPath.AppendPath("InputConfig.ddl");
+  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
+
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  ezStringBuilder sOldPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  sOldPath.AppendPath("InputConfig.ddl");
+  sPath = ezFileSystem::MigrateFileLocation(sOldPath, sPath);
+#endif
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
@@ -165,9 +170,14 @@ void ezQtInputConfigDlg::LoadActions()
 {
   m_Actions.Clear();
 
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
-  sPath.PathParentDirectory();
-  sPath.AppendPath("InputConfig.ddl");
+  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
+
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  ezStringBuilder sOldPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  sOldPath.AppendPath("InputConfig.ddl");
+  sPath = ezFileSystem::MigrateFileLocation(sOldPath, sPath);
+#endif
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
@@ -178,9 +188,8 @@ void ezQtInputConfigDlg::LoadActions()
 
 void ezQtInputConfigDlg::SaveActions()
 {
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
-  sPath.PathParentDirectory();
-  sPath.AppendPath("InputConfig.ddl");
+  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
   ezDeferredFileWriter file;
   file.SetOutput(sPath);
@@ -189,7 +198,7 @@ void ezQtInputConfigDlg::SaveActions()
 
   if (file.Close().Failed())
     ezLog::Error("Failed to save '{0}'.", sPath);
-}
+  }
 
 void ezQtInputConfigDlg::FillList()
 {

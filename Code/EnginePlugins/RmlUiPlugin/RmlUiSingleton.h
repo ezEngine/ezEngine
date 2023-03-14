@@ -8,13 +8,15 @@
 class ezRmlUiContext;
 struct ezMsgExtractRenderData;
 
-/// \brief The fmod configuration to be used on a specific platform
+/// \brief The RML configuration to be used on a specific platform
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiConfiguration
 {
   ezDynamicArray<ezString> m_Fonts;
 
-  ezResult Save(const char* szFile) const;
-  ezResult Load(const char* szFile);
+  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/RmlUiConfig.ddl"_ezsv;
+
+  ezResult Save(ezStringView sFile = s_sConfigFile) const;
+  ezResult Load(ezStringView sFile = s_sConfigFile);
 
   bool operator==(const ezRmlUiConfiguration& rhs) const;
   bool operator!=(const ezRmlUiConfiguration& rhs) const { return !operator==(rhs); }

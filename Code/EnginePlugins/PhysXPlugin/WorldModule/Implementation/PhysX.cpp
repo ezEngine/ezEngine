@@ -44,7 +44,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* szMessag
           ezStringUtils::IsEqual(szMessage, "Gu::overlap(): pose1 is not valid.") ||
           ezStringUtils::IsEqual(szMessage, "PxScene::sweep(): pose1 is not valid."))
       {
-        //ezLog::Warning("Invalid pose");
+        // ezLog::Warning("Invalid pose");
         return;
       }
       ezLog::Error("PhysX Invalid Parameter: {0}", szMessage);
@@ -64,7 +64,7 @@ void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* szMessag
 
 //////////////////////////////////////////////////////////////////////////
 
-//#define EZ_PX_DETAILED_MEMORY_STATS EZ_ON
+// #define EZ_PX_DETAILED_MEMORY_STATS EZ_ON
 #define EZ_PX_DETAILED_MEMORY_STATS EZ_OFF
 
 ezPxAllocatorCallback::ezPxAllocatorCallback()
@@ -298,9 +298,9 @@ void ezPhysX::LoadCollisionFilters()
 {
   EZ_LOG_BLOCK("ezPhysX::LoadCollisionFilters");
 
-  if (m_CollisionFilterConfig.Load("RuntimeConfigs/CollisionLayers.cfg").Failed())
+  if (m_CollisionFilterConfig.Load().Failed())
   {
-    ezLog::Info("Collision filter config file could not be found ('RuntimeConfigs/CollisionLayers.cfg'). Using default values.");
+    ezLog::Info("Collision filter config file could not be found ('{}'). Using default values.", ezCollisionFilterConfig::s_sConfigFile);
 
     // setup some default config
 
