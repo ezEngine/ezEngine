@@ -198,7 +198,7 @@ void ezQtInputConfigDlg::SaveActions()
 
   if (file.Close().Failed())
     ezLog::Error("Failed to save '{0}'.", sPath);
-  }
+}
 
 void ezQtInputConfigDlg::FillList()
 {
