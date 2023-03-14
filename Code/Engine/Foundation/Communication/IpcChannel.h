@@ -70,7 +70,7 @@ public:
   /// \brief Block and wait for new messages and call ProcessMessages.
   ezResult WaitForMessages(ezTime timeout);
 
-  ezEvent<const ezIpcChannelEvent&, ezMutex> m_Events;      ///< Will be sent from any thread.
+  ezEvent<const ezIpcChannelEvent&, ezMutex> m_Events; ///< Will be sent from any thread.
   ezEvent<const ezProcessMessage*> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
 
 protected:
