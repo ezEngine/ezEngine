@@ -93,6 +93,8 @@ void RtsGameState::UpdateMousePosition()
 
 void RtsGameState::ProcessInput()
 {
+  SUPER::ProcessInput();
+
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
   UpdateMousePosition();

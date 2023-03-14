@@ -253,6 +253,9 @@ bool ezQtEditorApp::ExistsPluginSelectionStateDDL(const char* szProjectDir /*= "
 
 void ezQtEditorApp::WritePluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
 {
+  if (m_StartupFlags.IsAnySet(StartupFlags::Background | StartupFlags::Headless | StartupFlags::UnitTest))
+    return;
+
   ezStringBuilder path = szProjectDir;
   path.AppendPath("Editor/PluginSelection.ddl");
 
@@ -267,6 +270,9 @@ void ezQtEditorApp::WritePluginSelectionStateDDL(const char* szProjectDir /*= ":
 
 void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate)
 {
+  if (m_StartupFlags.IsAnySet(StartupFlags::Background | StartupFlags::Headless | StartupFlags::UnitTest))
+    return;
+
   ezStringBuilder sPath = szProjectFile;
   sPath.PathParentDirectory();
 

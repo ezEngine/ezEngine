@@ -7,6 +7,7 @@ export enum GreyBoxShape {  Box = 0, RampX = 1, RampY = 2, Column = 3, StairsX =
 export enum InputMessageGranularity {  PressOnly = 0, PressAndRelease = 1, PressReleaseAndDown = 2 }
 export enum OnComponentFinishedAction {  None = 0, DeleteComponent = 1, DeleteGameObject = 2 }
 export enum OnComponentFinishedAction2 {  None = 0, DeleteComponent = 1, DeleteGameObject = 2, Restart = 3 }
+export enum PathNodeTangentMode {  Auto = 0, Linear = 1 }
 export enum PropertyAnimMode {  Once = 0, Loop = 1, BackAndForth = 2 }
 export enum ReflectionProbeMode {  Static = 0, Dynamic = 1 }
 export enum RootMotionMode {  Ignore = 0, ApplyToOwner = 1, SendMoveCharacterMsg = 2 }

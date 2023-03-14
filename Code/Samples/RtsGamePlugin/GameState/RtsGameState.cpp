@@ -92,6 +92,9 @@ void RtsGameState::PreloadAssets()
 
 void RtsGameState::BeforeWorldUpdate()
 {
+  if (IsLoadingScene())
+    return;
+
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
   ActivateQueuedGameMode();
