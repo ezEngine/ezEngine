@@ -276,16 +276,11 @@ void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, 1, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 
 void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
   out_entries.Clear();
-
-  if (ezQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList().IsEmpty())
-    return;
 
   ezStringBuilder sTemp;
 

@@ -95,6 +95,7 @@ export import DirectionalLightComponent = __AllComponents.DirectionalLightCompon
 export import EventMessageHandlerComponent = __AllComponents.EventMessageHandlerComponent;
 export import FakeRopeComponent = __AllComponents.FakeRopeComponent;
 export import FogComponent = __AllComponents.FogComponent;
+export import FollowPathComponent = __AllComponents.FollowPathComponent;
 export import ForwardEventsToGameStateComponent = __AllComponents.ForwardEventsToGameStateComponent;
 export import MeshComponent = __AllComponents.MeshComponent;
 export import GizmoComponent = __AllComponents.GizmoComponent;
@@ -110,6 +111,8 @@ export import LineToComponent = __AllComponents.LineToComponent;
 export import MarkerComponent = __AllComponents.MarkerComponent;
 export import MoveToComponent = __AllComponents.MoveToComponent;
 export import OccluderComponent = __AllComponents.OccluderComponent;
+export import PathComponent = __AllComponents.PathComponent;
+export import PathNodeComponent = __AllComponents.PathNodeComponent;
 export import PlayerStartPointComponent = __AllComponents.PlayerStartPointComponent;
 export import PointLightComponent = __AllComponents.PointLightComponent;
 export import PowerConnectorComponent = __AllComponents.PowerConnectorComponent;
@@ -153,6 +156,7 @@ export import WindVolumeSphereComponent = __AllComponents.WindVolumeSphereCompon
 
 // AUTO-GENERATED
 import __AllMessages = require("./ez/AllMessages")
+export import EventMsgPathChanged = __AllMessages.EventMsgPathChanged;
 export import EventMsgSetPowerInput = __AllMessages.EventMsgSetPowerInput;
 export import MsgAnimationPosePreparing = __AllMessages.MsgAnimationPosePreparing;
 export import MsgAnimationPoseProposal = __AllMessages.MsgAnimationPoseProposal;
@@ -204,6 +208,7 @@ export import CameraUsageHint = __AllEnums.CameraUsageHint;
 export import GreyBoxShape = __AllEnums.GreyBoxShape;
 export import InputMessageGranularity = __AllEnums.InputMessageGranularity;
 export import OnComponentFinishedAction = __AllEnums.OnComponentFinishedAction;
+export import PathNodeTangentMode = __AllEnums.PathNodeTangentMode;
 export import PropertyAnimMode = __AllEnums.PropertyAnimMode;
 export import ReflectionProbeMode = __AllEnums.ReflectionProbeMode;
 export import RootMotionMode = __AllEnums.RootMotionMode;
@@ -224,5 +229,6 @@ export import XRTransformSpace = __AllEnums.XRTransformSpace;
 // AUTO-GENERATED
 import __AllFlags = require("./ez/AllFlags")
 export import ClothSheetFlags = __AllFlags.ClothSheetFlags;
+export import PathComponentFlags = __AllFlags.PathComponentFlags;
 export import PhysicsShapeType = __AllFlags.PhysicsShapeType;
 

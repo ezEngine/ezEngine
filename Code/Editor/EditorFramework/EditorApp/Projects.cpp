@@ -254,7 +254,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         SaveRecentFiles();
       }
 
-      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest))
+      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest | ezQtEditorApp::StartupFlags::Background))
       {
         ezTimestamp lastTransform = ezAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
 

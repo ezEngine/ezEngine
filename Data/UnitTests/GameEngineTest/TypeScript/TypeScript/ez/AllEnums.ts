@@ -6,6 +6,7 @@ export enum CameraUsageHint {  None = 0, MainView = 1, EditorView = 2, RenderTar
 export enum GreyBoxShape {  Box = 0, RampX = 1, RampY = 2, Column = 3, StairsX = 4, StairsY = 5, ArchX = 6, ArchY = 7, SpiralStairs = 8 }
 export enum InputMessageGranularity {  PressOnly = 0, PressAndRelease = 1, PressReleaseAndDown = 2 }
 export enum OnComponentFinishedAction {  None = 0, DeleteComponent = 1, DeleteGameObject = 2 }
+export enum PathNodeTangentMode {  Auto = 0, Linear = 1 }
 export enum PropertyAnimMode {  Once = 0, Loop = 1, BackAndForth = 2 }
 export enum ReflectionProbeMode {  Static = 0, Dynamic = 1 }
 export enum RootMotionMode {  Ignore = 0, ApplyToOwner = 1, SendMoveCharacterMsg = 2 }
