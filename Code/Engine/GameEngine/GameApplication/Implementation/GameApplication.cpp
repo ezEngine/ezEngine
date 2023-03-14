@@ -365,8 +365,14 @@ void ezGameApplication::Init_ConfigureInput()
   ezInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
 
   {
+    ezStringView sConfigFile = ezGameAppInputConfig::s_sConfigFile;
+
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+    sConfigFile = ezFileSystem::MigrateFileLocation(":project/InputConfig.ddl", sConfigFile);
+#endif
+
     ezFileReader file;
-    if (file.Open(":project/InputConfig.ddl").Succeeded())
+    if (file.Open(sConfigFile).Succeeded())
     {
       ezHybridArray<ezGameAppInputConfig, 32> InputActions;
 

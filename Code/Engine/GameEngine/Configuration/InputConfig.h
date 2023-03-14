@@ -12,6 +12,8 @@ class EZ_GAMEENGINE_DLL ezGameAppInputConfig
 public:
   constexpr static ezUInt32 MaxInputSlotAlternatives = 3;
 
+  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/InputConfig.ddl"_ezsv;
+
   ezGameAppInputConfig();
 
   void Apply() const;

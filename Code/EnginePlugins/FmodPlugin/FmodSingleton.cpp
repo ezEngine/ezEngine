@@ -6,6 +6,7 @@
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFmod);
@@ -17,7 +18,7 @@ static ezFmod g_FmodSingleton;
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
-ezCVarFloat cvar_FmodMasterVolume("Fmod.MasterVolume", 1.0f, ezCVarFlags::Save, "Master volume for all fmod output");
+ezCVarFloat cvar_FmodMasterVolume("Fmod.MasterVolume", 1.0f, ezCVarFlags::Save, "Master volume for all Fmod output");
 ezCVarBool cvar_FmodMute("Fmod.Mute", false, ezCVarFlags::Default, "Whether Fmod sound output is muted");
 
 ezFmod::ezFmod()
@@ -41,12 +42,11 @@ void ezFmod::Startup()
 
   if (m_pData->m_Configs.m_AssetProfiles.IsEmpty())
   {
-    const char* szFile = ":project/FmodConfig.ddl";
-    LoadConfiguration(szFile);
+    LoadConfiguration(ezFmodAssetProfiles::s_sConfigFile);
 
     if (m_pData->m_Configs.m_AssetProfiles.IsEmpty())
     {
-      ezLog::Warning("No valid fmod configuration file available in '{0}'. Fmod will be deactivated.", szFile);
+      ezLog::Warning("No valid Fmod configuration file available in '{0}'. Fmod will be deactivated.", ezFmodAssetProfiles::s_sConfigFile);
       return;
     }
   }
@@ -92,7 +92,7 @@ void ezFmod::Startup()
   void* extraDriverData = nullptr;
   FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
 
-  // fmod live update doesn't work with multiple instances and the same default IP
+  // Fmod live update doesn't work with multiple instances and the same default IP
   // bank loading fails, once two processes are running that use this feature with the same IP
   // this could be reconfigured through the advanced settings, but for now we just enable live update for the first process
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -109,7 +109,7 @@ void ezFmod::Startup()
     }
     else
     {
-      ezLog::Warning("Fmod Live-Update not available for this process, another process using fmod is already running.");
+      ezLog::Warning("Fmod Live-Update not available for this process, another process using Fmod is already running.");
       if (g_hLiveUpdateMutex != NULL)
       {
         CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
@@ -131,7 +131,7 @@ void ezFmod::Startup()
 
   if (LoadMasterSoundBank(config.m_sMasterSoundBank).Failed())
   {
-    ezLog::Error("Failed to load fmod master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
+    ezLog::Error("Failed to load Fmod master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
     return;
   }
 
@@ -144,7 +144,7 @@ void ezFmod::Shutdown()
 {
   if (m_bInitialized)
   {
-    // delete all fmod resources, except the master bank
+    // delete all Fmod resources, except the master bank
     ezResourceManager::FreeAllUnusedResources();
 
     m_bInitialized = false;
@@ -183,14 +183,14 @@ ezUInt8 ezFmod::GetNumListeners()
   return static_cast<ezUInt8>(i);
 }
 
-void ezFmod::LoadConfiguration(const char* szFile)
+void ezFmod::LoadConfiguration(ezStringView sFile)
 {
-  m_pData->m_Configs.Load(szFile).IgnoreResult();
+  m_pData->m_Configs.Load(sFile).IgnoreResult();
 }
 
-void ezFmod::SetOverridePlatform(const char* szPlatform)
+void ezFmod::SetOverridePlatform(ezStringView sPlatform)
 {
-  m_pData->m_sPlatform = szPlatform;
+  m_pData->m_sPlatform = sPlatform;
 }
 
 void ezFmod::UpdateSound()
@@ -265,16 +265,16 @@ bool ezFmod::GetMasterChannelPaused() const
   return paused;
 }
 
-void ezFmod::SetSoundGroupVolume(const char* szVcaGroupGuid, float fVolume)
+void ezFmod::SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume)
 {
-  m_pData->m_VcaVolumes[szVcaGroupGuid] = ezMath::Clamp(fVolume, 0.0f, 1.0f);
+  m_pData->m_VcaVolumes[sVcaGroupGuid] = ezMath::Clamp(fVolume, 0.0f, 1.0f);
 
   UpdateSoundGroupVolumes();
 }
 
-float ezFmod::GetSoundGroupVolume(const char* szVcaGroupGuid) const
+float ezFmod::GetSoundGroupVolume(ezStringView sVcaGroupGuid) const
 {
-  return m_pData->m_VcaVolumes.GetValueOrDefault(szVcaGroupGuid, 1.0f);
+  return m_pData->m_VcaVolumes.GetValueOrDefault(sVcaGroupGuid, 1.0f);
 }
 
 void ezFmod::UpdateSoundGroupVolumes()

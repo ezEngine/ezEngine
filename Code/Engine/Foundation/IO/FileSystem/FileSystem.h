@@ -248,6 +248,14 @@ public:
   /// \brief Returns true, if any data directory knows how to redirect the given path. Otherwise the original string is returned in out_sRedirection.
   static bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection);
 
+  /// \brief Migrates a file from an old location to a new one, and returns the path that should be used to open it (either the old or the new path).
+  ///
+  /// If the file does not exist in the old location, nothing is done, and the new location is returned.
+  /// Otherwise, it is attempted to move the file from the old location to the new location.
+  /// In case that fails (target not writeable or so), the old path is returned, so that code that needs to read that file, finds it in the correct location.
+  /// If it succeeds, the new location is returned. Afterwards, the file does not exist in the old location anymore.
+  static ezStringView MigrateFileLocation(ezStringView sOldLocation, ezStringView sNewLocation);
+
 private:
   friend class ezDataDirectoryReaderWriterBase;
   friend class ezFileReaderBase;

@@ -96,10 +96,10 @@ ezInt32 ezCollisionFilterConfig::FindUnnamedGroup() const
   return -1;
 }
 
-ezResult ezCollisionFilterConfig::Save(const char* szFile) const
+ezResult ezCollisionFilterConfig::Save(ezStringView sFile) const
 {
   ezFileWriter file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
     return EZ_FAILURE;
 
   Save(file);
@@ -107,10 +107,17 @@ ezResult ezCollisionFilterConfig::Save(const char* szFile) const
   return EZ_SUCCESS;
 }
 
-ezResult ezCollisionFilterConfig::Load(const char* szFile)
+ezResult ezCollisionFilterConfig::Load(ezStringView sFile)
 {
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  if (sFile == s_sConfigFile)
+  {
+    sFile = ezFileSystem::MigrateFileLocation(":project/CollisionLayers.cfg", s_sConfigFile);
+  }
+#endif
+
   ezFileReader file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
     return EZ_FAILURE;
 
   Load(file);

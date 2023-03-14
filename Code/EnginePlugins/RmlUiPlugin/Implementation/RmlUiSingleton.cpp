@@ -12,10 +12,12 @@
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
-ezResult ezRmlUiConfiguration::Save(const char* szFile) const
+ezResult ezRmlUiConfiguration::Save(ezStringView sFile) const
 {
+  EZ_LOG_BLOCK("ezRmlUiConfiguration::Save()");
+
   ezFileWriter file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
     return EZ_FAILURE;
 
   ezOpenDdlWriter writer;
@@ -33,20 +35,27 @@ ezResult ezRmlUiConfiguration::Save(const char* szFile) const
   return EZ_SUCCESS;
 }
 
-ezResult ezRmlUiConfiguration::Load(const char* szFile)
+ezResult ezRmlUiConfiguration::Load(ezStringView sFile)
 {
-  EZ_LOG_BLOCK("ezWorldModuleConfig::Load()");
+  EZ_LOG_BLOCK("ezRmlUiConfiguration::Load()");
 
   m_Fonts.Clear();
 
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  if (sFile == s_sConfigFile)
+  {
+    sFile = ezFileSystem::MigrateFileLocation(":project/RmlUiConfig.ddl", s_sConfigFile);
+  }
+#endif
+
   ezFileReader file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
     return EZ_FAILURE;
 
   ezOpenDdlReader reader;
   if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
-    ezLog::Error("Failed to parse RmlUi config file '{0}'", szFile);
+    ezLog::Error("Failed to parse RmlUi config file '{0}'", sFile);
     return EZ_FAILURE;
   }
 
@@ -105,10 +114,9 @@ ezRmlUi::ezRmlUi()
   Rml::Factory::RegisterContextInstancer(&m_pData->m_ContextInstancer);
   Rml::Factory::RegisterEventListenerInstancer(&m_pData->m_EventListenerInstancer);
 
-  const char* szFile = ":project/RmlUiConfig.ddl";
-  if (m_pData->m_Config.Load(szFile).Failed())
+  if (m_pData->m_Config.Load().Failed())
   {
-    ezLog::Warning("No valid RmlUi configuration file available in '{0}'.", szFile);
+    ezLog::Warning("No valid RmlUi configuration file available in '{}'.", ezRmlUiConfiguration::s_sConfigFile);
     return;
   }
 
