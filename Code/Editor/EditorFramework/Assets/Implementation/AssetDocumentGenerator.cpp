@@ -74,8 +74,7 @@ void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGen
   }
 
   // sort by name
-  out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool
-    { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });
+  out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });
 }
 
 void ezAssetDocumentGenerator::DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
@@ -294,13 +293,11 @@ void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezStri
 
 void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports)
 {
-  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool
-    { return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative; });
+  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool { return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative; });
 
   for (auto& singleImport : allImports)
   {
-    singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool
-      { return ezStringUtils::Compare_NoCase(ezTranslate(lhs.m_sName), ezTranslate(rhs.m_sName)) < 0; });
+    singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool { return ezStringUtils::Compare_NoCase(ezTranslate(lhs.m_sName), ezTranslate(rhs.m_sName)) < 0; });
 
     ezUInt32 uiNumPrios[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = {0};
     ezUInt32 uiBestPrio[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = {0};
