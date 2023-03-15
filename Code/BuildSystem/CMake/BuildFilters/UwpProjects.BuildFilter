@@ -7,7 +7,6 @@ set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_UwpProjects
     enet
     zstd
 	stb_image
-	tinyexr
 	mikktspace
 	Lua
 	Duktape

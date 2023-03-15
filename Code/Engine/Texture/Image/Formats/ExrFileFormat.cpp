@@ -1,13 +1,15 @@
 #include <Texture/TexturePCH.h>
 
-#include <Texture/Image/Formats/ExrFileFormat.h>
-#include <Texture/Image/Image.h>
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/IO/StreamUtils.h>
-#include <Foundation/Profiling/Profiling.h>
+#  include <Texture/Image/Formats/ExrFileFormat.h>
+#  include <Texture/Image/Image.h>
 
-#include <tinyexr/tinyexr.h>
+#  include <Foundation/IO/MemoryStream.h>
+#  include <Foundation/IO/StreamUtils.h>
+#  include <Foundation/Profiling/Profiling.h>
+
+#  include <tinyexr/tinyexr.h>
 
 ezExrFileFormat g_ExrFileFormat;
 
@@ -315,5 +317,7 @@ bool ezExrFileFormat::CanWriteFileType(const char* szExtension) const
 {
   return false;
 }
+
+#endif
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_ExrFileFormat);

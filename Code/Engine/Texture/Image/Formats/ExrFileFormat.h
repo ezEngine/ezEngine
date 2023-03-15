@@ -2,6 +2,8 @@
 
 #include <Texture/Image/Formats/ImageFileFormat.h>
 
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+
 /// EXR file format support using TinyEXR.
 class EZ_TEXTURE_DLL ezExrFileFormat : public ezImageFileFormat
 {
@@ -13,3 +15,5 @@ public:
   bool CanReadFileType(const char* szExtension) const override;
   bool CanWriteFileType(const char* szExtension) const override;
 };
+
+#endif
