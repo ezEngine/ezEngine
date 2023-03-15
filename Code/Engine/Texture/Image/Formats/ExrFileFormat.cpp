@@ -11,98 +11,152 @@
 
 ezExrFileFormat g_ExrFileFormat;
 
-ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuffer, ezImageHeader& header, EXRHeader& exrHeader, EXRImage& exrImage, bool& isHDR)
+ezResult ReadImageData(ezStreamReader& stream, ezDynamicArray<ezUInt8>& fileBuffer, ezImageHeader& header, EXRHeader& exrHeader, EXRImage& exrImage)
 {
-  // Open memory
+  // read the entire file to memory
   ezStreamUtils::ReadAllAndAppend(stream, fileBuffer);
 
-  // 1. Read EXR version.
+  // read the EXR version
   EXRVersion exrVersion;
 
-  int ret = ParseEXRVersionFromMemory(&exrVersion, fileBuffer.GetData(), fileBuffer.GetCount());
-  if (ret != 0)
+  if (ParseEXRVersionFromMemory(&exrVersion, fileBuffer.GetData(), fileBuffer.GetCount()) != 0)
   {
-    ezLog::Error("Invalid EXR file: Cannot read version from file.");
+    ezLog::Error("Invalid EXR file: Cannot read version.");
     return EZ_FAILURE;
   }
 
   if (exrVersion.multipart)
   {
-    // TODO: Support multipart formats
-    ezLog::Error("Invalid EXR file: Multipart formats are unsupported.");
+    ezLog::Error("Invalid EXR file: Multi-part formats are not supported.");
     return EZ_FAILURE;
   }
 
-  // 2. Read EXR header
+  // read the EXR header
   const char* err = nullptr;
-  ret = ParseEXRHeaderFromMemory(&exrHeader, &exrVersion, fileBuffer.GetData(), fileBuffer.GetCount(), &err);
-  if (ret != 0)
+  if (ParseEXRHeaderFromMemory(&exrHeader, &exrVersion, fileBuffer.GetData(), fileBuffer.GetCount(), &err) != 0)
   {
-    ezLog::Error("Unable to read EXR file header: {0}.", err);
+    ezLog::Error("Invalid EXR file: '{0}'", err);
     FreeEXRErrorMessage(err);
     return EZ_FAILURE;
   }
 
-  ret = LoadEXRImageFromMemory(&exrImage, &exrHeader, fileBuffer.GetData(), fileBuffer.GetCount(), &err);
-  if (ret != 0)
+  for (int c = 1; c < exrHeader.num_channels; ++c)
   {
-    ezLog::Error("Unable to load EXR file: {0}.", err);
+    if (exrHeader.pixel_types[c - 1] != exrHeader.pixel_types[c])
+    {
+      ezLog::Error("Unsupported EXR file: all channels should have the same size.");
+      break;
+    }
+  }
+
+  if (LoadEXRImageFromMemory(&exrImage, &exrHeader, fileBuffer.GetData(), fileBuffer.GetCount(), &err) != 0)
+  {
+    ezLog::Error("Invalid EXR file: '{0}'", err);
+
     FreeEXRHeader(&exrHeader);
     FreeEXRErrorMessage(err);
     return EZ_FAILURE;
   }
 
-  ezImageFormat::Enum imageFormat;
+  ezImageFormat::Enum imageFormat = ezImageFormat::UNKNOWN;
 
   switch (exrHeader.num_channels)
   {
     case 1:
-      imageFormat = exrHeader.pixel_types[0] == TINYEXR_PIXELTYPE_FLOAT ? ezImageFormat::R32_FLOAT : exrHeader.pixel_types[0] == TINYEXR_PIXELTYPE_HALF ? ezImageFormat::R16_FLOAT
-                                                                                                                                                        : ezImageFormat::R32_UINT;
+    {
+      switch (exrHeader.pixel_types[0])
+      {
+        case TINYEXR_PIXELTYPE_FLOAT:
+          imageFormat = ezImageFormat::R32_FLOAT;
+          break;
+
+        case TINYEXR_PIXELTYPE_HALF:
+          imageFormat = ezImageFormat::R16_FLOAT;
+          break;
+
+        case TINYEXR_PIXELTYPE_UINT:
+          imageFormat = ezImageFormat::R32_UINT;
+          break;
+      }
+
       break;
+    }
+
+    case 2:
+    {
+      switch (exrHeader.pixel_types[0])
+      {
+        case TINYEXR_PIXELTYPE_FLOAT:
+          imageFormat = ezImageFormat::R32G32_FLOAT;
+          break;
+
+        case TINYEXR_PIXELTYPE_HALF:
+          imageFormat = ezImageFormat::R16G16_FLOAT;
+          break;
+
+        case TINYEXR_PIXELTYPE_UINT:
+          imageFormat = ezImageFormat::R32G32_UINT;
+          break;
+      }
+
+      break;
+    }
 
     case 3:
-      if (exrHeader.pixel_types[0] != exrHeader.pixel_types[1] || exrHeader.pixel_types[0] != exrHeader.pixel_types[2])
+    {
+      switch (exrHeader.pixel_types[0])
       {
-        ezLog::Error("Not supported EXR file: all channels should have the same size.");
-        return EZ_FAILURE;
+        case TINYEXR_PIXELTYPE_FLOAT:
+          imageFormat = ezImageFormat::R32G32B32_FLOAT;
+          break;
+
+        case TINYEXR_PIXELTYPE_HALF:
+          imageFormat = ezImageFormat::R16G16B16A16_FLOAT;
+          break;
+
+        case TINYEXR_PIXELTYPE_UINT:
+          imageFormat = ezImageFormat::R32G32B32_UINT;
+          break;
       }
 
-      imageFormat = exrHeader.pixel_types[0] == TINYEXR_PIXELTYPE_UINT ? ezImageFormat::R32G32B32_UINT : ezImageFormat::R32G32B32_FLOAT;
       break;
+    }
 
     case 4:
-      if (exrHeader.pixel_types[0] != exrHeader.pixel_types[1] || exrHeader.pixel_types[0] != exrHeader.pixel_types[2] || exrHeader.pixel_types[0] != exrHeader.pixel_types[3])
+    {
+      switch (exrHeader.pixel_types[0])
       {
-        ezLog::Error("Not supported EXR file: all channels should have the same size.");
-        return EZ_FAILURE;
+        case TINYEXR_PIXELTYPE_FLOAT:
+          imageFormat = ezImageFormat::R32G32B32A32_FLOAT;
+          break;
+
+        case TINYEXR_PIXELTYPE_HALF:
+          imageFormat = ezImageFormat::R16G16B16A16_FLOAT;
+          break;
+
+        case TINYEXR_PIXELTYPE_UINT:
+          ezImageFormat::R32G32B32A32_UINT;
+          break;
       }
 
-      imageFormat = exrHeader.pixel_types[0] == TINYEXR_PIXELTYPE_FLOAT ? ezImageFormat::R32G32B32A32_FLOAT : exrHeader.pixel_types[0] == TINYEXR_PIXELTYPE_HALF ? ezImageFormat::R16G16B16A16_FLOAT
-                                                                                                                                                                 : ezImageFormat::R32G32B32A32_UINT;
       break;
-
-    default:
-      ezLog::Error("Not supported EXR file: only 1, 3 and 4 channels count are supported.");
-      return EZ_FAILURE;
+    }
   }
 
-  // 3. Setup header
+  if (imageFormat == ezImageFormat::UNKNOWN)
+  {
+    ezLog::Error("Unsupported EXR file: {}-channel files with format '{}' are unsupported.", exrHeader.num_channels, exrHeader.pixel_types[0]);
+    return EZ_FAILURE;
+  }
+
+  header.SetWidth(exrImage.width);
   header.SetHeight(exrImage.height);
   header.SetImageFormat(imageFormat);
-  header.SetWidth(exrImage.width);
 
   header.SetNumMipLevels(1);
   header.SetNumArrayIndices(1);
   header.SetNumFaces(1);
   header.SetDepth(1);
-
-  isHDR = imageFormat == ezImageFormat::R32_FLOAT ||
-          imageFormat == ezImageFormat::R16_FLOAT ||
-          imageFormat == ezImageFormat::R32G32_FLOAT ||
-          imageFormat == ezImageFormat::R16G16_FLOAT ||
-          imageFormat == ezImageFormat::R32G32B32A32_FLOAT ||
-          imageFormat == ezImageFormat::R16G16B16A16_FLOAT;
 
   return EZ_SUCCESS;
 }
@@ -111,114 +165,137 @@ ezResult ezExrFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader&
 {
   EZ_PROFILE_SCOPE("ezExrFileFormat::ReadImageHeader");
 
-  ezDynamicArray<ezUInt8> fileBuffer;
-
-  bool isHdr = false;
-
   EXRHeader exrHeader;
   InitEXRHeader(&exrHeader);
+  EZ_SCOPE_EXIT(FreeEXRHeader(&exrHeader));
 
   EXRImage exrImage;
   InitEXRImage(&exrImage);
+  EZ_SCOPE_EXIT(FreeEXRImage(&exrImage));
 
-  if (ReadImageData(stream, fileBuffer, header, exrHeader, exrImage, isHdr).Failed())
-    return EZ_FAILURE;
+  ezDynamicArray<ezUInt8> fileBuffer;
+  return ReadImageData(stream, fileBuffer, header, exrHeader, exrImage);
+}
 
-  // Free image data
-  FreeEXRImage(&exrImage);
-  FreeEXRHeader(&exrHeader);
+static void CopyChannel(ezUInt8* pDst, const ezUInt8* pSrc, ezUInt32 uiNumElements, ezUInt32 uiElementSize, ezUInt32 uiDstStride)
+{
+  if (uiDstStride == uiElementSize)
+  {
+    // fast path to copy everything in one operation
+    // this only happens for single-channel formats
+    ezMemoryUtils::RawByteCopy(pDst, pSrc, uiNumElements * uiElementSize);
+  }
+  else
+  {
+    for (ezUInt32 i = 0; i < uiNumElements; ++i)
+    {
+      ezMemoryUtils::RawByteCopy(pDst, pSrc, uiElementSize);
 
-  return EZ_SUCCESS;
+      pSrc = ezMemoryUtils::AddByteOffset(pSrc, uiElementSize);
+      pDst = ezMemoryUtils::AddByteOffset(pDst, uiDstStride);
+    }
+  }
 }
 
 ezResult ezExrFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezExrFileFormat::ReadImage");
 
-  ezDynamicArray<ezUInt8> fileBuffer;
-
-  bool isHDR = false;
-
   EXRHeader exrHeader;
   InitEXRHeader(&exrHeader);
+  EZ_SCOPE_EXIT(FreeEXRHeader(&exrHeader));
 
   EXRImage exrImage;
   InitEXRImage(&exrImage);
+  EZ_SCOPE_EXIT(FreeEXRImage(&exrImage));
 
   ezImageHeader header;
+  ezDynamicArray<ezUInt8> fileBuffer;
 
-  if (ReadImageData(stream, fileBuffer, header, exrHeader, exrImage, isHDR).Failed())
-    return EZ_FAILURE;
+  EZ_SUCCEED_OR_RETURN(ReadImageData(stream, fileBuffer, header, exrHeader, exrImage));
 
   image.ResetAndAlloc(header);
 
-  const ezUInt32 pixelCount = header.GetWidth() * header.GetHeight();
-  const ezUInt32 numComp = ezImageFormat::GetNumChannels(header.GetImageFormat());
-  const ezUInt32 elementsToCopy = header.GetWidth() * header.GetHeight() * numComp;
+  const ezUInt32 uiPixelCount = header.GetWidth() * header.GetHeight();
+  const ezUInt32 uiNumDstChannels = ezImageFormat::GetNumChannels(header.GetImageFormat());
+  const ezUInt32 uiNumSrcChannels = exrHeader.num_channels;
 
-  // Copy the data over to our vector
-  if (numComp == 1)
+  ezUInt32 uiSrcStride = 0;
+  switch (exrHeader.pixel_types[0])
   {
-    ezUInt8* bytes = exrImage.images[0];
+    case TINYEXR_PIXELTYPE_FLOAT:
+      uiSrcStride = sizeof(float);
+      break;
 
-    // Set pixels. Different strategies depending on component count.
-    if (isHDR)
-    {
-      float* targetImageData = image.GetBlobPtr<float>().GetPtr();
-      ezMemoryUtils::Copy(targetImageData, reinterpret_cast<const float*>(bytes), elementsToCopy);
-    }
-    else
-    {
-      ezUInt32* targetImageData = image.GetBlobPtr<ezUInt32>().GetPtr();
-      ezMemoryUtils::Copy(targetImageData, reinterpret_cast<const ezUInt32*>(bytes), elementsToCopy);
-    }
+    case TINYEXR_PIXELTYPE_HALF:
+      uiSrcStride = sizeof(float) / 2;
+      break;
+
+    case TINYEXR_PIXELTYPE_UINT:
+      uiSrcStride = sizeof(ezUInt32);
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
-  else if (numComp >= 3)
+
+
+  // src and dst element size is always identical, we only copy from float->float, half->half or uint->uint
+  // however data is interleaved in dst, but not interleaved in src
+
+  const ezUInt32 uiDstStride = uiSrcStride * uiNumDstChannels;
+  ezUInt8* pDstBytes = image.GetBlobPtr<ezUInt8>().GetPtr();
+
+  if (uiNumDstChannels > uiNumSrcChannels)
   {
-    ezUInt32 c = 0;
+    // if we have more dst channels, than in the input data, fill everything with white
+    ezMemoryUtils::PatternFill(pDstBytes, 0xFF, uiDstStride * uiPixelCount);
+  }
 
-    ezUInt8* aBytes = nullptr;
-    if (numComp == 4)
-      aBytes = exrImage.images[c++];
+  ezUInt32 c = 0;
 
-    ezUInt8* bBytes = exrImage.images[c++];
-    ezUInt8* gBytes = exrImage.images[c++];
-    ezUInt8* rBytes = exrImage.images[c++];
+  if (uiNumSrcChannels >= 4)
+  {
+    const ezUInt8* pSrcBytes = exrImage.images[c++];
 
-    EZ_ASSERT_DEV(numComp == c, "Built number of channels is different than the channel count");
-
-    // Set pixels. Different strategies depending on component count.
-    if (isHDR)
+    if (uiNumDstChannels >= 4)
     {
-      float* targetImageData = image.GetBlobPtr<float>().GetPtr();
-      for (ezUInt32 i = 0, j = 0; i < pixelCount; ++i, j += numComp)
-      {
-        targetImageData[j + 0] = reinterpret_cast<float*>(rBytes)[i];
-        targetImageData[j + 1] = reinterpret_cast<float*>(gBytes)[i];
-        targetImageData[j + 2] = reinterpret_cast<float*>(bBytes)[i];
-
-        if (numComp == 4)
-          targetImageData[j + 3] = reinterpret_cast<float*>(aBytes)[i];
-      }
-    }
-    else
-    {
-      ezUInt32* targetImageData = image.GetBlobPtr<ezUInt32>().GetPtr();
-      for (ezUInt32 i = 0, j = 0; i < pixelCount; ++i, j += numComp)
-      {
-        targetImageData[j + 0] = reinterpret_cast<ezUInt32*>(rBytes)[i];
-        targetImageData[j + 1] = reinterpret_cast<ezUInt32*>(gBytes)[i];
-        targetImageData[j + 2] = reinterpret_cast<ezUInt32*>(bBytes)[i];
-
-        if (numComp == 4)
-          targetImageData[j + 3] = reinterpret_cast<ezUInt32*>(aBytes)[i];
-      }
+      // copy to alpha
+      CopyChannel(pDstBytes + 3 * uiSrcStride, pSrcBytes, uiPixelCount, uiSrcStride, uiDstStride);
     }
   }
 
-  // Free image data
-  FreeEXRImage(&exrImage);
-  FreeEXRHeader(&exrHeader);
+  if (uiNumSrcChannels >= 3)
+  {
+    const ezUInt8* pSrcBytes = exrImage.images[c++];
+
+    if (uiNumDstChannels >= 3)
+    {
+      // copy to blue
+      CopyChannel(pDstBytes + 2 * uiSrcStride, pSrcBytes, uiPixelCount, uiSrcStride, uiDstStride);
+    }
+  }
+
+  if (uiNumSrcChannels >= 2)
+  {
+    const ezUInt8* pSrcBytes = exrImage.images[c++];
+
+    if (uiNumDstChannels >= 2)
+    {
+      // copy to green
+      CopyChannel(pDstBytes + uiSrcStride, pSrcBytes, uiPixelCount, uiSrcStride, uiDstStride);
+    }
+  }
+
+  if (uiNumSrcChannels >= 1)
+  {
+    const ezUInt8* pSrcBytes = exrImage.images[c++];
+
+    if (uiNumDstChannels >= 1)
+    {
+      // copy to red
+      CopyChannel(pDstBytes, pSrcBytes, uiPixelCount, uiSrcStride, uiDstStride);
+    }
+  }
 
   return EZ_SUCCESS;
 }
@@ -236,7 +313,6 @@ bool ezExrFileFormat::CanReadFileType(const char* szExtension) const
 
 bool ezExrFileFormat::CanWriteFileType(const char* szExtension) const
 {
-  // TODO: Write EXR files
   return false;
 }
 

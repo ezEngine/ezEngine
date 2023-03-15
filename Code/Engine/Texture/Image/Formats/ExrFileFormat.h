@@ -2,7 +2,7 @@
 
 #include <Texture/Image/Formats/ImageFileFormat.h>
 
-/// File format support using tinyexr.
+/// EXR file format support using TinyEXR.
 class EZ_TEXTURE_DLL ezExrFileFormat : public ezImageFileFormat
 {
 public:
