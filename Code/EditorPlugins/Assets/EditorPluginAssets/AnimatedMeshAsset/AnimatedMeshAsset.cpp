@@ -126,9 +126,9 @@ ezAnimatedMeshAssetDocumentGenerator::ezAnimatedMeshAssetDocumentGenerator()
 
 ezAnimatedMeshAssetDocumentGenerator::~ezAnimatedMeshAssetDocumentGenerator() {}
 
-void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   {
@@ -148,7 +148,7 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(const char* szParentDi
   }
 }
 
-ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -161,7 +161,7 @@ ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(const char* szDataDirRel
     return ezStatus("Target document is not a valid ezAnimatedMeshAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("MeshFile", szDataDirRelativePath);
+  accessor.SetValue("MeshFile", sDataDirRelativePath);
 
   if (info.m_sName == "AnimatedMeshImport.WithMaterials")
   {

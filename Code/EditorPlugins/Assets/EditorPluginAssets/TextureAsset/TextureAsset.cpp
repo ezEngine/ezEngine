@@ -530,15 +530,16 @@ ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
   AddSupportedFileType("dds");
   AddSupportedFileType("jpg");
   AddSupportedFileType("jpeg");
-  AddSupportedFileType("hdr");
   AddSupportedFileType("png");
+  AddSupportedFileType("hdr");
+  AddSupportedFileType("exr");
 }
 
 ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator() = default;
 
-void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
 
   ezStringBuilder baseFilename = baseOutputFile.GetFileName();
 
@@ -563,7 +564,11 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   TextureType tt = TextureType::Diffuse;
 
-  if (ezPathUtils::HasExtension(szParentDirRelativePath, "hdr"))
+  if (ezPathUtils::HasExtension(sParentDirRelativePath, "hdr"))
+  {
+    tt = TextureType::HDR;
+  }
+  else if (ezPathUtils::HasExtension(sParentDirRelativePath, "exr"))
   {
     tt = TextureType::HDR;
   }
@@ -746,7 +751,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
   }
 }
 
-ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -759,7 +764,7 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szDataDirRelative
     return ezStatus("Target document is not a valid ezTextureAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("Input1", szDataDirRelativePath);
+  accessor.SetValue("Input1", sDataDirRelativePath);
   accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
   accessor.SetValue("Usage", (int)ezTexConvUsage::Linear);
 

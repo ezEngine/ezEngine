@@ -397,9 +397,9 @@ ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 
 ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
 
-void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezSkeletonAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   {
@@ -411,7 +411,7 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRel
   }
 }
 
-ezStatus ezSkeletonAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -424,7 +424,7 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(const char* szDataDirRelativ
     return ezStatus("Target document is not a valid ezSkeletonAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("File", szDataDirRelativePath);
+  accessor.SetValue("File", sDataDirRelativePath);
 
   return ezStatus(EZ_SUCCESS);
 }

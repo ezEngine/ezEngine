@@ -225,9 +225,9 @@ ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
 
 ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
 
-void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezKrautTreeAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezKrautTreeAsset");
 
   {
@@ -239,7 +239,7 @@ void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRe
   }
 }
 
-ezStatus ezKrautTreeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezKrautTreeAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -254,7 +254,7 @@ ezStatus ezKrautTreeAssetDocumentGenerator::Generate(const char* szDataDirRelati
     return ezStatus("Target document is not a valid ezKrautTreeAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("KrautFile", szDataDirRelativePath);
+  accessor.SetValue("KrautFile", sDataDirRelativePath);
 
   return ezStatus(EZ_SUCCESS);
 }
