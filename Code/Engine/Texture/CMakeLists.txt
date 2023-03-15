@@ -24,6 +24,8 @@ if(EZ_CMAKE_PLATFORM_LINUX)
   target_include_directories(${PROJECT_NAME} PRIVATE "${THIRDPARTY_DIR}/DirectXMath/include" "${THIRDPARTY_DIR}/sal")
 endif()
 
-if(not EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+  # CMake is stupid
+else()
   target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
 endif()
