@@ -345,6 +345,14 @@ class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute, ezTypeWidgetAttribute);
 
 public:
+  // Predefined common type filters
+  static constexpr const char* Meshes = "*.obj;*.fbx;*.gltf;*.glb";
+  static constexpr const char* MeshesWithAnimations = "*.fbx;*.gltf;*.glb";
+  static constexpr const char* ImagesLdrOnly = "*.dds;*.tga;*.png;*.jpg;*.jpeg";
+  static constexpr const char* ImagesHdrOnly = "*.hdr;*.exr";
+  static constexpr const char* ImagesLdrAndHdr = "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr;*.exr";
+  static constexpr const char* CubemapsLdrAndHdr = "*.dds;*.hdr";
+
   ezFileBrowserAttribute() = default;
   ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter, const char* szCustomAction = nullptr)
   {

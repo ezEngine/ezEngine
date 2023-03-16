@@ -12,17 +12,17 @@ ezAssetDocumentGenerator::ezAssetDocumentGenerator() {}
 
 ezAssetDocumentGenerator::~ezAssetDocumentGenerator() {}
 
-void ezAssetDocumentGenerator::AddSupportedFileType(const char* szExtension)
+void ezAssetDocumentGenerator::AddSupportedFileType(ezStringView sExtension)
 {
-  ezStringBuilder tmp = szExtension;
+  ezStringBuilder tmp = sExtension;
   tmp.ToLower();
 
   m_SupportedFileTypes.PushBack(tmp);
 }
 
-bool ezAssetDocumentGenerator::SupportsFileType(const char* szFile) const
+bool ezAssetDocumentGenerator::SupportsFileType(ezStringView sFile) const
 {
-  ezStringBuilder tmp = ezPathUtils::GetFileExtension(szFile);
+  ezStringBuilder tmp = ezPathUtils::GetFileExtension(sFile);
   tmp.ToLower();
 
   return m_SupportedFileTypes.Contains(tmp);
@@ -74,9 +74,7 @@ void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGen
   }
 
   // sort by name
-  out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool {
-    return ezStringUtils::Compare_NoCase(lhs->GetDocumentExtension(), rhs->GetDocumentExtension()) < 0;
-  });
+  out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });
 }
 
 void ezAssetDocumentGenerator::DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
@@ -295,9 +293,7 @@ void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezStri
 
 void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports)
 {
-  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool {
-    return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative;
-  });
+  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool { return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative; });
 
   for (auto& singleImport : allImports)
   {

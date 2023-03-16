@@ -113,9 +113,9 @@ ezLUTAssetDocumentGenerator::ezLUTAssetDocumentGenerator()
 
 ezLUTAssetDocumentGenerator::~ezLUTAssetDocumentGenerator() = default;
 
-void ezLUTAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezLUTAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
 
   const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
 
@@ -129,7 +129,7 @@ void ezLUTAssetDocumentGenerator::GetImportModes(const char* szParentDirRelative
   info.m_sIcon = ":/AssetIcons/LUT.png";
 }
 
-ezStatus ezLUTAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -142,7 +142,7 @@ ezStatus ezLUTAssetDocumentGenerator::Generate(const char* szDataDirRelativePath
     return ezStatus("Target document is not a valid ezLUTAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("Input", szDataDirRelativePath);
+  accessor.SetValue("Input", sDataDirRelativePath);
 
   return ezStatus(EZ_SUCCESS);
 }

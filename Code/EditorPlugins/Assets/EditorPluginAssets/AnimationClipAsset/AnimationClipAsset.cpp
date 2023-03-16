@@ -18,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", "*.fbx;*.gltf;*.glb")),
+    EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", ezFileBrowserAttribute::MeshesWithAnimations)),
     EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract),
     EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
     EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezContainerAttribute(false, false, false)),
@@ -362,9 +362,9 @@ ezAnimationClipAssetDocumentGenerator::ezAnimationClipAssetDocumentGenerator()
 
 ezAnimationClipAssetDocumentGenerator::~ezAnimationClipAssetDocumentGenerator() = default;
 
-void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
+void ezAnimationClipAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   {
@@ -376,7 +376,7 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentD
   }
 }
 
-ezStatus ezAnimationClipAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -389,7 +389,7 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(const char* szDataDirRe
     return ezStatus("Target document is not a valid ezAnimationClipAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("File", szDataDirRelativePath);
+  accessor.SetValue("File", sDataDirRelativePath);
 
   return ezStatus(EZ_SUCCESS);
 }

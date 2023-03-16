@@ -73,9 +73,8 @@ public:
   ezDecalAssetDocumentGenerator();
   ~ezDecalAssetDocumentGenerator();
 
-  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const override;
-  virtual ezStatus Generate(
-    const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
-  virtual const char* GetDocumentExtension() const override { return "ezDecalAsset"; }
-  virtual const char* GetGeneratorGroup() const override { return "Images"; }
+  virtual void GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const override;
+  virtual ezStatus Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual ezStringView GetDocumentExtension() const override { return "ezDecalAsset"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "Images"; }
 };
