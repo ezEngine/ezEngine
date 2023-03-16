@@ -101,8 +101,12 @@ void ezQtGameObjectReferencePropertyWidget::PickObjectOverride(const ezDocumentO
 
 void ezQtGameObjectReferencePropertyWidget::ClearPicking()
 {
-  m_pGrid->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this));
+  auto dele = ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this);
+
+  if (!m_pGrid->GetDocument()->GetSelectionManager()->m_Events.HasEventHandler(dele))
+    return;
+
+  m_pGrid->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(dele);
 
   for (auto pContext : m_SelectionContextsToUnsubscribe)
   {
@@ -171,6 +175,7 @@ void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
   {
     // this happens when clicking the 'pick' button twice
     ClearPicking();
+    return;
   }
 
   ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pGrid->GetDocument());

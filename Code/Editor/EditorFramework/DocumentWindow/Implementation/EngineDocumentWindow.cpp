@@ -14,6 +14,9 @@ ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument)
 
 ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()
 {
+  // make sure the selection gets cleared before the views are destroyed, so that dependent code can clean up first
+  GetDocument()->GetSelectionManager()->Clear();
+
   GetDocument()->m_ProcessMessageEvent.RemoveEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
   GetDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
 
