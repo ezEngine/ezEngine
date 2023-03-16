@@ -859,6 +859,25 @@ void ezAssetDocument::SyncObjectsToEngine() const
   }
 }
 
+void ezAssetDocument::SendDocumentOpenMessage(bool bOpen)
+{
+  EZ_PROFILE_SCOPE("SendDocumentOpenMessage");
+
+  // it is important to have up-to-date lookup tables in the engine process, because document contexts might try to
+  // load resources, and if the file redirection does not happen correctly, derived resource types may not be created as they should
+  ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
+
+  m_EngineStatus = EngineStatus::Initializing;
+
+  ezDocumentOpenMsgToEngine m;
+  m.m_DocumentGuid = GetGuid();
+  m.m_bDocumentOpen = bOpen;
+  m.m_sDocumentType = GetDocumentTypeDescriptor()->m_sDocumentTypeName;
+  m.m_DocumentMetaData = GetCreateEngineMetaData();
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&m);
+}
+
 namespace
 {
   static const char* szThumbnailInfoTag = "ezThumb";

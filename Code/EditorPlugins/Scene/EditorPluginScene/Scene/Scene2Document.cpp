@@ -234,7 +234,7 @@ void ezScene2Document::SendGameWorldToEngine()
     ezSceneDocument* pLayer = layer.Value().m_pLayer;
     if (pLayer != this && pLayer != nullptr)
     {
-      ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(pLayer, true);
+      pLayer->SendDocumentOpenMessage(true);
     }
   }
 }

@@ -789,7 +789,7 @@ void ezGameObjectDocument::ScheduleSendObjectSelection()
 
 void ezGameObjectDocument::SendGameWorldToEngine()
 {
-  ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(this, true);
+  SendDocumentOpenMessage(true);
 }
 
 void ezGameObjectDocument::SetSimulationSpeed(float f)
