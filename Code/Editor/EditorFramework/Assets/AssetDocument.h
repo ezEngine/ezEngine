@@ -145,6 +145,12 @@ public:
   /// \brief Sends messages to sync all sync objects to the engine process side.
   void SyncObjectsToEngine() const;
 
+  /// /brief Sends a message that the document has been opened or closed. Resends all document data.
+  ///
+  /// Calling this will always clear the existing document on the engine side and reset the state to the editor state.
+  void SendDocumentOpenMessage(bool bOpen);
+
+
   ///@}
 
   ezEvent<const ezEditorEngineDocumentMsg*> m_ProcessMessageEvent;

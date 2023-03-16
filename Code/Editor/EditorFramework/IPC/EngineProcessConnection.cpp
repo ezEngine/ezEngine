@@ -29,26 +29,6 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
 }
 
-void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezAssetDocument* pDocument, bool bOpen)
-{
-  EZ_PROFILE_SCOPE("SendDocumentOpenMessage");
-
-  if (!pDocument)
-    return;
-
-  // it is important to have up-to-date lookup tables in the engine process, because document contexts might try to
-  // load resources, and if the file redirection does not happen correctly, derived resource types may not be created as they should
-  ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
-
-  ezDocumentOpenMsgToEngine m;
-  m.m_DocumentGuid = pDocument->GetGuid();
-  m.m_bDocumentOpen = bOpen;
-  m.m_sDocumentType = pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName;
-  m.m_DocumentMetaData = pDocument->GetCreateEngineMetaData();
-
-  SendMessage(&m);
-}
-
 void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicationChannel::Event& e)
 {
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEditor>())
@@ -103,14 +83,14 @@ ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnectio
 
   m_DocumentByGuid[pDocument->GetGuid()] = pDocument;
 
-  SendDocumentOpenMessage(pDocument, true);
+  pDocument->SendDocumentOpenMessage(true);
 
   return pConnection;
 }
 
 void ezEditorEngineProcessConnection::DestroyEngineConnection(ezAssetDocument* pDocument)
 {
-  SendDocumentOpenMessage(pDocument, false);
+  pDocument->SendDocumentOpenMessage(false);
 
   m_DocumentByGuid.Remove(pDocument->GetGuid());
 
@@ -414,7 +394,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
 
   for (ezAssetDocument* pDoc : docs)
   {
-    SendDocumentOpenMessage(pDoc, true);
+    pDoc->SendDocumentOpenMessage(true);
   }
 
   ezAssetCurator::GetSingleton()->InvalidateAssetsWithTransformState(ezAssetInfo::TransformState::TransformError);
