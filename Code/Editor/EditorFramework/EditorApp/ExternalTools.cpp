@@ -4,12 +4,6 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
-{
-  ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-  return ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bForceUseCustomTools ? false : pPref->m_bUsePrecompiledTools);
-}
-
 ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 {
   ezStringBuilder toolExe = szToolName;
@@ -22,13 +16,22 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 
   szToolName = toolExe;
 
-  ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
+  ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+  bool bFolders[2] = {false, true};
+
+  if (pPref->m_bUsePrecompiledTools)
+  {
+    ezMath::Swap(bFolders[0], bFolders[1]);
+  }
+
+  ezStringBuilder sTool = ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bFolders[0]);
   sTool.AppendPath(szToolName);
 
   if (ezFileSystem::ExistsFile(sTool))
     return sTool;
 
-  sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder(true);
+  sTool = ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bFolders[1]);
   sTool.AppendPath(szToolName);
 
   if (ezFileSystem::ExistsFile(sTool))
@@ -70,7 +73,8 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
   QString logoutput;
   proc.setProcessChannelMode(QProcess::MergedChannels);
   proc.setReadChannel(QProcess::StandardOutput);
-  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]() { logoutput.append(proc.readAllStandardOutput()); });
+  QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&proc, &logoutput]()
+    { logoutput.append(proc.readAllStandardOutput()); });
   ezString toolPath = ezQtEditorApp::GetSingleton()->FindToolApplication(szTool);
   proc.start(QString::fromUtf8(toolPath, toolPath.GetElementCount()), arguments);
 

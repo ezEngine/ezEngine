@@ -86,13 +86,10 @@ public:
   // External Tools
   //
 
-  /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools,
-  /// otherwise the currently compiled ones. If bForceUseCustomTools is true, it always returns the folder in which custom compiled tools
-  /// are stored (app binary dir)
-  ezString GetExternalToolsFolder(bool bForceUseCustomTools = false);
-
-  /// \brief Searches for an external tool by calling GetExternalToolsFolder(). Falls back to the currently compiled tools, if a tool cannot
-  /// be found in the precompiled folder.
+  /// \brief Searches for an external tool.
+  ///
+  /// Either uses one from the precompiled tools folder, or from the currently compiled binaries, depending where it finds one.
+  /// If the editor preference is set to use precompiled tools, that folder is preferred, otherwise the other folder is preferred.
   ezString FindToolApplication(const char* szToolName);
 
   /// \brief Executes an external tool as found by FindToolApplication().
