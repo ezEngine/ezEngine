@@ -145,8 +145,7 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
       sections[ezAssetInfo::TransformState::MissingTransformDependency],
       sections[ezAssetInfo::TransformState::MissingThumbnailDependency],
       sections[ezAssetInfo::TransformState::CircularDependency],
-      sections[ezAssetInfo::TransformState::TransformError]
-      );
+      sections[ezAssetInfo::TransformState::TransformError]);
     setToolTip(s.GetData());
   }
   else
