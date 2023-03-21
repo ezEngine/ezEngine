@@ -505,6 +505,21 @@ void ezQtPropertyWidget::PropertyChangedHandler(const ezPropertyEvent& ed)
   }
 }
 
+bool ezQtPropertyWidget::eventFilter(QObject* pWatched, QEvent* pEvent)
+{
+  if (pEvent->type() == QEvent::Wheel)
+  {
+    if (pWatched->parent())
+    {
+      pWatched->parent()->event(pEvent);
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
 /// *** ezQtUnsupportedPropertyWidget ***
 
 ezQtUnsupportedPropertyWidget::ezQtUnsupportedPropertyWidget(const char* szMessage)

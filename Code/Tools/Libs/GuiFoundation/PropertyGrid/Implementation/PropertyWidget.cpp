@@ -94,6 +94,7 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
     m_pWidget[c] = new ezQtDoubleSpinBox(this);
+    m_pWidget[c]->installEventFilter(this);
     m_pWidget[c]->setMinimum(-ezMath::Infinity<double>());
     m_pWidget[c]->setMaximum(ezMath::Infinity<double>());
     m_pWidget[c]->setSingleStep(0.1f);
@@ -364,6 +365,7 @@ ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget()
 
   {
     m_pWidget = new ezQtDoubleSpinBox(this);
+    m_pWidget->installEventFilter(this);
     m_pWidget->setDisplaySuffix(" sec");
     m_pWidget->setMinimum(-ezMath::Infinity<double>());
     m_pWidget->setMaximum(ezMath::Infinity<double>());
@@ -440,6 +442,7 @@ ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget()
 
   {
     m_pWidget = new ezQtDoubleSpinBox(this);
+    m_pWidget->installEventFilter(this);
     m_pWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
     m_pWidget->setMinimum(-ezMath::Infinity<double>());
     m_pWidget->setMaximum(ezMath::Infinity<double>());
@@ -535,6 +538,7 @@ ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt8 iN
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
     m_pWidget[c] = new ezQtDoubleSpinBox(this, true);
+    m_pWidget[c]->installEventFilter(this);
     m_pWidget[c]->setMinimum(iMinValue);
     m_pWidget[c]->setMaximum(iMaxValue);
     m_pWidget[c]->setSingleStep(1);
@@ -574,6 +578,7 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
           // we have to create the slider here, because in the constructor we don't know the real
           // min and max values from the ezClampValueAttribute (only the rough type ranges)
           m_pSlider = new QSlider(this);
+          m_pSlider->installEventFilter(this);
           m_pSlider->setOrientation(Qt::Orientation::Horizontal);
           m_pSlider->setMinimum(iMinValue);
           m_pSlider->setMaximum(iMaxValue);
@@ -831,6 +836,7 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
   for (ezInt32 c = 0; c < 3; ++c)
   {
     m_pWidget[c] = new ezQtDoubleSpinBox(this);
+    m_pWidget[c]->installEventFilter(this);
     m_pWidget[c]->setMinimum(-ezMath::Infinity<double>());
     m_pWidget[c]->setMaximum(ezMath::Infinity<double>());
     m_pWidget[c]->setSingleStep(1.0);
@@ -908,6 +914,7 @@ ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget()
   setLayout(m_pLayout);
 
   m_pWidget = new QLineEdit(this);
+  m_pWidget->installEventFilter(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   setFocusProxy(m_pWidget);
@@ -1090,6 +1097,7 @@ ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget()
   setLayout(m_pLayout);
 
   m_pWidget = new QComboBox(this);
+  m_pWidget->installEventFilter(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pLayout->addWidget(m_pWidget);
 
