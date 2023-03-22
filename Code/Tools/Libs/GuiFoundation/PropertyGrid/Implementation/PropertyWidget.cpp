@@ -857,6 +857,9 @@ void ezQtPropertyEditorQuaternionWidget::OnInit() {}
 
 void ezQtPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
 {
+  if (m_bTemporaryCommand)
+    return;
+
   ezQtScopedBlockSignals b0(m_pWidget[0]);
   ezQtScopedBlockSignals b1(m_pWidget[1]);
   ezQtScopedBlockSignals b2(m_pWidget[2]);
