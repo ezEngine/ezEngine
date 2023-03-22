@@ -96,7 +96,7 @@ private:
   bool ConnectToRemoteProcess();
   void ShutdownRemoteProcess();
 
-  bool m_bProcessShouldWaitForDebugger;
+  bool m_bProcessShouldWaitForDebugger = false;
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;
