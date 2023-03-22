@@ -140,3 +140,7 @@ ezUInt32 ezParticleEmitter_Distance::ComputeSpawnCount(const ezTime& tDiff)
 
   return uiSpawn;
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_Distance);
+

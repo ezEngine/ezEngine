@@ -124,3 +124,7 @@ void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData*
       break;
   }
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Quad_QuadParticleRenderer);
+

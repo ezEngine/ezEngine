@@ -64,3 +64,7 @@ ezUInt32 ezJoltShapeComponent::GetUserDataIndex()
   GetUserData();
   return m_uiUserDataIndex;
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeComponent);
+

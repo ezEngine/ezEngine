@@ -99,3 +99,7 @@ void ezJoltShapeCapsuleComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& o
   sub.m_pShape = pRotShape;
   sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeCapsuleComponent);
+

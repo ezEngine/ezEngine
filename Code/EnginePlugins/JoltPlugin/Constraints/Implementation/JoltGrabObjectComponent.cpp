@@ -556,3 +556,7 @@ void ezJoltGrabObjectComponent::Update()
     BreakObjectGrab();
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltGrabObjectComponent);
+

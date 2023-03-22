@@ -310,3 +310,7 @@ void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
     pComponent->m_ColorParams = m_Parameters->m_ColorParams;
   }
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction_Effect);
+

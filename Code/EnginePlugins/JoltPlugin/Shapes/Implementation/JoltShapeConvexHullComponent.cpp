@@ -98,3 +98,7 @@ void ezJoltShapeConvexHullComponent::ExtractGeometry(ezMsgExtractGeometry& ref_m
     ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeConvexHullComponent);
+

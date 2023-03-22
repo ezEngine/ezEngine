@@ -141,3 +141,7 @@ bool ezJoltObjectLayerPairFilter::ShouldCollide(JPH::ObjectLayer inObject1, JPH:
 {
   return ezJoltCollisionFiltering::s_CollisionFilterConfig.IsCollisionEnabled(static_cast<ezUInt32>(inObject1) & 0xFF, static_cast<ezUInt32>(inObject2) & 0xFF);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltCollisionFiltering);
+

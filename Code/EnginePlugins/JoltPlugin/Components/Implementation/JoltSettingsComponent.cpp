@@ -93,3 +93,7 @@ void ezJoltSettingsComponent::SetMaxBodies(ezUInt32 uiMaxBodies)
   m_Settings.m_uiMaxBodies = uiMaxBodies;
   SetModified(EZ_BIT(6));
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltSettingsComponent);
+

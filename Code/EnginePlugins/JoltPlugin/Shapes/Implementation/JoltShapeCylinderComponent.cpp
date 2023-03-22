@@ -97,3 +97,7 @@ void ezJoltShapeCylinderComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& 
   sub.m_pShape = pNewShape;
   sub.m_Transform.SetLocalTransform(rootTransform, tOwn);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeCylinderComponent);
+

@@ -640,3 +640,7 @@ void ezJoltCharacterControllerComponent::MovePresenceBody(ezTime deltaTime)
 
   pBodies->MoveKinematic(bodyId, ezJoltConversionUtils::ToVec3(trans.m_Position), ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized(), tDiff);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltCharacterControllerComponent);
+

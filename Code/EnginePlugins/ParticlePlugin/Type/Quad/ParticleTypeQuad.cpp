@@ -610,3 +610,7 @@ public:
 };
 
 ezParticleTypeQuadFactory_1_2 g_ezParticleTypeQuadFactory_1_2;
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Quad_ParticleTypeQuad);
+

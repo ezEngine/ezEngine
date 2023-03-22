@@ -79,3 +79,7 @@ void ezJoltShapeSphereComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
   sub.m_pShape = pNewShape;
   sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeSphereComponent);
+

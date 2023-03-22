@@ -707,3 +707,7 @@ void ezJoltWorldModule::UpdateConstraints()
 
   m_RequireUpdate.Clear();
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltWorldModule);
+

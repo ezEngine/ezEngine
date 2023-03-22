@@ -192,3 +192,7 @@ void ezJoltSwingTwistConstraintComponent::SetUpperTwistLimit(ezAngle f)
 //   m_fTwistDriveStrength = f;
 //   QueueApplySettings();
 // }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltSwingTwistConstraintComponent);
+

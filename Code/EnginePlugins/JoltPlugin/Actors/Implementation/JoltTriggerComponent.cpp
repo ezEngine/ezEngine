@@ -143,3 +143,7 @@ void ezJoltTriggerComponent::PostTriggerMessage(const ezGameObjectHandle& hOther
 
   m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltTriggerComponent);
+

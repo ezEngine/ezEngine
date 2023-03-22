@@ -168,7 +168,6 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezCommandLineOptionBool opt_Safe("_Editor", "-safe", "In safe-mode the editor minimizes the risk of crashing, for instance by not loading previous projects and scenes.", false);
 ezCommandLineOptionBool opt_NoRecent("_Editor", "-noRecent", "Disables automatic loading of recent projects and documents.", false);
-ezCommandLineOptionBool opt_Debug("_Editor", "-debug", "Enables debug-mode, which makes the editor wait for a debugger to attach, and disables risky features, such as recent file loading.", false);
 
 void ezQtEditorApp::StartupEditor()
 {
@@ -176,7 +175,6 @@ void ezQtEditorApp::StartupEditor()
 
   startupFlags.AddOrRemove(StartupFlags::SafeMode, opt_Safe.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
   startupFlags.AddOrRemove(StartupFlags::NoRecent, opt_NoRecent.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
-  startupFlags.AddOrRemove(StartupFlags::Debug, opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
 
   StartupEditor(startupFlags);
 }
@@ -220,7 +218,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   m_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  m_pEngineViewProcess->SetWaitForDebugger(m_StartupFlags.IsSet(StartupFlags::Debug));
   m_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
 
   m_LongOpControllerManager.Startup(&m_pEngineViewProcess->GetCommunicationChannel());
@@ -336,7 +333,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     CreateOrOpenProject(false, pCmd->GetAbsolutePathOption("-project")).IgnoreResult();
   }
-  else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup)
+  else if (!bNoRecent && pPreferences->m_bLoadLastProjectAtStartup)
   {
     if (!m_RecentProjects.GetFileList().IsEmpty())
     {

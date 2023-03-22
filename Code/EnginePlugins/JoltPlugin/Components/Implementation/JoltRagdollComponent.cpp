@@ -895,3 +895,7 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
     pJoint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::UnitYAxis());
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltRagdollComponent);
+

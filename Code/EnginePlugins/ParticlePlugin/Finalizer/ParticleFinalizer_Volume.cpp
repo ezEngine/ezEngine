@@ -87,3 +87,7 @@ void ezParticleFinalizer_Volume::Process(ezUInt64 uiNumElements)
 
   GetOwnerSystem()->SetBoundingVolume(ezSimdConversion::ToBBoxSphere(volume), fMaxSize);
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_Volume);
+

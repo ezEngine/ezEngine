@@ -248,3 +248,7 @@ void ezJoltBoneColliderComponent::DestroyPhysicsShapes()
 
   m_Shapes.Clear();
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltBoneColliderComponent);
+

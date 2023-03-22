@@ -298,3 +298,7 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
 
   pPrefab->InstantiatePrefab(*m_pOwnerEffect->GetWorld(), trans, options);
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction_Prefab);
+

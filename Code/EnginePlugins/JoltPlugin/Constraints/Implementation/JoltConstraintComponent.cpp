@@ -451,3 +451,7 @@ void ezJoltConstraintComponent::QueueApplySettings()
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
   pModule->m_RequireUpdate.PushBack(GetHandle());
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltConstraintComponent);
+

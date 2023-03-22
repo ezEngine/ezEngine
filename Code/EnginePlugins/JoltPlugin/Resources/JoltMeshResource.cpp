@@ -500,3 +500,7 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
     return pShapeDeco;
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Resources_JoltMeshResource);
+

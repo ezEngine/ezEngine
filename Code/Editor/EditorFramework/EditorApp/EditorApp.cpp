@@ -402,8 +402,6 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
     args << "-safe";
   if (m_StartupFlags.IsSet(StartupFlags::NoRecent))
     args << "-noRecent";
-  if (m_StartupFlags.IsSet(StartupFlags::Debug))
-    args << "-debug";
 
   QProcess proc;
   proc.startDetached(QString::fromUtf8(app, app.GetElementCount()), args);

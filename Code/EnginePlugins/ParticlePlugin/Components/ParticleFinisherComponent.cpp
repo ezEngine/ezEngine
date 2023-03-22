@@ -89,3 +89,7 @@ void ezParticleFinisherComponent::UpdateBounds()
     GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
   }
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleFinisherComponent);
+

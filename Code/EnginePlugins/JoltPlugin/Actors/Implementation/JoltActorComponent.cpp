@@ -226,3 +226,7 @@ void ezJoltActorComponent::SetInitialObjectFilterID(ezUInt32 uiObjectFilterID)
   EZ_ASSERT_DEBUG(!IsActiveAndSimulating(), "The object filter ID can't be changed after simulation has started.");
   m_uiObjectFilterID = uiObjectFilterID;
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltActorComponent);
+

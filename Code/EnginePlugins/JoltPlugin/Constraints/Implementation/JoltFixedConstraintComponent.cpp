@@ -35,3 +35,7 @@ void ezJoltFixedConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JP
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltFixedConstraintComponent);
+

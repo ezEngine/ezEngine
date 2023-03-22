@@ -603,3 +603,7 @@ void ezJoltContactEvents::OnContact_SlideAndRollReaction(const JPH::Body& body0,
     OnContact_RollReaction(body0, body1, manifold, onContact0, onContact1, vAvgPos, vAvgNormal);
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltContacts);
+

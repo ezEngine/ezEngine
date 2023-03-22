@@ -356,3 +356,7 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_res
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltQueries);
+

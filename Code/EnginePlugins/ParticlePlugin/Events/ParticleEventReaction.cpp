@@ -82,3 +82,7 @@ void ezParticleEventReaction::Reset(ezParticleEffectInstance* pOwner)
 {
   m_pOwnerEffect = pOwner;
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction);
+

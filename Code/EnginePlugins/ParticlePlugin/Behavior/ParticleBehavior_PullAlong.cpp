@@ -108,3 +108,7 @@ void ezParticleBehavior_PullAlong::StepParticleSystem(const ezTime& tDiff, ezUIn
 
   m_vLastEmitterPosition = vPos;
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_PullAlong);
+

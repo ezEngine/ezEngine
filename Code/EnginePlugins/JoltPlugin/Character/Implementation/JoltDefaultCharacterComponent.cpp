@@ -661,3 +661,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
 
   ResetInputState();
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltDefaultCharacterComponent);
+
