@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -28,7 +29,7 @@ class BodyCreationSettings;
 /// The functions that get/set the position of the body all indicate if they are relative to the center of mass or to the original position in which the shape was created.
 ///
 /// The linear velocity is also velocity of the center of mass, to correct for this: \f$VelocityCOM = Velocity - AngularVelocity \times ShapeCOM\f$.
-class Body : public NonCopyable
+class alignas(JPH_RVECTOR_ALIGNMENT) Body : public NonCopyable
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -66,6 +67,16 @@ public:
 
 	/// Check if this body is a sensor.
 	inline bool				IsSensor() const												{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::IsSensor)) != 0; }
+
+	/// If PhysicsSettings::mUseManifoldReduction is true, this allows turning off manifold reduction for this specific body. Manifold reduction by default will combine contacts that come from different SubShapeIDs (e.g. different triangles or different compound shapes).
+	/// If the application requires tracking exactly which SubShapeIDs are in contact, you can turn off manifold reduction. Note that this comes at a performance cost.
+	inline void				SetUseManifoldReduction(bool inUseReduction)					{ if (inUseReduction) mFlags.fetch_or(uint8(EFlags::UseManifoldReduction), memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(EFlags::UseManifoldReduction)), memory_order_relaxed); }
+
+	/// Check if this body can use manifold reduction.
+	inline bool				GetUseManifoldReduction() const									{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::UseManifoldReduction)) != 0; }
+
+	/// Checks if the combination of this body and inBody2 should use manifold reduction
+	inline bool				GetUseManifoldReductionWithBody(const Body &inBody2) const		{ return ((mFlags.load(memory_order_relaxed) & inBody2.mFlags.load(memory_order_relaxed)) & uint8(EFlags::UseManifoldReduction)) != 0; }
 
 	/// Motion type of this body
 	inline EMotionType		GetMotionType() const											{ return mMotionType; }
@@ -288,7 +299,8 @@ private:
 	{
 		IsSensor				= 1 << 0,													///< If this object is a sensor. A sensor will receive collision callbacks, but will not cause any collision responses and can be used as a trigger volume.
 		IsInBroadPhase			= 1 << 1,													///< Set this bit to indicate that the body is in the broadphase
-		InvalidateContactCache	= 1 << 2													///< Set this bit to indicate that all collision caches for this body are invalid, will be reset the next simulation step.
+		InvalidateContactCache	= 1 << 2,													///< Set this bit to indicate that all collision caches for this body are invalid, will be reset the next simulation step.
+		UseManifoldReduction	= 1 << 3,													///< Set this bit to indicate that this body can use manifold reduction (if PhysicsSettings::mUseManifoldReduction is true)
 	};
 
 	// 16 byte aligned
@@ -307,7 +319,7 @@ private:
 	float					mRestitution;													///< Restitution of body (dimensionless number, usually between 0 and 1, 0 = completely inelastic collision response, 1 = completely elastic collision response)
 	BodyID					mID;															///< ID of the body (index in the bodies array)
 
-	// 2 bytes aligned
+	// 2 or 4 bytes aligned
 	ObjectLayer				mObjectLayer;													///< The collision layer this body belongs to (determines if two objects can collide)
 
 	// 1 byte aligned
@@ -315,15 +327,11 @@ private:
 	EMotionType				mMotionType;													///< Type of motion (static, dynamic or kinematic)
 	atomic<uint8>			mFlags = 0;														///< See EFlags for possible flags
 	
-	// 121 bytes up to here (64-bit mode, single precision)
+	// 121 bytes up to here (64-bit mode, single precision, 16-bit ObjectLayer)
 
 #if JPH_CPU_ADDRESS_BITS == 32
-	// Padding for 32 bit mode
-	char					mPadding[19];
-#endif
-#ifdef JPH_DOUBLE_PRECISION
-	// Padding to align to 256 bit
-	char					mPadding2[16];
+	// Padding for mShape, mMotionProperties, mCollisionGroup.mGroupFilter being 4 instead of 8 bytes in 32 bit mode
+	uint8					mPadding[12];
 #endif
 };
 

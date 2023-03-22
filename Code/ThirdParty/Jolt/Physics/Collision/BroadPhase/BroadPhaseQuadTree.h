@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -5,6 +6,7 @@
 
 #include <Jolt/Physics/Collision/BroadPhase/QuadTree.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Jolt/Physics/PhysicsLock.h>
 
 JPH_NAMESPACE_BEGIN
 
@@ -56,6 +58,11 @@ private:
 
 	using Tracking = QuadTree::Tracking;
 	using TrackingVector = QuadTree::TrackingVector;
+
+#ifdef JPH_ENABLE_ASSERTS
+	/// Context used to lock a physics lock
+	PhysicsLockContext		mLockContext = nullptr;
+#endif // JPH_ENABLE_ASSERTS
 
 	/// Max amount of bodies we support
 	size_t					mMaxBodies = 0;

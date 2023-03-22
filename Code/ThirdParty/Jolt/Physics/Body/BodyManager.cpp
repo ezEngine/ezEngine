@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -45,7 +46,7 @@ inline void BodyManager::sDeleteBody(Body *inBody)
 
 BodyManager::~BodyManager()
 {
-	UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Destroy any bodies that are still alive
 	for (Body *b : mBodies)
@@ -57,7 +58,7 @@ BodyManager::~BodyManager()
 
 void BodyManager::Init(uint inMaxBodies, uint inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface)
 {
-	UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Num body mutexes must be a power of two and not bigger than our MutexMask
 	uint num_body_mutexes = Clamp<uint>(GetNextPowerOf2(inNumBodyMutexes == 0? 2 * thread::hardware_concurrency() : inNumBodyMutexes), 1, sizeof(MutexMask) * 8);
@@ -81,14 +82,14 @@ void BodyManager::Init(uint inMaxBodies, uint inNumBodyMutexes, const BroadPhase
 
 uint BodyManager::GetNumBodies() const
 {
-	UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	return mNumBodies;
 }
 
 BodyManager::BodyStats BodyManager::GetBodyStats() const
 {
-	UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	BodyStats stats;
 	stats.mNumBodies = mNumBodies;
@@ -141,6 +142,8 @@ Body *BodyManager::AllocateBody(const BodyCreationSettings &inBodyCreationSettin
 	body->mMotionType = inBodyCreationSettings.mMotionType;
 	if (inBodyCreationSettings.mIsSensor)
 		body->SetIsSensor(true);
+	if (inBodyCreationSettings.mUseManifoldReduction)
+		body->SetUseManifoldReduction(true);
 	SetBodyObjectLayerInternal(*body, inBodyCreationSettings.mObjectLayer);
 	body->mObjectLayer = inBodyCreationSettings.mObjectLayer;
 	body->mCollisionGroup = inBodyCreationSettings.mCollisionGroup;
@@ -185,7 +188,7 @@ bool BodyManager::AddBody(Body *ioBody)
 	// Determine next free index
 	uint32 idx;
 	{
-		UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+		UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 		if (mBodyIDFreeListStart != cBodyIDFreeListEnd)
 		{
@@ -228,7 +231,7 @@ bool BodyManager::AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID)
 		return false;
 
 	{
-		UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+		UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 		// Check if index is beyond the max body ID
 		uint32 idx = inBodyID.GetIndex();
@@ -331,7 +334,7 @@ void BodyManager::RemoveBodies(const BodyID *inBodyIDs, int inNumber, Body **out
 	if (inNumber <= 0)
 		return;
 
-	UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Update cached number of bodies
 	JPH_ASSERT(mNumBodies >= (uint)inNumber);
@@ -364,7 +367,7 @@ void BodyManager::DestroyBodies(const BodyID *inBodyIDs, int inNumber)
 	if (inNumber <= 0)
 		return;
 
-	UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Update cached number of bodies
 	JPH_ASSERT(mNumBodies >= (uint)inNumber);
@@ -390,8 +393,8 @@ void BodyManager::ActivateBodies(const BodyID *inBodyIDs, int inNumber)
 	if (inNumber <= 0)
 		return;
 
-	UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
-
+	UniqueLock lock(mActiveBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
+	
 	JPH_ASSERT(!mActiveBodiesLocked || sOverrideAllowActivation);
 
 	for (const BodyID *b = inBodyIDs, *b_end = inBodyIDs + inNumber; b < b_end; b++)
@@ -400,7 +403,6 @@ void BodyManager::ActivateBodies(const BodyID *inBodyIDs, int inNumber)
 			BodyID body_id = *b;
 			Body &body = *mBodies[body_id.GetIndex()];
 
-			JPH_ASSERT(GetMutexForBody(body_id).is_locked(), "Assuming that body has been locked!");
 			JPH_ASSERT(body.GetID() == body_id);
 			JPH_ASSERT(body.IsInBroadPhase());
 
@@ -430,7 +432,7 @@ void BodyManager::DeactivateBodies(const BodyID *inBodyIDs, int inNumber)
 	if (inNumber <= 0)
 		return;
 
-	UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
+	UniqueLock lock(mActiveBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
 	JPH_ASSERT(!mActiveBodiesLocked || sOverrideAllowDeactivation);
 
@@ -440,7 +442,6 @@ void BodyManager::DeactivateBodies(const BodyID *inBodyIDs, int inNumber)
 			BodyID body_id = *b;
 			Body &body = *mBodies[body_id.GetIndex()];
 
-			JPH_ASSERT(GetMutexForBody(body_id).is_locked(), "Assuming that body has been locked!");
 			JPH_ASSERT(body.GetID() == body_id);
 			JPH_ASSERT(body.IsInBroadPhase());
 
@@ -487,7 +488,7 @@ void BodyManager::SetMotionQuality(Body &ioBody, EMotionQuality inMotionQuality)
 	MotionProperties *mp = ioBody.GetMotionPropertiesUnchecked();
 	if (mp != nullptr && mp->GetMotionQuality() != inMotionQuality)
 	{
-		UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
+		UniqueLock lock(mActiveBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
 		JPH_ASSERT(!mActiveBodiesLocked);
 
@@ -506,7 +507,7 @@ void BodyManager::GetActiveBodies(BodyIDVector &outBodyIDs) const
 {
 	JPH_PROFILE_FUNCTION();
 
-	UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
+	UniqueLock lock(mActiveBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
 	outBodyIDs.assign(mActiveBodies, mActiveBodies + mNumActiveBodies);
 }
@@ -515,7 +516,7 @@ void BodyManager::GetBodyIDs(BodyIDVector &outBodies) const
 {
 	JPH_PROFILE_FUNCTION();
 
-	UniqueLock lock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	UniqueLock lock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Reserve space for all bodies
 	outBodies.clear();
@@ -532,7 +533,7 @@ void BodyManager::GetBodyIDs(BodyIDVector &outBodies) const
 
 void BodyManager::SetBodyActivationListener(BodyActivationListener *inListener)	
 { 
-	UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
+	UniqueLock lock(mActiveBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
 	mActivationListener = inListener; 
 }
@@ -561,7 +562,7 @@ BodyManager::MutexMask BodyManager::GetMutexMask(const BodyID *inBodies, int inN
 
 void BodyManager::LockRead(MutexMask inMutexMask) const
 {
-	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckLock(EPhysicsLockTypes::PerBody));
+	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckLock(this, EPhysicsLockTypes::PerBody));
 
 	int index = 0;
 	for (MutexMask mask = inMutexMask; mask != 0; mask >>= 1, index++)
@@ -571,7 +572,7 @@ void BodyManager::LockRead(MutexMask inMutexMask) const
 
 void BodyManager::UnlockRead(MutexMask inMutexMask) const
 {
-	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckUnlock(EPhysicsLockTypes::PerBody));
+	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckUnlock(this, EPhysicsLockTypes::PerBody));
 
 	int index = 0;
 	for (MutexMask mask = inMutexMask; mask != 0; mask >>= 1, index++)
@@ -581,7 +582,7 @@ void BodyManager::UnlockRead(MutexMask inMutexMask) const
 
 void BodyManager::LockWrite(MutexMask inMutexMask) const
 {
-	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckLock(EPhysicsLockTypes::PerBody));
+	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckLock(this, EPhysicsLockTypes::PerBody));
 
 	int index = 0;
 	for (MutexMask mask = inMutexMask; mask != 0; mask >>= 1, index++)
@@ -591,7 +592,7 @@ void BodyManager::LockWrite(MutexMask inMutexMask) const
 
 void BodyManager::UnlockWrite(MutexMask inMutexMask) const
 {
-	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckUnlock(EPhysicsLockTypes::PerBody));
+	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckUnlock(this, EPhysicsLockTypes::PerBody));
 
 	int index = 0;
 	for (MutexMask mask = inMutexMask; mask != 0; mask >>= 1, index++)
@@ -601,17 +602,17 @@ void BodyManager::UnlockWrite(MutexMask inMutexMask) const
 
 void BodyManager::LockAllBodies() const						
 { 
-	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckLock(EPhysicsLockTypes::PerBody));
+	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckLock(this, EPhysicsLockTypes::PerBody));
 	mBodyMutexes.LockAll(); 
 
-	PhysicsLock::sLock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	PhysicsLock::sLock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 }
 
 void BodyManager::UnlockAllBodies() const						
 { 
-	PhysicsLock::sUnlock(mBodiesMutex, EPhysicsLockTypes::BodiesList);
+	PhysicsLock::sUnlock(mBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
-	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckUnlock(EPhysicsLockTypes::PerBody));
+	JPH_IF_ENABLE_ASSERTS(PhysicsLock::sCheckUnlock(this, EPhysicsLockTypes::PerBody));
 	mBodyMutexes.UnlockAll(); 
 }
 
@@ -639,7 +640,7 @@ void BodyManager::SaveState(StateRecorder &inStream) const
 	}
 
 	{
-		UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
+		UniqueLock lock(mActiveBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
 		// Write active bodies, sort because activation can come from multiple threads, so order is not deterministic
 		inStream.Write(mNumActiveBodies);
@@ -689,7 +690,7 @@ bool BodyManager::RestoreState(StateRecorder &inStream)
 	}
 
 	{
-		UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
+		UniqueLock lock(mActiveBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
 		// Mark current active bodies as deactivated
 		for (const BodyID *id = mActiveBodies, *id_end = mActiveBodies + mNumActiveBodies; id < id_end; ++id)
@@ -915,7 +916,7 @@ void BodyManager::ValidateContactCacheForAllBodies()
 #ifdef _DEBUG
 void BodyManager::ValidateActiveBodyBounds()
 {
-	UniqueLock lock(mActiveBodiesMutex, EPhysicsLockTypes::ActiveBodiesList);
+	UniqueLock lock(mActiveBodiesMutex JPH_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
 	for (BodyID *id = mActiveBodies, *id_end = mActiveBodies + mNumActiveBodies; id < id_end; ++id)
 	{
