@@ -232,11 +232,11 @@ public:
 
       ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
         ezAssetCurator::GetSingleton()->ResaveAllAssets();
-        
-          if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
-          {
-            ezActionContext context;
-            ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
+
+        if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
+        {
+          ezActionContext context;
+          ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
           }
 
         QApplication::quit(); });
