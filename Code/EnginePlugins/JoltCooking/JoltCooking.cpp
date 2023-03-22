@@ -100,6 +100,24 @@ ezResult ezJoltCooking::CookTriangleMesh(const ezJoltCookingMesh& mesh, ezStream
           const ezUInt32 idx1 = mesh.m_PolygonIndices[uiIdxOffset + tri + 1];
           const ezUInt32 idx2 = mesh.m_PolygonIndices[uiIdxOffset + tri + 2];
 
+          if (idx0 == idx1 || idx0 == idx2 || idx1 == idx2)
+          {
+            // triangle is degenerate, remove it from the list
+            triangleList.resize(triangleList.size() - 1);
+            continue;
+          }
+
+          const ezVec3 v0 = ezJoltConversionUtils::ToVec3(vertexList[idx0]);
+          const ezVec3 v1 = ezJoltConversionUtils::ToVec3(vertexList[idx1]);
+          const ezVec3 v2 = ezJoltConversionUtils::ToVec3(vertexList[idx2]);
+
+          if (v0.IsEqual(v1, 0.001f) || v0.IsEqual(v2, 0.001f) || v1.IsEqual(v2, 0.001f))
+          {
+            // triangle is degenerate, remove it from the list
+            triangleList.resize(triangleList.size() - 1);
+            continue;
+          }
+
           triangleList[uiTriIdx].mMaterialIndex = uiMaterialID;
           triangleList[uiTriIdx].mIdx[0] = idx0;
           triangleList[uiTriIdx].mIdx[1] = idx1;
