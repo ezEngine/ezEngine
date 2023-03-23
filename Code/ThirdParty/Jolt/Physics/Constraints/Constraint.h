@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -11,6 +12,7 @@
 JPH_NAMESPACE_BEGIN
 
 class IslandBuilder;
+class LargeIslandSplitter;
 class BodyManager;
 class StateRecorder;
 class StreamIn;
@@ -83,6 +85,9 @@ public:
 	/// Size of constraint when drawing it through the debug renderer
 	float						mDrawConstraintSize = 1.0f;
 
+	/// User data value (can be used by application)
+	uint64						mUserData = 0;
+
 protected:
 	/// This function should not be called directly, it is used by sRestoreFromBinaryState.
 	virtual void				RestoreBinaryState(StreamIn &inStream);
@@ -101,7 +106,8 @@ public:
 #endif // JPH_DEBUG_RENDERER
 		mNumVelocityStepsOverride(inSettings.mNumVelocityStepsOverride),
 		mNumPositionStepsOverride(inSettings.mNumPositionStepsOverride),
-		mEnabled(inSettings.mEnabled)
+		mEnabled(inSettings.mEnabled),
+		mUserData(inSettings.mUserData)
 	{
 	}
 
@@ -131,6 +137,10 @@ public:
 	/// Test if a constraint is enabled.
 	bool						GetEnabled() const							{ return mEnabled; }
 
+	/// Access to the user data, can be used for anything by the application
+	uint64						GetUserData() const							{ return mUserData; }
+	void						SetUserData(uint64 inUserData)				{ mUserData = inUserData; }
+
 	///@name Solver interface
 	///@{
 	virtual bool				IsActive() const							{ return mEnabled; }
@@ -142,6 +152,9 @@ public:
 
 	/// Link bodies that are connected by this constraint in the island builder
 	virtual void				BuildIslands(uint32 inConstraintIndex, IslandBuilder &ioBuilder, BodyManager &inBodyManager) = 0;
+
+	/// Link bodies that are connected by this constraint in the same split. Returns the split index.
+	virtual uint				BuildIslandSplits(LargeIslandSplitter &ioSplitter) const = 0;
 
 #ifdef JPH_DEBUG_RENDERER
 	// Drawing interface
@@ -189,6 +202,9 @@ private:
 
 	/// If this constraint is currently enabled
 	bool						mEnabled = true;
+
+	/// User data value (can be used by application)
+	uint64						mUserData;
 };
 
 JPH_NAMESPACE_END

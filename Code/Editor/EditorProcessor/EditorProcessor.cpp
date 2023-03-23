@@ -14,7 +14,7 @@
 #include <GuiFoundation/Action/ActionManager.h>
 
 ezCommandLineOptionPath opt_OutputDir("_EditorProcessor", "-outputDir", "Output directory", "");
-ezCommandLineOptionBool opt_Debug("_EditorProcessor", "-debug", "Writes various debug logs into the output folder.", false);
+ezCommandLineOptionBool opt_SaveProfilingData("_EditorProcessor", "-profiling", "Saves performance profiling information into the output folder.", false);
 ezCommandLineOptionPath opt_Project("_EditorProcessor", "-project", "Path to the project folder.", "");
 ezCommandLineOptionBool opt_Resave("_EditorProcessor", "-resave", "If specified, assets will be resaved.", false);
 ezCommandLineOptionString opt_Transform("_EditorProcessor", "-transform", "If specified, assets will be transformed for the given platform profile.\n\
@@ -213,7 +213,7 @@ public:
             SetReturnCode(1);
           }
 
-          if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
+          if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
           {
             ezActionContext context;
             ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
@@ -232,11 +232,11 @@ public:
 
       ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
         ezAssetCurator::GetSingleton()->ResaveAllAssets();
-        
-          if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
-          {
-            ezActionContext context;
-            ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
+
+        if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
+        {
+          ezActionContext context;
+          ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
           }
 
         QApplication::quit(); });

@@ -115,7 +115,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   QStringList args;
   if (m_bProcessShouldWaitForDebugger)
   {
-    args << "-debug";
+    args << "-WaitForDebugger";
   }
 
   if (!m_sRenderer.IsEmpty())
