@@ -137,6 +137,16 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
       LoadPluginBundleDlls(sProjectFile);
 
+      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+      sTemp.AppendPath("ezEditorCrashIndicator");
+      ezOSFile f;
+      if (f.Open(sTemp, ezFileOpenMode::Write, ezFileShareMode::Exclusive).Succeeded())
+      {
+        f.Write(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
+        f.Close();
+        m_bWroteCrashIndicatorFile = true;
+      }
+
       res = ezToolsProject::OpenProject(sProjectFile);
     }
   }

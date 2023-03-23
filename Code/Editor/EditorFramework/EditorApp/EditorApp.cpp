@@ -56,6 +56,17 @@ void ezQtEditorApp::SlotTimedUpdate()
 
   RestartEngineProcessIfPluginsChanged(false);
 
+  if (m_bWroteCrashIndicatorFile)
+  {
+    m_bWroteCrashIndicatorFile = false;
+    QTimer::singleShot(2000, []() {
+      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+      sTemp.AppendPath("ezEditorCrashIndicator");
+      ezOSFile::DeleteFile(sTemp).IgnoreResult();
+      //
+    });
+  }
+
   m_pTimer->start(1);
 }
 

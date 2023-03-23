@@ -265,6 +265,7 @@ private:
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;
   bool m_bAnyProjectOpened = false;
+  bool m_bWroteCrashIndicatorFile = false;
 
   ezBitflags<StartupFlags> m_StartupFlags;
   ezDynamicArray<ezString> m_DocumentsToOpen;
