@@ -85,6 +85,4 @@ private:
   ezVec3 m_vPlaneAxis[2];
   ezVec3 m_vStartPosition;
   ezMat4 m_mInvViewProj;
-
-  bool m_bUseExperimentalGizmo = false;
 };

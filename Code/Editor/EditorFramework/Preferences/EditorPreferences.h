@@ -18,7 +18,6 @@ public:
   void SetAsDefaultValues(const ezEngineViewLightSettings& settings);
 
   float m_fPerspectiveFieldOfView = 70.0f;
-  bool m_bOldGizmos = false;
   ezAngle m_RotationSnapValue = ezAngle::Degree(15.0f);
   float m_fScaleSnapValue = 0.125f;
   float m_fTranslationSnapValue = 0.25f;
@@ -27,7 +26,6 @@ public:
   bool m_bShowSplashscreen = true;
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = true;
-  bool m_bAssetFilterCombobox = true;
   bool m_bHighlightUntranslatedUI = false;
 
   bool m_bSkyBox = true;

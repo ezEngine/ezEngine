@@ -13,25 +13,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRotateGizmo::ezRotateGizmo()
 {
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-  m_bUseExperimentalGizmo = !pPreferences->m_bOldGizmos;
+  const ezColor colr = ezColorScheme::LightUI(ezColorScheme::Red);
+  const ezColor colg = ezColorScheme::LightUI(ezColorScheme::Green);
+  const ezColor colb = ezColorScheme::LightUI(ezColorScheme::Blue);
 
-  if (m_bUseExperimentalGizmo)
-  {
-    const ezColor colr = ezColorScheme::LightUI(ezColorScheme::Red);
-    const ezColor colg = ezColorScheme::LightUI(ezColorScheme::Green);
-    const ezColor colb = ezColorScheme::LightUI(ezColorScheme::Blue);
-
-    m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneX.obj");
-    m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneY.obj");
-    m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneZ.obj");
-  }
-  else
-  {
-    m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-    m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-    m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  }
+  m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneX.obj");
+  m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneY.obj");
+  m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/RotatePlaneZ.obj");
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -58,26 +46,9 @@ void ezRotateGizmo::OnVisibleChanged(bool bVisible)
 
 void ezRotateGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  if (m_bUseExperimentalGizmo)
-  {
-    m_hAxisX.SetTransformation(transform);
-    m_hAxisY.SetTransformation(transform);
-    m_hAxisZ.SetTransformation(transform);
-  }
-  else
-  {
-    ezTransform m;
-    m.SetIdentity();
-
-    m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-    m_hAxisX.SetTransformation(transform * m);
-
-    m.m_qRotation.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90));
-    m_hAxisY.SetTransformation(transform * m);
-
-    m.SetIdentity();
-    m_hAxisZ.SetTransformation(transform * m);
-  }
+  m_hAxisX.SetTransformation(transform);
+  m_hAxisY.SetTransformation(transform);
+  m_hAxisZ.SetTransformation(transform);
 }
 
 void ezRotateGizmo::DoFocusLost(bool bCancel)
