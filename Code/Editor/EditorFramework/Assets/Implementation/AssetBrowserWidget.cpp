@@ -19,10 +19,9 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-
-  ListTypeFilter->setVisible(!pPreferences->m_bAssetFilterCombobox);
-  TypeFilter->setVisible(pPreferences->m_bAssetFilterCombobox);
+  const bool bAssetFilterCombobox = true;
+  ListTypeFilter->setVisible(!bAssetFilterCombobox);
+  TypeFilter->setVisible(bAssetFilterCombobox);
 
   m_pFilter = new ezQtAssetBrowserFilter(this);
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
