@@ -43,6 +43,7 @@ public:
   float GetDamping() const { return m_fDamping; } // [ property ]
 
   virtual void ApplySettings() final override;
+  virtual bool ExceededBreakingPoint() final override;
 
 protected:
   float m_fMinDistance = 0.0f;

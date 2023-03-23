@@ -145,6 +145,32 @@ void ezJoltSwingTwistConstraintComponent::ApplySettings()
   }
 }
 
+bool ezJoltSwingTwistConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::SwingTwistConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition().ReduceMax() >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+
+    if (m_fBreakTorque > 0)
+    {
+      if (pConstraint->GetTotalLambdaSwingY() >= m_fBreakTorque ||
+          pConstraint->GetTotalLambdaSwingZ() >= m_fBreakTorque ||
+          pConstraint->GetTotalLambdaTwist() >= m_fBreakTorque)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 void ezJoltSwingTwistConstraintComponent::SetSwingLimitZ(ezAngle f)
 {
   m_SwingLimitZ = f;
@@ -195,4 +221,3 @@ void ezJoltSwingTwistConstraintComponent::SetUpperTwistLimit(ezAngle f)
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltSwingTwistConstraintComponent);
-

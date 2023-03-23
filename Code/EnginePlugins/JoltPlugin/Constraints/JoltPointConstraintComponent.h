@@ -23,7 +23,7 @@ public:
 protected:
   virtual void ApplySettings() override;
   virtual void CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1) override;
-
+  virtual bool ExceededBreakingPoint() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezJoltPointConstraintComponent

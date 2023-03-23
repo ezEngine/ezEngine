@@ -76,6 +76,22 @@ void ezJoltDistanceConstraintComponent::ApplySettings()
   }
 }
 
+bool ezJoltDistanceConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::DistanceConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition() >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 void ezJoltDistanceConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
@@ -121,4 +137,3 @@ void ezJoltDistanceConstraintComponent::CreateContstraintType(JPH::Body* pBody0,
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltDistanceConstraintComponent);
-

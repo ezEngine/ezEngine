@@ -197,6 +197,29 @@ void ezJoltHingeConstraintComponent::ApplySettings()
   }
 }
 
+bool ezJoltHingeConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::HingeConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition().ReduceMax() >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+
+    if (m_fBreakTorque > 0)
+    {
+      if (pConstraint->GetTotalLambdaRotation()[0] >= m_fBreakTorque ||
+          pConstraint->GetTotalLambdaRotation()[1] >= m_fBreakTorque)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltHingeConstraintComponent);
-

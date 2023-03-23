@@ -22,4 +22,5 @@ public:
   ~ezJoltFixedConstraintComponent();
 
   virtual void ApplySettings() final override;
+  virtual bool ExceededBreakingPoint() final override;
 };

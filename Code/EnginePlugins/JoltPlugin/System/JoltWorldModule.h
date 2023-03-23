@@ -90,6 +90,10 @@ public:
     return reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
   }
 
+  void CheckBreakableConstraints();
+
+  ezSet<ezComponentHandle> m_BreakableConstraints;
+
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
   bool OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
