@@ -31,6 +31,7 @@ public:
   ~ezJoltConeConstraintComponent();
 
   virtual void ApplySettings() final override;
+  virtual bool ExceededBreakingPoint() final override;
 
   void SetConeAngle(ezAngle f);                        // [ property ]
   ezAngle GetConeAngle() const { return m_ConeAngle; } // [ property ]

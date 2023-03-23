@@ -31,6 +31,7 @@ public:
   ~ezJoltSwingTwistConstraintComponent();
 
   virtual void ApplySettings() final override;
+  virtual bool ExceededBreakingPoint() final override;
 
   void SetSwingLimitY(ezAngle f);                          // [ property ]
   ezAngle GetSwingLimitY() const { return m_SwingLimitY; } // [ property ]

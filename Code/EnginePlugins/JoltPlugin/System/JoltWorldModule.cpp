@@ -405,6 +405,38 @@ void ezJoltWorldModule::ActivateCharacterController(ezJoltCharacterControllerCom
   }
 }
 
+void ezJoltWorldModule::CheckBreakableConstraints()
+{
+  ezWorld* pWorld = GetWorld();
+
+  for (auto it = m_BreakableConstraints.GetIterator(); it.IsValid();)
+  {
+    ezJoltConstraintComponent* pConstraint;
+    if (pWorld->TryGetComponent(*it, pConstraint) && pConstraint->IsActive())
+    {
+      if (pConstraint->ExceededBreakingPoint())
+      {
+        // notify interested parties, that this constraint is now broken
+        ezMsgPhysicsJointBroke msg;
+        msg.m_hJointObject = pConstraint->GetOwner()->GetHandle();
+        pConstraint->GetOwner()->SendEventMessage(msg, pConstraint);
+
+        // currently we don't track the broken state separately, we just remove the component
+        pConstraint->GetOwningManager()->DeleteComponent(pConstraint);
+        it = m_BreakableConstraints.Remove(it);
+      }
+      else
+      {
+        ++it;
+      }
+    }
+    else
+    {
+      it = m_BreakableConstraints.Remove(it);
+    }
+  }
+}
+
 void ezJoltWorldModule::FreeUserDataAfterSimulationStep()
 {
   m_FreeUserData.PushBackRange(m_FreeUserDataAfterSimulationStep);
@@ -549,7 +581,7 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
   reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_ContactEvents.UpdatePhysicsSlideReactions();
   reinterpret_cast<ezJoltContactListener*>(m_pContactListener)->m_ContactEvents.UpdatePhysicsRollReactions();
 
-  //  HandleBrokenConstraints();
+  CheckBreakableConstraints();
 
   FreeUserDataAfterSimulationStep();
 }
@@ -710,4 +742,3 @@ void ezJoltWorldModule::UpdateConstraints()
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltWorldModule);
-

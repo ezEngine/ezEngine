@@ -52,6 +52,7 @@ public:
   float GetDriveStrength() const { return m_fDriveStrength; } // [ property ]
 
   virtual void ApplySettings() final override;
+  virtual bool ExceededBreakingPoint() final override;
 
 protected:
   ezEnum<ezJoltConstraintLimitMode> m_LimitMode;

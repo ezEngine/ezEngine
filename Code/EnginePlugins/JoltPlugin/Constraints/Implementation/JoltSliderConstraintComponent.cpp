@@ -170,6 +170,31 @@ void ezJoltSliderConstraintComponent::ApplySettings()
   }
 }
 
+bool ezJoltSliderConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::SliderConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition()[0] >= m_fBreakForce ||
+          pConstraint->GetTotalLambdaPosition()[1] >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+
+    if (m_fBreakTorque > 0)
+    {
+      if (pConstraint->GetTotalLambdaRotation().ReduceMax() >= m_fBreakTorque)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 void ezJoltSliderConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
   const auto inv1 = pBody0->GetInverseCenterOfMassTransform() * pBody0->GetWorldTransform();
@@ -190,4 +215,3 @@ void ezJoltSliderConstraintComponent::CreateContstraintType(JPH::Body* pBody0, J
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltSliderConstraintComponent);
-
