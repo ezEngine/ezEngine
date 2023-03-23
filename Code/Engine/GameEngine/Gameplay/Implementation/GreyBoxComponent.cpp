@@ -583,6 +583,23 @@ void ezGreyBoxComponent::GenerateMeshResourceDescriptor(ezMeshResourceDescriptor
   ezGeometry geom;
   BuildGeometry(geom, m_Shape, false);
 
+  bool bInvertedGeo = false;
+
+  if (-m_fSizeNegX > m_fSizePosX)
+    bInvertedGeo = !bInvertedGeo;
+  if (-m_fSizeNegY > m_fSizePosY)
+    bInvertedGeo = !bInvertedGeo;
+  if (-m_fSizeNegZ > m_fSizePosZ)
+    bInvertedGeo = !bInvertedGeo;
+
+  if (bInvertedGeo)
+  {
+    for (auto vert : geom.GetVertices())
+    {
+      vert.m_vNormal = -vert.m_vNormal;
+    }
+  }
+
   geom.TriangulatePolygons();
   geom.ComputeTangents();
 
