@@ -171,6 +171,22 @@ ezCommandLineOptionBool opt_NoRecent("_Editor", "-noRecent", "Disables automatic
 
 void ezQtEditorApp::StartupEditor()
 {
+  {
+    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+    sTemp.AppendPath("ezEditorCrashIndicator");
+
+    if (ezOSFile::ExistsFile(sTemp))
+    {
+      ezOSFile::DeleteFile(sTemp).IgnoreResult();
+
+      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("It seems the editor ran into problems last time.\n\nDo you want to run it in safe mode, to deactivate automatic project loading and document restoration?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
+      {
+        opt_Safe.GetOptions(sTemp);
+        ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(sTemp);
+      }
+    }
+  }
+
   ezBitflags<StartupFlags> startupFlags;
 
   startupFlags.AddOrRemove(StartupFlags::SafeMode, opt_Safe.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
@@ -285,7 +301,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   // pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
 
   ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorMakeMoreReadable));
-  //ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
+  // ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
   ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));
   // ezTranslationLookup::AddTranslator(std::move(pTranslatorDe));
 
