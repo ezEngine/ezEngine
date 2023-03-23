@@ -8,7 +8,7 @@ PluginInfo
 	string %EditorPlugins{"ezEditorPluginFmod"}
 	string %EditorEnginePlugins{}
 	string %RuntimePlugins{"ezFmodPlugin"}
-	string %PackageDependencies{}
+	string %PackageDependencies{"fmod.dll", "fmodstudio.dll"}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{"Sound"}
 	string %EnabledInTemplates{"General2D", "General3D"}

@@ -1,19 +1,36 @@
 [EXCLUDE]
 
 *.exe
-*.loaded
+*.dll
 *.pdb
+*.loaded
+*.ezPluginBundle
 */iconengines/*
 */imageformats/*
 */platforms/*
-*/ezEditorPlugin*
-*/ezEnginePlugin*
-*/ezSharedPlugin*
-*/Qt5*
-*/Qt6*
+
+// failed shader compilations
+*/_Failed_*
+
 
 [INCLUDE]
 
 #if PLATFORM_PROFILE_PC
 /Player.exe
+/ezFoundation.dll
+/ezCore.dll
+/ezGameEngine.dll
+/ezRendererCore.dll
+/ezRendererDX11.dll
+/ezRendererFoundation.dll
+/ezShaderCompilerHLSL.dll
+/ezTexture.dll
+/ezUtilities.dll
+/Imgui.dll
+/Lua.dll
+/ozz.dll
+/zstd.dll
+/Duktape.dll
+/stb_image.dll
+/enet.dll
 #endif
