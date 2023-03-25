@@ -39,6 +39,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezPowerConnectorComponent, 1, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgObjectGrabbed, OnMsgObjectGrabbed),
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsConnected),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsAttached),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Detach),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Attach, In, "Object"),
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),

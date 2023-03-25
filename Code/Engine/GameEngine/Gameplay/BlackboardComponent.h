@@ -70,9 +70,9 @@ public:
   /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents with the given name and returns its blackboard.
   ///
   /// The blackboard name is only checked if the given name is not empty. If no matching blackboard component is found,
-  /// the function will try to find a global blackboard with the given name.
+  /// the function will call ezBlackboard::GetOrCreateGlobal() with the given name. This if you provide a name, you will always get a result, either from a component or from the global storage.
   ///
-  /// \sa ezBlackboard::FindGlobal()
+  /// \sa ezBlackboard::GetOrCreateGlobal()
   static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject* pSearchObject, ezStringView sBlackboardName = ezStringView());
 
   /// \brief Returns the blackboard owned by this component

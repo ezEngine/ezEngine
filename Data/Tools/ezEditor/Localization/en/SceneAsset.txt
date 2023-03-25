@@ -61,9 +61,13 @@ ezTriggerDelayModifierComponent;Trigger Delay Modifier
 ezWindVolumeConeComponent;Cone Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
 ezWindVolumeCylinderComponent;Cylinder Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
 ezWindVolumeSphereComponent;Sphere Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
-ezPathComponent;Path;;https://ezengine.net/pages/docs/animation/paths/path-component.html
+ezPathComponent;Path Shape;;https://ezengine.net/pages/docs/animation/paths/path-component.html
 ezPathNodeComponent;Path Node;;https://ezengine.net/pages/docs/animation/paths/path-node-component.html
 ezFollowPathComponent;Follow Path;;https://ezengine.net/pages/docs/animation/paths/follow-path-component.html
+ezPowerConnectorComponent;Power Connector;;https://ezengine.net/pages/docs/gameplay/power-connector-component.html
+ezTriggerDelayModifierComponent;Trigger Delay Modifier;;https://ezengine.net/pages/docs/custom-code/game-logic/trigger-delay-modifier-component.html
+ezCommentComponent;Comment;;https://ezengine.net/pages/docs/Miscellaneous/components/comment-component.html
+ezForwardEventsToGameStateComponent;Forward Events To Game State;;https://ezengine.net/pages/docs/custom-code/game-logic/forward-events-to-game-state-component.html
 
 # Properties
 

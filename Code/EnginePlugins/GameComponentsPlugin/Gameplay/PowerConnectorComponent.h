@@ -81,13 +81,13 @@ public:
   void SetConnectedTo(ezGameObjectHandle hObject);
 
   /// \brief Whether the connector is currently connected to another connector.
-  bool IsConnected() const;
+  bool IsConnected() const; // [ scriptable ]
 
   /// \brief Whether the connector is physically attached to another connector.
-  bool IsAttached() const;
+  bool IsAttached() const; // [ scriptable ]
 
-  void Detach();
-  void Attach(ezGameObjectHandle hObject);
+  void Detach();                           // [ scriptable ]
+  void Attach(ezGameObjectHandle hObject); // [ scriptable ]
 
 protected:
   void SetBuddyReference(const char* szReference);       // [ property ]
