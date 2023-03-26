@@ -341,6 +341,7 @@ void ezSceneAction::Execute(const ezVariant& value)
         {
           ezAssetCurator::ezLockedAssetTable allAssets = pCurator->GetKnownAssets();
 
+          //#TODO_ASSET Instead of hard-coding this to 'Collection' add a virtual function to all asset managers that defines those that need to be transformed on scene export.
           ezTempHashedString sCollection = "Collection";
           for (auto it : *allAssets)
           {

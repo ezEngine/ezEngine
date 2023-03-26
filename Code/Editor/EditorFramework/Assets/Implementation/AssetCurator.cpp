@@ -1153,7 +1153,7 @@ void ezAssetCurator::NeedsReloadResources(const ezUuid& assetGuid)
   }
 }
 
-void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& deps, bool bIncludeTransformDebs, bool bIncludeThumbnailDebs, bool bIncludePackageDebs) const
+void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& deps, bool bIncludeTransformDeps, bool bIncludeThumbnailDeps, bool bIncludePackageDeps) const
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -1171,7 +1171,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
       auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(currentAsset));
       ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
 
-      if (bIncludeTransformDebs)
+      if (bIncludeTransformDeps)
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_TransformDependencies)
         {
@@ -1182,7 +1182,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
           }
         }
       }
-      if (bIncludeThumbnailDebs)
+      if (bIncludeThumbnailDeps)
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_ThumbnailDependencies)
         {
@@ -1193,7 +1193,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
           }
         }
       }
-      if (bIncludePackageDebs)
+      if (bIncludePackageDeps)
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_PackageDependencies)
         {
