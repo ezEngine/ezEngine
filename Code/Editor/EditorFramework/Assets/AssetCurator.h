@@ -444,7 +444,7 @@ private:
   // Derived dependency lookup tables
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseTransformDeps; // [Absolute path -> asset Guid]
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseThumbnailDeps; // [Absolute path -> asset Guid]
-  ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedTransformDeps; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
+  ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedTransformDeps;      ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
   ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedThumbnailDeps;
 
   // State caches

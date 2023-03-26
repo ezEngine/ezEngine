@@ -296,8 +296,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
       return false;
   }
 
-  auto TestFunc = [this, &bComplete](const ezSet<ezString>& files) -> ezAssetInfo*
-  {
+  auto TestFunc = [this, &bComplete](const ezSet<ezString>& files) -> ezAssetInfo* {
     for (const auto& sFile : files)
     {
       if (ezAssetInfo* pFileInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(sFile))
@@ -391,8 +390,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
 void ezProcessTask::OnProcessCrashed()
 {
   m_Status = ezStatus("Asset processor crashed");
-  ezLogEntryDelegate logger([this](ezLogEntry& ref_entry)
-    { m_LogEntries.PushBack(std::move(ref_entry)); });
+  ezLogEntryDelegate logger([this](ezLogEntry& ref_entry) { m_LogEntries.PushBack(std::move(ref_entry)); });
   ezLog::Error(&logger, "AssetProcessor crashed!");
   ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "AssetProcessor crashed!");
 }
