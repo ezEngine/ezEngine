@@ -363,7 +363,7 @@ struct ezDependencyFlags
 
   enum Enum
   {
-    None = 0, ///< The reference is not needed for anything in production. An example of this is editor references that are only used at edit time, e.g. a default animation clip for a skeleton.
+    None = 0,              ///< The reference is not needed for anything in production. An example of this is editor references that are only used at edit time, e.g. a default animation clip for a skeleton.
     Thumbnail = EZ_BIT(0), ///< This reference is a dependency to generating a thumbnail. The material references of a mesh for example.
     Transform = EZ_BIT(1), ///< This reference is a dependency to transforming this asset. The input model of a mesh for example.
     Package = EZ_BIT(2),   ///< This reference is needs to be packaged as it is used at runtime by this asset. All sounds or debris generated on impact of a surface are common examples of this.
