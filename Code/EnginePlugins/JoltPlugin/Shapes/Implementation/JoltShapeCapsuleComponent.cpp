@@ -84,22 +84,21 @@ void ezJoltShapeCapsuleComponent::SetHeight(float f)
 
 void ezJoltShapeCapsuleComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
 {
-  auto pNewShape = new JPH::CapsuleShape(m_fHeight * 0.5f, m_fRadius);
+  JPH::Ref<JPH::CapsuleShape> pNewShape = new JPH::CapsuleShape(m_fHeight * 0.5f, m_fRadius);
   pNewShape->SetDensity(fDensity);
   pNewShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
   pNewShape->SetMaterial(pMaterial);
 
-  auto pRotShapeSet = new JPH::RotatedTranslatedShapeSettings(JPH::Vec3::sZero(), JPH::Quat::sRotation(JPH::Vec3::sAxisX(), ezAngle::Degree(90).GetRadian()), pNewShape);
-  pRotShapeSet->AddRef();
+  JPH::Ref<JPH::RotatedTranslatedShapeSettings> pRotShapeSet = new JPH::RotatedTranslatedShapeSettings(JPH::Vec3::sZero(), JPH::Quat::sRotation(JPH::Vec3::sAxisX(), ezAngle::Degree(90).GetRadian()), pNewShape);
 
   JPH::Shape* pRotShape = pRotShapeSet->Create().Get().GetPtr();
   pRotShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
 
   ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
   sub.m_pShape = pRotShape;
+  sub.m_pShape->AddRef();
   sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeCapsuleComponent);
-
