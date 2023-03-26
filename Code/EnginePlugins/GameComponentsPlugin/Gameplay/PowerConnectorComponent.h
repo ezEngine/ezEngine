@@ -86,8 +86,8 @@ public:
   /// \brief Whether the connector is physically attached to another connector.
   bool IsAttached() const; // [ scriptable ]
 
-  void Detach();                           // [ scriptable ]
-  void Attach(ezGameObjectHandle hObject); // [ scriptable ]
+  void Detach(); // [ scriptable ]
+  void Attach(ezGameObjectHandle hObject);
 
 protected:
   void SetBuddyReference(const char* szReference);       // [ property ]

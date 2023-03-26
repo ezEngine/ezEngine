@@ -44,7 +44,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPowerConnectorComponent, 1, ezComponentMode::Static)
     EZ_SCRIPT_FUNCTION_PROPERTY(IsConnected),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsAttached),
     EZ_SCRIPT_FUNCTION_PROPERTY(Detach),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Attach, In, "Object"),
+    // EZ_SCRIPT_FUNCTION_PROPERTY(Attach, In, "Object"), // not supported (yet)
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
