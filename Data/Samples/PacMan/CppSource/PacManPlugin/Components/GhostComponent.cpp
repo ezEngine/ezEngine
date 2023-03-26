@@ -70,10 +70,28 @@ void GhostComponent::Update()
     ezVec3 pos = GetOwner()->GetGlobalPosition();
     pos.z += 0.5f;
 
-    bWall[0] = pPhysics->Raycast(res, pos, ezVec3(1, 0, 0), 0.55f, params);
-    bWall[1] = pPhysics->Raycast(res, pos, ezVec3(0, 1, 0), 0.55f, params);
-    bWall[2] = pPhysics->Raycast(res, pos, ezVec3(-1, 0, 0), 0.55f, params);
-    bWall[3] = pPhysics->Raycast(res, pos, ezVec3(0, -1, 0), 0.55f, params);
+    ezVec3 dir[4] =
+      {
+        ezVec3(1, 0, 0),
+        ezVec3(0, 1, 0),
+        ezVec3(-1, 0, 0),
+        ezVec3(0, -1, 0),
+      };
+
+    ezHybridArray<ezDebugRenderer::Line, 4> lines;
+
+    for (ezUInt32 i = 0; i < 4; ++i)
+    {
+      bWall[i] = pPhysics->Raycast(res, pos, dir[i], 0.55f, params);
+
+      auto& l = lines.ExpandAndGetRef();
+      l.m_start = pos;
+      l.m_end = pos + dir[i] * 0.55f;
+      l.m_startColor = l.m_endColor = bWall[i] ? ezColor::Red : ezColor::Green;
+    }
+
+    // could be used to visualize the raycasts
+    // ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White);
   }
 
   ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
@@ -81,7 +99,31 @@ void GhostComponent::Update()
   // if the direction into which the ghost currently walks is occluded, randomly turn left or right and check again
   while (bWall[m_Direction])
   {
-    m_Direction = static_cast<WalkDirection>((m_Direction + rng.IntMinMax(-1, 1)) % 4);
+    ezUInt8 uiDir = (ezUInt8)m_Direction;
+
+    if (bWall[(uiDir + 1) % 4] && bWall[(uiDir + 3) % 4]) // both left and right are blocked -> turn around
+    {
+      uiDir = (uiDir + 2) % 4;
+    }
+    else if (bWall[(uiDir + 1) % 4]) // right side is blocked -> turn left
+    {
+      uiDir = (uiDir + 3) % 4;
+    }
+    else if (bWall[(uiDir + 3) % 4]) // left side is blocked -> turn right
+    {
+      uiDir = (uiDir + 1) % 4;
+    }
+    else
+    {
+      // otherwise randomly turn left or right
+
+      if (rng.Bool())
+        uiDir = (uiDir + 1) % 4;
+      else
+        uiDir = (uiDir + 3) % 4;
+    }
+
+    m_Direction = static_cast<WalkDirection>(uiDir);
   }
 
   // now just change the rotation of the ghost to point into the current direction

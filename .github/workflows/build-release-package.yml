@@ -67,6 +67,7 @@ jobs:
       - name: Remove Unwanted Files
         run: |
           Get-ChildItem * -Include *.pdb -Recurse | Remove-Item
+          Get-ChildItem repo\Data\Samples\* -Include Build -Recurse | Remove-Item -Recurse -Force
 
           rm -r -fo repo\Data\Platform
           rm -r -fo repo\Data\UnitTests
