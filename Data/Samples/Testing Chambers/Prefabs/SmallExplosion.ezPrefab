@@ -17,11 +17,12 @@ o
 			Uuid{u4{1313677731837154645,5403377995709497763}}
 		}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 399b95b4-3cdd-4047-bec7-585cabcdbe92 }"}
 			s{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
 		}
+		VarArray %References{}
 	}
 }
 o
@@ -166,6 +167,34 @@ Types
 {
 o
 {
+	Uuid %id{u4{15858265208272805148,67320715378545131}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000C842}
+	}
+}
+o
+{
+	Uuid %id{u4{16219419998318610584,285959537905567278}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{18331548141345627949,6897611691448597624}}
+			Uuid{u4{2021874990013569180,11208512889253331199}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Radius"}
+		s %Type{"float"}
+	}
+}
+o
+{
 	Uuid %id{u4{6914292285925798136,1108246313736053318}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -178,7 +207,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -196,7 +224,6 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeSize{112}
 		u3 %TypeVersion{4}
 	}
 }
@@ -207,15 +234,63 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
+		VarArray %Attributes
+		{
+			Uuid{u4{246847171980258510,9928682920904879488}}
+			Uuid{u4{12829794898117584490,2193219042134724059}}
+			Uuid{u4{2543483289478794046,10950133442725446041}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions
+		{
+			Uuid{u4{2509385703962331115,17064148421625420984}}
+		}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
+		s %PluginName{"ezGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{3605231592273561543,5154022413679244162}}
+			Uuid{u4{16219419998318610584,285959537905567278}}
+			Uuid{u4{9905924063358785985,2812474704378206940}}
+			Uuid{u4{15959279051140621726,10303933102846590241}}
+			Uuid{u4{10013304162435146442,3481539498483412294}}
+		}
 		s %TypeName{"ezAreaDamageComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12829794898117584490,2193219042134724059}}
+	s %t{"ezSphereVisualizerAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Anchor{""}
+		Color %Color{f{0x0000803F,0x0FC2733D,0,0x0000803F}}
+		Vec3 %OffsetOrScale{f{0,0,0}}
+		s %Property1{"Radius"}
+		s %Property2{""}
+		s %Property3{""}
+		s %Property4{""}
+		s %Property5{""}
+	}
+}
+o
+{
+	Uuid %id{u4{9905924063358785985,2812474704378206940}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{394352098513011088,4186001376410660915}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CollisionLayer"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -232,7 +307,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -250,7 +324,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
-		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -268,8 +341,71 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{10013304162435146442,3481539498483412294}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{15858265208272805148,67320715378545131}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Impulse"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{394352098513011088,4186001376410660915}}
+	s %t{"ezDynamicEnumAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DynamicEnum{"PhysicsCollisionLayer"}
+	}
+}
+o
+{
+	Uuid %id{u4{3605231592273561543,5154022413679244162}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5479038202814500425,17952910750121644366}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"OnCreation"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{372699166289042135,6364445558427202568}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x00002041}
+	}
+}
+o
+{
+	Uuid %id{u4{18331548141345627949,6897611691448597624}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000A040}
 	}
 }
 o
@@ -286,7 +422,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -304,7 +439,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindStrength"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -322,7 +456,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -340,7 +473,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezOnComponentFinishedAction2"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -358,7 +490,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
-		u3 %TypeSize{328}
 		u3 %TypeVersion{5}
 	}
 }
@@ -376,7 +507,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -394,8 +524,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{246847171980258510,9928682920904879488}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Gameplay"}
 	}
 }
 o
@@ -412,8 +551,39 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15959279051140621726,10303933102846590241}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{372699166289042135,6364445558427202568}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Damage"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{2543483289478794046,10950133442725446041}}
+	s %t{"ezSphereManipulatorAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Property1{"Radius"}
+		s %Property2{""}
+		s %Property3{""}
+		s %Property4{""}
+		s %Property5{""}
+		s %Property6{""}
 	}
 }
 o
@@ -430,8 +600,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeSphereComponent"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2021874990013569180,11208512889253331199}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Min{0}
 	}
 }
 o
@@ -448,7 +627,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -466,7 +644,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezOnComponentFinishedAction"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -484,8 +661,18 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2270339114012451990,13726907170441679063}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
 	}
 }
 o
@@ -502,7 +689,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -520,8 +706,46 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2509385703962331115,17064148421625420984}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments{}
+		VarArray %Attributes
+		{
+			Uuid{u4{13236797337584137504,17285590966545223855}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"ApplyAreaDamage"}
+		Uuid %ReturnValue{u4{2270339114012451990,13726907170441679063}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{13236797337584137504,17285590966545223855}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Arg1{""}
+		s %Arg2{""}
+		s %Arg3{""}
+		s %Arg4{""}
+		s %Arg5{""}
+		s %Arg6{""}
+		u1 %ArgType1{0}
+		u1 %ArgType2{0}
+		u1 %ArgType3{0}
+		u1 %ArgType4{0}
+		u1 %ArgType5{0}
+		u1 %ArgType6{0}
 	}
 }
 o
@@ -538,8 +762,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5479038202814500425,17952910750121644366}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		b %Value{1}
 	}
 }
 }

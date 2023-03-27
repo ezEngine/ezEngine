@@ -27,12 +27,13 @@ o
 			Uuid{u4{1821325890182664646,4195057460547352372}}
 		}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 54fb571a-9b3f-4a70-92d5-05d8de7532a7 }"}
 			s{"{ 5bebcc20-39e2-4d7d-bec7-478d2538b5f1 }"}
 			s{"{ 9404918d-afcf-4ab3-8a14-d46a53ae6ee0 }"}
 		}
+		VarArray %References{}
 	}
 }
 }
@@ -200,7 +201,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -218,7 +218,6 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeSize{112}
 		u3 %TypeVersion{4}
 	}
 }
@@ -236,7 +235,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -254,7 +252,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
-		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -272,7 +269,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -290,7 +286,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -308,7 +303,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezOnComponentFinishedAction2"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -326,7 +320,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
-		u3 %TypeSize{328}
 		u3 %TypeVersion{5}
 	}
 }
@@ -344,7 +337,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -362,7 +354,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -380,7 +371,6 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -398,7 +388,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -416,7 +405,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezOnComponentFinishedAction"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -434,7 +422,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -452,7 +439,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -470,7 +456,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -488,7 +473,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

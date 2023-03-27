@@ -14,7 +14,7 @@ o
 		u4 %Hash{8343916719296780110}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 2c2d487a-c8d1-4487-9f55-309c1d9034cb }"}
 			s{"{ 56cee000-c60d-4e64-ba8e-cfc49f512418 }"}
@@ -25,6 +25,10 @@ o
 			s{"{ a0e40c49-9113-4bdf-ba33-3e603732813e }"}
 			s{"{ d93bbc29-e3d2-451b-aedd-a51e4072c87c }"}
 			s{"{ fb5832e7-eb18-4866-ad1f-a12b1d22118e }"}
+		}
+		VarArray %References
+		{
+			s{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
 		}
 	}
 }
@@ -225,7 +229,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSurfaceResourceDescriptor"}
-		u3 %TypeSize{2000}
 		u3 %TypeVersion{2}
 	}
 }
@@ -243,7 +246,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -261,7 +263,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSurfaceInteractionAlignment"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{2}
 	}
 }
@@ -279,7 +280,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -297,7 +297,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSurfaceInteraction"}
-		u3 %TypeSize{120}
 		u3 %TypeVersion{1}
 	}
 }
@@ -315,7 +314,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -17,6 +17,12 @@ o
 			Uuid{u4{14493055794658865245,11170587866975433041}}
 		}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 78b2bb14-5ff1-45e4-9699-73519b967a62 }"}
+			s{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}
+			s{"{ fa809b34-ccf3-49fb-b648-1ad793cb66f9 }"}
+		}
 		VarArray %References
 		{
 			s{"{ 78b2bb14-5ff1-45e4-9699-73519b967a62 }"}
@@ -304,7 +310,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVarianceTypeAngle"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -322,7 +327,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezQuadParticleOrientation"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{2}
 	}
 }
@@ -340,7 +344,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeQuadFactory"}
-		u3 %TypeSize{232}
 		u3 %TypeVersion{2}
 	}
 }
@@ -358,7 +361,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -376,7 +378,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTextureAtlasType"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -394,7 +395,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVarianceTypeTime"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -412,7 +412,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVarianceTypeBase"}
-		u3 %TypeSize{4}
 		u3 %TypeVersion{1}
 	}
 }
@@ -430,7 +429,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -448,7 +446,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_BoxPosition"}
-		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }
@@ -466,7 +463,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{448}
 		u3 %TypeVersion{2}
 	}
 }
@@ -484,7 +480,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_SizeCurve"}
-		u3 %TypeSize{24}
 		u3 %TypeVersion{1}
 	}
 }
@@ -502,7 +497,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEventReactionFactory"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -520,7 +514,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_FadeOut"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -538,7 +531,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEmitterFactory"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -556,7 +548,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -574,7 +565,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeRenderMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -592,7 +582,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{344}
 		u3 %TypeVersion{2}
 	}
 }
@@ -610,7 +599,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeFactory"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -628,7 +616,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomRotationSpeed"}
-		u3 %TypeSize{24}
 		u3 %TypeVersion{2}
 	}
 }
@@ -646,7 +633,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -664,7 +650,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEmitterFactory_Burst"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -682,7 +667,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -700,7 +684,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezEffectInvisibleUpdateRate"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }

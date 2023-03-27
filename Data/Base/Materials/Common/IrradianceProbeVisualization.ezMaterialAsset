@@ -17,7 +17,11 @@ o
 		u4 %Hash{16020794930718866227}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Shaders/Materials/IrradianceProbeVisualization.ezShader"}
+		}
 	}
 }
 }
@@ -75,7 +79,6 @@ o
 		s %PluginName{"ShaderTypes"}
 		VarArray %Properties{}
 		s %TypeName{"Shaders/Materials/IrradianceProbeVisualization.ezShader"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{2}
 	}
 }
@@ -93,7 +96,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -111,7 +113,6 @@ o
 		s %PluginName{"ShaderTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ezShaderTypeBase"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{2}
 	}
 }
@@ -129,7 +130,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -147,7 +147,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialShaderMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -165,7 +164,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -183,7 +181,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{320}
 		u3 %TypeVersion{4}
 	}
 }

@@ -9,32 +9,12 @@ o
 	p
 	{
 		s %AssetType{"Collection"}
-		VarArray %Dependencies
-		{
-			s{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
-			s{"{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"}
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
-			s{"{ 3437db17-ddf1-4b67-b80f-9999d6b0c352 }"}
-			s{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
-			s{"{ 4800d341-755b-4367-a175-ffa5dd17bd29 }"}
-			s{"{ 4d15c716-a8e9-43d4-9424-43174403fb94 }"}
-			s{"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }"}
-			s{"{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"}
-			s{"{ 734898e8-b1a2-0da2-c4ae-701912983c2f }"}
-			s{"{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }"}
-			s{"{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }"}
-			s{"{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"}
-			s{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
-			s{"{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"}
-			s{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
-			s{"{ f962fc28-661b-485c-a527-c997e239a3f0 }"}
-		}
+		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
 		u4 %Hash{12591100092234109441}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
 			s{"{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"}
@@ -54,6 +34,7 @@ o
 			s{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
 			s{"{ f962fc28-661b-485c-a527-c997e239a3f0 }"}
 		}
+		VarArray %References{}
 	}
 }
 }

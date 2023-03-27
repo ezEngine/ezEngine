@@ -20,7 +20,11 @@ o
 			Uuid{u4{17391110236746215650,16003275907833952401}}
 		}
 		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Prefabs/ConsumablePickup_data/ConsumablePickup.ts"}
+		}
 	}
 }
 o
@@ -138,7 +142,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptParameterString"}
-		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -156,7 +159,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptAssetProperties"}
-		u3 %TypeSize{192}
 		u3 %TypeVersion{1}
 	}
 }
@@ -174,7 +176,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptParameterColor"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -192,7 +193,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -210,7 +210,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptParameter"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -228,7 +227,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptParameterVec3"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -246,7 +244,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptParameterNumber"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -264,7 +261,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -282,7 +278,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptParameterBool"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

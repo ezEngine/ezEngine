@@ -14,6 +14,18 @@ o
 		u4 %Hash{5908237495631164486}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 0ac0f62a-fa62-4c45-a718-6bb843cb6148 }"}
+			s{"{ 363d0e0f-3f2d-489c-9691-9d0df031d7a8 }"}
+			s{"{ 42bfb6dd-0896-41f0-9ce2-cc9dde7b3a0c }"}
+			s{"{ 6af68dd9-f6cb-4b4a-aa50-79fb22816f8a }"}
+			s{"{ 96be15b7-35b6-4bdb-9209-89e6685b7263 }"}
+			s{"{ a20f6b10-d33d-4dd6-acd3-6aea199011fb }"}
+			s{"{ b1fb4b26-5516-4e43-bd96-570d9fa92c47 }"}
+			s{"{ b25c3cfb-241b-4ef4-9848-d19e341c84d3 }"}
+			s{"{ bfdc9c4a-b7d9-41f1-81e2-8d971b6db0ef }"}
+		}
 		VarArray %References
 		{
 			s{"{ 0ac0f62a-fa62-4c45-a718-6bb843cb6148 }"}
@@ -1913,7 +1925,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLocalToModelPoseAnimNode"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1931,7 +1942,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSetBlackboardValueAnimNode"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1949,7 +1959,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphNumberInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1967,7 +1976,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphOutputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1985,7 +1993,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphLocalPoseOutputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2003,7 +2010,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphBoneWeightsInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2021,7 +2027,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphModelPoseInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2039,7 +2044,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPlayClipAnimNode"}
-		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2057,7 +2061,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphBoneWeightsOutputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2075,7 +2078,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2093,7 +2095,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComparisonOperator"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2111,7 +2112,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMixClips2DAnimNode"}
-		u3 %TypeSize{376}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2129,7 +2129,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphModelPoseOutputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2147,7 +2146,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGetBlackboardNumberAnimNode"}
-		u3 %TypeSize{40}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2165,7 +2163,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2183,7 +2180,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCompareNumberAnimNode"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2201,7 +2197,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLogicAndAnimNode"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2219,7 +2214,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCombinePosesAnimNode"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2237,7 +2231,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphLocalPoseMultiInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2255,7 +2248,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimState"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2273,7 +2265,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimClip2D"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2291,7 +2282,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphNode"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2309,7 +2299,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"DocumentNodeManager_DefaultConnection"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2327,7 +2316,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezModelPoseOutputAnimNode"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2345,7 +2333,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBoneWeightsAnimNode"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2363,7 +2350,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphTriggerInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2381,7 +2367,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLogicOrAnimNode"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2399,7 +2384,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphNumberOutputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2417,7 +2401,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2435,7 +2418,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCheckBlackboardValueAnimNode"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2453,7 +2435,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2471,7 +2452,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphTriggerOutputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2489,7 +2469,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezControllerInputAnimNode"}
-		u3 %TypeSize{272}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2507,7 +2486,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphLocalPoseInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2525,7 +2503,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -14,6 +14,13 @@ o
 		u4 %Hash{14045449945608914107}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 36ba6a8f-2b12-4556-9e42-632db5c5b2ca }"}
+			s{"{ 3c960df4-4000-4d25-a9e4-e9c1c5c40080 }"}
+			s{"{ 7e7175b2-750f-43c2-9958-c53abc18661e }"}
+			s{"{ cb429221-40ae-4e6d-842b-b37b3709cd58 }"}
+		}
 		VarArray %References
 		{
 			s{"{ 36ba6a8f-2b12-4556-9e42-632db5c5b2ca }"}
@@ -224,7 +231,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -242,7 +248,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{4}
 	}
 }
@@ -260,7 +265,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezLayerDocumentSettings"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -278,7 +282,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -296,7 +299,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -314,7 +316,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -332,7 +333,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -350,7 +350,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -368,7 +367,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -386,7 +384,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

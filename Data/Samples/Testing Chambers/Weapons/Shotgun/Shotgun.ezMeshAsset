@@ -17,8 +17,16 @@ o
 		u4 %Hash{12912039240998531312}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
+			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
+			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
+		}
 		VarArray %References
 		{
+			s{"Kenney.nl/Weapons/shotgun.fbx"}
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
@@ -151,7 +159,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshPrimitive"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -169,7 +176,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshAssetProperties"}
-		u3 %TypeSize{1240}
 		u3 %TypeVersion{3}
 	}
 }
@@ -187,7 +193,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -205,7 +210,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialResourceSlot"}
-		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -223,7 +227,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshTexCoordPrecision"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -241,7 +244,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshNormalPrecision"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -259,7 +261,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -277,7 +278,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -295,7 +295,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

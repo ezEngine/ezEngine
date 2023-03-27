@@ -11,10 +11,10 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18057468653562690442,4916190091500798880}}
-		u4 %Hash{8291775709204944164}
+		u4 %Hash{16309516338444647987}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 0425bf65-7a42-4f20-adfc-56f09ea2cae9 }"}
 			s{"{ 0a1662b9-6b58-46fa-860b-50ad7abee4d6 }"}
@@ -26,6 +26,20 @@ o
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 			s{"{ adf08863-9eb6-47ea-a8df-719b6bfd8842 }"}
 			s{"{ b692dd6a-56a1-45cb-b22c-f3496380aeff }"}
+			s{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
+			s{"{ d16f8af4-ee4f-41f7-b0ef-c4d7e3c5f36d }"}
+			s{"{ d9eadd9a-e1e3-488b-9ede-ded29ebcb522 }"}
+			s{"{ f7ffeb89-fb78-4fe3-b7a5-bbacb4e4095e }"}
+		}
+		VarArray %References
+		{
+			s{"{ 0425bf65-7a42-4f20-adfc-56f09ea2cae9 }"}
+			s{"{ 0a1662b9-6b58-46fa-860b-50ad7abee4d6 }"}
+			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+			s{"{ 623110a5-942a-49fc-a684-7e19543468e1 }"}
+			s{"{ 75e2aefb-63ec-4dfb-be0f-7ddaf4e2fe5e }"}
+			s{"{ adf08863-9eb6-47ea-a8df-719b6bfd8842 }"}
 			s{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
 			s{"{ d16f8af4-ee4f-41f7-b0ef-c4d7e3c5f36d }"}
 			s{"{ d9eadd9a-e1e3-488b-9ede-ded29ebcb522 }"}
@@ -190,7 +204,7 @@ o
 {
 	Uuid %id{u4{650737114341324990,2831634198588605182}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -210,6 +224,7 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -918,7 +933,7 @@ o
 {
 	Uuid %id{u4{13117916799710732217,5285323929729219367}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -938,6 +953,7 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -1839,7 +1855,7 @@ o
 {
 	Uuid %id{u4{17381108761040943972,10564372336630278849}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -1859,6 +1875,7 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -2482,7 +2499,7 @@ o
 {
 	Uuid %id{u4{9964875357198144749,16064528945186148738}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2502,6 +2519,7 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -2539,7 +2557,7 @@ o
 {
 	Uuid %id{u4{2608292262415476001,16137655418134159624}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -2559,6 +2577,7 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -2770,15 +2789,37 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Attributes
+		{
+			Uuid{u4{5802617769852181817,18308485572063932567}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
+		s %PluginName{"ezGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{14648854636315456124,13337263574652980611}}
+			Uuid{u4{4298698374936373293,9676692829455240701}}
+			Uuid{u4{8227960298684517989,17700409163066010945}}
+			Uuid{u4{18117606453365818272,2730454692245721642}}
+			Uuid{u4{9042064286449012375,15566966923947333432}}
+			Uuid{u4{9060167079026097815,10886997728102680385}}
+			Uuid{u4{2351968734045570773,10793965918946407478}}
+			Uuid{u4{14270114886722853454,8179304249446299639}}
+		}
 		s %TypeName{"ezClothSheetComponent"}
-		u3 %TypeSize{200}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12802961237657401519,392655638225969064}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec2u %Value{u3{7,7}}
 	}
 }
 o
@@ -2795,8 +2836,40 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8443355498710161412,1187584367182197103}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{4}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::FixedCornerBottomRight"}
+		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{5039375895403991102,1302436492568032483}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{18140636960808245889,11099999927338783474}}
+			Uuid{u4{5635220396678066573,15270722436420760590}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Damping"}
+		s %Type{"float"}
 	}
 }
 o
@@ -2813,7 +2886,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectionProbeMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2831,8 +2903,52 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9358890268934095698,2633881254249243303}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		b %Value{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18117606453365818272,2730454692245721642}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{15665363027960616085,14999495605351890178}}
+			Uuid{u4{17462802881740641344,9841974192690766408}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Damping"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{13194799460701043128,2742366234685614635}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{2415768765711958556,8737991034095581296}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"AttachToOrigin"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -2849,7 +2965,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2867,7 +2982,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPlayerStartPointComponent"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{2}
 	}
 }
@@ -2885,7 +2999,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
 	}
 }
@@ -2903,7 +3016,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{2}
 	}
 }
@@ -2921,16 +3033,40 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSliderComponent"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{3}
 	}
 }
 o
 {
-	Uuid %id{u4{11135730192525964575,4819325472927372842}}
-	s %t{"ezHiddenAttribute"}
+	Uuid %id{u4{6772874322879559856,4143168124520770859}}
+	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
-	p{}
+	p
+	{
+		f %Max{0x00002041}
+		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15214792328216478211,4654589923433018424}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Max{200}
+		i3 %Min{2}
+	}
+}
+o
+{
+	Uuid %id{u4{11135730192525964575,4819325472927372842}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Editing Utilities"}
+	}
 }
 o
 {
@@ -2946,8 +3082,47 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneLayerBase"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5375158450963914183,5644283521393305311}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{8}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::FixedCornerBottomLeft"}
+		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{5404655672361131464,5688265614613815640}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCC4C3E}
+	}
+}
+o
+{
+	Uuid %id{u4{13170712400534611298,5969011269368913281}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{64}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::FixedEdgeBottom"}
+		s %Type{"ezUInt16"}
 	}
 }
 o
@@ -2964,7 +3139,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneLayer"}
-		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2982,8 +3156,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12602364566810653218,6819941157659669303}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -3000,7 +3183,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3018,7 +3200,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
-		u3 %TypeSize{40}
 		u3 %TypeVersion{2}
 	}
 }
@@ -3036,7 +3217,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBitflagsBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3054,8 +3234,24 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindStrength"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14270114886722853454,8179304249446299639}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{10726666565826077121,18166602906664968525}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Color"}
+		s %Type{"ezColor"}
 	}
 }
 o
@@ -3072,7 +3268,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{4}
 	}
 }
@@ -3090,7 +3285,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleWindComponent"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{2}
 	}
 }
@@ -3108,8 +3302,27 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2415768765711958556,8737991034095581296}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		b %Value{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4690169401945003291,8760265034542062917}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Value{f{0x0000003F,0x0000003F}}
 	}
 }
 o
@@ -3126,7 +3339,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezOnComponentFinishedAction2"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3144,7 +3356,6 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
-		u3 %TypeSize{328}
 		u3 %TypeVersion{5}
 	}
 }
@@ -3162,7 +3373,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -3180,7 +3390,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3198,8 +3407,35 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{504}
 		u3 %TypeVersion{10}
+	}
+}
+o
+{
+	Uuid %id{u4{4298698374936373293,9676692829455240701}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11397977580298313949,11948456163570975957}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Slack"}
+		s %Type{"ezVec2"}
+	}
+}
+o
+{
+	Uuid %id{u4{17462802881740641344,9841974192690766408}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x0000803F}
+		f %Min{0}
 	}
 }
 o
@@ -3216,7 +3452,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeConeComponent"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3234,8 +3469,91 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{10209008014761296061,10046027631091480668}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::FixedCornerTopLeft"}
+		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{5449530764545251402,10313447163609080742}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
+		s %Filter{";CompatibleAsset_Material;"}
+	}
+}
+o
+{
+	Uuid %id{u4{3292923678541658275,10706853615056913357}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{6218472399693636849,11489001766367391546}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Name{"Anchor"}
+		s %Type{"ezConstCharPtr"}
+	}
+}
+o
+{
+	Uuid %id{u4{2351968734045570773,10793965918946407478}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5449530764545251402,10313447163609080742}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Name{"Material"}
+		s %Type{"ezConstCharPtr"}
+	}
+}
+o
+{
+	Uuid %id{u4{9060167079026097815,10886997728102680385}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::Bitflags|ezPropertyFlags::Phantom"}
+		s %Name{"Flags"}
+		s %Type{"ezClothSheetFlags"}
+	}
+}
+o
+{
+	Uuid %id{u4{17408906099708854133,11070039977498129485}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCC4C3E}
 	}
 }
 o
@@ -3252,8 +3570,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeSphereComponent"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18140636960808245889,11099999927338783474}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000003F}
 	}
 }
 o
@@ -3270,7 +3597,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRopeRenderComponent"}
-		u3 %TypeSize{192}
 		u3 %TypeVersion{2}
 	}
 }
@@ -3282,14 +3608,35 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Phantom"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezBitflagsBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
+		s %PluginName{"ezGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{11215261412180016698,13679372050165530310}}
+			Uuid{u4{10209008014761296061,10046027631091480668}}
+			Uuid{u4{8575522306360679995,15027156000383462574}}
+			Uuid{u4{8443355498710161412,1187584367182197103}}
+			Uuid{u4{5375158450963914183,5644283521393305311}}
+			Uuid{u4{10521836652662007099,18126949983153209379}}
+			Uuid{u4{2960000473280087698,13648708257746993062}}
+			Uuid{u4{13170712400534611298,5969011269368913281}}
+			Uuid{u4{3369788742045435901,15982299255773008392}}
+		}
 		s %TypeName{"ezClothSheetFlags"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7695291719616850926,11363377924715880147}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x00002041}
+		f %Min{0}
 	}
 }
 o
@@ -3306,9 +3653,15 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
+}
+o
+{
+	Uuid %id{u4{6218472399693636849,11489001766367391546}}
+	s %t{"ezGameObjectReferenceAttribute"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -3324,7 +3677,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezOnComponentFinishedAction"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3342,8 +3694,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeCylinderMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11397977580298313949,11948456163570975957}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Value{f{0,0}}
 	}
 }
 o
@@ -3360,7 +3721,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSettingsComponent"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3378,7 +3738,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3399,7 +3758,6 @@ o
 		s %PluginName{"ezEnginePluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezShapeIconComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3417,8 +3775,25 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeComponent"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{16761137387126678139,12857201277061949661}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12208208499012975339,15206461513598126246}}
+			Uuid{u4{15214792328216478211,4654589923433018424}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Pieces"}
+		s %Type{"ezUInt16"}
 	}
 }
 o
@@ -3435,8 +3810,71 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindVolumeCylinderComponent"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3352990678204130745,13287470726343145298}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{17408906099708854133,11070039977498129485}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Slack"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{14648854636315456124,13337263574652980611}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4690169401945003291,8760265034542062917}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Size"}
+		s %Type{"ezVec2"}
+	}
+}
+o
+{
+	Uuid %id{u4{2960000473280087698,13648708257746993062}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{32}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::FixedEdgeRight"}
+		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{11215261412180016698,13679372050165530310}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{16}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::Default"}
+		s %Type{"ezUInt16"}
 	}
 }
 o
@@ -3453,7 +3891,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransformComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{3}
 	}
 }
@@ -3471,8 +3908,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeSize{128}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -3489,7 +3925,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{4}
 	}
 }
@@ -3507,8 +3942,17 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{15665363027960616085,14999495605351890178}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000003F}
 	}
 }
 o
@@ -3525,8 +3969,71 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8575522306360679995,15027156000383462574}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{2}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::FixedCornerTopRight"}
+		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{16926606112713825711,15125819195690914266}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Effects/Ropes"}
+	}
+}
+o
+{
+	Uuid %id{u4{12208208499012975339,15206461513598126246}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{32}
+	}
+}
+o
+{
+	Uuid %id{u4{5635220396678066573,15270722436420760590}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x0000803F}
+		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{9042064286449012375,15566966923947333432}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12602364566810653218,6819941157659669303}}
+			Uuid{u4{7695291719616850926,11363377924715880147}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"WindInfluence"}
+		s %Type{"float"}
 	}
 }
 o
@@ -3543,8 +4050,33 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAmbientLightComponent"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{3369788742045435901,15982299255773008392}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{128}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::FixedEdgeLeft"}
+		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{15473222858087043709,16407737336188150420}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec2u %Max{u3{31,31}}
+		Vec2u %Min{u3{1,1}}
 	}
 }
 o
@@ -3561,7 +4093,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRotorComponent"}
-		u3 %TypeSize{112}
 		u3 %TypeVersion{3}
 	}
 }
@@ -3579,7 +4110,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3597,7 +4127,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraUsageHint"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3608,15 +4137,79 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Attributes
+		{
+			Uuid{u4{16926606112713825711,15125819195690914266}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
+		s %PluginName{"ezGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{3292923678541658275,10706853615056913357}}
+			Uuid{u4{13194799460701043128,2742366234685614635}}
+			Uuid{u4{17817893117335435556,17355547571198289425}}
+			Uuid{u4{16761137387126678139,12857201277061949661}}
+			Uuid{u4{3352990678204130745,13287470726343145298}}
+			Uuid{u4{5039375895403991102,1302436492568032483}}
+			Uuid{u4{11736128802418834125,17714989310531823561}}
+		}
 		s %TypeName{"ezFakeRopeComponent"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{17817893117335435556,17355547571198289425}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9358890268934095698,2633881254249243303}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"AttachToAnchor"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{8227960298684517989,17700409163066010945}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12802961237657401519,392655638225969064}}
+			Uuid{u4{15473222858087043709,16407737336188150420}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Segments"}
+		s %Type{"ezVec2U32"}
+	}
+}
+o
+{
+	Uuid %id{u4{11736128802418834125,17714989310531823561}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5404655672361131464,5688265614613815640}}
+			Uuid{u4{6772874322879559856,4143168124520770859}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"WindInfluence"}
+		s %Type{"float"}
 	}
 }
 o
@@ -3633,8 +4226,42 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10521836652662007099,18126949983153209379}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u2 %ConstantValue{16}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"ezClothSheetFlags::FixedEdgeTop"}
+		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{10726666565826077121,18166602906664968525}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Color %Value{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+	}
+}
+o
+{
+	Uuid %id{u4{5802617769852181817,18308485572063932567}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Effects"}
 	}
 }
 }

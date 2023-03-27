@@ -26,6 +26,10 @@ o
 		{
 			s{"VISUAL_SHADER"}
 		}
+		VarArray %PackageDeps
+		{
+			s{"{ f962fc28-661b-485c-a527-c997e239a3f0 }"}
+		}
 		VarArray %References
 		{
 			s{"{ f962fc28-661b-485c-a527-c997e239a3f0 }"}
@@ -443,7 +447,6 @@ o
 			Uuid{u4{17888293823252574217,5278584362329602531}}
 		}
 		s %TypeName{"ShaderNode::MaterialOutput"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -479,7 +482,6 @@ o
 			Uuid{u4{5650026407490086663,5768478847879086899}}
 		}
 		s %TypeName{"BLEND_MODE"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -497,7 +499,6 @@ o
 		s %PluginName{"VisualShaderTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualShaderNodeBase"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -639,6 +640,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{""}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -707,7 +709,6 @@ o
 			Uuid{u4{10671060504538806139,9031876421588392282}}
 		}
 		s %TypeName{"ShaderNode::Texture3Way"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -875,7 +876,6 @@ o
 			Uuid{u4{14201946371216656691,8983156218640221597}}
 		}
 		s %TypeName{"SHADING_MODE"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -886,6 +886,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -927,7 +928,6 @@ o
 			Uuid{u4{12609603033176210513,7964630687986868603}}
 		}
 		s %TypeName{"ShaderNode::Subtract"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -953,7 +953,6 @@ o
 			Uuid{u4{2154011308533014433,16155609086885943006}}
 		}
 		s %TypeName{"AssetCache/Common/Materials/Common/Pattern.autogen.ezShader"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1045,7 +1044,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1105,7 +1103,6 @@ o
 		s %PluginName{"ShaderTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ezShaderTypeBase"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1170,7 +1167,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"DocumentNodeManager_DefaultConnection"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1280,7 +1276,6 @@ o
 			Uuid{u4{10097442269101671049,12017415575322047640}}
 		}
 		s %TypeName{"ShaderNode::Multiply"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1325,7 +1320,6 @@ o
 		s %PluginName{"VisualShaderTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ShaderNode::InstanceData"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1377,7 +1371,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1405,7 +1398,6 @@ o
 		s %PluginName{"VisualShaderTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ShaderNode::Split"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1481,7 +1473,6 @@ o
 		s %PluginName{"VisualShaderTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ShaderNode::Saturate"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1540,7 +1531,6 @@ o
 			Uuid{u4{9913376037671254523,4739060951232517466}}
 		}
 		s %TypeName{"ShaderNode::ParameterColor"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1620,7 +1610,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialShaderMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1648,7 +1637,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1666,7 +1654,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{328}
 		u3 %TypeVersion{4}
 	}
 }

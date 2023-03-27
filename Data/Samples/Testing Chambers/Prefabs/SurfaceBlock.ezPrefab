@@ -27,12 +27,13 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9554234785370230426,5467105250672530083}}
-		u4 %Hash{5829490481732045916}
+		u4 %Hash{7847815800243304268}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5058072697638833757,15841374294097003470}}
 		}
 		VarArray %Outputs{}
+		VarArray %PackageDeps{}
 		VarArray %References{}
 	}
 }
@@ -56,6 +57,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Material;"}
 	}
 }
@@ -106,7 +108,7 @@ o
 {
 	Uuid %id{u4{11218973099157091489,5719244332389350007}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -126,6 +128,7 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -199,7 +202,7 @@ o
 {
 	Uuid %id{u4{6724978363745695079,10460517069894996236}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -219,6 +222,7 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -252,7 +256,7 @@ o
 {
 	Uuid %id{u4{7212209617689858041,15315329160502045883}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -272,13 +276,14 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
 {
 	Uuid %id{u4{2695380919510134051,15324558872845949395}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{4}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
@@ -298,6 +303,7 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+		b %UseAsOccluder{1}
 	}
 }
 o
@@ -375,7 +381,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -393,7 +398,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -411,7 +415,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -429,7 +432,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
-		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -447,7 +449,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -465,7 +466,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -483,7 +483,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -501,7 +500,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -519,7 +517,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -537,7 +534,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -555,8 +551,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeSize{128}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -573,7 +568,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -591,7 +585,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -17,8 +17,14 @@ o
 		u4 %Hash{1152767020759977699}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ ba807654-635f-462a-9113-4f3d262d57cc }"}
+			s{"{ d9628d95-9475-4ec7-b0dd-b64b52b9d2e9 }"}
+		}
 		VarArray %References
 		{
+			s{"Animations/Mattress/Mattress.glb"}
 			s{"{ ba807654-635f-462a-9113-4f3d262d57cc }"}
 			s{"{ d9628d95-9475-4ec7-b0dd-b64b52b9d2e9 }"}
 		}
@@ -89,7 +95,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshAssetProperties"}
-		u3 %TypeSize{1256}
 		u3 %TypeVersion{2}
 	}
 }
@@ -107,7 +112,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -125,7 +129,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialResourceSlot"}
-		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -143,7 +146,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshTexCoordPrecision"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -161,7 +163,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshNormalPrecision"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -179,7 +180,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -197,7 +197,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

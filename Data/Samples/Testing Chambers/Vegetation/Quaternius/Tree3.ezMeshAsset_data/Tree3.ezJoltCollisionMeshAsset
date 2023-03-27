@@ -17,10 +17,14 @@ o
 		u4 %Hash{7551444598987816034}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 58d44330-37a1-4c9d-9fa2-0540a1d8ee90 }"}
 			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
+		}
+		VarArray %References
+		{
+			s{"Vegetation/Quaternius/Tree3.fbx"}
 		}
 	}
 }
@@ -109,7 +113,6 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltConvexCollisionMeshType"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -127,7 +130,6 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltSurfaceResourceSlot"}
-		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -145,7 +147,6 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltCollisionMeshAssetProperties"}
-		u3 %TypeSize{1288}
 		u3 %TypeVersion{1}
 	}
 }
@@ -163,7 +164,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -181,7 +181,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -199,7 +198,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -217,7 +215,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
