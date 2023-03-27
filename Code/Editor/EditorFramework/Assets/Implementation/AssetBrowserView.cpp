@@ -226,11 +226,14 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
       case ezAssetInfo::TransformState::UpToDate:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(pPainter, thumbnailRect);
         break;
-      case ezAssetInfo::TransformState::MissingDependency:
+      case ezAssetInfo::TransformState::MissingTransformDependency:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(pPainter, thumbnailRect);
         break;
-      case ezAssetInfo::TransformState::MissingReference:
+      case ezAssetInfo::TransformState::MissingThumbnailDependency:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(pPainter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::CircularDependency:
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(pPainter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::TransformError:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(pPainter, thumbnailRect);

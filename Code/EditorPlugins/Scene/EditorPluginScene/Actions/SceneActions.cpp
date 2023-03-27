@@ -332,6 +332,34 @@ void ezSceneAction::Execute(const ezVariant& value)
         }
       }
 
+
+      // Convert collections
+      {
+        EZ_PROFILE_SCOPE("ConvertCollections");
+        ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+        ezSet<ezUuid> collections;
+        {
+          ezAssetCurator::ezLockedAssetTable allAssets = pCurator->GetKnownAssets();
+
+          //#TODO_ASSET Instead of hard-coding this to 'Collection' add a virtual function to all asset managers that defines those that need to be transformed on scene export.
+          ezTempHashedString sCollection = "Collection";
+          for (auto it : *allAssets)
+          {
+            if (it.Value()->m_Info->m_sAssetsDocumentTypeName == sCollection)
+            {
+              collections.Insert(it.Value()->m_Info->m_DocumentID);
+            }
+          }
+        }
+
+        const ezPlatformProfile* pCurrentProfile = pCurator->GetActiveAssetProfile();
+        for (const auto& guid : collections)
+        {
+          // Ignore result
+          pCurator->TransformAsset(guid, ezTransformFlags::TriggeredManually | ezTransformFlags::ForceTransform, pCurrentProfile);
+        }
+      }
+
       dlg.s_bUpdateThumbnail = false;
 
       range.BeginNextStep("Export Scene");

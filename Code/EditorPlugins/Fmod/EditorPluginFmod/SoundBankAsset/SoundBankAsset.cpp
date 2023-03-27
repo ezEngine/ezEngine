@@ -29,7 +29,7 @@ void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInf
 
   const ezSoundBankAssetProperties* pProp = GetProperties();
 
-  pInfo->m_AssetTransformDependencies.Insert(pProp->m_sSoundBank);
+  pInfo->m_TransformDependencies.Insert(pProp->m_sSoundBank);
 }
 
 ezTransformStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)

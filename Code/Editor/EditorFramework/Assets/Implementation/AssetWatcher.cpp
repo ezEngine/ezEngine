@@ -258,8 +258,6 @@ void ezDirectoryUpdateTask::Execute()
   {
     CURATOR_PROFILE("FindReferencedFiles");
     // Find all currently known files that are under the given folder.
-    // TODO: is m_InverseDependency / m_InverseReferences covered by this?
-    // TODO: What about asset output files?
     EZ_LOCK(pCurator->m_CuratorMutex);
     auto itlowerBound = pCurator->m_ReferencedFiles.LowerBound(m_sFolder);
     while (itlowerBound.IsValid() && itlowerBound.Key().StartsWith_NoCase(m_sFolder))

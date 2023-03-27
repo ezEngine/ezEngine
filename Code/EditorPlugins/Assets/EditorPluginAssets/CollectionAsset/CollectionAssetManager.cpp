@@ -19,7 +19,7 @@ ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_AssetCollection");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezCollection";
-  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::OnlyTransformManually;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Collection", QPixmap(":/AssetIcons/Collection.png"));
 }

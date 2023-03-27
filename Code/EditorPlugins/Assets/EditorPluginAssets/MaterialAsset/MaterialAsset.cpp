@@ -35,7 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
   {
     EZ_ENUM_ACCESSOR_PROPERTY("ShaderMode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
     EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader", "CustomAction_CreateShaderFromTemplate")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
@@ -755,13 +755,15 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::BaseMaterial)
   {
     // remove base material dependency, if it isn't used
-    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetBaseMaterial());
+    pInfo->m_TransformDependencies.Remove(GetProperties()->GetBaseMaterial());
+    pInfo->m_ThumbnailDependencies.Remove(GetProperties()->GetBaseMaterial());
   }
 
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::File)
   {
     // remove shader file dependency, if it isn't used
-    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetShader());
+    pInfo->m_TransformDependencies.Remove(GetProperties()->GetShader());
+    pInfo->m_ThumbnailDependencies.Remove(GetProperties()->GetShader());
   }
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
@@ -769,7 +771,8 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     // We write our own guid into the shader field so BaseMaterial materials can find the shader file.
     // This would cause us to have a dependency to ourselves so we need to remove it.
     ezStringBuilder tmp;
-    pInfo->m_AssetTransformDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
+    pInfo->m_TransformDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
+    pInfo->m_ThumbnailDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
 
     ezVisualShaderCodeGenerator codeGen;
 
@@ -778,7 +781,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
     for (const auto& sCfgFile : cfgFiles)
     {
-      pInfo->m_AssetTransformDependencies.Insert(sCfgFile);
+      pInfo->m_TransformDependencies.Insert(sCfgFile);
     }
 
     pInfo->m_Outputs.Insert(ezMaterialAssetDocumentManager::s_szShaderOutputTag);

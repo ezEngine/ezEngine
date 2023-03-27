@@ -28,6 +28,7 @@ void OnLoadPlugin()
       ezStandardMenus::MapActions("TypeScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezProjectActions::MapActions("TypeScriptAssetMenuBar");
       ezDocumentActions::MapActions("TypeScriptAssetMenuBar", "Menu.File", false);
+      ezAssetActions::MapMenuActions("TypeScriptAssetMenuBar", "Menu.File");
       ezCommandHistoryActions::MapActions("TypeScriptAssetMenuBar", "Menu.Edit");
     }
 
@@ -36,7 +37,7 @@ void OnLoadPlugin()
       ezActionMapManager::RegisterActionMap("TypeScriptAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("TypeScriptAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("TypeScriptAssetToolBar", "");
-      ezAssetActions::MapActions("TypeScriptAssetToolBar", true);
+      ezAssetActions::MapToolBarActions("TypeScriptAssetToolBar", true);
       ezTypeScriptActions::MapActions("TypeScriptAssetToolBar", "");
     }
   }

@@ -299,11 +299,14 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
         case ezAssetInfo::TransformError:
           sToolTip.Append("Transform Error");
           break;
-        case ezAssetInfo::MissingDependency:
-          sToolTip.Append("Missing Dependency");
+        case ezAssetInfo::MissingTransformDependency:
+          sToolTip.Append("Missing Transform Dependency");
           break;
-        case ezAssetInfo::MissingReference:
-          sToolTip.Append("Missing Reference");
+        case ezAssetInfo::MissingThumbnailDependency:
+          sToolTip.Append("Missing Thumbnail Dependency");
+          break;
+        case ezAssetInfo::CircularDependency:
+          sToolTip.Append("Circular Dependency");
           break;
         default:
           break;

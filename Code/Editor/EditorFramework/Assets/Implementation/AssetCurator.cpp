@@ -13,6 +13,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
+#include <Foundation/Utilities/DGMLWriter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 #define EZ_CURATOR_CACHE_VERSION 2
@@ -86,10 +87,12 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
   m_sDataDirParentRelativePath = std::move(rhs->m_sDataDirParentRelativePath);
   m_sDataDirRelativePath = ezStringView(m_sDataDirParentRelativePath.FindSubString("/") + 1); // skip the initial folder
   m_Info = std::move(rhs->m_Info);
+
   m_AssetHash = rhs->m_AssetHash;
   m_ThumbHash = rhs->m_ThumbHash;
-  m_MissingDependencies = rhs->m_MissingDependencies;
-  m_MissingReferences = rhs->m_MissingReferences;
+  m_MissingTransformDeps = std::move(rhs->m_MissingTransformDeps);
+  m_MissingThumbnailDeps = std::move(rhs->m_MissingThumbnailDeps);
+  m_CircularDependencies = std::move(rhs->m_CircularDependencies);
   // Don't copy m_SubAssets, we want to update it independently.
   rhs = nullptr;
 }
@@ -436,7 +439,7 @@ void ezAssetCurator::ResaveAllAssets()
   for (auto itAsset = m_KnownAssets.GetIterator(); itAsset.IsValid(); ++itAsset)
   {
     auto it2 = dependencies.Insert(itAsset.Key(), ezSet<ezUuid>());
-    for (const ezString& dep : itAsset.Value()->m_Info->m_AssetTransformDependencies)
+    for (const ezString& dep : itAsset.Value()->m_Info->m_TransformDependencies)
     {
       if (ezConversionUtils::IsStringUuid(dep))
       {
@@ -753,53 +756,6 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return thumbHash;
 }
 
-void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>* pDependencies, ezSet<ezString>* pReferences)
-{
-  if (ezConversionUtils::IsStringUuid(sAssetOrPath))
-  {
-    auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(sAssetOrPath));
-    ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
-    const bool bInsertDep = pDependencies && !pDependencies->Contains(pAssetInfo->m_sAbsolutePath);
-    const bool bInsertRef = pReferences && !pReferences->Contains(pAssetInfo->m_sAbsolutePath);
-
-    if (bInsertDep)
-    {
-      pDependencies->Insert(pAssetInfo->m_sAbsolutePath);
-    }
-    if (bInsertRef)
-    {
-      pReferences->Insert(pAssetInfo->m_sAbsolutePath);
-    }
-
-    if (pDependencies)
-    {
-      for (const ezString& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
-      {
-        GenerateTransitiveHull(dep, pDependencies, nullptr);
-      }
-    }
-
-    if (pReferences)
-    {
-      for (const ezString& ref : pAssetInfo->m_Info->m_RuntimeDependencies)
-      {
-        GenerateTransitiveHull(ref, nullptr, pReferences);
-      }
-    }
-  }
-  else
-  {
-    if (pDependencies && !pDependencies->Contains(sAssetOrPath))
-    {
-      pDependencies->Insert(sAssetOrPath);
-    }
-    if (pReferences && !pReferences->Contains(sAssetOrPath))
-    {
-      pReferences->Insert(sAssetOrPath);
-    }
-  }
-}
-
 ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_uiAssetHash, ezUInt64& out_uiThumbHash, bool bForce)
 {
   return ezAssetCurator::UpdateAssetTransformState(assetGuid, out_uiAssetHash, out_uiThumbHash, bForce);
@@ -831,6 +787,19 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
     ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
     assetGuid = pAssetInfo->m_Info->m_DocumentID;
 
+    // Circular dependencies can change if any asset in the circle has changed (and potentially broken the circle). Thus, we need to call CheckForCircularDependencies again for every asset.
+    if (!pAssetInfo->m_CircularDependencies.IsEmpty() && m_TransformStateStale.Contains(assetGuid))
+    {
+      pAssetInfo->m_CircularDependencies.Clear();
+      if (CheckForCircularDependencies(pAssetInfo).Failed())
+      {
+        UpdateAssetTransformState(assetGuid, ezAssetInfo::CircularDependency);
+        out_AssetHash = 0;
+        out_ThumbHash = 0;
+        return ezAssetInfo::CircularDependency;
+      }
+    }
+
     // Setting an asset to unknown actually does not change the m_TransformState but merely adds it to the m_TransformStateStale list.
     // This is to prevent the user facing state to constantly fluctuate if something is tagged as modified but not actually changed (E.g. saving a
     // file without modifying the content). Thus we need to check for m_TransformStateStale as well as for the set state.
@@ -854,8 +823,8 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezString sAssetFile;
   ezUInt8 uiLastStateUpdate = 0;
   ezUInt64 uiSettingsHash = 0;
-  ezHybridArray<ezString, 16> assetTransformDependencies;
-  ezHybridArray<ezString, 16> runtimeDependencies;
+  ezHybridArray<ezString, 16> transformDeps;
+  ezHybridArray<ezString, 16> thumbnailDeps;
   ezHybridArray<ezString, 16> outputs;
 
   // Lock asset and get all data needed for update computation.
@@ -870,13 +839,13 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
     uiLastStateUpdate = pAssetInfo->m_LastStateUpdate;
     // The settings has combines both the file settings and the global profile settings.
     uiSettingsHash = pAssetInfo->m_Info->m_uiSettingsHash + pManager->GetAssetProfileHash();
-    for (const ezString& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
+    for (const ezString& dep : pAssetInfo->m_Info->m_TransformDependencies)
     {
-      assetTransformDependencies.PushBack(dep);
+      transformDeps.PushBack(dep);
     }
-    for (const ezString& ref : pAssetInfo->m_Info->m_RuntimeDependencies)
+    for (const ezString& ref : pAssetInfo->m_Info->m_ThumbnailDependencies)
     {
-      runtimeDependencies.PushBack(ref);
+      thumbnailDeps.PushBack(ref);
     }
     for (const ezString& output : pAssetInfo->m_Info->m_Outputs)
     {
@@ -885,12 +854,12 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   }
 
   ezAssetInfo::TransformState state = ezAssetInfo::TransformState::Unknown;
-  ezSet<ezString> missingDependencies;
-  ezSet<ezString> missingReferences;
+  ezSet<ezString> missingTransformDeps;
+  ezSet<ezString> missingThumbnailDeps;
   // Compute final state and hashes.
   {
-    state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash, bForce);
-    EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
+    state = HashAsset(uiSettingsHash, transformDeps, thumbnailDeps, missingTransformDeps, missingThumbnailDeps, out_AssetHash, out_ThumbHash, bForce);
+    EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingTransformDependency || state == ezAssetInfo::MissingThumbnailDependency, "Unhandled case of HashAsset return value.");
 
     if (state == ezAssetInfo::Unknown)
     {
@@ -934,8 +903,8 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
         UpdateAssetTransformState(assetGuid, state);
         pAssetInfo->m_AssetHash = out_AssetHash;
         pAssetInfo->m_ThumbHash = out_ThumbHash;
-        pAssetInfo->m_MissingDependencies = std::move(missingDependencies);
-        pAssetInfo->m_MissingReferences = std::move(missingReferences);
+        pAssetInfo->m_MissingTransformDeps = std::move(missingTransformDeps);
+        pAssetInfo->m_MissingThumbnailDeps = std::move(missingThumbnailDeps);
         if (state == ezAssetInfo::TransformState::UpToDate)
         {
           UpdateSubAssets(*pAssetInfo);
@@ -1093,8 +1062,8 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool
     if (pInfo)
     {
       sCurrentAsset = pInfo->m_sAbsolutePath;
-      GatherReferences(m_InverseReferences, sCurrentAsset);
-      GatherReferences(m_InverseDependency, sCurrentAsset);
+      GatherReferences(m_InverseThumbnailDeps, sCurrentAsset);
+      GatherReferences(m_InverseTransformDeps, sCurrentAsset);
     }
   } while (bTransitive && !todoList.IsEmpty());
 }
@@ -1180,6 +1149,204 @@ void ezAssetCurator::NeedsReloadResources(const ezUuid& assetGuid)
   }
 }
 
+void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& deps, bool bIncludeTransformDeps, bool bIncludeThumbnailDeps, bool bIncludePackageDeps) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezHybridArray<ezString, 6> toDoList;
+  deps.Insert(sAssetOrPath);
+  toDoList.PushBack(sAssetOrPath);
+
+  while (!toDoList.IsEmpty())
+  {
+    ezString currentAsset = toDoList.PeekBack();
+    toDoList.PopBack();
+
+    if (ezConversionUtils::IsStringUuid(currentAsset))
+    {
+      auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(currentAsset));
+      ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
+
+      if (bIncludeTransformDeps)
+      {
+        for (const ezString& dep : pAssetInfo->m_Info->m_TransformDependencies)
+        {
+          if (!deps.Contains(dep))
+          {
+            deps.Insert(dep);
+            toDoList.PushBack(dep);
+          }
+        }
+      }
+      if (bIncludeThumbnailDeps)
+      {
+        for (const ezString& dep : pAssetInfo->m_Info->m_ThumbnailDependencies)
+        {
+          if (!deps.Contains(dep))
+          {
+            deps.Insert(dep);
+            toDoList.PushBack(dep);
+          }
+        }
+      }
+      if (bIncludePackageDeps)
+      {
+        for (const ezString& dep : pAssetInfo->m_Info->m_PackageDependencies)
+        {
+          if (!deps.Contains(dep))
+          {
+            deps.Insert(dep);
+            toDoList.PushBack(dep);
+          }
+        }
+      }
+    }
+  }
+}
+
+void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo, ezSet<ezUuid>& inverseDeps, bool bIncludeTransformDebs, bool bIncludeThumbnailDebs) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezHybridArray<const ezAssetInfo*, 6> toDoList;
+  toDoList.PushBack(pAssetInfo);
+  inverseDeps.Insert(pAssetInfo->m_Info->m_DocumentID);
+
+  while (!toDoList.IsEmpty())
+  {
+    const ezAssetInfo* currentAsset = toDoList.PeekBack();
+    toDoList.PopBack();
+
+    if (bIncludeTransformDebs)
+    {
+      if (auto it = m_InverseTransformDeps.Find(currentAsset->m_sAbsolutePath); it.IsValid())
+      {
+        for (const ezUuid& asset : it.Value())
+        {
+          if (!inverseDeps.Contains(asset))
+          {
+            ezAssetInfo* pAssetInfo = nullptr;
+            if (m_KnownAssets.TryGetValue(asset, pAssetInfo))
+            {
+              toDoList.PushBack(pAssetInfo);
+              inverseDeps.Insert(asset);
+            }
+          }
+        }
+      }
+    }
+
+    if (bIncludeThumbnailDebs)
+    {
+      if (auto it = m_InverseThumbnailDeps.Find(currentAsset->m_sAbsolutePath); it.IsValid())
+      {
+        for (const ezUuid& asset : it.Value())
+        {
+          if (!inverseDeps.Contains(asset))
+          {
+            ezAssetInfo* pAssetInfo = nullptr;
+            if (m_KnownAssets.TryGetValue(asset, pAssetInfo))
+            {
+              toDoList.PushBack(pAssetInfo);
+              inverseDeps.Insert(asset);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutputFile) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezDGMLGraph graph;
+
+  ezSet<ezString> deps;
+  ezStringBuilder sTemp;
+  GenerateTransitiveHull(ezConversionUtils::ToString(guid, sTemp), deps, true, true);
+
+  ezHashTable<ezString, ezUInt32> nodeMap;
+  nodeMap.Reserve(deps.GetCount());
+  for (auto& dep : deps)
+  {
+    ezDGMLGraph::NodeDesc nd;
+    if (ezConversionUtils::IsStringUuid(dep))
+    {
+      auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(dep));
+      const ezSubAsset& subAsset = it.Value();
+      const ezAssetInfo* pAssetInfo = subAsset.m_pAssetInfo;
+      if (subAsset.m_bMainAsset)
+      {
+        nd.m_Color = ezColor::Blue;
+        sTemp.Format("{}", pAssetInfo->m_sDataDirParentRelativePath);
+      }
+      else
+      {
+        nd.m_Color = ezColor::AliceBlue;
+        sTemp.Format("{} | {}", pAssetInfo->m_sDataDirParentRelativePath, subAsset.GetName());
+      }
+      nd.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
+    }
+    else
+    {
+      sTemp = dep;
+      nd.m_Color = ezColor::Orange;
+      nd.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
+    }
+    ezUInt32 uiGraphNode = graph.AddNode(sTemp, &nd);
+    nodeMap.Insert(dep, uiGraphNode);
+  }
+
+  for (auto& node : deps)
+  {
+    ezDGMLGraph::NodeDesc nd;
+    if (ezConversionUtils::IsStringUuid(node))
+    {
+      ezUInt32 uiInputNode = *nodeMap.GetValue(node);
+
+      auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(node));
+      ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
+
+      ezMap<ezUInt32, ezString> connection;
+
+      auto ExtendConnection = [&](const ezString& ref, ezStringView sLabel) {
+        ezUInt32 uiOutputNode = *nodeMap.GetValue(ref);
+        sTemp = connection[uiOutputNode];
+        if (sTemp.IsEmpty())
+          sTemp = sLabel;
+        else
+          sTemp.AppendFormat(" | {}", sLabel);
+        connection[uiOutputNode] = sTemp;
+      };
+
+      for (const ezString& ref : pAssetInfo->m_Info->m_TransformDependencies)
+      {
+        ExtendConnection(ref, "Transform");
+      }
+
+      for (const ezString& ref : pAssetInfo->m_Info->m_ThumbnailDependencies)
+      {
+        ExtendConnection(ref, "Thumbnail");
+      }
+
+      // This will make the graph very big, not recommended.
+      /* for (const ezString& ref : pAssetInfo->m_Info->m_PackageDependencies)
+       {
+         ExtendConnection(ref, "Package");
+       }*/
+
+      for (auto it : connection)
+      {
+        graph.AddConnection(uiInputNode, it.Key(), it.Value());
+      }
+    }
+  }
+
+  ezDGMLGraphWriter::WriteGraphToFile(sOutputFile, graph).IgnoreResult();
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Processing
 ////////////////////////////////////////////////////////////////////////
@@ -1196,7 +1363,12 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
   ezUInt64 uiThumbHash = 0;
   ezAssetInfo::TransformState state = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash, uiThumbHash);
 
-  for (const auto& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
+  if (state == ezAssetInfo::TransformState::CircularDependency)
+  {
+    return ezTransformStatus(ezFmt("Circular dependency for asset '{0}', can't transform.", pAssetInfo->m_sAbsolutePath));
+  }
+
+  for (const auto& dep : pAssetInfo->m_Info->m_TransformDependencies)
   {
     ezBitflags<ezTransformFlags> transformFlagsDeps = transformFlags;
     transformFlagsDeps.Remove(ezTransformFlags::ForceTransform);
@@ -1207,7 +1379,7 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
   }
 
   ezTransformStatus resReferences;
-  for (const auto& ref : pAssetInfo->m_Info->m_RuntimeDependencies)
+  for (const auto& ref : pAssetInfo->m_Info->m_ThumbnailDependencies)
   {
     ezBitflags<ezTransformFlags> transformFlagsRefs = transformFlags;
     transformFlagsRefs.Remove(ezTransformFlags::ForceTransform);
@@ -1265,7 +1437,7 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
   if (state == ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS);
 
-  if (state == ezAssetInfo::TransformState::MissingDependency)
+  if (state == ezAssetInfo::TransformState::MissingTransformDependency)
   {
     return ezTransformStatus(ezFmt("Missing dependency for asset '{0}', can't transform.", pAssetInfo->m_sAbsolutePath));
   }
@@ -1294,7 +1466,7 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
     }
   }
 
-  if (state == ezAssetInfo::TransformState::MissingReference)
+  if (state == ezAssetInfo::TransformState::MissingThumbnailDependency)
   {
     return ezTransformStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath));
   }
@@ -1413,7 +1585,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
         pFileStatus->m_AssetGuid = ezUuid();
       }
 
-      auto it = m_InverseDependency.Find(sAbsolutePath);
+      auto it = m_InverseTransformDeps.Find(sAbsolutePath);
       if (it.IsValid())
       {
         for (const ezUuid& guid : it.Value())
@@ -1422,7 +1594,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
         }
       }
 
-      auto it2 = m_InverseReferences.Find(sAbsolutePath);
+      auto it2 = m_InverseThumbnailDeps.Find(sAbsolutePath);
       if (it2.IsValid())
       {
         for (const ezUuid& guid : it2.Value())
@@ -1465,7 +1637,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezFil
     if (RefFile.m_AssetGuid.IsValid())
       InvalidateAssetTransformState(RefFile.m_AssetGuid);
 
-    auto it = m_InverseDependency.Find(sAbsolutePath);
+    auto it = m_InverseTransformDeps.Find(sAbsolutePath);
     if (it.IsValid())
     {
       for (const ezUuid& guid : it.Value())
@@ -1474,7 +1646,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezFil
       }
     }
 
-    auto it2 = m_InverseReferences.Find(sAbsolutePath);
+    auto it2 = m_InverseThumbnailDeps.Find(sAbsolutePath);
     if (it2.IsValid())
     {
       for (const ezUuid& guid : it2.Value())
@@ -1550,7 +1722,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
 
         for (const ezTempHashedString& name : transformOrder)
         {
-          for (const auto& ref : pSubAsset->m_pAssetInfo->m_Info->m_RuntimeDependencies)
+          for (const auto& ref : pSubAsset->m_pAssetInfo->m_Info->m_PackageDependencies)
           {
             if (ezAssetInfo* pInfo = GetAssetInfo(ref))
             {
@@ -1648,7 +1820,6 @@ void ezAssetCurator::RunNextUpdateTask()
     m_UpdateTaskGroup = ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::FileAccess);
   }
 }
-
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Check File System Helper

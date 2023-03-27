@@ -7,8 +7,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 2, ezRTTIDefaultAllocator<e
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_SET_MEMBER_PROPERTY("Dependencies", m_AssetTransformDependencies),
-    EZ_SET_MEMBER_PROPERTY("References", m_RuntimeDependencies),
+    EZ_SET_MEMBER_PROPERTY("Dependencies", m_TransformDependencies),
+    EZ_SET_MEMBER_PROPERTY("References", m_ThumbnailDependencies),
+    EZ_SET_MEMBER_PROPERTY("PackageDeps", m_PackageDependencies),
     EZ_SET_MEMBER_PROPERTY("Outputs", m_Outputs),
     EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
     EZ_ACCESSOR_PROPERTY("AssetType", GetAssetsDocumentTypeName, SetAssetsDocumentTypeName),
@@ -37,8 +38,9 @@ ezAssetDocumentInfo::ezAssetDocumentInfo(ezAssetDocumentInfo&& rhs)
 void ezAssetDocumentInfo::operator=(ezAssetDocumentInfo&& rhs)
 {
   m_uiSettingsHash = rhs.m_uiSettingsHash;
-  m_AssetTransformDependencies = rhs.m_AssetTransformDependencies;
-  m_RuntimeDependencies = rhs.m_RuntimeDependencies;
+  m_TransformDependencies = rhs.m_TransformDependencies;
+  m_ThumbnailDependencies = rhs.m_ThumbnailDependencies;
+  m_PackageDependencies = rhs.m_PackageDependencies;
   m_Outputs = rhs.m_Outputs;
   m_sAssetsDocumentTypeName = rhs.m_sAssetsDocumentTypeName;
   m_MetaInfo = std::move(rhs.m_MetaInfo);
@@ -47,8 +49,9 @@ void ezAssetDocumentInfo::operator=(ezAssetDocumentInfo&& rhs)
 void ezAssetDocumentInfo::CreateShallowClone(ezAssetDocumentInfo& rhs) const
 {
   rhs.m_uiSettingsHash = m_uiSettingsHash;
-  rhs.m_AssetTransformDependencies = m_AssetTransformDependencies;
-  rhs.m_RuntimeDependencies = m_RuntimeDependencies;
+  rhs.m_TransformDependencies = m_TransformDependencies;
+  rhs.m_ThumbnailDependencies = m_ThumbnailDependencies;
+  rhs.m_PackageDependencies = m_PackageDependencies;
   rhs.m_Outputs = m_Outputs;
   rhs.m_sAssetsDocumentTypeName = m_sAssetsDocumentTypeName;
   rhs.m_MetaInfo.Clear();

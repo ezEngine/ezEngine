@@ -336,6 +336,51 @@ private:
   ezUntrackedString m_sConstantValueProperty;
 };
 
+/// \brief Defines how a reference set by ezFileBrowserAttribute and ezAssetBrowserAttribute is treated.
+///
+/// A few examples to explain the flags:
+/// ## Input for a mesh: **Transform | Thumbnail**
+/// * The input (e.g. fbx) is obviously needed for transforming the asset.
+/// * We also can't generate a thumbnail without it.
+/// * But we don't need to package it with the final game as it is not used by the runtime.
+///
+/// ## Material on a mesh: **Thumbnail | Package**
+/// * The default material on a mesh asset is not needed to transform the mesh. As only the material reference is stored in the mesh asset, any changes to the material do not affect the transform output of the mesh.
+/// * It is obviously needed for the thumbnail as that is what is displayed in it.
+/// * We also need to package this reference as otherwise the runtime would fail to instantiate the mesh without errors.
+///
+/// ## Surface on hit prefab: **Package**
+/// * Transforming a surface is not affected if the prefab it spawns on impact changes. Only the reference is stored.
+/// * The set prefab does not show up in the thumbnail so it is not needed.
+/// * We do however need to package it or otherwise the runtime would fail to spawn the prefab on impact.
+///
+/// As a rule of thumb (also the default for each):
+/// * ezFileBrowserAttribute are mostly Transform and Thumbnail.
+/// * ezAssetBrowserAttribute are mostly Thumbnail and Package.
+struct ezDependencyFlags
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None = 0,              ///< The reference is not needed for anything in production. An example of this is editor references that are only used at edit time, e.g. a default animation clip for a skeleton.
+    Thumbnail = EZ_BIT(0), ///< This reference is a dependency to generating a thumbnail. The material references of a mesh for example.
+    Transform = EZ_BIT(1), ///< This reference is a dependency to transforming this asset. The input model of a mesh for example.
+    Package = EZ_BIT(2),   ///< This reference is needs to be packaged as it is used at runtime by this asset. All sounds or debris generated on impact of a surface are common examples of this.
+    Default = 0
+  };
+
+  struct Bits
+  {
+    StorageType Thumbnail : 1;
+    StorageType Transform : 1;
+    StorageType Package : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezDependencyFlags);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDependencyFlags);
+
 /// \brief A property attribute that indicates that the string property should display a file browsing button.
 ///
 /// Allows to specify the title for the browse dialog and the allowed file types.
@@ -354,21 +399,24 @@ public:
   static constexpr const char* CubemapsLdrAndHdr = "*.dds;*.hdr";
 
   ezFileBrowserAttribute() = default;
-  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter, const char* szCustomAction = nullptr)
+  ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter, const char* szCustomAction = nullptr, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
   {
     m_sDialogTitle = szDialogTitle;
     m_sTypeFilter = szTypeFilter;
     m_sCustomAction = szCustomAction;
+    m_DependencyFlags = depencyFlags;
   }
 
   const char* GetDialogTitle() const { return m_sDialogTitle; }
   const char* GetTypeFilter() const { return m_sTypeFilter; }
   const char* GetCustomAction() const { return m_sCustomAction; }
+  ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
 private:
   ezUntrackedString m_sDialogTitle;
   ezUntrackedString m_sTypeFilter;
   ezUntrackedString m_sCustomAction;
+  ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
 /// \brief A property attribute that indicates that the string property is actually an asset reference.
@@ -381,7 +429,11 @@ class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
 
 public:
   ezAssetBrowserAttribute() = default;
-  ezAssetBrowserAttribute(const char* szTypeFilter) { SetTypeFilter(szTypeFilter); }
+  ezAssetBrowserAttribute(const char* szTypeFilter, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)
+  {
+    m_DependencyFlags = depencyFlags;
+    SetTypeFilter(szTypeFilter);
+  }
 
   void SetTypeFilter(const char* szTypeFilter)
   {
@@ -389,9 +441,11 @@ public:
     m_sTypeFilter = sTemp;
   }
   const char* GetTypeFilter() const { return m_sTypeFilter; }
+  ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
 private:
   ezUntrackedString m_sTypeFilter;
+  ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
 /// \brief Can be used on integer properties to display them as enums. The valid enum values and their names may change at runtime.

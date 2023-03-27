@@ -35,22 +35,15 @@ ezActionDescriptorHandle ezDocumentActions::s_hDocumentCategory;
 void ezDocumentActions::RegisterActions()
 {
   s_hSaveCategory = EZ_REGISTER_CATEGORY("SaveCategory");
-  s_hSave =
-    EZ_REGISTER_ACTION_1("Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction, ezDocumentAction::ButtonType::Save);
-  s_hSaveAll = EZ_REGISTER_ACTION_1(
-    "Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
-  s_hSaveAs =
-    EZ_REGISTER_ACTION_1("Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
+  s_hSave = EZ_REGISTER_ACTION_1("Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction, ezDocumentAction::ButtonType::Save);
+  s_hSaveAll = EZ_REGISTER_ACTION_1("Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
+  s_hSaveAs = EZ_REGISTER_ACTION_1("Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
   s_hCloseCategory = EZ_REGISTER_CATEGORY("CloseCategory");
-  s_hClose =
-    EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
-  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1(
-    "Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
-  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1(
-    "Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
+  s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
+  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
+  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("Tools.DocumentCategory");
-  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1(
-    "Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
+  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
 }
 
 void ezDocumentActions::UnregisterActions()

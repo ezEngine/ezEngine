@@ -87,7 +87,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
   ezHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
 
-  for (const ezString& dep : assetInfo.m_AssetTransformDependencies)
+  for (const ezString& dep : assetInfo.m_TransformDependencies)
   {
     if (!ezPathUtils::HasExtension(dep, "bank"))
       continue;
@@ -193,7 +193,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
 
   // if (pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
   {
-    for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_AssetTransformDependencies)
+    for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_TransformDependencies)
     {
       if (dep.EndsWith_NoCase(".bank") && !dep.EndsWith_NoCase(".strings.bank"))
       {

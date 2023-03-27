@@ -262,21 +262,26 @@ void ezProcGenGraphAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
         ezVariant prefab = typeAccessor.GetValue("Objects", i);
         if (prefab.IsA<ezString>())
         {
-          pInfo->m_RuntimeDependencies.Insert(prefab.Get<ezString>());
+          pInfo->m_PackageDependencies.Insert(prefab.Get<ezString>());
+          pInfo->m_ThumbnailDependencies.Insert(prefab.Get<ezString>());
         }
       }
 
       ezVariant colorGradient = typeAccessor.GetValue("ColorGradient");
       if (colorGradient.IsA<ezString>())
       {
-        pInfo->m_RuntimeDependencies.Insert(colorGradient.Get<ezString>());
+        pInfo->m_PackageDependencies.Insert(colorGradient.Get<ezString>());
+        pInfo->m_ThumbnailDependencies.Insert(colorGradient.Get<ezString>());
       }
     }
   }
   else
   {
-    pInfo->m_RuntimeDependencies.Insert(s_szSphereAssetId);
-    pInfo->m_RuntimeDependencies.Insert(s_szBWGradientAssetId);
+    pInfo->m_PackageDependencies.Insert(s_szSphereAssetId);
+    pInfo->m_PackageDependencies.Insert(s_szBWGradientAssetId);
+
+    pInfo->m_ThumbnailDependencies.Insert(s_szSphereAssetId);
+    pInfo->m_ThumbnailDependencies.Insert(s_szBWGradientAssetId);
   }
 }
 

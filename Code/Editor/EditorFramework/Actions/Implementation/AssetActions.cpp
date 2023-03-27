@@ -9,7 +9,7 @@ ezActionDescriptorHandle ezAssetActions::s_hTransformAllAssets;
 ezActionDescriptorHandle ezAssetActions::s_hResaveAllAssets;
 ezActionDescriptorHandle ezAssetActions::s_hCheckFileSystem;
 ezActionDescriptorHandle ezAssetActions::s_hWriteLookupTable;
-
+ezActionDescriptorHandle ezAssetActions::s_hWriteDependencyDGML;
 
 void ezAssetActions::RegisterActions()
 {
@@ -19,6 +19,7 @@ void ezAssetActions::RegisterActions()
   s_hResaveAllAssets = EZ_REGISTER_ACTION_1("Asset.ResaveAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::ResaveAllAssets);
   s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
   s_hWriteLookupTable = EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
+  s_hWriteDependencyDGML = EZ_REGISTER_ACTION_1("Asset.WriteDependencyDGML", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteDependencyDGML);
 }
 
 void ezAssetActions::UnregisterActions()
@@ -29,9 +30,23 @@ void ezAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hResaveAllAssets);
   ezActionManager::UnregisterAction(s_hCheckFileSystem);
   ezActionManager::UnregisterAction(s_hWriteLookupTable);
+  ezActionManager::UnregisterAction(s_hWriteDependencyDGML);
 }
 
-void ezAssetActions::MapActions(const char* szMapping, bool bDocument)
+
+void ezAssetActions::MapMenuActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", szMapping);
+
+  pMap->MapAction(s_hAssetCategory, szPath, 1.5f);
+  ezStringBuilder sSubPath(szPath, "/AssetCategory");
+
+  pMap->MapAction(s_hTransformAsset, sSubPath, 1.0f);
+  pMap->MapAction(s_hWriteDependencyDGML, sSubPath, 2.0f);
+}
+
+void ezAssetActions::MapToolBarActions(const char* szMapping, bool bDocument)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
@@ -79,6 +94,8 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
       break;
     case ezAssetAction::ButtonType::WriteLookupTable:
       SetIconPath(":/EditorFramework/Icons/WriteLookupTable16.png");
+      break;
+    case ezAssetAction::ButtonType::WriteDependencyDGML:
       break;
   }
 }
@@ -137,6 +154,17 @@ void ezAssetAction::Execute(const ezVariant& value)
     case ezAssetAction::ButtonType::WriteLookupTable:
     {
       ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
+    }
+    break;
+
+    case ezAssetAction::ButtonType::WriteDependencyDGML:
+    {
+      ezStringBuilder sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Write to DGML", {}, "DGML (*.dgml)", nullptr, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+
+      if (sOutput.IsEmpty())
+        return;
+
+      ezAssetCurator::GetSingleton()->WriteDependencyDGML(m_Context.m_pDocument->GetGuid(), sOutput);
     }
     break;
   }

@@ -360,7 +360,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
   {
     // remove unused dependencies
-    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile(i));
+    pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile(i));
   }
 }
 

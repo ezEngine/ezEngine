@@ -16,12 +16,12 @@ public:
   void CreateShallowClone(ezAssetDocumentInfo& out_docInfo) const;
   void ClearMetaData();
 
-  ezUInt64 m_uiSettingsHash; ///< Current hash over all settings in the document, used to check resulting resource for being up-to-date in combination
-                             ///< with dependency hashes.
-  ezSet<ezString>
-    m_AssetTransformDependencies;        ///< Files that are required to generate the asset, ie. if one changes, the asset needs to be recreated
-  ezSet<ezString> m_RuntimeDependencies; ///< Other files that are used at runtime together with this asset, e.g. materials for a mesh, needed for
-                                         ///< thumbnails and packaging.
+  ezUInt64 m_uiSettingsHash; ///< Current hash over all settings in the document, used to check resulting resource for being up-to-date in combination with dependency hashes.
+
+  ezSet<ezString> m_TransformDependencies; ///< [Data dir relative path or GUID] Files that are required to generate the asset, ie. if one changes, the asset needs to be recreated
+  ezSet<ezString> m_ThumbnailDependencies; ///< [Data dir relative path or GUID] Files that are used to generate the thumbnail.
+  ezSet<ezString> m_PackageDependencies;   ///< [Data dir relative path or GUID] Files that are needed at runtime and should be packaged with the game.
+
   ezSet<ezString> m_Outputs; ///< Additional output this asset produces besides the default one. These are tags like VISUAL_SHADER that are resolved
                              ///< by the ezAssetDocumentManager into paths.
   ezHashedString m_sAssetsDocumentTypeName;

@@ -79,6 +79,7 @@ Help.ReportProblem;Report a Problem...
 # Assets
 
 Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
+Asset.WriteDependencyDGML;Write Dependency DGML...;Creates a DGML file containing all transform and thumbnail dependencies this asset transitively depends on
 Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
 Asset.ResaveAll;Resave All Assets;Opens every document and saves it. Used to get all documents to the latest version.
 Asset.CheckFilesystem;Check Filesystem;Checks for new or deleted assets on disk
