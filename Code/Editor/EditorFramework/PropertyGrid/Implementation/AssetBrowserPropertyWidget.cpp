@@ -183,7 +183,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
           ezAssetCurator::GetSingleton()->GenerateInverseTransitiveHull(asset->m_pAssetInfo, inverseHull, true, true);
           if (inverseHull.Contains(newAssetGuid))
           {
-            ezQtUiServices::GetSingleton()->MessageBoxWarning("The asset can't be selected as it would create a circular dependency");
+            ezQtUiServices::GetSingleton()->MessageBoxWarning("This asset can't be used here, as that would create a circular dependency.");
             return;
           }
         }
