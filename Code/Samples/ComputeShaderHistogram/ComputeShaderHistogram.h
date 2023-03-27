@@ -38,8 +38,8 @@ private:
   ezGALUnorderedAccessViewHandle m_hHistogramUAV;
   ezGALResourceViewHandle m_hHistogramSRV;
 
+  ezWindowBase* m_pWindow;
   ezGALSwapChainHandle m_hSwapChain;
-  ezGALRenderTargetViewHandle m_hBackbufferRTV;
 
   ezShaderResourceHandle m_hScreenShader;
   ezShaderResourceHandle m_hHistogramDisplayShader;

@@ -14,12 +14,12 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-static ezUInt32 g_uiWindowWidth = 1920;
-static ezUInt32 g_uiWindowHeight = 1080;
 static ezUInt32 g_uiComputeThreadGroupSize = 32;
 
 ezComputeShaderHistogramApp::ezComputeShaderHistogramApp()
   : ezGameApplication("ComputeShaderHistogram", "Data/Samples/ComputeShaderHistogram")
+  , m_pWindow(nullptr)
+  , m_bStuffChanged(false)
 {
 }
 
@@ -39,9 +39,15 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     ezResourceManager::ReloadAllResources(false);
   }
 
+  ezUInt32 uiWindowWidth = m_pWindow->GetClientAreaSize().width;
+  ezUInt32 uiWindowHeight = m_pWindow->GetClientAreaSize().height;
+
   // do the rendering
   {
     auto device = ezGALDevice::GetDefaultDevice();
+
+    const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(m_hSwapChain);
+    ezGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetRenderTargets().m_hRTs[0]);
 
     // Before starting to render in a frame call this function
     device->BeginFrame();
@@ -57,13 +63,13 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
       auto& globalConstants = renderContext.WriteGlobalConstants();
       ezMemoryUtils::ZeroFill(&globalConstants, 1);
 
-      globalConstants.ViewportSize = ezVec4((float)g_uiWindowWidth, (float)g_uiWindowHeight, 1.0f / (float)g_uiWindowWidth, 1.0f / (float)g_uiWindowHeight);
+      globalConstants.ViewportSize = ezVec4((float)uiWindowWidth, (float)uiWindowHeight, 1.0f / (float)uiWindowWidth, 1.0f / (float)uiWindowHeight);
       // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
       globalConstants.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0);
       globalConstants.WorldTime = globalConstants.GlobalTime;
     }
 
-    ezRectFloat viewport(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight);
+    ezRectFloat viewport(0.0f, 0.0f, (float)uiWindowWidth, (float)uiWindowHeight);
 
     // Draw background.
     {
@@ -86,7 +92,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     // Switch to backbuffer (so that the screen texture is no longer bound)
     {
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBackbufferRTV);
+      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
       renderContext.BeginRendering(pGALPass, renderingSetup, viewport, "Dummy");
       renderContext.EndRendering();
     }
@@ -101,7 +107,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
       renderContext.BindShader(m_hHistogramComputeShader);
       renderContext.BindTexture2D("ScreenTexture", m_hScreenSRV);
       renderContext.BindUAV("HistogramOutput", m_hHistogramUAV);
-      renderContext.Dispatch(g_uiWindowWidth / g_uiComputeThreadGroupSize + (g_uiWindowWidth % g_uiComputeThreadGroupSize != 0 ? 1 : 0), g_uiWindowHeight / g_uiComputeThreadGroupSize + (g_uiWindowHeight % g_uiComputeThreadGroupSize != 0 ? 1 : 0)).IgnoreResult();
+      renderContext.Dispatch(uiWindowWidth / g_uiComputeThreadGroupSize + (uiWindowWidth % g_uiComputeThreadGroupSize != 0 ? 1 : 0), uiWindowHeight / g_uiComputeThreadGroupSize + (uiWindowHeight % g_uiComputeThreadGroupSize != 0 ? 1 : 0)).IgnoreResult();
 
       renderContext.EndCompute();
     }
@@ -109,7 +115,7 @@ ezApplication::Execution ezComputeShaderHistogramApp::Run()
     // Draw histogram.
     {
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBackbufferRTV);
+      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
       renderContext.BeginRendering(pGALPass, renderingSetup, viewport, "DrawHistogram");
 
       renderContext.BindShader(m_hHistogramDisplayShader);
@@ -148,54 +154,37 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
 
   auto device = ezGALDevice::GetDefaultDevice();
 
-  // Create a window for rendering
+  // Retrieve window and swapchain handle for rendering
   {
-    ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Main Window", this);
-    ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
+    ezHybridArray<ezActor*, 8> allActors;
+    ezActorManager::GetSingleton()->GetAllActors(allActors);
 
-    // create window
+    for (ezActor* pActor : allActors)
     {
-      ezUniquePtr<ezWindow> pWindow = EZ_DEFAULT_NEW(ezWindow);
+      ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
 
-      ezWindowCreationDesc windowDesc;
-      windowDesc.m_Resolution.width = g_uiWindowWidth;
-      windowDesc.m_Resolution.height = g_uiWindowHeight;
-      windowDesc.m_Title = "Compute Shader Histogram";
-      pWindow->Initialize(windowDesc).IgnoreResult();
+      if (pWindowPlugin == nullptr)
+        continue;
 
-      // Update window height/width constants with actual height/width.
-      g_uiWindowHeight = pWindow->GetClientAreaSize().height;
-      g_uiWindowWidth = pWindow->GetClientAreaSize().width;
+      m_pWindow = pWindowPlugin->GetWindow();
 
-      pWindowPlugin->m_pWindow = std::move(pWindow);
+      // Retrieve only the first output target
+      if (auto pOutput = pWindowPlugin->GetOutputTarget())
+      {
+        m_hSwapChain = static_cast<ezWindowOutputTargetGAL*>(pOutput)->m_hSwapChain;
+        break;
+      }
     }
 
-    // create window output target
-    {
-      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
-
-      ezGALWindowSwapChainCreationDescription swd;
-      swd.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
-      swd.m_bAllowScreenshots = true;
-      pOutput->CreateSwapchain(swd);
-
-      m_hSwapChain = pOutput->m_hSwapChain;
-      // Get back-buffer render target view.
-      const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(pOutput->m_hSwapChain);
-      m_hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-
-      pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
-    }
-
-    pActor->AddPlugin(std::move(pWindowPlugin));
-    ezActorManager::GetSingleton()->AddActor(std::move(pActor));
+    EZ_ASSERT_DEV(m_pWindow != nullptr, "Failed to retrieve active window. No window plugins have been registered.");
+    EZ_ASSERT_DEV(!m_hSwapChain.IsInvalidated(), "Failed to retrieve active window output target.");
   }
 
   // Create textures and texture view for screen content (can't use back-buffer as shader resource view)
   {
     ezGALTextureCreationDescription texDesc;
-    texDesc.m_uiWidth = g_uiWindowWidth;
-    texDesc.m_uiHeight = g_uiWindowHeight;
+    texDesc.m_uiWidth = m_pWindow->GetClientAreaSize().width;
+    texDesc.m_uiHeight = m_pWindow->GetClientAreaSize().height;
     texDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized; // ezGALResourceFormat::RGBAUByteNormalizedsRGB;
     texDesc.m_bCreateRenderTarget = true;
     texDesc.m_bAllowShaderResourceView = true;
@@ -266,7 +255,7 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
 
   if (!m_hHistogramQuadMeshBuffer.IsValid())
   {
-    ezVec2 pixToScreen(1.0f / g_uiWindowWidth * 0.5f, 1.0f / g_uiWindowHeight * 0.5f);
+    ezVec2 pixToScreen(1.0f / m_pWindow->GetClientAreaSize().width * 0.5f, 1.0f / m_pWindow->GetClientAreaSize().height * 0.5f);
     const float borderOffsetPix = 80.0f;
     const float sizeScreen = 0.8f;
 
