@@ -36,14 +36,14 @@ void ezSceneExportModifier::DestroyModifiers(ezHybridArray<ezSceneExportModifier
   ref_modifiers.Clear();
 }
 
-void ezSceneExportModifier::ApplyAllModifiers(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport)
+void ezSceneExportModifier::ApplyAllModifiers(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
 {
   ezHybridArray<ezSceneExportModifier*, 8> modifiers;
   CreateModifiers(modifiers);
 
   for (auto pMod : modifiers)
   {
-    pMod->ModifyWorld(ref_world, documentGuid, bForExport);
+    pMod->ModifyWorld(ref_world, sDocumentType, documentGuid, bForExport);
   }
 
   DestroyModifiers(modifiers);

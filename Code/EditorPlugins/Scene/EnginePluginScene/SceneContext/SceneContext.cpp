@@ -466,7 +466,7 @@ void ezSceneContext::OnSimulationEnabled()
 {
   ezLog::Info("World Simulation enabled");
 
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid(), false);
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
 
   ezResourceManager::ReloadAllResources(false);
 
@@ -634,7 +634,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezLog::Info("Starting Play-the-Game mode");
 
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid(), false);
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
 
   ezResourceManager::ReloadAllResources(false);
 
@@ -823,7 +823,7 @@ ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
   }
 
   // #TODO layers
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid(), true);
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), true);
 
   ezDeferredFileWriter file;
   file.SetOutput(pMsg->m_sOutputFile);

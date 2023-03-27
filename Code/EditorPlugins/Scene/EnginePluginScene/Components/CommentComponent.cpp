@@ -41,7 +41,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveCommentComponents, 1
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier_RemoveCommentComponents::ModifyWorld(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport)
+void ezSceneExportModifier_RemoveCommentComponents::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
 {
   EZ_LOCK(ref_world.GetWriteMarker());
 
