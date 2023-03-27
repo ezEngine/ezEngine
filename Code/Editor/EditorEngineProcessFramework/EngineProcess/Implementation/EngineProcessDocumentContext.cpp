@@ -28,12 +28,12 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
 
-  pContext->Initialize(guid, metaData, pIPC);
+  pContext->Initialize(guid, metaData, pIPC, sDocumentType);
 }
 
 bool ezEngineProcessDocumentContext::PendingOperationsInProgress()
@@ -106,11 +106,16 @@ ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
   m_Context.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
-void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType)
 {
   m_DocumentGuid = documentGuid;
   m_MetaData = metaData;
   m_pIPC = pIPC;
+
+  if (m_sDocumentType != sDocumentType)
+  {
+    m_sDocumentType = sDocumentType;
+  }
 
   if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
   {
@@ -387,7 +392,7 @@ void ezEngineProcessDocumentContext::Reset()
 
   Deinitialize();
 
-  Initialize(guid, m_MetaData, ipc);
+  Initialize(guid, m_MetaData, ipc, m_sDocumentType);
 }
 
 void ezEngineProcessDocumentContext::ClearExistingObjects()

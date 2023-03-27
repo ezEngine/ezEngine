@@ -495,9 +495,11 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
             }
 
             if (!pDocumentContext)
+            {
               pDocumentContext = pRtti->GetAllocator()->Allocate<ezEngineProcessDocumentContext>();
+            }
 
-            ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pMsg->m_DocumentMetaData, pDocumentContext, &m_IPC);
+            ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pMsg->m_DocumentMetaData, pDocumentContext, &m_IPC, pMsg->m_sDocumentType);
             break;
           }
         }

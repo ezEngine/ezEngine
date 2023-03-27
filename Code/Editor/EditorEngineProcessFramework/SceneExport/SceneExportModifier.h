@@ -13,9 +13,9 @@ public:
   static void CreateModifiers(ezHybridArray<ezSceneExportModifier*, 8>& ref_modifiers);
   static void DestroyModifiers(ezHybridArray<ezSceneExportModifier*, 8>& ref_modifiers);
 
-  static void ApplyAllModifiers(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport);
+  static void ApplyAllModifiers(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport);
 
-  virtual void ModifyWorld(ezWorld& ref_world, const ezUuid& documentGuid, bool bForExport) = 0;
+  virtual void ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport) = 0;
 
   static void CleanUpWorld(ezWorld& ref_world);
 };
