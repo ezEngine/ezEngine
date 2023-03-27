@@ -14,12 +14,31 @@ o
 		u4 %Hash{17630367401461849745}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 0485ad21-f29c-429e-a61f-f28da08ecea6 }"}
 			s{"{ 0e51a2ff-6f65-461b-b071-fcf376d883d6 }"}
 			s{"{ 19831a55-f20c-4a04-b3d1-bbd45602b51b }"}
 			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+			s{"{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"}
+			s{"{ 3c4e7245-0aae-451e-9a14-eb289a181243 }"}
+			s{"{ 4418b713-806d-4d73-8bd2-c99707280561 }"}
+			s{"{ 4c9e23dc-5963-4fd5-bc1e-c21737a00ee8 }"}
+			s{"{ 566bc9c8-ad7f-4578-ba63-f5cf83c6c0e2 }"}
+			s{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
+			s{"{ 60dae3d8-8c1f-449f-af73-37712298a97b }"}
+			s{"{ 9b098b2a-53cf-4b4e-8bbf-b2bd11092362 }"}
+			s{"{ e207fd9e-794e-4b79-9eeb-908c865e73e5 }"}
+			s{"{ e7bf7f79-27ce-4746-b8c8-6e55a5efb5b4 }"}
+			s{"{ eb1da1f2-56db-4444-9379-315c8c5ef3c0 }"}
+			s{"{ f7a7b24e-272c-4173-bca8-ec975ab2a73a }"}
+			s{"{ ffba4e7c-2acf-45a1-bf78-1d7bf95cc15e }"}
+		}
+		VarArray %References
+		{
+			s{"{ 0485ad21-f29c-429e-a61f-f28da08ecea6 }"}
+			s{"{ 0e51a2ff-6f65-461b-b071-fcf376d883d6 }"}
+			s{"{ 19831a55-f20c-4a04-b3d1-bbd45602b51b }"}
 			s{"{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"}
 			s{"{ 3c4e7245-0aae-451e-9a14-eb289a181243 }"}
 			s{"{ 4418b713-806d-4d73-8bd2-c99707280561 }"}
@@ -1575,7 +1594,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_PerlinNoise"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1593,7 +1611,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Random"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1611,7 +1628,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1629,7 +1645,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGenOutput"}
-		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1647,7 +1662,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcPlacementMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1665,7 +1679,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1683,7 +1696,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Blend"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1701,7 +1713,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_Slope"}
-		u3 %TypeSize{40}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1719,7 +1730,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcVolumeImageMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1737,7 +1747,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_ApplyVolumes"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1755,7 +1764,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"DocumentNodeManager_DefaultConnection"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1773,7 +1781,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGenBinaryOperator"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1791,7 +1798,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGenNodeBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1809,7 +1815,6 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGen_PlacementOutput"}
-		u3 %TypeSize{664}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1827,7 +1832,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1845,7 +1849,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeOutputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1863,7 +1866,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1881,7 +1883,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodePin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }

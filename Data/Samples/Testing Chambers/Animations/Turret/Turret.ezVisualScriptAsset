@@ -17,6 +17,7 @@ o
 			Uuid{u4{2328361990080593039,5701264661177282199}}
 		}
 		VarArray %Outputs{}
+		VarArray %PackageDeps{}
 		VarArray %References{}
 	}
 }
@@ -141,7 +142,6 @@ o
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptNodeBase"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -169,7 +169,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptConnection"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -187,7 +186,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameterString"}
-		u3 %TypeSize{144}
 		u3 %TypeVersion{1}
 	}
 }
@@ -225,7 +223,6 @@ o
 			Uuid{u4{2452840632783947613,16220384518708264627}}
 		}
 		s %TypeName{"VisualScriptNode::ezVisualScriptNode_GenericEvent"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -243,7 +240,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameterNumber"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -264,7 +260,6 @@ o
 			Uuid{u4{12107778838338276556,12703308868274579016}}
 		}
 		s %TypeName{"VisualScriptNode::ezVisualScriptNode_FindChildObject"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -282,7 +277,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -310,7 +304,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameterBool"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -359,7 +352,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptAssetProperties"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -395,7 +387,6 @@ o
 			Uuid{u4{1707741354895730103,14441408091546575249}}
 		}
 		s %TypeName{"VisualScriptNode::ezSpawnComponent::TriggerManualSpawn<call>"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -413,7 +404,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameter"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -431,7 +421,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

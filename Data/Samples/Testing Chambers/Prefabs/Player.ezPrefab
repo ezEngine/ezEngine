@@ -73,13 +73,23 @@ o
 			Uuid{u4{14146522745554303380,2902865256510917925}}
 		}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 			s{"{ 398ac982-6549-438c-ba3f-86ba25f6a565 }"}
 			s{"{ 5cde2d0b-04df-4418-aa9b-8cd870879a20 }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ 64d3d26c-3e5d-46ab-8072-b9b65e850c77 }"}
+			s{"{ 6fedf421-7c53-4047-80bf-343903e382b8 }"}
+			s{"{ 7941db21-7976-47c5-94d2-2934ef511372 }"}
+			s{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
+			s{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
+		}
+		VarArray %References
+		{
+			s{"{ 398ac982-6549-438c-ba3f-86ba25f6a565 }"}
+			s{"{ 5cde2d0b-04df-4418-aa9b-8cd870879a20 }"}
+			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ 6fedf421-7c53-4047-80bf-343903e382b8 }"}
 			s{"{ 7941db21-7976-47c5-94d2-2934ef511372 }"}
 			s{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
@@ -1019,7 +1029,6 @@ o
 			Uuid{u4{4052736918928168731,7594899863019898105}}
 		}
 		s %TypeName{"ezJoltCharacterControllerComponent"}
-		u3 %TypeSize{120}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1052,7 +1061,6 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodListenerComponent"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1135,6 +1143,27 @@ o
 }
 o
 {
+	Uuid %id{u4{16446009954058395746,952234994591165345}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments
+		{
+			Uuid{u4{17781386048393736473,10924230990448846721}}
+		}
+		VarArray %Attributes
+		{
+			Uuid{u4{8083278282235990733,2757185883630152316}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"ChangeVerticalRotation"}
+		Uuid %ReturnValue{u4{2448407772555898851,17265378229107787244}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
 	Uuid %id{u4{13975639292304874303,958692951062372621}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -1182,7 +1211,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1200,7 +1228,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimatedMeshComponent"}
-		u3 %TypeSize{232}
 		u3 %TypeVersion{13}
 	}
 }
@@ -1318,7 +1345,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMarkerComponent"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1401,7 +1427,6 @@ o
 		s %PluginName{"ezEditorPluginRecast"}
 		VarArray %Properties{}
 		s %TypeName{"ezRcComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1502,6 +1527,27 @@ o
 }
 o
 {
+	Uuid %id{u4{8083278282235990733,2757185883630152316}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Arg1{"Radians"}
+		s %Arg2{""}
+		s %Arg3{""}
+		s %Arg4{""}
+		s %Arg5{""}
+		s %Arg6{""}
+		u1 %ArgType1{0}
+		u1 %ArgType2{0}
+		u1 %ArgType3{0}
+		u1 %ArgType4{0}
+		u1 %ArgType5{0}
+		u1 %ArgType6{0}
+	}
+}
+o
+{
 	Uuid %id{u4{4465665860258399828,2812282187489265705}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -1545,7 +1591,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezInputComponent"}
-		u3 %TypeSize{136}
 		u3 %TypeVersion{3}
 	}
 }
@@ -1563,7 +1608,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1599,7 +1643,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
-		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1628,7 +1671,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1646,7 +1688,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{4}
 	}
 }
@@ -1703,19 +1744,46 @@ o
 }
 o
 {
+	Uuid %id{u4{16426119971272182603,4137352701758845267}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1041958858862868594,12240733053272051679}}
+			Uuid{u4{15482368250702710928,17389411802047372973}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"VerticalRotation"}
+		s %Type{"ezAngle"}
+	}
+}
+o
+{
 	Uuid %id{u4{17572474202739270782,4142273277939482310}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
+		VarArray %Attributes
+		{
+			Uuid{u4{15997051750376851395,14668084013972423355}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions
+		{
+			Uuid{u4{15093611370804606315,7580360147947761007}}
+			Uuid{u4{16446009954058395746,952234994591165345}}
+		}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
+		s %PluginName{"ezGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{16426119971272182603,4137352701758845267}}
+		}
 		s %TypeName{"ezHeadBoneComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1929,7 +1997,6 @@ o
 			Uuid{u4{7001844416364588482,9869790392570224971}}
 		}
 		s %TypeName{"ezJoltGrabObjectComponent"}
-		u3 %TypeSize{160}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1982,7 +2049,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezInputMessageGranularity"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1993,6 +2059,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
 	}
 }
@@ -2004,7 +2071,7 @@ o
 	p
 	{
 		s %Anchor{""}
-		Color %Color{f{0x4035123F,0x70BAF53B,0x082E703E,0x0000803F}}
+		Color %Color{f{0x71941A3F,0x782DE03D,0x70944E3F,0x0000803F}}
 		Vec3 %OffsetOrScale{f{0,0,0}}
 		s %Property1{"Radius"}
 		s %Property2{""}
@@ -2045,7 +2112,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEventMessageHandlerComponent"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{3}
 	}
 }
@@ -2103,7 +2169,6 @@ o
 		s %PluginName{"ezJoltPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltShapeComponent"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2131,7 +2196,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBlackboardComponent"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2142,8 +2206,8 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Max{f{0xDC0FC940}}
-		Angle %Min{f{0x36FA8E3C}}
+		Angle %Max{f{0xDB0FC940}}
+		Angle %Min{f{0x35FA8E3C}}
 	}
 }
 o
@@ -2189,7 +2253,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2243,7 +2306,6 @@ o
 			Uuid{u4{5332337980524179225,1953809954450076278}}
 		}
 		s %TypeName{"ezJoltCharacterDebugFlags"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2261,7 +2323,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationControllerComponent"}
-		u3 %TypeSize{2032}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2337,7 +2398,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2376,7 +2436,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBitflagsBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2388,7 +2447,7 @@ o
 	p
 	{
 		s %Anchor{"ezVisualizerAnchor::NegZ"}
-		Color %Color{f{0x04E73C3E,0x381C7C3E,0x9218A33E,0x0000803F}}
+		Color %Color{f{0x06E73C3E,0x381C7C3E,0x9218A33E,0x0000803F}}
 		s %Property1{"CrouchHeight"}
 		s %Property2{"ShapeRadius"}
 		s %Property3{""}
@@ -2405,6 +2464,27 @@ o
 	{
 		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{15093611370804606315,7580360147947761007}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments
+		{
+			Uuid{u4{3752109249017011791,10381865570638865857}}
+		}
+		VarArray %Attributes
+		{
+			Uuid{u4{17779299188105832332,15834962022850149140}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"SetVerticalRotation"}
+		Uuid %ReturnValue{u4{17048005995112613167,12709093908070255887}}
+		s %Type{"ezFunctionType::Member"}
 	}
 }
 o
@@ -2458,7 +2538,6 @@ o
 			Uuid{u4{18115423731678040207,4639548822328574800}}
 		}
 		s %TypeName{"ezJoltDynamicActorComponent"}
-		u3 %TypeSize{120}
 		u3 %TypeVersion{3}
 	}
 }
@@ -2603,7 +2682,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2697,7 +2775,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -2725,7 +2802,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2743,7 +2819,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{504}
 		u3 %TypeVersion{10}
 	}
 }
@@ -2800,7 +2875,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBlackboardEntryFlags"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2852,7 +2926,6 @@ o
 		s %PluginName{"ezEditorPluginFmod"}
 		VarArray %Properties{}
 		s %TypeName{"ezFmodComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2892,6 +2965,17 @@ o
 }
 o
 {
+	Uuid %id{u4{3752109249017011791,10381865570638865857}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"float"}
+	}
+}
+o
+{
 	Uuid %id{u4{11568452837770943362,10420668725217181016}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2904,7 +2988,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{200}
 		u3 %TypeVersion{4}
 	}
 }
@@ -2953,7 +3036,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRootMotionMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3036,6 +3118,17 @@ o
 	p
 	{
 		s %Category{"Physics/Jolt/Actors"}
+	}
+}
+o
+{
+	Uuid %id{u4{17781386048393736473,10924230990448846721}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"float"}
 	}
 }
 o
@@ -3125,7 +3218,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3150,7 +3242,6 @@ o
 			Uuid{u4{6916421691460421263,6517784942153784783}}
 		}
 		s %TypeName{"ezJoltShapeSphereComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3294,7 +3385,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3311,6 +3401,16 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"ezOnJoltContact::Default"}
 		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{1041958858862868594,12240733053272051679}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Angle %Value{f{0xC2B8B23F}}
 	}
 }
 o
@@ -3347,7 +3447,6 @@ o
 			Uuid{u4{1169733456550287353,10163373658405488592}}
 		}
 		s %TypeName{"ezJoltActorComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{2}
 	}
 }
@@ -3377,6 +3476,17 @@ o
 		s %Name{"IsStandingOnGround"}
 		Uuid %ReturnValue{u4{11855309131908042321,7474462907329977492}}
 		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{17048005995112613167,12709093908070255887}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
 	}
 }
 o
@@ -3611,7 +3721,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpotLightComponent"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{2}
 	}
 }
@@ -3663,6 +3772,16 @@ o
 }
 o
 {
+	Uuid %id{u4{15997051750376851395,14668084013972423355}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Transform"}
+	}
+}
+o
+{
 	Uuid %id{u4{12814930320360971966,14780945004767832345}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -3675,7 +3794,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{4}
 	}
 }
@@ -3756,7 +3874,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3855,7 +3972,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBlackboardEntry"}
-		u3 %TypeSize{40}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3866,6 +3982,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
 	}
 }
@@ -3911,8 +4028,28 @@ o
 		s %PluginName{"ezEditorPluginRecast"}
 		VarArray %Properties{}
 		s %TypeName{"ezRcMarkPoiVisibleComponent"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17779299188105832332,15834962022850149140}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Arg1{"Radians"}
+		s %Arg2{""}
+		s %Arg3{""}
+		s %Arg4{""}
+		s %Arg5{""}
+		s %Arg6{""}
+		u1 %ArgType1{0}
+		u1 %ArgType2{0}
+		u1 %ArgType3{0}
+		u1 %ArgType4{0}
+		u1 %ArgType5{0}
+		u1 %ArgType6{0}
 	}
 }
 o
@@ -3971,7 +4108,6 @@ o
 			Uuid{u4{897460206522129529,5560640668048838444}}
 		}
 		s %TypeName{"ezJoltDefaultCharacterComponent"}
-		u3 %TypeSize{328}
 		u3 %TypeVersion{1}
 	}
 }
@@ -3982,7 +4118,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Value{f{0xC4B8323F}}
+		Angle %Value{f{0xC2B8323F}}
 	}
 }
 o
@@ -4133,7 +4269,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraUsageHint"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -4160,6 +4295,17 @@ o
 }
 o
 {
+	Uuid %id{u4{2448407772555898851,17265378229107787244}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
+	}
+}
+o
+{
 	Uuid %id{u4{6593933852172833454,17304029527958967954}}
 	s %t{"ezScriptableFunctionAttribute"}
 	u3 %v{1}
@@ -4177,6 +4323,17 @@ o
 		u1 %ArgType4{0}
 		u1 %ArgType5{0}
 		u1 %ArgType6{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15482368250702710928,17389411802047372973}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Angle %Max{f{0xF2D3C63F}}
+		Angle %Min{f{0}}
 	}
 }
 o
@@ -4211,7 +4368,6 @@ o
 			Uuid{u4{8247671856237943234,17604851697150064637}}
 		}
 		s %TypeName{"ezOnJoltContact"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -4302,7 +4458,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -4313,7 +4468,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Value{f{0xDC0FC93F}}
+		Angle %Value{f{0xDB0FC93F}}
 	}
 }
 o

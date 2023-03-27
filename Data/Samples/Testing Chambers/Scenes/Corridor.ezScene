@@ -11,10 +11,10 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{4546787178529692873}
+		u4 %Hash{15689167313081499706}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
@@ -84,6 +84,62 @@ o
 			s{"{ f6a08d26-5e08-4a5d-8180-19084b82b935 }"}
 			s{"{ fbbe8b57-91b5-4a9f-bf1e-e30ac87a8a6c }"}
 			s{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
+		}
+		VarArray %References
+		{
+			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
+			s{"{ 0c8dd872-9e75-4ea9-955e-442f9e2c2323 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
+			s{"{ 2aab509f-d165-4cab-8d56-68d19856c77c }"}
+			s{"{ 2d50dee8-5549-4755-bbce-4cc39624919c }"}
+			s{"{ 3410e50f-3950-4659-a789-ca8ade120699 }"}
+			s{"{ 36ba6a8f-2b12-4556-9e42-632db5c5b2ca }"}
+			s{"{ 3bf60313-2bce-45cf-8836-68e3b9ef5323 }"}
+			s{"{ 3c960df4-4000-4d25-a9e4-e9c1c5c40080 }"}
+			s{"{ 3eed317b-10cd-4752-8e7d-6fc6460beba0 }"}
+			s{"{ 40197e82-5fa5-4045-99d5-f24a2475497a }"}
+			s{"{ 418d077b-369f-46c7-9f71-9fd51857b608 }"}
+			s{"{ 41a909e4-0dbd-48ef-b6f3-a445bed9f62c }"}
+			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
+			s{"{ 4f850b7b-e53d-4f0c-9efd-15b35ffa6962 }"}
+			s{"{ 522c7e02-3e76-4d5d-ba3e-1936544bbdff }"}
+			s{"{ 580aefec-1a70-4442-9c88-d213519f8b8f }"}
+			s{"{ 5f7e8998-fe23-4a33-aa84-d10d4dfcf2a6 }"}
+			s{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
+			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+			s{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
+			s{"{ 6a1fd60d-19ed-4701-b4a1-29d99ee6af1b }"}
+			s{"{ 6c56721b-d71a-4795-88ac-39cae26c39f1 }"}
+			s{"{ 6d2f2203-1c29-417b-bb1b-b434080e8fed }"}
+			s{"{ 6d4f03a0-38d7-4d2d-bc2c-6344d359545d }"}
+			s{"{ 7e7175b2-750f-43c2-9958-c53abc18661e }"}
+			s{"{ 935e1236-35a1-4670-a87c-657e77cd7029 }"}
+			s{"{ 9aa28393-3f8b-490b-b7eb-49749997b143 }"}
+			s{"{ a14fde66-a586-4ab3-96fa-18612f2d744d }"}
+			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
+			s{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
+			s{"{ afb2a2a5-e863-4c47-a2f7-002d7dea6162 }"}
+			s{"{ b579c3bb-6d40-485d-a91d-ae15b15337a9 }"}
+			s{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
+			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
+			s{"{ c957b7d8-fb52-449e-abe6-c6c15e3f4316 }"}
+			s{"{ cb3fcb70-258b-4b4e-a79e-0537ace7d7e3 }"}
+			s{"{ cb429221-40ae-4e6d-842b-b37b3709cd58 }"}
+			s{"{ cdcc5813-2f08-4542-b310-fdcc84dc134e }"}
+			s{"{ d2a92ebd-fd90-4214-9455-ca14b38571f5 }"}
+			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
+			s{"{ d63193e0-3e77-4960-a51a-9c8a45393450 }"}
+			s{"{ d9eadd9a-e1e3-488b-9ede-ded29ebcb522 }"}
+			s{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+			s{"{ e5bb667e-6911-40bf-bf48-e8a6d687ba99 }"}
+			s{"{ eb4cb027-44b2-4f69-8f88-3d5594f0fa9d }"}
+			s{"{ eb842e16-7314-4f8a-8479-0f92e43ca708 }"}
+			s{"{ eed69dde-aab0-4ccd-8f98-a9822a389ea0 }"}
+			s{"{ efddf9bc-e3e5-4540-88b7-ec3041393355 }"}
+			s{"{ f1366dce-665b-4ecb-bd2e-325040a52426 }"}
+			s{"{ f6a08d26-5e08-4a5d-8180-19084b82b935 }"}
+			s{"{ fbbe8b57-91b5-4a9f-bf1e-e30ac87a8a6c }"}
 		}
 	}
 }
@@ -32895,6 +32951,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
 	}
 }
@@ -33783,6 +33840,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Material;"}
 	}
 }
@@ -33921,6 +33979,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Material;"}
 	}
 }
@@ -34119,6 +34178,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
 	}
 }
@@ -34624,6 +34684,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Data_2D;"}
 	}
 }
@@ -35502,6 +35563,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Jolt_Colmesh_Convex;"}
 	}
 }

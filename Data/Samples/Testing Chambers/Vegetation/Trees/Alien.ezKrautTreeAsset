@@ -17,8 +17,13 @@ o
 		u4 %Hash{5831590393308480861}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
+		}
 		VarArray %References
 		{
+			s{"Vegetation/EvilTree.tree"}
 			s{"{ b9cfa825-6201-4d14-a80e-a0df5e467afb }"}
 		}
 	}
@@ -107,7 +112,6 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautAssetMaterial"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -125,7 +129,6 @@ o
 		s %PluginName{"ezEditorPluginKraut"}
 		VarArray %Properties{}
 		s %TypeName{"ezKrautTreeAssetProperties"}
-		u3 %TypeSize{1264}
 		u3 %TypeVersion{1}
 	}
 }
@@ -143,7 +146,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -161,7 +163,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
