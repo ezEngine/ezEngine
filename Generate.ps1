@@ -2,7 +2,8 @@ param
 (
     [Parameter(Mandatory = $True)] [ValidateSet('Win64vs2019', 'Uwp64vs2019', 'Win64vs2022', 'Uwp64vs2022')][string] $Target,
     [switch]$NoUnityBuild,
-    [switch]$NoSubmoduleUpdate
+    [switch]$NoSubmoduleUpdate,
+    [string]$SolutionName
 )
 
 Set-Location $PSScriptRoot
@@ -44,6 +45,10 @@ if ($NoUnityBuild) {
 }
 else {
     $CMAKE_ARGS += "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=ON"
+}
+
+if ($SolutionName -ne "") {
+    $CMAKE_ARGS += "-DEZ_SOLUTION_NAME:STRING='${SolutionName}'"
 }
 
 $CMAKE_ARGS += "-G"
