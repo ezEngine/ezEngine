@@ -403,10 +403,18 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
       if (!m_Surfaces[i].IsValid())
         continue;
 
-      ezResourceLock pSurf(m_Surfaces[i], ezResourceAcquireMode::BlockTillLoaded);
-      const ezJoltMaterial* pMat = static_cast<const ezJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
+      ezResourceLock pSurf(m_Surfaces[i], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
 
-      materials[i] = pMat;
+      if (pSurf.GetAcquireResult() != ezResourceAcquireResult::None)
+      {
+        const ezJoltMaterial* pMat = static_cast<const ezJoltMaterial*>(pSurf->m_pPhysicsMaterialJolt);
+
+        materials[i] = pMat;
+      }
+      else
+      {
+        ezLog::Warning("Surface resource '{}' not available.", m_Surfaces[i].GetResourceID());
+      }
     }
 
     shapeRes.Get()->RestoreMaterialState(materials.GetData(), materials.GetCount());

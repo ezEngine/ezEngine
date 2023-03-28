@@ -114,7 +114,11 @@ o
 			Uuid{u4{1923082955317225570,3123759083079832468}}
 		}
 		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
+		}
 	}
 }
 o
@@ -238,7 +242,7 @@ o
 		VarArray %BoneShapes{}
 		VarArray %Children{}
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x0000003F,0x0000003F,0x0000003F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0x768FF7BE,0x5CDBA1BE,0x29C0863F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x768FF73E,0x5CDBA1BE,0x29C0863F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -260,7 +264,7 @@ o
 		VarArray %BoneShapes{}
 		VarArray %Children{}
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x0000003F,0x0000003F,0x0000003F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0x758FF7BE,0x5CDBA13E,0x29C0863F}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x748FF73E,0x5ADBA13E,0x29C0863F}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -451,7 +455,7 @@ o
 		VarArray %BoneShapes{}
 		VarArray %Children{}
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x0000003F,0x0000003F,0x0000003F}}
-		Vec3 %GizmoOffsetTranslationRO{f{0x4C3600BF,0,0x50F6B73D}}
+		Vec3 %GizmoOffsetTranslationRO{f{0x4C36003F,0,0x50F6B73D}}
 		b %LimitSwing{0}
 		b %LimitTwist{0}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}

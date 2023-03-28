@@ -785,7 +785,11 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
   {
     // Block till the base material has been fully loaded to ensure that all parameters have their final value once this material is loaded.
     ezResourceLock<ezMaterialResource> pBaseMaterial(m_mDesc.m_hBaseMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
+
+    if (!pBaseMaterial->m_ModifiedEvent.HasEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this)))
+    {
+      pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
+    }
   }
 
   m_mOriginalDesc = m_mDesc;

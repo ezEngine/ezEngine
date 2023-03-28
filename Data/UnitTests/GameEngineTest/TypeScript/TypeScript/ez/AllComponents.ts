@@ -701,6 +701,9 @@ export class PointLightComponent extends LightComponent
 export class PowerConnectorComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3608170608; }
+  IsConnected(): boolean { return __CPP_ComponentFunction_Call(this, 1935828150); }
+  IsAttached(): boolean { return __CPP_ComponentFunction_Call(this, 3755875421); }
+  Detach(): void { __CPP_ComponentFunction_Call(this, 34013577); }
   get Output(): number { return __CPP_ComponentProperty_get(this, 332165697); }
   set Output(value: number) { __CPP_ComponentProperty_set(this, 332165697, value); }
   get Buddy(): string { return __CPP_ComponentProperty_get(this, 2676937451); }
