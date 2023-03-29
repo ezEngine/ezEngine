@@ -177,7 +177,7 @@ Only concrete and clocks.\n\
     bool bSkipFolder = true;
 
     ezFileSystemIterator it;
-    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid(); )
+    for (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive); it.IsValid();)
     {
       sFullPath = it.GetCurrentPath();
       sFullPath.AppendPath(it.GetStats().m_sName.GetData());

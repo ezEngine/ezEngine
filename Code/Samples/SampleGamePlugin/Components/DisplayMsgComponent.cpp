@@ -38,14 +38,14 @@ EZ_END_COMPONENT_TYPE
 DisplayMsgComponent::DisplayMsgComponent() = default;
 DisplayMsgComponent::~DisplayMsgComponent() = default;
 
-void DisplayMsgComponent::SerializeComponent(ezWorldWriter& stream) const
+void DisplayMsgComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 }
 
-void DisplayMsgComponent::DeserializeComponent(ezWorldReader& stream)
+void DisplayMsgComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
 }
 
 void DisplayMsgComponent::OnSimulationStarted()

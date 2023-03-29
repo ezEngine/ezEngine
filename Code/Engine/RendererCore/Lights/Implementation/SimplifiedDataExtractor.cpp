@@ -26,7 +26,7 @@ ezSimplifiedDataExtractor::ezSimplifiedDataExtractor(const char* szName)
 ezSimplifiedDataExtractor::~ezSimplifiedDataExtractor() {}
 
 void ezSimplifiedDataExtractor::PostSortAndBatch(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   const ezCamera* pCamera = view.GetCullingCamera();
   const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
@@ -36,7 +36,7 @@ void ezSimplifiedDataExtractor::PostSortAndBatch(
   pData->m_uiSkyIrradianceIndex = view.GetWorld()->GetIndex();
   pData->m_cameraUsageHint = view.GetCameraUsageHint();
 
-  extractedRenderData.AddFrameData(pData);
+  ref_extractedRenderData.AddFrameData(pData);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SimplifiedDataExtractor);

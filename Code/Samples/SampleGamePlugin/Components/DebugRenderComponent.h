@@ -52,8 +52,8 @@ class EZ_SAMPLEGAMEPLUGIN_DLL DebugRenderComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // DebugRenderComponent
@@ -73,7 +73,7 @@ public:
 
   ezBitflags<DebugRenderComponentMask> m_RenderTypes; // [ property ]
 
-  void OnSetColor(ezMsgSetColor& msg); // [ msg handler ]
+  void OnSetColor(ezMsgSetColor& ref_msg); // [ msg handler ]
 
   void SetRandomColor(); // [ scriptable ]
 

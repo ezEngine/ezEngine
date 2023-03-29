@@ -81,7 +81,7 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptDataPinType
   EZ_ALWAYS_INLINE static bool IsTypeSupported(const ezRTTI* pType) { return GetDataPinTypeForType(pType) != None; }
 
   /// \brief Enforces the given variant to be a supported type, ie. mostly doubles for number types
-  static void EnforceSupportedType(ezVariant& var);
+  static void EnforceSupportedType(ezVariant& ref_var);
 
   /// \brief Returns how much storage an object of the given type would need
   static ezUInt32 GetStorageByteSize(Enum dataPinType);

@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocumentInfo.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
 
 // clang-format off
@@ -9,9 +10,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetEntry, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sLookupName),
-    EZ_MEMBER_PROPERTY("Asset", m_sRedirectionAsset)->AddAttributes(new ezAssetBrowserAttribute(""))
+    EZ_MEMBER_PROPERTY("Asset", m_sRedirectionAsset)->AddAttributes(new ezAssetBrowserAttribute("", ezDependencyFlags::Package))
   }
-    EZ_END_PROPERTIES;
+  EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -34,32 +35,67 @@ ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezString, ezCollectionEntry>& inout_found)
+{
+  auto it = inout_found.Find(sID);
+
+  if (it.IsValid())
+  {
+    if (!sLookupName.IsEmpty())
+    {
+      it.Value().m_sOptionalNiceLookupName = sLookupName;
+    }
+
+    return;
+  }
+
+  ezStringBuilder tmp;
+  ezAssetCurator::ezLockedSubAsset pInfo = ezAssetCurator::GetSingleton()->FindSubAsset(sID.GetData(tmp));
+
+  if (pInfo == nullptr)
+  {
+    ezLog::Warning("Asset in Collection is unknown: '{0}'", sID);
+    return;
+  }
+
+  // insert item itself
+  {
+    ezCollectionEntry& entry = inout_found[sID];
+    entry.m_sOptionalNiceLookupName = sLookupName;
+    entry.m_sResourceID = sID;
+    entry.m_sAssetTypeName = pInfo->m_Data.m_sSubAssetsDocumentTypeName;
+  }
+
+  // insert dependencies
+  {
+    const ezAssetDocumentInfo* pDocInfo = pInfo->m_pAssetInfo->m_Info.Borrow();
+
+    for (const ezString& doc : pDocInfo->m_PackageDependencies)
+    {
+      InsertEntry(doc, {}, inout_found);
+    }
+  }
+}
+
+ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezCollectionAssetData* pProp = GetProperties();
 
-  ezCollectionResourceDescriptor desc;
-  ezCollectionEntry entry;
+  ezMap<ezString, ezCollectionEntry> entries;
 
   for (const auto& e : pProp->m_Entries)
   {
     if (e.m_sRedirectionAsset.IsEmpty())
       continue;
 
-    ezAssetCurator::ezLockedSubAsset pInfo = ezAssetCurator::GetSingleton()->FindSubAsset(e.m_sRedirectionAsset);
+    InsertEntry(e.m_sRedirectionAsset, e.m_sLookupName, entries);
+  }
 
-    if (pInfo == nullptr)
-    {
-      ezLog::Warning("Asset in Collection is unknown: '{0}'", e.m_sRedirectionAsset);
-      continue;
-    }
+  ezCollectionResourceDescriptor desc;
 
-    entry.m_sOptionalNiceLookupName = e.m_sLookupName;
-    entry.m_sResourceID = e.m_sRedirectionAsset;
-    entry.m_sAssetTypeName = pInfo->m_Data.m_sSubAssetsDocumentTypeName;
-
-    desc.m_Resources.PushBack(entry);
+  for (auto it : entries)
+  {
+    desc.m_Resources.PushBack(it.Value());
   }
 
   desc.Save(stream);

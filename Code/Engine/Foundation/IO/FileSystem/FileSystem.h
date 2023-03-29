@@ -78,10 +78,10 @@ public:
   /// mounted in different ways. For example a simple folder could be mounted on the local system, or via a HTTP server
   /// over a network (lets call it a 'FileServer'). Thus depending on which type of factories are registered, the file system
   /// can provide data from very different sources.
-  using ezDataDirFactory = ezDataDirectoryType* (*)(const char*, const char*, const char*, ezFileSystem::DataDirUsage);
+  using ezDataDirFactory = ezDataDirectoryType* (*)(ezStringView, ezStringView, ezStringView, ezFileSystem::DataDirUsage);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
-  static void RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority = 0); // [tested]
+  static void RegisterDataDirectoryFactory(ezDataDirFactory factory, float fPriority = 0); // [tested]
 
   /// \brief Will remove all known data directory factories.
   static void ClearAllDataDirectoryFactories() { s_pData->m_DataDirFactories.Clear(); } // [tested]
@@ -98,22 +98,21 @@ public:
   /// that data directory. It must be used when writing to a file in this directory. For instance, if a data dir root name is "mydata", then the path
   /// ":mydata/SomeFile.txt" can be used to write to the top level folder of this data directory. The same can be used for reading exactly that file
   /// and ignoring the other data dirs.
-  static ezResult AddDataDirectory(
-    const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", ezFileSystem::DataDirUsage Usage = ReadOnly); // [tested]
+  static ezResult AddDataDirectory(ezStringView sDataDirectory, ezStringView sGroup = {}, ezStringView sRootName = {}, ezFileSystem::DataDirUsage usage = ReadOnly); // [tested]
 
   /// \brief Searches for a data directory with the given root name and removes it
   ///
   /// Returns true, if one was found and removed, false if no such data dir existed.
-  static bool RemoveDataDirectory(const char* szRootName);
+  static bool RemoveDataDirectory(ezStringView sRootName);
 
   /// \brief Removes all data directories that belong to the given group. Returns the number of data directories that were removed.
-  static ezUInt32 RemoveDataDirectoryGroup(const char* szGroup); // [tested]
+  static ezUInt32 RemoveDataDirectoryGroup(ezStringView sGroup); // [tested]
 
   /// \brief Removes all data directories.
   static void ClearAllDataDirectories(); // [tested]
 
   /// \brief If a data directory with the given root name already exists, it will be returned, nullptr otherwise.
-  static ezDataDirectoryType* FindDataDirectoryWithRoot(const char* szRootName);
+  static ezDataDirectoryType* FindDataDirectoryWithRoot(ezStringView sRootName);
 
   /// \brief Returns the number of currently active data directories.
   static ezUInt32 GetNumDataDirectories(); // [tested]
@@ -144,13 +143,13 @@ public:
   /// It will not override a previously set value. If that is desired, call SetSdkRootDirectory("") first.
   ///
   /// \sa ezFileSystem::FindFolderWithSubPath()
-  static ezResult DetectSdkRootDirectory(const char* szExpectedSubFolder = "Data/Base");
+  static ezResult DetectSdkRootDirectory(ezStringView sExpectedSubFolder = "Data/Base");
 
   /// \brief the special directory ">Sdk" is the root folder of the SDK data, it is often used as the main reference
   /// from where other data directories are found. For higher level code (e.g. ezApplication) it is often vital that this is set early at startup.
   ///
   /// \sa DetectSdkRootDirectory()
-  static void SetSdkRootDirectory(const char* szSdkDir);
+  static void SetSdkRootDirectory(ezStringView sSdkDir);
 
   /// \brief Returns the previously set Sdk root directory.
   ///
@@ -166,7 +165,7 @@ public:
   /// Special directories are needed to be able to set up other paths relative to them and to be able to use different
   /// ones on different PCs. For instance when using file-serve functionality, the special directories may be different
   /// on the host and client machines, but the paths used to mount data directories can stay the same because of this.
-  static void SetSpecialDirectory(const char* szName, const char* szReplacement);
+  static void SetSpecialDirectory(ezStringView sName, ezStringView sReplacement);
 
   /// \brief Returns the absolute path to \a szDirectory.
   ///
@@ -181,7 +180,7 @@ public:
   /// ">appdir/" - Resolves to what ezOSFile::GetApplicationDirectory() returns.
   ///
   /// Returns EZ_FAILURE if \a szDirectory starts with an unknown special directory.
-  static ezResult ResolveSpecialDirectory(const char* szDirectory, ezStringBuilder& out_Path);
+  static ezResult ResolveSpecialDirectory(ezStringView sDirectory, ezStringBuilder& out_sPath);
 
   ///@}
 
@@ -194,29 +193,29 @@ public:
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   /// \brief Starts a multi-folder search for \a szSearchTerm on all current data directories.
-  static void StartSearch(ezFileSystemIterator& iterator, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+  static void StartSearch(ezFileSystemIterator& ref_iterator, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 #endif
 
   ///@}
 
-  static ezResult CreateDirectoryStructure(const char* szPath);
+  static ezResult CreateDirectoryStructure(ezStringView sPath);
 
 public:
   /// \brief Deletes the given file from all data directories, if possible.
   ///
   /// The path must be absolute or rooted, to uniquely identify which file to delete.
   /// For example ":appdata/SomeData.txt", assuming a writable data directory has been mounted with the "appdata" root name.
-  static void DeleteFile(const char* szFile); // [tested]
+  static void DeleteFile(ezStringView sFile); // [tested]
 
   /// \brief Checks whether the given file exists in any data directory.
   ///
   /// The search can be restricted to directories of certain categories (see AddDataDirectory).
-  static bool ExistsFile(const char* szFile); // [tested]
+  static bool ExistsFile(ezStringView sFile); // [tested]
 
   /// \brief Tries to get the ezFileStats for the given file.
   /// Typically should give the same results as ezOSFile::GetFileStats, but some data dir implementations may not support
   /// retrieving all data (e.g. GetFileStats on folders might not always work).
-  static ezResult GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats);
+  static ezResult GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats);
 
   /// \brief Tries to resolve the given path and returns the absolute and relative path to the final file.
   ///
@@ -234,8 +233,7 @@ public:
   /// \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
   ///
   /// \returns The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath,
-    ezDataDirectoryType** out_ppDataDir = nullptr); // [tested]
+  static ezResult ResolvePath(ezStringView sPath, ezStringBuilder* out_pAbsolutePath, ezStringBuilder* out_pDataDirRelativePath, ezDataDirectoryType** out_pDataDir = nullptr); // [tested]
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   ///
@@ -245,10 +243,18 @@ public:
   /// \param szStartDirectory The directory in which to start the search and iterate upwards.
   /// \param szSubPath the relative path to look for in each visited directory. The function succeeds if such a file or folder is found.
   /// \param szRedirectionFileName An optional file name for a redirection file. If in any visited folder a file with this name is found, it will be opened, read entirely, and appended to the current search path, and it is checked whether \a szSubPath can be found there. This step is not recursive and can't result in an endless loop. It allows to relocate the SDK folder and still have it found, by placing such a redirection file. A common use case, is when ezEngine is used as a Git submodule and therefore the overall file structure is slightly different.
-  static ezResult FindFolderWithSubPath(ezStringBuilder& result, const char* szStartDirectory, const char* szSubPath, const char* szRedirectionFileName = nullptr); // [tested]
+  static ezResult FindFolderWithSubPath(ezStringBuilder& ref_sResult, ezStringView sStartDirectory, ezStringView sSubPath, ezStringView sRedirectionFileName = {}); // [tested]
 
   /// \brief Returns true, if any data directory knows how to redirect the given path. Otherwise the original string is returned in out_sRedirection.
-  static bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection);
+  static bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection);
+
+  /// \brief Migrates a file from an old location to a new one, and returns the path that should be used to open it (either the old or the new path).
+  ///
+  /// If the file does not exist in the old location, nothing is done, and the new location is returned.
+  /// Otherwise, it is attempted to move the file from the old location to the new location.
+  /// In case that fails (target not writeable or so), the old path is returned, so that code that needs to read that file, finds it in the correct location.
+  /// If it succeeds, the new location is returned. Afterwards, the file does not exist in the old location anymore.
+  static ezStringView MigrateFileLocation(ezStringView sOldLocation, ezStringView sNewLocation);
 
 private:
   friend class ezDataDirectoryReaderWriterBase;
@@ -262,7 +268,7 @@ private:
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
   /// This should usually be set to true, unless code is already acting on a file event and needs to do a file operation
   /// itself, which should not trigger an endless recursion of file events.
-  static ezDataDirectoryReader* GetFileReader(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents);
+  static ezDataDirectoryReader* GetFileReader(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents);
 
   /// \brief This is used by the actual file writers (like ezFileWriter) to get an abstract file writer.
   ///
@@ -271,7 +277,7 @@ private:
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
   /// This should usually be set to true, unless code is already acting on a file event and needs to do a file operation
   /// itself, which should not trigger an endless recursion of file events.
-  static ezDataDirectoryWriter* GetFileWriter(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents);
+  static ezDataDirectoryWriter* GetFileWriter(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents);
 
 
 private:
@@ -311,10 +317,10 @@ private:
   };
 
   /// \brief Returns a list of data directory categories that were embedded in the path.
-  static const char* ExtractRootName(const char* szPath, ezString& rootName);
+  static ezStringView ExtractRootName(ezStringView sFile, ezString& rootName);
 
   /// \brief Returns the given path relative to its data directory. The path must be inside the given data directory.
-  static const char* GetDataDirRelativePath(const char* szPath, ezUInt32 uiDataDir);
+  static ezStringView GetDataDirRelativePath(ezStringView sFile, ezUInt32 uiDataDir);
 
   static DataDirectory* GetDataDirForRoot(const ezString& sRoot);
 
@@ -353,10 +359,10 @@ struct ezFileSystem::FileEvent
   ezFileSystem::FileEventType::Enum m_EventType = FileEventType::None;
 
   /// \brief Path to the file or directory that was involved.
-  const char* m_szFileOrDirectory = nullptr;
+  ezStringView m_sFileOrDirectory;
 
   /// \brief Additional Path / Name that might be of interest.
-  const char* m_szOther = nullptr;
+  ezStringView m_sOther;
 
   /// \brief The data-directory, that was involved.
   const ezDataDirectoryType* m_pDataDir = nullptr;

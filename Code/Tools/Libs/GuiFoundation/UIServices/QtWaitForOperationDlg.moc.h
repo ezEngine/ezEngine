@@ -13,7 +13,7 @@ class EZ_GUIFOUNDATION_DLL ezQtWaitForOperationDlg : public QDialog, public Ui_Q
   Q_OBJECT
 
 public:
-  ezQtWaitForOperationDlg(QWidget* parent);
+  ezQtWaitForOperationDlg(QWidget* pParent);
   ~ezQtWaitForOperationDlg();
 
   ezDelegate<bool()> m_OnIdle;

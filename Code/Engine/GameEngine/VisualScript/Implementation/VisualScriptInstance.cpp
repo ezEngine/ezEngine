@@ -364,23 +364,23 @@ void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActi
   }
 }
 
-bool ezVisualScriptInstance::HandleMessage(ezMessage& msg)
+bool ezVisualScriptInstance::HandleMessage(ezMessage& ref_msg)
 {
   if (m_pMessageHandlers == nullptr)
     return false;
 
-  ezUInt32 uiFirstHandler = m_pMessageHandlers->LowerBound(msg.GetId());
+  ezUInt32 uiFirstHandler = m_pMessageHandlers->LowerBound(ref_msg.GetId());
 
   bool bHandled = false;
 
   while (uiFirstHandler < m_pMessageHandlers->GetCount())
   {
     const auto& data = (*m_pMessageHandlers).GetPair(uiFirstHandler);
-    if (data.key != msg.GetId())
+    if (data.key != ref_msg.GetId())
       break;
 
     const ezUInt32 uiNodeId = data.value;
-    m_Nodes[uiNodeId]->HandleMessage(&msg);
+    m_Nodes[uiNodeId]->HandleMessage(&ref_msg);
 
     bHandled = true;
     ++uiFirstHandler;
@@ -457,7 +457,7 @@ Override ezVisualScriptNode::IsManuallyStepped() for type '{}' if necessary.",
   }
 }
 
-bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) const
+bool ezVisualScriptInstance::HandlesMessage(const ezMessage& msg) const
 {
   if (m_pMessageHandlers == nullptr)
     return false;

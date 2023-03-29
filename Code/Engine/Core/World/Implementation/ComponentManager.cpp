@@ -21,10 +21,10 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerOb
   return CreateComponent(pOwnerObject, pDummy);
 }
 
-void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
+void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& hComponent)
 {
   ezComponent* pComponent = nullptr;
-  if (!m_Components.TryGetValue(component, pComponent))
+  if (!m_Components.TryGetValue(hComponent, pComponent))
     return;
 
   DeleteComponent(pComponent);

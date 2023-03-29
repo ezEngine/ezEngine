@@ -14,7 +14,7 @@ namespace ezMemoryPolicies
     EZ_ALWAYS_INLINE ~ezGuardedAllocation() {}
 
     void* Allocate(size_t uiSize, size_t uiAlign);
-    void Deallocate(void* ptr);
+    void Deallocate(void* pPtr);
 
     EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
 

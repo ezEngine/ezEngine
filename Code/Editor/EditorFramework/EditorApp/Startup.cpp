@@ -92,7 +92,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezProjectActions::MapActions("SettingsTabMenuBar");
 
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar").IgnoreResult();
-    ezAssetActions::MapActions("AssetBrowserToolBar", false);
+    ezAssetActions::MapToolBarActions("AssetBrowserToolBar", false);
 
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtFilePropertyWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtAssetPropertyWidget(); });
@@ -168,15 +168,29 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezCommandLineOptionBool opt_Safe("_Editor", "-safe", "In safe-mode the editor minimizes the risk of crashing, for instance by not loading previous projects and scenes.", false);
 ezCommandLineOptionBool opt_NoRecent("_Editor", "-noRecent", "Disables automatic loading of recent projects and documents.", false);
-ezCommandLineOptionBool opt_Debug("_Editor", "-debug", "Enables debug-mode, which makes the editor wait for a debugger to attach, and disables risky features, such as recent file loading.", false);
 
 void ezQtEditorApp::StartupEditor()
 {
+  {
+    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+    sTemp.AppendPath("ezEditorCrashIndicator");
+
+    if (ezOSFile::ExistsFile(sTemp))
+    {
+      ezOSFile::DeleteFile(sTemp).IgnoreResult();
+
+      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("It seems the editor ran into problems last time.\n\nDo you want to run it in safe mode, to deactivate automatic project loading and document restoration?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) == QMessageBox::StandardButton::Yes)
+      {
+        opt_Safe.GetOptions(sTemp);
+        ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(sTemp);
+      }
+    }
+  }
+
   ezBitflags<StartupFlags> startupFlags;
 
   startupFlags.AddOrRemove(StartupFlags::SafeMode, opt_Safe.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
   startupFlags.AddOrRemove(StartupFlags::NoRecent, opt_NoRecent.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
-  startupFlags.AddOrRemove(StartupFlags::Debug, opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified));
 
   StartupEditor(startupFlags);
 }
@@ -220,7 +234,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   m_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  m_pEngineViewProcess->SetWaitForDebugger(m_StartupFlags.IsSet(StartupFlags::Debug));
   m_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
 
   m_LongOpControllerManager.Startup(&m_pEngineViewProcess->GetCommunicationChannel());
@@ -287,7 +300,8 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   pTranslatorEn->AddTranslationFilesFromFolder(":app/Localization/en");
   // pTranslatorDe->LoadTranslationFilesFromFolder(":app/Localization/de");
 
-  ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
+  ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorMakeMoreReadable));
+  // ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
   ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));
   // ezTranslationLookup::AddTranslator(std::move(pTranslatorDe));
 
@@ -335,7 +349,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     CreateOrOpenProject(false, pCmd->GetAbsolutePathOption("-project")).IgnoreResult();
   }
-  else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup)
+  else if (!bNoRecent && pPreferences->m_bLoadLastProjectAtStartup)
   {
     if (!m_RecentProjects.GetFileList().IsEmpty())
     {

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -5,6 +6,7 @@
 
 #include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
 #include <Jolt/Physics/IslandBuilder.h>
+#include <Jolt/Physics/LargeIslandSplitter.h>
 #include <Jolt/Physics/Body/BodyManager.h>
 
 #ifdef JPH_DEBUG_RENDERER
@@ -34,12 +36,17 @@ void TwoBodyConstraint::BuildIslands(uint32 inConstraintIndex, IslandBuilder &io
 	ioBuilder.LinkConstraint(inConstraintIndex, mBody1->GetIndexInActiveBodiesInternal(), mBody2->GetIndexInActiveBodiesInternal()); 
 }
 
+uint TwoBodyConstraint::BuildIslandSplits(LargeIslandSplitter &ioSplitter) const
+{
+	return ioSplitter.AssignSplit(mBody1, mBody2);
+}
+
 #ifdef JPH_DEBUG_RENDERER
 
 void TwoBodyConstraint::DrawConstraintReferenceFrame(DebugRenderer *inRenderer) const
 {
-	Mat44 transform1 = mBody1->GetCenterOfMassTransform() * GetConstraintToBody1Matrix();
-	Mat44 transform2 = mBody2->GetCenterOfMassTransform() * GetConstraintToBody2Matrix();
+	RMat44 transform1 = mBody1->GetCenterOfMassTransform() * GetConstraintToBody1Matrix();
+	RMat44 transform2 = mBody2->GetCenterOfMassTransform() * GetConstraintToBody2Matrix();
 	inRenderer->DrawCoordinateSystem(transform1, 1.1f * mDrawConstraintSize);
 	inRenderer->DrawCoordinateSystem(transform2, mDrawConstraintSize);
 }

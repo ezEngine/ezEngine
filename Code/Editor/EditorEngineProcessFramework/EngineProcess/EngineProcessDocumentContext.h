@@ -46,14 +46,17 @@ public:
   ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags);
   virtual ~ezEngineProcessDocumentContext();
 
-  virtual void Initialize(const ezUuid& DocumentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC);
+  virtual void Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType);
   void Deinitialize();
+
+  /// \brief Returns the document type for which this context was created. Useful in case a context may be used for multiple document types.
+  ezStringView GetDocumentType() const { return m_sDocumentType; }
 
   void SendProcessMessage(ezProcessMessage* pMsg = nullptr);
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg);
 
   static ezEngineProcessDocumentContext* GetDocumentContext(ezUuid guid);
-  static void AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pView, ezEngineProcessCommunicationChannel* pIPC);
+  static void AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pView, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType);
   static bool PendingOperationsInProgress();
   static void UpdateDocumentContexts();
   static void DestroyDocumentContext(ezUuid guid);
@@ -97,7 +100,7 @@ protected:
   virtual void UpdateDocumentContext();
 
   /// \brief Exports to current document resource to file. Make sure to write ezAssetFileHeader at the start of it.
-  virtual bool ExportDocument(const ezExportDocumentMsgToEngine* pMsg);
+  virtual ezStatus ExportDocument(const ezExportDocumentMsgToEngine* pMsg);
   void UpdateSyncObjects();
 
   /// \brief Creates the thumbnail view context. It uses 'CreateViewContext' in combination with an off-screen render target.
@@ -169,7 +172,7 @@ private:
   enum Constants
   {
     ThumbnailSuperscaleFactor =
-      2, ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be power-of-two.
+      2,                                 ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be power-of-two.
     ThumbnailConvergenceFramesTarget = 4 ///< Due to multi-threaded rendering, this must be at least 4
   };
 
@@ -181,6 +184,7 @@ private:
   ezGALTextureHandle m_hThumbnailColorRT;
   ezGALTextureHandle m_hThumbnailDepthRT;
   bool m_bWorldSimStateBeforeThumbnail = false;
+  ezString m_sDocumentType;
 
   //////////////////////////////////////////////////////////////////////////
   // GameObject reference resolution

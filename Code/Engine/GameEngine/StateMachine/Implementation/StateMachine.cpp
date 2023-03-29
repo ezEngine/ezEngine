@@ -21,25 +21,25 @@ void ezStateMachineState::SetName(ezStringView sName)
   m_sName.Assign(sName);
 }
 
-void ezStateMachineState::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
+void ezStateMachineState::OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const
 {
 }
 
-void ezStateMachineState::Update(ezStateMachineInstance& instance, void* pInstanceData, ezTime deltaTime) const
+void ezStateMachineState::Update(ezStateMachineInstance& ref_instance, void* pInstanceData, ezTime deltaTime) const
 {
 }
 
-ezResult ezStateMachineState::Serialize(ezStreamWriter& stream) const
+ezResult ezStateMachineState::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_sName;
+  inout_stream << m_sName;
   return EZ_SUCCESS;
 }
 
-ezResult ezStateMachineState::Deserialize(ezStreamReader& stream)
+ezResult ezStateMachineState::Deserialize(ezStreamReader& inout_stream)
 {
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
 
-  stream >> m_sName;
+  inout_stream >> m_sName;
   return EZ_SUCCESS;
 }
 
@@ -55,12 +55,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezStateMachineTransition::Serialize(ezStreamWriter& stream) const
+ezResult ezStateMachineTransition::Serialize(ezStreamWriter& inout_stream) const
 {
   return EZ_SUCCESS;
 }
 
-ezResult ezStateMachineTransition::Deserialize(ezStreamReader& stream)
+ezResult ezStateMachineTransition::Deserialize(ezStreamReader& inout_stream)
 {
   return EZ_SUCCESS;
 }
@@ -130,11 +130,11 @@ void ezStateMachineDescription::AddTransition(ezUInt32 uiFromStateIndex, ezUInt3
 
 constexpr ezTypeVersion s_StateMachineDescriptionVersion = 1;
 
-ezResult ezStateMachineDescription::Serialize(ezStreamWriter& originalStream) const
+ezResult ezStateMachineDescription::Serialize(ezStreamWriter& ref_originalStream) const
 {
-  originalStream.WriteVersion(s_StateMachineDescriptionVersion);
+  ref_originalStream.WriteVersion(s_StateMachineDescriptionVersion);
 
-  ezStringDeduplicationWriteContext stringDeduplicationWriteContext(originalStream);
+  ezStringDeduplicationWriteContext stringDeduplicationWriteContext(ref_originalStream);
   ezTypeVersionWriteContext typeVersionWriteContext;
   auto& stream = typeVersionWriteContext.Begin(stringDeduplicationWriteContext.Begin());
 
@@ -195,27 +195,27 @@ ezResult ezStateMachineDescription::Serialize(ezStreamWriter& originalStream) co
   return EZ_SUCCESS;
 }
 
-ezResult ezStateMachineDescription::Deserialize(ezStreamReader& stream)
+ezResult ezStateMachineDescription::Deserialize(ezStreamReader& inout_stream)
 {
-  const auto uiVersion = stream.ReadVersion(s_StateMachineDescriptionVersion);
+  const auto uiVersion = inout_stream.ReadVersion(s_StateMachineDescriptionVersion);
 
-  ezStringDeduplicationReadContext stringDeduplicationReadContext(stream);
-  ezTypeVersionReadContext typeVersionReadContext(stream);
+  ezStringDeduplicationReadContext stringDeduplicationReadContext(inout_stream);
+  ezTypeVersionReadContext typeVersionReadContext(inout_stream);
 
   ezStringBuilder sTypeName;
 
   // states
   {
     ezUInt32 uiNumStates = 0;
-    stream >> uiNumStates;
+    inout_stream >> uiNumStates;
 
     for (ezUInt32 i = 0; i < uiNumStates; ++i)
     {
-      stream >> sTypeName;
+      inout_stream >> sTypeName;
       if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
       {
         ezUniquePtr<ezStateMachineState> pState = pType->GetAllocator()->Allocate<ezStateMachineState>();
-        EZ_SUCCEED_OR_RETURN(pState->Deserialize(stream));
+        EZ_SUCCEED_OR_RETURN(pState->Deserialize(inout_stream));
 
         EZ_VERIFY(AddState(std::move(pState)) == i, "Implementation error");
       }
@@ -230,21 +230,21 @@ ezResult ezStateMachineDescription::Deserialize(ezStreamReader& stream)
   // transitions
   {
     ezUInt32 uiNumTransitions = 0;
-    stream >> uiNumTransitions;
+    inout_stream >> uiNumTransitions;
 
     for (ezUInt32 i = 0; i < uiNumTransitions; ++i)
     {
       ezUInt32 uiFromStateIndex = 0;
       ezUInt32 uiToStateIndex = 0;
 
-      stream >> uiFromStateIndex;
-      stream >> uiToStateIndex;
+      inout_stream >> uiFromStateIndex;
+      inout_stream >> uiToStateIndex;
 
-      stream >> sTypeName;
+      inout_stream >> sTypeName;
       if (ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
       {
         ezUniquePtr<ezStateMachineTransition> pTransition = pType->GetAllocator()->Allocate<ezStateMachineTransition>();
-        EZ_SUCCEED_OR_RETURN(pTransition->Deserialize(stream));
+        EZ_SUCCEED_OR_RETURN(pTransition->Deserialize(inout_stream));
 
         AddTransition(uiFromStateIndex, uiToStateIndex, std::move(pTransition));
       }
@@ -261,8 +261,8 @@ ezResult ezStateMachineDescription::Deserialize(ezStreamReader& stream)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezStateMachineInstance::ezStateMachineInstance(ezReflectedClass& owner, const ezSharedPtr<const ezStateMachineDescription>& pDescription /*= nullptr*/)
-  : m_Owner(owner)
+ezStateMachineInstance::ezStateMachineInstance(ezReflectedClass& ref_owner, const ezSharedPtr<const ezStateMachineDescription>& pDescription /*= nullptr*/)
+  : m_Owner(ref_owner)
   , m_pDescription(pDescription)
 {
   if (pDescription != nullptr)
@@ -359,9 +359,9 @@ void ezStateMachineInstance::Update(ezTime deltaTime)
   m_TimeInCurrentState += deltaTime;
 }
 
-void ezStateMachineInstance::SetBlackboard(const ezSharedPtr<ezBlackboard>& blackboard)
+void ezStateMachineInstance::SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard)
 {
-  m_pBlackboard = blackboard;
+  m_pBlackboard = pBlackboard;
 }
 
 void ezStateMachineInstance::SetStateInternal(ezUInt32 uiStateIndex)
@@ -430,3 +430,6 @@ ezUInt32 ezStateMachineInstance::FindNewStateToTransitionTo()
 
   return ezInvalidIndex;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachine);

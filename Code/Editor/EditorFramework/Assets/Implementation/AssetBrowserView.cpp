@@ -6,8 +6,8 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 
-ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* parent)
-  : ezQtItemView<QListView>(parent)
+ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* pParent)
+  : ezQtItemView<QListView>(pParent)
 {
   m_iIconSizePercentage = 100;
   m_pDelegate = new ezQtIconViewDelegate(this);
@@ -102,25 +102,25 @@ void ezQtIconViewDelegate::SetIconScale(ezInt32 iIconSizePercentage)
   m_iIconSizePercentage = iIconSizePercentage;
 }
 
-bool ezQtIconViewDelegate::mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& opt, const QModelIndex& index)
+bool ezQtIconViewDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& opt, const QModelIndex& index)
 {
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
-  if (thumbnailRect.contains(event->localPos().toPoint()))
+  if (thumbnailRect.contains(pEvent->localPos().toPoint()))
   {
-    event->accept();
+    pEvent->accept();
     return true;
   }
   return false;
 }
 
-bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& opt, const QModelIndex& index)
+bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& opt, const QModelIndex& index)
 {
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
-  if (thumbnailRect.contains(event->localPos().toPoint()))
+  if (thumbnailRect.contains(pEvent->localPos().toPoint()))
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
 
@@ -136,17 +136,17 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
       ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
     }
 
-    event->accept();
+    pEvent->accept();
     return true;
   }
   return false;
 }
 
-void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
+void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
   if (!IsInIconMode())
   {
-    ezQtItemDelegate::paint(painter, opt, index);
+    ezQtItemDelegate::paint(pPainter, opt, index);
     return;
   }
 
@@ -154,11 +154,11 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
   // Prepare painter.
   {
-    painter->save();
+    pPainter->save();
     if (hasClipping())
-      painter->setClipRect(opt.rect);
+      pPainter->setClipRect(opt.rect);
 
-    painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+    pPainter->setRenderHint(QPainter::SmoothPixmapTransform, true);
   }
 
   // Draw highlight background (copy of QItemDelegate::drawBackground)
@@ -173,17 +173,17 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
       if (cg == QPalette::Normal && !(opt.state & QStyle::State_Active))
         cg = QPalette::Inactive;
 
-      painter->fillRect(highlightRect, opt.palette.brush(cg, QPalette::Highlight));
+      pPainter->fillRect(highlightRect, opt.palette.brush(cg, QPalette::Highlight));
     }
     else
     {
       QVariant value = index.data(Qt::BackgroundRole);
       if (value.canConvert<QBrush>())
       {
-        QPointF oldBO = painter->brushOrigin();
-        painter->setBrushOrigin(highlightRect.topLeft());
-        painter->fillRect(highlightRect, qvariant_cast<QBrush>(value));
-        painter->setBrushOrigin(oldBO);
+        QPointF oldBO = pPainter->brushOrigin();
+        pPainter->setBrushOrigin(highlightRect.topLeft());
+        pPainter->fillRect(highlightRect, qvariant_cast<QBrush>(value));
+        pPainter->setBrushOrigin(oldBO);
       }
     }
   }
@@ -193,7 +193,7 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin, 0, 0);
     thumbnailRect.setSize(QSize(uiThumbnailSize, uiThumbnailSize));
     QPixmap pixmap = qvariant_cast<QPixmap>(index.data(Qt::DecorationRole));
-    painter->drawPixmap(thumbnailRect, pixmap);
+    pPainter->drawPixmap(thumbnailRect, pixmap);
   }
 
   // Draw icon.
@@ -201,7 +201,7 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
     thumbnailRect.setSize(QSize(16, 16));
     QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIconPath));
-    icon.paint(painter, thumbnailRect);
+    icon.paint(pPainter, thumbnailRect);
   }
 
   // Draw Transform State Icon
@@ -215,28 +215,31 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     switch (state)
     {
       case ezAssetInfo::TransformState::Unknown:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(pPainter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::NeedsThumbnail:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png").paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png").paint(pPainter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::NeedsTransform:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(pPainter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::UpToDate:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(pPainter, thumbnailRect);
         break;
-      case ezAssetInfo::TransformState::MissingDependency:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(painter, thumbnailRect);
+      case ezAssetInfo::TransformState::MissingTransformDependency:
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(pPainter, thumbnailRect);
         break;
-      case ezAssetInfo::TransformState::MissingReference:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(painter, thumbnailRect);
+      case ezAssetInfo::TransformState::MissingThumbnailDependency:
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(pPainter, thumbnailRect);
+        break;
+      case ezAssetInfo::TransformState::CircularDependency:
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(pPainter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::TransformError:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(pPainter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::NeedsImport:
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport16.png").paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsImport16.png").paint(pPainter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::COUNT:
         break;
@@ -245,15 +248,15 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
   // Draw caption.
   {
-    painter->setFont(GetFont());
+    pPainter->setFont(GetFont());
     QRect textRect = opt.rect.adjusted(ItemSideMargin, ItemSideMargin + uiThumbnailSize + TextSpacing, -ItemSideMargin, -ItemSideMargin - TextSpacing);
 
     QString caption = qvariant_cast<QString>(index.data(Qt::DisplayRole));
-    painter->drawText(textRect, Qt::AlignHCenter | Qt::AlignTop | Qt::TextWrapAnywhere, caption);
+    pPainter->drawText(textRect, Qt::AlignHCenter | Qt::AlignTop | Qt::TextWrapAnywhere, caption);
   }
 
 
-  painter->restore();
+  pPainter->restore();
 }
 
 QSize ezQtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const

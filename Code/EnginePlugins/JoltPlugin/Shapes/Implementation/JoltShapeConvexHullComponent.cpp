@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltShapeConvexHullComponent, 1, ezComponentMode::Stat
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Convex")),
+    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
 }
@@ -25,21 +25,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltShapeConvexHullComponent::ezJoltShapeConvexHullComponent() = default;
 ezJoltShapeConvexHullComponent::~ezJoltShapeConvexHullComponent() = default;
 
-void ezJoltShapeConvexHullComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltShapeConvexHullComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hCollisionMesh;
 }
 
-void ezJoltShapeConvexHullComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltShapeConvexHullComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hCollisionMesh;
 }
@@ -86,15 +86,19 @@ void ezJoltShapeConvexHullComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>
   }
 }
 
-void ezJoltShapeConvexHullComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezJoltShapeConvexHullComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
     return;
 
   if (m_hCollisionMesh.IsValid())
   {
     ezResourceLock<ezJoltMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-    msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
+    ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeConvexHullComponent);
+

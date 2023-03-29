@@ -24,8 +24,8 @@ struct EZ_RENDERERCORE_DLL ezProbeTreeSectorResourceDescriptor
   void Clear();
   ezUInt64 GetHeapMemoryUsage() const;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 class EZ_RENDERERCORE_DLL ezProbeTreeSectorResource : public ezResource

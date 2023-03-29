@@ -111,7 +111,7 @@ void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount)
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount, const T& FillValue)
+void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount, const T& fillValue)
 {
   const ezUInt32 uiOldCount = m_uiCount;
   const ezUInt32 uiNewCount = uiCount;
@@ -119,7 +119,7 @@ void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount, const T& FillValue)
   if (uiNewCount > uiOldCount)
   {
     static_cast<Derived*>(this)->Reserve(uiNewCount);
-    ezMemoryUtils::CopyConstruct(static_cast<Derived*>(this)->GetElementsPtr() + uiOldCount, FillValue, uiNewCount - uiOldCount);
+    ezMemoryUtils::CopyConstruct(static_cast<Derived*>(this)->GetElementsPtr() + uiOldCount, fillValue, uiNewCount - uiOldCount);
   }
   else if (uiNewCount < uiOldCount)
   {
@@ -317,10 +317,10 @@ T& ezArrayBase<T, Derived>::ExpandAndGetRef()
 }
 
 template <typename T, typename Derived>
-T* ezArrayBase<T, Derived>::ExpandBy(ezUInt32 numNewItems)
+T* ezArrayBase<T, Derived>::ExpandBy(ezUInt32 uiNumNewItems)
 {
-  this->SetCount(this->GetCount() + numNewItems);
-  return GetArrayPtr().GetEndPtr() - numNewItems;
+  this->SetCount(this->GetCount() + uiNumNewItems);
+  return GetArrayPtr().GetEndPtr() - uiNumNewItems;
 }
 
 template <typename T, typename Derived>

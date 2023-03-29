@@ -36,7 +36,7 @@ private:
   };
 
   virtual void ProcessCommunicationChannelEventHandler(const ezProcessCommunicationChannel::Event& e) override;
-  WorkerOpInfo* GetOperation(const ezUuid& guid) const;
+  WorkerOpInfo* GetOperation(const ezUuid& opGuid) const;
   void LaunchWorkerOperation(WorkerOpInfo& opInfo, ezStreamReader& config);
   void WorkerProgressBarEventHandler(const ezProgressEvent& e);
   void RemoveOperation(ezUuid opGuid);

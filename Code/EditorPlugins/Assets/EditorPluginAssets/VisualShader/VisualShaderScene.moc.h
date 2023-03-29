@@ -13,7 +13,7 @@ class ezQtVisualShaderScene : public ezQtNodeScene
   Q_OBJECT
 
 public:
-  ezQtVisualShaderScene(QObject* parent = nullptr);
+  ezQtVisualShaderScene(QObject* pParent = nullptr);
   ~ezQtVisualShaderScene();
 };
 
@@ -23,7 +23,7 @@ public:
   ezQtVisualShaderPin();
 
   virtual void SetPin(const ezPin& pin) override;
-  virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+  virtual void paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget) override;
 };
 
 class ezQtVisualShaderNode : public ezQtNode

@@ -223,7 +223,7 @@ template <typename Type, ezCVarType::Enum CVarType>
 class ezTypedCVar : public ezCVar
 {
 public:
-  ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
+  ezTypedCVar(const char* szName, const Type& value, ezBitflags<ezCVarFlags> flags, const char* szDescription);
 
   /// \brief Returns the 'current' value of the CVar. Same as 'GetValue(ezCVarValue::Current)'
   operator const Type&() const; // [tested]

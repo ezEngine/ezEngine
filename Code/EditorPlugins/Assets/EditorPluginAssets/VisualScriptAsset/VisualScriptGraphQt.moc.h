@@ -15,7 +15,7 @@ class ezQtVisualScriptAssetScene : public ezQtNodeScene
   Q_OBJECT
 
 public:
-  ezQtVisualScriptAssetScene(QObject* parent = nullptr);
+  ezQtVisualScriptAssetScene(QObject* pParent = nullptr);
   ~ezQtVisualScriptAssetScene();
 
   void VisualScriptActivityEventHandler(const ezVisualScriptActivityEvent& ae);
@@ -44,7 +44,7 @@ public:
 class ezQtVisualScriptConnection : public ezQtConnection
 {
 public:
-  ezQtVisualScriptConnection(QGraphicsItem* parent = 0);
+  ezQtVisualScriptConnection(QGraphicsItem* pParent = 0);
 
   virtual QPen DeterminePen() const override;
 

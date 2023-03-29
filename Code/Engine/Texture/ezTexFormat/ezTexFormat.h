@@ -28,7 +28,7 @@ struct EZ_TEXTURE_DLL ezTexFormat
   // version 5
   int m_GalRenderTargetFormat = 0;
 
-  void WriteTextureHeader(ezStreamWriter& stream) const;
-  void WriteRenderTargetHeader(ezStreamWriter& stream) const;
-  void ReadHeader(ezStreamReader& stream);
+  void WriteTextureHeader(ezStreamWriter& inout_stream) const;
+  void WriteRenderTargetHeader(ezStreamWriter& inout_stream) const;
+  void ReadHeader(ezStreamReader& inout_stream);
 };

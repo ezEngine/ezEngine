@@ -20,8 +20,8 @@ namespace
   EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
 } // namespace
 
-ezRmlUiContext::ezRmlUiContext(const Rml::String& name)
-  : Rml::Context(name)
+ezRmlUiContext::ezRmlUiContext(const Rml::String& sName)
+  : Rml::Context(sName)
 {
 }
 
@@ -89,12 +89,12 @@ void ezRmlUiContext::HideDocument()
   }
 }
 
-void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
+void ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
 {
   float width = static_cast<float>(GetDimensions().x);
   float height = static_cast<float>(GetDimensions().y);
 
-  m_bWantsInput = mousePos.x >= 0.0f && mousePos.x <= width && mousePos.y >= 0.0f && mousePos.y <= height;
+  m_bWantsInput = vMousePos.x >= 0.0f && vMousePos.x <= width && vMousePos.y >= 0.0f && vMousePos.y <= height;
 
   const bool bCtrlPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
                             ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
@@ -110,7 +110,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
 
   // Mouse
   {
-    ProcessMouseMove(static_cast<int>(mousePos.x), static_cast<int>(mousePos.y), modifierState);
+    ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
 
     static const char* szMouseButtons[] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(szMouseButtons); ++i)
@@ -165,14 +165,14 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
   }
 }
 
-void ezRmlUiContext::SetOffset(const ezVec2I32& offset)
+void ezRmlUiContext::SetOffset(const ezVec2I32& vOffset)
 {
-  m_vOffset = offset;
+  m_vOffset = vOffset;
 }
 
-void ezRmlUiContext::SetSize(const ezVec2U32& size)
+void ezRmlUiContext::SetSize(const ezVec2U32& vSize)
 {
-  SetDimensions(Rml::Vector2i(size.x, size.y));
+  SetDimensions(Rml::Vector2i(vSize.x, vSize.y));
 }
 
 void ezRmlUiContext::SetDpiScale(float fScale)
@@ -219,14 +219,14 @@ void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Event&
 
 //////////////////////////////////////////////////////////////////////////
 
-Rml::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& name)
+Rml::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& sName)
 {
-  return Rml::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, name));
+  return Rml::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, sName));
 }
 
-void ezRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Context* context)
+void ezRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Context* pContext)
 {
-  EZ_DEFAULT_DELETE(context);
+  EZ_DEFAULT_DELETE(pContext);
 }
 
 void ezRmlUiInternal::ContextInstancer::Release()

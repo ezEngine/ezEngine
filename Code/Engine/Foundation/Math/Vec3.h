@@ -23,10 +23,10 @@ public:
   ezVec3Template(); // [tested]
 
   /// \brief Initializes the vector with x,y,z
-  ezVec3Template(Type X, Type Y, Type Z); // [tested]
+  ezVec3Template(Type x, Type y, Type z); // [tested]
 
   /// \brief Initializes all 3 components with xyz
-  explicit ezVec3Template(Type xyz); // [tested]
+  explicit ezVec3Template(Type v); // [tested]
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   /// \brief Returns a vector with all components set to zero.
@@ -173,7 +173,7 @@ public:
   const ezVec3Template<Type> CompMax(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise clamped value of *this between low and high.
-  const ezVec3Template<Type> CompClamp(const ezVec3Template<Type>& low, const ezVec3Template<Type>& high) const; // [tested]
+  const ezVec3Template<Type> CompClamp(const ezVec3Template<Type>& vLow, const ezVec3Template<Type>& vHigh) const; // [tested]
 
   /// \brief Returns the component-wise multiplication of *this and rhs
   const ezVec3Template<Type> CompMul(const ezVec3Template<Type>& rhs) const; // [tested]
@@ -206,27 +206,27 @@ public:
   const ezVec3Template<Type> GetRefractedVector(const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const;
 
   /// \brief Sets the vector to a random point inside a unit sphere (radius 1).
-  static ezVec3Template<Type> CreateRandomPointInSphere(ezRandom& rng); // [tested]
+  static ezVec3Template<Type> CreateRandomPointInSphere(ezRandom& inout_rng); // [tested]
 
   /// \brief Creates a random direction vector. The vector is normalized.
-  static ezVec3Template<Type> CreateRandomDirection(ezRandom& rng); // [tested]
+  static ezVec3Template<Type> CreateRandomDirection(ezRandom& inout_rng); // [tested]
 
   /// \brief Creates a random vector around the x axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template<Type> CreateRandomDeviationX(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the y axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template<Type> CreateRandomDeviationY(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the z axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template<Type> CreateRandomDeviationZ(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the given normal with a maximum deviation.
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
-  static ezVec3Template<Type> CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
 };
 
 // *** Operators ***

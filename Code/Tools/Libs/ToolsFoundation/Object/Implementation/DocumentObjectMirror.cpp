@@ -26,19 +26,19 @@ ezObjectChange::ezObjectChange(const ezObjectChange&)
   EZ_REPORT_FAILURE("Not supported!");
 }
 
-void ezObjectChange::GetGraph(ezAbstractObjectGraph& graph) const
+void ezObjectChange::GetGraph(ezAbstractObjectGraph& ref_graph) const
 {
-  graph.Clear();
+  ref_graph.Clear();
 
   ezRawMemoryStreamReader reader(m_GraphData);
-  ezAbstractGraphBinarySerializer::Read(reader, &graph);
+  ezAbstractGraphBinarySerializer::Read(reader, &ref_graph);
 }
 
-void ezObjectChange::SetGraph(ezAbstractObjectGraph& graph)
+void ezObjectChange::SetGraph(ezAbstractObjectGraph& ref_graph)
 {
   ezContiguousMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
-  ezAbstractGraphBinarySerializer::Write(writer, &graph);
+  ezAbstractGraphBinarySerializer::Write(writer, &ref_graph);
 
   m_GraphData = {storage.GetData(), storage.GetStorageSize32()};
 }
@@ -445,7 +445,7 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
     return;
   }
   propPath.WriteToLeafObject(
-            object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& pType) { ApplyOp(ezRttiConverterObject(&pType, pLeaf), change); })
+            object.m_pObject, *object.m_pType, [this, &change](void* pLeaf, const ezRTTI& type) { ApplyOp(ezRttiConverterObject(&type, pLeaf), change); })
     .IgnoreResult();
 }
 

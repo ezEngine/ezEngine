@@ -351,10 +351,16 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
+  if (!m_bIsRenderTarget)
+  {
+    // every 2D texture also generates a "-lowres" output, which is used to be embedded into materials for quick streaming
+    pInfo->m_Outputs.Insert("LOWRES");
+  }
+
   for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
   {
     // remove unused dependencies
-    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile(i));
+    pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile(i));
   }
 }
 
@@ -376,6 +382,12 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
 ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
+  if (ezStringUtils::IsEqual(szOutputTag, "LOWRES"))
+  {
+    // no need to generate this file, it will be generated together with the main output
+    return ezTransformStatus();
+  }
+
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
   const auto* pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
@@ -518,15 +530,16 @@ ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
   AddSupportedFileType("dds");
   AddSupportedFileType("jpg");
   AddSupportedFileType("jpeg");
-  AddSupportedFileType("hdr");
   AddSupportedFileType("png");
+  AddSupportedFileType("hdr");
+  AddSupportedFileType("exr");
 }
 
 ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator() = default;
 
-void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
 
   ezStringBuilder baseFilename = baseOutputFile.GetFileName();
 
@@ -551,7 +564,11 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   TextureType tt = TextureType::Diffuse;
 
-  if (ezPathUtils::HasExtension(szParentDirRelativePath, "hdr"))
+  if (ezPathUtils::HasExtension(sParentDirRelativePath, "hdr"))
+  {
+    tt = TextureType::HDR;
+  }
+  else if (ezPathUtils::HasExtension(sParentDirRelativePath, "exr"))
   {
     tt = TextureType::HDR;
   }
@@ -588,7 +605,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
     tt = TextureType::Linear;
   }
 
-  ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+  ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
   info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
   info.m_sOutputFileParentRelative = baseOutputFile;
 
@@ -663,7 +680,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::Diffuse)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Diffuse";
@@ -672,7 +689,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::Linear)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Linear";
@@ -681,7 +698,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::Normal)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Normal";
@@ -690,7 +707,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::Metalness)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Metalness";
@@ -699,7 +716,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::Roughness)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Roughness";
@@ -708,7 +725,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::Occlusion)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Occlusion";
@@ -717,7 +734,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::ORM)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.ORM";
@@ -726,7 +743,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
   if (tt != TextureType::Height)
   {
-    ezAssetDocumentGenerator::Info& info2 = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info2 = out_modes.ExpandAndGetRef();
     info2.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info2.m_sOutputFileParentRelative = baseOutputFile;
     info2.m_sName = "TextureImport.Height";
@@ -734,7 +751,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
   }
 }
 
-ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -747,7 +764,7 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szDataDirRelative
     return ezStatus("Target document is not a valid ezTextureAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("Input1", szDataDirRelativePath);
+  accessor.SetValue("Input1", sDataDirRelativePath);
   accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
   accessor.SetValue("Usage", (int)ezTexConvUsage::Linear);
 

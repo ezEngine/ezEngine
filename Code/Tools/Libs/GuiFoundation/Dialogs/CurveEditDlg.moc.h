@@ -13,7 +13,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditDlg : public QDialog, Ui_CurveEditDlg
 {
   Q_OBJECT
 public:
-  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* parent);
+  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent);
   ~ezQtCurveEditDlg();
 
   static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }

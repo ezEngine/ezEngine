@@ -8,8 +8,8 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 
-ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent)
-  : QWidget(parent)
+ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
+  : QWidget(pParent)
 {
   m_uiKnownAssetFolderCount = 0;
   m_bDialogMode = false;
@@ -19,10 +19,9 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* parent)
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
 
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-
-  ListTypeFilter->setVisible(!pPreferences->m_bAssetFilterCombobox);
-  TypeFilter->setVisible(pPreferences->m_bAssetFilterCombobox);
+  const bool bAssetFilterCombobox = true;
+  ListTypeFilter->setVisible(!bAssetFilterCombobox);
+  TypeFilter->setVisible(bAssetFilterCombobox);
 
   m_pFilter = new ezQtAssetBrowserFilter(this);
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);

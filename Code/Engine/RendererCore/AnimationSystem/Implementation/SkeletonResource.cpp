@@ -104,58 +104,58 @@ ezUInt64 ezSkeletonResourceDescriptor::GetHeapMemoryUsage() const
   return m_Geometry.GetHeapMemoryUsage() + m_Skeleton.GetHeapMemoryUsage();
 }
 
-ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& stream) const
+ezResult ezSkeletonResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(6);
+  inout_stream.WriteVersion(6);
 
-  m_Skeleton.Save(stream);
-  stream << m_RootTransform;
+  m_Skeleton.Save(inout_stream);
+  inout_stream << m_RootTransform;
 
   const ezUInt16 uiNumGeom = static_cast<ezUInt16>(m_Geometry.GetCount());
-  stream << uiNumGeom;
+  inout_stream << uiNumGeom;
 
   for (ezUInt32 i = 0; i < uiNumGeom; ++i)
   {
     const auto& geo = m_Geometry[i];
 
-    stream << geo.m_uiAttachedToJoint;
-    stream << geo.m_Type;
-    stream << geo.m_Transform;
-    stream << geo.m_sName;
-    stream << geo.m_hSurface;
-    stream << geo.m_uiCollisionLayer;
+    inout_stream << geo.m_uiAttachedToJoint;
+    inout_stream << geo.m_Type;
+    inout_stream << geo.m_Transform;
+    inout_stream << geo.m_sName;
+    inout_stream << geo.m_hSurface;
+    inout_stream << geo.m_uiCollisionLayer;
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& stream)
+ezResult ezSkeletonResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = stream.ReadVersion(6);
+  const ezTypeVersion version = inout_stream.ReadVersion(6);
 
   if (version != 6)
     return EZ_FAILURE;
 
-  m_Skeleton.Load(stream);
+  m_Skeleton.Load(inout_stream);
 
-  stream >> m_RootTransform;
+  inout_stream >> m_RootTransform;
 
   m_Geometry.Clear();
 
   ezUInt16 uiNumGeom = 0;
-  stream >> uiNumGeom;
+  inout_stream >> uiNumGeom;
   m_Geometry.Reserve(uiNumGeom);
 
   for (ezUInt32 i = 0; i < uiNumGeom; ++i)
   {
     auto& geo = m_Geometry.ExpandAndGetRef();
 
-    stream >> geo.m_uiAttachedToJoint;
-    stream >> geo.m_Type;
-    stream >> geo.m_Transform;
-    stream >> geo.m_sName;
-    stream >> geo.m_hSurface;
-    stream >> geo.m_uiCollisionLayer;
+    inout_stream >> geo.m_uiAttachedToJoint;
+    inout_stream >> geo.m_Type;
+    inout_stream >> geo.m_Transform;
+    inout_stream >> geo.m_sName;
+    inout_stream >> geo.m_hSurface;
+    inout_stream >> geo.m_uiCollisionLayer;
   }
 
   return EZ_SUCCESS;

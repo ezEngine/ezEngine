@@ -41,7 +41,7 @@ bool ezProcGenNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
   return pObject->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezProcGenNodeBase>());
 }
 
-void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node)
+void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
 {
   const ezRTTI* pNodeBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
@@ -70,24 +70,24 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
     if (pPropType->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
-      node.m_Inputs.PushBack(pPin);
+      ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pPropType->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
-      node.m_Outputs.PushBack(pPin);
+      ref_node.m_Outputs.PushBack(pPin);
     }
   }
 }
 
-void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
+void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
   const ezRTTI* pNodeBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
   for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
   {
     if (it->IsDerivedFrom(pNodeBaseType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
-      Types.PushBack(it);
+      ref_types.PushBack(it);
   }
 }
 
@@ -101,8 +101,8 @@ const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
   return nullptr;
 }
 
-ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
+ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
 {
-  out_Result = CanConnectResult::ConnectNto1;
+  out_result = CanConnectResult::ConnectNto1;
   return ezStatus(EZ_SUCCESS);
 }

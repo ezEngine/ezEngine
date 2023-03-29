@@ -8,16 +8,16 @@
 ezNonUniformBoxManipulatorAdapter::ezNonUniformBoxManipulatorAdapter() = default;
 ezNonUniformBoxManipulatorAdapter::~ezNonUniformBoxManipulatorAdapter() = default;
 
-void ezNonUniformBoxManipulatorAdapter::QueryGridSettings(ezGridSettingsMsgToEngine& outGridSettings)
+void ezNonUniformBoxManipulatorAdapter::QueryGridSettings(ezGridSettingsMsgToEngine& out_gridSettings)
 {
-  outGridSettings.m_vGridCenter = m_Gizmo.GetTransformation().m_vPosition;
+  out_gridSettings.m_vGridCenter = m_Gizmo.GetTransformation().m_vPosition;
 
   // if density != 0, it is enabled at least in ortho mode
-  outGridSettings.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue();
+  out_gridSettings.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue();
 
   // to be active in perspective mode, tangents have to be non-zero
-  outGridSettings.m_vGridTangent1.SetZero();
-  outGridSettings.m_vGridTangent2.SetZero();
+  out_gridSettings.m_vGridTangent1.SetZero();
+  out_gridSettings.m_vGridTangent2.SetZero();
 }
 
 void ezNonUniformBoxManipulatorAdapter::Finalize()

@@ -17,14 +17,14 @@ struct EZ_TYPESCRIPTPLUGIN_DLL ezScriptCompendiumResourceDesc
     ezString m_sComponentTypeName;
     ezString m_sComponentFilePath;
 
-    ezResult Serialize(ezStreamWriter& stream) const;
-    ezResult Deserialize(ezStreamReader& stream);
+    ezResult Serialize(ezStreamWriter& inout_stream) const;
+    ezResult Deserialize(ezStreamReader& inout_stream);
   };
 
   ezMap<ezUuid, ComponentTypeInfo> m_AssetGuidToInfo;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 class EZ_TYPESCRIPTPLUGIN_DLL ezScriptCompendiumResource : public ezResource

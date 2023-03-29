@@ -34,11 +34,11 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezPxShapeComponent::ezPxShapeComponent() = default;
 ezPxShapeComponent::~ezPxShapeComponent() = default;
 
-void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxShapeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hSurface;
   s << m_uiCollisionLayer;
@@ -48,12 +48,12 @@ void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxShapeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxShapeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hSurface;
   s >> m_uiCollisionLayer;
@@ -129,10 +129,10 @@ const char* ezPxShapeComponent::GetSurfaceFile() const
   return m_hSurface.GetResourceID();
 }
 
-void ezPxShapeComponent::SetInitialShapeId(ezUInt32 id)
+void ezPxShapeComponent::SetInitialShapeId(ezUInt32 uiId)
 {
   EZ_ASSERT_DEV(m_uiShapeId == ezInvalidIndex, "ezPxShapeComponent::SetInitialShapeId() can only be called before the component has been activated.");
-  m_uiShapeId = id;
+  m_uiShapeId = uiId;
 }
 
 void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform& parentTransform)
@@ -175,7 +175,7 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
   }
 }
 
-void ezPxShapeComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const {}
+void ezPxShapeComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const {}
 
 PxMaterial* ezPxShapeComponent::GetPxMaterial()
 {

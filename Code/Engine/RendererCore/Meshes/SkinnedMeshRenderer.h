@@ -13,7 +13,7 @@ public:
   ~ezSkinnedMeshRenderer();
 
   // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
+  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
 
 protected:
   virtual void SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const override;

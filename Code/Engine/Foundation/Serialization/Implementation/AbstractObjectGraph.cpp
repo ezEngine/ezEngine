@@ -46,9 +46,9 @@ void ezAbstractObjectGraph::Clear()
 }
 
 
-ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneTarget, const ezAbstractObjectNode* pRootNode, FilterFunction filter) const
+ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& ref_cloneTarget, const ezAbstractObjectNode* pRootNode, FilterFunction filter) const
 {
-  cloneTarget.Clear();
+  ref_cloneTarget.Clear();
 
   if (pRootNode == nullptr)
   {
@@ -56,11 +56,11 @@ ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneT
     {
       if (filter.IsValid())
       {
-        cloneTarget.CopyNodeIntoGraph(it.Value(), filter);
+        ref_cloneTarget.CopyNodeIntoGraph(it.Value(), filter);
       }
       else
       {
-        cloneTarget.CopyNodeIntoGraph(it.Value());
+        ref_cloneTarget.CopyNodeIntoGraph(it.Value());
       }
     }
     return nullptr;
@@ -77,16 +77,16 @@ ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& cloneT
       {
         if (filter.IsValid())
         {
-          cloneTarget.CopyNodeIntoGraph(pNode, filter);
+          ref_cloneTarget.CopyNodeIntoGraph(pNode, filter);
         }
         else
         {
-          cloneTarget.CopyNodeIntoGraph(pNode);
+          ref_cloneTarget.CopyNodeIntoGraph(pNode);
         }
       }
     }
 
-    return cloneTarget.GetNode(pRootNode->GetGuid());
+    return ref_cloneTarget.GetNode(pRootNode->GetGuid());
   }
 }
 
@@ -324,12 +324,12 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
 }
 
 
-void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot)
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* pRoot, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* pRhsRoot)
 {
   ezHashTable<ezUuid, ezUuid> guidMap;
-  EZ_ASSERT_DEV(ezStringUtils::IsEqual(root->GetType(), rhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
+  EZ_ASSERT_DEV(ezStringUtils::IsEqual(pRoot->GetType(), pRhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
 
-  ReMapNodeGuidsToMatchGraphRecursive(guidMap, root, rhsGraph, rhsRoot);
+  ReMapNodeGuidsToMatchGraphRecursive(guidMap, pRoot, rhsGraph, pRhsRoot);
 
   // go through all nodes to remap remaining occurrences of remapped guids
   for (auto it : m_Nodes)
@@ -453,9 +453,9 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUu
 }
 
 
-void ezAbstractObjectGraph::FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezUuid>& reachableNodes) const
+void ezAbstractObjectGraph::FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezUuid>& ref_reachableNodes) const
 {
-  reachableNodes.Clear();
+  ref_reachableNodes.Clear();
   ezSet<ezUuid> inProgress;
   inProgress.Insert(rootGuid);
 
@@ -471,7 +471,7 @@ void ezAbstractObjectGraph::FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezU
         if (prop.m_Value.IsA<ezUuid>())
         {
           const ezUuid& guid = prop.m_Value.Get<ezUuid>();
-          if (!reachableNodes.Contains(guid))
+          if (!ref_reachableNodes.Contains(guid))
           {
             inProgress.Insert(guid);
           }
@@ -485,7 +485,7 @@ void ezAbstractObjectGraph::FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezU
             if (subValue.IsA<ezUuid>())
             {
               const ezUuid& guid = subValue.Get<ezUuid>();
-              if (!reachableNodes.Contains(guid))
+              if (!ref_reachableNodes.Contains(guid))
               {
                 inProgress.Insert(guid);
               }
@@ -500,7 +500,7 @@ void ezAbstractObjectGraph::FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezU
             if (subValue.Value().IsA<ezUuid>())
             {
               const ezUuid& guid = subValue.Value().Get<ezUuid>();
-              if (!reachableNodes.Contains(guid))
+              if (!ref_reachableNodes.Contains(guid))
               {
                 inProgress.Insert(guid);
               }
@@ -510,7 +510,7 @@ void ezAbstractObjectGraph::FindTransitiveHull(const ezUuid& rootGuid, ezSet<ezU
       }
     }
     // Even if 'current' is not in the graph add it anyway to early out if it is found again.
-    reachableNodes.Insert(current);
+    ref_reachableNodes.Insert(current);
     inProgress.Remove(current);
   }
 }
@@ -588,15 +588,15 @@ ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractO
   return pNewNode;
 }
 
-ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractObjectNode* pNode, FilterFunction& filter)
+ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractObjectNode* pNode, FilterFunction& ref_filter)
 {
   auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetTypeVersion(), pNode->GetNodeName());
 
-  if (filter.IsValid())
+  if (ref_filter.IsValid())
   {
     for (const auto& props : pNode->GetProperties())
     {
-      if (!filter(pNode, &props))
+      if (!ref_filter(pNode, &props))
         continue;
       pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
     }
@@ -610,9 +610,9 @@ ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractO
   return pNewNode;
 }
 
-void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
+void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_diffResult) const
 {
-  out_DiffResult.Clear();
+  out_diffResult.Clear();
 
   // check whether any nodes have been deleted
   {
@@ -627,7 +627,7 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
         op.m_sProperty = itNodeBase.Value()->m_szType;
         op.m_Value = itNodeBase.Value()->m_szNodeName;
 
-        out_DiffResult.PushBack(op);
+        out_diffResult.PushBack(op);
       }
     }
   }
@@ -645,7 +645,7 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
         op.m_sProperty = itNodeThis.Value()->m_szType;
         op.m_Value = itNodeThis.Value()->m_szNodeName;
 
-        out_DiffResult.PushBack(op);
+        out_diffResult.PushBack(op);
 
         // set all properties
         for (const auto& prop : itNodeThis.Value()->GetProperties())
@@ -654,7 +654,7 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
           op.m_sProperty = prop.m_szPropertyName;
           op.m_Value = prop.m_Value;
 
-          out_DiffResult.PushBack(op);
+          out_diffResult.PushBack(op);
         }
       }
     }
@@ -696,7 +696,7 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
           op.m_sProperty = prop.m_szPropertyName;
           op.m_Value = prop.m_Value;
 
-          out_DiffResult.PushBack(op);
+          out_diffResult.PushBack(op);
         }
       }
     }
@@ -704,9 +704,9 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
 }
 
 
-void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff)
+void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& ref_diff)
 {
-  for (const auto& op : Diff)
+  for (const auto& op : ref_diff)
   {
     switch (op.m_Operation)
     {
@@ -741,7 +741,7 @@ void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Dif
 }
 
 
-void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out) const
+void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& ref_out) const
 {
   struct Prop
   {
@@ -773,12 +773,12 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
     if (op.m_Operation == ezAbstractGraphDiffOperation::Op::NodeRemoved)
     {
       removed.Insert(op.m_Node);
-      out.PushBack(op);
+      ref_out.PushBack(op);
     }
     else if (op.m_Operation == ezAbstractGraphDiffOperation::Op::NodeAdded)
     {
-      added[op.m_Node] = out.GetCount();
-      out.PushBack(op);
+      added[op.m_Node] = ref_out.GetCount();
+      ref_out.PushBack(op);
     }
     else if (op.m_Operation == ezAbstractGraphDiffOperation::Op::PropertyChanged)
     {
@@ -791,18 +791,18 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
     if (op.m_Operation == ezAbstractGraphDiffOperation::Op::NodeRemoved)
     {
       if (!removed.Contains(op.m_Node))
-        out.PushBack(op);
+        ref_out.PushBack(op);
     }
     else if (op.m_Operation == ezAbstractGraphDiffOperation::Op::NodeAdded)
     {
       if (added.Contains(op.m_Node))
       {
-        ezAbstractGraphDiffOperation& leftOp = out[added[op.m_Node]];
+        ezAbstractGraphDiffOperation& leftOp = ref_out[added[op.m_Node]];
         leftOp.m_sProperty = op.m_sProperty; // Take type from rhs.
       }
       else
       {
-        out.PushBack(op);
+        ref_out.PushBack(op);
       }
     }
     else if (op.m_Operation == ezAbstractGraphDiffOperation::Op::PropertyChanged)
@@ -819,7 +819,7 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
 
     if (value.GetCount() == 1)
     {
-      out.PushBack(*value[0]);
+      ref_out.PushBack(*value[0]);
     }
     else
     {
@@ -842,22 +842,22 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
             const ezVariantArray& baseArray = pProperty->m_Value.Get<ezVariantArray>();
             ezVariantArray res;
             MergeArrays(baseArray, leftArray, rightArray, res);
-            out.PushBack(rightProp);
-            out.PeekBack().m_Value = res;
+            ref_out.PushBack(rightProp);
+            ref_out.PeekBack().m_Value = res;
           }
           else
           {
-            out.PushBack(rightProp);
+            ref_out.PushBack(rightProp);
           }
         }
         else
         {
-          out.PushBack(rightProp);
+          ref_out.PushBack(rightProp);
         }
       }
       else
       {
-        out.PushBack(rightProp);
+        ref_out.PushBack(rightProp);
       }
     }
   }

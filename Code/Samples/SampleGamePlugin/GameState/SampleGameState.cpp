@@ -120,8 +120,6 @@ void SampleGameState::BeforeWorldUpdate()
 #endif
 }
 
-
-
 ezGameStatePriority SampleGameState::DeterminePriority(ezWorld* pWorld) const
 {
   return ezGameStatePriority::Default;

@@ -54,7 +54,7 @@ public:
   /// Fixed time stepping allows to run the simulation at a constant rate, which is useful
   /// for recording videos or to step subsystems that require constant steps.
   /// Clock speed, pause and min/max time step are still being applied even when the time step is fixed.
-  void SetFixedTimeStep(ezTime tDiff = ezTime()); // [tested]
+  void SetFixedTimeStep(ezTime diff = ezTime()); // [tested]
 
   /// \brief Returns the value for the fixed time step (zero if it is disabled).
   ezTime GetFixedTimeStep() const; // [tested]
@@ -93,7 +93,7 @@ public:
   /// When a custom time step smoother is set, that class needs to apply the clock speed AND also clamp
   /// the value to the min/max time step (which means it can ignore or override that feature).
   /// When the clock is paused, it will always return a time step of zero.
-  void SetMinimumTimeStep(ezTime tMin); // [tested]
+  void SetMinimumTimeStep(ezTime min); // [tested]
 
   /// \brief Sets the maximum time that may pass between clock updates.
   ///
@@ -102,7 +102,7 @@ public:
   /// When a custom time step smoother is set, that class needs to apply the clock speed AND also clamp
   /// the value to the min/max time step (which means it can ignore or override that feature).
   /// \sa SetMinimumTimeStep
-  void SetMaximumTimeStep(ezTime tMax); // [tested]
+  void SetMaximumTimeStep(ezTime max); // [tested]
 
   /// \brief Returns the value for the minimum time step.
   /// \sa SetMinimumTimeStep
@@ -113,10 +113,10 @@ public:
   ezTime GetMaximumTimeStep() const; // [tested]
 
   /// \brief Serializes the current clock state to a stream.
-  void Save(ezStreamWriter& Stream) const;
+  void Save(ezStreamWriter& inout_stream) const;
 
   /// \brief Deserializes the current clock state from a stream.
-  void Load(ezStreamReader& Stream);
+  void Load(ezStreamReader& inout_stream);
 
   /// \brief Sets the name of the clock. Useful to identify the clock in tools such as ezInspector.
   void SetClockName(const char* szName);
@@ -187,7 +187,7 @@ public:
   /// \note It is the responsibility of each ezTimeStepSmoothing class to implement
   /// clock speed and also to clamp the time step to the min/max values.
   /// This allows the smoothing algorithm to override these values, if necessary.
-  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) = 0;
+  virtual ezTime GetSmoothedTimeStep(ezTime rawTimeStep, const ezClock* pClock) = 0;
 
   /// \brief Called when ezClock::Reset(), ezClock::Load() or ezClock::SetPaused(true) was called.
   ///

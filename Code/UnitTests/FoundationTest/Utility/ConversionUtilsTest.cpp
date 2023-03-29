@@ -569,18 +569,45 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertHexStringToUInt32")
   {
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32(""), 0);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0x"), 0);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0"), 0);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0x0"), 0);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("a"), 10);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0xb"), 11);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("000c"), 12);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("AA"), 170);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("aAbB"), 43707);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("FFFFffff"), 4294967295);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0000FFFFffff"), 4294967295);
-    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("100000000"), 0);
+    ezUInt32 res;
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("", res).Succeeded());
+    EZ_TEST_BOOL(res == 0);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("0x", res).Succeeded());
+    EZ_TEST_BOOL(res == 0);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("0", res).Succeeded());
+    EZ_TEST_BOOL(res == 0);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("0x0", res).Succeeded());
+    EZ_TEST_BOOL(res == 0);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("a", res).Succeeded());
+    EZ_TEST_BOOL(res == 10);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("0xb", res).Succeeded());
+    EZ_TEST_BOOL(res == 11);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("000c", res).Succeeded());
+    EZ_TEST_BOOL(res == 12);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("AA", res).Succeeded());
+    EZ_TEST_BOOL(res == 170);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("aAjbB", res).Failed());
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("aAbB", res).Succeeded());
+    EZ_TEST_BOOL(res == 43707);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("FFFFffff", res).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFFF);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("0000FFFFffff", res).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFF);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt32("100000000", res).Succeeded());
+    EZ_TEST_BOOL(res == 0x10000000);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertHexStringToUInt64")
@@ -713,8 +740,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorName")
   {
-    EZ_TEST_STRING(ezConversionUtils::GetColorName(ezColorGammaUB(1, 2, 3)), "#010203");
-    EZ_TEST_STRING(ezConversionUtils::GetColorName(ezColorGammaUB(10, 20, 30, 40)), "#0A141E28");
+    EZ_TEST_STRING(ezString(ezConversionUtils::GetColorName(ezColorGammaUB(1, 2, 3))), "#010203");
+    EZ_TEST_STRING(ezString(ezConversionUtils::GetColorName(ezColorGammaUB(10, 20, 30, 40))), "#0A141E28");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorByName")

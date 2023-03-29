@@ -11,18 +11,23 @@ public:
   ezExpressionCompiler();
   ~ezExpressionCompiler();
 
-  ezResult Compile(ezExpressionAST& ast, ezExpressionByteCode& out_byteCode);
+  ezResult Compile(ezExpressionAST& ref_ast, ezExpressionByteCode& out_byteCode, ezStringView sDebugAstOutputPath = ezStringView());
 
 private:
-  ezResult TransformAndOptimizeAST(ezExpressionAST& ast);
+  ezResult TransformAndOptimizeAST(ezExpressionAST& ast, ezStringView sDebugAstOutputPath);
   ezResult BuildNodeInstructions(const ezExpressionAST& ast);
   ezResult UpdateRegisterLifetime(const ezExpressionAST& ast);
   ezResult AssignRegisters();
   ezResult GenerateByteCode(const ezExpressionAST& ast, ezExpressionByteCode& out_byteCode);
+  ezResult GenerateConstantByteCode(const ezExpressionAST::Constant* pConstant, ezExpressionByteCode& out_byteCode);
 
   using TransformFunc = ezDelegate<ezExpressionAST::Node*(ezExpressionAST::Node*)>;
   ezResult TransformASTPreOrder(ezExpressionAST& ast, TransformFunc func);
   ezResult TransformASTPostOrder(ezExpressionAST& ast, TransformFunc func);
+  ezResult TransformNode(ezExpressionAST::Node*& pNode, TransformFunc& func);
+  ezResult TransformOutputNode(ezExpressionAST::Output*& pOutputNode, TransformFunc& func);
+
+  void DumpAST(const ezExpressionAST& ast, ezStringView sOutputPath, ezStringView sSuffix);
 
   ezHybridArray<ezExpressionAST::Node*, 64> m_NodeStack;
   ezHybridArray<ezExpressionAST::Node*, 64> m_NodeInstructions;

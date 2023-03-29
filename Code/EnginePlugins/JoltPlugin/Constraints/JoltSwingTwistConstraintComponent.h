@@ -12,8 +12,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltSwingTwistConstraintComponent : public ezJoltConst
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,7 @@ public:
   ~ezJoltSwingTwistConstraintComponent();
 
   virtual void ApplySettings() final override;
+  virtual bool ExceededBreakingPoint() final override;
 
   void SetSwingLimitY(ezAngle f);                          // [ property ]
   ezAngle GetSwingLimitY() const { return m_SwingLimitY; } // [ property ]

@@ -17,11 +17,11 @@ ezStateMachineResource::ezStateMachineResource()
 
 ezStateMachineResource::~ezStateMachineResource() = default;
 
-ezUniquePtr<ezStateMachineInstance> ezStateMachineResource::CreateInstance(ezReflectedClass& owner)
+ezUniquePtr<ezStateMachineInstance> ezStateMachineResource::CreateInstance(ezReflectedClass& ref_owner)
 {
   if (m_pDescription != nullptr)
   {
-    return EZ_DEFAULT_NEW(ezStateMachineInstance, owner, m_pDescription);
+    return EZ_DEFAULT_NEW(ezStateMachineInstance, ref_owner, m_pDescription);
   }
 
   return nullptr;
@@ -80,3 +80,6 @@ void ezStateMachineResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = 0;
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineResource);

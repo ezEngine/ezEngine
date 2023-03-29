@@ -2,11 +2,11 @@
 
 template <class CellData>
 void ezGridNavmesh::CreateFromGrid(
-  const ezGameGrid<CellData>& Grid, CellComparator IsSameCellType, void* pPassThrough, CellBlocked IsCellBlocked, void* pPassThrough2)
+  const ezGameGrid<CellData>& grid, CellComparator isSameCellType, void* pPassThrough, CellBlocked isCellBlocked, void* pPassThrough2)
 {
-  m_NodesGrid.CreateGrid(Grid.GetGridSizeX(), Grid.GetGridSizeY());
+  m_NodesGrid.CreateGrid(grid.GetGridSizeX(), grid.GetGridSizeY());
 
-  UpdateRegion(ezRectU32(Grid.GetGridSizeX(), Grid.GetGridSizeY()), IsSameCellType, pPassThrough, IsCellBlocked, pPassThrough2);
+  UpdateRegion(ezRectU32(grid.GetGridSizeX(), grid.GetGridSizeY()), isSameCellType, pPassThrough, isCellBlocked, pPassThrough2);
 
   CreateGraphEdges();
 }

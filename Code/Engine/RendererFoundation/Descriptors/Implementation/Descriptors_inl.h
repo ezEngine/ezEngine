@@ -31,9 +31,9 @@ inline ezGALShaderCreationDescription::~ezGALShaderCreationDescription()
   }
 }
 
-inline bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum Stage) const
+inline bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum stage) const
 {
-  return m_ByteCodes[Stage] != nullptr && m_ByteCodes[Stage]->IsValid();
+  return m_ByteCodes[stage] != nullptr && m_ByteCodes[stage]->IsValid();
 }
 
 inline void ezGALTextureCreationDescription::SetAsRenderTarget(
@@ -57,9 +57,9 @@ inline void ezGALTextureCreationDescription::SetAsRenderTarget(
 }
 
 EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute(
-  ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData)
-  : m_eSemantic(eSemantic)
-  , m_eFormat(eFormat)
+  ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData)
+  : m_eSemantic(semantic)
+  , m_eFormat(format)
   , m_uiOffset(uiOffset)
   , m_uiVertexBufferSlot(uiVertexBufferSlot)
   , m_bInstanceData(bInstanceData)

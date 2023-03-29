@@ -131,36 +131,36 @@ void ezSelectionManager::SetSelection(const ezDocumentObject* pSingleObject)
   SetSelection(objs);
 }
 
-void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& Selection)
+void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& selection)
 {
-  if (Selection.IsEmpty())
+  if (selection.IsEmpty())
   {
     Clear();
     return;
   }
 
-  if (m_pSelectionStorage->m_SelectionList == Selection)
+  if (m_pSelectionStorage->m_SelectionList == selection)
     return;
 
   m_pSelectionStorage->m_SelectionList.Clear();
   m_pSelectionStorage->m_SelectionSet.Clear();
 
-  m_pSelectionStorage->m_SelectionList.Reserve(Selection.GetCount());
+  m_pSelectionStorage->m_SelectionList.Reserve(selection.GetCount());
 
-  for (ezUInt32 i = 0; i < Selection.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
   {
-    if (Selection[i] != nullptr)
+    if (selection[i] != nullptr)
     {
-      EZ_ASSERT_DEV(Selection[i]->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
-      ezStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(Selection[i]);
+      EZ_ASSERT_DEV(selection[i]->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
+      ezStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(selection[i]);
       if (res.m_Result.Failed())
       {
         ezLog::Error("{0}", res.m_sMessage);
         continue;
       }
       // actually == nullptr should never happen, unless we have an error somewhere else
-      m_pSelectionStorage->m_SelectionList.PushBack(Selection[i]);
-      m_pSelectionStorage->m_SelectionSet.Insert(Selection[i]->GetGuid());
+      m_pSelectionStorage->m_SelectionList.PushBack(selection[i]);
+      m_pSelectionStorage->m_SelectionSet.Insert(selection[i]->GetGuid());
     }
   }
 
@@ -232,9 +232,9 @@ ezSharedPtr<ezSelectionManager::Storage> ezSelectionManager::SwapStorage(ezShare
 struct ezObjectHierarchyComparor
 {
   using Tree = ezHybridArray<const ezDocumentObject*, 4>;
-  ezObjectHierarchyComparor(ezDeque<const ezDocumentObject*>& items)
+  ezObjectHierarchyComparor(ezDeque<const ezDocumentObject*>& ref_items)
   {
-    for (const ezDocumentObject* pObject : items)
+    for (const ezDocumentObject* pObject : ref_items)
     {
       Tree& tree = lookup[pObject];
       while (pObject)

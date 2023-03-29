@@ -3,8 +3,8 @@
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <QTimer>
 
-ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

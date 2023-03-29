@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -56,7 +57,7 @@ TransformedShape OffsetCenterOfMassShape::GetSubShapeTransformedShape(const SubS
 	// We don't use any bits in the sub shape ID
 	outRemainder = inSubShapeID;
 
-	TransformedShape ts(inPositionCOM - inRotation * mOffset, inRotation, mInnerShape, BodyID());
+	TransformedShape ts(RVec3(inPositionCOM - inRotation * mOffset), inRotation, mInnerShape, BodyID());
 	ts.SetShapeScale(inScale);
 	return ts;
 }
@@ -72,23 +73,23 @@ void OffsetCenterOfMassShape::GetSupportingFace(const SubShapeID &inSubShapeID, 
 	mInnerShape->GetSupportingFace(inSubShapeID, inDirection, inScale, inCenterOfMassTransform.PreTranslated(-mOffset), outVertices);
 }
 
-void OffsetCenterOfMassShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy) const
+void OffsetCenterOfMassShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy JPH_IF_DEBUG_RENDERER(, RVec3Arg inBaseOffset)) const
 {
-	mInnerShape->GetSubmergedVolume(inCenterOfMassTransform.PreTranslated(-mOffset), inScale, inSurface, outTotalVolume, outSubmergedVolume, outCenterOfBuoyancy);
+	mInnerShape->GetSubmergedVolume(inCenterOfMassTransform.PreTranslated(-mOffset), inScale, inSurface, outTotalVolume, outSubmergedVolume, outCenterOfBuoyancy JPH_IF_DEBUG_RENDERER(, inBaseOffset));
 }
 
 #ifdef JPH_DEBUG_RENDERER
-void OffsetCenterOfMassShape::Draw(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const
+void OffsetCenterOfMassShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const
 {
 	mInnerShape->Draw(inRenderer, inCenterOfMassTransform.PreTranslated(-mOffset), inScale, inColor, inUseMaterialColors, inDrawWireframe);
 }
 
-void OffsetCenterOfMassShape::DrawGetSupportFunction(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const
+void OffsetCenterOfMassShape::DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const
 {
 	mInnerShape->DrawGetSupportFunction(inRenderer, inCenterOfMassTransform.PreTranslated(-mOffset), inScale, inColor, inDrawSupportDirection);
 }
 
-void OffsetCenterOfMassShape::DrawGetSupportingFace(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const
+void OffsetCenterOfMassShape::DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const
 {
 	mInnerShape->DrawGetSupportingFace(inRenderer, inCenterOfMassTransform.PreTranslated(-mOffset), inScale);
 }
@@ -106,7 +107,7 @@ bool OffsetCenterOfMassShape::CastRay(const RayCast &inRay, const SubShapeIDCrea
 void OffsetCenterOfMassShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	// Transform the ray to local space
@@ -119,7 +120,7 @@ void OffsetCenterOfMassShape::CastRay(const RayCast &inRay, const RayCastSetting
 void OffsetCenterOfMassShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	// Pass the point on to the inner shape in local space
@@ -129,7 +130,7 @@ void OffsetCenterOfMassShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCrea
 void OffsetCenterOfMassShape::CollectTransformedShapes(const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	mInnerShape->CollectTransformedShapes(inBox, inPositionCOM - inRotation * mOffset, inRotation, inScale, inSubShapeIDCreator, ioCollector, inShapeFilter);

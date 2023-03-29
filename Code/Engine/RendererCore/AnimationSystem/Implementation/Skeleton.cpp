@@ -57,39 +57,39 @@ ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
 //  return true;
 //}
 
-void ezSkeleton::Save(ezStreamWriter& stream) const
+void ezSkeleton::Save(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(5);
+  inout_stream.WriteVersion(5);
 
   const ezUInt32 uiNumJoints = m_Joints.GetCount();
-  stream << uiNumJoints;
+  inout_stream << uiNumJoints;
 
   for (ezUInt32 i = 0; i < uiNumJoints; ++i)
   {
-    stream << m_Joints[i].m_sName;
-    stream << m_Joints[i].m_uiParentIndex;
-    stream << m_Joints[i].m_BindPoseLocal;
+    inout_stream << m_Joints[i].m_sName;
+    inout_stream << m_Joints[i].m_uiParentIndex;
+    inout_stream << m_Joints[i].m_BindPoseLocal;
 
-    stream << m_Joints[i].m_qLocalJointOrientation;
-    stream << m_Joints[i].m_HalfSwingLimitZ;
-    stream << m_Joints[i].m_HalfSwingLimitY;
-    stream << m_Joints[i].m_TwistLimitHalfAngle;
-    stream << m_Joints[i].m_TwistLimitCenterAngle;
+    inout_stream << m_Joints[i].m_qLocalJointOrientation;
+    inout_stream << m_Joints[i].m_HalfSwingLimitZ;
+    inout_stream << m_Joints[i].m_HalfSwingLimitY;
+    inout_stream << m_Joints[i].m_TwistLimitHalfAngle;
+    inout_stream << m_Joints[i].m_TwistLimitCenterAngle;
   }
 
-  stream << m_BoneDirection;
+  inout_stream << m_BoneDirection;
 }
 
-void ezSkeleton::Load(ezStreamReader& stream)
+void ezSkeleton::Load(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = stream.ReadVersion(5);
+  const ezTypeVersion version = inout_stream.ReadVersion(5);
   if (version < 3)
     return;
 
   m_Joints.Clear();
 
   ezUInt32 uiNumJoints = 0;
-  stream >> uiNumJoints;
+  inout_stream >> uiNumJoints;
 
   m_Joints.Reserve(uiNumJoints);
 
@@ -97,23 +97,23 @@ void ezSkeleton::Load(ezStreamReader& stream)
   {
     ezSkeletonJoint& joint = m_Joints.ExpandAndGetRef();
 
-    stream >> joint.m_sName;
-    stream >> joint.m_uiParentIndex;
-    stream >> joint.m_BindPoseLocal;
+    inout_stream >> joint.m_sName;
+    inout_stream >> joint.m_uiParentIndex;
+    inout_stream >> joint.m_BindPoseLocal;
 
     if (version >= 5)
     {
-      stream >> m_Joints[i].m_qLocalJointOrientation;
-      stream >> m_Joints[i].m_HalfSwingLimitZ;
-      stream >> m_Joints[i].m_HalfSwingLimitY;
-      stream >> m_Joints[i].m_TwistLimitHalfAngle;
-      stream >> m_Joints[i].m_TwistLimitCenterAngle;
+      inout_stream >> m_Joints[i].m_qLocalJointOrientation;
+      inout_stream >> m_Joints[i].m_HalfSwingLimitZ;
+      inout_stream >> m_Joints[i].m_HalfSwingLimitY;
+      inout_stream >> m_Joints[i].m_TwistLimitHalfAngle;
+      inout_stream >> m_Joints[i].m_TwistLimitCenterAngle;
     }
   }
 
   if (version >= 4)
   {
-    stream >> m_BoneDirection;
+    inout_stream >> m_BoneDirection;
   }
 }
 
@@ -133,7 +133,7 @@ bool ezSkeleton::IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent
   return false;
 }
 
-static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedParent, ozz::animation::offline::RawSkeleton::Joint::Children& dstBones)
+static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedParent, ozz::animation::offline::RawSkeleton::Joint::Children& ref_dstBones)
 {
   ezHybridArray<ezUInt16, 6> children;
 
@@ -145,13 +145,13 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
     }
   }
 
-  dstBones.resize((size_t)children.GetCount());
+  ref_dstBones.resize((size_t)children.GetCount());
 
   for (ezUInt16 i = 0; i < children.GetCount(); ++i)
   {
     const auto& srcJoint = skeleton.GetJointByIndex(children[i]);
     const auto& srcTransform = srcJoint.GetBindPoseLocalTransform();
-    auto& dstJoint = dstBones[i];
+    auto& dstJoint = ref_dstBones[i];
 
     dstJoint.name = srcJoint.GetName().GetData();
 

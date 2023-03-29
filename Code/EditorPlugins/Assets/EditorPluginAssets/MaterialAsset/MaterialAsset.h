@@ -112,11 +112,11 @@ public:
 
   void SetBaseMaterial(const char* szBaseMaterial);
 
-  ezStatus WriteMaterialAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile, bool bEmbedLowResData) const;
+  ezStatus WriteMaterialAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bEmbedLowResData) const;
 
   /// \brief Will make sure that the visual shader is rebuilt.
   /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.
-  ezStatus RecreateVisualShaderFile(const ezAssetFileHeader& AssetHeader);
+  ezStatus RecreateVisualShaderFile(const ezAssetFileHeader& assetHeader);
 
   /// \brief If shader compilation failed this will modify the output shader file such that transforming it again, will trigger a full
   /// regeneration Otherwise the AssetCurator would early out
@@ -129,8 +129,8 @@ public:
   static ezUuid GetLitAlphaTestBaseMaterial();
   static ezUuid GetNeutralNormalMap();
 
-  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
-  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
+  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const override;
+  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const override;
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
 
   ezEvent<const ezMaterialVisualShaderEvent&> m_VisualShaderEvents;

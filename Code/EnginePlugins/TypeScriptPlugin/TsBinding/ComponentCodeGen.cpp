@@ -87,9 +87,9 @@ void ezTypeScriptBinding::GenerateComponentCode(ezStringBuilder& out_Code, const
   out_Code.Append("}\n\n");
 }
 
-static void CreateComponentTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<const ezRTTI*>& sorted, const ezRTTI* pRtti)
+static void CreateComponentTypeList(ezSet<const ezRTTI*>& ref_found, ezDynamicArray<const ezRTTI*>& ref_sorted, const ezRTTI* pRtti)
 {
-  if (found.Contains(pRtti))
+  if (ref_found.Contains(pRtti))
     return;
 
   if (!pRtti->IsDerivedFrom<ezComponent>())
@@ -98,10 +98,10 @@ static void CreateComponentTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<
   if (pRtti == ezGetStaticRTTI<ezComponent>() || pRtti == ezGetStaticRTTI<ezTypeScriptComponent>())
     return;
 
-  found.Insert(pRtti);
-  CreateComponentTypeList(found, sorted, pRtti->GetParentType());
+  ref_found.Insert(pRtti);
+  CreateComponentTypeList(ref_found, ref_sorted, pRtti->GetParentType());
 
-  sorted.PushBack(pRtti);
+  ref_sorted.PushBack(pRtti);
 }
 
 void ezTypeScriptBinding::GenerateAllComponentsCode(ezStringBuilder& out_Code)

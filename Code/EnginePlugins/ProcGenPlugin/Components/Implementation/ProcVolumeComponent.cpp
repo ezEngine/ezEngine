@@ -107,32 +107,32 @@ void ezProcVolumeComponent::SetBlendMode(ezEnum<ezProcGenBlendMode> blendMode)
   }
 }
 
-void ezProcVolumeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezProcVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_fValue;
   s << m_fSortOrder;
   s << m_BlendMode;
 }
 
-void ezProcVolumeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezProcVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fValue;
   s >> m_fSortOrder;
   s >> m_BlendMode;
 }
 
-void ezProcVolumeComponent::OnTransformChanged(ezMsgTransformChanged& msg)
+void ezProcVolumeComponent::OnTransformChanged(ezMsgTransformChanged& ref_msg)
 {
   ezBoundingBoxSphere combined = GetOwner()->GetLocalBounds();
-  combined.Transform(msg.m_OldGlobalTransform.GetAsMat4());
+  combined.Transform(ref_msg.m_OldGlobalTransform.GetAsMat4());
 
   combined.ExpandToInclude(GetOwner()->GetGlobalBounds());
 
@@ -216,34 +216,34 @@ void ezProcVolumeSphereComponent::SetFadeOutStart(float fFadeOutStart)
   }
 }
 
-void ezProcVolumeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezProcVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_fRadius;
   s << m_fFadeOutStart;
 }
 
-void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& stream)
+void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fFadeOutStart;
 }
 
-void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), s_ProcVolumeCategory);
 }
 
-void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
+void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  msg.m_pCollection->AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFadeOutStart);
+  ref_msg.m_pCollection->AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFadeOutStart);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -277,11 +277,11 @@ EZ_END_COMPONENT_TYPE
 ezProcVolumeBoxComponent::ezProcVolumeBoxComponent() = default;
 ezProcVolumeBoxComponent::~ezProcVolumeBoxComponent() = default;
 
-void ezProcVolumeBoxComponent::SetExtents(const ezVec3& extents)
+void ezProcVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
 {
-  if (m_vExtents != extents)
+  if (m_vExtents != vExtents)
   {
-    m_vExtents = extents;
+    m_vExtents = vExtents;
 
     if (IsActiveAndInitialized())
     {
@@ -292,44 +292,44 @@ void ezProcVolumeBoxComponent::SetExtents(const ezVec3& extents)
   }
 }
 
-void ezProcVolumeBoxComponent::SetFadeOutStart(const ezVec3& fadeOutStart)
+void ezProcVolumeBoxComponent::SetFadeOutStart(const ezVec3& vFadeOutStart)
 {
-  if (m_vFadeOutStart != fadeOutStart)
+  if (m_vFadeOutStart != vFadeOutStart)
   {
-    m_vFadeOutStart = fadeOutStart;
+    m_vFadeOutStart = vFadeOutStart;
 
     InvalidateArea();
   }
 }
 
-void ezProcVolumeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezProcVolumeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
   s << m_vFadeOutStart;
 }
 
-void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& stream)
+void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
   s >> m_vFadeOutStart;
 }
 
-void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
+void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), s_ProcVolumeCategory);
 }
 
-void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
+void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart);
+  ref_msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -354,27 +354,27 @@ EZ_END_COMPONENT_TYPE
 ezProcVolumeImageComponent::ezProcVolumeImageComponent() = default;
 ezProcVolumeImageComponent::~ezProcVolumeImageComponent() = default;
 
-void ezProcVolumeImageComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezProcVolumeImageComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hImage;
 }
 
-void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& stream)
+void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hImage;
 }
 
-void ezProcVolumeImageComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
+void ezProcVolumeImageComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart, m_hImage);
+  ref_msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart, m_hImage);
 }
 
 void ezProcVolumeImageComponent::SetImageFile(const char* szFile)

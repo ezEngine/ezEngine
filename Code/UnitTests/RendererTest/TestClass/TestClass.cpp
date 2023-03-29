@@ -236,7 +236,7 @@ void ezGraphicsTest::EndFrame()
   ezTaskSystem::FinishFrameTasks();
 }
 
-ezResult ezGraphicsTest::GetImage(ezImage& img)
+ezResult ezGraphicsTest::GetImage(ezImage& ref_img)
 {
   auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
 
@@ -249,10 +249,10 @@ ezResult ezGraphicsTest::GetImage(ezImage& img)
   header.SetWidth(m_pWindow->GetClientAreaSize().width);
   header.SetHeight(m_pWindow->GetClientAreaSize().height);
   header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-  img.ResetAndAlloc(header);
+  ref_img.ResetAndAlloc(header);
 
   ezGALSystemMemoryDescription MemDesc;
-  MemDesc.m_pData = img.GetPixelPointer<ezUInt8>();
+  MemDesc.m_pData = ref_img.GetPixelPointer<ezUInt8>();
   MemDesc.m_uiRowPitch = 4 * m_pWindow->GetClientAreaSize().width;
   MemDesc.m_uiSlicePitch = 4 * m_pWindow->GetClientAreaSize().width * m_pWindow->GetClientAreaSize().height;
 

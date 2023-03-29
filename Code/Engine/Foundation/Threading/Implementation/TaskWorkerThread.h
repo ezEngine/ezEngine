@@ -15,7 +15,7 @@ class ezTaskWorkerThread final : public ezThread
 
 public:
   /// \brief Tells the worker thread what tasks to execute and which thread index it has.
-  ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 uiThreadNumber);
+  ezTaskWorkerThread(ezWorkerThreadType::Enum threadType, ezUInt32 uiThreadNumber);
   ~ezTaskWorkerThread();
 
   /// \brief Deactivates the thread. Returns failure, if the thread is currently still running.
@@ -41,7 +41,7 @@ public:
   double GetThreadUtilization(ezUInt32* pNumTasksExecuted = nullptr);
 
   /// \brief Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
-  void UpdateThreadUtilization(ezTime TimePassed);
+  void UpdateThreadUtilization(ezTime timePassed);
 
 private:
   bool m_bExecutingTask = false;

@@ -9,7 +9,7 @@
 class ezAssetProfilesObjectManager : public ezDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override { Types.PushBack(ezGetStaticRTTI<ezPlatformProfile>()); }
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override { ref_types.PushBack(ezGetStaticRTTI<ezPlatformProfile>()); }
 };
 
 class ezAssetProfilesDocument : public ezDocument
@@ -33,11 +33,11 @@ public:
     m_pDialog = pDialog;
   }
 
-  virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role) const override
+  virtual QVariant data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const override
   {
-    if (column == 0)
+    if (iColumn == 0)
     {
-      if (role == Qt::DecorationRole)
+      if (iRole == Qt::DecorationRole)
       {
         const ezInt32 iPlatform = pObject->GetTypeAccessor().GetValue("Platform").ConvertTo<ezInt32>();
 
@@ -54,15 +54,15 @@ public:
         }
       }
 
-      if (role == Qt::DisplayRole)
+      if (iRole == Qt::DisplayRole)
       {
-        QString name = ezQtNameableAdapter::data(pObject, row, column, role).toString();
+        QString name = ezQtNameableAdapter::data(pObject, iRow, iColumn, iRole).toString();
 
-        if (row == ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex())
+        if (iRow == ezAssetCurator::GetSingleton()->GetActiveAssetProfileIndex())
         {
           name += " (active)";
         }
-        else if (row == m_pDialog->m_uiActiveConfig)
+        else if (iRow == m_pDialog->m_uiActiveConfig)
         {
           name += " (switch to)";
         }
@@ -71,15 +71,15 @@ public:
       }
     }
 
-    return ezQtNameableAdapter::data(pObject, row, column, role);
+    return ezQtNameableAdapter::data(pObject, iRow, iColumn, iRole);
   }
 
 private:
   const ezQtAssetProfilesDlg* m_pDialog = nullptr;
 };
 
-ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtAssetProfilesDlg::ezQtAssetProfilesDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

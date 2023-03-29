@@ -44,32 +44,32 @@ enum class ReactionVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleEventReactionFactory::Save(ezStreamWriter& stream) const
+void ezParticleEventReactionFactory::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)ReactionVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
   // Version 1
-  stream << m_sEventType;
+  inout_stream << m_sEventType;
 
   // Version 2
-  stream << m_uiProbability;
+  inout_stream << m_uiProbability;
 }
 
 
-void ezParticleEventReactionFactory::Load(ezStreamReader& stream)
+void ezParticleEventReactionFactory::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)ReactionVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   // Version 1
-  stream >> m_sEventType;
+  inout_stream >> m_sEventType;
 
   if (uiVersion >= 2)
   {
-    stream >> m_uiProbability;
+    inout_stream >> m_uiProbability;
   }
 }
 
@@ -82,3 +82,7 @@ void ezParticleEventReaction::Reset(ezParticleEffectInstance* pOwner)
 {
   m_pOwnerEffect = pOwner;
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Events_ParticleEventReaction);
+

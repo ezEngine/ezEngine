@@ -4,6 +4,8 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
+class ezCppSettings;
+
 ///
 class EZ_EDITORFRAMEWORK_DLL ezProjectActions
 {
@@ -51,8 +53,12 @@ public:
   static ezActionDescriptorHandle s_hSaveProfiling;
   static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
+  static ezActionDescriptorHandle s_hClearAssetCaches;
 
+  static ezActionDescriptorHandle s_hCppProjectMenu;
   static ezActionDescriptorHandle s_hSetupCppProject;
+  static ezActionDescriptorHandle s_hOpenCppProject;
+  static ezActionDescriptorHandle s_hCompileCppProject;
 };
 
 ///
@@ -65,7 +71,7 @@ public:
     : ezDynamicMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
 
@@ -79,7 +85,7 @@ public:
     : ezDynamicMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
 
@@ -112,9 +118,12 @@ public:
     ImportAsset,
     AssetProfiles,
     SetupCppProject,
+    OpenCppProject,
+    CompileCppProject,
     ShowDocsAndCommunity,
     ExportProject,
     PluginSelection,
+    ClearAssetCaches,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);
@@ -124,6 +133,7 @@ public:
 
 private:
   void ProjectEventHandler(const ezToolsProjectEvent& e);
+  void CppEventHandler(const ezCppSettings& e);
 
   ButtonType m_ButtonType;
 };

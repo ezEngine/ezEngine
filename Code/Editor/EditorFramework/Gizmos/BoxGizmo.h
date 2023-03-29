@@ -12,7 +12,7 @@ class EZ_EDITORFRAMEWORK_DLL ezBoxGizmo : public ezGizmo
 public:
   ezBoxGizmo();
 
-  void SetSize(const ezVec3& size);
+  void SetSize(const ezVec3& vSize);
 
   const ezVec3& GetSize() const { return m_vSize; }
 

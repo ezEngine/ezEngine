@@ -74,9 +74,9 @@ ezCurveExtentsAttribute::ezCurveExtentsAttribute(double fLowerExtent, bool bLowe
   m_bUpperExtentFixed = bUpperExtentFixed;
 }
 
-void ezCurveControlPointData::SetTickFromTime(ezTime time, ezInt64 fps)
+void ezCurveControlPointData::SetTickFromTime(ezTime time, ezInt64 iFps)
 {
-  const ezUInt32 uiTicksPerStep = 4800 / fps;
+  const ezUInt32 uiTicksPerStep = 4800 / iFps;
   m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
@@ -123,9 +123,9 @@ ezInt64 ezCurveGroupData::TickFromTime(ezTime time) const
   return (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-static void ConvertControlPoint(const ezCurveControlPointData& cp, ezCurve1D& out_Result)
+static void ConvertControlPoint(const ezCurveControlPointData& cp, ezCurve1D& out_result)
 {
-  auto& ccp = out_Result.AddControlPoint(cp.GetTickAsTime().GetSeconds());
+  auto& ccp = out_result.AddControlPoint(cp.GetTickAsTime().GetSeconds());
   ccp.m_Position.y = cp.m_fValue;
   ccp.m_LeftTangent = cp.m_LeftTangent;
   ccp.m_RightTangent = cp.m_RightTangent;
@@ -133,13 +133,13 @@ static void ConvertControlPoint(const ezCurveControlPointData& cp, ezCurve1D& ou
   ccp.m_TangentModeRight = cp.m_RightTangentMode;
 }
 
-void ezSingleCurveData::ConvertToRuntimeData(ezCurve1D& out_Result) const
+void ezSingleCurveData::ConvertToRuntimeData(ezCurve1D& out_result) const
 {
-  out_Result.Clear();
+  out_result.Clear();
 
   for (const auto& cp : m_ControlPoints)
   {
-    ConvertControlPoint(cp, out_Result);
+    ConvertControlPoint(cp, out_result);
   }
 }
 
@@ -166,9 +166,9 @@ double ezSingleCurveData::Evaluate(ezInt64 iTick) const
   return temp.Evaluate(iTick / 4800.0);
 }
 
-void ezCurveGroupData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const
+void ezCurveGroupData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_result) const
 {
-  m_Curves[uiCurveIdx]->ConvertToRuntimeData(out_Result);
+  m_Curves[uiCurveIdx]->ConvertToRuntimeData(out_result);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Point");
     if (pPoint && pPoint->m_Value.IsA<ezVec2>())
@@ -212,7 +212,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Time");
     if (pPoint && pPoint->m_Value.IsA<double>())
@@ -235,9 +235,9 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    context.RenameClass("ezCurveControlPointData");
+    ref_context.RenameClass("ezCurveControlPointData");
   }
 };
 
@@ -253,9 +253,9 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    context.RenameClass("ezSingleCurveData");
+    ref_context.RenameClass("ezSingleCurveData");
   }
 };
 
@@ -271,9 +271,9 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    context.RenameClass("ezCurveGroupData");
+    ref_context.RenameClass("ezCurveGroupData");
   }
 };
 

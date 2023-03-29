@@ -64,12 +64,12 @@ public:
   /// @{
 
   static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
-  static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes = -1);
-  static void Broadcast(TransmitMode tm, ezTelemetryMessage& Msg);
+  static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& inout_stream, ezInt32 iDataBytes = -1);
+  static void Broadcast(TransmitMode tm, ezTelemetryMessage& ref_msg);
 
   static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = nullptr, ezUInt32 uiDataBytes = 0);
-  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes = -1);
-  static void SendToServer(ezTelemetryMessage& Msg);
+  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& inout_stream, ezInt32 iDataBytes = -1);
+  static void SendToServer(ezTelemetryMessage& ref_msg);
 
   /// @}
 
@@ -100,7 +100,7 @@ public:
   /// Usually this would be used to send the application name, to make it easier to see to which app the tool is connected,
   /// but setting a custom name can be used to add important details, e.g. whether the app is running in single-player or multi-player mode etc.
   /// The server name can be changed at any time.
-  static void SetServerName(const char* name);
+  static void SetServerName(const char* szName);
 
   /// \brief Returns the IP address of the machine on which the Server is running. Only meaningful if there is an active connection (see
   /// IsConnectedToServer() ).
@@ -134,7 +134,7 @@ public:
   /// to continuously update the network state and check whether the desired message has arrived.
   /// However, if you do so, you will be able to deadlock your application, if such a message never arrives.
   /// Also it might fill up other message queues which might lead to messages getting discarded.
-  static ezResult RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_Message);
+  static ezResult RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_message);
 
   /// \brief Polls the network for new incoming messages and ensures outgoing messages are sent.
   ///
@@ -146,7 +146,7 @@ public:
 
   typedef void (*ProcessMessagesCallback)(void* pPassThrough);
 
-  static void AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback = nullptr, void* pPassThrough = nullptr);
+  static void AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback callback = nullptr, void* pPassThrough = nullptr);
 
   /// \brief Call this once per frame to process queued messages and to send the PerFrameUpdate event.
   static void PerFrameUpdate();

@@ -8,18 +8,18 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
 
-ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
 {
   ezStringBuilder& s = out_sAbsoluteFilePath;
 
-  if (IncType == ezPreprocessor::RelativeInclude)
+  if (incType == ezPreprocessor::RelativeInclude)
   {
     s = szCurAbsoluteFile;
     s.PathParentDirectory();
     s.AppendPath(szIncludeFile);
     s.MakeCleanPath();
   }
-  else if (IncType == ezPreprocessor::GlobalInclude)
+  else if (incType == ezPreprocessor::GlobalInclude)
   {
     s = "Preprocessor";
     s.AppendPath(szIncludeFile);
@@ -34,7 +34,7 @@ ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, e
 class Logger : public ezLogInterface
 {
 public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override { m_sOutput.AppendFormat("Log: '{0}'\r\n", le.m_szText); }
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override { m_sOutput.AppendFormat("Log: '{0}'\r\n", le.m_sText); }
 
   void EventHandler(const ezPreprocessor::ProcessingEvent& ed)
   {
@@ -258,7 +258,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileNameOut), "Output file is missing: '%s'", fileNameOut.GetData());
         }
 
-        EZ_TEST_FILES(fileNameOut.GetData(), fileNameExp.GetData(), "");
+        EZ_TEST_TEXT_FILES(fileNameOut.GetData(), fileNameExp.GetData(), "");
       }
     }
   }

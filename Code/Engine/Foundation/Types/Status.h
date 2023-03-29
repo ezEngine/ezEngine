@@ -15,6 +15,7 @@ struct EZ_FOUNDATION_DLL ezStatus
   {
   }
 
+  // const char* version is needed for disambiguation
   explicit ezStatus(const char* szError)
     : m_Result(EZ_FAILURE)
     , m_sMessage(szError)
@@ -40,8 +41,28 @@ struct EZ_FOUNDATION_DLL ezStatus
 
   explicit ezStatus(const ezFormatString& fmt);
 
-  EZ_ALWAYS_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
-  EZ_ALWAYS_INLINE bool Failed() const { return m_Result.Failed(); }
+  [[nodiscard]] EZ_ALWAYS_INLINE bool Succeeded() const { return m_Result.Succeeded(); }
+  [[nodiscard]] EZ_ALWAYS_INLINE bool Failed() const { return m_Result.Failed(); }
+
+  /// \brief Same as 'Succeeded()'.
+  ///
+  /// Allows ezStatus to be used in if statements:
+  ///  - if (r)
+  ///  - if (!r)
+  ///  - if (r1 && r2)
+  ///  - if (r1 || r2)
+  ///
+  /// Disallows anything else implicitly, e.g. all these won't compile:
+  ///   - if (r == true)
+  ///   - bool b = r;
+  ///   - void* p = r;
+  ///   - return r; // with bool return type
+  explicit operator bool() const { return m_Result.Succeeded(); }
+
+  /// \brief Special case to prevent this from working: "bool b = !r"
+  ezResult operator!() const { return ezResult(m_Result.Succeeded() ? EZ_FAILURE : EZ_SUCCESS); }
+
+  /// \brief If the state is EZ_FAILURE, the message is written to the given log (or the currently active thread-local log).
   void LogFailure(ezLogInterface* pLog = nullptr);
 
   ezResult m_Result;

@@ -103,7 +103,7 @@ public:
   ~ezProcess();
 
   /// \brief Launches the specified process and waits for it to finish.
-  static ezResult Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode = nullptr);
+  static ezResult Execute(const ezProcessOptions& opt, ezInt32* out_pExitCode = nullptr);
 
   /// \brief Launches the specified process asynchronously.
   ///

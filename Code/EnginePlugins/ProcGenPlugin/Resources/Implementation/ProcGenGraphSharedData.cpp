@@ -20,32 +20,32 @@ namespace ezProcGenInternal
 
   static ezTypeVersion s_GraphSharedDataVersion = 1;
 
-  void GraphSharedData::Save(ezStreamWriter& stream) const
+  void GraphSharedData::Save(ezStreamWriter& inout_stream) const
   {
-    stream.WriteVersion(s_GraphSharedDataVersion);
+    inout_stream.WriteVersion(s_GraphSharedDataVersion);
 
     {
       const ezUInt32 uiCount = m_TagSets.GetCount();
-      stream << uiCount;
+      inout_stream << uiCount;
 
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        m_TagSets[i].Save(stream);
+        m_TagSets[i].Save(inout_stream);
       }
     }
   }
 
-  ezResult GraphSharedData::Load(ezStreamReader& stream)
+  ezResult GraphSharedData::Load(ezStreamReader& inout_stream)
   {
-    auto version = stream.ReadVersion(s_GraphSharedDataVersion);
+    auto version = inout_stream.ReadVersion(s_GraphSharedDataVersion);
 
     {
       ezUInt32 uiCount = 0;
-      stream >> uiCount;
+      inout_stream >> uiCount;
 
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        m_TagSets.ExpandAndGetRef().Load(stream, ezTagRegistry::GetGlobalRegistry());
+        m_TagSets.ExpandAndGetRef().Load(inout_stream, ezTagRegistry::GetGlobalRegistry());
       }
     }
 

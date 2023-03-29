@@ -182,7 +182,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
 }
 
 // static
-ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
+ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& ref_trace, void* pContext)
 {
   Initialize();
 
@@ -235,12 +235,12 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
     frame.AddrStack.Offset = context.Esp;
     machine_type = IMAGE_FILE_MACHINE_I386;
 #endif
-    for (ezInt32 i = 0; i < (ezInt32)trace.GetCount(); i++)
+    for (ezInt32 i = 0; i < (ezInt32)ref_trace.GetCount(); i++)
     {
       if (s_pImplementation->stackWalk(machine_type, GetCurrentProcess(), GetCurrentThread(), &frame, &context, NULL,
             s_pImplementation->getFunctionTableAccess, s_pImplementation->getModuleBase, NULL))
       {
-        trace[i] = reinterpret_cast<void*>(frame.AddrPC.Offset);
+        ref_trace[i] = reinterpret_cast<void*>(frame.AddrPC.Offset);
       }
       else
       {
@@ -252,8 +252,8 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
   else if (s_pImplementation->captureStackBackTrace != nullptr)
   {
     const ezUInt32 uiSkip = 1;
-    const ezUInt32 uiMaxNumTrace = ezMath::Min(62U, trace.GetCount());
-    ezInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, trace.GetPtr(), nullptr);
+    const ezUInt32 uiMaxNumTrace = ezMath::Min(62U, ref_trace.GetCount());
+    ezInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, ref_trace.GetPtr(), nullptr);
 
     // skip the last three stack-frames since they are useless
     return ezMath::Max(iNumTraces - 3, 0);

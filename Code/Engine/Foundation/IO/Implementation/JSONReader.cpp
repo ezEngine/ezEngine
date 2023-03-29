@@ -8,13 +8,13 @@ ezJSONReader::ezJSONReader()
   m_bParsingError = false;
 }
 
-ezResult ezJSONReader::Parse(ezStreamReader& InputStream, ezUInt32 uiFirstLineOffset)
+ezResult ezJSONReader::Parse(ezStreamReader& ref_inputStream, ezUInt32 uiFirstLineOffset)
 {
   m_bParsingError = false;
   m_Stack.Clear();
   m_sLastName.Clear();
 
-  SetInputStream(InputStream, uiFirstLineOffset);
+  SetInputStream(ref_inputStream, uiFirstLineOffset);
 
   while (!m_bParsingError && ContinueParsing())
   {

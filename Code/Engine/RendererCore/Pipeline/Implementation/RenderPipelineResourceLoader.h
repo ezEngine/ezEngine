@@ -9,7 +9,7 @@ struct ezRenderPipelineResourceDescriptor;
 struct EZ_RENDERERCORE_DLL ezRenderPipelineResourceLoader
 {
   static ezInternal::NewInstance<ezRenderPipeline> CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc);
-  static void CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& desc);
+  static void CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& ref_desc);
 };
 
 class EZ_RENDERERCORE_DLL ezRenderPipelineRttiConverterContext : public ezRttiConverterContext

@@ -22,23 +22,23 @@ public:
 
   /// \brief Writes a single object to the stream. Can be either a reference or a pointer to the object.
   template <typename T>
-  ezResult WriteObject(ezStreamWriter& stream, const T& obj); // [tested]
+  ezResult WriteObject(ezStreamWriter& inout_stream, const T& obj); // [tested]
 
   /// \brief Writes a single object to the stream.
   template <typename T>
-  ezResult WriteObject(ezStreamWriter& stream, const ezSharedPtr<T>& pObject); // [tested]
+  ezResult WriteObject(ezStreamWriter& inout_stream, const ezSharedPtr<T>& pObject); // [tested]
 
   /// \brief Writes a single object to the stream.
   template <typename T>
-  ezResult WriteObject(ezStreamWriter& stream, const ezUniquePtr<T>& pObject); // [tested]
+  ezResult WriteObject(ezStreamWriter& inout_stream, const ezUniquePtr<T>& pObject); // [tested]
 
   /// \brief Writes an array of de-duplicated objects.
   template <typename ArrayType, typename ValueType>
-  ezResult WriteArray(ezStreamWriter& stream, const ezArrayBase<ValueType, ArrayType>& Array); // [tested]
+  ezResult WriteArray(ezStreamWriter& inout_stream, const ezArrayBase<ValueType, ArrayType>& array); // [tested]
 
   /// \brief Writes a set of de-duplicated objects.
   template <typename KeyType, typename Comparer>
-  ezResult WriteSet(ezStreamWriter& stream, const ezSetBase<KeyType, Comparer>& Set); // [tested]
+  ezResult WriteSet(ezStreamWriter& inout_stream, const ezSetBase<KeyType, Comparer>& set); // [tested]
 
   enum class WriteMapMode
   {
@@ -49,7 +49,7 @@ public:
 
   /// \brief Writes a map. Mode controls whether key or value or both should de-duplicated.
   template <typename KeyType, typename ValueType, typename Comparer>
-  ezResult WriteMap(ezStreamWriter& stream, const ezMapBase<KeyType, ValueType, Comparer>& Map, WriteMapMode mode); // [tested]
+  ezResult WriteMap(ezStreamWriter& inout_stream, const ezMapBase<KeyType, ValueType, Comparer>& map, WriteMapMode mode); // [tested]
 
 private:
   template <typename T>

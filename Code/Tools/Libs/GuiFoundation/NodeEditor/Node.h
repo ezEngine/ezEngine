@@ -57,15 +57,15 @@ public:
   ezBitflags<ezNodeFlags> GetFlags() const;
   void ResetFlags();
 
-  void EnableDropShadow(bool enable);
+  void EnableDropShadow(bool bEnable);
   virtual void UpdateState();
 
   const ezHybridArray<ezQtPin*, 6>& GetInputPins() const { return m_Inputs; }
   const ezHybridArray<ezQtPin*, 6>& GetOutputPins() const { return m_Outputs; }
 
-  void SetActive(bool active);
+  void SetActive(bool bActive);
 
-  virtual void ExtendContextMenu(QMenu& menu) {}
+  virtual void ExtendContextMenu(QMenu& ref_menu) {}
 
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;

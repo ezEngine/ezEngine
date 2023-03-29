@@ -33,9 +33,10 @@ struct ezFileOpenMode
 struct EZ_FOUNDATION_DLL ezFileStats
 {
   ezFileStats();
+  ~ezFileStats();
 
   /// \brief Stores the concatenated m_sParentPath and m_sName in \a path.
-  void GetFullPath(ezStringBuilder& path) const;
+  void GetFullPath(ezStringBuilder& ref_sPath) const;
 
   /// \brief Path to the parent folder.
   /// Append m_sName to m_sParentPath to obtain the full path.
@@ -108,12 +109,12 @@ public:
   /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
   /// the information about that file. To advance to the next file, use Next() or SkipFolder().
   /// When no iteration is possible (the directory does not exist or the wild-cards are used incorrectly), EZ_FAILURE is returned.
-  void StartSearch(const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
+  void StartSearch(ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
 
   /// \brief The same as StartSearch() but executes the same search on multiple folders.
   ///
   /// The search term is appended to each start folder and they are searched one after the other.
-  void StartMultiFolderSearch(ezArrayPtr<ezString> startFolders, const char* szSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+  void StartMultiFolderSearch(ezArrayPtr<ezString> startFolders, ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 
   /// \brief Returns the search string with which StartSearch() was called.
   ///
@@ -174,7 +175,7 @@ public:
   ~ezOSFile();
 
   /// \brief Opens a file for reading or writing. Returns EZ_SUCCESS if the file could be opened successfully.
-  ezResult Open(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode = ezFileShareMode::Default); // [tested]
+  ezResult Open(ezStringView sFile, ezFileOpenMode::Enum openMode, ezFileShareMode::Enum fileShareMode = ezFileShareMode::Default); // [tested]
 
   /// \brief Returns true if a file is currently open.
   bool IsOpen() const; // [tested]
@@ -189,16 +190,16 @@ public:
   ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes); // [tested]
 
   /// \brief Reads the entire file content into the given array
-  ezUInt64 ReadAll(ezDynamicArray<ezUInt8>& out_FileContent); // [tested]
+  ezUInt64 ReadAll(ezDynamicArray<ezUInt8>& out_fileContent); // [tested]
 
   /// \brief Returns the name of the file that is currently opened. Returns an empty string, if no file is open.
-  const char* GetOpenFileName() const { return m_sFileName.GetData(); } // [tested]
+  ezStringView GetOpenFileName() const { return m_sFileName; } // [tested]
 
   /// \brief Returns the position in the file at which read/write operations will occur.
   ezUInt64 GetFilePosition() const; // [tested]
 
   /// \brief Sets the position where in the file to read/write next.
-  void SetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const; // [tested]
+  void SetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum pos) const; // [tested]
 
   /// \brief Returns the current total size of the file.
   ezUInt64 GetFileSize() const; // [tested]
@@ -219,35 +220,35 @@ public:
   /// \brief If szPath is a relative path, this function prepends GetCurrentWorkingDirectory().
   ///
   /// In either case, MakeCleanPath() is used before the string is returned.
-  static const ezString MakePathAbsoluteWithCWD(const char* szPath); // [tested]
+  static const ezString MakePathAbsoluteWithCWD(ezStringView sPath); // [tested]
 
   /// \brief Checks whether the given file exists.
-  static bool ExistsFile(const char* szFile); // [tested]
+  static bool ExistsFile(ezStringView sFile); // [tested]
 
   /// \brief Checks whether the given file exists.
-  static bool ExistsDirectory(const char* szDirectory); // [tested]
+  static bool ExistsDirectory(ezStringView sDirectory); // [tested]
 
   /// \brief Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
-  static ezResult DeleteFile(const char* szFile); // [tested]
+  static ezResult DeleteFile(ezStringView sFile); // [tested]
 
   /// \brief Creates the given directory structure (meaning all directories in the path, that do not exist). Returns false, if any directory could not
   /// be created.
-  static ezResult CreateDirectoryStructure(const char* szDirectory); // [tested]
+  static ezResult CreateDirectoryStructure(ezStringView sDirectory); // [tested]
 
   /// \brief Renames / Moves an existing directory. The file / directory at szFrom must exist. The parent directory of szTo must exist.
   /// Returns EZ_FAILURE if the move failed.
-  static ezResult MoveFileOrDirectory(const char* szFrom, const char* szTo);
+  static ezResult MoveFileOrDirectory(ezStringView sFrom, ezStringView sTo);
 
   /// \brief Copies the source file into the destination file.
-  static ezResult CopyFile(const char* szSource, const char* szDestination); // [tested]
+  static ezResult CopyFile(ezStringView sSource, ezStringView sDestination); // [tested]
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) || defined(EZ_DOCS)
   /// \brief Gets the stats about the given file or folder. Returns false, if the stats could not be determined.
-  static ezResult GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats); // [tested]
+  static ezResult GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats); // [tested]
 
 #  if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)) || defined(EZ_DOCS)
   /// \brief Useful on systems that are not strict about the casing of file names. Determines the correct name of a file.
-  static ezResult GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling); // [tested]
+  static ezResult GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& out_sCorrectSpelling); // [tested]
 #  endif
 
 #endif
@@ -255,17 +256,17 @@ public:
 #if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)) || defined(EZ_DOCS)
 
   /// \brief Returns the ezFileStats for all files and folders in the given folder
-  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_itemList, ezStringView sFolder, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 
   /// \brief Copies \a szSourceFolder to \a szDestinationFolder. Overwrites existing files.
   ///
   /// If \a out_FilesCopied is provided, the destination path of every successfully copied file is appended to it.
-  static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder, ezDynamicArray<ezString>* out_FilesCopied = nullptr);
+  static ezResult CopyFolder(ezStringView sSourceFolder, ezStringView sDestinationFolder, ezDynamicArray<ezString>* out_pFilesCopied = nullptr);
 
   /// \brief Deletes all files recursively in \a szFolder.
   ///
   /// \note The current implementation does not remove the (empty) folders themselves.
-  static ezResult DeleteFolder(const char* szFolder);
+  static ezResult DeleteFolder(ezStringView sFolder);
 
 #endif
 
@@ -279,7 +280,7 @@ public:
   /// On Posix systems this is the '~' (home) directory.
   ///
   /// If szSubFolder is specified, it will be appended to the result.
-  static ezString GetUserDataFolder(const char* szSubFolder = nullptr);
+  static ezString GetUserDataFolder(ezStringView sSubFolder = {});
 
   /// \brief Returns the folder into which temp data may be written.
   ///
@@ -287,7 +288,7 @@ public:
   /// On Posix systems this is the '~/.cache' directory.
   ///
   /// If szSubFolder is specified, it will be appended to the result.
-  static ezString GetTempDataFolder(const char* szSubFolder = nullptr);
+  static ezString GetTempDataFolder(ezStringView sSubFolder = {});
 
 public:
   /// \brief Describes the types of events that ezOSFile sends.
@@ -314,40 +315,29 @@ public:
   struct EventData
   {
     /// \brief The type of information that is sent.
-    EventType::Enum m_EventType;
+    EventType::Enum m_EventType = EventType::None;
 
     /// \brief A unique ID for each file access. Reads and writes to the same open file use the same ID. If the same file is opened multiple times,
     /// different IDs are used.
-    ezInt32 m_iFileID;
+    ezInt32 m_iFileID = 0;
 
     /// \brief The name of the file that was operated upon.
-    const char* m_szFile;
+    ezStringView m_sFile;
 
     /// \brief If a second file was operated upon (FileCopy), that is the second file name.
-    const char* m_szFile2;
+    ezStringView m_sFile2;
 
     /// \brief Mode that a file has been opened in.
-    ezFileOpenMode::Enum m_FileMode;
+    ezFileOpenMode::Enum m_FileMode = ezFileOpenMode::None;
 
     /// \brief Whether the operation succeeded (reading, writing, etc.)
-    bool m_bSuccess;
+    bool m_bSuccess = true;
 
     /// \brief How long the operation took.
     ezTime m_Duration;
 
     /// \brief How many bytes were transfered (reading, writing)
-    ezUInt64 m_uiBytesAccessed;
-
-    EventData()
-    {
-      m_EventType = EventType::None;
-      m_iFileID = 0;
-      m_szFile = nullptr;
-      m_szFile2 = nullptr;
-      m_FileMode = ezFileOpenMode::None;
-      m_bSuccess = true;
-      m_uiBytesAccessed = 0;
-    }
+    ezUInt64 m_uiBytesAccessed = 0;
   };
 
   using Event = ezEvent<const EventData&, ezMutex>;
@@ -364,22 +354,22 @@ private:
 
   // *** Internal Functions that do the platform specific work ***
 
-  ezResult InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode);
+  ezResult InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode);
   void InternalClose();
   ezResult InternalWrite(const void* pBuffer, ezUInt64 uiBytes);
   ezUInt64 InternalRead(void* pBuffer, ezUInt64 uiBytes);
   ezUInt64 InternalGetFilePosition() const;
   void InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const;
 
-  static bool InternalExistsFile(const char* szFile);
-  static bool InternalExistsDirectory(const char* szDirectory);
-  static ezResult InternalDeleteFile(const char* szFile);
-  static ezResult InternalDeleteDirectory(const char* szDirectory);
-  static ezResult InternalCreateDirectory(const char* szFile);
-  static ezResult InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo);
+  static bool InternalExistsFile(ezStringView sFile);
+  static bool InternalExistsDirectory(ezStringView sDirectory);
+  static ezResult InternalDeleteFile(ezStringView sFile);
+  static ezResult InternalDeleteDirectory(ezStringView sDirectory);
+  static ezResult InternalCreateDirectory(ezStringView sFile);
+  static ezResult InternalMoveFileOrDirectory(ezStringView sDirectoryFrom, ezStringView sDirectoryTo);
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  static ezResult InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats);
+  static ezResult InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats);
 #endif
 
   // *************************************************************

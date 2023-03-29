@@ -122,46 +122,46 @@ struct ezDdsCaps2
 static const ezUInt32 ezDdsMagic = 0x20534444;
 static const ezUInt32 ezDdsDxt10FourCc = 0x30315844;
 
-static ezResult ReadImageData(ezStreamReader& stream, ezImageHeader& imageHeader, ezDdsHeader& ddsHeader)
+static ezResult ReadImageData(ezStreamReader& inout_stream, ezImageHeader& ref_imageHeader, ezDdsHeader& ref_ddsHeader)
 {
-  if (stream.ReadBytes(&ddsHeader, sizeof(ezDdsHeader)) != sizeof(ezDdsHeader))
+  if (inout_stream.ReadBytes(&ref_ddsHeader, sizeof(ezDdsHeader)) != sizeof(ezDdsHeader))
   {
     ezLog::Error("Failed to read file header.");
     return EZ_FAILURE;
   }
 
-  if (ddsHeader.m_uiMagic != ezDdsMagic)
+  if (ref_ddsHeader.m_uiMagic != ezDdsMagic)
   {
     ezLog::Error("The file is not a recognized DDS file.");
     return EZ_FAILURE;
   }
 
-  if (ddsHeader.m_uiSize != 124)
+  if (ref_ddsHeader.m_uiSize != 124)
   {
-    ezLog::Error("The file header size {0} doesn't match the expected size of 124.", ddsHeader.m_uiSize);
+    ezLog::Error("The file header size {0} doesn't match the expected size of 124.", ref_ddsHeader.m_uiSize);
     return EZ_FAILURE;
   }
 
   // Required in every .dds file. According to the spec, CAPS and PIXELFORMAT are also required, but D3DX outputs
   // files not conforming to this.
-  if ((ddsHeader.m_uiFlags & ezDdsdFlags::WIDTH) == 0 || (ddsHeader.m_uiFlags & ezDdsdFlags::HEIGHT) == 0)
+  if ((ref_ddsHeader.m_uiFlags & ezDdsdFlags::WIDTH) == 0 || (ref_ddsHeader.m_uiFlags & ezDdsdFlags::HEIGHT) == 0)
   {
     ezLog::Error("The file header doesn't specify the mandatory WIDTH or HEIGHT flag.");
     return EZ_FAILURE;
   }
 
-  if ((ddsHeader.m_uiCaps & ezDdsCaps::TEXTURE) == 0)
+  if ((ref_ddsHeader.m_uiCaps & ezDdsCaps::TEXTURE) == 0)
   {
     ezLog::Error("The file header doesn't specify the mandatory TEXTURE flag.");
     return EZ_FAILURE;
   }
 
-  imageHeader.SetWidth(ddsHeader.m_uiWidth);
-  imageHeader.SetHeight(ddsHeader.m_uiHeight);
+  ref_imageHeader.SetWidth(ref_ddsHeader.m_uiWidth);
+  ref_imageHeader.SetHeight(ref_ddsHeader.m_uiHeight);
 
-  if (ddsHeader.m_ddspf.m_uiSize != 32)
+  if (ref_ddsHeader.m_ddspf.m_uiSize != 32)
   {
-    ezLog::Error("The pixel format size {0} doesn't match the expected value of 32.", ddsHeader.m_ddspf.m_uiSize);
+    ezLog::Error("The pixel format size {0} doesn't match the expected value of 32.", ref_ddsHeader.m_ddspf.m_uiSize);
     return EZ_FAILURE;
   }
 
@@ -170,34 +170,34 @@ static ezResult ReadImageData(ezStreamReader& stream, ezImageHeader& imageHeader
   ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
 
   // Data format specified in RGBA masks
-  if ((ddsHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 || (ddsHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 ||
-      (ddsHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHA) != 0)
+  if ((ref_ddsHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 || (ref_ddsHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 ||
+      (ref_ddsHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHA) != 0)
   {
-    format = ezImageFormat::FromPixelMask(ddsHeader.m_ddspf.m_uiRBitMask, ddsHeader.m_ddspf.m_uiGBitMask, ddsHeader.m_ddspf.m_uiBBitMask,
-      ddsHeader.m_ddspf.m_uiABitMask, ddsHeader.m_ddspf.m_uiRGBBitCount);
+    format = ezImageFormat::FromPixelMask(ref_ddsHeader.m_ddspf.m_uiRBitMask, ref_ddsHeader.m_ddspf.m_uiGBitMask, ref_ddsHeader.m_ddspf.m_uiBBitMask,
+      ref_ddsHeader.m_ddspf.m_uiABitMask, ref_ddsHeader.m_ddspf.m_uiRGBBitCount);
 
     if (format == ezImageFormat::UNKNOWN)
     {
       ezLog::Error("The pixel mask specified was not recognized (R: {0}, G: {1}, B: {2}, A: {3}, Bpp: {4}).",
-        ezArgU(ddsHeader.m_ddspf.m_uiRBitMask, 1, false, 16), ezArgU(ddsHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
-        ezArgU(ddsHeader.m_ddspf.m_uiBBitMask, 1, false, 16), ezArgU(ddsHeader.m_ddspf.m_uiABitMask, 1, false, 16),
-        ddsHeader.m_ddspf.m_uiRGBBitCount);
+        ezArgU(ref_ddsHeader.m_ddspf.m_uiRBitMask, 1, false, 16), ezArgU(ref_ddsHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
+        ezArgU(ref_ddsHeader.m_ddspf.m_uiBBitMask, 1, false, 16), ezArgU(ref_ddsHeader.m_ddspf.m_uiABitMask, 1, false, 16),
+        ref_ddsHeader.m_ddspf.m_uiRGBBitCount);
       return EZ_FAILURE;
     }
 
     // Verify that the format we found is correct
-    if (ezImageFormat::GetBitsPerPixel(format) != ddsHeader.m_ddspf.m_uiRGBBitCount)
+    if (ezImageFormat::GetBitsPerPixel(format) != ref_ddsHeader.m_ddspf.m_uiRGBBitCount)
     {
       ezLog::Error("The number of bits per pixel specified in the file ({0}) does not match the expected value of {1} for the format '{2}'.",
-        ddsHeader.m_ddspf.m_uiRGBBitCount, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
+        ref_ddsHeader.m_ddspf.m_uiRGBBitCount, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
   }
-  else if ((ddsHeader.m_ddspf.m_uiFlags & ezDdpfFlags::FOURCC) != 0)
+  else if ((ref_ddsHeader.m_ddspf.m_uiFlags & ezDdpfFlags::FOURCC) != 0)
   {
-    if (ddsHeader.m_ddspf.m_uiFourCC == ezDdsDxt10FourCc)
+    if (ref_ddsHeader.m_ddspf.m_uiFourCC == ezDdsDxt10FourCc)
     {
-      if (stream.ReadBytes(&headerDxt10, sizeof(ezDdsHeaderDxt10)) != sizeof(ezDdsHeaderDxt10))
+      if (inout_stream.ReadBytes(&headerDxt10, sizeof(ezDdsHeaderDxt10)) != sizeof(ezDdsHeaderDxt10))
       {
         ezLog::Error("Failed to read file header.");
         return EZ_FAILURE;
@@ -213,13 +213,13 @@ static ezResult ReadImageData(ezStreamReader& stream, ezImageHeader& imageHeader
     }
     else
     {
-      format = ezImageFormatMappings::FromFourCc(ddsHeader.m_ddspf.m_uiFourCC);
+      format = ezImageFormatMappings::FromFourCc(ref_ddsHeader.m_ddspf.m_uiFourCC);
 
       if (format == ezImageFormat::UNKNOWN)
       {
-        ezLog::Error("The FourCC code '{0}{1}{2}{3}' was not recognized.", ezArgC((char)(ddsHeader.m_ddspf.m_uiFourCC >> 0)),
-          ezArgC((char)(ddsHeader.m_ddspf.m_uiFourCC >> 8)), ezArgC((char)(ddsHeader.m_ddspf.m_uiFourCC >> 16)),
-          ezArgC((char)(ddsHeader.m_ddspf.m_uiFourCC >> 24)));
+        ezLog::Error("The FourCC code '{0}{1}{2}{3}' was not recognized.", ezArgC((char)(ref_ddsHeader.m_ddspf.m_uiFourCC >> 0)),
+          ezArgC((char)(ref_ddsHeader.m_ddspf.m_uiFourCC >> 8)), ezArgC((char)(ref_ddsHeader.m_ddspf.m_uiFourCC >> 16)),
+          ezArgC((char)(ref_ddsHeader.m_ddspf.m_uiFourCC >> 24)));
         return EZ_FAILURE;
       }
     }
@@ -230,16 +230,16 @@ static ezResult ReadImageData(ezStreamReader& stream, ezImageHeader& imageHeader
     return EZ_FAILURE;
   }
 
-  imageHeader.SetImageFormat(format);
+  ref_imageHeader.SetImageFormat(format);
 
-  const bool bHasMipMaps = (ddsHeader.m_uiCaps & ezDdsCaps::MIPMAP) != 0;
-  const bool bCubeMap = (ddsHeader.m_uiCaps2 & ezDdsCaps2::CUBEMAP) != 0;
-  const bool bVolume = (ddsHeader.m_uiCaps2 & ezDdsCaps2::VOLUME) != 0;
+  const bool bHasMipMaps = (ref_ddsHeader.m_uiCaps & ezDdsCaps::MIPMAP) != 0;
+  const bool bCubeMap = (ref_ddsHeader.m_uiCaps2 & ezDdsCaps2::CUBEMAP) != 0;
+  const bool bVolume = (ref_ddsHeader.m_uiCaps2 & ezDdsCaps2::VOLUME) != 0;
 
 
   if (bHasMipMaps)
   {
-    imageHeader.SetNumMipLevels(ddsHeader.m_uiMipMapCount);
+    ref_imageHeader.SetNumMipLevels(ref_ddsHeader.m_uiMipMapCount);
   }
 
   // Cubemap and volume texture are mutually exclusive
@@ -251,46 +251,46 @@ static ezResult ReadImageData(ezStreamReader& stream, ezImageHeader& imageHeader
 
   if (bCubeMap)
   {
-    imageHeader.SetNumFaces(6);
+    ref_imageHeader.SetNumFaces(6);
   }
   else if (bVolume)
   {
-    imageHeader.SetDepth(ddsHeader.m_uiDepth);
+    ref_imageHeader.SetDepth(ref_ddsHeader.m_uiDepth);
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFileFormat::ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const
+ezResult ezDdsFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezDdsFileFormat::ReadImageHeader");
 
   ezDdsHeader ddsHeader;
-  return ReadImageData(stream, header, ddsHeader);
+  return ReadImageData(inout_stream, ref_header, ddsHeader);
 }
 
-ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const
+ezResult ezDdsFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezDdsFileFormat::ReadImage");
 
   ezImageHeader imageHeader;
   ezDdsHeader ddsHeader;
-  EZ_SUCCEED_OR_RETURN(ReadImageData(stream, imageHeader, ddsHeader));
+  EZ_SUCCEED_OR_RETURN(ReadImageData(inout_stream, imageHeader, ddsHeader));
 
-  image.ResetAndAlloc(imageHeader);
+  ref_image.ResetAndAlloc(imageHeader);
 
   const bool bPitch = (ddsHeader.m_uiFlags & ezDdsdFlags::PITCH) != 0;
 
   // If pitch is specified, it must match the computed value
-  if (bPitch && image.GetRowPitch(0) != ddsHeader.m_uiPitchOrLinearSize)
+  if (bPitch && ref_image.GetRowPitch(0) != ddsHeader.m_uiPitchOrLinearSize)
   {
     ezLog::Error("The row pitch specified in the header doesn't match the expected pitch.");
     return EZ_FAILURE;
   }
 
-  ezUInt64 uiDataSize = image.GetByteBlobPtr().GetCount();
+  ezUInt64 uiDataSize = ref_image.GetByteBlobPtr().GetCount();
 
-  if (stream.ReadBytes(image.GetByteBlobPtr().GetPtr(), uiDataSize) != uiDataSize)
+  if (inout_stream.ReadBytes(ref_image.GetByteBlobPtr().GetPtr(), uiDataSize) != uiDataSize)
   {
     ezLog::Error("Failed to read image data.");
     return EZ_FAILURE;
@@ -299,7 +299,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, cons
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
 {
   const ezImageFormat::Enum format = image.GetImageFormat();
   const ezUInt32 uiBpp = ezImageFormat::GetBitsPerPixel(format);
@@ -488,7 +488,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     headerDxt10.m_uiMiscFlags2 = 0;
   }
 
-  if (stream.WriteBytes(&fileHeader, sizeof(fileHeader)) != EZ_SUCCESS)
+  if (inout_stream.WriteBytes(&fileHeader, sizeof(fileHeader)) != EZ_SUCCESS)
   {
     ezLog::Error("Failed to write image header.");
     return EZ_FAILURE;
@@ -496,14 +496,14 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 
   if (bDxt10)
   {
-    if (stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)
+    if (inout_stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)
     {
       ezLog::Error("Failed to write image DX10 header.");
       return EZ_FAILURE;
     }
   }
 
-  if (stream.WriteBytes(image.GetByteBlobPtr().GetPtr(), image.GetByteBlobPtr().GetCount()) != EZ_SUCCESS)
+  if (inout_stream.WriteBytes(image.GetByteBlobPtr().GetPtr(), image.GetByteBlobPtr().GetCount()) != EZ_SUCCESS)
   {
     ezLog::Error("Failed to write image data.");
     return EZ_FAILURE;

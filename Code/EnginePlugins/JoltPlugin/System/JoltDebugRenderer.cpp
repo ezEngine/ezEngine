@@ -27,7 +27,7 @@ ezJoltDebugRenderer::ezJoltDebugRenderer()
   Initialize();
 }
 
-void ezJoltDebugRenderer::DrawLine(const JPH::Float3& inFrom, const JPH::Float3& inTo, JPH::ColorArg inColor)
+void ezJoltDebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor)
 {
   auto& l = m_Lines.ExpandAndGetRef();
   l.m_start = ezJoltConversionUtils::ToVec3(inFrom);
@@ -47,27 +47,27 @@ void ezJoltDebugRenderer::DrawTriangle(JPH::Vec3Arg inV1, JPH::Vec3Arg inV2, JPH
 }
 
 
-JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Triangle* inTriangles, int inTriangleCount)
+JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Triangle* pInTriangles, int iInTriangleCount)
 {
   TriangleBatch* pBatch = EZ_DEFAULT_NEW(TriangleBatch);
-  pBatch->m_Triangles.Reserve(inTriangleCount);
+  pBatch->m_Triangles.Reserve(iInTriangleCount);
 
-  for (int i = 0; i < inTriangleCount; ++i)
+  for (int i = 0; i < iInTriangleCount; ++i)
   {
     auto& t = pBatch->m_Triangles.ExpandAndGetRef();
-    t.m_position[0] = ezJoltConversionUtils::ToVec3(inTriangles[i].mV[0].mPosition);
-    t.m_position[1] = ezJoltConversionUtils::ToVec3(inTriangles[i].mV[1].mPosition);
-    t.m_position[2] = ezJoltConversionUtils::ToVec3(inTriangles[i].mV[2].mPosition);
-    t.m_color = ezJoltConversionUtils::ToColor(inTriangles[i].mV[0].mColor);
+    t.m_position[0] = ezJoltConversionUtils::ToVec3(pInTriangles[i].mV[0].mPosition);
+    t.m_position[1] = ezJoltConversionUtils::ToVec3(pInTriangles[i].mV[1].mPosition);
+    t.m_position[2] = ezJoltConversionUtils::ToVec3(pInTriangles[i].mV[2].mPosition);
+    t.m_color = ezJoltConversionUtils::ToColor(pInTriangles[i].mV[0].mColor);
   }
 
   return pBatch;
 }
 
 
-JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Vertex* inVertices, int inVertexCount, const JPH::uint32* inIndices, int inIndexCount)
+JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Vertex* pInVertices, int iInVertexCount, const JPH::uint32* pInIndices, int iInIndexCount)
 {
-  const ezUInt32 numTris = inIndexCount / 3;
+  const ezUInt32 numTris = iInIndexCount / 3;
 
   TriangleBatch* pBatch = EZ_DEFAULT_NEW(TriangleBatch);
   pBatch->m_Triangles.Reserve(numTris);
@@ -77,10 +77,10 @@ JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::De
   for (ezUInt32 i = 0; i < numTris; ++i)
   {
     auto& t = pBatch->m_Triangles.ExpandAndGetRef();
-    t.m_position[0] = ezJoltConversionUtils::ToVec3(inVertices[inIndices[index + 0]].mPosition);
-    t.m_position[1] = ezJoltConversionUtils::ToVec3(inVertices[inIndices[index + 1]].mPosition);
-    t.m_position[2] = ezJoltConversionUtils::ToVec3(inVertices[inIndices[index + 2]].mPosition);
-    t.m_color = ezJoltConversionUtils::ToColor(inVertices[inIndices[index + 0]].mColor);
+    t.m_position[0] = ezJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 0]].mPosition);
+    t.m_position[1] = ezJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 1]].mPosition);
+    t.m_position[2] = ezJoltConversionUtils::ToVec3(pInVertices[pInIndices[index + 2]].mPosition);
+    t.m_color = ezJoltConversionUtils::ToColor(pInVertices[pInIndices[index + 0]].mColor);
 
     index += 3;
   }
@@ -89,20 +89,20 @@ JPH::DebugRenderer::Batch ezJoltDebugRenderer::CreateTriangleBatch(const JPH::De
 }
 
 
-void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg inModelMatrix, const JPH::AABox& inWorldSpaceBounds, float inLODScaleSq, JPH::ColorArg inModelColor, const GeometryRef& inGeometry, ECullMode inCullMode /*= ECullMode::CullBackFace*/, ECastShadow inCastShadow /*= ECastShadow::On*/, EDrawMode inDrawMode /*= EDrawMode::Solid*/)
+void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AABox& worldSpaceBounds, float fInLODScaleSq, JPH::ColorArg inModelColor, const GeometryRef& geometry, ECullMode inCullMode /*= ECullMode::CullBackFace*/, ECastShadow inCastShadow /*= ECastShadow::On*/, EDrawMode inDrawMode /*= EDrawMode::Solid*/)
 {
-  if (inGeometry == nullptr)
+  if (geometry == nullptr)
     return;
 
   ezUInt32 uiLod = 0;
-  if (inGeometry->mLODs.size() > 1)
+  if (geometry->mLODs.size() > 1)
     uiLod = 1;
-  if (inGeometry->mLODs.size() > 2)
+  if (geometry->mLODs.size() > 2)
     uiLod = 2;
 
-  const TriangleBatch* pBatch = static_cast<const TriangleBatch*>(inGeometry->mLODs[uiLod].mTriangleBatch.GetPtr());
+  const TriangleBatch* pBatch = static_cast<const TriangleBatch*>(geometry->mLODs[uiLod].mTriangleBatch.GetPtr());
 
-  const ezMat4 trans = reinterpret_cast<const ezMat4&>(inModelMatrix);
+  const ezMat4 trans = reinterpret_cast<const ezMat4&>(modelMatrix);
   const ezColor color = ezJoltConversionUtils::ToColor(inModelColor);
 
   if (inDrawMode == JPH::DebugRenderer::EDrawMode::Solid)
@@ -154,3 +154,7 @@ void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg inModelMatrix, const JPH::A
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltDebugRenderer);
+

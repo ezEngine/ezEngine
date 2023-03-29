@@ -13,8 +13,8 @@ struct ezBlackboardEntry
   void SetName(const char* szName) { m_sName.Assign(szName); }
   const char* GetName() const { return m_sName; }
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezBlackboardEntry);
@@ -50,8 +50,8 @@ class EZ_GAMEENGINE_DLL ezBlackboardComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -67,8 +67,13 @@ public:
 
   ezBlackboardComponent& operator=(ezBlackboardComponent&& other);
 
-  /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents and returns its blackboard
-  static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject* pSearchObject);
+  /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents with the given name and returns its blackboard.
+  ///
+  /// The blackboard name is only checked if the given name is not empty. If no matching blackboard component is found,
+  /// the function will call ezBlackboard::GetOrCreateGlobal() with the given name. This if you provide a name, you will always get a result, either from a component or from the global storage.
+  ///
+  /// \sa ezBlackboard::GetOrCreateGlobal()
+  static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject* pSearchObject, ezStringView sBlackboardName = ezStringView());
 
   /// \brief Returns the blackboard owned by this component
   const ezSharedPtr<ezBlackboard>& GetBoard();

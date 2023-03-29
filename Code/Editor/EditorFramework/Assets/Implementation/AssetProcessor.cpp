@@ -72,10 +72,10 @@ ezAssetProcessor::ezAssetProcessor()
 
 ezAssetProcessor::~ezAssetProcessor()
 {
-  if (m_Thread)
+  if (m_pThread)
   {
-    m_Thread->Join();
-    m_Thread.Clear();
+    m_pThread->Join();
+    m_pThread.Clear();
   }
   EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Call StopProcessTask first before destroying the ezAssetProcessor.");
 }
@@ -89,10 +89,10 @@ void ezAssetProcessor::StartProcessTask()
   }
 
   // Join old thread.
-  if (m_Thread)
+  if (m_pThread)
   {
-    m_Thread->Join();
-    m_Thread.Clear();
+    m_pThread->Join();
+    m_pThread.Clear();
   }
 
   m_ProcessTaskState = ProcessTaskState::Running;
@@ -106,8 +106,8 @@ void ezAssetProcessor::StartProcessTask()
     m_ProcessTasks[idx].m_uiProcessorID = idx;
   }
 
-  m_Thread = EZ_DEFAULT_NEW(ezProcessThread);
-  m_Thread->Start();
+  m_pThread = EZ_DEFAULT_NEW(ezProcessThread);
+  m_pThread->Start();
 
   {
     ezAssetProcessorEvent e;
@@ -144,9 +144,9 @@ void ezAssetProcessor::StopProcessTask(bool bForce)
 
   if (bForce)
   {
-    m_bForceStop = true;
-    m_Thread->Join();
-    m_Thread.Clear();
+    m_ForceStop = true;
+    m_pThread->Join();
+    m_pThread.Clear();
     EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Process task shoul have set the state to stopped.");
   }
 }
@@ -187,7 +187,7 @@ void ezAssetProcessor::Run()
     {
       if (m_ProcessRunning[i])
       {
-        if (m_bForceStop)
+        if (m_ForceStop)
           m_ProcessTasks[i].ShutdownProcess();
 
         m_ProcessRunning[i] = !m_ProcessTasks[i].FinishExecute();
@@ -205,7 +205,7 @@ void ezAssetProcessor::Run()
   m_ProcessRunning.Clear();
   m_ProcessTasks.Clear();
   m_ProcessTaskState = ProcessTaskState::Stopped;
-  m_bForceStop = false;
+  m_ForceStop = false;
   {
     ezAssetProcessorEvent e;
     e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;
@@ -296,8 +296,8 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
       return false;
   }
 
-  auto TestFunc = [this, &bComplete](const ezSet<ezString>& Files) -> ezAssetInfo* {
-    for (const auto& sFile : Files)
+  auto TestFunc = [this, &bComplete](const ezSet<ezString>& files) -> ezAssetInfo* {
+    for (const auto& sFile : files)
     {
       if (ezAssetInfo* pFileInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(sFile))
       {
@@ -305,8 +305,9 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
         {
           case ezAssetInfo::TransformState::Unknown:
           case ezAssetInfo::TransformState::TransformError:
-          case ezAssetInfo::TransformState::MissingDependency:
-          case ezAssetInfo::TransformState::MissingReference:
+          case ezAssetInfo::TransformState::MissingTransformDependency:
+          case ezAssetInfo::TransformState::MissingThumbnailDependency:
+          case ezAssetInfo::TransformState::CircularDependency:
           {
             bComplete = false;
             continue;
@@ -331,15 +332,17 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     return nullptr;
   };
 
-  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_AssetTransformDependencies))
+  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_TransformDependencies))
   {
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
   }
 
-  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_RuntimeDependencies))
+  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_ThumbnailDependencies))
   {
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
   }
+
+  // not needed to go through package dependencies here
 
   if (bComplete && !ezAssetCurator::GetSingleton()->m_Updating.Contains(pInfo->m_Info->m_DocumentID) &&
       !ezAssetCurator::GetSingleton()->m_TransformStateStale.Contains(pInfo->m_Info->m_DocumentID))
@@ -387,7 +390,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
 void ezProcessTask::OnProcessCrashed()
 {
   m_Status = ezStatus("Asset processor crashed");
-  ezLogEntryDelegate logger([this](ezLogEntry& entry) { m_LogEntries.PushBack(std::move(entry)); });
+  ezLogEntryDelegate logger([this](ezLogEntry& ref_entry) { m_LogEntries.PushBack(std::move(ref_entry)); });
   ezLog::Error(&logger, "AssetProcessor crashed!");
   ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "AssetProcessor crashed!");
 }
@@ -417,7 +420,7 @@ bool ezProcessTask::BeginExecute()
     ezSet<ezString> dependencies;
 
     ezStringBuilder sTemp;
-    ezAssetCurator::GetSingleton()->GenerateTransitiveHull(ezConversionUtils::ToString(m_AssetGuid, sTemp), &dependencies, &dependencies);
+    ezAssetCurator::GetSingleton()->GenerateTransitiveHull(ezConversionUtils::ToString(m_AssetGuid, sTemp), dependencies, true, true);
 
     m_TransitiveHull.Reserve(dependencies.GetCount());
     for (const ezString& str : dependencies)
@@ -476,7 +479,7 @@ bool ezProcessTask::FinishExecute()
   if (m_Status.Succeeded())
   {
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_AssetGuid);
-    ezAssetCurator::GetSingleton()->NeedsReloadResources();
+    ezAssetCurator::GetSingleton()->NeedsReloadResources(m_AssetGuid);
   }
   else
   {

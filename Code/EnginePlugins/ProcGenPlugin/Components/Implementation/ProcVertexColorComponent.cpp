@@ -326,20 +326,20 @@ void ezProcVertexColorOutputDesc::SetName(const char* szName)
 }
 
 static ezTypeVersion s_ProcVertexColorOutputDescVersion = 1;
-ezResult ezProcVertexColorOutputDesc::Serialize(ezStreamWriter& stream) const
+ezResult ezProcVertexColorOutputDesc::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(s_ProcVertexColorOutputDescVersion);
-  stream << m_sName;
-  EZ_SUCCEED_OR_RETURN(m_Mapping.Serialize(stream));
+  inout_stream.WriteVersion(s_ProcVertexColorOutputDescVersion);
+  inout_stream << m_sName;
+  EZ_SUCCEED_OR_RETURN(m_Mapping.Serialize(inout_stream));
 
   return EZ_SUCCESS;
 }
 
-ezResult ezProcVertexColorOutputDesc::Deserialize(ezStreamReader& stream)
+ezResult ezProcVertexColorOutputDesc::Deserialize(ezStreamReader& inout_stream)
 {
-  /*ezTypeVersion version =*/stream.ReadVersion(s_ProcVertexColorOutputDescVersion);
-  stream >> m_sName;
-  EZ_SUCCEED_OR_RETURN(m_Mapping.Deserialize(stream));
+  /*ezTypeVersion version =*/inout_stream.ReadVersion(s_ProcVertexColorOutputDescVersion);
+  inout_stream >> m_sName;
+  EZ_SUCCEED_OR_RETURN(m_Mapping.Deserialize(inout_stream));
 
   return EZ_SUCCESS;
 }
@@ -442,21 +442,21 @@ void ezProcVertexColorComponent::SetOutputDesc(ezUInt32 uiIndex, const ezProcVer
   }
 }
 
-void ezProcVertexColorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezProcVertexColorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hResource;
   s.WriteArray(m_OutputDescs).IgnoreResult();
 }
 
-void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hResource;
   if (uiVersion >= 2)
@@ -476,7 +476,7 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezProcVertexColorComponent::OnTransformChanged(ezMsgTransformChanged& msg)
+void ezProcVertexColorComponent::OnTransformChanged(ezMsgTransformChanged& ref_msg)
 {
   auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
   pManager->EnqueueUpdate(this);

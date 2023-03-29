@@ -84,7 +84,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 5, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Script", GetScriptFile, SetScriptFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Code_VisualScript")),
+    EZ_ACCESSOR_PROPERTY("Script", GetScriptFile, SetScriptFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Code_VisualScript", ezDependencyFlags::Package)),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Script"), new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES;
@@ -103,10 +103,10 @@ ezVisualScriptComponent::~ezVisualScriptComponent() = default;
 
 ezVisualScriptComponent& ezVisualScriptComponent::operator=(ezVisualScriptComponent&& other) = default;
 
-void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hResource;
   /// \todo Store the current script state
@@ -120,11 +120,11 @@ void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   }
 }
 
-void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& stream)
+void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_hResource;
 
@@ -212,11 +212,11 @@ void ezVisualScriptComponent::SetScript(const ezVisualScriptResourceHandle& hRes
   }
 }
 
-bool ezVisualScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
+bool ezVisualScriptComponent::HandlesMessage(const ezMessage& msg) const
 {
   if (m_pScriptInstance)
   {
-    return m_pScriptInstance->HandlesEventMessage(msg);
+    return m_pScriptInstance->HandlesMessage(msg);
   }
 
   return false;
@@ -320,8 +320,8 @@ void ezVisualScriptComponent::Initialize()
 const ezRangeView<const char*, ezUInt32> ezVisualScriptComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Params.GetCount(); }, [](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it) -> const char* { return m_Params[it].m_sName.GetData(); });
+    [this]() -> ezUInt32 { return m_Params.GetCount(); }, [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* { return m_Params[uiIt].m_sName.GetData(); });
 }
 
 void ezVisualScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

@@ -251,17 +251,17 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
 }
 
 
-void ezFileserveClient::InvalidateFileCache(ezUInt16 uiDataDirID, const char* szFile, ezUInt64 uiHash)
+void ezFileserveClient::InvalidateFileCache(ezUInt16 uiDataDirID, ezStringView sFile, ezUInt64 uiHash)
 {
   EZ_LOCK(m_Mutex);
-  auto& cache = m_MountedDataDirs[uiDataDirID].m_CacheStatus[szFile];
+  auto& cache = m_MountedDataDirs[uiDataDirID].m_CacheStatus[sFile];
   cache.m_FileHash = uiHash;
   cache.m_TimeStamp = 0;
   cache.m_LastCheck.SetZero(); // will trigger a server request and that in turn will update the file timestamp
 
   // redirect the next access to this cache entry
   // together with the zero LastCheck that will make sure the best match gets updated as well
-  m_FileDataDir[szFile] = uiDataDirID;
+  m_FileDataDir[sFile] = uiDataDirID;
 }
 
 void ezFileserveClient::FillFileStatusCache(const char* szFile)
@@ -312,11 +312,11 @@ void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMount
   }
 }
 
-void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint)
+void ezFileserveClient::ComputeDataDirMountPoint(ezStringView sDataDir, ezStringBuilder& out_sMountPoint)
 {
-  EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szDataDir) || ezStringUtils::EndsWith(szDataDir, "/"), "Invalid path");
+  EZ_ASSERT_DEV(sDataDir.IsEmpty() || sDataDir.EndsWith("/"), "Invalid path");
 
-  const ezUInt32 uiMountPoint = ezHashingUtils::xxHash32(szDataDir, ezStringUtils::GetStringElementCount(szDataDir));
+  const ezUInt32 uiMountPoint = ezHashingUtils::xxHash32String(sDataDir);
   out_sMountPoint.Format("{0}", ezArgU(uiMountPoint, 8, true, 16));
 }
 
@@ -374,22 +374,22 @@ void ezFileserveClient::NetworkMsgHandler(ezRemoteMessage& msg)
   ezLog::Error("Unknown FSRV message: '{0}' - {1} bytes", msg.GetMessageID(), msg.GetMessageData().GetCount());
 }
 
-ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const char* szRootName)
+ezUInt16 ezFileserveClient::MountDataDirectory(ezStringView sDataDirectory, ezStringView sRootName)
 {
   EZ_LOCK(m_Mutex);
   if (!m_pNetwork->IsConnectedToServer())
     return 0xffff;
 
-  ezStringBuilder sRoot = szRootName;
+  ezStringBuilder sRoot = sRootName;
   sRoot.Trim(":/");
 
   ezStringBuilder sMountPoint;
-  ComputeDataDirMountPoint(szDataDirectory, sMountPoint);
+  ComputeDataDirMountPoint(sDataDirectory, sMountPoint);
 
   const ezUInt16 uiDataDirID = static_cast<ezUInt16>(m_MountedDataDirs.GetCount());
 
   ezRemoteMessage msg('FSRV', ' MNT');
-  msg.GetWriter() << szDataDirectory;
+  msg.GetWriter() << sDataDirectory;
   msg.GetWriter() << sRoot;
   msg.GetWriter() << sMountPoint;
   msg.GetWriter() << uiDataDirID;
@@ -397,7 +397,7 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
   m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
 
   auto& dd = m_MountedDataDirs.ExpandAndGetRef();
-  // dd.m_sPathOnClient = szDataDirectory;
+  // dd.m_sPathOnClient = sDataDirectory;
   // dd.m_sRootName = sRoot;
   dd.m_sMountPoint = sMountPoint;
   dd.m_bMounted = true;
@@ -421,17 +421,17 @@ void ezFileserveClient::UnmountDataDirectory(ezUInt16 uiDataDir)
   dd.m_bMounted = false;
 }
 
-void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
+void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, ezStringView sFile)
 {
   EZ_LOCK(m_Mutex);
   if (!m_pNetwork->IsConnectedToServer())
     return;
 
-  InvalidateFileCache(uiDataDir, szFile, 0);
+  InvalidateFileCache(uiDataDir, sFile, 0);
 
   ezRemoteMessage msg('FSRV', 'DELF');
   msg.GetWriter() << uiDataDir;
-  msg.GetWriter() << szFile;
+  msg.GetWriter() << sFile;
 
   m_pNetwork->Send(ezRemoteTransmitMode::Reliable, msg);
 }
@@ -763,14 +763,13 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
     return EZ_FAILURE;
 
   bool bServerFound = false;
-  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& msg) {
-    switch (msg.GetMessageID())
+  network->SetMessageHandler('FSRV', [&bServerFound](ezRemoteMessage& ref_msg) {
+    switch (ref_msg.GetMessageID())
     {
       case ' YES':
         bServerFound = true;
         break;
-    }
-  });
+    } });
 
   if (network->WaitForConnectionToServer(timeout).Succeeded())
   {
@@ -810,26 +809,25 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
 
   {
     ezUniquePtr<ezRemoteInterfaceEnet> network = ezRemoteInterfaceEnet::Make(); /// \todo Abstract this somehow ?
-    network->SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& msg)
+    network->SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& ref_msg)
 
       {
-        switch (msg.GetMessageID())
+        switch (ref_msg.GetMessageID())
         {
           case 'MYIP':
-            msg.GetReader() >> uiPort;
+            ref_msg.GetReader() >> uiPort;
 
             ezUInt8 uiCount = 0;
-            msg.GetReader() >> uiCount;
+            ref_msg.GetReader() >> uiCount;
 
             sServerIPs.SetCount(uiCount);
             for (ezUInt32 i = 0; i < uiCount; ++i)
             {
-              msg.GetReader() >> sServerIPs[i];
+              ref_msg.GetReader() >> sServerIPs[i];
             }
 
             break;
-        }
-      });
+        } });
 
     EZ_SUCCEED_OR_RETURN(network->StartServer('EZIP', "2042", false));
 

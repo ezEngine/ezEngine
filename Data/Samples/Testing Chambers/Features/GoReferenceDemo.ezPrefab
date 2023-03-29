@@ -11,12 +11,17 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11281838771480088251,5140108322494537448}}
-		u4 %Hash{4702777141564893820}
+		u4 %Hash{13306539775961662319}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17374589031583292623,5460030219854842637}}
 		}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
+		}
 		VarArray %References
 		{
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
@@ -122,6 +127,8 @@ o
 	p
 	{
 		b %Active{1}
+		f %BreakForce{0}
+		f %BreakTorque{0}
 		s %ChildActor{"{ 66bcb5ce-bf94-4c0f-85a0-9fd4bc354130 }"}
 		s %ChildActorAnchor{""}
 		f %Damping{0x0000003F}
@@ -412,6 +419,37 @@ o
 }
 o
 {
+	Uuid %id{u4{8963828211989796836,429565058857181774}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1729749055164645796,4053257172044786503}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Color"}
+		s %Type{"ezColor"}
+	}
+}
+o
+{
+	Uuid %id{u4{2231647148333201094,621496534418542101}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"BreakForce"}
+		s %Type{"float"}
+	}
+}
+o
+{
 	Uuid %id{u4{13975639292304874303,958692951062372621}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -438,7 +476,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -463,9 +500,10 @@ o
 			Uuid{u4{10574225008861697014,159347075783349120}}
 			Uuid{u4{13310803270815845631,4147185474794924503}}
 			Uuid{u4{8482106557924809865,13991416268233940690}}
+			Uuid{u4{2231647148333201094,621496534418542101}}
+			Uuid{u4{15699897604393394518,2016062414246822628}}
 		}
 		s %TypeName{"ezJoltConstraintComponent"}
-		u3 %TypeSize{168}
 		u3 %TypeVersion{1}
 	}
 }
@@ -484,6 +522,20 @@ o
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Mass"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{15699897604393394518,2016062414246822628}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"BreakTorque"}
 		s %Type{"float"}
 	}
 }
@@ -564,7 +616,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -589,7 +640,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
-		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -618,7 +668,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
 	}
 }
@@ -630,6 +679,16 @@ o
 	p
 	{
 		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{1729749055164645796,4053257172044786503}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Color %Value{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
 	}
 }
 o
@@ -683,7 +742,6 @@ o
 			Uuid{u4{14581281259262649445,9510982898595176068}}
 		}
 		s %TypeName{"ezJoltDistanceConstraintComponent"}
-		u3 %TypeSize{184}
 		u3 %TypeVersion{1}
 	}
 }
@@ -770,6 +828,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
 	}
 }
@@ -781,7 +840,7 @@ o
 	p
 	{
 		s %Anchor{""}
-		Color %Color{f{0x4035123F,0x70BAF53B,0x082E703E,0x0000803F}}
+		Color %Color{f{0x71941A3F,0x782DE03D,0x70944E3F,0x0000803F}}
 		Vec3 %OffsetOrScale{f{0,0,0}}
 		s %Property1{"Radius"}
 		s %Property2{""}
@@ -855,7 +914,6 @@ o
 		s %PluginName{"ezJoltPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltShapeComponent"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -912,8 +970,24 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2208369192415382143,6906888135645689853}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11726345163173979790,14037420484870253533}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Name{"Target"}
+		s %Type{"ezConstCharPtr"}
 	}
 }
 o
@@ -944,7 +1018,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -983,7 +1056,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBitflagsBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1024,7 +1096,6 @@ o
 			Uuid{u4{18115423731678040207,4639548822328574800}}
 		}
 		s %TypeName{"ezJoltDynamicActorComponent"}
-		u3 %TypeSize{120}
 		u3 %TypeVersion{3}
 	}
 }
@@ -1075,7 +1146,7 @@ o
 	p
 	{
 		s %Anchor{""}
-		Color %Color{f{0x9018783E,0x43011E3F,0xB1BA743F,0x0000803F}}
+		Color %Color{f{0x9018783E,0x43011E3F,0xAEBA743F,0x0000803F}}
 		Vec3 %OffsetOrScale{f{0,0,0}}
 		s %Property1{"MaxDistance"}
 		s %Property2{""}
@@ -1113,7 +1184,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1170,7 +1240,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1188,7 +1257,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1345,7 +1413,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1398,7 +1465,6 @@ o
 			Uuid{u4{6916421691460421263,6517784942153784783}}
 		}
 		s %TypeName{"ezJoltShapeSphereComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1470,7 +1536,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1512,7 +1577,6 @@ o
 			Uuid{u4{1169733456550287353,10163373658405488592}}
 		}
 		s %TypeName{"ezJoltActorComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1558,14 +1622,20 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Attributes
+		{
+			Uuid{u4{7934818497254718629,15473303203448325923}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
+		s %PluginName{"ezGameComponentsPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{2208369192415382143,6906888135645689853}}
+			Uuid{u4{8963828211989796836,429565058857181774}}
+		}
 		s %TypeName{"ezLineToComponent"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1585,6 +1655,13 @@ o
 		s %Name{"ChildActorAnchor"}
 		s %Type{"ezConstCharPtr"}
 	}
+}
+o
+{
+	Uuid %id{u4{11726345163173979790,14037420484870253533}}
+	s %t{"ezGameObjectReferenceAttribute"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -1652,7 +1729,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1728,6 +1804,16 @@ o
 }
 o
 {
+	Uuid %id{u4{7934818497254718629,15473303203448325923}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Debug"}
+	}
+}
+o
+{
 	Uuid %id{u4{10630366608556099574,15734649419491018854}}
 	s %t{"ezDynamicEnumAttribute"}
 	u3 %v{1}
@@ -1754,7 +1840,7 @@ o
 	p
 	{
 		s %Anchor{""}
-		Color %Color{f{0x73491C3F,0xED2EDB3D,0xED2EDB3D,0x0000803F}}
+		Color %Color{f{0x73491C3F,0xEF2EDB3D,0xEF2EDB3D,0x0000803F}}
 		Vec3 %OffsetOrScale{f{0,0,0}}
 		s %Property1{"MinDistance"}
 		s %Property2{""}
@@ -1796,7 +1882,6 @@ o
 			Uuid{u4{8247671856237943234,17604851697150064637}}
 		}
 		s %TypeName{"ezOnJoltContact"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1844,7 +1929,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -100,7 +101,8 @@ private:
 	struct AttributeDescription
 	{
 		int						mArrayDepth = 0;
-		EOSDataType				mDataType = EOSDataType::Invalid;
+		EOSDataType				mSourceType = EOSDataType::Invalid;
+		EOSDataType				mDestinationType = EOSDataType::Invalid;
 		String					mClassName;
 		int						mIndex = -1;
 	};

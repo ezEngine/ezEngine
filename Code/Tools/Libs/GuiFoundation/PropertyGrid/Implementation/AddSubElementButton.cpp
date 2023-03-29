@@ -291,7 +291,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         m_pMenu->close(); });
 
       connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
-        [this](const QString& text) { s_sLastMenuSearch = text.toUtf8().data(); });
+        [this](const QString& sText) { s_sLastMenuSearch = sText.toUtf8().data(); });
 
       m_pMenu->addAction(m_pSearchableMenu);
 

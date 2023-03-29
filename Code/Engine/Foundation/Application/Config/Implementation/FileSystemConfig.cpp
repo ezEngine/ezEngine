@@ -33,10 +33,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNo
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezApplicationFileSystemConfig::Save(const char* szPath)
+ezResult ezApplicationFileSystemConfig::Save(ezStringView sPath)
 {
-  ezStringBuilder sPath = szPath;
-
   ezFileWriter file;
   if (file.Open(sPath).Failed())
     return EZ_FAILURE;
@@ -60,13 +58,21 @@ ezResult ezApplicationFileSystemConfig::Save(const char* szPath)
   return EZ_SUCCESS;
 }
 
-void ezApplicationFileSystemConfig::Load(const char* szPath /*= ":project/DataDirectories.ddl"*/)
+void ezApplicationFileSystemConfig::Load(ezStringView sPath)
 {
   EZ_LOG_BLOCK("ezApplicationFileSystemConfig::Load()");
 
   m_DataDirs.Clear();
 
-  ezStringBuilder sPath = szPath;
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  ezStringBuilder sOldLoc;
+  if (sPath.FindSubString("RuntimeConfigs/"))
+  {
+    sOldLoc = sPath;
+    sOldLoc.ReplaceLast("RuntimeConfigs/", "");
+    sPath = ezFileSystem::MigrateFileLocation(sOldLoc, sPath);
+  }
+#endif
 
   ezFileReader file;
   if (file.Open(sPath).Failed())

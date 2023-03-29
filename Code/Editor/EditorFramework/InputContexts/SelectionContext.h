@@ -12,9 +12,17 @@ class EZ_EDITORFRAMEWORK_DLL ezSelectionContext : public ezEditorInputContext
 {
 public:
   ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
+  ~ezSelectionContext();
 
-  void SetWindowConfig(const ezVec2I32& viewport) { m_vViewport = viewport; }
+  void SetWindowConfig(const ezVec2I32& vViewport) { m_vViewport = vViewport; }
 
+  /// \brief Adds a delegate that gets called whenever an object is picked, as long as the override is active.
+  ///
+  /// It also changes the owner view's cursor to a cross-hair.
+  /// If something gets picked, the override is called with a non-null object.
+  /// In case the user presses ESC or the view gets destroyed while the override is active,
+  /// the delegate is called with nullptr.
+  /// This indicates that all picking should be stopped and the registered user should clean up.
   void SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride);
   void ResetPickObjectOverride();
 

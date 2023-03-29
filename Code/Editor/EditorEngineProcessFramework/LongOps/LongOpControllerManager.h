@@ -69,7 +69,7 @@ public:
   void CancelAndRemoveAllOpsForDocument(const ezUuid& documentGuid);
 
   /// \brief Returns a pointer to the given long op, or null if the GUID does not exist.
-  ProxyOpInfo* GetOperation(const ezUuid& guid);
+  ProxyOpInfo* GetOperation(const ezUuid& opGuid);
 
   /// \brief Gives access to all currently available long ops. Make sure the lock m_Mutex (of the ezLongOpManager base class) while accessing this.
   const ezDynamicArray<ezUniquePtr<ProxyOpInfo>>& GetOperations() const { return m_ProxyOps; }

@@ -34,7 +34,7 @@ public:
   virtual void RemoveSubObject(ezDocumentObject* pObject);
 
   // Helper
-  void ComputeObjectHash(ezUInt64& uiHash) const;
+  void ComputeObjectHash(ezUInt64& ref_uiHash) const;
   const ezHybridArray<ezDocumentObject*, 8>& GetChildren() const { return m_Children; }
   ezDocumentObject* GetChild(const ezUuid& guid);
   const ezDocumentObject* GetChild(const ezUuid& guid) const;

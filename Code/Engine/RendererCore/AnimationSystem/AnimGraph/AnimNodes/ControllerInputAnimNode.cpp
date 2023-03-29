@@ -150,3 +150,6 @@ void ezControllerInputAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezS
   ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadDown, &fValue1);
   m_PadDown.SetTriggered(graph, fValue1 > 0);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_ControllerInputAnimNode);

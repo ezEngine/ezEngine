@@ -84,6 +84,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       ++histogram[randomValuesAsInt.y()];
       ++histogram[randomValuesAsInt.z()];
       ++histogram[randomValuesAsInt.w()];
+
+      randomValues = ezSimdRandom::FloatMinMax(ezSimdVec4i(32, 33, 34, 35), ezSimdVec4f::ZeroVector(), ezSimdVec4f(256.0f), seed);
+      randomValuesAsInt = ezSimdVec4i::Truncate(randomValues);
+
+      ++histogram[randomValuesAsInt.x()];
+      ++histogram[randomValuesAsInt.y()];
+      ++histogram[randomValuesAsInt.z()];
+      ++histogram[randomValuesAsInt.w()];
     }
 
     const char* szOutFile = ":output/SimdNoise/result-random.csv";

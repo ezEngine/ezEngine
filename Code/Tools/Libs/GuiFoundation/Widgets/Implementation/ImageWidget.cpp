@@ -25,8 +25,8 @@ void ezQtImageScene::SetImage(QPixmap pixmap)
 
 
 
-ezQtImageWidget::ezQtImageWidget(QWidget* parent, bool bShowButtons)
-  : QWidget(parent)
+ezQtImageWidget::ezQtImageWidget(QWidget* pParent, bool bShowButtons)
+  : QWidget(pParent)
 {
   setupUi(this);
   m_pScene = new ezQtImageScene(GraphicsView);

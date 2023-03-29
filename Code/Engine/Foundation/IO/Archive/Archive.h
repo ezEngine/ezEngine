@@ -24,8 +24,8 @@ public:
   ezUInt32 m_uiPathStringOffset = 0;     ///< Byte offset into ezArchiveTOC::m_AllPathStrings where the path string for this entry resides.
   ezArchiveCompressionMode m_CompressionMode = ezArchiveCompressionMode::Uncompressed;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 /// \brief Helper class to store a hashed string for quick lookup in the archive TOC
@@ -51,8 +51,8 @@ public:
   ezUInt32 m_uiSrcStringOffset;
 };
 
-void operator<<(ezStreamWriter& stream, const ezArchiveStoredString& value);
-void operator>>(ezStreamReader& stream, ezArchiveStoredString& value);
+void operator<<(ezStreamWriter& inout_stream, const ezArchiveStoredString& value);
+void operator>>(ezStreamReader& inout_stream, ezArchiveStoredString& value);
 
 /// \brief Helper class for looking up path strings in ezArchiveTOC::FindEntry()
 ///
@@ -64,10 +64,10 @@ class ezArchiveLookupString
 public:
   EZ_DECLARE_POD_TYPE();
 
-  ezArchiveLookupString(ezUInt64 uiLowerCaseHash, const char* string, const ezDynamicArray<ezUInt8>& ArchiveAllPathStrings)
+  ezArchiveLookupString(ezUInt64 uiLowerCaseHash, const char* szString, const ezDynamicArray<ezUInt8>& archiveAllPathStrings)
     : m_uiLowerCaseHash(ezHashingUtils::StringHashTo32(uiLowerCaseHash))
-    , m_szString(string)
-    , m_ArchiveAllPathStrings(ArchiveAllPathStrings)
+    , m_szString(szString)
+    , m_ArchiveAllPathStrings(archiveAllPathStrings)
   {
   }
 
@@ -109,6 +109,6 @@ public:
 
   const char* GetEntryPathString(ezUInt32 uiEntryIdx) const;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVersion);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchiveVersion);
 };

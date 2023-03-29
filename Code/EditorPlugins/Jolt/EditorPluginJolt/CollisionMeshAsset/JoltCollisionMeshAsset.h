@@ -15,7 +15,7 @@ class ezJoltCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezJoltColl
 public:
   ezJoltCollisionMeshAssetDocument(const char* szDocumentPath, bool bConvexMesh);
 
-  static ezStatus WriteToStream(ezChunkStreamWriter& stream, const ezJoltCookingMesh& mesh, const ezJoltCollisionMeshAssetProperties* pProp);
+  static ezStatus WriteToStream(ezChunkStreamWriter& inout_stream, const ezJoltCookingMesh& mesh, const ezJoltCollisionMeshAssetProperties* pProp);
 
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
@@ -42,10 +42,10 @@ public:
   ezJoltCollisionMeshAssetDocumentGenerator();
   ~ezJoltCollisionMeshAssetDocumentGenerator();
 
-  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
-  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
-  virtual const char* GetDocumentExtension() const override { return "ezJoltCollisionMeshAsset"; }
-  virtual const char* GetGeneratorGroup() const override { return "JoltCollisionMeshes"; }
+  virtual void GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const override;
+  virtual ezStatus Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual ezStringView GetDocumentExtension() const override { return "ezJoltCollisionMeshAsset"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "JoltCollisionMeshes"; }
 };
 
 class ezJoltConvexCollisionMeshAssetDocumentGenerator : public ezAssetDocumentGenerator
@@ -56,8 +56,8 @@ public:
   ezJoltConvexCollisionMeshAssetDocumentGenerator();
   ~ezJoltConvexCollisionMeshAssetDocumentGenerator();
 
-  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
-  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
-  virtual const char* GetDocumentExtension() const override { return "ezJoltConvexCollisionMeshAsset"; }
-  virtual const char* GetGeneratorGroup() const override { return "JoltCollisionMeshes"; }
+  virtual void GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const override;
+  virtual ezStatus Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual ezStringView GetDocumentExtension() const override { return "ezJoltConvexCollisionMeshAsset"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "JoltCollisionMeshes"; }
 };

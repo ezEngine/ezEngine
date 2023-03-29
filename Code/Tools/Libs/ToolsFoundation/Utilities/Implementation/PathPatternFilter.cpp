@@ -3,9 +3,9 @@
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
-void ezPathPattern::Configure(const ezStringView text0)
+void ezPathPattern::Configure(const ezStringView sText0)
 {
-  ezStringView text = text0;
+  ezStringView text = sText0;
 
   text.Trim(" \t\r\n");
 
@@ -25,18 +25,18 @@ void ezPathPattern::Configure(const ezStringView text0)
     m_MatchType = MatchType::Exact;
 }
 
-bool ezPathPattern::Matches(const ezStringView text) const
+bool ezPathPattern::Matches(const ezStringView sText) const
 {
   switch (m_MatchType)
   {
     case MatchType::Exact:
-      return text.IsEqual_NoCase(m_sString.GetView());
+      return sText.IsEqual_NoCase(m_sString.GetView());
     case MatchType::StartsWith:
-      return text.StartsWith_NoCase(m_sString);
+      return sText.StartsWith_NoCase(m_sString);
     case MatchType::EndsWith:
-      return text.EndsWith_NoCase(m_sString);
+      return sText.EndsWith_NoCase(m_sString);
     case MatchType::Contains:
-      return text.FindSubString_NoCase(m_sString) != nullptr;
+      return sText.FindSubString_NoCase(m_sString) != nullptr;
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -45,19 +45,19 @@ bool ezPathPattern::Matches(const ezStringView text) const
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ezPathPatternFilter::PassesFilters(ezStringView text) const
+bool ezPathPatternFilter::PassesFilters(ezStringView sText) const
 {
   for (const auto& filter : m_IncludePatterns)
   {
     // if any include pattern matches, that overrides the exclude patterns
-    if (filter.Matches(text))
+    if (filter.Matches(sText))
       return true;
   }
 
   for (const auto& filter : m_ExcludePatterns)
   {
     // no include pattern matched, but any exclude pattern matches -> filter out
-    if (filter.Matches(text))
+    if (filter.Matches(sText))
       return false;
   }
 

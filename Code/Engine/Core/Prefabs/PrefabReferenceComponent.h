@@ -33,8 +33,8 @@ class EZ_CORE_DLL ezPrefabReferenceComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -62,8 +62,8 @@ public:
   void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
   bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
 
-  static void SerializePrefabParameters(const ezWorld& world, ezWorldWriter& stream, ezArrayMap<ezHashedString, ezVariant> parameters);
-  static void DeserializePrefabParameters(ezArrayMap<ezHashedString, ezVariant>& out_parameters, ezWorldReader& stream);
+  static void SerializePrefabParameters(const ezWorld& world, ezWorldWriter& inout_stream, ezArrayMap<ezHashedString, ezVariant> parameters);
+  static void DeserializePrefabParameters(ezArrayMap<ezHashedString, ezVariant>& out_parameters, ezWorldReader& inout_stream);
 
 private:
   void InstantiatePrefab();

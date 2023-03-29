@@ -58,12 +58,12 @@ namespace
     }
     ~TestComponentMsg() {}
 
-    virtual void SerializeComponent(ezWorldWriter& stream) const override {}
-    virtual void DeserializeComponent(ezWorldReader& stream) override {}
+    virtual void SerializeComponent(ezWorldWriter& inout_stream) const override {}
+    virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}
 
-    void OnTestMessage(TestMessage1& msg) { m_iSomeData += msg.m_iValue; }
+    void OnTestMessage(TestMessage1& ref_msg) { m_iSomeData += ref_msg.m_iValue; }
 
-    void OnTestMessage2(TestMessage2& msg) { m_iSomeData2 += 2 * msg.m_iValue; }
+    void OnTestMessage2(TestMessage2& ref_msg) { m_iSomeData2 += 2 * ref_msg.m_iValue; }
 
     ezInt32 m_iSomeData;
     ezInt32 m_iSomeData2;
@@ -82,16 +82,16 @@ namespace
   EZ_END_COMPONENT_TYPE;
   // clang-format on
 
-  void ResetComponents(ezGameObject& object)
+  void ResetComponents(ezGameObject& ref_object)
   {
     TestComponentMsg* pComponent = nullptr;
-    if (object.TryGetComponentOfBaseType(pComponent))
+    if (ref_object.TryGetComponentOfBaseType(pComponent))
     {
       pComponent->m_iSomeData = 1;
       pComponent->m_iSomeData2 = 2;
     }
 
-    for (auto it = object.GetChildren(); it.IsValid(); ++it)
+    for (auto it = ref_object.GetChildren(); it.IsValid(); ++it)
     {
       ResetComponents(*it);
     }

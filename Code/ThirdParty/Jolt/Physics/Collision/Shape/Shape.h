@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -99,11 +100,21 @@ enum class EShapeSubType : uint8
 	User6,
 	User7,
 	User8,
+
+	// User defined convex shapes
+	UserConvex1,
+	UserConvex2,
+	UserConvex3,
+	UserConvex4,
+	UserConvex5,
+	UserConvex6,
+	UserConvex7,
+	UserConvex8,
 };
 
 // Sets of shape sub types
-static constexpr EShapeSubType sAllSubShapeTypes[] = { EShapeSubType::Sphere, EShapeSubType::Box, EShapeSubType::Triangle, EShapeSubType::Capsule, EShapeSubType::TaperedCapsule, EShapeSubType::Cylinder, EShapeSubType::ConvexHull, EShapeSubType::StaticCompound, EShapeSubType::MutableCompound, EShapeSubType::RotatedTranslated, EShapeSubType::Scaled, EShapeSubType::OffsetCenterOfMass, EShapeSubType::Mesh, EShapeSubType::HeightField, EShapeSubType::User1, EShapeSubType::User2, EShapeSubType::User3, EShapeSubType::User4, EShapeSubType::User5, EShapeSubType::User6, EShapeSubType::User7, EShapeSubType::User8 };
-static constexpr EShapeSubType sConvexSubShapeTypes[] = { EShapeSubType::Sphere, EShapeSubType::Box, EShapeSubType::Triangle, EShapeSubType::Capsule, EShapeSubType::TaperedCapsule, EShapeSubType::Cylinder, EShapeSubType::ConvexHull };
+static constexpr EShapeSubType sAllSubShapeTypes[] = { EShapeSubType::Sphere, EShapeSubType::Box, EShapeSubType::Triangle, EShapeSubType::Capsule, EShapeSubType::TaperedCapsule, EShapeSubType::Cylinder, EShapeSubType::ConvexHull, EShapeSubType::StaticCompound, EShapeSubType::MutableCompound, EShapeSubType::RotatedTranslated, EShapeSubType::Scaled, EShapeSubType::OffsetCenterOfMass, EShapeSubType::Mesh, EShapeSubType::HeightField, EShapeSubType::User1, EShapeSubType::User2, EShapeSubType::User3, EShapeSubType::User4, EShapeSubType::User5, EShapeSubType::User6, EShapeSubType::User7, EShapeSubType::User8, EShapeSubType::UserConvex1, EShapeSubType::UserConvex2, EShapeSubType::UserConvex3, EShapeSubType::UserConvex4, EShapeSubType::UserConvex5, EShapeSubType::UserConvex6, EShapeSubType::UserConvex7, EShapeSubType::UserConvex8 };
+static constexpr EShapeSubType sConvexSubShapeTypes[] = { EShapeSubType::Sphere, EShapeSubType::Box, EShapeSubType::Triangle, EShapeSubType::Capsule, EShapeSubType::TaperedCapsule, EShapeSubType::Cylinder, EShapeSubType::ConvexHull, EShapeSubType::UserConvex1, EShapeSubType::UserConvex2, EShapeSubType::UserConvex3, EShapeSubType::UserConvex4, EShapeSubType::UserConvex5, EShapeSubType::UserConvex6, EShapeSubType::UserConvex7, EShapeSubType::UserConvex8 };
 static constexpr EShapeSubType sCompoundSubShapeTypes[] = { EShapeSubType::StaticCompound, EShapeSubType::MutableCompound };
 static constexpr EShapeSubType sDecoratorSubShapeTypes[] = { EShapeSubType::RotatedTranslated, EShapeSubType::Scaled, EShapeSubType::OffsetCenterOfMass };
 
@@ -111,7 +122,7 @@ static constexpr EShapeSubType sDecoratorSubShapeTypes[] = { EShapeSubType::Rota
 static constexpr uint NumSubShapeTypes = (uint)size(sAllSubShapeTypes);
 
 /// Names of sub shape types
-static constexpr const char *sSubShapeTypeNames[] = { "Sphere", "Box", "Triangle", "Capsule", "TaperedCapsule", "Cylinder", "ConvexHull", "StaticCompound", "MutableCompound", "RotatedTranslated", "Scaled", "OffsetCenterOfMass", "Mesh", "HeightField", "User1", "User2", "User3", "User4", "User5", "User6", "User7", "User8" };
+static constexpr const char *sSubShapeTypeNames[] = { "Sphere", "Box", "Triangle", "Capsule", "TaperedCapsule", "Cylinder", "ConvexHull", "StaticCompound", "MutableCompound", "RotatedTranslated", "Scaled", "OffsetCenterOfMass", "Mesh", "HeightField", "User1", "User2", "User3", "User4", "User5", "User6", "User7", "User8", "UserConvex1", "UserConvex2", "UserConvex3", "UserConvex4", "UserConvex5", "UserConvex6", "UserConvex7", "UserConvex8" };
 static_assert(size(sSubShapeTypeNames) == NumSubShapeTypes);
 
 /// Class that can construct shapes and that is serializable using the ObjectStream system.
@@ -194,6 +205,18 @@ public:
 	/// This function can be overridden to return a closer fitting world space bounding box, by default it will just transform what GetLocalBounds() returns.
 	virtual AABox					GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const { return GetLocalBounds().Scaled(inScale).Transformed(inCenterOfMassTransform); }
 
+	/// Get world space bounds including convex radius.
+	AABox							GetWorldSpaceBounds(DMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const
+	{
+		// Use single precision version using the rotation only
+		AABox bounds = GetWorldSpaceBounds(inCenterOfMassTransform.GetRotation(), inScale);
+
+		// Apply translation
+		bounds.Translate(inCenterOfMassTransform.GetTranslation());
+
+		return bounds;
+	}
+
 	/// Returns the radius of the biggest sphere that fits entirely in the shape. In case this shape consists of multiple sub shapes, it returns the smallest sphere of the parts. 
 	/// This can be used as a measure of how far the shape can be moved without risking going through geometry.
 	virtual float					GetInnerRadius() const = 0;
@@ -233,23 +256,30 @@ public:
 	virtual TransformedShape		GetSubShapeTransformedShape(const SubShapeID &inSubShapeID, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, SubShapeID &outRemainder) const;
 
 	/// Gets the properties needed to do buoyancy calculations for a body using this shape
-	/// @param inCenterOfMassTransform Transform that takes this shape (centered around center of mass) to world space
+	/// @param inCenterOfMassTransform Transform that takes this shape (centered around center of mass) to world space (or a desired other space)
 	/// @param inScale Scale in local space of the shape
-	/// @param inSurface The surface plane of the liquid in world space
+	/// @param inSurface The surface plane of the liquid relative to inCenterOfMassTransform
 	/// @param outTotalVolume On return this contains the total volume of the shape
 	/// @param outSubmergedVolume On return this contains the submerged volume of the shape
 	/// @param outCenterOfBuoyancy On return this contains the world space center of mass of the submerged volume
-	virtual void					GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy) const = 0;
+#ifdef JPH_DEBUG_RENDERER
+	/// @param inBaseOffset The offset to transform inCenterOfMassTransform to world space (in double precision mode this can be used to shift the whole operation closer to the origin). Only used for debug drawing.
+#endif
+	virtual void					GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy
+#ifdef JPH_DEBUG_RENDERER // Not using JPH_IF_DEBUG_RENDERER for Doxygen
+		, RVec3Arg inBaseOffset
+#endif
+		) const = 0;
 	
 #ifdef JPH_DEBUG_RENDERER
 	/// Draw the shape at a particular location with a particular color (debugging purposes)
-	virtual void					Draw(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const = 0;
+	virtual void					Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const = 0;
 
 	/// Draw the results of the GetSupportFunction with the convex radius added back on to show any errors introduced by this process (only relevant for convex shapes)
-	virtual void					DrawGetSupportFunction(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const { /* Only implemented for convex shapes */ }
+	virtual void					DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const { /* Only implemented for convex shapes */ }
 
 	/// Draw the results of the GetSupportingFace function to show any errors introduced by this process (only relevant for convex shapes)
-	virtual void					DrawGetSupportingFace(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const { /* Only implemented for convex shapes */ }
+	virtual void					DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const { /* Only implemented for convex shapes */ }
 #endif // JPH_DEBUG_RENDERER
 
 	/// Cast a ray against this shape, returns true if it finds a hit closer than ioHit.mFraction and updates that fraction. Otherwise ioHit is left untouched and the function returns false.

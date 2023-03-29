@@ -146,15 +146,15 @@ void ezIdTableBase<IdType, ValueType>::operator=(const ezIdTableBase<IdType, Val
 }
 
 template <typename IdType, typename ValueType>
-void ezIdTableBase<IdType, ValueType>::Reserve(IndexType uiCapacity)
+void ezIdTableBase<IdType, ValueType>::Reserve(IndexType capacity)
 {
-  if (m_Capacity >= uiCapacity + CAPACITY_ALIGNMENT)
+  if (m_Capacity >= capacity + CAPACITY_ALIGNMENT)
     return;
 
   const ezUInt64 uiCurCap64 = static_cast<ezUInt64>(this->m_Capacity);
   ezUInt64 uiNewCapacity64 = uiCurCap64 + (uiCurCap64 / 2);
 
-  uiNewCapacity64 = ezMath::Max<ezUInt64>(uiNewCapacity64, uiCapacity + CAPACITY_ALIGNMENT);
+  uiNewCapacity64 = ezMath::Max<ezUInt64>(uiNewCapacity64, capacity + CAPACITY_ALIGNMENT);
 
   // the maximum value must leave room for the capacity alignment computation below (without overflowing the 32 bit range)
   uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, 0xFFFFFFFFllu - (CAPACITY_ALIGNMENT - 1));
@@ -234,7 +234,7 @@ IdType ezIdTableBase<IdType, ValueType>::Insert(ValueType&& value)
 }
 
 template <typename IdType, typename ValueType>
-bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_oldValue /*= nullptr*/)
+bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_pOldValue /*= nullptr*/)
 {
   if (m_Capacity <= id.m_InstanceIndex)
     return false;
@@ -244,8 +244,8 @@ bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_ol
   if (!entry.id.IsIndexAndGenerationEqual(id))
     return false;
 
-  if (out_oldValue != nullptr)
-    *out_oldValue = std::move(m_pEntries[uiIndex].value);
+  if (out_pOldValue != nullptr)
+    *out_pOldValue = std::move(m_pEntries[uiIndex].value);
 
   ezMemoryUtils::Destruct(&entry.value, 1);
 

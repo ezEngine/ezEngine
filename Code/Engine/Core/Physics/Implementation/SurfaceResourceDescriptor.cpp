@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Type", m_sInteractionType)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
-    EZ_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     // this does not work yet (asset transform fails)
     //EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("CompatibleAsset_Prefab")),
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
@@ -31,13 +31,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("BaseSurface", GetBaseSurfaceFile, SetBaseSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_ACCESSOR_PROPERTY("BaseSurface", GetBaseSurfaceFile, SetBaseSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),// package+thumbnail so that it forbids circular dependencies
     EZ_MEMBER_PROPERTY("Restitution", m_fPhysicsRestitution)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
     EZ_MEMBER_PROPERTY("StaticFriction", m_fPhysicsFrictionStatic)->AddAttributes(new ezDefaultValueAttribute(0.6f)),
     EZ_MEMBER_PROPERTY("DynamicFriction", m_fPhysicsFrictionDynamic)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
     EZ_ACCESSOR_PROPERTY("OnCollideInteraction", GetCollisionInteraction, SetCollisionInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
-    EZ_ACCESSOR_PROPERTY("SlideReaction", GetSlideReactionPrefabFile, SetSlideReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
-    EZ_ACCESSOR_PROPERTY("RollReaction", GetRollReactionPrefabFile, SetRollReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_ACCESSOR_PROPERTY("SlideReaction", GetSlideReactionPrefabFile, SetSlideReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_ACCESSOR_PROPERTY("RollReaction", GetRollReactionPrefabFile, SetRollReactionPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_Interactions),
   }
   EZ_END_PROPERTIES;
@@ -69,8 +69,8 @@ const ezRangeView<const char*, ezUInt32> ezSurfaceInteraction::GetParameters() c
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
     [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezSurfaceInteraction::SetParameter(const char* szKey, const ezVariant& value)
@@ -101,33 +101,33 @@ bool ezSurfaceInteraction::GetParameter(const char* szKey, ezVariant& out_value)
   return true;
 }
 
-void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
+void ezSurfaceResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
 
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
   EZ_ASSERT_DEV(uiVersion <= 7, "Invalid version {0} for surface resource", uiVersion);
 
-  stream >> m_fPhysicsRestitution;
-  stream >> m_fPhysicsFrictionStatic;
-  stream >> m_fPhysicsFrictionDynamic;
-  stream >> m_hBaseSurface;
+  inout_stream >> m_fPhysicsRestitution;
+  inout_stream >> m_fPhysicsFrictionStatic;
+  inout_stream >> m_fPhysicsFrictionDynamic;
+  inout_stream >> m_hBaseSurface;
 
   if (uiVersion >= 4)
   {
-    stream >> m_sOnCollideInteraction;
+    inout_stream >> m_sOnCollideInteraction;
   }
 
   if (uiVersion >= 7)
   {
-    stream >> m_sSlideInteractionPrefab;
-    stream >> m_sRollInteractionPrefab;
+    inout_stream >> m_sSlideInteractionPrefab;
+    inout_stream >> m_sRollInteractionPrefab;
   }
 
   if (uiVersion > 2)
   {
     ezUInt32 count = 0;
-    stream >> count;
+    inout_stream >> count;
     m_Interactions.SetCount(count);
 
     ezStringBuilder sTemp;
@@ -135,27 +135,27 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
     {
       auto& ia = m_Interactions[i];
 
-      stream >> sTemp;
+      inout_stream >> sTemp;
       ia.m_sInteractionType = sTemp;
 
-      stream >> ia.m_hPrefab;
-      stream >> ia.m_Alignment;
-      stream >> ia.m_Deviation;
+      inout_stream >> ia.m_hPrefab;
+      inout_stream >> ia.m_Alignment;
+      inout_stream >> ia.m_Deviation;
 
       if (uiVersion >= 4)
       {
-        stream >> ia.m_fImpulseThreshold;
+        inout_stream >> ia.m_fImpulseThreshold;
       }
 
       if (uiVersion >= 5)
       {
-        stream >> ia.m_fImpulseScale;
+        inout_stream >> ia.m_fImpulseScale;
       }
 
       if (uiVersion >= 6)
       {
         ezUInt8 uiNumParams;
-        stream >> uiNumParams;
+        inout_stream >> uiNumParams;
 
         ia.m_Parameters.Clear();
         ia.m_Parameters.Reserve(uiNumParams);
@@ -165,8 +165,8 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
 
         for (ezUInt32 i2 = 0; i2 < uiNumParams; ++i2)
         {
-          stream >> key;
-          stream >> value;
+          inout_stream >> key;
+          inout_stream >> value;
 
           ia.m_Parameters.Insert(key, value);
         }
@@ -175,44 +175,44 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
   }
 }
 
-void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezSurfaceResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 7;
 
-  stream << uiVersion;
-  stream << m_fPhysicsRestitution;
-  stream << m_fPhysicsFrictionStatic;
-  stream << m_fPhysicsFrictionDynamic;
-  stream << m_hBaseSurface;
+  inout_stream << uiVersion;
+  inout_stream << m_fPhysicsRestitution;
+  inout_stream << m_fPhysicsFrictionStatic;
+  inout_stream << m_fPhysicsFrictionDynamic;
+  inout_stream << m_hBaseSurface;
 
   // version 4
-  stream << m_sOnCollideInteraction;
+  inout_stream << m_sOnCollideInteraction;
 
   // version 7
-  stream << m_sSlideInteractionPrefab;
-  stream << m_sRollInteractionPrefab;
+  inout_stream << m_sSlideInteractionPrefab;
+  inout_stream << m_sRollInteractionPrefab;
 
-  stream << m_Interactions.GetCount();
+  inout_stream << m_Interactions.GetCount();
   for (const auto& ia : m_Interactions)
   {
-    stream << ia.m_sInteractionType;
-    stream << ia.m_hPrefab;
-    stream << ia.m_Alignment;
-    stream << ia.m_Deviation;
+    inout_stream << ia.m_sInteractionType;
+    inout_stream << ia.m_hPrefab;
+    inout_stream << ia.m_Alignment;
+    inout_stream << ia.m_Deviation;
 
     // version 4
-    stream << ia.m_fImpulseThreshold;
+    inout_stream << ia.m_fImpulseThreshold;
 
     // version 5
-    stream << ia.m_fImpulseScale;
+    inout_stream << ia.m_fImpulseScale;
 
     // version 6
     const ezUInt8 uiNumParams = static_cast<ezUInt8>(ia.m_Parameters.GetCount());
-    stream << uiNumParams;
+    inout_stream << uiNumParams;
     for (ezUInt32 i = 0; i < uiNumParams; ++i)
     {
-      stream << ia.m_Parameters.GetKey(i);
-      stream << ia.m_Parameters.GetValue(i);
+      inout_stream << ia.m_Parameters.GetKey(i);
+      inout_stream << ia.m_Parameters.GetValue(i);
     }
   }
 }
@@ -237,9 +237,9 @@ const char* ezSurfaceResourceDescriptor::GetBaseSurfaceFile() const
   return m_hBaseSurface.GetResourceID();
 }
 
-void ezSurfaceResourceDescriptor::SetCollisionInteraction(const char* name)
+void ezSurfaceResourceDescriptor::SetCollisionInteraction(const char* szName)
 {
-  m_sOnCollideInteraction.Assign(name);
+  m_sOnCollideInteraction.Assign(szName);
 }
 
 const char* ezSurfaceResourceDescriptor::GetCollisionInteraction() const
@@ -281,7 +281,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Base Surface", "BaseSurface");
     pNode->RenameProperty("Static Friction", "StaticFriction");
@@ -290,3 +290,6 @@ public:
 };
 
 ezSurfaceResourceDescriptorPatch_1_2 g_ezSurfaceResourceDescriptorPatch_1_2;
+
+
+EZ_STATICLINK_FILE(Core, Core_Physics_Implementation_SurfaceResourceDescriptor);

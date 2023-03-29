@@ -10,21 +10,21 @@
 
 using namespace physx;
 
-ezBitflags<ezPxCharacterShapeCollisionFlags> ezPxCharacterShapeCollisionFlags::FromPxFlags(ezUInt32 pxFlags)
+ezBitflags<ezPxCharacterShapeCollisionFlags> ezPxCharacterShapeCollisionFlags::FromPxFlags(ezUInt32 uiFlags)
 {
   ezBitflags<ezPxCharacterShapeCollisionFlags> result = ezPxCharacterShapeCollisionFlags::None;
 
-  if ((pxFlags & PxControllerCollisionFlag::eCOLLISION_SIDES) != 0)
+  if ((uiFlags & PxControllerCollisionFlag::eCOLLISION_SIDES) != 0)
   {
     result.Add(ezPxCharacterShapeCollisionFlags::Sides);
   }
 
-  if ((pxFlags & PxControllerCollisionFlag::eCOLLISION_UP) != 0)
+  if ((uiFlags & PxControllerCollisionFlag::eCOLLISION_UP) != 0)
   {
     result.Add(ezPxCharacterShapeCollisionFlags::Above);
   }
 
-  if ((pxFlags & PxControllerCollisionFlag::eCOLLISION_DOWN) != 0)
+  if ((uiFlags & PxControllerCollisionFlag::eCOLLISION_DOWN) != 0)
   {
     result.Add(ezPxCharacterShapeCollisionFlags::Below);
   }
@@ -74,10 +74,10 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezPxCharacterShapeComponent::ezPxCharacterShapeComponent() = default;
 ezPxCharacterShapeComponent::~ezPxCharacterShapeComponent() = default;
 
-void ezPxCharacterShapeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxCharacterShapeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_uiCollisionLayer;
   s << m_fMass;
@@ -87,11 +87,11 @@ void ezPxCharacterShapeComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_bConstrainedClimbingMode;
 }
 
-void ezPxCharacterShapeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxCharacterShapeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_uiCollisionLayer;
   s >> m_fMass;

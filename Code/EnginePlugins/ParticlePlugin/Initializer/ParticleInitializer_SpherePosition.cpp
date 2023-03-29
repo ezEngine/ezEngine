@@ -90,51 +90,51 @@ float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const
   return 1.0f;
 }
 
-void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& stream) const
+void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 3;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_fRadius;
-  stream << m_bSpawnOnSurface;
-  stream << m_bSetVelocity;
-  stream << m_Speed.m_Value;
-  stream << m_Speed.m_fVariance;
+  inout_stream << m_fRadius;
+  inout_stream << m_bSpawnOnSurface;
+  inout_stream << m_bSetVelocity;
+  inout_stream << m_Speed.m_Value;
+  inout_stream << m_Speed.m_fVariance;
 
   // version 2
-  stream << m_vPositionOffset;
+  inout_stream << m_vPositionOffset;
 
   // version 3
-  stream << m_sScaleRadiusParameter;
+  inout_stream << m_sScaleRadiusParameter;
 }
 
-void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
+void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_fRadius;
-  stream >> m_bSpawnOnSurface;
-  stream >> m_bSetVelocity;
-  stream >> m_Speed.m_Value;
-  stream >> m_Speed.m_fVariance;
+  inout_stream >> m_fRadius;
+  inout_stream >> m_bSpawnOnSurface;
+  inout_stream >> m_bSetVelocity;
+  inout_stream >> m_Speed.m_Value;
+  inout_stream >> m_Speed.m_fVariance;
 
   if (uiVersion >= 2)
   {
-    stream >> m_vPositionOffset;
+    inout_stream >> m_vPositionOffset;
   }
 
   if (uiVersion >= 3)
   {
-    stream >> m_sScaleRadiusParameter;
+    inout_stream >> m_sScaleRadiusParameter;
   }
 }
 
-void ezParticleInitializerFactory_SpherePosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+void ezParticleInitializerFactory_SpherePosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
   if (m_bSetVelocity)
   {
-    inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+    inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
   }
 }
 
@@ -201,7 +201,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("Speed").IgnoreResult();
   }

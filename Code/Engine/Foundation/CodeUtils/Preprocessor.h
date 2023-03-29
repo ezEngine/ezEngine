@@ -34,7 +34,7 @@ public:
   ///
   //// The file content is tokenized first and all #line directives are evaluated, to update the line number and file origin for each token.
   /// Any errors are written to the given log.
-  const ezTokenizer* Tokenize(const ezString& sFileName, ezArrayPtr<const ezUInt8> FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog);
+  const ezTokenizer* Tokenize(const ezString& sFileName, ezArrayPtr<const ezUInt8> fileContent, const ezTimestamp& fileTimeStamp, ezLogInterface* pLog);
 
 private:
   void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken);
@@ -157,13 +157,13 @@ public:
   /// \brief Sets the callback that is needed to read input data.
   ///
   /// The default file open function will just try to open files via ezFileReader.
-  void SetFileOpenFunction(FileOpenCB OpenAbsFileCB);
+  void SetFileOpenFunction(FileOpenCB openAbsFileCB);
 
   /// \brief Sets the callback that is needed to locate an input file
   ///
   /// The default file locator will assume that the main source file and all files #included in angle brackets can be opened without modification.
   /// Files #included in "" will be appended as relative paths to the path of the file they appeared in.
-  void SetFileLocatorFunction(FileLocatorCB LocateAbsFileCB);
+  void SetFileLocatorFunction(FileLocatorCB locateAbsFileCB);
 
   /// \brief Adds a #define to the preprocessor, even before any file is processed.
   ///
@@ -178,13 +178,13 @@ public:
   /// \brief Processes the given file and returns the result as a stream of tokens.
   ///
   /// This function is useful when you want to further process the output afterwards and thus need it in a tokenized form anyway.
-  ezResult Process(const char* szMainFile, ezTokenParseUtils::TokenStream& TokenOutput);
+  ezResult Process(const char* szMainFile, ezTokenParseUtils::TokenStream& ref_tokenOutput);
 
   /// \brief Processes the given file and returns the result as a string.
   ///
   /// This function creates a string from the tokenized result. If \a bKeepComments is true, all block and line comments
   /// are included in the output string, otherwise they are removed.
-  ezResult Process(const char* szMainFile, ezStringBuilder& sOutput, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
+  ezResult Process(const char* szMainFile, ezStringBuilder& ref_sOutput, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
 
 
 private:
@@ -240,8 +240,8 @@ private:
 
   struct IfDefState
   {
-    IfDefState(IfDefActivity ActiveState = IfDefActivity::IsActive)
-      : m_ActiveState(ActiveState)
+    IfDefState(IfDefActivity activeState = IfDefActivity::IsActive)
+      : m_ActiveState(activeState)
       , m_bIsInElseClause(false)
     {
     }
@@ -256,8 +256,8 @@ private:
   ezResult ProcessCmd(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& TokenOutput);
 
 public:
-  static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath);
-  static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
+  static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
+  static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification);
 
 private: // *** File Handling ***
   ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);

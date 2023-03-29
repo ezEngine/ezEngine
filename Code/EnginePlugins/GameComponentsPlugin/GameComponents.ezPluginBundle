@@ -1,0 +1,15 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"Game Components"}
+	string %Description{"Contains components useful for many types of games."}
+	string %EditorPlugins{}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"ezGameComponentsPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General3D"}
+}

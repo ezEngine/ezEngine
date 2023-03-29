@@ -48,8 +48,8 @@ public:
 
   //////////////////////////////////////////////////////////////////////////
 
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  void Load(ezStreamReader& inout_stream);
 
 private:
   void ClearEmitters();

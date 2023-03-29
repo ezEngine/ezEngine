@@ -59,7 +59,7 @@ namespace ezMath
   float Log2(float f); // [tested]
 
   /// \brief Returns the integral logarithm to the base 2, that comes closest to the given integer.
-  ezUInt32 Log2i(ezUInt32 val); // [tested]
+  ezUInt32 Log2i(ezUInt32 uiVal); // [tested]
 
   /// \brief Returns log (f), to the base 10
   float Log10(float f); // [tested]
@@ -71,13 +71,13 @@ namespace ezMath
   float Pow2(float f); // [tested]
 
   /// \brief Returns base^exp
-  float Pow(float base, float exp); // [tested]
+  float Pow(float fBase, float fExp); // [tested]
 
   /// \brief Returns 2^f
   constexpr ezInt32 Pow2(ezInt32 i); // [tested]
 
   /// \brief Returns base^exp
-  ezInt32 Pow(ezInt32 base, ezInt32 exp); // [tested]
+  ezInt32 Pow(ezInt32 iBase, ezInt32 iExp); // [tested]
 
   /// \brief Returns f * f
   template <typename T>
@@ -90,7 +90,7 @@ namespace ezMath
   double Sqrt(double f); // [tested]
 
   /// \brief Returns the n-th root of f.
-  float Root(float f, float NthRoot); // [tested]
+  float Root(float f, float fNthRoot); // [tested]
 
   /// \brief Returns the sign of f (i.e: -1, 1 or 0)
   template <typename T>
@@ -171,36 +171,36 @@ namespace ezMath
   double Round(double f); // [tested]
 
   /// \brief Rounds f to the closest value of multiple.
-  float RoundToMultiple(float f, float multiple);
+  float RoundToMultiple(float f, float fMultiple);
 
   /// \brief Rounds f to the closest value of multiple.
-  double RoundToMultiple(double f, double multiple);
+  double RoundToMultiple(double f, double fMultiple);
 
   /// \brief Returns the fraction-part of f.
   template <typename Type>
   Type Fraction(Type f); // [tested]
 
   /// \brief Returns "value mod div" for floats. This also works with negative numbers, both for value and for div.
-  float Mod(float value, float div); // [tested]
+  float Mod(float value, float fDiv); // [tested]
 
   /// \brief Returns "value mod div" for doubles. This also works with negative numbers, both for value and for div.
-  double Mod(double f, double div); // [tested]
+  double Mod(double f, double fDiv); // [tested]
 
   /// \brief Returns 1 / f
   template <typename Type>
   constexpr Type Invert(Type f); // [tested]
 
   /// \brief Returns a multiple of the given multiple that is larger than or equal to value.
-  constexpr ezInt32 RoundUp(ezInt32 value, ezUInt16 multiple); // [tested]
+  constexpr ezInt32 RoundUp(ezInt32 value, ezUInt16 uiMultiple); // [tested]
 
   /// \brief Returns a multiple of the given multiple that is smaller than or equal to value.
-  constexpr ezInt32 RoundDown(ezInt32 value, ezUInt16 multiple); // [tested]
+  constexpr ezInt32 RoundDown(ezInt32 value, ezUInt16 uiMultiple); // [tested]
 
   /// \brief Returns a multiple of the given multiple that is greater than or equal to value.
-  constexpr ezUInt32 RoundUp(ezUInt32 value, ezUInt16 multiple); // [tested]
+  constexpr ezUInt32 RoundUp(ezUInt32 value, ezUInt16 uiMultiple); // [tested]
 
   /// \brief Returns a multiple of the given multiple that is smaller than or equal to value.
-  constexpr ezUInt32 RoundDown(ezUInt32 value, ezUInt16 multiple); // [tested]
+  constexpr ezUInt32 RoundDown(ezUInt32 value, ezUInt16 uiMultiple); // [tested]
 
   /// \brief Returns true, if i is an odd number
   constexpr bool IsOdd(ezInt32 i); // [tested]
@@ -211,22 +211,22 @@ namespace ezMath
   /// \brief Returns the index of the least significant bit set
   ///
   /// Asserts that bitmask is not 0.
-  ezUInt32 FirstBitLow(ezUInt32 bitmask); // [tested]
+  ezUInt32 FirstBitLow(ezUInt32 uiBitmask); // [tested]
 
   /// \brief Returns the index of the least significant bit set
   ///
   /// Asserts that bitmask is not 0.
-  ezUInt32 FirstBitLow(ezUInt64 bitmask); // [tested]
+  ezUInt32 FirstBitLow(ezUInt64 uiBitmask); // [tested]
 
   /// \brief Returns the index of the most significant bit set
   ///
   /// Asserts that bitmask is not 0.
-  ezUInt32 FirstBitHigh(ezUInt32 bitmask); // [tested]
+  ezUInt32 FirstBitHigh(ezUInt32 uiBitmask); // [tested]
 
   /// \brief Returns the index of the most significant bit set
   ///
   /// Asserts that bitmask is not 0.
-  ezUInt32 FirstBitHigh(ezUInt64 bitmask); // [tested]
+  ezUInt32 FirstBitHigh(ezUInt64 uiBitmask); // [tested]
 
   /// Returns the number of zeros at the end (least significant part) of a bitmask.
   ///
@@ -235,10 +235,10 @@ namespace ezMath
   /// 0b0110 -> 1
   /// 0b0100 -> 2
   /// Returns 32 when the input is 0
-  ezUInt32 CountTrailingZeros(ezUInt32 bitmask); // [tested]
+  ezUInt32 CountTrailingZeros(ezUInt32 uiBitmask); // [tested]
 
   /// \brief 64 bit overload for CountTrailingZeros()
-  ezUInt32 CountTrailingZeros(ezUInt64 bitmask); // [tested]
+  ezUInt32 CountTrailingZeros(ezUInt64 uiBitmask); // [tested]
 
   /// Returns the number of zeros at the start (most significant part) of a bitmask.
   ///
@@ -248,7 +248,7 @@ namespace ezMath
   /// 0b0001 -> 31
   /// 0b0000 -> 32
   /// Returns 32 when the input is 0
-  ezUInt32 CountLeadingZeros(ezUInt32 bitmask); // [tested]
+  ezUInt32 CountLeadingZeros(ezUInt32 uiBitmask); // [tested]
 
   /// \brief Returns the number of bits set
   ezUInt32 CountBits(ezUInt32 value);
@@ -258,15 +258,15 @@ namespace ezMath
 
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>
-  void Swap(T& f1, T& f2); // [tested]
+  void Swap(T& ref_f1, T& ref_f2); // [tested]
 
   /// \brief Returns the linear interpolation of f1 and f2. factor is a value between 0 and 1.
   template <typename T>
-  T Lerp(T f1, T f2, float factor); // [tested]
+  T Lerp(T f1, T f2, float fFactor); // [tested]
 
   /// \brief Returns the linear interpolation of f1 and f2. factor is a value between 0 and 1.
   template <typename T>
-  T Lerp(T f1, T f2, double factor); // [tested]
+  T Lerp(T f1, T f2, double fFactor); // [tested]
 
   /// \brief Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
@@ -277,7 +277,7 @@ namespace ezMath
   Type SmoothStep(Type value, Type edge1, Type edge2); // [tested]
 
   /// \brief Returns true, if there exists some x with base^x == value
-  EZ_FOUNDATION_DLL bool IsPowerOf(ezInt32 value, ezInt32 base); // [tested]
+  EZ_FOUNDATION_DLL bool IsPowerOf(ezInt32 value, ezInt32 iBase); // [tested]
 
   /// \brief Returns true, if there exists some x with 2^x == value
   constexpr bool IsPowerOf2(ezInt32 value); // [tested]
@@ -300,7 +300,7 @@ namespace ezMath
 
   /// \brief Checks whether the value of the first parameter lies between the value of the second and third.
   template <typename T>
-  constexpr bool IsInRange(T Value, T MinVal, T MaxVal); // [tested]
+  constexpr bool IsInRange(T value, T minVal, T maxVal); // [tested]
 
   /// \brief Checks whether the given number is close to zero.
   template <typename Type>
@@ -336,19 +336,19 @@ namespace ezMath
   T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
 
   /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
-  EZ_FOUNDATION_DLL ezResult TryMultiply32(ezUInt32& out_Result, ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1); // [tested]
+  EZ_FOUNDATION_DLL ezResult TryMultiply32(ezUInt32& out_uiResult, ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1); // [tested]
 
   /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
   EZ_FOUNDATION_DLL ezUInt32 SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1);
 
   /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
-  EZ_FOUNDATION_DLL ezResult TryMultiply64(ezUInt64& out_Result, ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1); // [tested]
+  EZ_FOUNDATION_DLL ezResult TryMultiply64(ezUInt64& out_uiResult, ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1); // [tested]
 
   /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
   EZ_FOUNDATION_DLL ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1);
 
   /// \brief Checks whether the given 64bit value actually fits into size_t, If it doesn't EZ_FAILURE is returned.
-  ezResult TryConvertToSizeT(size_t& out_Result, ezUInt64 uiValue); // [tested]
+  ezResult TryConvertToSizeT(size_t& out_uiResult, ezUInt64 uiValue); // [tested]
 
   /// \brief Checks whether the given 64bit value actually fits into size_t, If it doesn't the program is terminated.
   EZ_FOUNDATION_DLL size_t SafeConvertToSizeT(ezUInt64 uiValue);

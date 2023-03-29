@@ -3,8 +3,8 @@
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-ezQtTagsDlg::ezQtTagsDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtTagsDlg::ezQtTagsDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

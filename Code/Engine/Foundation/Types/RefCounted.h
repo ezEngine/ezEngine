@@ -77,9 +77,9 @@ public:
     AddReferenceIfValid();
   }
 
-  ezScopedRefPointer(const ezScopedRefPointer<T>& Other)
+  ezScopedRefPointer(const ezScopedRefPointer<T>& other)
   {
-    m_pReferencedObject = Other.m_pReferencedObject;
+    m_pReferencedObject = other.m_pReferencedObject;
 
     AddReferenceIfValid();
   }
@@ -103,14 +103,14 @@ public:
 
   /// \brief Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly
   /// assigned object.
-  void operator=(const ezScopedRefPointer<T>& Other)
+  void operator=(const ezScopedRefPointer<T>& other)
   {
-    if (Other.m_pReferencedObject == m_pReferencedObject)
+    if (other.m_pReferencedObject == m_pReferencedObject)
       return;
 
     ReleaseReferenceIfValid();
 
-    m_pReferencedObject = Other.m_pReferencedObject;
+    m_pReferencedObject = other.m_pReferencedObject;
 
     AddReferenceIfValid();
   }

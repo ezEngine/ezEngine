@@ -128,28 +128,28 @@ namespace ezMeshImportUtils
     }
   };
 
-  void SetMeshAssetMaterialSlots(ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const ezModelImporter2::Importer* pImporter)
+  void SetMeshAssetMaterialSlots(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, const ezModelImporter2::Importer* pImporter)
   {
     const auto& opt = pImporter->GetImportOptions();
 
     const ezUInt32 uiNumSubmeshes = opt.m_pMeshOutput->GetSubMeshes().GetCount();
 
-    inout_MaterialSlots.SetCount(uiNumSubmeshes);
+    inout_materialSlots.SetCount(uiNumSubmeshes);
 
     for (const auto& material : pImporter->m_OutputMaterials)
     {
       if (material.m_iReferencedByMesh < 0)
         continue;
 
-      inout_MaterialSlots[material.m_iReferencedByMesh].m_sLabel = material.m_sName;
+      inout_materialSlots[material.m_iReferencedByMesh].m_sLabel = material.m_sName;
     }
   }
 
-  void CopyMeshAssetMaterialSlotToResource(ezMeshResourceDescriptor& desc, const ezHybridArray<ezMaterialResourceSlot, 8>& materialSlots)
+  void CopyMeshAssetMaterialSlotToResource(ezMeshResourceDescriptor& ref_desc, const ezHybridArray<ezMaterialResourceSlot, 8>& materialSlots)
   {
     for (ezUInt32 i = 0; i < materialSlots.GetCount(); ++i)
     {
-      desc.SetMaterial(i, materialSlots[i].m_sResource);
+      ref_desc.SetMaterial(i, materialSlots[i].m_sResource);
     }
   }
 
@@ -343,7 +343,7 @@ namespace ezMeshImportUtils
     pAccessor->FinishTransaction();
   }
 
-  void ImportMeshAssetMaterials(ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const char* szDocumentDirectory, const ezModelImporter2::Importer* pImporter)
+  void ImportMeshAssetMaterials(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, const char* szDocumentDirectory, const ezModelImporter2::Importer* pImporter)
   {
     EZ_PROFILE_SCOPE("ImportMeshAssetMaterials");
 
@@ -353,7 +353,7 @@ namespace ezMeshImportUtils
     ezStringBuilder tmp;
     ezStringBuilder newResourcePathAbs;
 
-    const ezUInt32 uiNumSubmeshes = inout_MaterialSlots.GetCount();
+    const ezUInt32 uiNumSubmeshes = inout_materialSlots.GetCount();
 
     ezProgressRange range("Importing Materials", uiNumSubmeshes, false);
 
@@ -380,10 +380,10 @@ namespace ezMeshImportUtils
       range.BeginNextStep("Importing Material");
 
       // Didn't find currently set resource, create new imported material.
-      if (!ezAssetCurator::GetSingleton()->FindSubAsset(inout_MaterialSlots[subMeshIdx].m_sResource))
+      if (!ezAssetCurator::GetSingleton()->FindSubAsset(inout_materialSlots[subMeshIdx].m_sResource))
       {
         // Check first if we already imported this material.
-        if (importMatToGuid.TryGetValue(&impMaterial, inout_MaterialSlots[subMeshIdx].m_sResource))
+        if (importMatToGuid.TryGetValue(&impMaterial, inout_materialSlots[subMeshIdx].m_sResource))
           continue;
 
         // Put the new asset in the data folder.
@@ -394,7 +394,7 @@ namespace ezMeshImportUtils
         // Does the generated path already exist? Use it.
         if (const auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newResourcePathAbs))
         {
-          inout_MaterialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Data.m_Guid, tmp);
+          inout_materialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(assetInfo->m_Data.m_Guid, tmp);
           continue;
         }
 
@@ -406,7 +406,7 @@ namespace ezMeshImportUtils
         }
 
         ImportMeshAssetMaterialProperties(pMaterialDoc, impMaterial, sourceDirectory, targetDirectory);
-        inout_MaterialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(pMaterialDoc->GetGuid(), tmp);
+        inout_materialSlots[subMeshIdx].m_sResource = ezConversionUtils::ToString(pMaterialDoc->GetGuid(), tmp);
 
         pMaterialDoc->SaveDocumentAsync({});
         pendingSaveTasks.PushBack(pMaterialDoc);
@@ -419,9 +419,9 @@ namespace ezMeshImportUtils
       // If we have a material now, fill the mapping.
       // It is important to do this even for "old"/known materials since a mesh might have gotten a new slot that points to the same
       // material as previous slots.
-      if (inout_MaterialSlots[subMeshIdx].m_sResource)
+      if (inout_materialSlots[subMeshIdx].m_sResource)
       {
-        importMatToGuid.Insert(&impMaterial, inout_MaterialSlots[subMeshIdx].m_sResource);
+        importMatToGuid.Insert(&impMaterial, inout_materialSlots[subMeshIdx].m_sResource);
       }
     }
 

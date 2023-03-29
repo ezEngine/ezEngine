@@ -25,21 +25,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxShapeConvexComponent::ezPxShapeConvexComponent() = default;
 ezPxShapeConvexComponent::~ezPxShapeConvexComponent() = default;
 
-void ezPxShapeConvexComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxShapeConvexComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hCollisionMesh;
 }
 
-void ezPxShapeConvexComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxShapeConvexComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hCollisionMesh;
 }
@@ -106,16 +106,16 @@ void ezPxShapeConvexComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& out
   }
 }
 
-void ezPxShapeConvexComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezPxShapeConvexComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
+  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)
     return;
 
   if (m_hCollisionMesh.IsValid())
   {
     ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-    msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
+    ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), pMesh->ConvertToCpuMesh());
   }
 }
 

@@ -5,79 +5,79 @@
 
 struct FunctionTest
 {
-  int StandardTypeFunction(int v, const ezVec2 cv, ezVec3& rv, const ezVec4& crv, ezVec2U32* pv, const ezVec3U32* cpv)
+  int StandardTypeFunction(int v, const ezVec2 vCv, ezVec3& ref_vRv, const ezVec4& vCrv, ezVec2U32* pPv, const ezVec3U32* pCpv)
   {
     EZ_TEST_BOOL(m_values[0] == v);
-    EZ_TEST_BOOL(m_values[1] == cv);
-    EZ_TEST_BOOL(m_values[2] == rv);
-    EZ_TEST_BOOL(m_values[3] == crv);
+    EZ_TEST_BOOL(m_values[1] == vCv);
+    EZ_TEST_BOOL(m_values[2] == ref_vRv);
+    EZ_TEST_BOOL(m_values[3] == vCrv);
     if (m_bPtrAreNull)
     {
-      EZ_TEST_BOOL(!pv);
-      EZ_TEST_BOOL(!cpv);
+      EZ_TEST_BOOL(!pPv);
+      EZ_TEST_BOOL(!pCpv);
     }
     else
     {
-      EZ_TEST_BOOL(m_values[4] == *pv);
-      EZ_TEST_BOOL(m_values[5] == *cpv);
+      EZ_TEST_BOOL(m_values[4] == *pPv);
+      EZ_TEST_BOOL(m_values[5] == *pCpv);
     }
-    rv.Set(1, 2, 3);
-    if (pv)
+    ref_vRv.Set(1, 2, 3);
+    if (pPv)
     {
-      pv->Set(1, 2);
+      pPv->Set(1, 2);
     }
     return 5;
   }
 
-  ezVarianceTypeAngle CustomTypeFunction(ezVarianceTypeAngle v, const ezVarianceTypeAngle cv, ezVarianceTypeAngle& rv, const ezVarianceTypeAngle& crv, ezVarianceTypeAngle* pv, const ezVarianceTypeAngle* cpv)
+  ezVarianceTypeAngle CustomTypeFunction(ezVarianceTypeAngle v, const ezVarianceTypeAngle cv, ezVarianceTypeAngle& ref_rv, const ezVarianceTypeAngle& crv, ezVarianceTypeAngle* pPv, const ezVarianceTypeAngle* pCpv)
   {
     EZ_TEST_BOOL(m_values[0] == v);
     EZ_TEST_BOOL(m_values[1] == cv);
-    EZ_TEST_BOOL(m_values[2] == rv);
+    EZ_TEST_BOOL(m_values[2] == ref_rv);
     EZ_TEST_BOOL(m_values[3] == crv);
     if (m_bPtrAreNull)
     {
-      EZ_TEST_BOOL(!pv);
-      EZ_TEST_BOOL(!cpv);
+      EZ_TEST_BOOL(!pPv);
+      EZ_TEST_BOOL(!pCpv);
     }
     else
     {
-      EZ_TEST_BOOL(m_values[4] == *pv);
-      EZ_TEST_BOOL(m_values[5] == *cpv);
+      EZ_TEST_BOOL(m_values[4] == *pPv);
+      EZ_TEST_BOOL(m_values[5] == *pCpv);
     }
-    rv = {2.0f, ezAngle::Degree(200.0f)};
-    if (pv)
+    ref_rv = {2.0f, ezAngle::Degree(200.0f)};
+    if (pPv)
     {
-      *pv = {4.0f, ezAngle::Degree(400.0f)};
+      *pPv = {4.0f, ezAngle::Degree(400.0f)};
     }
     return {0.6f, ezAngle::Degree(60.0f)};
   }
 
-  ezVarianceTypeAngle CustomTypeFunction2(ezVarianceTypeAngle v, const ezVarianceTypeAngle cv, ezVarianceTypeAngle& rv, const ezVarianceTypeAngle& crv, ezVarianceTypeAngle* pv, const ezVarianceTypeAngle* cpv)
+  ezVarianceTypeAngle CustomTypeFunction2(ezVarianceTypeAngle v, const ezVarianceTypeAngle cv, ezVarianceTypeAngle& ref_rv, const ezVarianceTypeAngle& crv, ezVarianceTypeAngle* pPv, const ezVarianceTypeAngle* pCpv)
   {
     EZ_TEST_BOOL(*m_values[0].Get<ezVarianceTypeAngle*>() == v);
     EZ_TEST_BOOL(*m_values[1].Get<ezVarianceTypeAngle*>() == cv);
-    EZ_TEST_BOOL(*m_values[2].Get<ezVarianceTypeAngle*>() == rv);
+    EZ_TEST_BOOL(*m_values[2].Get<ezVarianceTypeAngle*>() == ref_rv);
     EZ_TEST_BOOL(*m_values[3].Get<ezVarianceTypeAngle*>() == crv);
     if (m_bPtrAreNull)
     {
-      EZ_TEST_BOOL(!pv);
-      EZ_TEST_BOOL(!cpv);
+      EZ_TEST_BOOL(!pPv);
+      EZ_TEST_BOOL(!pCpv);
     }
     else
     {
-      EZ_TEST_BOOL(*m_values[4].Get<ezVarianceTypeAngle*>() == *pv);
-      EZ_TEST_BOOL(*m_values[5].Get<ezVarianceTypeAngle*>() == *cpv);
+      EZ_TEST_BOOL(*m_values[4].Get<ezVarianceTypeAngle*>() == *pPv);
+      EZ_TEST_BOOL(*m_values[5].Get<ezVarianceTypeAngle*>() == *pCpv);
     }
-    rv = {2.0f, ezAngle::Degree(200.0f)};
-    if (pv)
+    ref_rv = {2.0f, ezAngle::Degree(200.0f)};
+    if (pPv)
     {
-      *pv = {4.0f, ezAngle::Degree(400.0f)};
+      *pPv = {4.0f, ezAngle::Degree(400.0f)};
     }
     return {0.6f, ezAngle::Degree(60.0f)};
   }
 
-  const char* StringTypeFunction(const char* szString, ezString& sString, ezStringView sView)
+  const char* StringTypeFunction(const char* szString, ezString& ref_sString, ezStringView sView)
   {
     if (m_bPtrAreNull)
     {
@@ -87,72 +87,72 @@ struct FunctionTest
     {
       EZ_TEST_BOOL(m_values[0] == szString);
     }
-    EZ_TEST_BOOL(m_values[1] == sString);
+    EZ_TEST_BOOL(m_values[1] == ref_sString);
     EZ_TEST_BOOL(m_values[2] == sView);
     return "StringRet";
   }
 
   ezEnum<ezExampleEnum> EnumFunction(
-    ezEnum<ezExampleEnum> e, ezEnum<ezExampleEnum>& re, const ezEnum<ezExampleEnum>& cre, ezEnum<ezExampleEnum>* pe, const ezEnum<ezExampleEnum>* cpe)
+    ezEnum<ezExampleEnum> e, ezEnum<ezExampleEnum>& ref_re, const ezEnum<ezExampleEnum>& cre, ezEnum<ezExampleEnum>* pPe, const ezEnum<ezExampleEnum>* pCpe)
   {
     EZ_TEST_BOOL(m_values[0].Get<ezInt64>() == e.GetValue());
-    EZ_TEST_BOOL(m_values[1].Get<ezInt64>() == re.GetValue());
+    EZ_TEST_BOOL(m_values[1].Get<ezInt64>() == ref_re.GetValue());
     EZ_TEST_BOOL(m_values[2].Get<ezInt64>() == cre.GetValue());
     if (m_bPtrAreNull)
     {
-      EZ_TEST_BOOL(!pe);
-      EZ_TEST_BOOL(!cpe);
+      EZ_TEST_BOOL(!pPe);
+      EZ_TEST_BOOL(!pCpe);
     }
     else
     {
-      EZ_TEST_BOOL(m_values[3].Get<ezInt64>() == pe->GetValue());
-      EZ_TEST_BOOL(m_values[4].Get<ezInt64>() == cpe->GetValue());
+      EZ_TEST_BOOL(m_values[3].Get<ezInt64>() == pPe->GetValue());
+      EZ_TEST_BOOL(m_values[4].Get<ezInt64>() == pCpe->GetValue());
     }
     return ezExampleEnum::Value1;
   }
 
-  ezBitflags<ezExampleBitflags> BitflagsFunction(ezBitflags<ezExampleBitflags> e, ezBitflags<ezExampleBitflags>& re,
-    const ezBitflags<ezExampleBitflags>& cre, ezBitflags<ezExampleBitflags>* pe, const ezBitflags<ezExampleBitflags>* cpe)
+  ezBitflags<ezExampleBitflags> BitflagsFunction(ezBitflags<ezExampleBitflags> e, ezBitflags<ezExampleBitflags>& ref_re,
+    const ezBitflags<ezExampleBitflags>& cre, ezBitflags<ezExampleBitflags>* pPe, const ezBitflags<ezExampleBitflags>* pCpe)
   {
     EZ_TEST_BOOL(e == m_values[0].Get<ezInt64>());
-    EZ_TEST_BOOL(re == m_values[1].Get<ezInt64>());
+    EZ_TEST_BOOL(ref_re == m_values[1].Get<ezInt64>());
     EZ_TEST_BOOL(cre == m_values[2].Get<ezInt64>());
     if (m_bPtrAreNull)
     {
-      EZ_TEST_BOOL(!pe);
-      EZ_TEST_BOOL(!cpe);
+      EZ_TEST_BOOL(!pPe);
+      EZ_TEST_BOOL(!pCpe);
     }
     else
     {
-      EZ_TEST_BOOL(*pe == m_values[3].Get<ezInt64>());
-      EZ_TEST_BOOL(*cpe == m_values[4].Get<ezInt64>());
+      EZ_TEST_BOOL(*pPe == m_values[3].Get<ezInt64>());
+      EZ_TEST_BOOL(*pCpe == m_values[4].Get<ezInt64>());
     }
     return ezExampleBitflags::Value1 | ezExampleBitflags::Value2;
   }
 
   ezTestStruct3 StructFunction(
-    ezTestStruct3 s, const ezTestStruct3 cs, ezTestStruct3& rs, const ezTestStruct3& crs, ezTestStruct3* ps, const ezTestStruct3* cps)
+    ezTestStruct3 s, const ezTestStruct3 cs, ezTestStruct3& ref_rs, const ezTestStruct3& crs, ezTestStruct3* pPs, const ezTestStruct3* pCps)
   {
     EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[0].Get<void*>()) == s);
     EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[1].Get<void*>()) == cs);
-    EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[2].Get<void*>()) == rs);
+    EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[2].Get<void*>()) == ref_rs);
     EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[3].Get<void*>()) == crs);
     if (m_bPtrAreNull)
     {
-      EZ_TEST_BOOL(!ps);
-      EZ_TEST_BOOL(!cps);
+      EZ_TEST_BOOL(!pPs);
+      EZ_TEST_BOOL(!pCps);
     }
     else
     {
-      EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[4].Get<void*>()) == *ps);
-      EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[5].Get<void*>()) == *cps);
+      EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[4].Get<void*>()) == *pPs);
+      EZ_TEST_BOOL(*static_cast<ezTestStruct3*>(m_values[5].Get<void*>()) == *pCps);
     }
-    rs.m_fFloat1 = 999.0f;
-    rs.m_UInt8 = 666;
-    if (ps)
+    ref_rs.m_fFloat1 = 999.0f;
+    ref_rs.m_UInt8 = 666;
+    if (pPs)
     {
-      ps->m_fFloat1 = 666.0f;
-      ps->m_UInt8 = 999;
+      pPs->m_fFloat1 = 666.0f;
+      pPs->m_UInt8 = 999;
     }
     ezTestStruct3 retS;
     retS.m_fFloat1 = 42;
@@ -161,28 +161,28 @@ struct FunctionTest
   }
 
   ezTestClass1 ReflectedClassFunction(
-    ezTestClass1 s, const ezTestClass1 cs, ezTestClass1& rs, const ezTestClass1& crs, ezTestClass1* ps, const ezTestClass1* cps)
+    ezTestClass1 s, const ezTestClass1 cs, ezTestClass1& ref_rs, const ezTestClass1& crs, ezTestClass1* pPs, const ezTestClass1* pCps)
   {
     EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[0].ConvertTo<void*>()) == s);
     EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[1].ConvertTo<void*>()) == cs);
-    EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[2].ConvertTo<void*>()) == rs);
+    EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[2].ConvertTo<void*>()) == ref_rs);
     EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[3].ConvertTo<void*>()) == crs);
     if (m_bPtrAreNull)
     {
-      EZ_TEST_BOOL(!ps);
-      EZ_TEST_BOOL(!cps);
+      EZ_TEST_BOOL(!pPs);
+      EZ_TEST_BOOL(!pCps);
     }
     else
     {
-      EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[4].ConvertTo<void*>()) == *ps);
-      EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[5].ConvertTo<void*>()) == *cps);
+      EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[4].ConvertTo<void*>()) == *pPs);
+      EZ_TEST_BOOL(*static_cast<ezTestClass1*>(m_values[5].ConvertTo<void*>()) == *pCps);
     }
-    rs.m_Color.SetRGB(1, 2, 3);
-    rs.m_MyVector.Set(1, 2, 3);
-    if (ps)
+    ref_rs.m_Color.SetRGB(1, 2, 3);
+    ref_rs.m_MyVector.Set(1, 2, 3);
+    if (pPs)
     {
-      ps->m_Color.SetRGB(1, 2, 3);
-      ps->m_MyVector.Set(1, 2, 3);
+      pPs->m_Color.SetRGB(1, 2, 3);
+      pPs->m_MyVector.Set(1, 2, 3);
     }
     ezTestClass1 retS;
     retS.m_Color.SetRGB(42, 42, 42);
@@ -190,28 +190,28 @@ struct FunctionTest
     return retS;
   }
 
-  ezVariant VariantFunction(ezVariant v, const ezVariant cv, ezVariant& rv, const ezVariant& crv, ezVariant* pv, const ezVariant* cpv)
+  ezVariant VariantFunction(ezVariant v, const ezVariant cv, ezVariant& ref_rv, const ezVariant& crv, ezVariant* pPv, const ezVariant* pCpv)
   {
     EZ_TEST_BOOL(m_values[0] == v);
     EZ_TEST_BOOL(m_values[1] == cv);
-    EZ_TEST_BOOL(m_values[2] == rv);
+    EZ_TEST_BOOL(m_values[2] == ref_rv);
     EZ_TEST_BOOL(m_values[3] == crv);
     if (m_bPtrAreNull)
     {
       // Can't have variant as nullptr as it must exist in the array and there is no further
       // way of distinguishing a between a ezVariant* and a ezVariant that is invalid.
-      EZ_TEST_BOOL(!pv->IsValid());
-      EZ_TEST_BOOL(!cpv->IsValid());
+      EZ_TEST_BOOL(!pPv->IsValid());
+      EZ_TEST_BOOL(!pCpv->IsValid());
     }
     else
     {
-      EZ_TEST_BOOL(m_values[4] == *pv);
-      EZ_TEST_BOOL(m_values[5] == *cpv);
+      EZ_TEST_BOOL(m_values[4] == *pPv);
+      EZ_TEST_BOOL(m_values[5] == *pCpv);
     }
-    rv = ezVec3(1, 2, 3);
-    if (pv)
+    ref_rv = ezVec3(1, 2, 3);
+    if (pPv)
     {
-      *pv = ezVec2U32(1, 2);
+      *pPv = ezVec2U32(1, 2);
     }
     return 5;
   }

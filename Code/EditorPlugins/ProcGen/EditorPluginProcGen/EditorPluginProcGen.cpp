@@ -22,6 +22,7 @@ void OnLoadPlugin()
   ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
   ezProjectActions::MapActions(szMenuBar);
   ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
+  ezAssetActions::MapMenuActions(szMenuBar, "Menu.File");
   ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
 
   ezEditActions::MapActions("ProcGenAssetMenuBar", "Menu.Edit", false, false);
@@ -33,7 +34,7 @@ void OnLoadPlugin()
   ezActionMapManager::RegisterActionMap(szToolBar).IgnoreResult();
   ezDocumentActions::MapActions(szToolBar, "", true);
   ezCommandHistoryActions::MapActions(szToolBar, "");
-  ezAssetActions::MapActions(szToolBar, true);
+  ezAssetActions::MapToolBarActions(szToolBar, true);
 }
 }
 

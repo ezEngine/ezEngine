@@ -21,7 +21,7 @@ public:
   };
 
 public:
-  ezQtRemoteConnectionDlg(QWidget* parent);
+  ezQtRemoteConnectionDlg(QWidget* pParent);
   ~ezQtRemoteConnectionDlg();
 
   Address m_UsedAddress;

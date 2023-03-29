@@ -76,7 +76,7 @@ bool ezDummyXR::SupportsCompanionView()
   return true;
 }
 
-ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput)
+ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
 {
   EZ_ASSERT_DEV(IsInitialized(), "Need to call 'Initialize' first.");
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -101,9 +101,9 @@ ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount:
   }
 
   ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "DummyXR", this);
-  EZ_ASSERT_DEV((companionWindow != nullptr) == (companionWindowOutput != nullptr), "Both companionWindow and companionWindowOutput must either be null or valid.");
+  EZ_ASSERT_DEV((pCompanionWindow != nullptr) == (pCompanionWindowOutput != nullptr), "Both companionWindow and companionWindowOutput must either be null or valid.");
 
-  ezUniquePtr<ezActorPluginWindowXR> pActorPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowXR, this, std::move(companionWindow), std::move(companionWindowOutput));
+  ezUniquePtr<ezActorPluginWindowXR> pActorPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowXR, this, std::move(pCompanionWindow), std::move(pCompanionWindowOutput));
   m_pCompanion = static_cast<ezWindowOutputTargetXR*>(pActorPlugin->GetOutputTarget());
 
   pActor->AddPlugin(std::move(pActorPlugin));
@@ -270,9 +270,9 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezDummyXRInput::GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_Devices) const
+void ezDummyXRInput::GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_devices) const
 {
-  out_Devices.PushBack(0);
+  out_devices.PushBack(0);
 }
 
 ezXRDeviceID ezDummyXRInput::GetDeviceIDByType(ezXRDeviceType::Enum type) const
@@ -290,21 +290,21 @@ ezXRDeviceID ezDummyXRInput::GetDeviceIDByType(ezXRDeviceType::Enum type) const
   return deviceID;
 }
 
-const ezXRDeviceState& ezDummyXRInput::GetDeviceState(ezXRDeviceID iDeviceID) const
+const ezXRDeviceState& ezDummyXRInput::GetDeviceState(ezXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(iDeviceID < 1 && iDeviceID >= 0, "Invalid device ID.");
-  return m_DeviceState[iDeviceID];
+  EZ_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
+  return m_DeviceState[deviceID];
 }
 
-ezString ezDummyXRInput::GetDeviceName(ezXRDeviceID iDeviceID) const
+ezString ezDummyXRInput::GetDeviceName(ezXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(iDeviceID < 1 && iDeviceID >= 0, "Invalid device ID.");
+  EZ_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
   return "Dummy HMD";
 }
 
-ezBitflags<ezXRDeviceFeatures> ezDummyXRInput::GetDeviceFeatures(ezXRDeviceID iDeviceID) const
+ezBitflags<ezXRDeviceFeatures> ezDummyXRInput::GetDeviceFeatures(ezXRDeviceID deviceID) const
 {
-  EZ_ASSERT_DEV(iDeviceID < 1 && iDeviceID >= 0, "Invalid device ID.");
+  EZ_ASSERT_DEV(deviceID < 1 && deviceID >= 0, "Invalid device ID.");
   return ezXRDeviceFeatures::AimPose | ezXRDeviceFeatures::GripPose;
 }
 
@@ -319,3 +319,6 @@ void ezDummyXRInput::UpdateInputSlotValues()
 void ezDummyXRInput::RegisterInputSlots()
 {
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_DummyXR);

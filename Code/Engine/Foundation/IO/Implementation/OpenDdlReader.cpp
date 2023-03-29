@@ -13,13 +13,13 @@ ezOpenDdlReader::~ezOpenDdlReader()
   ClearDataChunks();
 }
 
-ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset, ezLogInterface* pLog, ezUInt32 uiCacheSizeInKB)
+ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& inout_stream, ezUInt32 uiFirstLineOffset, ezLogInterface* pLog, ezUInt32 uiCacheSizeInKB)
 {
   EZ_ASSERT_DEBUG(m_ObjectStack.IsEmpty(), "A reader can only be used once.");
 
   SetLogInterface(pLog);
   SetCacheSize(uiCacheSizeInKB);
-  SetInputStream(stream, uiFirstLineOffset);
+  SetInputStream(inout_stream, uiFirstLineOffset);
 
   m_TempCache.Reserve(s_uiChunkSize);
 

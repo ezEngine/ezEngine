@@ -10,6 +10,7 @@
 #include <JoltPlugin/Utilities/JoltUserData.h>
 
 class ezJoltCharacterControllerComponent;
+class ezJoltContactListener;
 
 namespace JPH
 {
@@ -36,36 +37,38 @@ public:
   const JPH::PhysicsSystem* GetJoltSystem() const { return m_pSystem.get(); }
 
   ezUInt32 CreateObjectFilterID();
-  void DeleteObjectFilterID(ezUInt32& uiObjectFilterID);
+  void DeleteObjectFilterID(ezUInt32& ref_uiObjectFilterID);
 
   ezUInt32 AllocateUserData(ezJoltUserData*& out_pUserData);
-  void DeallocateUserData(ezUInt32& uiUserDataId);
+  void DeallocateUserData(ezUInt32& ref_uiUserDataId);
   const ezJoltUserData& GetUserData(ezUInt32 uiUserDataId) const;
 
-  void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
+  void SetGravity(const ezVec3& vObjectGravity, const ezVec3& vCharacterGravity);
   virtual ezVec3 GetGravity() const override { return ezVec3(0, 0, -10); }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
 
   //////////////////////////////////////////////////////////////////////////
   // ezPhysicsWorldModuleInterface
 
-  virtual bool Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool RaycastAll(ezPhysicsCastResultArray& out_Results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const override;
+  virtual bool RaycastAll(ezPhysicsCastResultArray& out_results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const override;
 
-  virtual bool SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestSphere(ezPhysicsCastResult& out_result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestBox(ezPhysicsCastResult& out_Result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestBox(ezPhysicsCastResult& out_result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_Result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
   virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
 
-  virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
+  virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
-  virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) override;
+  virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize) override;
+
+  virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) override;
 
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
@@ -81,6 +84,15 @@ public:
   JPH::TempAllocator* GetTempAllocator() const { return m_pTempAllocator.get(); }
 
   void ActivateCharacterController(ezJoltCharacterControllerComponent* pCharacter, bool bActivate);
+
+  ezJoltContactListener* GetContactListener()
+  {
+    return reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
+  }
+
+  void CheckBreakableConstraints();
+
+  ezSet<ezComponentHandle> m_BreakableConstraints;
 
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
@@ -119,6 +131,8 @@ private:
   std::unique_ptr<JPH::TempAllocator> m_pTempAllocator;
 
   ezJoltObjectToBroadphaseLayer m_ObjectToBroadphase;
+  ezJoltObjectVsBroadPhaseLayerFilter m_ObjectVsBroadphaseFilter;
+  ezJoltObjectLayerPairFilter m_ObjectLayerPairFilter;
 
   void* m_pContactListener = nullptr;
   void* m_pActivationListener = nullptr;

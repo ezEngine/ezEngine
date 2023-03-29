@@ -24,10 +24,10 @@ struct EZ_TOOLSFOUNDATION_DLL ezPathPattern
   ezString m_sString;
 
   /// \brief Sets up the pattern from the given text. Whitespace is trimmed.
-  void Configure(const ezStringView text);
+  void Configure(const ezStringView sText);
 
   /// \brief Returns true if the given text matches this path pattern.
-  bool Matches(const ezStringView text) const;
+  bool Matches(const ezStringView sText) const;
 };
 
 /// \brief A collection of ezPathPatterns.
@@ -56,5 +56,5 @@ struct EZ_TOOLSFOUNDATION_DLL ezPathPatternFilter
   /// If the text matches any include pattern, it passes the filter.
   /// Otherwise, if it matches any exclude pattern, it does not pass the filter.
   /// Otherwise, if it doesn't match any include or exclude pattern, it passes the filter, since it isn't explicitely ruled out.
-  bool PassesFilters(ezStringView text) const;
+  bool PassesFilters(ezStringView sText) const;
 };

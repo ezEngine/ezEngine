@@ -41,6 +41,4 @@ private:
   ezVec3 m_vRotationAxis;
   ezMat4 m_mInvViewProj;
   ezVec2 m_vScreenTangent;
-
-  bool m_bUseExperimentalGizmo = false;
 };

@@ -7,9 +7,5 @@ namespace ezInternal
   typedef ezVec4 QuadFloat;
   typedef ezVec4I32 QuadInt;
   typedef ezVec4U32 QuadUInt;
-
-  struct QuadBool
-  {
-    bool x, y, z, w;
-  };
+  typedef ezVec4U32 QuadBool;
 } // namespace ezInternal

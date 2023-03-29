@@ -38,12 +38,12 @@ public:
   ezQtGameObjectDocumentWindow* GetWindow() const { return m_pWindow; }
   ezGameObjectGizmoInterface* GetGizmoInterface() const { return m_pInterface; }
   bool IsActive() const { return m_bIsActive; }
-  void SetActive(bool active);
+  void SetActive(bool bActive);
 
   virtual ezEditorInputContext* GetEditorInputContextOverride() { return nullptr; }
   virtual ezEditToolSupportedSpaces GetSupportedSpaces() const { return ezEditToolSupportedSpaces::WorldSpaceOnly; }
   virtual bool GetSupportsMoveParentOnly() const { return false; }
-  virtual void GetGridSettings(ezGridSettingsMsgToEngine& outGridSettings) {}
+  virtual void GetGridSettings(ezGridSettingsMsgToEngine& out_gridSettings) {}
 
 protected:
   virtual void OnConfigured() = 0;

@@ -30,10 +30,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Initialization & Setup
 public:
-  virtual
-
-    ezGameStatePriority
-    DeterminePriority(ezWorld* pWorld) const override;
+  virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
 
 private:
   virtual void OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition) override;
@@ -53,7 +50,7 @@ private:
   // Camera
 public:
   float GetCameraZoom() const;
-  float SetCameraZoom(float zoom);
+  float SetCameraZoom(float fZoom);
 
 protected:
   virtual void ConfigureMainCamera() override;
@@ -92,7 +89,7 @@ private:
 public:
   ezResult PickGroundPlanePosition(ezVec3& out_vPositon) const;
   ezGameObject* PickSelectableObject() const;
-  void InspectObjectsInArea(const ezVec2& position, float radius, ezSpatialSystem::QueryCallback callback) const;
+  void InspectObjectsInArea(const ezVec2& vPosition, float fRadius, ezSpatialSystem::QueryCallback callback) const;
 
 private:
   ezResult ComputePickingRay();

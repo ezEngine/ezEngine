@@ -45,7 +45,7 @@ public:
 
   virtual void Present(bool bEnableVSync) override;
   void RenderCompanionView(bool bThrottleCompanionView = true);
-  virtual ezResult CaptureImage(ezImage& out_Image) override;
+  virtual ezResult CaptureImage(ezImage& out_image) override;
 
   /// \brief Returns the companion window output target if present.
   const ezWindowOutputTargetBase* GetCompanionWindowOutputTarget() const;
@@ -64,7 +64,7 @@ class EZ_GAMEENGINE_DLL ezActorPluginWindowXR : public ezActorPluginWindow
   EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindowXR, ezActorPluginWindow);
 
 public:
-  ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetGAL> companionWindowOutput);
+  ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput);
   ~ezActorPluginWindowXR();
   void Initialize();
 

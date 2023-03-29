@@ -102,7 +102,7 @@ public:
   static const ezDocumentTypeDescriptor* GetDescriptorForDocumentType(const char* szDocumentType);
   static const ezMap<ezString, const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
 
-  void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
+  void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_documentTypes) const;
 
   using CustomAction = ezVariant (*)(const ezDocument*);
   static ezMap<ezString, CustomAction> s_CustomActions;

@@ -37,8 +37,11 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  define PATH_MAX 1024
 #endif
 
-ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
+ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
 {
+  ezStringBuilder sFileCopy = sFile;
+  const char* szFile = sFileCopy;
+
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP) // UWP does not support these functions
   int fd = -1;
   switch (OpenMode)
@@ -257,9 +260,9 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum P
 #endif
 }
 
-bool ezOSFile::InternalExistsFile(const char* szFile)
+bool ezOSFile::InternalExistsFile(ezStringView sFile)
 {
-  FILE* pFile = fopen(szFile, "r");
+  FILE* pFile = fopen(ezString(sFile), "r");
 
   if (pFile == nullptr)
     return false;
@@ -273,18 +276,18 @@ bool ezOSFile::InternalExistsFile(const char* szFile)
 #  define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
 #endif
 
-bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
+bool ezOSFile::InternalExistsDirectory(ezStringView sDirectory)
 {
   struct stat sb;
-  return (stat(szDirectory, &sb) == 0 && S_ISDIR(sb.st_mode));
+  return (stat(ezString(sDirectory), &sb) == 0 && S_ISDIR(sb.st_mode));
 }
 
-ezResult ezOSFile::InternalDeleteFile(const char* szFile)
+ezResult ezOSFile::InternalDeleteFile(ezStringView sFile)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  int iRes = _unlink(szFile);
+  int iRes = _unlink(ezString(sFile));
 #else
-  int iRes = unlink(szFile);
+  int iRes = unlink(ezString(sFile));
 #endif
 
   if (iRes == 0 || (iRes == -1 && errno == ENOENT))
@@ -293,12 +296,12 @@ ezResult ezOSFile::InternalDeleteFile(const char* szFile)
   return EZ_FAILURE;
 }
 
-ezResult ezOSFile::InternalDeleteDirectory(const char* szDirectory)
+ezResult ezOSFile::InternalDeleteDirectory(ezStringView sDirectory)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  int iRes = _rmdir(szDirectory);
+  int iRes = _rmdir(ezString(sDirectory));
 #else
-  int iRes = rmdir(szDirectory);
+  int iRes = rmdir(ezString(sDirectory));
 #endif
 
   if (iRes == 0 || (iRes == -1 && errno == ENOENT))
@@ -307,16 +310,16 @@ ezResult ezOSFile::InternalDeleteDirectory(const char* szDirectory)
   return EZ_FAILURE;
 }
 
-ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
+ezResult ezOSFile::InternalCreateDirectory(ezStringView sDirectory)
 {
   // handle drive letters as always successful
-  if (ezStringUtils::GetCharacterCount(szDirectory) <= 1) // '/'
+  if (ezStringUtils::GetCharacterCount(sDirectory.GetStartPointer(), sDirectory.GetEndPointer()) <= 1) // '/'
     return EZ_SUCCESS;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  int iRes = _mkdir(szDirectory);
+  int iRes = _mkdir(ezString(sDirectory));
 #else
-  int iRes = mkdir(szDirectory, 0777);
+  int iRes = mkdir(ezString(sDirectory), 0777);
 #endif
 
   if (iRes == 0 || (iRes == -1 && errno == EEXIST))
@@ -325,15 +328,15 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   // If we were not allowed to access the folder but it alreay exists, we treat the operation as successful.
   // Note that this is espcially relevant for calls to ezOSFile::CreateDirectoryStructure where we may call mkdir on top level directories that are
   // not accessible.
-  if (errno == EACCES && InternalExistsDirectory(szDirectory))
+  if (errno == EACCES && InternalExistsDirectory(sDirectory))
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
-ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, const char* szDirectoryTo)
+ezResult ezOSFile::InternalMoveFileOrDirectory(ezStringView sDirectoryFrom, ezStringView sDirectoryTo)
 {
-  if (rename(szDirectoryFrom, szDirectoryTo) != 0)
+  if (rename(ezString(sDirectoryFrom), ezString(sDirectoryTo)) != 0)
   {
     return EZ_FAILURE;
   }
@@ -341,19 +344,19 @@ ezResult ezOSFile::InternalMoveFileOrDirectory(const char* szDirectoryFrom, cons
 }
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) && EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
+ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats& out_Stats)
 {
   struct stat tempStat;
-  int iRes = stat(szFileOrFolder, &tempStat);
+  int iRes = stat(ezString(sFileOrFolder), &tempStat);
 
   if (iRes != 0)
     return EZ_FAILURE;
 
   out_Stats.m_bIsDirectory = S_ISDIR(tempStat.st_mode);
   out_Stats.m_uiFileSize = tempStat.st_size;
-  out_Stats.m_sParentPath = szFileOrFolder;
+  out_Stats.m_sParentPath = sFileOrFolder;
   out_Stats.m_sParentPath.PathParentDirectory();
-  out_Stats.m_sName = ezPathUtils::GetFileNameAndExtension(szFileOrFolder); // no OS support, so just pass it through
+  out_Stats.m_sName = ezPathUtils::GetFileNameAndExtension(sFileOrFolder); // no OS support, so just pass it through
   out_Stats.m_LastModificationTime.SetInt64(tempStat.st_mtime, ezSIUnitOfTime::Second);
 
   return EZ_SUCCESS;
@@ -414,7 +417,7 @@ const char* ezOSFile::GetApplicationDirectory()
   return s_Path.GetData();
 }
 
-ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
+ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)
 {
   if (s_sUserDataPath.IsEmpty())
   {
@@ -430,12 +433,12 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   }
 
   ezStringBuilder s = s_sUserDataPath;
-  s.AppendPath(szSubFolder);
+  s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;
 }
 
-ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
+ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder)
 {
   if (s_sTempDataPath.IsEmpty())
   {
@@ -451,7 +454,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
   }
 
   ezStringBuilder s = s_sTempDataPath;
-  s.AppendPath(szSubFolder);
+  s.AppendPath(sSubFolder);
   s.MakeCleanPath();
   return s;
 }
@@ -518,13 +521,13 @@ namespace
   }
 } // namespace
 
-void ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
+void ezFileSystemIterator::StartSearch(ezStringView sSearchTerm, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
-  m_sSearchTerm = szSearchStart;
+  m_sSearchTerm = sSearchTerm;
 
-  ezStringBuilder sSearch = szSearchStart;
+  ezStringBuilder sSearch = sSearchTerm;
   sSearch.MakeCleanPath();
 
   // same as just passing in the folder path, so remove this

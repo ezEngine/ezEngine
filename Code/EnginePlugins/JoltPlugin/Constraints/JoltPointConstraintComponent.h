@@ -13,8 +13,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltPointConstraintComponent : public ezJoltConstraint
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ public:
 protected:
   virtual void ApplySettings() override;
   virtual void CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1) override;
-
+  virtual bool ExceededBreakingPoint() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezJoltPointConstraintComponent

@@ -11,3 +11,7 @@ All commands given should be executed in a powershell.
  * `cd build`
  * Run cmake: `cmake -B . -S ..\llvm -DLLVM_ENABLE_PROJECTS="clang-tools-extra;clang" -DLLVM_TARGETS_TO_BUILD=X86`
  * Open the generated solution and build the clang-tidy executable in Release. Copy the resulting executable to `ezEngine/Data/Tools/Precompiled/clang-tidy/clang-tidy.exe` when done
+
+## Known Pitfalls
+ 
+ * When running clang-tidy.exe out of the directory it was build into, it will pick up a different set of header files and compile errors might appear. So copy the exectable out of the build directory before attempting to run it on the ezEngine source code. For local minimal test cases the clang-tidy.exe can remain in the build output directory.

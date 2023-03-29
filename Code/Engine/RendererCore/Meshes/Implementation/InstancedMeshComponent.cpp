@@ -33,18 +33,18 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMeshInstanceData, ezNoBase, 1, ezRTTIDefaultAll
 EZ_END_STATIC_REFLECTED_TYPE
 // clang-format on
 
-void ezMeshInstanceData::SetLocalPosition(ezVec3 position)
+void ezMeshInstanceData::SetLocalPosition(ezVec3 vPosition)
 {
-  m_transform.m_vPosition = position;
+  m_transform.m_vPosition = vPosition;
 }
 ezVec3 ezMeshInstanceData::GetLocalPosition() const
 {
   return m_transform.m_vPosition;
 }
 
-void ezMeshInstanceData::SetLocalRotation(ezQuat rotation)
+void ezMeshInstanceData::SetLocalRotation(ezQuat qRotation)
 {
-  m_transform.m_qRotation = rotation;
+  m_transform.m_qRotation = qRotation;
 }
 
 ezQuat ezMeshInstanceData::GetLocalRotation() const
@@ -52,9 +52,9 @@ ezQuat ezMeshInstanceData::GetLocalRotation() const
   return m_transform.m_qRotation;
 }
 
-void ezMeshInstanceData::SetLocalScaling(ezVec3 scaling)
+void ezMeshInstanceData::SetLocalScaling(ezVec3 vScaling)
 {
-  m_transform.m_vScale = scaling;
+  m_transform.m_vScale = vScaling;
 }
 
 ezVec3 ezMeshInstanceData::GetLocalScaling() const
@@ -63,22 +63,22 @@ ezVec3 ezMeshInstanceData::GetLocalScaling() const
 }
 
 static const ezTypeVersion s_MeshInstanceDataVersion = 1;
-ezResult ezMeshInstanceData::Serialize(ezStreamWriter& writer) const
+ezResult ezMeshInstanceData::Serialize(ezStreamWriter& ref_writer) const
 {
-  writer.WriteVersion(s_MeshInstanceDataVersion);
+  ref_writer.WriteVersion(s_MeshInstanceDataVersion);
 
-  writer << m_transform;
-  writer << m_color;
+  ref_writer << m_transform;
+  ref_writer << m_color;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezMeshInstanceData::Deserialize(ezStreamReader& reader)
+ezResult ezMeshInstanceData::Deserialize(ezStreamReader& ref_reader)
 {
-  /*auto version = */ reader.ReadVersion(s_MeshInstanceDataVersion);
+  /*auto version = */ ref_reader.ReadVersion(s_MeshInstanceDataVersion);
 
-  reader >> m_transform;
-  reader >> m_color;
+  ref_reader >> m_transform;
+  ref_reader >> m_color;
 
   return EZ_SUCCESS;
 }
@@ -92,7 +92,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezInstancedMeshRenderData::FillBatchIdAndSortingKey()
 {
-  FillBatchIdAndSortingKeyInternal(m_uiUniqueID);
+  FillBatchIdAndSortingKeyInternal(m_pExplicitInstanceData->m_hInstanceDataBuffer.GetInternalID().m_Data);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -199,18 +199,18 @@ EZ_END_COMPONENT_TYPE
 ezInstancedMeshComponent::ezInstancedMeshComponent() = default;
 ezInstancedMeshComponent::~ezInstancedMeshComponent() = default;
 
-void ezInstancedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezInstancedMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  stream.GetStream().WriteArray(m_RawInstancedData).IgnoreResult();
+  inout_stream.GetStream().WriteArray(m_RawInstancedData).IgnoreResult();
 }
 
-void ezInstancedMeshComponent::DeserializeComponent(ezWorldReader& stream)
+void ezInstancedMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
 
-  stream.GetStream().ReadArray(m_RawInstancedData).IgnoreResult();
+  inout_stream.GetStream().ReadArray(m_RawInstancedData).IgnoreResult();
 }
 
 void ezInstancedMeshComponent::OnActivated()
@@ -229,9 +229,9 @@ void ezInstancedMeshComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezInstancedMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) {}
+void ezInstancedMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) {}
 
-ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   ezBoundingBoxSphere singleBounds;
   if (m_hMesh.IsValid())
@@ -244,7 +244,7 @@ ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
       auto instanceBounds = singleBounds;
       instanceBounds.Transform(instance.m_transform.GetAsMat4());
 
-      bounds.ExpandToInclude(instanceBounds);
+      ref_bounds.ExpandToInclude(instanceBounds);
     }
 
     return EZ_SUCCESS;

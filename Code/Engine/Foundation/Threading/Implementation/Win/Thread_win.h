@@ -5,11 +5,11 @@ EZ_FOUNDATION_INTERNAL_HEADER
 /// \cond
 
 // Thread entry point used to launch ezRunnable instances
-DWORD __stdcall ezThreadClassEntryPoint(LPVOID lpThreadParameter)
+DWORD __stdcall ezThreadClassEntryPoint(LPVOID pThreadParameter)
 {
-  EZ_ASSERT_RELEASE(lpThreadParameter != nullptr, "thread parameter in thread entry point must not be nullptr!");
+  EZ_ASSERT_RELEASE(pThreadParameter != nullptr, "thread parameter in thread entry point must not be nullptr!");
 
-  ezThread* pThread = reinterpret_cast<ezThread*>(lpThreadParameter);
+  ezThread* pThread = reinterpret_cast<ezThread*>(pThreadParameter);
 
   return RunThread(pThread);
 }

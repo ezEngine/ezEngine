@@ -28,7 +28,7 @@ class EZ_TEST_DLL ezQtTestGUI : public QMainWindow, public Ui_qtTestGUI
 {
   Q_OBJECT
 public:
-  ezQtTestGUI(ezQtTestFramework& testFramework);
+  ezQtTestGUI(ezQtTestFramework& ref_testFramework);
   ~ezQtTestGUI();
 
 private:

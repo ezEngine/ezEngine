@@ -37,12 +37,12 @@ public:
   };
 
   static void ParseMaterialParameterSection(
-    ezStreamReader& stream, ezHybridArray<ParameterDefinition, 16>& out_Parameter, ezHybridArray<EnumDefinition, 4>& out_EnumDefinitions);
+    ezStreamReader& inout_stream, ezHybridArray<ParameterDefinition, 16>& out_parameter, ezHybridArray<EnumDefinition, 4>& out_enumDefinitions);
 
   static void ParsePermutationSection(
-    ezStreamReader& stream, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars);
+    ezStreamReader& inout_stream, ezHybridArray<ezHashedString, 16>& out_permVars, ezHybridArray<ezPermutationVar, 16>& out_fixedPermVars);
   static void ParsePermutationSection(
-    ezStringView sPermutationSection, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars);
+    ezStringView sPermutationSection, ezHybridArray<ezHashedString, 16>& out_permVars, ezHybridArray<ezPermutationVar, 16>& out_fixedPermVars);
 
-  static void ParsePermutationVarConfig(ezStringView sPermutationVarConfig, ezVariant& out_DefaultValue, EnumDefinition& out_EnumDefinition);
+  static void ParsePermutationVarConfig(ezStringView sPermutationVarConfig, ezVariant& out_defaultValue, EnumDefinition& out_enumDefinition);
 };

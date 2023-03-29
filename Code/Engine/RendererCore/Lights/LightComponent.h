@@ -27,8 +27,8 @@ class EZ_RENDERERCORE_DLL ezLightComponent : public ezRenderComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ public:
   ezLightComponent();
   ~ezLightComponent();
 
-  void SetLightColor(ezColorGammaUB LightColor); // [ property ]
+  void SetLightColor(ezColorGammaUB lightColor); // [ property ]
   ezColorGammaUB GetLightColor() const;          // [ property ]
 
   void SetIntensity(float fIntensity); // [ property ]
@@ -56,7 +56,7 @@ public:
   void SetConstantBias(float fShadowBias); // [ property ]
   float GetConstantBias() const;           // [ property ]
 
-  void OnMsgSetColor(ezMsgSetColor& msg); // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ msg handler ]
 
   static float CalculateEffectiveRange(float fRange, float fIntensity);
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);

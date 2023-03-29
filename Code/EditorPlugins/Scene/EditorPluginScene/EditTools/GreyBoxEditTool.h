@@ -18,7 +18,7 @@ public:
   virtual ezEditorInputContext* GetEditorInputContextOverride() override;
   virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override;
   virtual bool GetSupportsMoveParentOnly() const override;
-  virtual void GetGridSettings(ezGridSettingsMsgToEngine& outGridSettings) override;
+  virtual void GetGridSettings(ezGridSettingsMsgToEngine& out_gridSettings) override;
 
 protected:
   virtual void OnConfigured() override;

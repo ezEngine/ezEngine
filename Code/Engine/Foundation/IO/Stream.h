@@ -6,6 +6,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/EndianHelper.h>
 
@@ -46,29 +47,33 @@ public:
 
   /// \brief Reads an array of elements from the stream
   template <typename ArrayType, typename ValueType>
-  ezResult ReadArray(ezArrayBase<ValueType, ArrayType>& Array); // [tested]
+  ezResult ReadArray(ezArrayBase<ValueType, ArrayType>& inout_array); // [tested]
+
+  /// \brief Reads a small array of elements from the stream
+  template <typename ValueType, ezUInt16 uiSize, typename AllocatorWrapper>
+  ezResult ReadArray(ezSmallArray<ValueType, uiSize, AllocatorWrapper>& ref_array);
 
   /// \brief Writes a C style fixed array
   template <typename ValueType, ezUInt32 uiSize>
-  ezResult ReadArray(ValueType (&Array)[uiSize]);
+  ezResult ReadArray(ValueType (&array)[uiSize]);
 
   /// \brief Reads a set
   template <typename KeyType, typename Comparer>
-  ezResult ReadSet(ezSetBase<KeyType, Comparer>& Set); // [tested]
+  ezResult ReadSet(ezSetBase<KeyType, Comparer>& inout_set); // [tested]
 
   /// \brief Reads a map
   template <typename KeyType, typename ValueType, typename Comparer>
-  ezResult ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
+  ezResult ReadMap(ezMapBase<KeyType, ValueType, Comparer>& inout_map); // [tested]
 
   /// \brief Read a hash table (note that the entry order is not stable)
   template <typename KeyType, typename ValueType, typename Hasher>
-  ezResult ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& HashTable); // [tested]
+  ezResult ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& inout_hashTable); // [tested]
 
   /// \brief Reads a string into an ezStringBuilder
-  ezResult ReadString(ezStringBuilder& builder); // [tested]
+  ezResult ReadString(ezStringBuilder& ref_sBuilder); // [tested]
 
   /// \brief Reads a string into an ezString
-  ezResult ReadString(ezString& string);
+  ezResult ReadString(ezString& ref_sString);
 
 
   /// \brief Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
@@ -94,7 +99,7 @@ public:
     return uiBytesSkipped;
   }
 
-  EZ_ALWAYS_INLINE ezTypeVersion ReadVersion(ezTypeVersion uiExpectedMaxVersion);
+  EZ_ALWAYS_INLINE ezTypeVersion ReadVersion(ezTypeVersion expectedMaxVersion);
 };
 
 /// \brief Interface for binary out (write) streams.
@@ -133,30 +138,34 @@ public:
   ezResult WriteQWordValue(const T* pQWordValue); // [tested]
 
   /// \brief Writes a type version to the stream
-  EZ_ALWAYS_INLINE void WriteVersion(ezTypeVersion uiVersion);
+  EZ_ALWAYS_INLINE void WriteVersion(ezTypeVersion version);
 
   /// \brief Writes an array of elements to the stream
   template <typename ArrayType, typename ValueType>
-  ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& Array); // [tested]
+  ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& array); // [tested]
+
+  /// \brief Writes a small array of elements to the stream
+  template <typename ValueType, ezUInt16 uiSize>
+  ezResult WriteArray(const ezSmallArrayBase<ValueType, uiSize>& array);
 
   /// \brief Writes a C style fixed array
   template <typename ValueType, ezUInt32 uiSize>
-  ezResult WriteArray(const ValueType (&Array)[uiSize]);
+  ezResult WriteArray(const ValueType (&array)[uiSize]);
 
   /// \brief Writes a set
   template <typename KeyType, typename Comparer>
-  ezResult WriteSet(const ezSetBase<KeyType, Comparer>& Set); // [tested]
+  ezResult WriteSet(const ezSetBase<KeyType, Comparer>& set); // [tested]
 
   /// \brief Writes a map
   template <typename KeyType, typename ValueType, typename Comparer>
-  ezResult WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& Map); // [tested]
+  ezResult WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& map); // [tested]
 
   /// \brief Writes a hash table (note that the entry order might change on read)
   template <typename KeyType, typename ValueType, typename Hasher>
-  ezResult WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& HashTable); // [tested]
+  ezResult WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& hashTable); // [tested]
 
   /// \brief Writes a string
-  ezResult WriteString(const ezStringView szStringView); // [tested]
+  ezResult WriteString(const ezStringView sStringView); // [tested]
 };
 
 // Contains the helper methods of both interfaces

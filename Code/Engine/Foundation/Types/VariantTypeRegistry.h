@@ -43,8 +43,8 @@ public:
   virtual const ezRTTI* GetType() const = 0;
   virtual ezUInt32 Hash(const void* pObject) const = 0;
   virtual bool Equal(const void* pObjectA, const void* pObjectB) const = 0;
-  virtual void Serialize(ezStreamWriter& writer, const void* pObject) const = 0;
-  virtual void Deserialize(ezStreamReader& reader, void* pObject) const = 0;
+  virtual void Serialize(ezStreamWriter& ref_writer, const void* pObject) const = 0;
+  virtual void Deserialize(ezStreamReader& ref_reader, void* pObject) const = 0;
 
   EZ_DECLARE_ENUMERABLE_CLASS(ezVariantTypeInfo);
 };

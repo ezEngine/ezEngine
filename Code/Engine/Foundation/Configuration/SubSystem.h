@@ -53,7 +53,7 @@ public:
   const char* GetPluginName() const { return m_szPluginName; }
 
   /// \brief Returns whether the given startup stage has been done on this subsystem.
-  bool IsStartupPhaseDone(ezStartupStage::Enum Stage) const { return m_bStartupDone[Stage]; }
+  bool IsStartupPhaseDone(ezStartupStage::Enum stage) const { return m_bStartupDone[stage]; }
 
 private:
   // only the startup system may access the following functionality

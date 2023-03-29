@@ -26,22 +26,22 @@ public:
   EZ_ALWAYS_INLINE ezFixedPoint() {} // [tested]
 
   /// \brief Construct from an integer.
-  /* implicit */ ezFixedPoint(ezInt32 IntVal) { *this = IntVal; } // [tested]
+  /* implicit */ ezFixedPoint(ezInt32 iIntVal) { *this = iIntVal; } // [tested]
 
   /// \brief Construct from a float.
-  /* implicit */ ezFixedPoint(float FloatVal) { *this = FloatVal; } // [tested]
+  /* implicit */ ezFixedPoint(float fVal) { *this = fVal; } // [tested]
 
   /// \brief Construct from a double.
-  /* implicit */ ezFixedPoint(double FloatVal) { *this = FloatVal; } // [tested]
+  /* implicit */ ezFixedPoint(double fVal) { *this = fVal; } // [tested]
 
   /// \brief Assignment from an integer.
-  const ezFixedPoint<DecimalBits>& operator=(ezInt32 IntVal); // [tested]
+  const ezFixedPoint<DecimalBits>& operator=(ezInt32 iVal); // [tested]
 
   /// \brief Assignment from a float.
-  const ezFixedPoint<DecimalBits>& operator=(float FloatVal); // [tested]
+  const ezFixedPoint<DecimalBits>& operator=(float fVal); // [tested]
 
   /// \brief Assignment from a double.
-  const ezFixedPoint<DecimalBits>& operator=(double FloatVal); // [tested]
+  const ezFixedPoint<DecimalBits>& operator=(double fVal); // [tested]
 
   /// \brief Implicit conversion to int (the fractional part is dropped).
   ezInt32 ToInt() const; // [tested]
@@ -95,7 +95,7 @@ public:
   ezInt32 GetRawValue() const { return m_iValue; }
 
   /// \brief Sets the underlying integer value. Mostly useful for serialization (or tests).
-  void SetRawValue(ezInt32 val) { m_iValue = val; }
+  void SetRawValue(ezInt32 iVal) { m_iValue = iVal; }
 
 private:
   ezInt32 m_iValue;

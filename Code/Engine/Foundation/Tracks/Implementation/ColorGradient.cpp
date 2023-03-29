@@ -31,51 +31,51 @@ void ezColorGradient::AddColorControlPoint(double x, const ezColorGammaUB& rgb)
   cp.m_GammaBlue = rgb.b;
 }
 
-void ezColorGradient::AddAlphaControlPoint(double x, ezUInt8 alpha)
+void ezColorGradient::AddAlphaControlPoint(double x, ezUInt8 uiAlpha)
 {
   auto& cp = m_AlphaCPs.ExpandAndGetRef();
   cp.m_PosX = x;
-  cp.m_Alpha = alpha;
+  cp.m_Alpha = uiAlpha;
 }
 
-void ezColorGradient::AddIntensityControlPoint(double x, float intensity)
+void ezColorGradient::AddIntensityControlPoint(double x, float fIntensity)
 {
   auto& cp = m_IntensityCPs.ExpandAndGetRef();
   cp.m_PosX = x;
-  cp.m_Intensity = intensity;
+  cp.m_Intensity = fIntensity;
 }
 
-bool ezColorGradient::GetExtents(double& minx, double& maxx) const
+bool ezColorGradient::GetExtents(double& ref_fMinx, double& ref_fMaxx) const
 {
-  minx = ezMath::MaxValue<float>();
-  maxx = -ezMath::MaxValue<float>();
+  ref_fMinx = ezMath::MaxValue<float>();
+  ref_fMaxx = -ezMath::MaxValue<float>();
 
   for (const auto& cp : m_ColorCPs)
   {
-    minx = ezMath::Min(minx, cp.m_PosX);
-    maxx = ezMath::Max(maxx, cp.m_PosX);
+    ref_fMinx = ezMath::Min(ref_fMinx, cp.m_PosX);
+    ref_fMaxx = ezMath::Max(ref_fMaxx, cp.m_PosX);
   }
 
   for (const auto& cp : m_AlphaCPs)
   {
-    minx = ezMath::Min(minx, cp.m_PosX);
-    maxx = ezMath::Max(maxx, cp.m_PosX);
+    ref_fMinx = ezMath::Min(ref_fMinx, cp.m_PosX);
+    ref_fMaxx = ezMath::Max(ref_fMaxx, cp.m_PosX);
   }
 
   for (const auto& cp : m_IntensityCPs)
   {
-    minx = ezMath::Min(minx, cp.m_PosX);
-    maxx = ezMath::Max(maxx, cp.m_PosX);
+    ref_fMinx = ezMath::Min(ref_fMinx, cp.m_PosX);
+    ref_fMaxx = ezMath::Max(ref_fMaxx, cp.m_PosX);
   }
 
-  return minx <= maxx;
+  return ref_fMinx <= ref_fMaxx;
 }
 
-void ezColorGradient::GetNumControlPoints(ezUInt32& rgb, ezUInt32& alpha, ezUInt32& intensity) const
+void ezColorGradient::GetNumControlPoints(ezUInt32& ref_uiRgb, ezUInt32& ref_uiAlpha, ezUInt32& ref_uiIntensity) const
 {
-  rgb = m_ColorCPs.GetCount();
-  alpha = m_AlphaCPs.GetCount();
-  intensity = m_IntensityCPs.GetCount();
+  ref_uiRgb = m_ColorCPs.GetCount();
+  ref_uiAlpha = m_AlphaCPs.GetCount();
+  ref_uiIntensity = m_IntensityCPs.GetCount();
 }
 
 void ezColorGradient::SortControlPoints()
@@ -123,48 +123,48 @@ void ezColorGradient::PrecomputeLerpNormalizer()
   }
 }
 
-void ezColorGradient::Evaluate(double x, ezColorGammaUB& rgba, float& intensity) const
+void ezColorGradient::Evaluate(double x, ezColorGammaUB& ref_rgba, float& ref_fIntensity) const
 {
-  rgba.r = 255;
-  rgba.g = 255;
-  rgba.b = 255;
-  rgba.a = 255;
-  intensity = 1.0f;
+  ref_rgba.r = 255;
+  ref_rgba.g = 255;
+  ref_rgba.b = 255;
+  ref_rgba.a = 255;
+  ref_fIntensity = 1.0f;
 
-  EvaluateColor(x, rgba);
-  EvaluateAlpha(x, rgba.a);
-  EvaluateIntensity(x, intensity);
+  EvaluateColor(x, ref_rgba);
+  EvaluateAlpha(x, ref_rgba.a);
+  EvaluateIntensity(x, ref_fIntensity);
 }
 
 
-void ezColorGradient::Evaluate(double x, ezColor& hdr) const
+void ezColorGradient::Evaluate(double x, ezColor& ref_hdr) const
 {
   float intensity = 1.0f;
   ezUInt8 alpha = 255;
 
-  EvaluateColor(x, hdr);
+  EvaluateColor(x, ref_hdr);
   EvaluateAlpha(x, alpha);
   EvaluateIntensity(x, intensity);
 
-  hdr.ScaleRGB(intensity);
-  hdr.a = ezMath::ColorByteToFloat(alpha);
+  ref_hdr.ScaleRGB(intensity);
+  ref_hdr.a = ezMath::ColorByteToFloat(alpha);
 }
 
-void ezColorGradient::EvaluateColor(double x, ezColorGammaUB& rgb) const
+void ezColorGradient::EvaluateColor(double x, ezColorGammaUB& ref_rgb) const
 {
   ezColor hdr;
   EvaluateColor(x, hdr);
 
-  rgb = hdr;
-  rgb.a = 255;
+  ref_rgb = hdr;
+  ref_rgb.a = 255;
 }
 
-void ezColorGradient::EvaluateColor(double x, ezColor& rgb) const
+void ezColorGradient::EvaluateColor(double x, ezColor& ref_rgb) const
 {
-  rgb.r = 1.0f;
-  rgb.g = 1.0f;
-  rgb.b = 1.0f;
-  rgb.a = 1.0f;
+  ref_rgb.r = 1.0f;
+  ref_rgb.g = 1.0f;
+  ref_rgb.b = 1.0f;
+  ref_rgb.a = 1.0f;
 
   const ezUInt32 numCPs = m_ColorCPs.GetCount();
 
@@ -174,7 +174,7 @@ void ezColorGradient::EvaluateColor(double x, ezColor& rgb) const
     if (m_ColorCPs[0].m_PosX >= x)
     {
       const ColorCP& cp = m_ColorCPs[0];
-      rgb = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
+      ref_rgb = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
       return;
     }
 
@@ -192,7 +192,7 @@ void ezColorGradient::EvaluateColor(double x, ezColor& rgb) const
     // no point found -> clamp to right value
     {
       const ColorCP& cp = m_ColorCPs[numCPs - 1];
-      rgb = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
+      ref_rgb = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
       return;
     }
 
@@ -209,18 +209,18 @@ void ezColorGradient::EvaluateColor(double x, ezColor& rgb) const
     // interpolate (linear for now)
     const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
-    rgb = ezMath::Lerp(lhs, rhs, lerpX);
+    ref_rgb = ezMath::Lerp(lhs, rhs, lerpX);
   }
   }
   else if (m_ColorCPs.GetCount() == 1)
   {
-    rgb = ezColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
+    ref_rgb = ezColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
   }
 }
 
-void ezColorGradient::EvaluateAlpha(double x, ezUInt8& alpha) const
+void ezColorGradient::EvaluateAlpha(double x, ezUInt8& ref_uiAlpha) const
 {
-  alpha = 255;
+  ref_uiAlpha = 255;
 
   const ezUInt32 numCPs = m_AlphaCPs.GetCount();
   if (numCPs >= 2)
@@ -228,7 +228,7 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& alpha) const
     // clamp to left value
     if (m_AlphaCPs[0].m_PosX >= x)
     {
-      alpha = m_AlphaCPs[0].m_Alpha;
+      ref_uiAlpha = m_AlphaCPs[0].m_Alpha;
       return;
     }
 
@@ -245,7 +245,7 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& alpha) const
 
     // no point found -> clamp to right value
     {
-      alpha = m_AlphaCPs[numCPs - 1].m_Alpha;
+      ref_uiAlpha = m_AlphaCPs[numCPs - 1].m_Alpha;
       return;
     }
 
@@ -259,18 +259,18 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& alpha) const
     // interpolate (linear for now)
     const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
-    alpha = ezMath::Lerp(cpl.m_Alpha, cpr.m_Alpha, lerpX);
+    ref_uiAlpha = ezMath::Lerp(cpl.m_Alpha, cpr.m_Alpha, lerpX);
   }
   }
   else if (m_AlphaCPs.GetCount() == 1)
   {
-    alpha = m_AlphaCPs[0].m_Alpha;
+    ref_uiAlpha = m_AlphaCPs[0].m_Alpha;
   }
 }
 
-void ezColorGradient::EvaluateIntensity(double x, float& intensity) const
+void ezColorGradient::EvaluateIntensity(double x, float& ref_fIntensity) const
 {
-  intensity = 1.0f;
+  ref_fIntensity = 1.0f;
 
   const ezUInt32 numCPs = m_IntensityCPs.GetCount();
   if (m_IntensityCPs.GetCount() >= 2)
@@ -278,7 +278,7 @@ void ezColorGradient::EvaluateIntensity(double x, float& intensity) const
     // clamp to left value
     if (m_IntensityCPs[0].m_PosX >= x)
     {
-      intensity = m_IntensityCPs[0].m_Intensity;
+      ref_fIntensity = m_IntensityCPs[0].m_Intensity;
       return;
     }
 
@@ -295,7 +295,7 @@ void ezColorGradient::EvaluateIntensity(double x, float& intensity) const
 
     // no point found -> clamp to right value
     {
-      intensity = m_IntensityCPs[numCPs - 1].m_Intensity;
+      ref_fIntensity = m_IntensityCPs[numCPs - 1].m_Intensity;
       return;
     }
 
@@ -309,12 +309,12 @@ void ezColorGradient::EvaluateIntensity(double x, float& intensity) const
     // interpolate (linear for now)
     const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
-    intensity = ezMath::Lerp(cpl.m_Intensity, cpr.m_Intensity, lerpX);
+    ref_fIntensity = ezMath::Lerp(cpl.m_Intensity, cpr.m_Intensity, lerpX);
   }
   }
   else if (m_IntensityCPs.GetCount() == 1)
   {
-    intensity = m_IntensityCPs[0].m_Intensity;
+    ref_fIntensity = m_IntensityCPs[0].m_Intensity;
   }
 }
 
@@ -323,55 +323,55 @@ ezUInt64 ezColorGradient::GetHeapMemoryUsage() const
   return m_ColorCPs.GetHeapMemoryUsage() + m_AlphaCPs.GetHeapMemoryUsage() + m_IntensityCPs.GetHeapMemoryUsage();
 }
 
-void ezColorGradient::Save(ezStreamWriter& stream) const
+void ezColorGradient::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 2;
 
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
   const ezUInt32 numColor = m_ColorCPs.GetCount();
   const ezUInt32 numAlpha = m_AlphaCPs.GetCount();
   const ezUInt32 numIntensity = m_IntensityCPs.GetCount();
 
-  stream << numColor;
-  stream << numAlpha;
-  stream << numIntensity;
+  inout_stream << numColor;
+  inout_stream << numAlpha;
+  inout_stream << numIntensity;
 
   for (const auto& cp : m_ColorCPs)
   {
-    stream << cp.m_PosX;
-    stream << cp.m_GammaRed;
-    stream << cp.m_GammaGreen;
-    stream << cp.m_GammaBlue;
+    inout_stream << cp.m_PosX;
+    inout_stream << cp.m_GammaRed;
+    inout_stream << cp.m_GammaGreen;
+    inout_stream << cp.m_GammaBlue;
   }
 
   for (const auto& cp : m_AlphaCPs)
   {
-    stream << cp.m_PosX;
-    stream << cp.m_Alpha;
+    inout_stream << cp.m_PosX;
+    inout_stream << cp.m_Alpha;
   }
 
   for (const auto& cp : m_IntensityCPs)
   {
-    stream << cp.m_PosX;
-    stream << cp.m_Intensity;
+    inout_stream << cp.m_PosX;
+    inout_stream << cp.m_Intensity;
   }
 }
 
-void ezColorGradient::Load(ezStreamReader& stream)
+void ezColorGradient::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
 
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
   EZ_ASSERT_DEV(uiVersion <= 2, "Incorrect version '{0}' for ezColorGradient", uiVersion);
 
   ezUInt32 numColor = 0;
   ezUInt32 numAlpha = 0;
   ezUInt32 numIntensity = 0;
 
-  stream >> numColor;
-  stream >> numAlpha;
-  stream >> numIntensity;
+  inout_stream >> numColor;
+  inout_stream >> numAlpha;
+  inout_stream >> numIntensity;
 
   m_ColorCPs.SetCountUninitialized(numColor);
   m_AlphaCPs.SetCountUninitialized(numAlpha);
@@ -382,47 +382,47 @@ void ezColorGradient::Load(ezStreamReader& stream)
     float x;
     for (auto& cp : m_ColorCPs)
     {
-      stream >> x;
+      inout_stream >> x;
       cp.m_PosX = x; // float
-      stream >> cp.m_GammaRed;
-      stream >> cp.m_GammaGreen;
-      stream >> cp.m_GammaBlue;
+      inout_stream >> cp.m_GammaRed;
+      inout_stream >> cp.m_GammaGreen;
+      inout_stream >> cp.m_GammaBlue;
     }
 
     for (auto& cp : m_AlphaCPs)
     {
-      stream >> x;
+      inout_stream >> x;
       cp.m_PosX = x; // float
-      stream >> cp.m_Alpha;
+      inout_stream >> cp.m_Alpha;
     }
 
     for (auto& cp : m_IntensityCPs)
     {
-      stream >> x;
+      inout_stream >> x;
       cp.m_PosX = x; // float
-      stream >> cp.m_Intensity;
+      inout_stream >> cp.m_Intensity;
     }
   }
   else
   {
     for (auto& cp : m_ColorCPs)
     {
-      stream >> cp.m_PosX;
-      stream >> cp.m_GammaRed;
-      stream >> cp.m_GammaGreen;
-      stream >> cp.m_GammaBlue;
+      inout_stream >> cp.m_PosX;
+      inout_stream >> cp.m_GammaRed;
+      inout_stream >> cp.m_GammaGreen;
+      inout_stream >> cp.m_GammaBlue;
     }
 
     for (auto& cp : m_AlphaCPs)
     {
-      stream >> cp.m_PosX;
-      stream >> cp.m_Alpha;
+      inout_stream >> cp.m_PosX;
+      inout_stream >> cp.m_Alpha;
     }
 
     for (auto& cp : m_IntensityCPs)
     {
-      stream >> cp.m_PosX;
-      stream >> cp.m_Intensity;
+      inout_stream >> cp.m_PosX;
+      inout_stream >> cp.m_Intensity;
     }
   }
 

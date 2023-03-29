@@ -25,22 +25,22 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezDataDirectory::ArchiveType::ArchiveType() = default;
 ezDataDirectory::ArchiveType::~ArchiveType() = default;
 
-ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
+ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage)
 {
   ArchiveType* pDataDir = EZ_DEFAULT_NEW(ArchiveType);
 
-  if (pDataDir->InitializeDataDirectory(szDataDirectory) == EZ_SUCCESS)
+  if (pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
     return pDataDir;
 
   EZ_DEFAULT_DELETE(pDataDir);
   return nullptr;
 }
 
-ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
+ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
 {
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
-  sArchivePath.AppendPath(szFile);
+  sArchivePath.AppendPath(sFile);
 
   const ezUInt32 uiEntryIndex = toc.FindEntry(sArchivePath);
 
@@ -114,18 +114,18 @@ void ezDataDirectory::ArchiveType::RemoveDataDirectory()
   EZ_DEFAULT_DELETE(pThis);
 }
 
-bool ezDataDirectory::ArchiveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
+bool ezDataDirectory::ArchiveType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
 {
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
-  sArchivePath.AppendPath(szFile);
+  sArchivePath.AppendPath(sFile);
   return m_ArchiveReader.GetArchiveTOC().FindEntry(sArchivePath) != ezInvalidIndex;
 }
 
-ezResult ezDataDirectory::ArchiveType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
+ezResult ezDataDirectory::ArchiveType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
 {
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
   ezStringBuilder sArchivePath = m_sArchiveSubFolder;
-  sArchivePath.AppendPath(szFileOrFolder);
+  sArchivePath.AppendPath(sFileOrFolder);
   const ezUInt32 uiEntryIndex = toc.FindEntry(sArchivePath);
 
   if (uiEntryIndex == ezInvalidIndex)
@@ -145,10 +145,10 @@ ezResult ezDataDirectory::ArchiveType::GetFileStats(const char* szFileOrFolder, 
   return EZ_SUCCESS;
 }
 
-ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(const char* szDirectory)
+ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(ezStringView sDirectory)
 {
   ezStringBuilder sRedirected;
-  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolveSpecialDirectory(szDirectory, sRedirected));
+  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolveSpecialDirectory(sDirectory, sRedirected));
 
   sRedirected.MakeCleanPath();
   // remove trailing slashes
@@ -193,7 +193,7 @@ endloop:
   if (ezOSFile::GetFileStats(sArchivePath, stats).Failed())
     return EZ_FAILURE;
 
-  EZ_LOG_BLOCK("ezArchiveDataDir", szDirectory);
+  EZ_LOG_BLOCK("ezArchiveDataDir", sDirectory);
 
   m_LastModificationTime = stats.m_LastModificationTime;
 

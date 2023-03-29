@@ -29,8 +29,8 @@ private:
 public:
   ezViewHandle GetHandle() const;
 
-  void SetName(const char* szName);
-  const char* GetName() const;
+  void SetName(ezStringView sName);
+  ezStringView GetName() const;
 
   void SetWorld(ezWorld* pWorld);
   ezWorld* GetWorld();
@@ -93,7 +93,7 @@ public:
   ///
   /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
-  ezResult ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir) const;
+  ezResult ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir) const;
 
   ezResult ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos) const;
 
@@ -116,7 +116,7 @@ public:
   const ezMat4& GetInverseViewProjectionMatrix(ezCameraEye eye) const;
 
   /// \brief Returns the frustum that should be used for determine visible objects for this view.
-  void ComputeCullingFrustum(ezFrustum& out_Frustum) const;
+  void ComputeCullingFrustum(ezFrustum& out_frustum) const;
 
   void SetShaderPermutationVariable(const char* szName, const char* szValue);
 

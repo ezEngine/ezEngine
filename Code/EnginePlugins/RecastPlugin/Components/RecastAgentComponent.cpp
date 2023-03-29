@@ -119,22 +119,22 @@ ezVec3 ezRcAgentComponent::GetTargetPosition() const
   return m_vTargetPosition;
 }
 
-ezResult ezRcAgentComponent::FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/) const
+ezResult ezRcAgentComponent::FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_polyRef, ezVec3* out_pAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/) const
 {
   ezRcPos rcPos = vPosition;
   ezVec3 vSize(fPlaneEpsilon, fHeightEpsilon, fPlaneEpsilon);
 
   ezRcPos resultPos;
   dtQueryFilter filter; /// \todo Hard-coded filter
-  if (dtStatusFailed(m_pQuery->findNearestPoly(rcPos, &vSize.x, &m_QueryFilter, &out_PolyRef, resultPos)))
+  if (dtStatusFailed(m_pQuery->findNearestPoly(rcPos, &vSize.x, &m_QueryFilter, &out_polyRef, resultPos)))
     return EZ_FAILURE;
 
   if (!ezMath::IsEqual(vPosition.x, resultPos.m_Pos[0], fPlaneEpsilon) || !ezMath::IsEqual(vPosition.y, resultPos.m_Pos[2], fPlaneEpsilon) || !ezMath::IsEqual(vPosition.z, resultPos.m_Pos[1], fHeightEpsilon))
     return EZ_FAILURE;
 
-  if (out_vAdjustedPosition != nullptr)
+  if (out_pAdjustedPosition != nullptr)
   {
-    *out_vAdjustedPosition = resultPos;
+    *out_pAdjustedPosition = resultPos;
   }
 
   return EZ_SUCCESS;
@@ -225,9 +225,9 @@ ezResult ezRcAgentComponent::ComputePathToTarget()
   return EZ_SUCCESS;
 }
 
-bool ezRcAgentComponent::HasReachedPosition(const ezVec3& pos, float fMaxDistance) const
+bool ezRcAgentComponent::HasReachedPosition(const ezVec3& vPos, float fMaxDistance) const
 {
-  ezVec3 vTargetPos = pos;
+  ezVec3 vTargetPos = vPos;
   ezVec3 vOwnPos = GetOwner()->GetGlobalPosition();
 
   /// \todo The comment below may not always be true
@@ -272,9 +272,9 @@ void ezRcAgentComponent::PlanNextSteps()
   }
 }
 
-bool ezRcAgentComponent::IsPositionVisible(const ezVec3& pos) const
+bool ezRcAgentComponent::IsPositionVisible(const ezVec3& vPos) const
 {
-  ezRcPos endPos = pos;
+  ezRcPos endPos = vPos;
 
   dtRaycastHit hit;
   if (dtStatusFailed(m_pQuery->raycast(m_pCorridor->getFirstPoly(), m_pCorridor->getPos(), endPos, &m_QueryFilter, 0, &hit)))

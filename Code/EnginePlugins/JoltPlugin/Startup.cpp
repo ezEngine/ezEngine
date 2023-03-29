@@ -34,3 +34,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Jolt, JoltPlugin)
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Startup);
+

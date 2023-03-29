@@ -12,8 +12,8 @@ public:
   virtual const ezRTTI* GetTypeType() const override;
   virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream) override;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypePoint final : public ezParticleType
@@ -25,7 +25,7 @@ public:
 
   virtual void CreateRequiredStreams() override;
 
-  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const override;
+  virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
 
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.0f; }
 

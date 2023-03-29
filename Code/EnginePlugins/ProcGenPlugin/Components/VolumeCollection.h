@@ -66,15 +66,15 @@ public:
 
   static ezUInt32 ComputeSortingKey(float fSortOrder, float fMaxScale);
 
-  float EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const;
+  float EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const;
 
-  static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory, const ezTagSet& includeTags, ezVolumeCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);
+  static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory, const ezTagSet& includeTags, ezVolumeCollection& out_collection, const ezRTTI* pComponentBaseType = nullptr);
 
   void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFadeOutStart);
 
   void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart);
 
-  void AddImage(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart, const ezImageDataResourceHandle& image);
+  void AddImage(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart, const ezImageDataResourceHandle& hImage);
 
 private:
   ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;

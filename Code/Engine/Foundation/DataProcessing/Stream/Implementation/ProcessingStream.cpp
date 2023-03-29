@@ -3,38 +3,45 @@
 #include <Foundation/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 
+// Ensure that we can retrieve the base data type with this simple bit operation
+static_assert(((int)ezProcessingStream::DataType::Half3 & ~3) == (int)ezProcessingStream::DataType::Half);
+static_assert(((int)ezProcessingStream::DataType::Float4 & ~3) == (int)ezProcessingStream::DataType::Float);
+static_assert(((int)ezProcessingStream::DataType::Byte2 & ~3) == (int)ezProcessingStream::DataType::Byte);
+static_assert(((int)ezProcessingStream::DataType::Short3 & ~3) == (int)ezProcessingStream::DataType::Short);
+static_assert(((int)ezProcessingStream::DataType::Int4 & ~3) == (int)ezProcessingStream::DataType::Int);
+
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 static_assert(sizeof(ezProcessingStream) == 32);
 #endif
 
 ezProcessingStream::ezProcessingStream() = default;
 
-ezProcessingStream::ezProcessingStream(const ezHashedString& sName, DataType Type, ezUInt16 uiStride, ezUInt16 uiAlignment)
+ezProcessingStream::ezProcessingStream(const ezHashedString& sName, DataType type, ezUInt16 uiStride, ezUInt16 uiAlignment)
   : m_uiAlignment(uiAlignment)
-  , m_uiTypeSize(GetDataTypeSize(Type))
+  , m_uiTypeSize(GetDataTypeSize(type))
   , m_uiStride(uiStride)
-  , m_Type(Type)
+  , m_Type(type)
   , m_sName(sName)
 {
 }
 
-ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type, ezUInt16 uiStride)
+ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type, ezUInt16 uiStride)
   : m_pData(data.GetPtr())
   , m_uiDataSize(data.GetCount())
-  , m_uiTypeSize(GetDataTypeSize(Type))
+  , m_uiTypeSize(GetDataTypeSize(type))
   , m_uiStride(uiStride)
-  , m_Type(Type)
+  , m_Type(type)
   , m_bExternalMemory(true)
   , m_sName(sName)
 {
 }
 
-ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType Type)
+ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type)
   : m_pData(data.GetPtr())
   , m_uiDataSize(data.GetCount())
-  , m_uiTypeSize(GetDataTypeSize(Type))
+  , m_uiTypeSize(GetDataTypeSize(type))
   , m_uiStride(m_uiTypeSize)
-  , m_Type(Type)
+  , m_Type(type)
   , m_bExternalMemory(true)
   , m_sName(sName)
 {
@@ -119,9 +126,9 @@ static ezUInt16 s_TypeSize[] = {
 static_assert(EZ_ARRAY_SIZE(s_TypeSize) == (size_t)ezProcessingStream::DataType::Count);
 
 // static
-ezUInt16 ezProcessingStream::GetDataTypeSize(DataType Type)
+ezUInt16 ezProcessingStream::GetDataTypeSize(DataType type)
 {
-  return s_TypeSize[(ezUInt32)Type];
+  return s_TypeSize[(ezUInt32)type];
 }
 
 static ezStringView s_TypeName[] = {
@@ -153,9 +160,9 @@ static ezStringView s_TypeName[] = {
 static_assert(EZ_ARRAY_SIZE(s_TypeName) == (size_t)ezProcessingStream::DataType::Count);
 
 // static
-ezStringView ezProcessingStream::GetDataTypeName(DataType Type)
+ezStringView ezProcessingStream::GetDataTypeName(DataType type)
 {
-  return s_TypeName[(ezUInt32)Type];
+  return s_TypeName[(ezUInt32)type];
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStream);

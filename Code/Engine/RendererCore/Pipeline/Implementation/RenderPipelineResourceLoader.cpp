@@ -183,7 +183,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
 }
 
 // static
-void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& desc)
+void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& ref_desc)
 {
   ezRenderPipelineRttiConverterContext context;
 
@@ -250,7 +250,7 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
     }
   }
 
-  ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&desc.m_SerializedPipeline);
+  ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&ref_desc.m_SerializedPipeline);
 
   ezMemoryStreamWriter memoryWriter(&storage);
   ezAbstractGraphBinarySerializer::Write(memoryWriter, &graph);

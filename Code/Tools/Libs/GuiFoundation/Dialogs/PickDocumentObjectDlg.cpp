@@ -4,8 +4,8 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* parent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject)
-  : QDialog(parent)
+ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* pParent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject)
+  : QDialog(pParent)
   , m_Objects(objects)
   , m_CurrentObject(currentObject)
 {

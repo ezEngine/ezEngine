@@ -1,0 +1,206 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{7380177275452422788,5612665315909530043}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Animation Clip"}
+		VarArray %Dependencies
+		{
+			s{"Quaternius/Monsters/glTF/Ghost.gltf"}
+		}
+		Uuid %DocumentID{u4{7380177275452422788,5612665315909530043}}
+		u4 %Hash{13949568362562284805}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 72216d7c-f56c-4a1b-9c67-f93ad7146a18 }"}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{15015405889671043163,2899492319994489107}}
+	s %t{"ezEventTrackData"}
+	u3 %v{3}
+	p
+	{
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{1158479732199110590,5601960289179290614}}
+	s %t{"ezAnimationClipAssetProperties"}
+	u3 %v{3}
+	p
+	{
+		b %Additive{0}
+		VarArray %AvailableClips
+		{
+			s{"Bite_Front"}
+			s{"Bite_InPlace"}
+			s{"Dance"}
+			s{"Death"}
+			s{"HitRecieve"}
+			s{"Idle"}
+			s{"Jump"}
+			s{"No"}
+			s{"Walk"}
+			s{"Yes"}
+		}
+		Vec3 %ConstantRootMotion{f{0,0,0}}
+		Uuid %EventTrack{u4{15015405889671043163,2899492319994489107}}
+		s %File{"Quaternius/Monsters/glTF/Ghost.gltf"}
+		u3 %FirstFrame{0}
+		u3 %NumFrames{0}
+		s %PreviewMesh{"{ 72216d7c-f56c-4a1b-9c67-f93ad7146a18 }"}
+		s %RootMotion{"ezRootMotionSource::None"}
+		s %UseAnimationClip{"Walk"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{1158479732199110590,5601960289179290614}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11015610706821488674,9052215883761519321}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventTrackData"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{16147564638840122555,14075669034321763640}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezRootMotionSource"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11235755960658565766,14374470961055231674}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventTrackControlPointData"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{919881006902949434,15110225034563490820}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAnimationClipAssetProperties"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

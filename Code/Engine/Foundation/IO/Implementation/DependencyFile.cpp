@@ -30,12 +30,12 @@ void ezDependencyFile::Clear()
   m_AssetTransformDependencies.Clear();
 }
 
-void ezDependencyFile::AddFileDependency(const char* szFile)
+void ezDependencyFile::AddFileDependency(ezStringView sFile)
 {
-  if (ezStringUtils::IsNullOrEmpty(szFile))
+  if (sFile.IsEmpty())
     return;
 
-  m_AssetTransformDependencies.PushBack(szFile);
+  m_AssetTransformDependencies.PushBack(sFile);
 }
 
 void ezDependencyFile::StoreCurrentTimeStamp()
@@ -98,24 +98,24 @@ bool ezDependencyFile::HasAnyFileChanged() const
   return false;
 }
 
-ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& stream) const
+ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& inout_stream) const
 {
-  stream << (ezUInt8)ezDependencyFileVersion::Current;
+  inout_stream << (ezUInt8)ezDependencyFileVersion::Current;
 
-  stream << m_iMaxTimeStampStored;
-  stream << m_uiSumTimeStampStored;
-  stream << m_AssetTransformDependencies.GetCount();
+  inout_stream << m_iMaxTimeStampStored;
+  inout_stream << m_uiSumTimeStampStored;
+  inout_stream << m_AssetTransformDependencies.GetCount();
 
   for (const auto& sFile : m_AssetTransformDependencies)
-    stream << sFile;
+    inout_stream << sFile;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
+ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = (ezUInt8)ezDependencyFileVersion::Version0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   if (uiVersion > (ezUInt8)ezDependencyFileVersion::Current)
   {
@@ -125,38 +125,38 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
 
   EZ_ASSERT_DEV(uiVersion <= (ezUInt8)ezDependencyFileVersion::Current, "Invalid file version {0}", uiVersion);
 
-  stream >> m_iMaxTimeStampStored;
+  inout_stream >> m_iMaxTimeStampStored;
 
   if (uiVersion >= (ezUInt8)ezDependencyFileVersion::Version2)
   {
-    stream >> m_uiSumTimeStampStored;
+    inout_stream >> m_uiSumTimeStampStored;
   }
 
   ezUInt32 count = 0;
-  stream >> count;
+  inout_stream >> count;
   m_AssetTransformDependencies.SetCount(count);
 
   for (ezUInt32 i = 0; i < m_AssetTransformDependencies.GetCount(); ++i)
-    stream >> m_AssetTransformDependencies[i];
+    inout_stream >> m_AssetTransformDependencies[i];
 
   return EZ_SUCCESS;
 }
 
-ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp& out_Result)
+ezResult ezDependencyFile::RetrieveFileTimeStamp(ezStringView sFile, ezTimestamp& out_Result)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
   bool bExisted = false;
-  auto it = s_FileTimestamps.FindOrAdd(szFile, &bExisted);
+  auto it = s_FileTimestamps.FindOrAdd(sFile, &bExisted);
 
   if (!bExisted || it.Value().m_LastCheck + ezTime::Seconds(2.0) < ezTime::Now())
   {
     it.Value().m_LastCheck = ezTime::Now();
 
     ezFileStats stats;
-    if (ezFileSystem::GetFileStats(szFile, stats).Failed())
+    if (ezFileSystem::GetFileStats(sFile, stats).Failed())
     {
-      ezLog::Error("Could not query the file stats for '{0}'", ezArgSensitive(szFile, "File"));
+      ezLog::Error("Could not query the file stats for '{0}'", ezArgSensitive(sFile, "File"));
       return EZ_FAILURE;
     }
 
@@ -175,23 +175,23 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
   return out_Result.IsValid() ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-ezResult ezDependencyFile::WriteDependencyFile(const char* szFile) const
+ezResult ezDependencyFile::WriteDependencyFile(ezStringView sFile) const
 {
-  EZ_LOG_BLOCK("ezDependencyFile::WriteDependencyFile", szFile);
+  EZ_LOG_BLOCK("ezDependencyFile::WriteDependencyFile", sFile);
 
   ezFileWriter file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
     return EZ_FAILURE;
 
   return WriteDependencyFile(file);
 }
 
-ezResult ezDependencyFile::ReadDependencyFile(const char* szFile)
+ezResult ezDependencyFile::ReadDependencyFile(ezStringView sFile)
 {
-  EZ_LOG_BLOCK("ezDependencyFile::ReadDependencyFile", szFile);
+  EZ_LOG_BLOCK("ezDependencyFile::ReadDependencyFile", sFile);
 
   ezFileReader file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
     return EZ_FAILURE;
 
   return ReadDependencyFile(file);

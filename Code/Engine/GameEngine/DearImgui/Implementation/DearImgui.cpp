@@ -19,12 +19,12 @@ namespace
     return pAllocator->Allocate(uiSize, EZ_ALIGNMENT_MINIMUM);
   }
 
-  void ezImguiDeallocate(void* ptr, void* pUserData)
+  void ezImguiDeallocate(void* pPtr, void* pUserData)
   {
-    if (ptr != nullptr)
+    if (pPtr != nullptr)
     {
       ezAllocatorBase* pAllocator = static_cast<ezAllocatorBase*>(pUserData);
-      pAllocator->Deallocate(ptr);
+      pAllocator->Deallocate(pPtr);
     }
   }
 } // namespace

@@ -68,9 +68,9 @@ ezBoxReflectionProbeComponentManager::ezBoxReflectionProbeComponentManager(ezWor
 ezBoxReflectionProbeComponent::ezBoxReflectionProbeComponent() = default;
 ezBoxReflectionProbeComponent::~ezBoxReflectionProbeComponent() = default;
 
-void ezBoxReflectionProbeComponent::SetExtents(const ezVec3& extents)
+void ezBoxReflectionProbeComponent::SetExtents(const ezVec3& vExtents)
 {
-  m_vExtents = extents;
+  m_vExtents = vExtents;
 }
 
 const ezVec3& ezBoxReflectionProbeComponent::GetInfluenceScale() const
@@ -177,11 +177,11 @@ void ezBoxReflectionProbeComponent::OnTransformChanged(ezMsgTransformChanged& ms
   m_bStatesDirty = true;
 }
 
-void ezBoxReflectionProbeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezBoxReflectionProbeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
   s << m_vInfluenceScale;
@@ -191,11 +191,11 @@ void ezBoxReflectionProbeComponent::SerializeComponent(ezWorldWriter& stream) co
   s << m_bBoxProjection;
 }
 
-void ezBoxReflectionProbeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezBoxReflectionProbeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
   s >> m_vInfluenceScale;

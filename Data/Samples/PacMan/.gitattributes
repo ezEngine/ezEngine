@@ -1,0 +1,21 @@
+# By default convert text files to what the user prefers
+* text=auto
+
+# Enforce LF for code, where the .editorconfig file also ensures LF is used
+*.h text eol=lf
+*.c text eol=lf
+*.cpp text eol=lf
+*.inl text eol=lf
+*.ps1 text eol=lf
+*.sh text eol=lf
+*.cmake text eol=lf
+*.ddl text eol=lf
+CMakeLists.txt text eol=lf
+
+# Windows specific files should use CR/LF
+*.bat     text eol=crlf
+*.cmd     text eol=crlf
+*.csproj  text eol=crlf
+*.sln     text eol=crlf
+*.vcproj  text eol=crlf
+*.vcxproj text eol=crlf

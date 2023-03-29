@@ -232,25 +232,25 @@ bool ezTagSetTemplate<BlockStorageAllocator>::operator!=(const ezTagSetTemplate&
 }
 
 template <typename BlockStorageAllocator>
-void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
+void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& tag)
 {
-  EZ_ASSERT_DEV(Tag.IsValid(), "Only valid tags can be set in a tag set!");
+  EZ_ASSERT_DEV(tag.IsValid(), "Only valid tags can be set in a tag set!");
 
   if (m_TagBlocks.IsEmpty())
   {
-    Reallocate(Tag.m_uiBlockIndex, Tag.m_uiBlockIndex);
+    Reallocate(tag.m_uiBlockIndex, tag.m_uiBlockIndex);
   }
-  else if (IsTagInAllocatedRange(Tag) == false)
+  else if (IsTagInAllocatedRange(tag) == false)
   {
-    const ezUInt32 uiNewBlockStart = ezMath::Min<ezUInt32>(Tag.m_uiBlockIndex, GetTagBlockStart());
-    const ezUInt32 uiNewBlockEnd = ezMath::Max<ezUInt32>(Tag.m_uiBlockIndex, GetTagBlockEnd());
+    const ezUInt32 uiNewBlockStart = ezMath::Min<ezUInt32>(tag.m_uiBlockIndex, GetTagBlockStart());
+    const ezUInt32 uiNewBlockEnd = ezMath::Max<ezUInt32>(tag.m_uiBlockIndex, GetTagBlockEnd());
 
     Reallocate(uiNewBlockStart, uiNewBlockEnd);
   }
 
-  ezUInt64& tagBlock = m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()];
+  ezUInt64& tagBlock = m_TagBlocks[tag.m_uiBlockIndex - GetTagBlockStart()];
 
-  const ezUInt64 bitMask = EZ_BIT(Tag.m_uiBitIndex);
+  const ezUInt64 bitMask = EZ_BIT(tag.m_uiBitIndex);
   const bool bBitWasSet = ((tagBlock & bitMask) != 0);
 
   tagBlock |= bitMask;
@@ -262,15 +262,15 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
 }
 
 template <typename BlockStorageAllocator>
-void ezTagSetTemplate<BlockStorageAllocator>::Remove(const ezTag& Tag)
+void ezTagSetTemplate<BlockStorageAllocator>::Remove(const ezTag& tag)
 {
-  EZ_ASSERT_DEV(Tag.IsValid(), "Only valid tags can be cleared from a tag set!");
+  EZ_ASSERT_DEV(tag.IsValid(), "Only valid tags can be cleared from a tag set!");
 
-  if (IsTagInAllocatedRange(Tag))
+  if (IsTagInAllocatedRange(tag))
   {
-    ezUInt64& tagBlock = m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()];
+    ezUInt64& tagBlock = m_TagBlocks[tag.m_uiBlockIndex - GetTagBlockStart()];
 
-    const ezUInt64 bitMask = EZ_BIT(Tag.m_uiBitIndex);
+    const ezUInt64 bitMask = EZ_BIT(tag.m_uiBitIndex);
     const bool bBitWasSet = ((tagBlock & bitMask) != 0);
 
     tagBlock &= ~bitMask;
@@ -283,13 +283,13 @@ void ezTagSetTemplate<BlockStorageAllocator>::Remove(const ezTag& Tag)
 }
 
 template <typename BlockStorageAllocator>
-bool ezTagSetTemplate<BlockStorageAllocator>::IsSet(const ezTag& Tag) const
+bool ezTagSetTemplate<BlockStorageAllocator>::IsSet(const ezTag& tag) const
 {
-  EZ_ASSERT_DEV(Tag.IsValid(), "Only valid tags can be checked!");
+  EZ_ASSERT_DEV(tag.IsValid(), "Only valid tags can be checked!");
 
-  if (IsTagInAllocatedRange(Tag))
+  if (IsTagInAllocatedRange(tag))
   {
-    return (m_TagBlocks[Tag.m_uiBlockIndex - GetTagBlockStart()] & EZ_BIT(Tag.m_uiBitIndex)) != 0;
+    return (m_TagBlocks[tag.m_uiBlockIndex - GetTagBlockStart()] & EZ_BIT(tag.m_uiBitIndex)) != 0;
   }
   else
   {
@@ -298,15 +298,15 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsSet(const ezTag& Tag) const
 }
 
 template <typename BlockStorageAllocator>
-bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& OtherSet) const
+bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& otherSet) const
 {
   // If any of the sets is empty nothing can match
-  if (IsEmpty() || OtherSet.IsEmpty())
+  if (IsEmpty() || otherSet.IsEmpty())
     return false;
 
   // Calculate range to compare
-  const ezUInt32 uiMaxBlockStart = ezMath::Max(GetTagBlockStart(), OtherSet.GetTagBlockStart());
-  const ezUInt32 uiMinBlockEnd = ezMath::Min(GetTagBlockEnd(), OtherSet.GetTagBlockEnd());
+  const ezUInt32 uiMaxBlockStart = ezMath::Max(GetTagBlockStart(), otherSet.GetTagBlockStart());
+  const ezUInt32 uiMinBlockEnd = ezMath::Min(GetTagBlockEnd(), otherSet.GetTagBlockEnd());
 
   if (uiMaxBlockStart > uiMinBlockEnd)
     return false;
@@ -314,9 +314,9 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& O
   for (ezUInt32 i = uiMaxBlockStart; i < uiMinBlockEnd; ++i)
   {
     const ezUInt32 uiThisBlockStorageIndex = i - GetTagBlockStart();
-    const ezUInt32 uiOtherBlockStorageIndex = i - OtherSet.GetTagBlockStart();
+    const ezUInt32 uiOtherBlockStorageIndex = i - otherSet.GetTagBlockStart();
 
-    if ((m_TagBlocks[uiThisBlockStorageIndex] & OtherSet.m_TagBlocks[uiOtherBlockStorageIndex]) != 0)
+    if ((m_TagBlocks[uiThisBlockStorageIndex] & otherSet.m_TagBlocks[uiOtherBlockStorageIndex]) != 0)
     {
       return true;
     }
@@ -453,39 +453,39 @@ EZ_ALWAYS_INLINE void ezTagSetTemplate<BlockStorageAllocator>::DecreaseTagCount(
 static ezTypeVersion s_TagSetVersion = 1;
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
-void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& stream) const
+void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt16 uiNumTags = static_cast<ezUInt16>(GetNumTagsSet());
-  stream << uiNumTags;
+  inout_stream << uiNumTags;
 
-  stream.WriteVersion(s_TagSetVersion);
+  inout_stream.WriteVersion(s_TagSetVersion);
 
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
   {
     const ezTag& tag = *it;
 
-    stream << tag.m_sTagString;
+    inout_stream << tag.m_sTagString;
   }
 }
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
-void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, ezTagRegistry& registry)
+void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& inout_stream, ezTagRegistry& inout_registry)
 {
   ezUInt16 uiNumTags = 0;
-  stream >> uiNumTags;
+  inout_stream >> uiNumTags;
 
   // Manually read version value since 0 can be a valid version here
   ezTypeVersion version;
-  stream.ReadWordValue(&version).IgnoreResult();
+  inout_stream.ReadWordValue(&version).IgnoreResult();
 
   if (version == 0)
   {
     for (ezUInt32 i = 0; i < uiNumTags; ++i)
     {
       ezUInt32 uiTagMurmurHash = 0;
-      stream >> uiTagMurmurHash;
+      inout_stream >> uiTagMurmurHash;
 
-      if (const ezTag* pTag = registry.GetTagByMurmurHash(uiTagMurmurHash))
+      if (const ezTag* pTag = inout_registry.GetTagByMurmurHash(uiTagMurmurHash))
       {
         Set(*pTag);
       }
@@ -496,9 +496,9 @@ void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, ezTag
     for (ezUInt32 i = 0; i < uiNumTags; ++i)
     {
       ezHashedString tagString;
-      stream >> tagString;
+      inout_stream >> tagString;
 
-      const ezTag& tag = registry.RegisterTag(tagString);
+      const ezTag& tag = inout_registry.RegisterTag(tagString);
       Set(tag);
     }
   }

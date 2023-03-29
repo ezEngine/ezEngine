@@ -36,19 +36,19 @@ public:
   ezResult InitializeFromPath(const ezRTTI& rootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
 
   ///\brief Applies the entire path and allows writing to the target object.
-  ezResult WriteToLeafObject(void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
+  ezResult WriteToLeafObject(void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
   ///\brief Applies the entire path and allows reading from the target object.
-  ezResult ReadFromLeafObject(void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
+  ezResult ReadFromLeafObject(void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;
 
   ///\brief Applies the path up to the last step and allows a functor to write to the final property.
   ezResult WriteProperty(
-    void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, ezAbstractProperty* pProp, const ezVariant& index)> func) const;
+    void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, ezAbstractProperty* pProp, const ezVariant& index)> func) const;
   ///\brief Applies the path up to the last step and allows a functor to read from the final property.
   ezResult ReadProperty(
-    void* pRootObject, const ezRTTI& pType, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
+    void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
 
   ///\brief Convenience function that writes 'value' to the 'pRootObject' at the current path.
-  void SetValue(void* pRootObject, const ezRTTI& pType, const ezVariant& value) const;
+  void SetValue(void* pRootObject, const ezRTTI& type, const ezVariant& value) const;
   ///\brief Convenience function that writes 'value' to the 'pRootObject' at the current path.
   template <typename T>
   EZ_ALWAYS_INLINE void SetValue(T* pRootObject, const ezVariant& value) const
@@ -57,7 +57,7 @@ public:
   }
 
   ///\brief Convenience function that reads the value from 'pRootObject' at the current path and stores it in 'out_value'.
-  void GetValue(void* pRootObject, const ezRTTI& pType, ezVariant& out_value) const;
+  void GetValue(void* pRootObject, const ezRTTI& type, ezVariant& out_value) const;
   ///\brief Convenience function that reads the value from 'pRootObject' at the current path and stores it in 'out_value'.
   template <typename T>
   EZ_ALWAYS_INLINE void GetValue(T* pRootObject, ezVariant& out_value) const

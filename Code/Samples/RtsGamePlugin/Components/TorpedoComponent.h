@@ -17,8 +17,8 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezComponent interface
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
@@ -29,7 +29,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
   //
 public:
-  void OnMsgSetTarget(RtsMsgSetTarget& msg);
+  void OnMsgSetTarget(RtsMsgSetTarget& ref_msg);
 
 protected:
   void Update();

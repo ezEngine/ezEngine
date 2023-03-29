@@ -26,5 +26,7 @@ if(EZ_CMAKE_COMPILER_MSVC)
 endif()
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC OZZ_USE_DYNAMIC_LINKING)
+  if (EZ_COMPILE_ENGINE_AS_DLL)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC OZZ_USE_DYNAMIC_LINKING)
+  endif()
 endif()

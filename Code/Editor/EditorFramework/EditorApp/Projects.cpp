@@ -137,6 +137,16 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
       LoadPluginBundleDlls(sProjectFile);
 
+      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+      sTemp.AppendPath("ezEditorCrashIndicator");
+      ezOSFile f;
+      if (f.Open(sTemp, ezFileOpenMode::Write, ezFileShareMode::Exclusive).Succeeded())
+      {
+        f.Write(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
+        f.Close();
+        m_bWroteCrashIndicatorFile = true;
+      }
+
       res = ezToolsProject::OpenProject(sProjectFile);
     }
   }
@@ -254,7 +264,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         SaveRecentFiles();
       }
 
-      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest))
+      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest | ezQtEditorApp::StartupFlags::Background))
       {
         ezTimestamp lastTransform = ezAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
 
@@ -411,7 +421,7 @@ void ezQtEditorApp::SetupNewProject()
   // write the default window config
   {
     ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-    sPath.AppendPath("Window.ddl");
+    sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
     ezWindowCreationDesc desc;
     desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
@@ -421,7 +431,7 @@ void ezQtEditorApp::SetupNewProject()
   // write a stub input mapping
   {
     ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-    sPath.AppendPath("InputConfig.ddl");
+    sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
     ezDeferredFileWriter file;
     file.SetOutput(sPath);

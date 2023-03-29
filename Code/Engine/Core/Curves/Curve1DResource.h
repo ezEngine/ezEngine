@@ -8,8 +8,8 @@ struct EZ_CORE_DLL ezCurve1DResourceDescriptor
 {
   ezDynamicArray<ezCurve1D> m_Curves;
 
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  void Load(ezStreamReader& inout_stream);
 };
 
 using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;

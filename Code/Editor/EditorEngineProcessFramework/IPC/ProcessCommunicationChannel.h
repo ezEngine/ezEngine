@@ -19,8 +19,8 @@ public:
   /// /brief Callback for 'wait for...' functions. If true is returned, the message is accepted to match the wait criteria and
   ///        the waiting ends. If false is returned the wait for the message continues.
   typedef ezDelegate<bool(ezProcessMessage*)> WaitForMessageCallback;
-  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack = nullptr);
-  ezResult WaitForConnection(ezTime tTimeout);
+  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, WaitForMessageCallback* pMessageCallack = nullptr);
+  ezResult WaitForConnection(ezTime timeout);
 
   /// \brief Returns true if any message was processed
   bool ProcessMessages();
@@ -33,7 +33,7 @@ public:
 
   ezEvent<const Event&> m_Events;
 
-  void MessageFunc(const ezProcessMessage* msg);
+  void MessageFunc(const ezProcessMessage* pMsg);
 
 protected:
   ezIpcChannel* m_pChannel = nullptr;

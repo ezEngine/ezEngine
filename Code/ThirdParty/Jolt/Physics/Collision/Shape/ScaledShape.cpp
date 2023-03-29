@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -60,7 +61,7 @@ TransformedShape ScaledShape::GetSubShapeTransformedShape(const SubShapeID &inSu
 	// We don't use any bits in the sub shape ID
 	outRemainder = inSubShapeID;
 
-	TransformedShape ts(inPositionCOM, inRotation, mInnerShape, BodyID());
+	TransformedShape ts(RVec3(inPositionCOM), inRotation, mInnerShape, BodyID());
 	ts.SetShapeScale(inScale * mScale);
 	return ts;
 }
@@ -81,23 +82,23 @@ void ScaledShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDi
 	mInnerShape->GetSupportingFace(inSubShapeID, inDirection, inScale * mScale, inCenterOfMassTransform, outVertices);
 }
 
-void ScaledShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy) const
+void ScaledShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy JPH_IF_DEBUG_RENDERER(, RVec3Arg inBaseOffset)) const
 {
-	mInnerShape->GetSubmergedVolume(inCenterOfMassTransform, inScale * mScale, inSurface, outTotalVolume, outSubmergedVolume, outCenterOfBuoyancy);
+	mInnerShape->GetSubmergedVolume(inCenterOfMassTransform, inScale * mScale, inSurface, outTotalVolume, outSubmergedVolume, outCenterOfBuoyancy JPH_IF_DEBUG_RENDERER(, inBaseOffset));
 }
 
 #ifdef JPH_DEBUG_RENDERER
-void ScaledShape::Draw(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const
+void ScaledShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const
 {
 	mInnerShape->Draw(inRenderer, inCenterOfMassTransform, inScale * mScale, inColor, inUseMaterialColors, inDrawWireframe);
 }
 
-void ScaledShape::DrawGetSupportFunction(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const
+void ScaledShape::DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const
 {
 	mInnerShape->DrawGetSupportFunction(inRenderer, inCenterOfMassTransform, inScale * mScale, inColor, inDrawSupportDirection);
 }
 
-void ScaledShape::DrawGetSupportingFace(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const 
+void ScaledShape::DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const 
 { 
 	mInnerShape->DrawGetSupportingFace(inRenderer, inCenterOfMassTransform, inScale * mScale);
 }
@@ -113,7 +114,7 @@ bool ScaledShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubSh
 void ScaledShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	Vec3 inv_scale = mScale.Reciprocal();
@@ -124,7 +125,7 @@ void ScaledShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCast
 void ScaledShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	Vec3 inv_scale = mScale.Reciprocal();
@@ -134,7 +135,7 @@ void ScaledShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubSh
 void ScaledShape::CollectTransformedShapes(const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const 
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	mInnerShape->CollectTransformedShapes(inBox, inPositionCOM, inRotation, inScale * mScale, inSubShapeIDCreator, ioCollector, inShapeFilter);

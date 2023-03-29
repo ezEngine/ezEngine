@@ -90,7 +90,7 @@ public:
   const Type* GetAttributeByType() const;
 
   /// \brief Returns the list of properties that this type has, including derived properties from all base classes.
-  void GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const; // [tested]
+  void GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_properties) const; // [tested]
 
   /// \brief Returns the size (in bytes) of an instance of this type.
   EZ_ALWAYS_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
@@ -119,11 +119,11 @@ public:
 
   /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message
   /// handler for this type exists.
-  bool DispatchMessage(void* pInstance, ezMessage& msg) const;
+  bool DispatchMessage(void* pInstance, ezMessage& ref_msg) const;
 
   /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message
   /// handler for this type exists.
-  bool DispatchMessage(const void* pInstance, ezMessage& msg) const;
+  bool DispatchMessage(const void* pInstance, ezMessage& ref_msg) const;
 
   /// \brief Returns whether this type can handle the given message type.
   template <typename MessageType>
@@ -149,7 +149,7 @@ public:
   ///
   /// Returns the provided array, such that the function can be used in a foreach loop right away.
   static const ezDynamicArray<const ezRTTI*>& GetAllTypesDerivedFrom(
-    const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_DerivedTypes, bool bSortByName);
+    const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_derivedTypes, bool bSortByName);
 
 protected:
   const char* m_szPluginName;

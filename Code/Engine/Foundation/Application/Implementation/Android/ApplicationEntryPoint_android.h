@@ -26,7 +26,7 @@ namespace ezApplicationDetails
 
 
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
-#define EZ_CONSOLEAPP_ENTRY_POINT EZ_APPLICATION_ENTRY_POINT
+#define EZ_CONSOLEAPP_ENTRY_POINT(...) EZ_APPLICATION_ENTRY_POINT(__VA_ARGS__)
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
 ///
@@ -35,4 +35,4 @@ namespace ezApplicationDetails
 #define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                                \
   alignas(EZ_ALIGNMENT_OF(AppClass)) static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
   EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION                                                                                      \
-  extern "C" void android_main(struct android_app* app) { ::ezApplicationDetails::EntryFunc<AppClass>(app, __VA_ARGS__); }
+  extern "C" void android_main(struct android_app* app) { ::ezApplicationDetails::EntryFunc<AppClass>(app, ##__VA_ARGS__); }

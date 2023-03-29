@@ -31,10 +31,10 @@ public:
   /// Note that the range is inclusive for the start time, and exclusive for the end time.
   ///
   /// If rangeStart is larger than rangeEnd, the events are returned in reverse order (backwards traversal).
-  void Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezHashedString>& out_Events) const;
+  void Sample(ezTime rangeStart, ezTime rangeEnd, ezDynamicArray<ezHashedString>& out_events) const;
 
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  void Load(ezStreamReader& inout_stream);
 
 private:
   struct ControlPoint

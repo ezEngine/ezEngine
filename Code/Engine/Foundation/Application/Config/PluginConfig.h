@@ -10,8 +10,10 @@ class EZ_FOUNDATION_DLL ezApplicationPluginConfig
 public:
   ezApplicationPluginConfig();
 
-  ezResult Save(const char* szConfigPath = ":project/Plugins.ddl") const;
-  void Load(const char* szConfigPath = ":project/Plugins.ddl");
+  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/Plugins.ddl"_ezsv;
+
+  ezResult Save(ezStringView sConfigPath = s_sConfigFile) const;
+  void Load(ezStringView sConfigPath = s_sConfigFile);
   void Apply();
 
   struct EZ_FOUNDATION_DLL PluginConfig

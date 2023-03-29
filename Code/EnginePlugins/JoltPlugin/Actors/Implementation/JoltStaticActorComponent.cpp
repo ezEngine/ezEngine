@@ -22,10 +22,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltStaticActorComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle")),
+    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("IncludeInNavmesh", m_bIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("PullSurfacesFromGraphicsMesh", m_bPullSurfacesFromGraphicsMesh),
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -44,10 +44,10 @@ ezJoltStaticActorComponent::ezJoltStaticActorComponent()
 
 ezJoltStaticActorComponent::~ezJoltStaticActorComponent() = default;
 
-void ezJoltStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltStaticActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hCollisionMesh;
   s << m_bIncludeInNavmesh;
@@ -56,12 +56,12 @@ void ezJoltStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezJoltStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltStaticActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hCollisionMesh;
   s >> m_bIncludeInNavmesh;
@@ -161,7 +161,7 @@ void ezJoltStaticActorComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
   }
 }
 
-void ezJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(ezDynamicArray<const ezJoltMaterial*>& materials)
+void ezJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(ezDynamicArray<const ezJoltMaterial*>& ref_materials)
 {
   // the materials don't hold a handle to the surfaces, so they don't keep them alive
   // therefore, we need to keep them alive by storing a handle
@@ -179,10 +179,10 @@ void ezJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(ezDynamicArray<con
   if (pMeshRes.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  if (pMeshRes->GetMaterials().GetCount() != materials.GetCount())
+  if (pMeshRes->GetMaterials().GetCount() != ref_materials.GetCount())
     return;
 
-  const ezUInt32 uiNumMats = materials.GetCount();
+  const ezUInt32 uiNumMats = ref_materials.GetCount();
   m_UsedSurfaces.SetCount(uiNumMats);
 
   for (ezUInt32 s = 0; s < uiNumMats; ++s)
@@ -213,7 +213,7 @@ void ezJoltStaticActorComponent::PullSurfacesFromGraphicsMesh(ezDynamicArray<con
       continue;
 
     EZ_ASSERT_DEV(pSurface->m_pPhysicsMaterialJolt != nullptr, "Invalid Jolt material pointer on surface");
-    materials[s] = static_cast<ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
+    ref_materials[s] = static_cast<ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
   }
 }
 
@@ -290,3 +290,7 @@ const char* ezJoltStaticActorComponent::GetSurfaceFile() const
 
   return m_hSurface.GetResourceID();
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltStaticActorComponent);
+

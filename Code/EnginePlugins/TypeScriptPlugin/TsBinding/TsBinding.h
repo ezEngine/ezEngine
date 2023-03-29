@@ -51,10 +51,10 @@ public:
   ezTypeScriptBinding();
   ~ezTypeScriptBinding();
 
-  ezResult Initialize(ezWorld& world);
-  ezResult LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_TypeInfo);
+  ezResult Initialize(ezWorld& ref_world);
+  ezResult LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_typeInfo);
 
-  ezResult FindScriptComponentInfo(const char* szComponentType, TsComponentTypeInfo& out_TypeInfo);
+  ezResult FindScriptComponentInfo(const char* szComponentType, TsComponentTypeInfo& out_typeInfo);
 
   void RegisterMessageHandlersForComponentType(const char* szComponent, const ezUuid& componentType);
 
@@ -147,7 +147,7 @@ public:
   static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
   bool HasMessageHandler(const TsComponentTypeInfo& typeInfo, const ezRTTI* pMsgRtti) const;
-  bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg, bool bSynchronizeAfterwards);
+  bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& ref_msg, bool bSynchronizeAfterwards);
   bool DeliverTsMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, const ezMsgTypeScriptMsgProxy& msg);
 
 private:
@@ -227,32 +227,32 @@ public:
   static void PushVec2(duk_context* pDuk, const ezVec2& value);
   static void SetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& value);
   static void SetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& value);
-  static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& fallback = ezVec2::ZeroVector());
-  static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& fallback = ezVec2::ZeroVector());
+  static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::ZeroVector());
+  static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::ZeroVector());
 
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void SetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& value);
   static void SetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& value);
-  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
-  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
+  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::ZeroVector());
+  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::ZeroVector());
 
   static void PushMat3(duk_context* pDuk, const ezMat3& value);
   static void SetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& value);
   static void SetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& value);
-  static ezMat3 GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& fallback = ezMat3::IdentityMatrix());
-  static ezMat3 GetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& fallback = ezMat3::IdentityMatrix());
+  static ezMat3 GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& mFallback = ezMat3::IdentityMatrix());
+  static ezMat3 GetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& mFallback = ezMat3::IdentityMatrix());
 
   static void PushMat4(duk_context* pDuk, const ezMat4& value);
   static void SetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& value);
   static void SetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& value);
-  static ezMat4 GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& fallback = ezMat4::IdentityMatrix());
-  static ezMat4 GetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& fallback = ezMat4::IdentityMatrix());
+  static ezMat4 GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& mFallback = ezMat4::IdentityMatrix());
+  static ezMat4 GetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& mFallback = ezMat4::IdentityMatrix());
 
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
   static void SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQuat& value);
   static void SetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezQuat& value);
-  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat fallback = ezQuat::IdentityQuaternion());
-  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat fallback = ezQuat::IdentityQuaternion());
+  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::IdentityQuaternion());
+  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::IdentityQuaternion());
 
   static void PushColor(duk_context* pDuk, const ezColor& value);
   static void SetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& value);
@@ -309,14 +309,14 @@ private:
   /// \name C++ Object Registration
   ///@{
 public:
-  bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
-  ezResult RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent);
+  bool RegisterGameObject(ezGameObjectHandle hHandle, ezUInt32& out_uiStashIdx);
+  ezResult RegisterComponent(const char* szTypeName, ezComponentHandle hHandle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent);
 
   /// \brief Removes dead GameObject and Component references from the DukTape stash.
   void CleanupStash(ezUInt32 uiNumIterations);
 
   ezUInt32 AcquireStashObjIndex();
-  void ReleaseStashObjIndex(ezUInt32 idx);
+  void ReleaseStashObjIndex(ezUInt32 uiIdx);
 
 private:
   static void StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx);

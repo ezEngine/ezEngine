@@ -107,7 +107,7 @@ public:
     : ezMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezHybridArray<Item, 16>& out_Entries) = 0;
+  virtual void GetEntries(ezHybridArray<Item, 16>& out_entries) = 0;
 };
 
 ///
@@ -147,7 +147,7 @@ class EZ_GUIFOUNDATION_DLL ezEnumerationMenuAction : public ezDynamicMenuAction
 public:
   ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   void InitEnumerationType(const ezRTTI* pEnumerationType);
-  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries) override;
   virtual ezInt64 GetValue() const = 0;
 
 protected:
@@ -234,7 +234,7 @@ public:
   void SetRange(ezInt32 iMin, ezInt32 iMax, bool bTriggerUpdate = true);
 
   ezInt32 GetValue() const { return m_iCurValue; }
-  void SetValue(ezInt32 val, bool bTriggerUpdate = true);
+  void SetValue(ezInt32 iVal, bool bTriggerUpdate = true);
 
 protected:
   bool m_bEnabled;

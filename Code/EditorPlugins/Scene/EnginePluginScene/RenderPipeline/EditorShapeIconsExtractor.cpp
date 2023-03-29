@@ -32,7 +32,7 @@ ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
 ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() {}
 
 void ezEditorShapeIconsExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
@@ -43,7 +43,7 @@ void ezEditorShapeIconsExtractor::Extract(
     if (FilterByViewTags(view, pObject))
       continue;
 
-    ExtractShapeIcon(pObject, view, extractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
+    ExtractShapeIcon(pObject, view, ref_extractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
   }
 
   if (m_pSceneContext != nullptr)
@@ -58,7 +58,7 @@ void ezEditorShapeIconsExtractor::Extract(
         if (FilterByViewTags(view, pObject))
           continue;
 
-        ExtractShapeIcon(pObject, view, extractedRenderData, ezDefaultRenderDataCategories::Selection);
+        ExtractShapeIcon(pObject, view, ref_extractedRenderData, ezDefaultRenderDataCategories::Selection);
       }
     }
   }

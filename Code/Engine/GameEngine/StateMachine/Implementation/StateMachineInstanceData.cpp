@@ -34,12 +34,12 @@ namespace ezStateMachineInternal
     return blob;
   }
 
-  void InstanceDataAllocator::DestructAndDeallocate(ezBlob& blob) const
+  void InstanceDataAllocator::DestructAndDeallocate(ezBlob& ref_blob) const
   {
-    EZ_ASSERT_DEV(blob.GetByteBlobPtr().GetCount() == m_uiTotalDataSize, "Passed blob has not the expected size");
-    Destruct(blob.GetByteBlobPtr());
+    EZ_ASSERT_DEV(ref_blob.GetByteBlobPtr().GetCount() == m_uiTotalDataSize, "Passed blob has not the expected size");
+    Destruct(ref_blob.GetByteBlobPtr());
 
-    blob.Clear();
+    ref_blob.Clear();
   }
 
   void InstanceDataAllocator::Construct(const ezByteBlobPtr& blobPtr) const
@@ -75,3 +75,6 @@ namespace ezStateMachineInternal
   }
 
 } // namespace ezStateMachineInternal
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineInstanceData);

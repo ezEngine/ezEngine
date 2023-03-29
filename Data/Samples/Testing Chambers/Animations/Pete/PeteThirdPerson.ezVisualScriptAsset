@@ -17,6 +17,7 @@ o
 			Uuid{u4{15921148777510198823,5661409815562132163}}
 		}
 		VarArray %Outputs{}
+		VarArray %PackageDeps{}
 		VarArray %References{}
 	}
 }
@@ -525,7 +526,6 @@ o
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptNodeBase"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -567,7 +567,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptConnection"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -598,7 +597,6 @@ o
 			Uuid{u4{2505620202589345897,9607233296173086670}}
 		}
 		s %TypeName{"VisualScriptNode::ezMsgMoveCharacterController<send>"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -616,7 +614,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameterString"}
-		u3 %TypeSize{144}
 		u3 %TypeVersion{1}
 	}
 }
@@ -665,7 +662,6 @@ o
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
 		s %TypeName{"VisualScriptNode::ezParticleComponent::StartEffect<call>"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -700,7 +696,6 @@ o
 			Uuid{u4{2452840632783947613,16220384518708264627}}
 		}
 		s %TypeName{"VisualScriptNode::ezVisualScriptNode_GenericEvent"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -718,7 +713,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameterNumber"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -739,7 +733,6 @@ o
 			Uuid{u4{12107778838338276556,12703308868274579016}}
 		}
 		s %TypeName{"VisualScriptNode::ezVisualScriptNode_FindChildObject"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -774,7 +767,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -792,7 +784,6 @@ o
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
 		s %TypeName{"VisualScriptNode::ezVisualScriptNode_ScriptUpdateEvent"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -823,7 +814,6 @@ o
 			Uuid{u4{12663953443628206981,2339414058682850235}}
 		}
 		s %TypeName{"VisualScriptNode::ezVisualScriptNode_InputEvent"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -855,7 +845,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameterBool"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -920,7 +909,6 @@ o
 			Uuid{u4{13741580512165946046,8565526639981884149}}
 		}
 		s %TypeName{"VisualScriptNode::ezVisualScriptNode_FindComponent"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1045,7 +1033,6 @@ o
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
 		s %TypeName{"VisualScriptNode::ezJoltDefaultCharacterComponent::IsStandingOnGround<call>"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1063,7 +1050,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptAssetProperties"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1081,7 +1067,6 @@ o
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
 		s %TypeName{"VisualScriptNode::ezFmodEventComponent::StartOneShot<call>"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1117,7 +1102,6 @@ o
 			Uuid{u4{10931913562308697586,10546369439970772195}}
 		}
 		s %TypeName{"VisualScriptNode::ezBlackboardComponent::SetEntryValue<call>"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1153,7 +1137,6 @@ o
 			Uuid{u4{1707741354895730103,14441408091546575249}}
 		}
 		s %TypeName{"VisualScriptNode::ezSpawnComponent::TriggerManualSpawn<call>"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1171,7 +1154,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptParameter"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1189,7 +1171,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

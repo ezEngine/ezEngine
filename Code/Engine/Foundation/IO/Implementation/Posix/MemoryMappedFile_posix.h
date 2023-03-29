@@ -64,12 +64,14 @@ ezMemoryMappedFile::~ezMemoryMappedFile()
 }
 
 #if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
-ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
+ezResult ezMemoryMappedFile::Open(ezStringView sAbsolutePath, Mode mode)
 {
   EZ_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
-  EZ_ASSERT_DEV(ezPathUtils::IsAbsolutePath(szAbsolutePath), "ezMemoryMappedFile::Open() can only be used with absolute file paths");
+  EZ_ASSERT_DEV(ezPathUtils::IsAbsolutePath(sAbsolutePath), "ezMemoryMappedFile::Open() can only be used with absolute file paths");
 
-  EZ_LOG_BLOCK("MemoryMapFile", szAbsolutePath);
+  EZ_LOG_BLOCK("MemoryMapFile", sAbsolutePath);
+
+  const ezStringBuilder sPath = sAbsolutePath;
 
   Close();
 
@@ -89,7 +91,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   flags |= MAP_POPULATE;
 #    endif
 #  endif
-  m_pImpl->m_hFile = open(szAbsolutePath, access | O_CLOEXEC, 0);
+  m_pImpl->m_hFile = open(sPath, access | O_CLOEXEC, 0);
   if (m_pImpl->m_hFile == -1)
   {
     ezLog::Error("Could not open file for memory mapping - {}", strerror(errno));
@@ -97,7 +99,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
     return EZ_FAILURE;
   }
   struct stat sb;
-  if (stat(szAbsolutePath, &sb) == -1 || sb.st_size == 0)
+  if (stat(sPath, &sb) == -1 || sb.st_size == 0)
   {
     ezLog::Error("File for memory mapping is empty - {}", strerror(errno));
     Close();
@@ -118,12 +120,14 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
 #endif
 
 #if EZ_ENABLED(EZ_SUPPORTS_SHARED_MEMORY)
-ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSize, Mode mode)
+ezResult ezMemoryMappedFile::OpenShared(ezStringView sSharedName, ezUInt64 uiSize, Mode mode)
 {
   EZ_ASSERT_DEV(mode != Mode::None, "Invalid mode to open the memory mapped file");
   EZ_ASSERT_DEV(uiSize > 0, "ezMemoryMappedFile::OpenShared() needs a valid file size to map");
 
-  EZ_LOG_BLOCK("MemoryMapFile", szSharedName);
+  const ezStringBuilder sName = sSharedName;
+
+  EZ_LOG_BLOCK("MemoryMapFile", sName);
 
   Close();
 
@@ -145,14 +149,14 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
   }
   oflag |= O_CREAT;
 
-  m_pImpl->m_hFile = shm_open(szSharedName, oflag, 0666);
+  m_pImpl->m_hFile = shm_open(sName, oflag, 0666);
   if (m_pImpl->m_hFile == -1)
   {
     ezLog::Error("Could not open shared memory mapping - {}", strerror(errno));
     Close();
     return EZ_FAILURE;
   }
-  m_pImpl->m_sSharedMemoryName = szSharedName;
+  m_pImpl->m_sSharedMemoryName = sName;
 
   if (ftruncate(m_pImpl->m_hFile, uiSize) == -1)
   {

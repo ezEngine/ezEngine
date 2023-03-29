@@ -41,7 +41,7 @@ bool ezAnimationControllerNodeManager::InternalIsNode(const ezDocumentObject* pO
   return pType->IsDerivedFrom<ezAnimGraphNode>();
 }
 
-void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node)
+void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
 {
   auto pType = pObject->GetTypeAccessor().GetType();
   if (!pType->IsDerivedFrom<ezAnimGraphNode>())
@@ -66,43 +66,43 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), triggerPinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::Trigger;
-      node.m_Inputs.PushBack(pPin);
+      ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphTriggerOutputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), triggerPinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::Trigger;
-      node.m_Outputs.PushBack(pPin);
+      ref_node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphNumberInputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), numberPinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::Number;
-      node.m_Inputs.PushBack(pPin);
+      ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphNumberOutputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), numberPinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::Number;
-      node.m_Outputs.PushBack(pPin);
+      ref_node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoneWeightsInputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), weightPinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::BoneWeights;
-      node.m_Inputs.PushBack(pPin);
+      ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoneWeightsOutputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), weightPinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::BoneWeights;
-      node.m_Outputs.PushBack(pPin);
+      ref_node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseInputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), localPosePinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::LocalPose;
-      node.m_Inputs.PushBack(pPin);
+      ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseMultiInputPin>())
     {
@@ -110,25 +110,25 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
       pPin->m_DataType = ezAnimGraphPin::LocalPose;
       pPin->m_bMultiInputPin = true;
       pPin->m_Shape = ezPin::Shape::RoundRect;
-      node.m_Inputs.PushBack(pPin);
+      ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseOutputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), localPosePinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::LocalPose;
-      node.m_Outputs.PushBack(pPin);
+      ref_node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphModelPoseInputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), modelPosePinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::ModelPose;
-      node.m_Inputs.PushBack(pPin);
+      ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphModelPoseOutputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), modelPosePinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::ModelPose;
-      node.m_Outputs.PushBack(pPin);
+      ref_node.m_Outputs.PushBack(pPin);
     }
     else
     {
@@ -138,27 +138,27 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
   }
 }
 
-void ezAnimationControllerNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
+void ezAnimationControllerNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
   ezSet<const ezRTTI*> typeSet;
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezAnimGraphNode>(), typeSet, false);
 
-  Types.Clear();
+  ref_types.Clear();
   for (auto pType : typeSet)
   {
     if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
       continue;
 
-    Types.PushBack(pType);
+    ref_types.PushBack(pType);
   }
 }
 
-ezStatus ezAnimationControllerNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
+ezStatus ezAnimationControllerNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
 {
   const ezAnimationControllerNodePin& sourcePin = ezStaticCast<const ezAnimationControllerNodePin&>(source);
   const ezAnimationControllerNodePin& targetPin = ezStaticCast<const ezAnimationControllerNodePin&>(target);
 
-  out_Result = CanConnectResult::ConnectNever;
+  out_result = CanConnectResult::ConnectNever;
 
   if (sourcePin.m_DataType != targetPin.m_DataType)
     return ezStatus("Can't connect pins of different data types");
@@ -169,26 +169,26 @@ ezStatus ezAnimationControllerNodeManager::InternalCanConnect(const ezPin& sourc
   switch (sourcePin.m_DataType)
   {
     case ezAnimGraphPin::Trigger:
-      out_Result = CanConnectResult::ConnectNtoN;
+      out_result = CanConnectResult::ConnectNtoN;
       break;
 
     case ezAnimGraphPin::Number:
-      out_Result = CanConnectResult::ConnectNto1;
+      out_result = CanConnectResult::ConnectNto1;
       break;
 
     case ezAnimGraphPin::BoneWeights:
-      out_Result = CanConnectResult::ConnectNto1;
+      out_result = CanConnectResult::ConnectNto1;
       break;
 
     case ezAnimGraphPin::LocalPose:
       if (targetPin.m_bMultiInputPin)
-        out_Result = CanConnectResult::ConnectNtoN;
+        out_result = CanConnectResult::ConnectNtoN;
       else
-        out_Result = CanConnectResult::ConnectNto1;
+        out_result = CanConnectResult::ConnectNto1;
       break;
 
     case ezAnimGraphPin::ModelPose:
-      out_Result = CanConnectResult::ConnectNto1;
+      out_result = CanConnectResult::ConnectNto1;
       break;
 
       // EXTEND THIS if a new type is introduced
@@ -257,9 +257,9 @@ ezTransformStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezS
   return storage.CopyToStream(stream);
 }
 
-static void AssignNodePriority(const ezDocumentObject* pNode, ezUInt16 curPrio, ezMap<const ezDocumentObject*, ezUInt16>& prios, const ezDocumentNodeManager* pNodeManager)
+static void AssignNodePriority(const ezDocumentObject* pNode, ezUInt16 uiCurPrio, ezMap<const ezDocumentObject*, ezUInt16>& ref_prios, const ezDocumentNodeManager* pNodeManager)
 {
-  prios[pNode] = ezMath::Min(prios[pNode], curPrio);
+  ref_prios[pNode] = ezMath::Min(ref_prios[pNode], uiCurPrio);
 
   const auto inputPins = pNodeManager->GetInputPins(pNode);
 
@@ -267,7 +267,7 @@ static void AssignNodePriority(const ezDocumentObject* pNode, ezUInt16 curPrio, 
   {
     for (auto pConnection : pNodeManager->GetConnections(*pPin))
     {
-      AssignNodePriority(pConnection->GetSourcePin().GetParent(), curPrio - 1, prios, pNodeManager);
+      AssignNodePriority(pConnection->GetSourcePin().GetParent(), uiCurPrio - 1, ref_prios, pNodeManager);
     }
   }
 }
@@ -305,8 +305,7 @@ void ezAnimationControllerAssetDocument::SortNodesByPriority(ezDynamicArray<cons
     }
   }
 
-  allNodes.Sort([&](auto lhs, auto rhs) -> bool
-    { return prios[lhs] < prios[rhs]; });
+  allNodes.Sort([&](auto lhs, auto rhs) -> bool { return prios[lhs] < prios[rhs]; });
 }
 
 void ezAnimationControllerAssetDocument::SetOutputPinIndices(const ezDynamicArray<ezAnimGraphNode*>& newNodes, const ezDynamicArray<const ezDocumentObject*>& allNodes, const ezDocumentNodeManager* pNodeManager, ezMap<ezUInt8, PinCount>& pinCounts, ezAnimGraph& animController, ezAbstractMemberProperty* pIdxProperty, const ezMap<const ezPin*, ezUInt16>& inputPinIndices) const
@@ -394,8 +393,7 @@ void ezAnimationControllerAssetDocument::CreateOutputGraphNodes(const ezDynamicA
     auto pNewNode = animController.m_Nodes.PeekBack().Borrow();
 
     // copy all the non-hidden properties
-    ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p)
-      { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
+    ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
   }
 }
 

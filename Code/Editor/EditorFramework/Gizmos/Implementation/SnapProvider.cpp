@@ -138,50 +138,50 @@ void ezSnapProvider::SnapTranslation(ezVec3& value)
   value.z = ezMath::RoundToMultiple(value.z, s_fTranslationSnapValue);
 }
 
-void ezSnapProvider::SnapTranslationInLocalSpace(const ezQuat& rotation, ezVec3& translation)
+void ezSnapProvider::SnapTranslationInLocalSpace(const ezQuat& qRotation, ezVec3& ref_vTranslation)
 {
   if (s_fTranslationSnapValue <= 0.0f)
     return;
 
-  const ezQuat mInvRot = -rotation;
+  const ezQuat mInvRot = -qRotation;
 
-  ezVec3 vLocalTranslation = mInvRot * translation;
+  ezVec3 vLocalTranslation = mInvRot * ref_vTranslation;
   vLocalTranslation.x = ezMath::RoundToMultiple(vLocalTranslation.x, s_fTranslationSnapValue);
   vLocalTranslation.y = ezMath::RoundToMultiple(vLocalTranslation.y, s_fTranslationSnapValue);
   vLocalTranslation.z = ezMath::RoundToMultiple(vLocalTranslation.z, s_fTranslationSnapValue);
 
-  translation = rotation * vLocalTranslation;
+  ref_vTranslation = qRotation * vLocalTranslation;
 }
 
-void ezSnapProvider::SnapRotation(ezAngle& rotation)
+void ezSnapProvider::SnapRotation(ezAngle& ref_rotation)
 {
   if (s_RotationSnapValue.GetRadian() != 0.0f)
   {
-    rotation = ezAngle::Radian(ezMath::RoundToMultiple(rotation.GetRadian(), s_RotationSnapValue.GetRadian()));
+    ref_rotation = ezAngle::Radian(ezMath::RoundToMultiple(ref_rotation.GetRadian(), s_RotationSnapValue.GetRadian()));
   }
 }
 
-void ezSnapProvider::SnapScale(float& scale)
+void ezSnapProvider::SnapScale(float& ref_fScale)
 {
   if (s_fScaleSnapValue > 0.0f)
   {
-    scale = ezMath::RoundToMultiple(scale, s_fScaleSnapValue);
+    ref_fScale = ezMath::RoundToMultiple(ref_fScale, s_fScaleSnapValue);
   }
 }
 
-void ezSnapProvider::SnapScale(ezVec3& scale)
+void ezSnapProvider::SnapScale(ezVec3& ref_vScale)
 {
   if (s_fScaleSnapValue > 0.0f)
   {
-    SnapScale(scale.x);
-    SnapScale(scale.y);
-    SnapScale(scale.z);
+    SnapScale(ref_vScale.x);
+    SnapScale(ref_vScale.y);
+    SnapScale(ref_vScale.z);
   }
 }
 
-ezVec3 ezSnapProvider::GetScaleSnapped(const ezVec3& scale)
+ezVec3 ezSnapProvider::GetScaleSnapped(const ezVec3& vScale)
 {
-  ezVec3 res = scale;
+  ezVec3 res = vScale;
   SnapScale(res);
   return res;
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.01.00">
+	<object class="AudioFile" id="{5456cb74-48c5-4459-88ef-abce8cd12cda}">
+		<property name="assetPath">
+			<value>350982__cabled_mess__lose_c_06.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>2.2383219954648528</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{29052a86-4978-4bf0-bda6-df30aa0b1f9b}</destination>
+		</relationship>
+	</object>
+</objects>

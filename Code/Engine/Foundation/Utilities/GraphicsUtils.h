@@ -17,9 +17,9 @@ namespace ezGraphicsUtils
   ///
   /// out_vScreenPos.z is the depth of the point in [0;1] range. The z value is always 'normalized' to this range
   /// (as long as the DepthRange parameter is correct), to make it easier to make subsequent code platform independent.
-  EZ_FOUNDATION_DLL ezResult ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY,
+  EZ_FOUNDATION_DLL ezResult ConvertWorldPosToScreenPos(const ezMat4& mModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY,
     const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos,
-    ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default); // [tested]
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
   /// \brief Takes the screen space position (including depth in [0;1] range) and converts it into a world space position.
   ///
@@ -39,16 +39,16 @@ namespace ezGraphicsUtils
   /// The z value of vScreenPos is always expected to be in [0; 1] range (meaning 0 is at the near plane, 1 at the far plane),
   /// even on platforms that use [-1; +1] range for clip-space z values. The DepthRange parameter needs to be correct to handle this case
   /// properly.
-  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX,
+  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& mInverseModelViewProjection, const ezUInt32 uiViewportX,
     const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
-    ezVec3* out_vDirection = nullptr,
-    ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default); // [tested]
+    ezVec3* out_pDirection = nullptr,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
   /// \brief A double-precision version of ConvertScreenPosToWorldPos()
-  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4d& InverseModelViewProjection, const ezUInt32 uiViewportX,
+  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezUInt32 uiViewportX,
     const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
-    ezVec3* out_vDirection = nullptr,
-    ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default); // [tested]
+    ezVec3* out_pDirection = nullptr,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
   /// \brief Checks whether the given transformation matrix would change the winding order of a triangle's vertices and thus requires that
   /// the vertex order gets reversed to compensate.
@@ -56,12 +56,12 @@ namespace ezGraphicsUtils
 
   /// \brief Converts a projection or view-projection matrix from one depth-range convention to another
   EZ_FOUNDATION_DLL void ConvertProjectionMatrixDepthRange(
-    ezMat4& inout_Matrix, ezClipSpaceDepthRange::Enum SrcDepthRange, ezClipSpaceDepthRange::Enum DstDepthRange); // [tested]
+    ezMat4& inout_mMatrix, ezClipSpaceDepthRange::Enum srcDepthRange, ezClipSpaceDepthRange::Enum dstDepthRange); // [tested]
 
   /// \brief Retrieves the horizontal and vertical field-of-view angles from the perspective matrix.
   ///
   /// \note If an orthographic projection matrix is passed in, the returned angle values will be zero.
-  EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovX, ezAngle& out_fFovY); // [tested]
+  EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, ezAngle& out_fovX, ezAngle& out_fovY); // [tested]
 
   /// \brief Extracts the field of view angles from a perspective matrix.
   /// \param ProjectionMatrix Perspective projection matrix to be decomposed.
@@ -70,19 +70,19 @@ namespace ezGraphicsUtils
   /// \param out_fFovBottom Bottom angle of the frustum. Negative in symmetric projection.
   /// \param out_fFovTop Top angle of the frustum.
   /// \param yRange The Y range used to construct the perspective matrix.
-  EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, ezAngle& out_fFovLeft, ezAngle& out_fFovRight, ezAngle& out_fFovBottom, ezAngle& out_fFovTop, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular); // [tested]
+  EZ_FOUNDATION_DLL void ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, ezAngle& out_fovLeft, ezAngle& out_fovRight, ezAngle& out_fovBottom, ezAngle& out_fovTop, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular); // [tested]
 
   /// \brief Extracts the field of view distances on the near plane from a perspective matrix.
   ///
   /// Convenience function that also extracts near / far values and returns the distances on the near plane to be the inverse of ezGraphicsUtils::CreatePerspectiveProjectionMatrix.
   /// \sa ezGraphicsUtils::CreatePerspectiveProjectionMatrix
-  EZ_FOUNDATION_DLL ezResult ExtractPerspectiveMatrixFieldOfView(const ezMat4& ProjectionMatrix, float& out_fLeft, float& out_fRight, float& out_fBottom, float& out_fTop, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular); // [tested]
+  EZ_FOUNDATION_DLL ezResult ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, float& out_fLeft, float& out_fRight, float& out_fBottom, float& out_fTop, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular); // [tested]
 
   /// \brief Computes the distances of the near and far clip planes from the given perspective projection matrix.
   ///
   /// Returns EZ_FAILURE when one of the values could not be computed, because it would result in a "division by zero".
-  EZ_FOUNDATION_DLL ezResult ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& ProjectionMatrix,
-    ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default); // [tested]
+  EZ_FOUNDATION_DLL ezResult ExtractNearAndFarClipPlaneDistances(float& out_fNear, float& out_fFar, const ezMat4& mProjectionMatrix,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
 
   enum class FrustumPlaneInterpolation
@@ -100,41 +100,41 @@ namespace ezGraphicsUtils
   ///
   /// \param dir Specifies which planes to interpolate.
   /// \param fLerpFactor The interpolation coefficient (usually in the interval [0;1]).
-  EZ_FOUNDATION_DLL ezPlane ComputeInterpolatedFrustumPlane(FrustumPlaneInterpolation dir, float fLerpFactor, const ezMat4& ProjectionMatrix,
-    ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default); // [tested]
+  EZ_FOUNDATION_DLL ezPlane ComputeInterpolatedFrustumPlane(FrustumPlaneInterpolation dir, float fLerpFactor, const ezMat4& mProjectionMatrix,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
   /// \brief Creates a perspective projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
   /// +fViewHeight/2.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ,
-    ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates a perspective projection matrix.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ,
-    ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates a perspective projection matrix.
   /// \param fFieldOfViewX    Horizontal field of view.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ,
-    float fFarZ, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular,
+    float fFarZ, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates a perspective projection matrix.
   /// \param fFieldOfViewY    Vertical field of view.
   EZ_FOUNDATION_DLL ezMat4 CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ,
-    float fFarZ, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular,
+    float fFarZ, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates an orthographic projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
   /// +fViewHeight/2.
   EZ_FOUNDATION_DLL ezMat4 CreateOrthographicProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ,
-    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates an orthographic projection matrix.
   EZ_FOUNDATION_DLL ezMat4 CreateOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ,
-    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum yRange = ezClipSpaceYMode::Regular,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezClipSpaceYMode::Enum range = ezClipSpaceYMode::Regular,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Returns a look-at matrix (only direction, no translation).
@@ -170,16 +170,16 @@ namespace ezGraphicsUtils
   ///
   /// The handedness should be the same as used in CreateViewMatrix() or CreateLookAtViewMatrix().
   EZ_FOUNDATION_DLL void DecomposeViewMatrix(ezVec3& out_vPosition, ezVec3& out_vForwardDir, ezVec3& out_vRightDir, ezVec3& out_vUpDir,
-    const ezMat4& viewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+    const ezMat4& mViewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Computes the barycentric coordinates of a point in a 3D triangle.
   ///
   /// \return If the triangle is degenerate (all points on a line, or two points identical), the function returns EZ_FAILURE.
-  EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec3& v0, const ezVec3& v1, const ezVec3& v2, const ezVec3& pos);
+  EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec3& v0, const ezVec3& v1, const ezVec3& v2, const ezVec3& vPos);
 
   /// \brief Computes the barycentric coordinates of a point in a 2D triangle.
   ///
   /// \return If the triangle is degenerate (all points on a line, or two points identical), the function returns EZ_FAILURE.
-  EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec2& v0, const ezVec2& v1, const ezVec2& v2, const ezVec2& pos);
+  EZ_FOUNDATION_DLL ezResult ComputeBarycentricCoordinates(ezVec3& out_vCoordinates, const ezVec2& v0, const ezVec2& v1, const ezVec2& v2, const ezVec2& vPos);
 
 } // namespace ezGraphicsUtils

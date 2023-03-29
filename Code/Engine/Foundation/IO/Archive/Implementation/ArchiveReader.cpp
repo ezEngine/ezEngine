@@ -11,19 +11,19 @@
 
 #include <Foundation/Logging/Log.h>
 
-ezResult ezArchiveReader::OpenArchive(const char* szPath)
+ezResult ezArchiveReader::OpenArchive(ezStringView sPath)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
-  EZ_LOG_BLOCK("OpenArchive", szPath);
+  EZ_LOG_BLOCK("OpenArchive", sPath);
 
-  EZ_SUCCEED_OR_RETURN(m_MemFile.Open(szPath, ezMemoryMappedFile::Mode::ReadOnly));
+  EZ_SUCCEED_OR_RETURN(m_MemFile.Open(sPath, ezMemoryMappedFile::Mode::ReadOnly));
   m_uiMemFileSize = m_MemFile.GetFileSize();
 
   // validate the archive
   {
     ezRawMemoryStreamReader reader(m_MemFile.GetReadPointer(), m_MemFile.GetFileSize());
 
-    ezStringView extension = ezPathUtils::GetFileExtension(szPath);
+    ezStringView extension = ezPathUtils::GetFileExtension(sPath);
 
     if (ezArchiveUtils::IsAcceptedArchiveFileExtensions(extension))
     {
@@ -80,9 +80,9 @@ const ezArchiveTOC& ezArchiveReader::GetArchiveTOC()
   return m_ArchiveTOC;
 }
 
-ezResult ezArchiveReader::ExtractAllFiles(const char* szTargetFolder) const
+ezResult ezArchiveReader::ExtractAllFiles(ezStringView sTargetFolder) const
 {
-  EZ_LOG_BLOCK("ExtractAllFiles", szTargetFolder);
+  EZ_LOG_BLOCK("ExtractAllFiles", sTargetFolder);
 
   const ezUInt32 numEntries = m_ArchiveTOC.m_Entries.GetCount();
 
@@ -93,15 +93,15 @@ ezResult ezArchiveReader::ExtractAllFiles(const char* szTargetFolder) const
     if (!ExtractNextFileCallback(e + 1, numEntries, szPath))
       return EZ_FAILURE;
 
-    EZ_SUCCEED_OR_RETURN(ExtractFile(e, szTargetFolder));
+    EZ_SUCCEED_OR_RETURN(ExtractFile(e, sTargetFolder));
   }
 
   return EZ_SUCCESS;
 }
 
-void ezArchiveReader::ConfigureRawMemoryStreamReader(ezUInt32 uiEntryIdx, ezRawMemoryStreamReader& memReader) const
+void ezArchiveReader::ConfigureRawMemoryStreamReader(ezUInt32 uiEntryIdx, ezRawMemoryStreamReader& ref_memReader) const
 {
-  ezArchiveUtils::ConfigureRawMemoryStreamReader(m_ArchiveTOC.m_Entries[uiEntryIdx], m_pDataStart, memReader);
+  ezArchiveUtils::ConfigureRawMemoryStreamReader(m_ArchiveTOC.m_Entries[uiEntryIdx], m_pDataStart, ref_memReader);
 }
 
 ezUniquePtr<ezStreamReader> ezArchiveReader::CreateEntryReader(ezUInt32 uiEntryIdx) const
@@ -109,14 +109,14 @@ ezUniquePtr<ezStreamReader> ezArchiveReader::CreateEntryReader(ezUInt32 uiEntryI
   return ezArchiveUtils::CreateEntryReader(m_ArchiveTOC.m_Entries[uiEntryIdx], m_pDataStart);
 }
 
-ezResult ezArchiveReader::ExtractFile(ezUInt32 uiEntryIdx, const char* szTargetFolder) const
+ezResult ezArchiveReader::ExtractFile(ezUInt32 uiEntryIdx, ezStringView sTargetFolder) const
 {
   const char* szFilePath = m_ArchiveTOC.GetEntryPathString(uiEntryIdx);
   const ezUInt64 uiMaxSize = m_ArchiveTOC.m_Entries[uiEntryIdx].m_uiUncompressedDataSize;
 
   ezUniquePtr<ezStreamReader> pReader = CreateEntryReader(uiEntryIdx);
 
-  ezStringBuilder sOutputFile = szTargetFolder;
+  ezStringBuilder sOutputFile = sTargetFolder;
   sOutputFile.AppendPath(szFilePath);
 
   ezFileWriter file;
@@ -146,7 +146,7 @@ ezResult ezArchiveReader::ExtractFile(ezUInt32 uiEntryIdx, const char* szTargetF
   return EZ_SUCCESS;
 }
 
-bool ezArchiveReader::ExtractNextFileCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, const char* szSourceFile) const
+bool ezArchiveReader::ExtractNextFileCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, ezStringView sSourceFile) const
 {
   return true;
 }

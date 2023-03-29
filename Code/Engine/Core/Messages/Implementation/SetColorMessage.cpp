@@ -26,54 +26,54 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColor, 1, ezRTTIDefaultAllocator<ezMsgSe
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezMsgSetColor::ModifyColor(ezColor& color) const
+void ezMsgSetColor::ModifyColor(ezColor& ref_color) const
 {
   switch (m_Mode)
   {
     case ezSetColorMode::SetRGB:
-      color.SetRGB(m_Color.r, m_Color.g, m_Color.b);
+      ref_color.SetRGB(m_Color.r, m_Color.g, m_Color.b);
       break;
 
     case ezSetColorMode::SetAlpha:
-      color.a = m_Color.a;
+      ref_color.a = m_Color.a;
       break;
 
     case ezSetColorMode::AlphaBlend:
-      color = ezMath::Lerp(color, m_Color, m_Color.a);
+      ref_color = ezMath::Lerp(ref_color, m_Color, m_Color.a);
       break;
 
     case ezSetColorMode::Additive:
-      color += m_Color;
+      ref_color += m_Color;
       break;
 
     case ezSetColorMode::Modulate:
-      color *= m_Color;
+      ref_color *= m_Color;
       break;
 
     case ezSetColorMode::SetRGBA:
     default:
-      color = m_Color;
+      ref_color = m_Color;
       break;
   }
 }
 
-void ezMsgSetColor::ModifyColor(ezColorGammaUB& color) const
+void ezMsgSetColor::ModifyColor(ezColorGammaUB& ref_color) const
 {
-  ezColor temp = color;
+  ezColor temp = ref_color;
   ModifyColor(temp);
-  color = temp;
+  ref_color = temp;
 }
 
-void ezMsgSetColor::Serialize(ezStreamWriter& stream) const
+void ezMsgSetColor::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_Color;
-  stream << m_Mode;
+  inout_stream << m_Color;
+  inout_stream << m_Mode;
 }
 
-void ezMsgSetColor::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
+void ezMsgSetColor::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
 {
-  stream >> m_Color;
-  stream >> m_Mode;
+  inout_stream >> m_Color;
+  inout_stream >> m_Mode;
 }
 
 

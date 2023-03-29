@@ -161,17 +161,17 @@ namespace ezMath
 #endif
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 bitmask) { return (bitmask == 0) ? 32 : FirstBitLow(bitmask); }
+  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 uiBitmask) { return (uiBitmask == 0) ? 32 : FirstBitLow(uiBitmask); }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt64 bitmask)
+  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt64 uiBitmask)
   {
-    const ezUInt32 numLow = CountTrailingZeros(static_cast<ezUInt32>(bitmask & 0xFFFFFFFF));
-    const ezUInt32 numHigh = CountTrailingZeros(static_cast<ezUInt32>((bitmask >> 32u) & 0xFFFFFFFF));
+    const ezUInt32 numLow = CountTrailingZeros(static_cast<ezUInt32>(uiBitmask & 0xFFFFFFFF));
+    const ezUInt32 numHigh = CountTrailingZeros(static_cast<ezUInt32>((uiBitmask >> 32u) & 0xFFFFFFFF));
 
     return (numLow == 32) ? (32 + numHigh) : numLow;
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 bitmask) { return (bitmask == 0) ? 32 : (31u - FirstBitHigh(bitmask)); }
+  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 uiBitmask) { return (uiBitmask == 0) ? 32 : (31u - FirstBitHigh(uiBitmask)); }
 
 
   EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)
@@ -200,27 +200,27 @@ namespace ezMath
   }
 
   template <typename T>
-  EZ_ALWAYS_INLINE void Swap(T& f1, T& f2)
+  EZ_ALWAYS_INLINE void Swap(T& ref_f1, T& ref_f2)
   {
-    std::swap(f1, f2);
+    std::swap(ref_f1, ref_f2);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Lerp(T f1, T f2, float factor)
+  EZ_FORCE_INLINE T Lerp(T f1, T f2, float fFactor)
   {
     // value is not included in format string, to prevent requirement on FormatString.h, to break #include cycles
-    EZ_ASSERT_DEBUG((factor >= -0.00001f) && (factor <= 1.0f + 0.00001f), "lerp: factor is not in the range [0; 1]");
+    EZ_ASSERT_DEBUG((fFactor >= -0.00001f) && (fFactor <= 1.0f + 0.00001f), "lerp: factor is not in the range [0; 1]");
 
-    return (T)(f1 + (factor * (f2 - f1)));
+    return (T)(f1 + (fFactor * (f2 - f1)));
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Lerp(T f1, T f2, double factor)
+  EZ_FORCE_INLINE T Lerp(T f1, T f2, double fFactor)
   {
     // value is not included in format string, to prevent requirement on FormatString.h, to break #include cycles
-    EZ_ASSERT_DEBUG((factor >= -0.00001) && (factor <= 1.0 + 0.00001), "lerp: factor is not in the range [0; 1]");
+    EZ_ASSERT_DEBUG((fFactor >= -0.00001) && (fFactor <= 1.0 + 0.00001), "lerp: factor is not in the range [0; 1]");
 
-    return (T)(f1 + (factor * (f2 - f1)));
+    return (T)(f1 + (fFactor * (f2 - f1)));
   }
 
   ///  Returns 0, if value < edge, and 1, if value >= edge.
@@ -241,9 +241,9 @@ namespace ezMath
   }
 
   template <typename T>
-  constexpr inline bool IsInRange(T Value, T MinVal, T MaxVal)
+  constexpr inline bool IsInRange(T value, T minVal, T maxVal)
   {
-    return MinVal < MaxVal ? (Value >= MinVal) && (Value <= MaxVal) : (Value <= MinVal) && (Value >= MaxVal);
+    return minVal < maxVal ? (value >= minVal) && (value <= maxVal) : (value <= minVal) && (value >= maxVal);
   }
 
   template <typename Type>
@@ -425,18 +425,18 @@ constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
 }
 #endif
 
-EZ_ALWAYS_INLINE ezResult ezMath::TryConvertToSizeT(size_t& out_Result, ezUInt64 uiValue)
+EZ_ALWAYS_INLINE ezResult ezMath::TryConvertToSizeT(size_t& out_uiResult, ezUInt64 uiValue)
 {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   if (uiValue <= MaxValue<size_t>())
   {
-    out_Result = static_cast<size_t>(uiValue);
+    out_uiResult = static_cast<size_t>(uiValue);
     return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;
 #else
-  out_Result = static_cast<size_t>(uiValue);
+  out_uiResult = static_cast<size_t>(uiValue);
   return EZ_SUCCESS;
 #endif
 }

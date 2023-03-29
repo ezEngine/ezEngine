@@ -13,7 +13,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtInputWidget(QWidget* parent = 0);
+  ezQtInputWidget(QWidget* pParent = 0);
 
   static ezQtInputWidget* s_pWidget;
 

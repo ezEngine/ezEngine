@@ -8,16 +8,16 @@ You can classify bytes in a UTF-8 stream as follows:
 this sequence (110... means two bytes, 1110... means three bytes, etc).
 */
 
-EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8StartByte(char uiByte)
+EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8StartByte(char iByte)
 {
   // valid utf8 start bytes are 0x0-------, 0x110-----, 0x1110----, 0x11110---, etc
-  return ((uiByte & 0x80) == 0) || ((uiByte & 0xE0) == 0xC0) || ((uiByte & 0xF0) == 0xE0) || ((uiByte & 0xF8) == 0xF0) || ((uiByte & 0xFC) == 0xF8);
+  return ((iByte & 0x80) == 0) || ((iByte & 0xE0) == 0xC0) || ((iByte & 0xF0) == 0xE0) || ((iByte & 0xF8) == 0xF0) || ((iByte & 0xFC) == 0xF8);
 }
 
-EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8ContinuationByte(char uiByte)
+EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8ContinuationByte(char iByte)
 {
   // check whether the two upper bits are set to '10'
-  return (uiByte & 0xC0) == 0x80;
+  return (iByte & 0xC0) == 0x80;
 }
 
 EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsASCII(ezUInt32 uiChar)
@@ -25,12 +25,12 @@ EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsASCII(ezUInt32 uiChar)
   return (uiChar <= 127);
 }
 
-inline ezUInt32 ezUnicodeUtils::GetUtf8SequenceLength(char uiFirstByte)
+inline ezUInt32 ezUnicodeUtils::GetUtf8SequenceLength(char iFirstByte)
 {
-  const ezUInt32 uiBit7 = uiFirstByte & EZ_BIT(7);
-  const ezUInt32 uiBit6 = uiFirstByte & EZ_BIT(6);
-  const ezUInt32 uiBit5 = uiFirstByte & EZ_BIT(5);
-  const ezUInt32 uiBit4 = uiFirstByte & EZ_BIT(4);
+  const ezUInt32 uiBit7 = iFirstByte & EZ_BIT(7);
+  const ezUInt32 uiBit6 = iFirstByte & EZ_BIT(6);
+  const ezUInt32 uiBit5 = iFirstByte & EZ_BIT(5);
+  const ezUInt32 uiBit4 = iFirstByte & EZ_BIT(4);
 
   if (uiBit7 == 0) // ASCII character '0xxxxxxx'
     return 1;
@@ -48,25 +48,25 @@ inline ezUInt32 ezUnicodeUtils::GetUtf8SequenceLength(char uiFirstByte)
 }
 
 template <typename ByteIterator>
-ezUInt32 ezUnicodeUtils::DecodeUtf8ToUtf32(ByteIterator& szUtf8Iterator)
+ezUInt32 ezUnicodeUtils::DecodeUtf8ToUtf32(ByteIterator& ref_szUtf8Iterator)
 {
-  return utf8::unchecked::next(szUtf8Iterator);
+  return utf8::unchecked::next(ref_szUtf8Iterator);
 }
 
 template <typename UInt16Iterator>
-bool ezUnicodeUtils::IsUtf16Surrogate(UInt16Iterator& szUtf16Iterator)
+bool ezUnicodeUtils::IsUtf16Surrogate(UInt16Iterator& ref_szUtf16Iterator)
 {
-  uint32_t cp = utf8::internal::mask16(*szUtf16Iterator);
+  uint32_t cp = utf8::internal::mask16(*ref_szUtf16Iterator);
   return utf8::internal::is_lead_surrogate(cp);
 }
 
 template <typename UInt16Iterator>
-ezUInt32 ezUnicodeUtils::DecodeUtf16ToUtf32(UInt16Iterator& szUtf16Iterator)
+ezUInt32 ezUnicodeUtils::DecodeUtf16ToUtf32(UInt16Iterator& ref_szUtf16Iterator)
 {
-  uint32_t cp = utf8::internal::mask16(*szUtf16Iterator++);
+  uint32_t cp = utf8::internal::mask16(*ref_szUtf16Iterator++);
   if (utf8::internal::is_lead_surrogate(cp))
   {
-    uint32_t trail_surrogate = utf8::internal::mask16(*szUtf16Iterator++);
+    uint32_t trail_surrogate = utf8::internal::mask16(*ref_szUtf16Iterator++);
     cp = (cp << 10) + trail_surrogate + utf8::internal::SURROGATE_OFFSET;
   }
 
@@ -74,50 +74,50 @@ ezUInt32 ezUnicodeUtils::DecodeUtf16ToUtf32(UInt16Iterator& szUtf16Iterator)
 }
 
 template <typename WCharIterator>
-ezUInt32 ezUnicodeUtils::DecodeWCharToUtf32(WCharIterator& szWCharIterator)
+ezUInt32 ezUnicodeUtils::DecodeWCharToUtf32(WCharIterator& ref_szWCharIterator)
 {
   if (sizeof(wchar_t) == 2)
   {
-    return DecodeUtf16ToUtf32(szWCharIterator);
+    return DecodeUtf16ToUtf32(ref_szWCharIterator);
   }
   else // sizeof(wchar_t) == 4
   {
-    const ezUInt32 uiResult = *szWCharIterator;
-    ++szWCharIterator;
+    const ezUInt32 uiResult = *ref_szWCharIterator;
+    ++ref_szWCharIterator;
     return uiResult;
   }
 }
 
 template <typename ByteIterator>
-void ezUnicodeUtils::EncodeUtf32ToUtf8(ezUInt32 uiUtf32, ByteIterator& szUtf8Output)
+void ezUnicodeUtils::EncodeUtf32ToUtf8(ezUInt32 uiUtf32, ByteIterator& ref_szUtf8Output)
 {
-  szUtf8Output = utf8::unchecked::utf32to8(&uiUtf32, &uiUtf32 + 1, szUtf8Output);
+  ref_szUtf8Output = utf8::unchecked::utf32to8(&uiUtf32, &uiUtf32 + 1, ref_szUtf8Output);
 }
 
 template <typename UInt16Iterator>
-void ezUnicodeUtils::EncodeUtf32ToUtf16(ezUInt32 uiUtf32, UInt16Iterator& szUtf16Output)
+void ezUnicodeUtils::EncodeUtf32ToUtf16(ezUInt32 uiUtf32, UInt16Iterator& ref_szUtf16Output)
 {
   if (uiUtf32 > 0xffff)
   {
     // make a surrogate pair
-    *szUtf16Output++ = static_cast<uint16_t>((uiUtf32 >> 10) + utf8::internal::LEAD_OFFSET);
-    *szUtf16Output++ = static_cast<uint16_t>((uiUtf32 & 0x3ff) + utf8::internal::TRAIL_SURROGATE_MIN);
+    *ref_szUtf16Output++ = static_cast<uint16_t>((uiUtf32 >> 10) + utf8::internal::LEAD_OFFSET);
+    *ref_szUtf16Output++ = static_cast<uint16_t>((uiUtf32 & 0x3ff) + utf8::internal::TRAIL_SURROGATE_MIN);
   }
   else
-    *szUtf16Output++ = static_cast<uint16_t>(uiUtf32);
+    *ref_szUtf16Output++ = static_cast<uint16_t>(uiUtf32);
 }
 
 template <typename WCharIterator>
-void ezUnicodeUtils::EncodeUtf32ToWChar(ezUInt32 uiUtf32, WCharIterator& szWCharOutput)
+void ezUnicodeUtils::EncodeUtf32ToWChar(ezUInt32 uiUtf32, WCharIterator& ref_szWCharOutput)
 {
   if (sizeof(wchar_t) == 2)
   {
-    EncodeUtf32ToUtf16(uiUtf32, szWCharOutput);
+    EncodeUtf32ToUtf16(uiUtf32, ref_szWCharOutput);
   }
   else
   {
-    *szWCharOutput = static_cast<wchar_t>(uiUtf32);
-    ++szWCharOutput;
+    *ref_szWCharOutput = static_cast<wchar_t>(uiUtf32);
+    ++ref_szWCharOutput;
   }
 }
 
@@ -155,89 +155,89 @@ inline bool ezUnicodeUtils::IsValidUtf8(const char* szString, const char* szStri
   return utf8::is_valid(szString, szStringEnd);
 }
 
-inline bool ezUnicodeUtils::SkipUtf8Bom(const char*& szUtf8)
+inline bool ezUnicodeUtils::SkipUtf8Bom(const char*& ref_szUtf8)
 {
-  EZ_ASSERT_DEBUG(szUtf8 != nullptr, "This function expects non nullptr pointers");
+  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "This function expects non nullptr pointers");
 
-  if (utf8::starts_with_bom(szUtf8, szUtf8 + 4))
+  if (utf8::starts_with_bom(ref_szUtf8, ref_szUtf8 + 4))
   {
-    szUtf8 += 3;
+    ref_szUtf8 += 3;
     return true;
   }
 
   return false;
 }
 
-inline bool ezUnicodeUtils::SkipUtf16BomLE(const ezUInt16*& szUtf16)
+inline bool ezUnicodeUtils::SkipUtf16BomLE(const ezUInt16*& ref_pUtf16)
 {
-  EZ_ASSERT_DEBUG(szUtf16 != nullptr, "This function expects non nullptr pointers");
+  EZ_ASSERT_DEBUG(ref_pUtf16 != nullptr, "This function expects non nullptr pointers");
 
-  if (*szUtf16 == ezUnicodeUtils::Utf16BomLE)
+  if (*ref_pUtf16 == ezUnicodeUtils::Utf16BomLE)
   {
-    ++szUtf16;
+    ++ref_pUtf16;
     return true;
   }
 
   return false;
 }
 
-inline bool ezUnicodeUtils::SkipUtf16BomBE(const ezUInt16*& szUtf16)
+inline bool ezUnicodeUtils::SkipUtf16BomBE(const ezUInt16*& ref_pUtf16)
 {
-  EZ_ASSERT_DEBUG(szUtf16 != nullptr, "This function expects non nullptr pointers");
+  EZ_ASSERT_DEBUG(ref_pUtf16 != nullptr, "This function expects non nullptr pointers");
 
-  if (*szUtf16 == ezUnicodeUtils::Utf16BomBE)
+  if (*ref_pUtf16 == ezUnicodeUtils::Utf16BomBE)
   {
-    ++szUtf16;
+    ++ref_pUtf16;
     return true;
   }
 
   return false;
 }
 
-inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters)
+inline void ezUnicodeUtils::MoveToNextUtf8(const char*& ref_szUtf8, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT_DEBUG(szUtf8 != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Bad programmer!");
 
   while (uiNumCharacters > 0)
   {
-    EZ_ASSERT_DEV(*szUtf8 != '\0', "The given string must not point to the zero terminator.");
+    EZ_ASSERT_DEV(*ref_szUtf8 != '\0', "The given string must not point to the zero terminator.");
 
     do
     {
-      ++szUtf8;
-    } while (IsUtf8ContinuationByte(*szUtf8));
+      ++ref_szUtf8;
+    } while (IsUtf8ContinuationByte(*ref_szUtf8));
 
     --uiNumCharacters;
   }
 }
 
-inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters)
+inline void ezUnicodeUtils::MoveToNextUtf8(const char*& ref_szUtf8, const char* szUtf8End, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT_DEBUG(szUtf8 != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Bad programmer!");
 
-  while (uiNumCharacters > 0 && szUtf8 < szUtf8End)
+  while (uiNumCharacters > 0 && ref_szUtf8 < szUtf8End)
   {
-    EZ_ASSERT_DEV(*szUtf8 != '\0', "The given string must not point to the zero terminator.");
+    EZ_ASSERT_DEV(*ref_szUtf8 != '\0', "The given string must not point to the zero terminator.");
 
     do
     {
-      ++szUtf8;
-    } while ((szUtf8 < szUtf8End) && IsUtf8ContinuationByte(*szUtf8));
+      ++ref_szUtf8;
+    } while ((ref_szUtf8 < szUtf8End) && IsUtf8ContinuationByte(*ref_szUtf8));
 
     --uiNumCharacters;
   }
 }
 
-inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters)
+inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& ref_szUtf8, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT_DEBUG(szUtf8 != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(ref_szUtf8 != nullptr, "Bad programmer!");
 
   while (uiNumCharacters > 0)
   {
     do
     {
-      --szUtf8;
-    } while (IsUtf8ContinuationByte(*szUtf8));
+      --ref_szUtf8;
+    } while (IsUtf8ContinuationByte(*ref_szUtf8));
 
     --uiNumCharacters;
   }

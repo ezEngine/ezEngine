@@ -45,10 +45,10 @@ public:
   /// \brief Creates the navmesh from the given ezGameGrid.
   template <class CellData>
   void CreateFromGrid(
-    const ezGameGrid<CellData>& Grid, CellComparator IsSameCellType, void* pPassThroughSame, CellBlocked IsCellBlocked, void* pPassThroughBlocked);
+    const ezGameGrid<CellData>& grid, CellComparator isSameCellType, void* pPassThroughSame, CellBlocked isCellBlocked, void* pPassThroughBlocked);
 
   /// \brief Returns the index of the ConvexArea at the given cell coordinates. Negative, if the cell is blocked.
-  ezInt32 GetAreaAt(const ezVec2I32& Coord) const { return m_NodesGrid.GetCell(Coord); }
+  ezInt32 GetAreaAt(const ezVec2I32& vCoord) const { return m_NodesGrid.GetCell(vCoord); }
 
   /// \brief Returns the number of convex areas that this navmesh consists of.
   ezUInt32 GetNumConvexAreas() const { return m_ConvexAreas.GetCount(); }

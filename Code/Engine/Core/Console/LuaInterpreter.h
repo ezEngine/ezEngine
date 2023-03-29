@@ -27,7 +27,7 @@ public:
   /// SomeConsoleFunc(2, some_cvar)
   ///
   /// If there is any kind of error (e.g. a Lua syntax error), the interpreter will return EZ_FAILURE;
-  virtual void Interpret(ezCommandInterpreterState& inout_State) override;
+  virtual void Interpret(ezCommandInterpreterState& inout_state) override;
 };
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT

@@ -15,7 +15,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtPreferencesDlg(QWidget* parent);
+  ezQtPreferencesDlg(QWidget* pParent);
   ~ezQtPreferencesDlg();
 
   ezUuid NativeToObject(ezPreferences* pPreferences);

@@ -9,9 +9,9 @@ EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescripti
   return &m_Description;
 }
 
-EZ_ALWAYS_INLINE ezResult ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& result)
+EZ_ALWAYS_INLINE ezResult ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& ref_result)
 {
-  return GetTimestampResultPlatform(hTimestamp, result);
+  return GetTimestampResultPlatform(hTimestamp, ref_result);
 }
 
 EZ_ALWAYS_INLINE ezGALTimestampHandle ezGALDevice::GetTimestamp()

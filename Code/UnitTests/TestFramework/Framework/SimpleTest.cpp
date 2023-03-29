@@ -5,11 +5,11 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisterSimpleTestHelper);
 
-void ezSimpleTestGroup::AddSimpleTest(const char* szName, SimpleTestFunc TestFunc)
+void ezSimpleTestGroup::AddSimpleTest(const char* szName, SimpleTestFunc testFunc)
 {
   SimpleTestEntry e;
   e.m_szName = szName;
-  e.m_Func = TestFunc;
+  e.m_Func = testFunc;
 
   for (ezUInt32 i = 0; i < m_SimpleTests.size(); ++i)
   {

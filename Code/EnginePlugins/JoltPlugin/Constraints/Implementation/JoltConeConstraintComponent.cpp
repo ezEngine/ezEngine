@@ -25,21 +25,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltConeConstraintComponent::ezJoltConeConstraintComponent() = default;
 ezJoltConeConstraintComponent::~ezJoltConeConstraintComponent() = default;
 
-void ezJoltConeConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltConeConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_ConeAngle;
 }
 
-void ezJoltConeConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltConeConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_ConeAngle;
 }
@@ -76,8 +76,35 @@ void ezJoltConeConstraintComponent::ApplySettings()
   }
 }
 
+bool ezJoltConeConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::ConeConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition().ReduceMax() >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+
+    if (m_fBreakTorque > 0)
+    {
+      if (pConstraint->GetTotalLambdaRotation() >= m_fBreakTorque)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 void ezJoltConeConstraintComponent::SetConeAngle(ezAngle f)
 {
   m_ConeAngle = f;
   QueueApplySettings();
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltConeConstraintComponent);

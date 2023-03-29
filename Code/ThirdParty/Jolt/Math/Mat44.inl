@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -13,6 +14,11 @@ JPH_NAMESPACE_BEGIN
 
 Mat44::Mat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, Vec4Arg inC4) : 
 	mCol { inC1, inC2, inC3, inC4 } 
+{ 
+}
+
+Mat44::Mat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, Vec3Arg inC4) : 
+	mCol { inC1, inC2, inC3, Vec4(inC4, 1.0f) } 
 { 
 }
 

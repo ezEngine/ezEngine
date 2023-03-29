@@ -221,11 +221,11 @@ void ezSkyLightComponent::OnTransformChanged(ezMsgTransformChanged& msg)
   m_bStatesDirty = true;
 }
 
-void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSkyLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   m_Desc.m_IncludeTags.Save(s);
   m_Desc.m_ExcludeTags.Save(s);
@@ -238,11 +238,11 @@ void ezSkyLightComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_Desc.m_fFarPlane;
 }
 
-void ezSkyLightComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSkyLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   m_Desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
   m_Desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
@@ -275,7 +275,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     // Inline ReflectionData sub-object into the sky light itself.
     if (const ezAbstractObjectNode::Property* pProp0 = pNode->FindProperty("ReflectionData"))

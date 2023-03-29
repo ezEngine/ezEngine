@@ -6,6 +6,10 @@
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Strings/String.h>
 
+// this file takes ages to compile in a Release build
+// since we don't care for runtime performance, just disable all optimizations
+#pragma optimize("", off)
+
 EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(empty)")
@@ -1568,3 +1572,5 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     }
   }
 }
+
+#pragma optimize("", on)

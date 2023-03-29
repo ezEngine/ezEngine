@@ -4,8 +4,8 @@
 #include <QFileDialog>
 #include <QInputDialog>
 
-ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 
@@ -30,11 +30,10 @@ ezQtFmodProjectSettingsDlg::ezQtFmodProjectSettingsDlg(QWidget* parent)
 }
 ezResult ezQtFmodProjectSettingsDlg::Save()
 {
-  const char* szFile = ":project/FmodConfig.ddl";
-  if (m_Configs.Save(szFile).Failed())
+  if (m_Configs.Save().Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Failed to save the Fmod configuration file\n'{0}'", szFile);
+    sError.Format("Failed to save the Fmod configuration file\n'{0}'", ezFmodAssetProfiles::s_sConfigFile);
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
@@ -46,7 +45,7 @@ ezResult ezQtFmodProjectSettingsDlg::Save()
 
 void ezQtFmodProjectSettingsDlg::Load()
 {
-  m_Configs.Load(":project/FmodConfig.ddl").IgnoreResult();
+  m_Configs.Load().IgnoreResult();
 
   m_ConfigsOld = m_Configs;
 }

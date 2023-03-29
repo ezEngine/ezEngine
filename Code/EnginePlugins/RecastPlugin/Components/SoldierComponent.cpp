@@ -3,8 +3,8 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/AI/AgentSteeringComponent.h>
 #include <Recast/DetourCrowd.h>
+#include <RecastPlugin/Components/AgentSteeringComponent.h>
 #include <RecastPlugin/Components/SoldierComponent.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -17,15 +17,15 @@ EZ_END_COMPONENT_TYPE
 ezSoldierComponent::ezSoldierComponent() = default;
 ezSoldierComponent::~ezSoldierComponent() = default;
 
-void ezSoldierComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSoldierComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
   // ezStreamWriter& s = stream.GetStream();
 }
 
-void ezSoldierComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSoldierComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   // ezStreamReader& s = stream.GetStream();
 }

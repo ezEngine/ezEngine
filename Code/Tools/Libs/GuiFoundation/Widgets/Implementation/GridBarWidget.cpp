@@ -9,8 +9,8 @@
 #include <QTextOption>
 #include <qevent.h>
 
-ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
-  : QWidget(parent)
+ezQGridBarWidget::ezQGridBarWidget(QWidget* pParent)
+  : QWidget(pParent)
 {
   m_ViewportSceneRect.setRect(0, 1, 1, 1);
   m_fFineGridStops = 10;

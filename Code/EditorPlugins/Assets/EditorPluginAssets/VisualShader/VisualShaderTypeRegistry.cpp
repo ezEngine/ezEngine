@@ -68,7 +68,7 @@ namespace
   };
   static_assert(EZ_ARRAY_SIZE(s_szColorNames) == ezColorScheme::Count);
 
-  static void GetColorFromDdl(const ezOpenDdlReaderElement* pElement, ezColorGammaUB& out_Color)
+  static void GetColorFromDdl(const ezOpenDdlReaderElement* pElement, ezColorGammaUB& out_color)
   {
     if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::String)
     {
@@ -83,11 +83,11 @@ namespace
         }
       }
 
-      out_Color = ezColorScheme::DarkUI(color);
+      out_color = ezColorScheme::DarkUI(color);
     }
     else
     {
-      ezOpenDdlUtils::ConvertToColorGamma(pElement, out_Color).IgnoreResult();
+      ezOpenDdlUtils::ConvertToColorGamma(pElement, out_color).IgnoreResult();
     }
   }
 } // namespace

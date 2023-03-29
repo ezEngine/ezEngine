@@ -17,7 +17,7 @@ public:
     ActivateRemoteProcess = EZ_BIT(2),
   };
 
-  static void MapActions(const char* szMapping, const char* szPath, ezUInt32 flags);
+  static void MapActions(const char* szMapping, const char* szPath, ezUInt32 uiFlags);
 
   static ezActionDescriptorHandle s_hRenderMode;
   static ezActionDescriptorHandle s_hPerspective;

@@ -31,7 +31,7 @@ public:
   };
 
 public:
-  ezSceneDocument(const char* szDocumentPath, DocumentType DocumentType);
+  ezSceneDocument(const char* szDocumentPath, DocumentType documentType);
   ~ezSceneDocument();
 
   enum class ShowOrHide
@@ -74,43 +74,43 @@ public:
   bool IsPrefab() const { return m_DocumentType == DocumentType::Prefab; }
 
   /// \brief Determines whether the given object is an editor prefab
-  bool IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
+  bool IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid = nullptr) const;
 
   /// \brief Determines whether the given object is an engine prefab
-  bool IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
+  bool IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid = nullptr) const;
 
   /// \brief Nested prefabs are not allowed
   virtual bool ArePrefabsAllowed() const override { return !IsPrefab(); }
 
 
-  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
-  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
+  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const override;
+  virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const override;
   virtual bool Paste(
     const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
   bool DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
-  bool CopySelectedObjects(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
+  bool CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph);
 
   virtual void UpdatePrefabs() override;
 
   /// \brief Removes the link to the prefab template, making the editor prefab a simple object
-  virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection) override;
+  virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection) override;
 
   virtual ezUuid ReplaceByPrefab(
-    const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab) override;
+    const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab) override;
 
   /// \brief Reverts all selected editor prefabs to their original template state
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
 
   /// \brief Converts all objects in the selection that are engine prefabs to their respective editor prefab representation
-  virtual void ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& Selection);
+  virtual void ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& selection);
   /// \brief Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
-  virtual void ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& Selection);
+  virtual void ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& selection);
 
   virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
-    ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
-    ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>()) override;
+    ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
+    ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>()) override;
 
   GameMode::Enum GetGameMode() const { return m_GameMode; }
 
@@ -149,7 +149,7 @@ public:
     const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
   ezStatus AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
   ezInt32 FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
-  ezStatus RemoveExposedParameter(ezInt32 index);
+  ezStatus RemoveExposedParameter(ezInt32 iIndex);
   ///@}
 
   /// \name Editor Camera

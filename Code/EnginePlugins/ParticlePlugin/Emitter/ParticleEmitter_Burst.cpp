@@ -70,31 +70,31 @@ enum class EmitterBurstVersion
 };
 
 
-void ezParticleEmitterFactory_Burst::Save(ezStreamWriter& stream) const
+void ezParticleEmitterFactory_Burst::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)EmitterBurstVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
   // Version 1
-  stream << m_Duration;
-  stream << m_StartDelay;
-  stream << m_uiSpawnCountMin;
-  stream << m_uiSpawnCountRange;
-  stream << m_sSpawnCountScaleParameter;
+  inout_stream << m_Duration;
+  inout_stream << m_StartDelay;
+  inout_stream << m_uiSpawnCountMin;
+  inout_stream << m_uiSpawnCountRange;
+  inout_stream << m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitterFactory_Burst::Load(ezStreamReader& stream)
+void ezParticleEmitterFactory_Burst::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)EmitterBurstVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  stream >> m_Duration;
-  stream >> m_StartDelay;
-  stream >> m_uiSpawnCountMin;
-  stream >> m_uiSpawnCountRange;
-  stream >> m_sSpawnCountScaleParameter;
+  inout_stream >> m_Duration;
+  inout_stream >> m_StartDelay;
+  inout_stream >> m_uiSpawnCountMin;
+  inout_stream >> m_uiSpawnCountRange;
+  inout_stream >> m_sSpawnCountScaleParameter;
 }
 
 void ezParticleEmitter_Burst::OnFinalize()
@@ -152,3 +152,7 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
 
   return uiSpawn;
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter_Burst);
+

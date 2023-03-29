@@ -68,8 +68,8 @@ class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponent : public ezPxActorComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   virtual void OnSimulationStarted() override;
   virtual void OnDeactivated() override;
@@ -83,8 +83,8 @@ public:
 
   physx::PxRigidDynamic* GetPxActor() const { return m_pActor; }
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]
-  void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
+  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);     // [ message ]
 
   bool GetKinematic() const { return m_bKinematic; } // [ property ]
   void SetKinematic(bool b);                         // [ property ]

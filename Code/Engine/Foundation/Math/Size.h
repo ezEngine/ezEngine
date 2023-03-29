@@ -22,7 +22,7 @@ public:
   ezSizeTemplate();
 
   /// \brief Constructor to set all values.
-  ezSizeTemplate(Type Width, Type Height);
+  ezSizeTemplate(Type width, Type height);
 
   // *** Common Functions ***
 public:

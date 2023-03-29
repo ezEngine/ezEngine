@@ -20,19 +20,19 @@
 
 namespace
 {
-  EZ_ALWAYS_INLINE void SkipWhitespace(ezToken& token, ezUInt32& i, const ezDeque<ezToken>& tokens)
+  EZ_ALWAYS_INLINE void SkipWhitespace(ezToken& ref_token, ezUInt32& i, const ezDeque<ezToken>& tokens)
   {
-    while (token.m_iType == ezTokenType::Whitespace)
+    while (ref_token.m_iType == ezTokenType::Whitespace)
     {
-      token = tokens[++i];
+      ref_token = tokens[++i];
     }
   }
 
-  EZ_ALWAYS_INLINE void SkipLine(ezToken& token, ezUInt32& i, const ezDeque<ezToken>& tokens)
+  EZ_ALWAYS_INLINE void SkipLine(ezToken& ref_token, ezUInt32& i, const ezDeque<ezToken>& tokens)
   {
-    while (token.m_iType != ezTokenType::Newline && token.m_iType != ezTokenType::EndOfFile)
+    while (ref_token.m_iType != ezTokenType::Newline && ref_token.m_iType != ezTokenType::EndOfFile)
     {
-      token = tokens[++i];
+      ref_token = tokens[++i];
     }
   }
 } // namespace
@@ -89,7 +89,7 @@ public:
     }
   }
 
-  ezResult ParseArray(const ezVariant& value, ezHashSet<ezString>& dst)
+  ezResult ParseArray(const ezVariant& value, ezHashSet<ezString>& ref_dst)
   {
     if (!value.CanConvertTo<ezVariantArray>())
     {
@@ -108,21 +108,20 @@ public:
       }
       ezStringBuilder file = el.Get<ezString>();
       file.ToLower();
-      dst.Insert(file);
+      ref_dst.Insert(file);
     }
     return EZ_SUCCESS;
   }
 
-  ezResult ParseIgnoreFile(const ezStringView ignoreFilePath)
+  ezResult ParseIgnoreFile(const ezStringView sIgnoreFilePath)
   {
     ezJSONReader jsonReader;
     jsonReader.SetLogInterface(ezLog::GetThreadLocalLogSystem());
 
     ezFileReader reader;
-    ezString sIgnoreFilePath = ignoreFilePath;
     if (reader.Open(sIgnoreFilePath).Failed())
     {
-      ezLog::Error("Failed to open ignore file {0}", ignoreFilePath);
+      ezLog::Error("Failed to open ignore file {0}", sIgnoreFilePath);
       return EZ_FAILURE;
     }
 
@@ -280,9 +279,9 @@ public:
     ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   }
 
-  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& sOut)
+  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& ref_sOut)
   {
-    sOut.Clear();
+    ref_sOut.Clear();
 
     ezFileReader File;
     if (File.Open(szFile) == EZ_FAILURE)
@@ -313,7 +312,7 @@ public:
       return EZ_FAILURE;
     }
 
-    sOut = (const char*)&FileContent[0];
+    ref_sOut = (const char*)&FileContent[0];
 
     return EZ_SUCCESS;
   }
@@ -357,15 +356,15 @@ public:
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
   }
 
-  void CheckInclude(const ezStringBuilder& currentFile, const ezStringBuilder& includePath, ezUInt32 line)
+  void CheckInclude(const ezStringBuilder& sCurrentFile, const ezStringBuilder& sIncludePath, ezUInt32 uiLine)
   {
     ezStringBuilder absIncludePath(m_pStackAllocator.Borrow());
     bool includeOutside = true;
-    if (includePath.IsAbsolutePath())
+    if (sIncludePath.IsAbsolutePath())
     {
       for (auto& includeDir : m_IncludeDirectories)
       {
-        if (includePath.StartsWith(includeDir))
+        if (sIncludePath.StartsWith(includeDir))
         {
           includeOutside = false;
           break;
@@ -375,7 +374,7 @@ public:
     else
     {
       bool includeFound = false;
-      if (includePath.StartsWith("ThirdParty"))
+      if (sIncludePath.StartsWith("ThirdParty"))
       {
         includeOutside = true;
       }
@@ -384,7 +383,7 @@ public:
         for (auto& includeDir : m_IncludeDirectories)
         {
           absIncludePath = includeDir;
-          absIncludePath.AppendPath(includePath);
+          absIncludePath.AppendPath(sIncludePath);
           if (ezOSFile::ExistsFile(absIncludePath))
           {
             includeOutside = false;
@@ -396,9 +395,9 @@ public:
 
     if (includeOutside)
     {
-      ezStringBuilder includeFileLower = includePath.GetFileNameAndExtension();
+      ezStringBuilder includeFileLower = sIncludePath.GetFileNameAndExtension();
       includeFileLower.ToLower();
-      ezStringBuilder currentFileLower = currentFile.GetFileNameAndExtension();
+      ezStringBuilder currentFileLower = sCurrentFile.GetFileNameAndExtension();
       currentFileLower.ToLower();
 
       bool ignore = m_IgnoreTarget.m_byName.Contains(includeFileLower) || m_IgnoreSource.m_byName.Contains(currentFileLower);
@@ -408,17 +407,17 @@ public:
         ezLog::Error("Including '{0}' in {1}:{2} leaks underlying implementation details. Including system or thirdparty headers in public ez header "
                      "files is not allowed. Please use an interface, factory or pimpl pattern to hide the implementation and avoid the include. See "
                      "the Documentation Chapter 'General->Header Files' for details.",
-          includePath.GetView(), currentFile.GetView(), line);
+          sIncludePath.GetView(), sCurrentFile.GetView(), uiLine);
       }
     }
   }
 
-  void CheckHeaderFile(const ezStringBuilder& currentFile)
+  void CheckHeaderFile(const ezStringBuilder& sCurrentFile)
   {
     ezStringBuilder fileContents(m_pStackAllocator.Borrow());
-    ReadEntireFile(currentFile.GetData(), fileContents).IgnoreResult();
+    ReadEntireFile(sCurrentFile.GetData(), fileContents).IgnoreResult();
 
-    auto fileDir = currentFile.GetFileDirectory();
+    auto fileDir = sCurrentFile.GetFileDirectory();
 
     ezStringBuilder internalMacroToken(m_pStackAllocator.Borrow());
     internalMacroToken.Append("EZ_", m_sProjectName, "_INTERNAL_HEADER");
@@ -477,7 +476,7 @@ public:
             }
             else if (!isInternalHeader)
             {
-              CheckInclude(currentFile, absIncludePath, includeToken.m_uiLine);
+              CheckInclude(sCurrentFile, absIncludePath, includeToken.m_uiLine);
             }
           }
           else if (curToken.m_iType == ezTokenType::NonIdentifier && curToken.m_DataView == openAngleBracket)
@@ -490,7 +489,7 @@ public:
               curToken = tokens[++i];
               if (curToken.m_iType == ezTokenType::Newline)
               {
-                ezLog::Error("Non-terminated '<' in #include {0} line {1}", currentFile.GetView(), includeToken.m_uiLine);
+                ezLog::Error("Non-terminated '<' in #include {0} line {1}", sCurrentFile.GetView(), includeToken.m_uiLine);
                 error = true;
                 break;
               }
@@ -509,13 +508,13 @@ public:
               ezStringBuilder includePath(m_pStackAllocator.Borrow());
               includePath = ezStringView(startToken.m_DataView.GetEndPointer(), curToken.m_DataView.GetStartPointer());
               includePath.MakeCleanPath();
-              CheckInclude(currentFile, includePath, startToken.m_uiLine);
+              CheckInclude(sCurrentFile, includePath, startToken.m_uiLine);
             }
           }
           else
           {
             // error
-            ezLog::Error("Can not parse #include statement in {0} line {1}", currentFile.GetView(), includeToken.m_uiLine);
+            ezLog::Error("Can not parse #include statement in {0} line {1}", sCurrentFile.GetView(), includeToken.m_uiLine);
           }
         }
         else

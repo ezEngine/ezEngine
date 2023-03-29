@@ -23,6 +23,7 @@ void OnLoadPlugin()
       ezStandardMenus::MapActions("ParticleEffectAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezProjectActions::MapActions("ParticleEffectAssetMenuBar");
       ezDocumentActions::MapActions("ParticleEffectAssetMenuBar", "Menu.File", false);
+      ezAssetActions::MapMenuActions("ParticleEffectAssetMenuBar", "Menu.File");
       ezCommandHistoryActions::MapActions("ParticleEffectAssetMenuBar", "Menu.Edit");
     }
 
@@ -31,7 +32,7 @@ void OnLoadPlugin()
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("ParticleEffectAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("ParticleEffectAssetToolBar", "");
-      ezAssetActions::MapActions("ParticleEffectAssetToolBar", true);
+      ezAssetActions::MapToolBarActions("ParticleEffectAssetToolBar", true);
       ezParticleActions::MapActions("ParticleEffectAssetToolBar", "");
     }
 

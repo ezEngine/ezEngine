@@ -49,13 +49,13 @@ ezStateMachineState_SendMsg::ezStateMachineState_SendMsg(ezStringView sName)
 
 ezStateMachineState_SendMsg::~ezStateMachineState_SendMsg() = default;
 
-void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
 {
   ezHashedString sFromState = (pFromState != nullptr) ? pFromState->GetNameHashed() : ezHashedString();
 
   if (m_bSendMessageOnEnter)
   {
-    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
+    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
     {
       ezMsgStateMachineStateChanged msg;
       msg.m_sOldStateName = sFromState;
@@ -71,13 +71,13 @@ void ezStateMachineState_SendMsg::OnEnter(ezStateMachineInstance& instance, void
   }
 }
 
-void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& instance, void* pInstanceData, const ezStateMachineState* pToState) const
+void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pToState) const
 {
   ezHashedString sToState = (pToState != nullptr) ? pToState->GetNameHashed() : ezHashedString();
 
   if (m_bSendMessageOnExit)
   {
-    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&instance.GetOwner()))
+    if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
     {
       ezMsgStateMachineStateChanged msg;
       msg.m_sOldStateName = GetNameHashed();
@@ -93,27 +93,91 @@ void ezStateMachineState_SendMsg::OnExit(ezStateMachineInstance& instance, void*
   }
 }
 
-ezResult ezStateMachineState_SendMsg::Serialize(ezStreamWriter& stream) const
+ezResult ezStateMachineState_SendMsg::Serialize(ezStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
 
-  stream << m_MessageDelay;
-  stream << m_bSendMessageOnEnter;
-  stream << m_bSendMessageOnExit;
-  stream << m_bLogOnEnter;
-  stream << m_bLogOnExit;
+  inout_stream << m_MessageDelay;
+  inout_stream << m_bSendMessageOnEnter;
+  inout_stream << m_bSendMessageOnExit;
+  inout_stream << m_bLogOnEnter;
+  inout_stream << m_bLogOnExit;
   return EZ_SUCCESS;
 }
 
-ezResult ezStateMachineState_SendMsg::Deserialize(ezStreamReader& stream)
+ezResult ezStateMachineState_SendMsg::Deserialize(ezStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
 
-  stream >> m_MessageDelay;
-  stream >> m_bSendMessageOnEnter;
-  stream >> m_bSendMessageOnExit;
-  stream >> m_bLogOnEnter;
-  stream >> m_bLogOnExit;
+  inout_stream >> m_MessageDelay;
+  inout_stream >> m_bSendMessageOnEnter;
+  inout_stream >> m_bSendMessageOnExit;
+  inout_stream >> m_bLogOnEnter;
+  inout_stream >> m_bLogOnExit;
+  return EZ_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_SwitchObject, 1, ezRTTIDefaultAllocator<ezStateMachineState_SwitchObject>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("PathToGroup", m_sGroupPath),
+    EZ_MEMBER_PROPERTY("ObjectToEnable", m_sObjectToEnable),
+    EZ_MEMBER_PROPERTY("DeactivateOthers", m_bDeactivateOthers)->AddAttributes(new ezDefaultValueAttribute(true)),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezStateMachineState_SwitchObject::ezStateMachineState_SwitchObject(ezStringView sName)
+  : ezStateMachineState(sName)
+{
+}
+
+ezStateMachineState_SwitchObject::~ezStateMachineState_SwitchObject() = default;
+
+void ezStateMachineState_SwitchObject::OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const
+{
+  if (auto pOwner = ezDynamicCast<ezStateMachineComponent*>(&ref_instance.GetOwner()))
+  {
+    if (ezGameObject* pOwnerGO = pOwner->GetOwner()->FindChildByPath(m_sGroupPath))
+    {
+      for (auto it = pOwnerGO->GetChildren(); it.IsValid(); ++it)
+      {
+        if (it->GetName() == m_sObjectToEnable)
+        {
+          it->SetActiveFlag(true);
+        }
+        else if (m_bDeactivateOthers)
+        {
+          it->SetActiveFlag(false);
+        }
+      }
+    }
+  }
+}
+
+ezResult ezStateMachineState_SwitchObject::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+
+  inout_stream << m_sGroupPath;
+  inout_stream << m_sObjectToEnable;
+  inout_stream << m_bDeactivateOthers;
+  return EZ_SUCCESS;
+}
+
+ezResult ezStateMachineState_SwitchObject::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+
+  inout_stream >> m_sGroupPath;
+  inout_stream >> m_sObjectToEnable;
+  inout_stream >> m_bDeactivateOthers;
   return EZ_SUCCESS;
 }
 
@@ -185,12 +249,13 @@ void ezStateMachineComponentManager::ResourceEventHandler(const ezResourceEvent&
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine")),
+    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_StateMachine", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("InitialState", GetInitialState, SetInitialState),
+    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName),
   }
   EZ_END_PROPERTIES;
 
@@ -208,7 +273,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 1, ezComponentMode::Static)
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new ezCategoryAttribute("Gameplay/Logic"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -221,24 +286,30 @@ ezStateMachineComponent::ezStateMachineComponent(ezStateMachineComponent&& other
 ezStateMachineComponent::~ezStateMachineComponent() = default;
 ezStateMachineComponent& ezStateMachineComponent::operator=(ezStateMachineComponent&& other) = default;
 
-void ezStateMachineComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezStateMachineComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hResource;
   s << m_sInitialState;
+  s << m_sBlackboardName;
 }
 
-void ezStateMachineComponent::DeserializeComponent(ezWorldReader& stream)
+void ezStateMachineComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hResource;
   s >> m_sInitialState;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_sBlackboardName;
+  }
 }
 
 void ezStateMachineComponent::OnActivated()
@@ -305,6 +376,22 @@ void ezStateMachineComponent::SetInitialState(const char* szName)
   }
 }
 
+void ezStateMachineComponent::SetBlackboardName(const char* szName)
+{
+  ezHashedString sBlackboardName;
+  sBlackboardName.Assign(szName);
+
+  if (m_sBlackboardName == sBlackboardName)
+    return;
+
+  m_sBlackboardName = sBlackboardName;
+
+  if (IsActiveAndInitialized())
+  {
+    InstantiateStateMachine();
+  }
+}
+
 bool ezStateMachineComponent::SetState(ezStringView sName)
 {
   if (m_pStateMachineInstance != nullptr)
@@ -317,6 +404,7 @@ bool ezStateMachineComponent::SetState(ezStringView sName)
 
   return false;
 }
+
 
 void ezStateMachineComponent::SendStateChangedMsg(ezMsgStateMachineStateChanged& msg, ezTime delay)
 {
@@ -345,7 +433,7 @@ void ezStateMachineComponent::InstantiateStateMachine()
   }
 
   m_pStateMachineInstance = pStateMachineResource->CreateInstance(*this);
-  m_pStateMachineInstance->SetBlackboard(ezBlackboardComponent::FindBlackboard(GetOwner()));
+  m_pStateMachineInstance->SetBlackboard(ezBlackboardComponent::FindBlackboard(GetOwner(), m_sBlackboardName.GetView()));
   m_pStateMachineInstance->SetStateOrFallback(m_sInitialState).IgnoreResult();
 }
 
@@ -356,3 +444,6 @@ void ezStateMachineComponent::Update()
     m_pStateMachineInstance->Update(GetWorld()->GetClock().GetTimeDiff());
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineComponent);

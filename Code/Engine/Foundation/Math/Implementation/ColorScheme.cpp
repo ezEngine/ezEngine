@@ -215,3 +215,6 @@ ezColor ezColorScheme::GetColor(float fIndex, ezUInt8 uiBrightness, float fSatur
   const float l = c.GetLuminance();
   return ezMath::Lerp(ezColor(l, l, l), c, fSaturation).WithAlpha(fAlpha);
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_ColorScheme);

@@ -16,11 +16,11 @@ class ezThread;
 class EZ_FOUNDATION_DLL ezProfilingScope
 {
 public:
-  ezProfilingScope(const char* szName, const char* szFunctionName, ezTime timeout);
+  ezProfilingScope(ezStringView sName, const char* szFunctionName, ezTime timeout);
   ~ezProfilingScope();
 
 protected:
-  const char* m_szName;
+  ezStringView m_sName;
   const char* m_szFunction;
   ezTime m_BeginTime;
   ezTime m_Timeout;
@@ -37,21 +37,21 @@ protected:
 class ezProfilingListScope
 {
 public:
-  EZ_FOUNDATION_DLL ezProfilingListScope(const char* szListName, const char* szFirstSectionName, const char* szFunctionName);
+  EZ_FOUNDATION_DLL ezProfilingListScope(ezStringView sListName, ezStringView sFirstSectionName, const char* szFunctionName);
   EZ_FOUNDATION_DLL ~ezProfilingListScope();
 
-  EZ_FOUNDATION_DLL static void StartNextSection(const char* szNextSectionName);
+  EZ_FOUNDATION_DLL static void StartNextSection(ezStringView sNextSectionName);
 
 protected:
   static thread_local ezProfilingListScope* s_pCurrentList;
 
   ezProfilingListScope* m_pPreviousList;
 
-  const char* m_szListName;
+  ezStringView m_sListName;
   const char* m_szListFunction;
   ezTime m_ListBeginTime;
 
-  const char* m_szCurSectionName;
+  ezStringView m_sCurSectionName;
   ezTime m_CurSectionBeginTime;
 };
 
@@ -111,23 +111,23 @@ public:
     ezDynamicArray<ezDynamicArray<GPUScope>> m_GPUScopes;
 
     /// \brief Writes profiling data as JSON to the output stream.
-    ezResult Write(ezStreamWriter& outputStream) const;
+    ezResult Write(ezStreamWriter& ref_outputStream) const;
 
     void Clear();
 
     /// \brief Concatenates all given ProfilingData instances into one merge struct
-    static void Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs);
+    static void Merge(ProfilingData& out_merged, ezArrayPtr<const ProfilingData*> inputs);
   };
 
 public:
   static void Clear();
 
-  static void Capture(ezProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture = false);
+  static void Capture(ezProfilingSystem::ProfilingData& out_capture, bool bClearAfterCapture = false);
 
   /// \brief Scopes are discarded if their duration is shorter than the specified threshold. Default is 0.1ms.
   static void SetDiscardThreshold(ezTime threshold);
 
-  using ScopeTimeoutDelegate = ezDelegate<void(const char* szName, const char* szFunctionName, ezTime duration)>;
+  using ScopeTimeoutDelegate = ezDelegate<void(ezStringView sName, ezStringView sFunctionName, ezTime duration)>;
 
   /// \brief Sets a callback that is triggered when a profiling scope takes longer than desired.
   static void SetScopeTimeoutCallback(ScopeTimeoutDelegate callback);
@@ -136,7 +136,7 @@ public:
   static void StartNewFrame();
 
   /// \brief Adds a new scoped event for the calling thread in the profiling system
-  static void AddCPUScope(const char* szName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout);
+  static void AddCPUScope(ezStringView sName, const char* szFunctionName, ezTime beginTime, ezTime endTime, ezTime scopeTimeout);
 
   /// \brief Get current frame counter
   static ezUInt64 GetFrameCount();
@@ -150,17 +150,17 @@ private:
   static void Reset();
 
   /// \brief Sets the name of the current thread.
-  static void SetThreadName(const char* szThreadName);
+  static void SetThreadName(ezStringView sThreadName);
   /// \brief Removes the current thread from the profiling system.
   ///  Needs to be called before the thread exits to be able to release profiling memory of dead threads on Reset.
   static void RemoveThread();
 
 public:
   /// \brief Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
-  static void InitializeGPUData(ezUInt32 gpuCount = 1);
+  static void InitializeGPUData(ezUInt32 uiGpuCount = 1);
 
   /// \brief Adds a GPU profiling scope in the internal event ringbuffer.
-  static void AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime, ezUInt32 gpuIndex = 0);
+  static void AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 uiGpuIndex = 0);
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)

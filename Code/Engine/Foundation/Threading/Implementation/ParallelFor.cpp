@@ -3,7 +3,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 
 /// \brief This is a helper class that splits up task items via index ranges.
-template<typename IndexType, typename Callback>
+template <typename IndexType, typename Callback>
 class IndexedTask final : public ezTask
 {
 public:
@@ -26,6 +26,8 @@ public:
     const IndexType uiSliceStartIndex = uiInvocation * m_uiItemsPerInvocation;
     const IndexType uiSliceEndIndex = ezMath::Min(uiSliceStartIndex + m_uiItemsPerInvocation, m_uiStartIndex + m_uiNumItems);
 
+    EZ_ASSERT_DEV(uiSliceStartIndex < uiSliceEndIndex, "ParallelFor start/end indices given to index task are invalid: {} -> {}", uiSliceStartIndex, uiSliceEndIndex);
+
     // Run through the calculated slice, the end index is exclusive, i.e., should not be handled by this instance.
     m_TaskCallback(uiSliceStartIndex, uiSliceEndIndex);
   }
@@ -38,32 +40,35 @@ private:
 };
 
 template <typename IndexType, typename Callback>
-void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, const Callback& taskCallback, const char* taskName, const ezParallelForParams& params)
+void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, const Callback& taskCallback, const char* szTaskName, const ezParallelForParams& params)
 {
   typedef IndexedTask<IndexType, Callback> Task;
 
-  if (!taskName)
+  if (!szTaskName)
   {
-    taskName = "Generic Indexed Task";
+    szTaskName = "Generic Indexed Task";
   }
 
-  const ezUInt32 uiMultiplicity = params.DetermineMultiplicity(uiNumItems);
-  const IndexType uiItemsPerInvocation = params.DetermineItemsPerInvocation(uiNumItems, uiMultiplicity);
-
-  if (uiMultiplicity == 0)
+  if (uiNumItems <= params.m_uiBinSize)
   {
-    Task indexedTask(uiStartIndex, uiNumItems, std::move(taskCallback), uiItemsPerInvocation);
-    indexedTask.ConfigureTask(taskName, ezTaskNesting::Never);
+    // If we have not exceeded the threading threshold we use serial execution
 
-    EZ_PROFILE_SCOPE(taskName);
+    Task indexedTask(uiStartIndex, uiNumItems, std::move(taskCallback), uiNumItems);
+    indexedTask.ConfigureTask(szTaskName, ezTaskNesting::Never);
+
+    EZ_PROFILE_SCOPE(szTaskName);
     indexedTask.Execute();
   }
   else
   {
-    ezAllocatorBase* pAllocator = (params.pTaskAllocator != nullptr) ? params.pTaskAllocator : ezFoundation::GetDefaultAllocator();
+    ezUInt32 uiMultiplicity;
+    ezUInt64 uiItemsPerInvocation;
+    params.DetermineThreading(uiNumItems, uiMultiplicity, uiItemsPerInvocation);
 
-    ezSharedPtr<Task> pIndexedTask = EZ_NEW(pAllocator, Task, uiStartIndex, uiNumItems, std::move(taskCallback), uiItemsPerInvocation);
-    pIndexedTask->ConfigureTask(taskName, ezTaskNesting::Never);
+    ezAllocatorBase* pAllocator = (params.m_pTaskAllocator != nullptr) ? params.m_pTaskAllocator : ezFoundation::GetDefaultAllocator();
+
+    ezSharedPtr<Task> pIndexedTask = EZ_NEW(pAllocator, Task, uiStartIndex, uiNumItems, std::move(taskCallback), static_cast<IndexType>(uiItemsPerInvocation));
+    pIndexedTask->ConfigureTask(szTaskName, ezTaskNesting::Never);
 
     pIndexedTask->SetMultiplicity(uiMultiplicity);
     ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(pIndexedTask, ezTaskPriority::EarlyThisFrame);
@@ -71,74 +76,67 @@ void ParallelForIndexedInternal(IndexType uiStartIndex, IndexType uiNumItems, co
   }
 }
 
-ezUInt32 ezParallelForParams::DetermineMultiplicity(ezUInt64 uiNumTaskItems) const
+void ezParallelForParams::DetermineThreading(ezUInt64 uiNumItemsToExecute, ezUInt32& out_uiNumTasksToRun, ezUInt64& out_uiNumItemsPerTask) const
 {
-  // If we have not exceeded the threading threshold we will indicate to use serial execution.
-  if (uiNumTaskItems < uiBinSize)
-  {
-    return 0;
-  }
+  // we create a single task, but we set it's multiplicity to M (= out_uiNumTasksToRun)
+  // so that it gets scheduled M times, which is effectively the same as creating M tasks
 
-  const ezUInt32 uiNumWorkers = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks);
-  // The slice size gives the number of items that can be processed when giving exactly uiBinSize
-  // task items to each worker.
-  const ezUInt32 uiSliceSize = uiNumWorkers * uiBinSize;
+  const ezUInt32 uiNumWorkerThreads = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks);
+  const ezUInt64 uiMaxTasksToUse = uiNumWorkerThreads * m_uiMaxTasksPerThread;
+  const ezUInt64 uiMaxExecutionsRequired = ezMath::Max(1llu, uiNumItemsToExecute / m_uiBinSize);
 
-  // Needing at most #_workers threads.
-  if (uiNumTaskItems <= uiSliceSize)
+  if (uiMaxExecutionsRequired >= uiMaxTasksToUse)
   {
-    // Fill up each thread with at most uiBinSize task items.
-    const ezUInt64 numThreads = (uiNumTaskItems + uiBinSize - 1) / uiBinSize;
-    EZ_ASSERT_DEV(numThreads <= uiNumWorkers, "");
-    EZ_ASSERT_DEV(numThreads < (1ull << 32), "");
-    return (ezUInt32)numThreads;
+    // if we have more items to execute, than the upper limit of tasks that we want to spawn, clamp the number of tasks
+    // and give each task more items to do
+    out_uiNumTasksToRun = uiMaxTasksToUse & 0xFFFFFFFF;
   }
-  // Needing at most #_workers * threading_factor threads.
-  else if (uiNumTaskItems <= uiSliceSize * uiMaxTasksPerThread)
-  {
-    const ezUInt64 uiNumSlices = (uiNumTaskItems + uiSliceSize - 1) / uiSliceSize;
-    EZ_ASSERT_DEV(uiNumSlices <= uiMaxTasksPerThread, "");
-    const ezUInt64 result = uiNumSlices * uiNumWorkers;
-    EZ_ASSERT_DEV(result < (1ull << 32), "");
-    return (ezUInt32)result;
-  }
-  // Needing more than #_workers * threading_factor threads --> clamp to that number.
   else
   {
-    const ezUInt64 result = uiNumWorkers * uiMaxTasksPerThread;
-    EZ_ASSERT_DEV(result < (1ull << 32), "");
-    return (ezUInt32)result;
+    // if we want to execute fewer items than we have tasks available, just run exactly as many tasks as we have items
+    out_uiNumTasksToRun = uiMaxExecutionsRequired & 0xFFFFFFFF;
   }
-}
 
-ezUInt64 ezParallelForParams::DetermineItemsPerInvocation(ezUInt64 uiNumTaskItems, ezUInt32 uiMultiplicity) const
-{
-  if (uiMultiplicity == 0)
+  // now that we determined the number of tasks to run, compute how much each task should do
+  out_uiNumItemsPerTask = uiNumItemsToExecute / out_uiNumTasksToRun;
+
+  // due to rounding down in the line above, it can happen that we would execute too few tasks
+  if (out_uiNumItemsPerTask * out_uiNumTasksToRun < uiNumItemsToExecute)
   {
-    return uiNumTaskItems;
+    // to fix this, either do one more task invocation, or one more item per task
+    if (out_uiNumItemsPerTask * (out_uiNumTasksToRun + 1) >= uiNumItemsToExecute)
+    {
+      ++out_uiNumTasksToRun;
+
+      // though with one more task we may execute too many items, so if possible reduce the number of items that each task executes
+      while ((out_uiNumItemsPerTask - 1) * out_uiNumTasksToRun >= uiNumItemsToExecute)
+      {
+        --out_uiNumItemsPerTask;
+      }
+    }
+    else
+    {
+      ++out_uiNumItemsPerTask;
+
+      // though if every task executes one more item, we may execute too many items, so if possible reduce the number of tasks again
+      while (out_uiNumItemsPerTask * (out_uiNumTasksToRun - 1) >= uiNumItemsToExecute)
+      {
+        --out_uiNumTasksToRun;
+      }
+    }
+
+    EZ_ASSERT_DEV(out_uiNumItemsPerTask * out_uiNumTasksToRun >= uiNumItemsToExecute, "ezParallelFor is missing invocations");
   }
-
-  const ezUInt64 uiItemsPerInvocation = (uiNumTaskItems + uiMultiplicity - 1) / uiMultiplicity;
-  return uiItemsPerInvocation;
 }
 
-ezUInt32 ezParallelForParams::DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity) const
+void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback, const char* szTaskName, const ezParallelForParams& params)
 {
-  const ezUInt64 result = DetermineItemsPerInvocation(ezUInt64(uiNumTaskItems), uiMultiplicity);
-  EZ_ASSERT_DEV(result < (1ull << 32), "");
-  return (ezUInt32)result;
+  ParallelForIndexedInternal<ezUInt32, ezParallelForIndexedFunction32>(uiStartIndex, uiNumItems, taskCallback, szTaskName, params);
 }
 
-void ezTaskSystem::ParallelForIndexed(
-  ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction32 taskCallback, const char* taskName, const ezParallelForParams& params)
+void ezTaskSystem::ParallelForIndexed(ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback, const char* szTaskName, const ezParallelForParams& params)
 {
-  ParallelForIndexedInternal<ezUInt32, ezParallelForIndexedFunction32>(uiStartIndex, uiNumItems, taskCallback, taskName, params);
-}
-
-void ezTaskSystem::ParallelForIndexed(
-  ezUInt64 uiStartIndex, ezUInt64 uiNumItems, ezParallelForIndexedFunction64 taskCallback, const char* taskName, const ezParallelForParams& params)
-{
-  ParallelForIndexedInternal<ezUInt64, ezParallelForIndexedFunction64>(uiStartIndex, uiNumItems, taskCallback, taskName, params);
+  ParallelForIndexedInternal<ezUInt64, ezParallelForIndexedFunction64>(uiStartIndex, uiNumItems, taskCallback, szTaskName, params);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ParallelFor);

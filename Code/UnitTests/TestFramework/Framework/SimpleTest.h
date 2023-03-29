@@ -15,7 +15,7 @@ public:
   {
   }
 
-  void AddSimpleTest(const char* szName, SimpleTestFunc TestFunc);
+  void AddSimpleTest(const char* szName, SimpleTestFunc testFunc);
 
   virtual const char* GetTestName() const override { return m_szTestName; }
 
@@ -41,11 +41,11 @@ class EZ_TEST_DLL ezRegisterSimpleTestHelper : public ezEnumerable<ezRegisterSim
   EZ_DECLARE_ENUMERABLE_CLASS(ezRegisterSimpleTestHelper);
 
 public:
-  ezRegisterSimpleTestHelper(ezSimpleTestGroup* pTestGroup, const char* szTestName, ezSimpleTestGroup::SimpleTestFunc Func)
+  ezRegisterSimpleTestHelper(ezSimpleTestGroup* pTestGroup, const char* szTestName, ezSimpleTestGroup::SimpleTestFunc func)
   {
     m_pTestGroup = pTestGroup;
     m_szTestName = szTestName;
-    m_Func = Func;
+    m_Func = func;
   }
 
   void RegisterTest() { m_pTestGroup->AddSimpleTest(m_szTestName, m_Func); }

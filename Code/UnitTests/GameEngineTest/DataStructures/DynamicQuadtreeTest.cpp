@@ -9,13 +9,13 @@ namespace DynamicQuadtreeTestDetail
   static bool g_bFoundSearched = false;
   static ezUInt32 g_iReturned = 0;
 
-  static bool ObjectFound(void* pPassThrough, ezDynamicTreeObjectConst Object)
+  static bool ObjectFound(void* pPassThrough, ezDynamicTreeObjectConst object)
   {
     EZ_TEST_BOOL(pPassThrough == nullptr);
 
     ++g_iReturned;
 
-    if (Object.Value().m_iObjectInstance == g_iSearchInstance)
+    if (object.Value().m_iObjectInstance == g_iSearchInstance)
       g_bFoundSearched = true;
 
     // let it give us all the objects in range and count how many that are

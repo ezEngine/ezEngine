@@ -21,7 +21,7 @@ public:
   void CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc);
 
   virtual void Present(bool bEnableVSync) override;
-  virtual ezResult CaptureImage(ezImage& out_Image) override;
+  virtual ezResult CaptureImage(ezImage& out_image) override;
 
   OnSwapChainChanged m_OnSwapChainChanged;
   ezSizeU32 m_Size = ezSizeU32(0, 0);

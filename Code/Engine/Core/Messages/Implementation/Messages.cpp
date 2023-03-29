@@ -32,7 +32,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage)
+    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
+    EZ_MEMBER_PROPERTY("Payload", m_iPayload),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -66,6 +67,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetPlaying, 1, ezRTTIDefaultAllocator<ezMsg
   }
   EZ_END_ATTRIBUTES;
 }
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgParentChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgParentChanged, 1, ezRTTIDefaultAllocator<ezMsgParentChanged>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////

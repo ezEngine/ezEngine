@@ -11,7 +11,6 @@ class ezQtAnimationControllerAssetScene : public ezQtNodeScene
   Q_OBJECT
 
 public:
-  ezQtAnimationControllerAssetScene(QObject* parent = nullptr);
+  ezQtAnimationControllerAssetScene(QObject* pParent = nullptr);
   ~ezQtAnimationControllerAssetScene();
 };
-

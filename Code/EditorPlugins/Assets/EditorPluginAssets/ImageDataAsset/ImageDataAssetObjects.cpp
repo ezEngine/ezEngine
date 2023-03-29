@@ -7,7 +7,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImageDataAssetProperties, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Input", m_sInputFile)->AddAttributes(new ezFileBrowserAttribute("Select Image", "*.dds;*.tga;*.png;*.jpg;*.jpeg;*.hdr"))
+    EZ_MEMBER_PROPERTY("Input", m_sInputFile)->AddAttributes(new ezFileBrowserAttribute("Select Image", ezFileBrowserAttribute::ImagesLdrAndHdr))
   }
   EZ_END_PROPERTIES;
 }

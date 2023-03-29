@@ -21,8 +21,8 @@ public:
   const ezHybridArray<ezParticleEventReactionFactory*, 4>& GetEventReactions() const { return m_EventReactions; }
 
 
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  void Load(ezStreamReader& inout_stream);
 
   void ClearSystems();
   void ClearEventReactions();

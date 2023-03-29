@@ -86,7 +86,7 @@ public:
   ///@{
 
   /// \brief Tries to connect to the remote device.
-  virtual ezResult Connect(const char* remoteHostName, uint16_t remotePort = 8265, bool enableAudio = true, int maxBitrateKbps = 20000) = 0;
+  virtual ezResult Connect(const char* szRemoteHostName, uint16_t remotePort = 8265, bool bEnableAudio = true, int iMaxBitrateKbps = 20000) = 0;
   /// \brief Disconnects from the remote device.
   virtual ezResult Disconnect() = 0;
   /// \brief Get the current connection state to the remote device.

@@ -45,24 +45,24 @@ public:
   virtual bool HasLabel() const { return true; }
 
   /// \brief The return value is used to display a label, if HasLabel() returns true.
-  virtual const char* GetLabel() const { return m_pProp->GetPropertyName(); }
+  virtual const char* GetLabel(ezStringBuilder& ref_sTmp) const;
 
-  virtual void ExtendContextMenu(QMenu& menu);
+  virtual void ExtendContextMenu(QMenu& ref_menu);
 
   /// \brief Whether the variable that the widget represents is currently set to the default value or has been modified.
-  virtual void SetIsDefault(bool isDefault) { m_bIsDefault = isDefault; }
+  virtual void SetIsDefault(bool bIsDefault) { m_bIsDefault = bIsDefault; }
 
   /// \brief If the property is of type ezVariant this function returns whether all items have the same type.
   /// If true is returned, out_Type contains the common type. Note that 'invalid' can be a common type.
   bool GetCommonVariantSubType(
-    const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_Type);
+    const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_type);
 
   ezVariant GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty);
   void PrepareToDie();
 
 public:
   static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items);
-  static QColor SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& palette);
+  static QColor SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& ref_palette);
 
 public Q_SLOTS:
   void OnCustomContextMenu(const QPoint& pt);
@@ -76,6 +76,8 @@ protected:
 
 protected:
   virtual void DoPrepareToDie() = 0;
+
+  virtual bool eventFilter(QObject* pWatched, QEvent* pEvent) override;
 
   ezQtPropertyGridWidget* m_pGrid = nullptr;
   ezObjectAccessorBase* m_pObjectAccessor = nullptr;
@@ -175,7 +177,7 @@ public:
 
   virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
-  virtual void SetIsDefault(bool isDefault) override;
+  virtual void SetIsDefault(bool bIsDefault) override;
 
 protected:
   virtual void OnInit() override;
@@ -231,11 +233,11 @@ public:
 
   virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
-  virtual void SetIsDefault(bool isDefault) override;
+  virtual void SetIsDefault(bool bIsDefault) override;
 
 public Q_SLOTS:
   void OnElementButtonClicked();
-  void OnDragStarted(QMimeData& mimeData);
+  void OnDragStarted(QMimeData& ref_mimeData);
   void OnContainerContextMenu(const QPoint& pt);
   void OnCustomElementContextMenu(const QPoint& pt);
 
@@ -339,7 +341,7 @@ public:
   virtual ~ezQtVariantPropertyWidget();
 
   virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
-  virtual void ExtendContextMenu(QMenu& menu) override;
+  virtual void ExtendContextMenu(QMenu& ref_menu) override;
 
 protected:
   virtual void OnInit() override{};

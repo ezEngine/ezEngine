@@ -45,11 +45,11 @@ ezUInt64 ezAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformPro
   return 0;
 }
 
-ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& stream) const
+ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& inout_stream) const
 {
   ezAbstractObjectGraph graph;
 
-  if (ezAbstractGraphDdlSerializer::ReadHeader(stream, &graph).Failed())
+  if (ezAbstractGraphDdlSerializer::ReadHeader(inout_stream, &graph).Failed())
     return ezStatus("Failed to read asset document");
 
   ezRttiConverterContext context;
@@ -107,7 +107,7 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
   return thumbnailInfo.IsThumbnailUpToDate(uiThumbnailHash, uiTypeVersion);
 }
 
-void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const {}
+void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const {}
 
 ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
@@ -127,12 +127,12 @@ ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const ezAssetDocument
 
 ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
-  const ezPlatformProfile* sPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
+  const ezPlatformProfile* pPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
   EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
 
   ezStringBuilder sRelativePath(szDocumentPath);
   sRelativePath.MakeRelativeTo(szDataDirectory).IgnoreResult();
-  GenerateOutputFilename(sRelativePath, sPlatform, pTypeDesc->m_sResourceFileExtension, GeneratesProfileSpecificAssets());
+  GenerateOutputFilename(sRelativePath, pPlatform, pTypeDesc->m_sResourceFileExtension, GeneratesProfileSpecificAssets());
 
   return sRelativePath;
 }
@@ -217,7 +217,10 @@ void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRela
   inout_sRelativeDocumentPath.MakeCleanPath();
 
   if (bPlatformSpecific)
-    inout_sRelativeDocumentPath.Prepend(pAssetProfile->GetConfigName(), "/");
+  {
+    const ezPlatformProfile* pPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
+    inout_sRelativeDocumentPath.Prepend(pPlatform->GetConfigName(), "/");
+  }
   else
     inout_sRelativeDocumentPath.Prepend("Common/");
 }

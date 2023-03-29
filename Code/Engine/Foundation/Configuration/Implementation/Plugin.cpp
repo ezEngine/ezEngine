@@ -15,8 +15,8 @@
 #  error "Plugins not implemented on this Platform."
 #endif
 
-ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile);
-ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, const char* szPluginFile);
+ezResult UnloadPluginModule(ezPluginModule& ref_pModule, const char* szPluginFile);
+ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& ref_pModule, const char* szPluginFile);
 
 struct ModuleData
 {
@@ -51,15 +51,15 @@ void ezPlugin::InitializeStaticallyLinkedPlugins()
   g_StaticModule.Initialize();
 }
 
-void ezPlugin::GetAllPluginInfos(ezDynamicArray<PluginInfo>& infos)
+void ezPlugin::GetAllPluginInfos(ezDynamicArray<PluginInfo>& ref_infos)
 {
-  infos.Clear();
+  ref_infos.Clear();
 
-  infos.Reserve(g_LoadedModules.GetCount());
+  ref_infos.Reserve(g_LoadedModules.GetCount());
 
   for (auto mod : g_LoadedModules)
   {
-    auto& pi = infos.ExpandAndGetRef();
+    auto& pi = ref_infos.ExpandAndGetRef();
     pi.m_sName = mod.Key();
     pi.m_sDependencies = mod.Value().m_sPluginDependencies;
     pi.m_LoadFlags = mod.Value().m_LoadFlags;
@@ -358,14 +358,14 @@ const ezCopyOnBroadcastEvent<const ezPluginEvent&>& ezPlugin::Events()
   return s_PluginEvents;
 }
 
-ezPlugin::Init::Init(ezPluginInitCallback OnLoadOrUnloadCB, bool bOnLoad)
+ezPlugin::Init::Init(ezPluginInitCallback onLoadOrUnloadCB, bool bOnLoad)
 {
   ModuleData* pMD = g_pCurrentlyLoadingModule ? g_pCurrentlyLoadingModule : &g_StaticModule;
 
   if (bOnLoad)
-    pMD->m_OnLoadCB.PushBack(OnLoadOrUnloadCB);
+    pMD->m_OnLoadCB.PushBack(onLoadOrUnloadCB);
   else
-    pMD->m_OnUnloadCB.PushBack(OnLoadOrUnloadCB);
+    pMD->m_OnUnloadCB.PushBack(onLoadOrUnloadCB);
 }
 
 ezPlugin::Init::Init(const char* szAddPluginDependency)

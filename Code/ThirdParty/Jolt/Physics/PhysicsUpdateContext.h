@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -52,7 +53,7 @@ public:
 
 			Vec3			mDeltaPosition;											///< Desired rotation step
 			Vec3			mContactNormal;											///< World space normal of closest hit (only valid if mFractionPlusSlop < 1)
-			Vec3			mContactPointOn2;										///< World space contact point on body 2 of closest hit (only valid if mFractionPlusSlop < 1)
+			RVec3			mContactPointOn2;										///< World space contact point on body 2 of closest hit (only valid if mFractionPlusSlop < 1)
 			BodyID			mBodyID1;												///< Body 1 (the body that is performing collision detection)
 			BodyID			mBodyID2;												///< Body 2 (the body of the closest hit, only valid if mFractionPlusSlop < 1)
 			float			mFraction = 1.0f;										///< Fraction at which the hit occurred
@@ -159,6 +160,7 @@ public:
 	float					mStepDeltaTime;											///< Delta time for a simulation step (collision step)
 	float					mSubStepDeltaTime;										///< Delta time for a simulation sub step (integration step)
 	float					mWarmStartImpulseRatio;									///< Ratio of this step delta time vs last step
+	bool					mUseLargeIslandSplitter;								///< If true, use large island splitting
 
 	Constraint **			mActiveConstraints = nullptr;							///< Constraints that were active at the start of the physics update step (activating bodies can activate constraints and we need a consistent snapshot). Only these constraints will be resolved.
 

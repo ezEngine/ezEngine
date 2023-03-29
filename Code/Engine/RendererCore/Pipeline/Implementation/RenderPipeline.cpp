@@ -98,23 +98,23 @@ void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
   }
 }
 
-void ezRenderPipeline::GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const
+void ezRenderPipeline::GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& ref_passes) const
 {
-  passes.Reserve(m_Passes.GetCount());
+  ref_passes.Reserve(m_Passes.GetCount());
 
   for (auto& pPass : m_Passes)
   {
-    passes.PushBack(pPass.Borrow());
+    ref_passes.PushBack(pPass.Borrow());
   }
 }
 
-void ezRenderPipeline::GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes)
+void ezRenderPipeline::GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& ref_passes)
 {
-  passes.Reserve(m_Passes.GetCount());
+  ref_passes.Reserve(m_Passes.GetCount());
 
   for (auto& pPass : m_Passes)
   {
-    passes.PushBack(pPass.Borrow());
+    ref_passes.PushBack(pPass.Borrow());
   }
 }
 
@@ -598,8 +598,8 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
   // Sort first and last usage arrays, these will determine the lifetime of the pool textures.
   struct FirstUsageComparer
   {
-    FirstUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage)
-      : m_TextureUsage(textureUsage)
+    FirstUsageComparer(ezDynamicArray<TextureUsageData>& ref_textureUsage)
+      : m_TextureUsage(ref_textureUsage)
     {
     }
 
@@ -610,8 +610,8 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
 
   struct LastUsageComparer
   {
-    LastUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage)
-      : m_TextureUsage(textureUsage)
+    LastUsageComparer(ezDynamicArray<TextureUsageData>& ref_textureUsage)
+      : m_TextureUsage(ref_textureUsage)
     {
     }
 
@@ -726,23 +726,23 @@ void ezRenderPipeline::RemoveExtractor(ezExtractor* pExtractor)
   }
 }
 
-void ezRenderPipeline::GetExtractors(ezHybridArray<const ezExtractor*, 16>& extractors) const
+void ezRenderPipeline::GetExtractors(ezHybridArray<const ezExtractor*, 16>& ref_extractors) const
 {
-  extractors.Reserve(m_Extractors.GetCount());
+  ref_extractors.Reserve(m_Extractors.GetCount());
 
   for (auto& pExtractor : m_Extractors)
   {
-    extractors.PushBack(pExtractor.Borrow());
+    ref_extractors.PushBack(pExtractor.Borrow());
   }
 }
 
-void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors)
+void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& ref_extractors)
 {
-  extractors.Reserve(m_Extractors.GetCount());
+  ref_extractors.Reserve(m_Extractors.GetCount());
 
   for (auto& pExtractor : m_Extractors)
   {
-    extractors.PushBack(pExtractor.Borrow());
+    ref_extractors.PushBack(pExtractor.Borrow());
   }
 }
 
@@ -1277,7 +1277,7 @@ ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRende
   return data.GetRenderDataBatchesWithCategory(category, filter);
 }
 
-void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
+void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& ref_graph)
 {
   ezStringBuilder sTmp;
   ezHashTable<const ezRenderPipelineNode*, ezUInt32> nodeMap;
@@ -1290,7 +1290,7 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
     ezDGMLGraph::NodeDesc nd;
     nd.m_Color = ezColor::Gray;
     nd.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
-    ezUInt32 uiGraphNode = graph.AddNode(sTmp, &nd);
+    ezUInt32 uiGraphNode = ref_graph.AddNode(sTmp, &nd);
     nodeMap.Insert(pPass.Borrow(), uiGraphNode);
   }
 
@@ -1310,14 +1310,14 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
         sFormat.Format("Unknown Format {}", (int)pCon->m_Desc.m_Format);
       }
       sTmp.Format("{} #{}: {}x{}:{}, MSAA:{}, {}Format: {}", data.m_iTargetTextureIndex != -1 ? "RenderTarget" : "PoolTexture", i, pCon->m_Desc.m_uiWidth, pCon->m_Desc.m_uiHeight, pCon->m_Desc.m_uiArraySize, (int)pCon->m_Desc.m_SampleCount, ezGALResourceFormat::IsDepthFormat(pCon->m_Desc.m_Format) ? "Depth" : "Color", sFormat);
-      ezUInt32 uiTextureNode = graph.AddNode(sTmp, &nd);
+      ezUInt32 uiTextureNode = ref_graph.AddNode(sTmp, &nd);
 
       ezUInt32 uiOutputNode = *nodeMap.GetValue(pCon->m_pOutput->m_pParent);
-      graph.AddConnection(uiOutputNode, uiTextureNode, pCon->m_pOutput->m_pParent->GetPinName(pCon->m_pOutput));
+      ref_graph.AddConnection(uiOutputNode, uiTextureNode, pCon->m_pOutput->m_pParent->GetPinName(pCon->m_pOutput));
       for (const ezRenderPipelineNodePin* pInput : pCon->m_Inputs)
       {
         ezUInt32 uiInputNode = *nodeMap.GetValue(pInput->m_pParent);
-        graph.AddConnection(uiTextureNode, uiInputNode, pInput->m_pParent->GetPinName(pInput));
+        ref_graph.AddConnection(uiTextureNode, uiInputNode, pInput->m_pParent->GetPinName(pInput));
       }
     }
   }
@@ -1325,6 +1325,7 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& graph)
 
 ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view)
 {
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
   if (!cvar_SpatialCullingOcclusionEnable)
     return nullptr;
 
@@ -1367,6 +1368,9 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
   pRasterizer->EndScene();
 
   return pRasterizer;
+#else
+  return nullptr;
+#endif
 }
 
 void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view)

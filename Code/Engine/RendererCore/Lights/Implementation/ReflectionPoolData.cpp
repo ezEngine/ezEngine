@@ -99,71 +99,71 @@ void ezReflectionPool::Data::RemoveProbe(const ezWorld* pWorld, ezReflectionProb
   }
 }
 
-void ezReflectionPool::Data::UpdateProbeData(ProbeData& probeData, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent)
+void ezReflectionPool::Data::UpdateProbeData(ProbeData& ref_probeData, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent)
 {
-  probeData.m_desc = desc;
-  probeData.m_GlobalTransform = pComponent->GetOwner()->GetGlobalTransform();
+  ref_probeData.m_desc = desc;
+  ref_probeData.m_GlobalTransform = pComponent->GetOwner()->GetGlobalTransform();
 
   if (const ezSphereReflectionProbeComponent* pSphere = ezDynamicCast<const ezSphereReflectionProbeComponent*>(pComponent))
   {
-    probeData.m_Flags = ezProbeFlags::Sphere;
+    ref_probeData.m_Flags = ezProbeFlags::Sphere;
   }
   else if (const ezBoxReflectionProbeComponent* pBox = ezDynamicCast<const ezBoxReflectionProbeComponent*>(pComponent))
   {
-    probeData.m_Flags = ezProbeFlags::Box;
+    ref_probeData.m_Flags = ezProbeFlags::Box;
   }
 
-  if (probeData.m_desc.m_Mode == ezReflectionProbeMode::Dynamic)
+  if (ref_probeData.m_desc.m_Mode == ezReflectionProbeMode::Dynamic)
   {
-    probeData.m_Flags |= ezProbeFlags::Dynamic;
+    ref_probeData.m_Flags |= ezProbeFlags::Dynamic;
   }
   else
   {
     ezStringBuilder sComponentGuid, sCubeMapFile;
-    ezConversionUtils::ToString(probeData.m_desc.m_uniqueID, sComponentGuid);
+    ezConversionUtils::ToString(ref_probeData.m_desc.m_uniqueID, sComponentGuid);
 
     // this is where the editor will put the file for this probe
     sCubeMapFile.Format(":project/AssetCache/Generated/{0}.ezTexture", sComponentGuid);
 
-    probeData.m_hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(sCubeMapFile);
+    ref_probeData.m_hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(sCubeMapFile);
   }
 }
 
-bool ezReflectionPool::Data::UpdateSkyLightData(ProbeData& probeData, const ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent)
+bool ezReflectionPool::Data::UpdateSkyLightData(ProbeData& ref_probeData, const ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent)
 {
   bool bProbeTypeChanged = false;
-  if (probeData.m_desc.m_Mode != desc.m_Mode)
+  if (ref_probeData.m_desc.m_Mode != desc.m_Mode)
   {
     //#TODO any other reason to unmap a probe.
     bProbeTypeChanged = true;
   }
 
-  probeData.m_desc = desc;
-  probeData.m_GlobalTransform = pComponent->GetOwner()->GetGlobalTransform();
+  ref_probeData.m_desc = desc;
+  ref_probeData.m_GlobalTransform = pComponent->GetOwner()->GetGlobalTransform();
 
   if (auto pSkyLight = ezDynamicCast<const ezSkyLightComponent*>(pComponent))
   {
-    probeData.m_Flags = ezProbeFlags::SkyLight;
-    probeData.m_hCubeMap = pSkyLight->GetCubeMap();
-    if (probeData.m_desc.m_Mode == ezReflectionProbeMode::Dynamic)
+    ref_probeData.m_Flags = ezProbeFlags::SkyLight;
+    ref_probeData.m_hCubeMap = pSkyLight->GetCubeMap();
+    if (ref_probeData.m_desc.m_Mode == ezReflectionProbeMode::Dynamic)
     {
-      probeData.m_Flags |= ezProbeFlags::Dynamic;
+      ref_probeData.m_Flags |= ezProbeFlags::Dynamic;
     }
     else
     {
-      if (probeData.m_hCubeMap.IsValid())
+      if (ref_probeData.m_hCubeMap.IsValid())
       {
-        probeData.m_Flags |= ezProbeFlags::HasCustomCubeMap;
+        ref_probeData.m_Flags |= ezProbeFlags::HasCustomCubeMap;
       }
       else
       {
         ezStringBuilder sComponentGuid, sCubeMapFile;
-        ezConversionUtils::ToString(probeData.m_desc.m_uniqueID, sComponentGuid);
+        ezConversionUtils::ToString(ref_probeData.m_desc.m_uniqueID, sComponentGuid);
 
         // this is where the editor will put the file for this probe
         sCubeMapFile.Format(":project/AssetCache/Generated/{0}.ezTexture", sComponentGuid);
 
-        probeData.m_hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(sCubeMapFile);
+        ref_probeData.m_hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(sCubeMapFile);
       }
     }
   }

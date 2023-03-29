@@ -44,6 +44,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPODClass, 1, ezRTTIDefaultAllocator<ezPODClass
     EZ_MEMBER_PROPERTY("Float", m_FloatStruct),
     EZ_ACCESSOR_PROPERTY("Bool", GetBool, SetBool),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor),
+    EZ_MEMBER_PROPERTY("ColorUB", m_Color2),
     EZ_ACCESSOR_PROPERTY("String", GetString, SetString),
     EZ_ACCESSOR_PROPERTY("Buffer", GetBuffer, SetBuffer),
     EZ_ACCESSOR_PROPERTY("VarianceAngle", GetCustom, SetCustom),

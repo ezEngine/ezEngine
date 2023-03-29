@@ -59,10 +59,10 @@ ezDirectoryWatcher::ezDirectoryWatcher()
   m_pImpl->m_buffer.SetCountUninitialized(1024 * 1024);
 }
 
-ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitflags<Watch> whatToWatch)
+ezResult ezDirectoryWatcher::OpenDirectory(ezStringView sAbsolutePath, ezBitflags<Watch> whatToWatch)
 {
   EZ_ASSERT_DEV(m_sDirectoryPath.IsEmpty(), "Directory already open, call CloseDirectory first!");
-  ezStringBuilder sPath(absolutePath);
+  ezStringBuilder sPath(sAbsolutePath);
   sPath.MakeCleanPath();
   sPath.Trim("/");
 
@@ -309,8 +309,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
               {
                 if (mirror && whatToWatch.IsSet(Watch::Subdirectories))
                 {
-                  mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& path, ezFileSystemMirrorType::Type type) {
-                          func(path, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
+                  mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type) {
+                          func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
                         })
                     .AssertSuccess();
                 }

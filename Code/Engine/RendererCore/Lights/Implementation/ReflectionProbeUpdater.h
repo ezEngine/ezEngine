@@ -46,7 +46,7 @@ public:
   /// \param sourceTexture Cube map that should be filtered into a reflection probe.
   /// \param target Where the probe should be rendered into.
   /// \return Returns EZ_FAILURE if no more free slots are available.
-  ezResult StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle sourceTexture, const TargetSlot& target);
+  ezResult StartFilterUpdate(const ezReflectionProbeRef& probe, const ezReflectionProbeDesc& desc, ezTextureCubeResourceHandle hSourceTexture, const TargetSlot& target);
 
   /// \brief Cancel a previously started update.
   void CancelUpdate(const ezReflectionProbeRef& probe);

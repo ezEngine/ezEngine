@@ -18,17 +18,17 @@ ezQtTestDelegate::ezQtTestDelegate(QObject* pParent)
 
 ezQtTestDelegate::~ezQtTestDelegate() {}
 
-void ezQtTestDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+void ezQtTestDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
   if (index.column() == ezQtTestModel::Columns::Duration)
   {
     // We need to draw the alternate background color here because setting it via the model would
     // overwrite our duration bar.
-    painter->save();
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(option.palette.alternateBase());
-    painter->drawRect(option.rect);
-    painter->restore();
+    pPainter->save();
+    pPainter->setPen(Qt::NoPen);
+    pPainter->setBrush(option.palette.alternateBase());
+    pPainter->drawRect(option.rect);
+    pPainter->restore();
 
     bool bSuccess = false;
     float fProgress = index.data(ezQtTestModel::UserRoles::Duration).toFloat(&bSuccess);
@@ -40,11 +40,11 @@ void ezQtTestDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
       QStyleOptionViewItem option2 = option;
       option2.palette.setBrush(QPalette::Base, QBrush(DurationColor));
       option2.rect.setWidth((int)((float)option2.rect.width() * fProgress));
-      QApplication::style()->drawControl(QStyle::CE_ProgressBarGroove, &option2, painter);
+      QApplication::style()->drawControl(QStyle::CE_ProgressBarGroove, &option2, pPainter);
     }
   }
 
-  QStyledItemDelegate::paint(painter, option, index);
+  QStyledItemDelegate::paint(pPainter, option, index);
 }
 
 #endif

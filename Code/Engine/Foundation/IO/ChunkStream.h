@@ -12,7 +12,7 @@ class EZ_FOUNDATION_DLL ezChunkStreamWriter : public ezStreamWriter
 {
 public:
   /// \brief Pass the underlying stream writer to the constructor.
-  ezChunkStreamWriter(ezStreamWriter& stream); // [tested]
+  ezChunkStreamWriter(ezStreamWriter& inout_stream); // [tested]
 
   /// \brief Writes bytes directly to the stream. Only allowed when a chunk is open (between BeginChunk / EndChunk).
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
@@ -25,7 +25,7 @@ public:
   virtual void EndStream(); // [tested]
 
   /// \brief Opens the next chunk for writing. Chunks cannot be nested (except by using multiple chunk format writers).
-  virtual void BeginChunk(const char* szName, ezUInt32 uiVersion); // [tested]
+  virtual void BeginChunk(ezStringView sName, ezUInt32 uiVersion); // [tested]
 
   /// \brief Closes the current chunk.
   virtual void EndChunk(); // [tested]
@@ -47,7 +47,7 @@ class EZ_FOUNDATION_DLL ezChunkStreamReader : public ezStreamReader
 {
 public:
   /// \brief Pass the underlying stream writer to the constructor.
-  ezChunkStreamReader(ezStreamReader& stream); // [tested]
+  ezChunkStreamReader(ezStreamReader& inout_stream); // [tested]
 
   /// \brief Reads bytes directly from the stream. Only allowed while a valid chunk is available.
   /// Returns 0 bytes when the end of a chunk is reached, even if there are more chunks to come.

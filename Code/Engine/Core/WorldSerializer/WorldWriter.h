@@ -15,13 +15,13 @@ public:
   /// \brief Writes all content in \a world to \a stream.
   ///
   /// All game objects with tags that overlap with \a pExclude will be ignored.
-  void WriteWorld(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude = nullptr);
+  void WriteWorld(ezStreamWriter& inout_stream, ezWorld& ref_world, const ezTagSet* pExclude = nullptr);
 
   /// \brief Only writes the given root objects and all their children to the stream.
-  void WriteObjects(ezStreamWriter& stream, const ezDeque<const ezGameObject*>& rootObjects);
+  void WriteObjects(ezStreamWriter& inout_stream, const ezDeque<const ezGameObject*>& rootObjects);
 
   /// \brief Only writes the given root objects and all their children to the stream.
-  void WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGameObject*> rootObjects);
+  void WriteObjects(ezStreamWriter& inout_stream, ezArrayPtr<const ezGameObject*> rootObjects);
 
   /// \brief Writes the given game object handle to the stream.
   ///

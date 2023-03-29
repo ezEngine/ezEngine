@@ -24,12 +24,12 @@ void* ezPageAllocator::AllocatePage(size_t uiSize)
 }
 
 // static
-void ezPageAllocator::DeallocatePage(void* ptr)
+void ezPageAllocator::DeallocatePage(void* pPtr)
 {
   if ((ezMemoryTrackingFlags::Default & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
-    ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), ptr);
+    ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), pPtr);
   }
 
-  EZ_VERIFY(::VirtualFree(ptr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
+  EZ_VERIFY(::VirtualFree(pPtr, 0, MEM_RELEASE), "Could not free memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
 }

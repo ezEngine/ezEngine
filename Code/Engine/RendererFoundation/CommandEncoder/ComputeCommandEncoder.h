@@ -6,7 +6,7 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALComputeCommandEncoder : public ezGALCommandEncoder
 {
 public:
-  ezGALComputeCommandEncoder(ezGALDevice& device, ezGALCommandEncoderState& state, ezGALCommandEncoderCommonPlatformInterface& commonImpl, ezGALCommandEncoderComputePlatformInterface& computeImpl);
+  ezGALComputeCommandEncoder(ezGALDevice& ref_device, ezGALCommandEncoderState& ref_state, ezGALCommandEncoderCommonPlatformInterface& ref_commonImpl, ezGALCommandEncoderComputePlatformInterface& ref_computeImpl);
   virtual ~ezGALComputeCommandEncoder();
 
   // Dispatch

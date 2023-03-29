@@ -25,7 +25,7 @@ public:
   const ezRTTI* GetType() const { return m_pRtti; } // [tested]
 
   /// \brief Returns the value of the property defined by its path. Return value is invalid iff the path was invalid.
-  virtual const ezVariant GetValue(const char* szProperty, ezVariant index = ezVariant(), ezStatus* res = nullptr) const = 0;
+  virtual const ezVariant GetValue(const char* szProperty, ezVariant index = ezVariant(), ezStatus* pRes = nullptr) const = 0;
 
   /// \brief Sets a property defined by its path to the given value. Returns whether the operation was successful.
   virtual bool SetValue(const char* szProperty, const ezVariant& value, ezVariant index = ezVariant()) = 0;

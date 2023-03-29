@@ -18,8 +18,8 @@ public:
 
   ezParticleEventReaction* CreateEventReaction(ezParticleEffectInstance* pOwner) const;
 
-  virtual void Save(ezStreamWriter& stream) const;
-  virtual void Load(ezStreamReader& stream);
+  virtual void Save(ezStreamWriter& inout_stream) const;
+  virtual void Load(ezStreamReader& inout_stream);
 
   ezString m_sEventType;
   ezUInt8 m_uiProbability = 100;

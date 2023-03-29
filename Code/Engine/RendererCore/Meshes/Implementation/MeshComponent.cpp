@@ -27,9 +27,9 @@ EZ_END_COMPONENT_TYPE
 ezMeshComponent::ezMeshComponent() = default;
 ezMeshComponent::~ezMeshComponent() = default;
 
-void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
-  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
+  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
     return;
 
   // ignore invalid and created resources
@@ -43,7 +43,7 @@ void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
       return;
   }
 
-  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(GetMeshFile()));
+  ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(GetMeshFile()));
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);

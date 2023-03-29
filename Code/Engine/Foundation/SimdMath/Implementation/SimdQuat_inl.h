@@ -18,10 +18,10 @@ EZ_ALWAYS_INLINE void ezSimdQuat::SetIdentity()
   m_v.Set(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-EZ_ALWAYS_INLINE void ezSimdQuat::SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& angle)
+EZ_ALWAYS_INLINE void ezSimdQuat::SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
 {
   ///\todo optimize
-  const ezAngle halfAngle = ezAngle::Radian(angle) * 0.5f;
+  const ezAngle halfAngle = ezAngle::Radian(fAngle) * 0.5f;
   float s = ezMath::Sin(halfAngle);
   float c = ezMath::Cos(halfAngle);
 
@@ -34,7 +34,7 @@ EZ_ALWAYS_INLINE void ezSimdQuat::Normalize()
   m_v.Normalize<4>();
 }
 
-inline ezResult ezSimdQuat::GetRotationAxisAndAngle(ezSimdVec4f& vAxis, ezSimdFloat& angle, const ezSimdFloat& fEpsilon) const
+inline ezResult ezSimdQuat::GetRotationAxisAndAngle(ezSimdVec4f& ref_vAxis, ezSimdFloat& ref_fAngle, const ezSimdFloat& fEpsilon) const
 {
   ///\todo optimize
   const ezAngle acos = ezMath::ACos(m_v.w());
@@ -42,14 +42,14 @@ inline ezResult ezSimdQuat::GetRotationAxisAndAngle(ezSimdVec4f& vAxis, ezSimdFl
 
   if (d < fEpsilon)
   {
-    vAxis.Set(1.0f, 0.0f, 0.0f, 0.0f);
+    ref_vAxis.Set(1.0f, 0.0f, 0.0f, 0.0f);
   }
   else
   {
-    vAxis = m_v / d;
+    ref_vAxis = m_v / d;
   }
 
-  angle = acos * 2;
+  ref_fAngle = acos * 2;
 
   return EZ_SUCCESS;
 }

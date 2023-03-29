@@ -4,12 +4,6 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezString ezQtEditorApp::GetExternalToolsFolder(bool bForceUseCustomTools)
-{
-  ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-  return ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bForceUseCustomTools ? false : pPref->m_bUsePrecompiledTools);
-}
-
 ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 {
   ezStringBuilder toolExe = szToolName;
@@ -22,13 +16,22 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 
   szToolName = toolExe;
 
-  ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
+  ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+  bool bFolders[2] = {false, true};
+
+  if (pPref->m_bUsePrecompiledTools)
+  {
+    ezMath::Swap(bFolders[0], bFolders[1]);
+  }
+
+  ezStringBuilder sTool = ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bFolders[0]);
   sTool.AppendPath(szToolName);
 
   if (ezFileSystem::ExistsFile(sTool))
     return sTool;
 
-  sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder(true);
+  sTool = ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(bFolders[1]);
   sTool.AppendPath(szToolName);
 
   if (ezFileSystem::ExistsFile(sTool))
@@ -38,7 +41,7 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
   return szToolName;
 }
 
-ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum LogLevel /*= ezLogMsgType::InfoMsg*/, const char* szCWD /*= nullptr*/)
+ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum logLevel /*= ezLogMsgType::InfoMsg*/, const char* szCWD /*= nullptr*/)
 {
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
@@ -153,7 +156,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
         // TODO: output all logged data in one big message, if the tool failed
       }
 
-      if (msgType > LogLevel || szMsg == nullptr)
+      if (msgType > logLevel || szMsg == nullptr)
         continue;
 
       ezLog::BroadcastLoggingEvent(pLogOutput, msgType, szMsg);

@@ -56,6 +56,58 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
     ezSimdVec4i vSetZero;
     vSetZero.SetZero();
     EZ_TEST_BOOL(vSetZero.x() == 0 && vSetZero.y() == 0 && vSetZero.z() == 0 && vSetZero.w() == 0);
+
+    {
+      int testBlock[4] = {1, 2, 3, 4};
+      ezSimdVec4i x;
+      x.Load<1>(testBlock);
+      EZ_TEST_BOOL(x.x() == 1 && x.y() == 0 && x.z() == 0 && x.w() == 0);
+
+      ezSimdVec4i xy;
+      xy.Load<2>(testBlock);
+      EZ_TEST_BOOL(xy.x() == 1 && xy.y() == 2 && xy.z() == 0 && xy.w() == 0);
+
+      ezSimdVec4i xyz;
+      xyz.Load<3>(testBlock);
+      EZ_TEST_BOOL(xyz.x() == 1 && xyz.y() == 2 && xyz.z() == 3 && xyz.w() == 0);
+
+      ezSimdVec4i xyzw;
+      xyzw.Load<4>(testBlock);
+      EZ_TEST_BOOL(xyzw.x() == 1 && xyzw.y() == 2 && xyzw.z() == 3 && xyzw.w() == 4);
+
+      EZ_TEST_INT(xyzw.GetComponent<0>(), 1);
+      EZ_TEST_INT(xyzw.GetComponent<1>(), 2);
+      EZ_TEST_INT(xyzw.GetComponent<2>(), 3);
+      EZ_TEST_INT(xyzw.GetComponent<3>(), 4);
+
+      // Make sure all components have the correct values
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+      EZ_TEST_BOOL(xyzw.m_v.m128i_i32[0] == 1 && xyzw.m_v.m128i_i32[1] == 2 && xyzw.m_v.m128i_i32[2] == 3 && xyzw.m_v.m128i_i32[3] == 4);
+#endif
+    }
+
+    {
+      int testBlock[4] = {7, 7, 7, 7};
+      int mem[4] = {};
+
+      ezSimdVec4i b2(1, 2, 3, 4);
+
+      memcpy(mem, testBlock, 16);
+      b2.Store<1>(mem);
+      EZ_TEST_BOOL(mem[0] == 1 && mem[1] == 7 && mem[2] == 7 && mem[3] == 7);
+
+      memcpy(mem, testBlock, 16);
+      b2.Store<2>(mem);
+      EZ_TEST_BOOL(mem[0] == 1 && mem[1] == 2 && mem[2] == 7 && mem[3] == 7);
+
+      memcpy(mem, testBlock, 16);
+      b2.Store<3>(mem);
+      EZ_TEST_BOOL(mem[0] == 1 && mem[1] == 2 && mem[2] == 3 && mem[3] == 7);
+
+      memcpy(mem, testBlock, 16);
+      b2.Store<4>(mem);
+      EZ_TEST_BOOL(mem[0] == 1 && mem[1] == 2 && mem[2] == 3 && mem[3] == 4);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion")
@@ -114,6 +166,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 
       c = a.CompMul(b);
       EZ_TEST_BOOL(c.x() == -24 && c.y() == 30 && c.z() == -28 && c.w() == 18);
+
+      c = a.CompDiv(b);
+      EZ_TEST_BOOL(c.x() == 0 && c.y() == 0 && c.z() == -1 && c.w() == 4);
     }
 
     {
@@ -138,6 +193,13 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 
       c = a >> 1;
       EZ_TEST_BOOL(c.x() == EZ_BIT(0) && c.y() == EZ_BIT(1) && c.z() == EZ_BIT(2) && c.w() == EZ_BIT(3));
+
+      ezSimdVec4i s(1, 2, 3, 4);
+      c = a << s;
+      EZ_TEST_BOOL(c.x() == EZ_BIT(2) && c.y() == EZ_BIT(4) && c.z() == EZ_BIT(6) && c.w() == EZ_BIT(8));
+
+      c = b >> s;
+      EZ_TEST_BOOL(c.x() == EZ_BIT(3) && c.y() == EZ_BIT(1) && c.z() == EZ_BIT(0) && c.w() == EZ_BIT(0));
     }
 
     {
@@ -195,6 +257,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 
       c = a.Abs();
       EZ_TEST_BOOL(c.x() == 3 && c.y() == 5 && c.z() == 7 && c.w() == 9);
+
+      ezSimdVec4b cmp(false, true, false, true);
+      c = ezSimdVec4i::Select(cmp, a, b);
+      EZ_TEST_BOOL(c.x() == 8 && c.y() == 5 && c.z() == 4 && c.w() == 9);
     }
   }
 

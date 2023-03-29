@@ -395,19 +395,19 @@ const ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
   return ezVariant();
 }
 
-const ezVariant ezVariant::operator[](StringWrapper szKey) const
+const ezVariant ezVariant::operator[](StringWrapper key) const
 {
   if (m_uiType == Type::VariantDictionary)
   {
     ezVariant result;
-    Cast<ezVariantDictionary>().TryGetValue(szKey.m_str, result);
+    Cast<ezVariantDictionary>().TryGetValue(key.m_str, result);
     return result;
   }
   else if (IsValid())
   {
     KeyFunc func;
     func.m_pThis = this;
-    func.m_szKey = szKey.m_str;
+    func.m_szKey = key.m_str;
 
     DispatchTo(func, GetType());
 

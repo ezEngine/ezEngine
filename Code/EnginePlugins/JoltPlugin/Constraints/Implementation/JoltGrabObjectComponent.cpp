@@ -34,6 +34,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 1, ezComponentMode::Static)
     EZ_SCRIPT_FUNCTION_PROPERTY(BreakObjectGrab),
   }
   EZ_END_FUNCTIONS;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgReleaseObjectGrab, OnMsgReleaseObjectGrab),
+  }
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Constraints"),
@@ -46,11 +51,11 @@ EZ_END_COMPONENT_TYPE
 ezJoltGrabObjectComponent::ezJoltGrabObjectComponent() = default;
 ezJoltGrabObjectComponent::~ezJoltGrabObjectComponent() = default;
 
-void ezJoltGrabObjectComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltGrabObjectComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fBreakDistance;
   s << m_fSpringStiffness;
@@ -59,15 +64,15 @@ void ezJoltGrabObjectComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_uiCollisionLayer;
   s << m_fAllowGrabAnyObjectWithSize;
 
-  stream.WriteGameObjectHandle(m_hAttachTo);
+  inout_stream.WriteGameObjectHandle(m_hAttachTo);
 }
 
-void ezJoltGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltGrabObjectComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fBreakDistance;
   s >> m_fSpringStiffness;
@@ -76,10 +81,10 @@ void ezJoltGrabObjectComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_uiCollisionLayer;
   s >> m_fAllowGrabAnyObjectWithSize;
 
-  m_hAttachTo = stream.ReadGameObjectHandle();
+  m_hAttachTo = inout_stream.ReadGameObjectHandle();
 }
 
-bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_LocalGrabPoint) const
+bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint) const
 {
   const ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>();
 
@@ -97,23 +102,22 @@ bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezT
   if (!pPhysicsModule->Raycast(hit, pOwner->GetGlobalPosition(), pOwner->GetGlobalDirForwards().GetNormalized(), m_fMaxGrabPointDistance * 5.0f, queryParam))
     return false;
 
+  if (hit.m_fDistance > m_fMaxGrabPointDistance)
+    return false;
+
   const ezGameObject* pActorObj = nullptr;
   if (!GetWorld()->TryGetObject(hit.m_hActorObject, pActorObj))
     return false;
 
   const ezJoltDynamicActorComponent* pActorComp = nullptr;
-  if (pActorObj->TryGetComponentOfBaseType(pActorComp) && !pActorComp->GetKinematic())
-  {
-    if (DetermineGrabPoint(pActorComp, out_LocalGrabPoint).Failed())
-      return false;
-  }
-  else
-  {
-    if (hit.m_fDistance > m_fMaxGrabPointDistance)
-      return false;
+  if (!pActorObj->TryGetComponentOfBaseType(pActorComp))
+    return false;
 
-    out_LocalGrabPoint = ezTransform::IdentityTransform();
-  }
+  if (pActorComp->GetKinematic())
+    return false;
+
+  if (DetermineGrabPoint(pActorComp, out_localGrabPoint).Failed())
+    return false;
 
   out_pObject = const_cast<ezGameObject*>(pActorObj);
   return true;
@@ -157,6 +161,11 @@ bool ezJoltGrabObjectComponent::GrabObject(ezGameObject* pObjectToGrab, const ez
   m_hGrabbedActor = pActorToGrab->GetHandle();
 
   CreateJoint(pAttachToActor, pActorToGrab);
+
+  ezMsgObjectGrabbed msg;
+  msg.m_bGotGrabbed = true;
+  msg.m_hGrabbedBy = GetOwner()->GetHandle();
+  pActorToGrab->GetOwner()->SendMessage(msg);
 
   m_LastValidTime = curTime;
 
@@ -228,15 +237,22 @@ void ezJoltGrabObjectComponent::ReleaseGrabbedObject()
   if (GetWorld()->TryGetComponent(m_hGrabbedActor, pGrabbedActor))
   {
     JPH::BodyLockWrite bodyLock(pModule->GetJoltSystem()->GetBodyLockInterface(), JPH::BodyID(pGrabbedActor->GetJoltBodyID()));
-
-    bodyLock.GetBody().GetMotionProperties()->SetInverseMass(m_fGrabbedActorMass);
-    // TODO: this needs to be set as well : bodyLock.GetBody().GetMotionProperties()->SetInverseInertia(m_fGrabbedActorMass);
-    bodyLock.GetBody().GetMotionProperties()->SetGravityFactor(m_fGrabbedActorGravity);
-
-    if (pModule->GetJoltSystem()->GetBodyInterfaceNoLock().IsAdded(JPH::BodyID(pGrabbedActor->GetJoltBodyID())))
+    if (bodyLock.Succeeded())
     {
-      pModule->GetJoltSystem()->GetBodyInterfaceNoLock().ActivateBody(JPH::BodyID(pGrabbedActor->GetJoltBodyID()));
+      bodyLock.GetBody().GetMotionProperties()->SetInverseMass(m_fGrabbedActorMass);
+      // TODO: this needs to be set as well : bodyLock.GetBody().GetMotionProperties()->SetInverseInertia(m_fGrabbedActorMass);
+      bodyLock.GetBody().GetMotionProperties()->SetGravityFactor(m_fGrabbedActorGravity);
+
+      if (pModule->GetJoltSystem()->GetBodyInterfaceNoLock().IsAdded(JPH::BodyID(pGrabbedActor->GetJoltBodyID())))
+      {
+        pModule->GetJoltSystem()->GetBodyInterfaceNoLock().ActivateBody(JPH::BodyID(pGrabbedActor->GetJoltBodyID()));
+      }
     }
+
+    ezMsgObjectGrabbed msg;
+    msg.m_bGotGrabbed = false;
+    msg.m_hGrabbedBy = GetOwner()->GetHandle();
+    pGrabbedActor->GetOwner()->SendMessage(msg);
   }
 
   ezJoltCharacterControllerComponent* pController;
@@ -293,7 +309,14 @@ ezResult ezJoltGrabObjectComponent::DetermineGrabPoint(const ezComponent* pActor
   }
   else
   {
-    const auto& box = pActorComp->GetOwner()->GetLocalBounds().GetBox();
+    ezBoundingBoxSphere bounds = pActorComp->GetOwner()->GetLocalBounds();
+
+    if (!bounds.IsValid())
+    {
+      bounds = ezBoundingSphere(ezVec3::ZeroVector(), 0.1f);
+    }
+
+    const auto& box = bounds.GetBox();
     const ezVec3 ext = box.GetExtents().CompMul(pActorComp->GetOwner()->GetGlobalScaling());
 
     if (ext.x <= m_fAllowGrabAnyObjectWithSize && ext.y <= m_fAllowGrabAnyObjectWithSize && ext.z <= m_fAllowGrabAnyObjectWithSize)
@@ -471,6 +494,21 @@ bool ezJoltGrabObjectComponent::IsCharacterStandingOnObject(ezGameObjectHandle h
   return false;
 }
 
+void ezJoltGrabObjectComponent::OnMsgReleaseObjectGrab(ezMsgReleaseObjectGrab& msg)
+{
+  if (!msg.m_hGrabbedObjectToRelease.IsInvalidated() && !m_hGrabbedActor.IsInvalidated())
+  {
+    ezComponent* pComponent;
+    if (GetOwner()->GetWorld()->TryGetComponent(m_hGrabbedActor, pComponent))
+    {
+      if (pComponent->GetOwner()->GetHandle() == msg.m_hGrabbedObjectToRelease)
+      {
+        DropGrabbedObject();
+      }
+    }
+  }
+}
+
 void ezJoltGrabObjectComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
@@ -518,3 +556,7 @@ void ezJoltGrabObjectComponent::Update()
     BreakObjectGrab();
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltGrabObjectComponent);
+

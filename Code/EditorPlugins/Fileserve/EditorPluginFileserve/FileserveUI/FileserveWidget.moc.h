@@ -19,14 +19,14 @@ class EZ_EDITORPLUGINFILESERVE_DLL ezQtFileserveWidget : public QWidget, public 
   Q_OBJECT
 
 public:
-  ezQtFileserveWidget(QWidget* parent = nullptr);
+  ezQtFileserveWidget(QWidget* pParent = nullptr);
 
-  void FindOwnIP(ezStringBuilder& out_Display, ezHybridArray<ezStringBuilder, 4>* out_AllIPs = nullptr);
+  void FindOwnIP(ezStringBuilder& out_sDisplay, ezHybridArray<ezStringBuilder, 4>* out_pAllIPs = nullptr);
 
   ~ezQtFileserveWidget();
 
 Q_SIGNALS:
-  void ServerStarted(const QString& ip, ezUInt16 uiPort);
+  void ServerStarted(const QString& sIp, ezUInt16 uiPort);
   void ServerStopped();
 
 public Q_SLOTS:

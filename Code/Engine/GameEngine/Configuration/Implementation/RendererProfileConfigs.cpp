@@ -25,43 +25,43 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineProfileConfig, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezRenderPipelineProfileConfig::SaveRuntimeData(ezChunkStreamWriter& stream) const
+void ezRenderPipelineProfileConfig::SaveRuntimeData(ezChunkStreamWriter& inout_stream) const
 {
-  stream.BeginChunk("ezRenderPipelineProfileConfig", 2);
+  inout_stream.BeginChunk("ezRenderPipelineProfileConfig", 2);
 
-  stream << m_sMainRenderPipeline;
+  inout_stream << m_sMainRenderPipeline;
 
-  stream << m_CameraPipelines.GetCount();
+  inout_stream << m_CameraPipelines.GetCount();
   for (auto it = m_CameraPipelines.GetIterator(); it.IsValid(); ++it)
   {
-    stream << it.Key();
-    stream << it.Value();
+    inout_stream << it.Key();
+    inout_stream << it.Value();
   }
 
-  stream.EndChunk();
+  inout_stream.EndChunk();
 }
 
-void ezRenderPipelineProfileConfig::LoadRuntimeData(ezChunkStreamReader& stream)
+void ezRenderPipelineProfileConfig::LoadRuntimeData(ezChunkStreamReader& inout_stream)
 {
-  const auto& chunk = stream.GetCurrentChunk();
+  const auto& chunk = inout_stream.GetCurrentChunk();
 
   if (chunk.m_sChunkName == "ezRenderPipelineProfileConfig" && chunk.m_uiChunkVersion == 2)
   {
     ezRenderWorld::BeginModifyCameraConfigs();
     ezRenderWorld::ClearCameraConfigs();
 
-    stream >> m_sMainRenderPipeline;
+    inout_stream >> m_sMainRenderPipeline;
 
     m_CameraPipelines.Clear();
 
     ezUInt32 uiNumCamPipes = 0;
-    stream >> uiNumCamPipes;
+    inout_stream >> uiNumCamPipes;
     for (ezUInt32 i = 0; i < uiNumCamPipes; ++i)
     {
       ezString sPipeName, sPipeAsset;
 
-      stream >> sPipeName;
-      stream >> sPipeAsset;
+      inout_stream >> sPipeName;
+      inout_stream >> sPipeAsset;
 
       m_CameraPipelines[sPipeName] = sPipeAsset;
 

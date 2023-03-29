@@ -120,13 +120,9 @@ void AsteroidGameState::DestroyLevel()
   m_pLevel = nullptr;
 }
 
-
-
 ezGameStatePriority AsteroidGameState::DeterminePriority(ezWorld* pWorld) const
 {
-  return
-
-    ezGameStatePriority::Default;
+  return ezGameStatePriority::Default;
 }
 
 void AsteroidGameState::ProcessInput()

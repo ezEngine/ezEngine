@@ -35,11 +35,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltSliderConstraintComponent::ezJoltSliderConstraintComponent() = default;
 ezJoltSliderConstraintComponent::~ezJoltSliderConstraintComponent() = default;
 
-void ezJoltSliderConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltSliderConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fLowerLimitDistance;
   s << m_fUpperLimitDistance;
@@ -51,12 +51,12 @@ void ezJoltSliderConstraintComponent::SerializeComponent(ezWorldWriter& stream) 
   s << m_fDriveStrength;
 }
 
-void ezJoltSliderConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltSliderConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fLowerLimitDistance;
   s >> m_fUpperLimitDistance;
@@ -170,6 +170,31 @@ void ezJoltSliderConstraintComponent::ApplySettings()
   }
 }
 
+bool ezJoltSliderConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::SliderConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition()[0] >= m_fBreakForce ||
+          pConstraint->GetTotalLambdaPosition()[1] >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+
+    if (m_fBreakTorque > 0)
+    {
+      if (pConstraint->GetTotalLambdaRotation().ReduceMax() >= m_fBreakTorque)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 void ezJoltSliderConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
   const auto inv1 = pBody0->GetInverseCenterOfMassTransform() * pBody0->GetWorldTransform();
@@ -187,3 +212,6 @@ void ezJoltSliderConstraintComponent::CreateContstraintType(JPH::Body* pBody0, J
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltSliderConstraintComponent);

@@ -11,10 +11,10 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
-  Foundation
+    Foundation
 
   PRIVATE
-  stb_image
+    stb_image
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_HAS_TEXTURE)
@@ -22,4 +22,10 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_HAS_TEXTURE)
 if(EZ_CMAKE_PLATFORM_LINUX)
   set(THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty")
   target_include_directories(${PROJECT_NAME} PRIVATE "${THIRDPARTY_DIR}/DirectXMath/include" "${THIRDPARTY_DIR}/sal")
+endif()
+
+if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+  # CMake is stupid
+else()
+  target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
 endif()

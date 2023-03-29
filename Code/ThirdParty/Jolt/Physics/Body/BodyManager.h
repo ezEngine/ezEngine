@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -85,6 +86,9 @@ public:
 	/// Deactivate a list of bodies.
 	/// This function should only be called when an exclusive lock for the bodies are held.
 	void							DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
+
+	/// Update the motion quality for a body
+	void							SetMotionQuality(Body &ioBody, EMotionQuality inMotionQuality);
 
 	/// Get copy of the list of active bodies under protection of a lock.
 	void							GetActiveBodies(BodyIDVector &outBodyIDs) const;

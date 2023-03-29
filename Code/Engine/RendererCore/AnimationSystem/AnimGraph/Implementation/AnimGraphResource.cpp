@@ -19,11 +19,11 @@ ezAnimGraphResource::ezAnimGraphResource()
 
 ezAnimGraphResource::~ezAnimGraphResource() = default;
 
-void ezAnimGraphResource::DeserializeAnimGraphState(ezAnimGraph& out)
+void ezAnimGraphResource::DeserializeAnimGraphState(ezAnimGraph& ref_out)
 {
   ezMemoryStreamContainerWrapperStorage<ezDataBuffer> wrapper(&m_Storage);
   ezMemoryStreamReader reader(&wrapper);
-  out.Deserialize(reader).IgnoreResult();
+  ref_out.Deserialize(reader).IgnoreResult();
 }
 
 ezResourceLoadDesc ezAnimGraphResource::UnloadData(Unload WhatToUnload)
@@ -73,3 +73,6 @@ void ezAnimGraphResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
   out_NewMemoryUsage.m_uiMemoryCPU = m_Storage.GetHeapMemoryUsage();
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphResource);

@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -52,15 +53,7 @@ template <int RoundingMode>
 inline HalfFloat FromFloatFallback(float inV)
 {
 	// Reinterpret the float as an uint32
-	static_assert(sizeof(float) == sizeof(uint32));
-	union FloatToInt
-	{
-		float	f;
-		uint32	i;
-	};
-	FloatToInt f_to_i;
-	f_to_i.f = inV;
-	uint32 value = f_to_i.i;
+	uint32 value = BitCast<uint32>(inV);
 
 	// Extract exponent
 	uint32 exponent = (value >> FLOAT_EXPONENT_POS) & FLOAT_EXPONENT_MASK;

@@ -16,7 +16,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtShortcutEditorDlg(QWidget* parent);
+  ezQtShortcutEditorDlg(QWidget* pParent);
   ~ezQtShortcutEditorDlg();
 
   void UpdateTable();

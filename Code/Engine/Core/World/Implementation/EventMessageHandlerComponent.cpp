@@ -53,10 +53,10 @@ EZ_END_ABSTRACT_COMPONENT_TYPE;
 ezEventMessageHandlerComponent::ezEventMessageHandlerComponent() = default;
 ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent() = default;
 
-void ezEventMessageHandlerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezEventMessageHandlerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   // version 2
   s << m_bIsGlobalEventHandler;
@@ -65,11 +65,11 @@ void ezEventMessageHandlerComponent::SerializeComponent(ezWorldWriter& stream) c
   s << m_bPassThroughUnhandledEvents;
 }
 
-void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   if (uiVersion >= 2)
   {
@@ -92,9 +92,9 @@ void ezEventMessageHandlerComponent::Deinitialize()
   SUPER::Deinitialize();
 }
 
-void ezEventMessageHandlerComponent::SetDebugOutput(bool enable)
+void ezEventMessageHandlerComponent::SetDebugOutput(bool bEnable)
 {
-  m_bDebugOutput = enable;
+  m_bDebugOutput = bEnable;
 }
 
 bool ezEventMessageHandlerComponent::GetDebugOutput() const
@@ -102,14 +102,14 @@ bool ezEventMessageHandlerComponent::GetDebugOutput() const
   return m_bDebugOutput;
 }
 
-void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool enable)
+void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool bEnable)
 {
-  if (m_bIsGlobalEventHandler == enable)
+  if (m_bIsGlobalEventHandler == bEnable)
     return;
 
-  m_bIsGlobalEventHandler = enable;
+  m_bIsGlobalEventHandler = bEnable;
 
-  if (enable)
+  if (bEnable)
   {
     RegisterGlobalEventHandler(this);
   }
@@ -122,11 +122,6 @@ void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool enable)
 void ezEventMessageHandlerComponent::SetPassThroughUnhandledEvents(bool bPassThrough)
 {
   m_bPassThroughUnhandledEvents = bPassThrough;
-}
-
-bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& msg) const
-{
-  return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
 }
 
 // static
@@ -146,5 +141,14 @@ ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventH
 }
 
 
+void ezEventMessageHandlerComponent::ClearGlobalEventHandlersForWorld(const ezWorld* pWorld)
+{
+  ezUInt32 uiWorldIndex = pWorld->GetIndex();
+
+  if (uiWorldIndex < s_GlobalEventHandlerPerWorld.GetCount())
+  {
+    s_GlobalEventHandlerPerWorld[uiWorldIndex]->Clear();
+  }
+}
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);

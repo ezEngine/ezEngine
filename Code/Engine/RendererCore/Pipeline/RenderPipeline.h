@@ -31,8 +31,8 @@ public:
 
   void AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
   void RemovePass(ezRenderPipelinePass* pPass);
-  void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const;
-  void GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes);
+  void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& ref_passes) const;
+  void GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& ref_passes);
   ezRenderPipelinePass* GetPassByName(const ezStringView& sPassName);
   ezHashedString GetViewName() const;
 
@@ -45,8 +45,8 @@ public:
 
   void AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor);
   void RemoveExtractor(ezExtractor* pExtractor);
-  void GetExtractors(ezHybridArray<const ezExtractor*, 16>& extractors) const;
-  void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
+  void GetExtractors(ezHybridArray<const ezExtractor*, 16>& ref_extractors) const;
+  void GetExtractors(ezHybridArray<ezExtractor*, 16>& ref_extractors);
   ezExtractor* GetExtractorByName(const ezStringView& sExtractorName);
 
   template <typename T>
@@ -60,7 +60,7 @@ public:
     ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
 
   /// \brief Creates a DGML graph of all passes and textures. Can be used to verify that no accidental temp textures are created due to poorly constructed pipelines or errors in code.
-  void CreateDgmlGraph(ezDGMLGraph& graph);
+  void CreateDgmlGraph(ezDGMLGraph& ref_graph);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   static ezCVarBool cvar_SpatialCullingVis;

@@ -21,7 +21,7 @@ public:
   {
   }
 
-  void SetStreamName(ezHashedString StreamName) { m_sStreamName = StreamName; }
+  void SetStreamName(ezHashedString sStreamName) { m_sStreamName = sStreamName; }
 
 protected:
   virtual ezResult UpdateStreamBindings() override

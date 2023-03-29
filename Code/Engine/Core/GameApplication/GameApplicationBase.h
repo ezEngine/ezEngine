@@ -106,11 +106,11 @@ public:
   /// currently in progress. If continuous frame capture is disabled, CaptureFrame() will capture and persist the next frame.
   /// Note that continuous capture mode comes with a performance cost, but allows the user to decide on-the-fly if the current
   /// frame capture is to be persisted, e.g., when a unit test image comparison fails.
-  void SetContinuousFrameCapture(bool enable);
+  void SetContinuousFrameCapture(bool bEnable);
   bool GetContinousFrameCapture() const;
 
   /// \brief Get the absolute base output path for frame captures.
-  virtual ezResult GetAbsFrameCaptureOutputPath(ezStringBuilder& sOutputPath);
+  virtual ezResult GetAbsFrameCaptureOutputPath(ezStringBuilder& ref_sOutputPath);
 
 protected:
   void ExecuteFrameCapture(ezWindowHandle targetWindowHandle, const char* szContext = nullptr);
@@ -150,7 +150,7 @@ public:
   ///
   /// This is mostly for editor use cases, where some documents want to handle the game state, but only
   /// it it was set up for a particular document.
-  ezGameStateBase* GetActiveGameStateLinkedToWorld(ezWorld* pWorld) const;
+  ezGameStateBase* GetActiveGameStateLinkedToWorld(const ezWorld* pWorld) const;
 
 protected:
   /// \brief Creates a game state for the application to use.

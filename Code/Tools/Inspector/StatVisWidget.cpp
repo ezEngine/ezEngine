@@ -27,9 +27,9 @@ namespace StatVisWidgetDetail
   };
 }
 
-ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
-  : ads::CDockWidget(QString("StatVisWidget") + QString::number(iWindowNumber), parent)
-  , m_ShowWindowAction(parent)
+ezQtStatVisWidget::ezQtStatVisWidget(QWidget* pParent, ezInt32 iWindowNumber)
+  : ads::CDockWidget(QString("StatVisWidget") + QString::number(iWindowNumber), pParent)
+  , m_ShowWindowAction(pParent)
 {
   m_iWindowNumber = iWindowNumber;
   m_DisplayInterval = ezTime::Seconds(60.0);

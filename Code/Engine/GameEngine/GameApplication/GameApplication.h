@@ -67,6 +67,9 @@ public:
   /// \brief Used at runtime (by the editor) to reload input maps. Forwards to Init_ConfigureInput()
   void ReinitializeInputConfig();
 
+  /// \brief Returns the project path that was given to the constructor (or modified by an overridden implementation).
+  ezStringView GetAppProjectPath() const { return m_sAppProjectPath; }
+
 protected:
   virtual void Init_ConfigureInput() override;
   virtual void Init_ConfigureAssetManagement() override;

@@ -54,7 +54,7 @@ void ezJSONWriter::AddVariableDouble(const char* szName, double value)
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableString(const char* szName, const char* value)
+void ezJSONWriter::AddVariableString(const char* szName, ezStringView value)
 {
   BeginVariable(szName);
   WriteString(value);

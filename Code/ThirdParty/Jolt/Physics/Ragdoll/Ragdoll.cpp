@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -472,17 +473,17 @@ void Ragdoll::SetPose(const SkeletonPose &inPose, bool inLockBodies)
 {
 	JPH_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
 
-	SetPose(inPose.GetJointMatrices().data(), inLockBodies);
+	SetPose(inPose.GetRootOffset(), inPose.GetJointMatrices().data(), inLockBodies);
 }
 
-void Ragdoll::SetPose(const Mat44 *inJointMatrices, bool inLockBodies)
+void Ragdoll::SetPose(RVec3Arg inRootOffset, const Mat44 *inJointMatrices, bool inLockBodies)
 {
 	// Move bodies instantly into the correct position
 	BodyInterface &bi = sGetBodyInterface(mSystem, inLockBodies);
 	for (int i = 0; i < (int)mBodyIDs.size(); ++i)
 	{
 		const Mat44 &joint = inJointMatrices[i];
-		bi.SetPositionAndRotation(mBodyIDs[i], joint.GetTranslation(), joint.GetRotation().GetQuaternion(), EActivation::DontActivate);
+		bi.SetPositionAndRotation(mBodyIDs[i], inRootOffset + joint.GetTranslation(), joint.GetRotation().GetQuaternion(), EActivation::DontActivate);
 	}
 }
 
@@ -490,20 +491,31 @@ void Ragdoll::GetPose(SkeletonPose &outPose, bool inLockBodies)
 {
 	JPH_ASSERT(outPose.GetSkeleton() == mRagdollSettings->mSkeleton);
 
-	GetPose(outPose.GetJointMatrices().data(), inLockBodies);
+	RVec3 root_offset;
+	GetPose(root_offset, outPose.GetJointMatrices().data(), inLockBodies);
+	outPose.SetRootOffset(root_offset);
 }
 
-void Ragdoll::GetPose(Mat44 *outJointMatrices, bool inLockBodies)
+void Ragdoll::GetPose(RVec3 &outRootOffset, Mat44 *outJointMatrices, bool inLockBodies)
 {
 	// Lock the bodies
 	int body_count = (int)mBodyIDs.size();
+	if (body_count == 0)
+		return;
 	BodyLockMultiRead lock(sGetBodyLockInterface(mSystem, inLockBodies), mBodyIDs.data(), body_count);
 
-	// Get pose
-	for (int b = 0; b < body_count; ++b)
+	// Get root matrix
+	const Body *root = lock.GetBody(0);
+	RMat44 root_transform = root->GetWorldTransform();
+	outRootOffset = root_transform.GetTranslation();
+	outJointMatrices[0] = Mat44(root_transform.GetColumn4(0), root_transform.GetColumn4(1), root_transform.GetColumn4(2), Vec4(0, 0, 0, 1));
+
+	// Get other matrices
+	for (int b = 1; b < body_count; ++b)
 	{
 		const Body *body = lock.GetBody(b);
-		outJointMatrices[b] = body->GetWorldTransform();
+		RMat44 transform = body->GetWorldTransform();
+		outJointMatrices[b] = Mat44(transform.GetColumn4(0), transform.GetColumn4(1), transform.GetColumn4(2), Vec4(Vec3(transform.GetTranslation() - outRootOffset), 1));
 	}
 }
 
@@ -511,17 +523,17 @@ void Ragdoll::DriveToPoseUsingKinematics(const SkeletonPose &inPose, float inDel
 {
 	JPH_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
 
-	DriveToPoseUsingKinematics(inPose.GetJointMatrices().data(), inDeltaTime, inLockBodies);
+	DriveToPoseUsingKinematics(inPose.GetRootOffset(), inPose.GetJointMatrices().data(), inDeltaTime, inLockBodies);
 }
 
-void Ragdoll::DriveToPoseUsingKinematics(const Mat44 *inJointMatrices, float inDeltaTime, bool inLockBodies)
+void Ragdoll::DriveToPoseUsingKinematics(RVec3Arg inRootOffset, const Mat44 *inJointMatrices, float inDeltaTime, bool inLockBodies)
 {
 	// Move bodies into the correct position using kinematics
 	BodyInterface &bi = sGetBodyInterface(mSystem, inLockBodies);
 	for (int i = 0; i < (int)mBodyIDs.size(); ++i)
 	{
 		const Mat44 &joint = inJointMatrices[i];
-		bi.MoveKinematic(mBodyIDs[i], joint.GetTranslation(), joint.GetRotation().GetQuaternion(), inDeltaTime);
+		bi.MoveKinematic(mBodyIDs[i], inRootOffset + joint.GetTranslation(), joint.GetRotation().GetQuaternion(), inDeltaTime);
 	}
 }
 
@@ -576,7 +588,7 @@ void Ragdoll::AddImpulse(Vec3Arg inImpulse, bool inLockBodies)
 		bi.AddImpulse(body_id, inImpulse);
 }
 
-void Ragdoll::GetRootTransform(Vec3 &outPosition, Quat &outRotation, bool inLockBodies) const
+void Ragdoll::GetRootTransform(RVec3 &outPosition, Quat &outRotation, bool inLockBodies) const
 {
 	BodyLockRead lock(sGetBodyLockInterface(mSystem, inLockBodies), mBodyIDs[0]);
 	if (lock.Succeeded())
@@ -587,7 +599,7 @@ void Ragdoll::GetRootTransform(Vec3 &outPosition, Quat &outRotation, bool inLock
 	}
 	else
 	{
-		outPosition = Vec3::sZero();
+		outPosition = RVec3::sZero();
 		outRotation = Quat::sIdentity();
 	}
 }

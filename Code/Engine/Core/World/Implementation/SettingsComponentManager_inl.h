@@ -48,25 +48,25 @@ EZ_ALWAYS_INLINE ezWorldModuleTypeId ezSettingsComponentManager<ComponentType>::
 }
 
 template <typename ComponentType>
-void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive)
+void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_allComponents, bool bOnlyActive)
 {
   for (auto& component : m_Components)
   {
     if (!bOnlyActive || component->IsActive())
     {
-      out_AllComponents.PushBack(component->GetHandle());
+      out_allComponents.PushBack(component->GetHandle());
     }
   }
 }
 
 template <typename ComponentType>
-void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive)
+void ezSettingsComponentManager<ComponentType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_allComponents, bool bOnlyActive)
 {
   for (auto& component : m_Components)
   {
     if (!bOnlyActive || component->IsActive())
     {
-      out_AllComponents.PushBack(component.Borrow());
+      out_allComponents.PushBack(component.Borrow());
     }
   }
 }
@@ -76,8 +76,7 @@ ezComponent* ezSettingsComponentManager<ComponentType>::CreateComponentStorage()
 {
   if (!m_Components.IsEmpty())
   {
-    ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.",
-      ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
   }
 
   m_Components.PushBack(EZ_NEW(GetAllocator(), ComponentType));

@@ -62,7 +62,7 @@ namespace ezShaderHelper
     };
   };
 
-  EZ_RENDERERCORE_DLL void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections);
+  EZ_RENDERERCORE_DLL void GetShaderSections(const char* szContent, ezTextSectionizer& out_sections);
 
   ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars);
 } // namespace ezShaderHelper

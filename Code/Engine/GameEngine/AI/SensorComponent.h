@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/Utils/IntervalScheduler.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
@@ -30,8 +31,8 @@ class EZ_GAMEENGINE_DLL ezSensorComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -44,7 +45,7 @@ public:
   ezSensorComponent();
   ~ezSensorComponent();
 
-  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const = 0;
+  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const = 0;
   virtual void DebugDrawSensorShape() const = 0;
 
   void SetSpatialCategory(const char* szCategory); // [ property ]
@@ -97,13 +98,13 @@ class EZ_GAMEENGINE_DLL ezSensorSphereComponent : public ezSensorComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezSensorComponent
 
-  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const override;
+  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const override;
   virtual void DebugDrawSensorShape() const override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -128,13 +129,13 @@ class EZ_GAMEENGINE_DLL ezSensorCylinderComponent : public ezSensorComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezSensorComponent
 
-  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const override;
+  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const override;
   virtual void DebugDrawSensorShape() const override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -160,13 +161,13 @@ class EZ_GAMEENGINE_DLL ezSensorConeComponent : public ezSensorComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezSensorComponent
 
-  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_Objects) const override;
+  virtual void GetObjectsInSensorVolume(ezDynamicArray<ezGameObject*>& out_objects) const override;
   virtual void DebugDrawSensorShape() const override;
 
   //////////////////////////////////////////////////////////////////////////

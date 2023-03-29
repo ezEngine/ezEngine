@@ -6,7 +6,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
-#if EZ_DISABLED(EZ_COMPILER_GCC)
+#if EZ_DISABLED(EZ_COMPILER_GCC) && EZ_DISABLED(EZ_COMPILE_FOR_DEBUG)
     // Placement new of the default constructor should not have any effect on the previous data.
     alignas(16) float testBlock[4] = {1, 2, 3, 4};
     ezSimdVec4b* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdVec4b;
@@ -88,7 +88,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
     EZ_TEST_BOOL(!c.AllSet<4>());
     EZ_TEST_BOOL(c.NoneSet<4>());
 
+    c = a == b;
+    EZ_TEST_BOOL(!c.x() && !c.y() && c.z() && c.w());
+
+    c = a != b;
+    EZ_TEST_BOOL(c.x() && c.y() && !c.z() && !c.w());
+
     EZ_TEST_BOOL(a.AllSet<1>());
     EZ_TEST_BOOL(b.NoneSet<1>());
+
+    ezSimdVec4b cmp(false, true, false, true);
+    c = ezSimdVec4b::Select(cmp, a, b);
+    EZ_TEST_BOOL(!c.x() && !c.y() && c.z() && !c.w());
   }
 }

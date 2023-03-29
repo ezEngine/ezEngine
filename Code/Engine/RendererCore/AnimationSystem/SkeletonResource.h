@@ -28,8 +28,8 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
   void operator=(ezSkeletonResourceDescriptor&& rhs);
   void operator=(const ezSkeletonResourceDescriptor& rhs) = delete;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
   ezUInt64 GetHeapMemoryUsage() const;
 

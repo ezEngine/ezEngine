@@ -35,21 +35,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxShapeBoxComponent::ezPxShapeBoxComponent() = default;
 ezPxShapeBoxComponent::~ezPxShapeBoxComponent() = default;
 
-void ezPxShapeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxShapeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s << m_vExtents;
 }
 
-void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s >> m_vExtents;
 }
 
@@ -58,9 +58,9 @@ void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) con
   msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezInvalidSpatialDataCategory);
 }
 
-void ezPxShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezPxShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
-  msg.AddBox(GetOwner()->GetGlobalTransform(), m_vExtents);
+  ref_msg.AddBox(GetOwner()->GetGlobalTransform(), m_vExtents);
 }
 
 void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)

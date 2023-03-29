@@ -20,7 +20,7 @@ namespace ezDataDirectory
     ~FolderType();
 
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
-    static ezDataDirectoryType* Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
+    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage);
 
     /// A 'redirection file' is an optional file located inside a data directory that lists which file access is redirected to which other
     /// file lookup. Each redirection is one line in the file (terminated by a \n). Each line consists of the 'key' string, a semicolon and
@@ -42,19 +42,19 @@ namespace ezDataDirectory
   protected:
     // The implementations of the abstract functions.
 
-    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
+    virtual ezDataDirectoryReader* OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
 
-    virtual bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection) override;
-    virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode) override;
+    virtual bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection) override;
+    virtual ezDataDirectoryWriter* OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode) override;
     virtual void RemoveDataDirectory() override;
-    virtual void DeleteFile(const char* szFile) override;
-    virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir) override;
-    virtual ezResult GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
+    virtual void DeleteFile(ezStringView sFile) override;
+    virtual bool ExistsFile(ezStringView sFile, bool bOneSpecificDataDir) override;
+    virtual ezResult GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
     virtual FolderReader* CreateFolderReader() const;
     virtual FolderWriter* CreateFolderWriter() const;
 
     /// \brief Called by 'ezDataDirectoryType_Folder::Factory'
-    virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
+    virtual ezResult InternalInitializeDataDirectory(ezStringView sDirectory) override;
 
     /// \brief Marks the given reader/writer as reusable.
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;

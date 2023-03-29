@@ -95,7 +95,7 @@ struct ezWorkerThreadType
     ENUM_COUNT
   };
 
-  static const char* GetThreadTypeName(ezWorkerThreadType::Enum ThreadType);
+  static const char* GetThreadTypeName(ezWorkerThreadType::Enum threadType);
 };
 
 /// \brief Given out by ezTaskSystem::CreateTaskGroup to identify a task group.
@@ -170,7 +170,7 @@ struct EZ_FOUNDATION_DLL ezParallelForParams
   /// The minimum number of items that must be processed by a task instance.
   /// If the overall number of tasks lies below this value, all work will be executed purely serially
   /// without involving any tasks at all.
-  ezUInt32 uiBinSize = 1;
+  ezUInt32 m_uiBinSize = 1;
 
   /// Indicates how many tasks per thread may be spawned at most by a ParallelFor invocation.
   /// Higher numbers give the scheduler more leeway to balance work across available threads.
@@ -178,21 +178,14 @@ struct EZ_FOUNDATION_DLL ezParallelForParams
   /// low numbers (usually 1) are recommended, while higher numbers (initially test with 2 or 3)
   /// might yield better results for workloads where task items may take vastly different amounts
   /// of time, such that scheduling in a balanced fashion becomes more difficult.
-  ezUInt32 uiMaxTasksPerThread = 2;
+  ezUInt32 m_uiMaxTasksPerThread = 2;
 
-  ezTaskNesting nestingMode = ezTaskNesting::Never;
+  ezTaskNesting m_NestingMode = ezTaskNesting::Never;
 
   /// The allocator used to for the tasks that the parallel-for uses internally. If null, will use the default allocator.
-  ezAllocatorBase* pTaskAllocator = nullptr;
+  ezAllocatorBase* m_pTaskAllocator = nullptr;
 
-  /// Returns the multiplicity to use for the given task. If 0 is returned,
-  /// serial execution is to be performed.
-  ezUInt32 DetermineMultiplicity(ezUInt64 uiNumTaskItems) const;
-
-  /// Returns the number of task items to work on per invocation (multiplicity).
-  /// This is aligned with the multiplicity, i.e., multiplicity * bin_size >= # task items.
-  ezUInt64 DetermineItemsPerInvocation(ezUInt64 uiNumTaskItems, ezUInt32 uiMultiplicity) const;
-  ezUInt32 DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity) const;
+  void DetermineThreading(ezUInt64 uiNumItemsToExecute, ezUInt32& out_uiNumTasksToRun, ezUInt64& out_uiNumItemsPerTask) const;
 };
 
 using ezParallelForIndexedFunction32 = ezDelegate<void(ezUInt32, ezUInt32), 48>;

@@ -7,6 +7,7 @@
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   : ezQtStandardPropertyWidget()
@@ -168,8 +169,27 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         return;
       }
 
-      m_AssetGuid = ezConversionUtils::ConvertStringToUuid(sText);
+      ezUuid newAssetGuid = ezConversionUtils::ConvertStringToUuid(sText);
 
+      // If this is a thumbnail or transform dependency, make sure the target is not in our inverse hull, i.e. we don't create a circular dependency.
+      const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+      if (pAssetAttribute->GetDependencyFlags().IsAnySet(ezDependencyFlags::Thumbnail | ezDependencyFlags::Transform))
+      {
+        ezUuid documentGuid = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetGuid();
+        ezAssetCurator::ezLockedSubAsset asset = ezAssetCurator::GetSingleton()->GetSubAsset(documentGuid);
+        if (asset.isValid())
+        {
+          ezSet<ezUuid> inverseHull;
+          ezAssetCurator::GetSingleton()->GenerateInverseTransitiveHull(asset->m_pAssetInfo, inverseHull, true, true);
+          if (inverseHull.Contains(newAssetGuid))
+          {
+            ezQtUiServices::GetSingleton()->MessageBoxWarning("This asset can't be used here, as that would create a circular dependency.");
+            return;
+          }
+        }
+      }
+
+      m_AssetGuid = newAssetGuid;
       auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid);
 
       if (pAsset)

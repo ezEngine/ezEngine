@@ -42,37 +42,37 @@ void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleB
   pBehavior->m_InitColor = ezColor::RebeccaPurple;
 }
 
-void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& stream) const
+void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 4;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_hGradient;
+  inout_stream << m_hGradient;
 
   // version 3
-  stream << m_GradientMode;
-  stream << m_fMaxSpeed;
+  inout_stream << m_GradientMode;
+  inout_stream << m_fMaxSpeed;
 
   // Version 4
-  stream << m_TintColor;
+  inout_stream << m_TintColor;
 }
 
-void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& stream)
+void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_hGradient;
+  inout_stream >> m_hGradient;
 
   if (uiVersion >= 3)
   {
-    stream >> m_GradientMode;
-    stream >> m_fMaxSpeed;
+    inout_stream >> m_GradientMode;
+    inout_stream >> m_fMaxSpeed;
   }
 
   if (uiVersion >= 4)
   {
-    stream >> m_TintColor;
+    inout_stream >> m_TintColor;
   }
 }
 

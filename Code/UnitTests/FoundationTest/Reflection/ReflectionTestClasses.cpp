@@ -441,7 +441,7 @@ void ezTestMaps::Remove2(const char* szKey)
 
 const ezRangeView<const char*, ezUInt32> ezTestMaps::GetKeys3() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Accessor3.GetCount(); }, [this](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Accessor3[it].m_Key; });
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Accessor3.GetCount(); }, [this](ezUInt32& ref_uiIt) { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char* { return m_Accessor3[uiIt].m_Key; });
 }
 
 void ezTestMaps::Insert3(const char* szKey, const ezVariant& value)

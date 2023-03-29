@@ -48,16 +48,16 @@ public:
   class EZ_EDITORFRAMEWORK_DLL ThumbnailInfo
   {
   public:
-    ezResult Deserialize(ezStreamReader& Reader);
-    ezResult Serialize(ezStreamWriter& Writer) const;
+    ezResult Deserialize(ezStreamReader& inout_reader);
+    ezResult Serialize(ezStreamWriter& inout_writer) const;
 
     /// \brief Checks whether the stored file contains the same hash.
     bool IsThumbnailUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const { return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion); }
 
     /// \brief Sets the asset file hash
-    void SetFileHashAndVersion(ezUInt64 hash, ezUInt16 v)
+    void SetFileHashAndVersion(ezUInt64 uiHash, ezUInt16 v)
     {
-      m_uiHash = hash;
+      m_uiHash = uiHash;
       m_uiVersion = v;
     }
 
@@ -144,6 +144,12 @@ public:
 
   /// \brief Sends messages to sync all sync objects to the engine process side.
   void SyncObjectsToEngine() const;
+
+  /// /brief Sends a message that the document has been opened or closed. Resends all document data.
+  ///
+  /// Calling this will always clear the existing document on the engine side and reset the state to the editor state.
+  void SendDocumentOpenMessage(bool bOpen);
+
 
   ///@}
 

@@ -4,10 +4,10 @@
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-void ezLuaWrapper::RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData) const
+void ezLuaWrapper::RegisterCFunction(const char* szFunctionName, lua_CFunction function, void* pLightUserData) const
 {
   lua_pushlightuserdata(m_pState, pLightUserData);
-  lua_pushcclosure(m_pState, pFunction, 1);
+  lua_pushcclosure(m_pState, function, 1);
   lua_setglobal(m_pState, szFunctionName);
 }
 
@@ -42,9 +42,9 @@ bool ezLuaWrapper::PrepareFunctionCall(const char* szFunctionName)
   return true;
 }
 
-ezResult ezLuaWrapper::CallPreparedFunction(ezUInt32 iExpectedReturnValues, ezLogInterface* pLogInterface)
+ezResult ezLuaWrapper::CallPreparedFunction(ezUInt32 uiExpectedReturnValues, ezLogInterface* pLogInterface)
 {
-  m_States.m_iLuaReturnValues = iExpectedReturnValues;
+  m_States.m_iLuaReturnValues = uiExpectedReturnValues;
 
   // save the current states on a cheap stack
   const ezScriptStates StackedStates = m_States;
@@ -53,7 +53,7 @@ ezResult ezLuaWrapper::CallPreparedFunction(ezUInt32 iExpectedReturnValues, ezLo
   if (pLogInterface == nullptr)
     pLogInterface = ezLog::GetThreadLocalLogSystem();
 
-  if (lua_pcall(m_pState, StackedStates.m_iParametersPushed, iExpectedReturnValues, 0) != 0)
+  if (lua_pcall(m_pState, StackedStates.m_iParametersPushed, uiExpectedReturnValues, 0) != 0)
   {
     // restore the states to their previous values
     m_States = StackedStates;
@@ -83,49 +83,49 @@ void ezLuaWrapper::DiscardReturnValues()
   m_States.m_iLuaReturnValues = 0;
 }
 
-bool ezLuaWrapper::IsReturnValueInt(ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueInt(ezUInt32 uiReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TNUMBER);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1) == LUA_TNUMBER);
 }
 
-bool ezLuaWrapper::IsReturnValueBool(ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueBool(ezUInt32 uiReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TBOOLEAN);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1) == LUA_TBOOLEAN);
 }
 
-bool ezLuaWrapper::IsReturnValueFloat(ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueFloat(ezUInt32 uiReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TNUMBER);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1) == LUA_TNUMBER);
 }
 
-bool ezLuaWrapper::IsReturnValueString(ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueString(ezUInt32 uiReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TSTRING);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1) == LUA_TSTRING);
 }
 
-bool ezLuaWrapper::IsReturnValueNil(ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueNil(ezUInt32 uiReturnValue) const
 {
-  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) == LUA_TNIL);
+  return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1) == LUA_TNIL);
 }
 
-ezInt32 ezLuaWrapper::GetIntReturnValue(ezUInt32 iReturnValue) const
+ezInt32 ezLuaWrapper::GetIntReturnValue(ezUInt32 uiReturnValue) const
 {
-  return ((int)(lua_tointeger(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1)));
+  return ((int)(lua_tointeger(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1)));
 }
 
-bool ezLuaWrapper::GetBoolReturnValue(ezUInt32 iReturnValue) const
+bool ezLuaWrapper::GetBoolReturnValue(ezUInt32 uiReturnValue) const
 {
-  return (lua_toboolean(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1) != 0);
+  return (lua_toboolean(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1) != 0);
 }
 
-float ezLuaWrapper::GetFloatReturnValue(ezUInt32 iReturnValue) const
+float ezLuaWrapper::GetFloatReturnValue(ezUInt32 uiReturnValue) const
 {
-  return ((float)(lua_tonumber(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1)));
+  return ((float)(lua_tonumber(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1)));
 }
 
-const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 iReturnValue) const
+const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 uiReturnValue) const
 {
-  return (lua_tostring(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_iParamOffset) - 1));
+  return (lua_tostring(m_pState, -m_States.m_iLuaReturnValues + (uiReturnValue + s_iParamOffset) - 1));
 }
 
 

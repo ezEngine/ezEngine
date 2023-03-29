@@ -23,13 +23,13 @@ public:
   }
 
   /// \brief Comparison operator. [tested]
-  EZ_ALWAYS_INLINE bool operator==(const ezUuid& Other) const;
+  EZ_ALWAYS_INLINE bool operator==(const ezUuid& other) const;
 
   /// \brief Comparison operator. [tested]
-  EZ_ALWAYS_INLINE bool operator!=(const ezUuid& Other) const;
+  EZ_ALWAYS_INLINE bool operator!=(const ezUuid& other) const;
 
   /// \brief Comparison operator.
-  EZ_ALWAYS_INLINE bool operator<(const ezUuid& Other) const;
+  EZ_ALWAYS_INLINE bool operator<(const ezUuid& other) const;
 
   /// \brief Returns true if this is a valid Uuid.
   EZ_ALWAYS_INLINE bool IsValid() const;
@@ -41,14 +41,14 @@ public:
   void CreateNewUuid();
 
   /// \brief Returns the internal 128 Bit of data
-  void GetValues(ezUInt64& uiLow, ezUInt64& uiHigh) const
+  void GetValues(ezUInt64& ref_uiLow, ezUInt64& ref_uiHigh) const
   {
-    uiHigh = m_uiHigh;
-    uiLow = m_uiLow;
+    ref_uiHigh = m_uiHigh;
+    ref_uiLow = m_uiLow;
   }
 
   /// \brief Creates a uuid from a string. The result is always the same for the same string.
-  static ezUuid StableUuidForString(const char* szString);
+  static ezUuid StableUuidForString(ezStringView sString);
 
   /// \brief Creates a uuid from an integer. The result is always the same for the same input.
   static ezUuid StableUuidForInt(ezInt64 iInt);
@@ -63,8 +63,8 @@ public:
   EZ_ALWAYS_INLINE void HashCombine(const ezUuid& hash);
 
 private:
-  friend EZ_FOUNDATION_DLL_FRIEND void operator>>(ezStreamReader& Stream, ezUuid& Value);
-  friend EZ_FOUNDATION_DLL_FRIEND void operator<<(ezStreamWriter& Stream, const ezUuid& Value);
+  friend EZ_FOUNDATION_DLL_FRIEND void operator>>(ezStreamReader& inout_stream, ezUuid& ref_value);
+  friend EZ_FOUNDATION_DLL_FRIEND void operator<<(ezStreamWriter& inout_stream, const ezUuid& value);
 
   ezUInt64 m_uiHigh;
   ezUInt64 m_uiLow;

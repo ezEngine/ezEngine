@@ -125,17 +125,17 @@ void ezResourceManager::BroadcastResourceEvent(const ezResourceEvent& e)
   s_pState->m_ResourceEvents.Broadcast(e);
 }
 
-void ezResourceManager::RegisterResourceForAssetType(const char* szAssetTypeName, const ezRTTI* pResourceType)
+void ezResourceManager::RegisterResourceForAssetType(ezStringView sAssetTypeName, const ezRTTI* pResourceType)
 {
-  ezStringBuilder s = szAssetTypeName;
+  ezStringBuilder s = sAssetTypeName;
   s.ToLower();
 
   s_pState->m_AssetToResourceType[s] = pResourceType;
 }
 
-const ezRTTI* ezResourceManager::FindResourceForAssetType(const char* szAssetTypeName)
+const ezRTTI* ezResourceManager::FindResourceForAssetType(ezStringView sAssetTypeName)
 {
-  ezStringBuilder s = szAssetTypeName;
+  ezStringBuilder s = sAssetTypeName;
   s.ToLower();
 
   return s_pState->m_AssetToResourceType.GetValueOrDefault(s, nullptr);
@@ -682,27 +682,27 @@ void ezResourceManager::OnCoreShutdown()
   s_pState.Clear();
 }
 
-ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable)
+ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sResourceID, bool bIsReloadable)
 {
-  if (ezStringUtils::IsNullOrEmpty(szResourceID))
+  if (sResourceID.IsEmpty())
     return nullptr;
 
   EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Calling code must lock the mutex until the resource pointer is stored in a handle");
 
   // redirect requested type to override type, if available
-  pRtti = FindResourceTypeOverride(pRtti, szResourceID);
+  pRtti = FindResourceTypeOverride(pRtti, sResourceID);
 
   EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
   EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
 
   ezResource* pResource = nullptr;
-  ezTempHashedString sHashedResourceID(szResourceID);
+  ezTempHashedString sHashedResourceID(sResourceID);
 
   ezHashedString* redirection;
   if (s_pState->m_NamedResources.TryGetValue(sHashedResourceID, redirection))
   {
     sHashedResourceID = *redirection;
-    szResourceID = redirection->GetData();
+    sResourceID = redirection->GetView();
   }
 
   LoadedResources& lr = s_pState->m_LoadedResources[pRtti];
@@ -712,7 +712,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
 
   ezResource* pNewResource = pRtti->GetAllocator()->Allocate<ezResource>();
   pNewResource->m_Priority = s_pState->m_ResourceTypePriorities.GetValueOrDefault(pRtti, ezResourcePriority::Medium);
-  pNewResource->SetUniqueID(szResourceID, bIsReloadable);
+  pNewResource->SetUniqueID(sResourceID, bIsReloadable);
   pNewResource->m_Flags.AddOrRemove(ezResourceFlags::ResourceHasTypeFallback, pNewResource->HasResourceTypeLoadingFallback());
 
   lr.m_Resources.Insert(sHashedResourceID, pNewResource);
@@ -720,14 +720,14 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
   return pNewResource;
 }
 
-void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> OverrideDecider)
+void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> overrideDecider)
 {
   const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
   while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResource>())
   {
     auto& info = s_pState->m_DerivedTypeInfos[pParentType].ExpandAndGetRef();
     info.m_pDerivedType = pDerivedTypeToUse;
-    info.m_Decider = OverrideDecider;
+    info.m_Decider = overrideDecider;
 
     pParentType = pParentType->GetParentType();
   }
@@ -754,7 +754,7 @@ void ezResourceManager::UnregisterResourceOverrideType(const ezRTTI* pDerivedTyp
   }
 }
 
-const ezRTTI* ezResourceManager::FindResourceTypeOverride(const ezRTTI* pRtti, const char* szResourceID)
+const ezRTTI* ezResourceManager::FindResourceTypeOverride(const ezRTTI* pRtti, ezStringView sResourceID)
 {
   auto it = s_pState->m_DerivedTypeInfos.Find(pRtti);
 
@@ -762,7 +762,7 @@ const ezRTTI* ezResourceManager::FindResourceTypeOverride(const ezRTTI* pRtti, c
     return pRtti;
 
   ezStringBuilder sRedirectedPath;
-  ezFileSystem::ResolveAssetRedirection(szResourceID, sRedirectedPath);
+  ezFileSystem::ResolveAssetRedirection(sResourceID, sRedirectedPath);
 
   while (it.IsValid())
   {
@@ -782,22 +782,22 @@ const ezRTTI* ezResourceManager::FindResourceTypeOverride(const ezRTTI* pRtti, c
   return pRtti;
 }
 
-ezString ezResourceManager::GenerateUniqueResourceID(const char* prefix)
+ezString ezResourceManager::GenerateUniqueResourceID(ezStringView sResourceIDPrefix)
 {
   ezStringBuilder resourceID;
-  resourceID.Format("{}-{}", prefix, s_pState->m_uiNextResourceID++);
+  resourceID.Format("{}-{}", sResourceIDPrefix, s_pState->m_uiNextResourceID++);
   return resourceID;
 }
 
-ezTypelessResourceHandle ezResourceManager::GetExistingResourceByType(const ezRTTI* pResourceType, const char* szResourceID)
+ezTypelessResourceHandle ezResourceManager::GetExistingResourceByType(const ezRTTI* pResourceType, ezStringView sResourceID)
 {
   ezResource* pResource = nullptr;
 
-  const ezTempHashedString sResourceHash(szResourceID);
+  const ezTempHashedString sResourceHash(sResourceID);
 
   EZ_LOCK(s_ResourceMutex);
 
-  const ezRTTI* pRtti = FindResourceTypeOverride(pResourceType, szResourceID);
+  const ezRTTI* pRtti = FindResourceTypeOverride(pResourceType, sResourceID);
 
   if (s_pState->m_LoadedResources[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
     return ezTypelessResourceHandle(pResource);
@@ -805,20 +805,20 @@ ezTypelessResourceHandle ezResourceManager::GetExistingResourceByType(const ezRT
   return ezTypelessResourceHandle();
 }
 
-ezTypelessResourceHandle ezResourceManager::GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, const char* szResourceID, ezUniquePtr<ezResourceTypeLoader>&& loader)
+ezTypelessResourceHandle ezResourceManager::GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, ezStringView sResourceID, ezUniquePtr<ezResourceTypeLoader>&& pLoader)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  ezTypelessResourceHandle hResource = GetExistingResourceByType(pResourceType, szResourceID);
+  ezTypelessResourceHandle hResource = GetExistingResourceByType(pResourceType, sResourceID);
 
   if (hResource.IsValid())
     return hResource;
 
-  hResource = GetResource(pResourceType, szResourceID, false);
+  hResource = GetResource(pResourceType, sResourceID, false);
   ezResource* pResource = hResource.m_pResource;
 
   pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader | ezResourceFlags::IsCreatedResource);
-  s_pState->m_CustomLoaders[pResource] = std::move(loader);
+  s_pState->m_CustomLoaders[pResource] = std::move(pLoader);
 
   return hResource;
 }
@@ -837,23 +837,23 @@ void ezResourceManager::ForceLoadResourceNow(const ezTypelessResourceHandle& hRe
   }
 }
 
-void ezResourceManager::RegisterNamedResource(const char* szLookupName, const char* szRedirectionResource)
+void ezResourceManager::RegisterNamedResource(ezStringView sLookupName, ezStringView sRedirectionResource)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  ezTempHashedString lookup(szLookupName);
+  ezTempHashedString lookup(sLookupName);
 
   ezHashedString redirection;
-  redirection.Assign(szRedirectionResource);
+  redirection.Assign(sRedirectionResource);
 
   s_pState->m_NamedResources[lookup] = redirection;
 }
 
-void ezResourceManager::UnregisterNamedResource(const char* szLookupName)
+void ezResourceManager::UnregisterNamedResource(ezStringView sLookupName)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  ezTempHashedString hash(szLookupName);
+  ezTempHashedString hash(sLookupName);
   s_pState->m_NamedResources.Remove(hash);
 }
 
@@ -903,11 +903,11 @@ ezResourceTypeLoader* ezResourceManager::GetDefaultResourceLoader()
   return s_pState->m_pDefaultResourceLoader;
 }
 
-void ezResourceManager::EnableExportMode(bool enable)
+void ezResourceManager::EnableExportMode(bool bEnable)
 {
   EZ_ASSERT_DEV(s_pState != nullptr, "ezStartup::StartupCoreSystems() must be called before using the ezResourceManager.");
 
-  s_pState->m_bExportMode = enable;
+  s_pState->m_bExportMode = bEnable;
 }
 
 bool ezResourceManager::IsExportModeEnabled()

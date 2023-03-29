@@ -105,7 +105,7 @@ ezResourceLoadData ezDecalResourceLoader::OpenDataStream(const ezResource* pReso
   return res;
 }
 
-void ezDecalResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
+void ezDecalResourceLoader::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
   // nothing to do
 }

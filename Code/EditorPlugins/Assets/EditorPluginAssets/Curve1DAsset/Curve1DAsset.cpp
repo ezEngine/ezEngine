@@ -13,10 +13,10 @@ ezCurve1DAssetDocument::ezCurve1DAssetDocument(const char* szDocumentPath)
 
 ezCurve1DAssetDocument::~ezCurve1DAssetDocument() = default;
 
-void ezCurve1DAssetDocument::FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const
+void ezCurve1DAssetDocument::FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_result) const
 {
   const ezCurveGroupData* pProp = static_cast<const ezCurveGroupData*>(GetProperties());
-  pProp->ConvertToRuntimeData(uiCurveIdx, out_Result);
+  pProp->ConvertToRuntimeData(uiCurveIdx, out_result);
 }
 
 ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
@@ -25,7 +25,7 @@ ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
   return pProp->m_Curves.GetCount();
 }
 
-void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& stream) const
+void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
 {
   const ezCurveGroupData* pProp = GetProperties();
 
@@ -38,7 +38,7 @@ void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& stream) const
     desc.m_Curves[i].SortControlPoints();
   }
 
-  desc.Save(stream);
+  desc.Save(inout_stream);
 }
 
 ezTransformStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
@@ -151,7 +151,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Left Tangent", "LeftTangent");
     pNode->RenameProperty("Right Tangent", "RightTangent");
@@ -169,7 +169,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Control Points", "ControlPoints"); }
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override { pNode->RenameProperty("Control Points", "ControlPoints"); }
 };
 
 ezCurve1DDataPatch_1_2 g_ezCurve1DDataPatch_1_2;

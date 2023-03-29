@@ -77,8 +77,8 @@ struct ezProcVertexColorOutputDesc
   void SetName(const char* szName);
   const char* GetName() const { return m_sName; }
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorOutputDesc);
@@ -107,10 +107,10 @@ public:
   const ezProcVertexColorOutputDesc& GetOutputDesc(ezUInt32 uiIndex) const;
   void SetOutputDesc(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc);
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  void OnTransformChanged(ezMsgTransformChanged& msg);
+  void OnTransformChanged(ezMsgTransformChanged& ref_msg);
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const override;

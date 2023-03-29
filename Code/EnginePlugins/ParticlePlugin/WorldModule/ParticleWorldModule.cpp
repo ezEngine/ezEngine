@@ -110,7 +110,7 @@ void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateCon
   }
 }
 
-void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& msg, const ezTransform& systemTransform) const
+void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, ezMsgExtractRenderData& ref_msg, const ezTransform& systemTransform) const
 {
   EZ_ASSERT_DEBUG(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
 
@@ -126,7 +126,7 @@ void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstan
     if (!pSystem->HasActiveParticles() || !pSystem->IsVisible())
       continue;
 
-    pSystem->ExtractSystemRenderData(msg, systemTransform);
+    pSystem->ExtractSystemRenderData(ref_msg, systemTransform);
   }
 }
 

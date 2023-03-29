@@ -47,22 +47,22 @@ enum class BehaviorPullAlongVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_PullAlong::Save(ezStreamWriter& stream) const
+void ezParticleBehaviorFactory_PullAlong::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorPullAlongVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_fStrength;
+  inout_stream << m_fStrength;
 }
 
-void ezParticleBehaviorFactory_PullAlong::Load(ezStreamReader& stream)
+void ezParticleBehaviorFactory_PullAlong::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)BehaviorPullAlongVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  stream >> m_fStrength;
+  inout_stream >> m_fStrength;
 }
 
 void ezParticleBehavior_PullAlong::CreateRequiredStreams()
@@ -108,3 +108,7 @@ void ezParticleBehavior_PullAlong::StepParticleSystem(const ezTime& tDiff, ezUIn
 
   m_vLastEmitterPosition = vPos;
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_PullAlong);
+

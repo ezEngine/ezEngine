@@ -17,18 +17,18 @@ namespace
 
     EZ_DECLARE_POD_TYPE();
 
-    ezResult Serialize(ezStreamWriter& Stream) const
+    ezResult Serialize(ezStreamWriter& inout_stream) const
     {
-      Stream << m_uiMember1;
-      Stream << m_uiMember2;
+      inout_stream << m_uiMember1;
+      inout_stream << m_uiMember2;
 
       return EZ_SUCCESS;
     }
 
-    ezResult Deserialize(ezStreamReader& Stream)
+    ezResult Deserialize(ezStreamReader& inout_stream)
     {
-      Stream >> m_uiMember1;
-      Stream >> m_uiMember2;
+      inout_stream >> m_uiMember1;
+      inout_stream >> m_uiMember2;
 
       return EZ_SUCCESS;
     }

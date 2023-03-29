@@ -24,7 +24,7 @@ class ezGraphicsTest : public ezTestBaseClass
 public:
   ezGraphicsTest();
 
-  virtual ezResult GetImage(ezImage& img) override;
+  virtual ezResult GetImage(ezImage& ref_img) override;
 
 protected:
   virtual void SetupSubTests() override {}

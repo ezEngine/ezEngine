@@ -4,9 +4,9 @@ EZ_ALWAYS_INLINE ezViewHandle ezView::GetHandle() const
   return ezViewHandle(m_InternalId);
 }
 
-EZ_ALWAYS_INLINE const char* ezView::GetName() const
+EZ_ALWAYS_INLINE ezStringView ezView::GetName() const
 {
-  return m_sName.GetString();
+  return m_sName.GetView();
 }
 
 EZ_ALWAYS_INLINE ezWorld* ezView::GetWorld()
@@ -95,10 +95,10 @@ EZ_ALWAYS_INLINE const ezSharedPtr<ezTask>& ezView::GetExtractTask()
   return m_pExtractTask;
 }
 
-EZ_FORCE_INLINE ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir) const
+EZ_FORCE_INLINE ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir) const
 {
   UpdateCachedMatrices();
-  return m_Data.ComputePickingRay(fScreenPosX, fScreenPosY, out_RayStartPos, out_RayDir);
+  return m_Data.ComputePickingRay(fScreenPosX, fScreenPosY, out_vRayStartPos, out_vRayDir);
 }
 
 EZ_FORCE_INLINE ezResult ezView::ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos) const

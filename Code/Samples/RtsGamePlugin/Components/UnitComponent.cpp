@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
   {
     EZ_MEMBER_PROPERTY("MaxHealth", m_uiMaxHealth)->AddAttributes(new ezDefaultValueAttribute(100)),
     EZ_MEMBER_PROPERTY("CurHealth", m_uiCurHealth),
-    EZ_ACCESSOR_PROPERTY("OnDestroyedPrefab", GetOnDestroyedPrefab, SetOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab")),
+    EZ_ACCESSOR_PROPERTY("OnDestroyedPrefab", GetOnDestroyedPrefab, SetOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
 
@@ -40,21 +40,21 @@ EZ_END_COMPONENT_TYPE;
 RtsUnitComponent::RtsUnitComponent() = default;
 RtsUnitComponent::~RtsUnitComponent() = default;
 
-void RtsUnitComponent::SerializeComponent(ezWorldWriter& stream) const
+void RtsUnitComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_uiMaxHealth;
   s << m_uiCurHealth;
   s << m_hOnDestroyedPrefab;
 }
 
-void RtsUnitComponent::DeserializeComponent(ezWorldReader& stream)
+void RtsUnitComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_uiMaxHealth;
   s >> m_uiCurHealth;

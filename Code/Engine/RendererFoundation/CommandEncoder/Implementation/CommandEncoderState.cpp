@@ -56,3 +56,6 @@ void ezGALCommandEncoderRenderState::InvalidateState()
   m_fViewPortMinDepth = ezMath::MaxValue<float>();
   m_fViewPortMaxDepth = -ezMath::MaxValue<float>();
 }
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_CommandEncoder_Implementation_CommandEncoderState);

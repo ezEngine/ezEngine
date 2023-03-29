@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -20,6 +21,9 @@ void MotionProperties::SaveState(StateRecorder &inStream) const
 	inStream.Write(mMaxLinearVelocity);
 	inStream.Write(mMaxAngularVelocity);
 	inStream.Write(mGravityFactor);
+#ifdef JPH_DOUBLE_PRECISION
+	inStream.Write(mSleepTestOffset);
+#endif // JPH_DOUBLE_PRECISION
 	inStream.Write(mSleepTestSpheres);
 	inStream.Write(mSleepTestTimer);
 	inStream.Write(mMotionQuality);
@@ -37,6 +41,9 @@ void MotionProperties::RestoreState(StateRecorder &inStream)
 	inStream.Read(mMaxLinearVelocity);
 	inStream.Read(mMaxAngularVelocity);
 	inStream.Read(mGravityFactor);
+#ifdef JPH_DOUBLE_PRECISION
+	inStream.Read(mSleepTestOffset);
+#endif // JPH_DOUBLE_PRECISION
 	inStream.Read(mSleepTestSpheres);
 	inStream.Read(mSleepTestTimer);
 	inStream.Read(mMotionQuality);

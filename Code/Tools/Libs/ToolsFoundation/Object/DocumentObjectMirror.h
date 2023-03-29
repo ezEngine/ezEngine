@@ -19,8 +19,8 @@ public:
   ezObjectChange(ezObjectChange&& rhs);
   void operator=(ezObjectChange&& rhs);
   void operator=(ezObjectChange& rhs);
-  void GetGraph(ezAbstractObjectGraph& graph) const;
-  void SetGraph(ezAbstractObjectGraph& graph);
+  void GetGraph(ezAbstractObjectGraph& ref_graph) const;
+  void SetGraph(ezAbstractObjectGraph& ref_graph);
 
   ezUuid m_Root;                                //< The object that is the parent of the op, namely the parent heap object we can store a pointer to.
   ezHybridArray<ezPropertyPathStep, 2> m_Steps; //< Path from root to target of change.

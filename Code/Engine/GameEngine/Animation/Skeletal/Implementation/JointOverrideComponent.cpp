@@ -36,10 +36,10 @@ EZ_END_COMPONENT_TYPE
 ezJointOverrideComponent::ezJointOverrideComponent() = default;
 ezJointOverrideComponent::~ezJointOverrideComponent() = default;
 
-void ezJointOverrideComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJointOverrideComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_sJointToOverride;
   s << m_bOverridePosition;
@@ -47,11 +47,11 @@ void ezJointOverrideComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bOverrideScale;
 }
 
-void ezJointOverrideComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJointOverrideComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_sJointToOverride;
   s >> m_bOverridePosition;
@@ -136,3 +136,6 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
     msg.m_LocalTransforms[soaIdx].scale = val;
   }
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointOverrideComponent);

@@ -81,6 +81,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSaveProfilingResponseToEditor, 1, ezRTTIDefaul
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReloadResourceMsgToEngine, 1, ezRTTIDefaultAllocator<ezReloadResourceMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Type", m_sResourceType),
+    EZ_MEMBER_PROPERTY("ID", m_sResourceID),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceUpdateMsgToEngine, 1, ezRTTIDefaultAllocator<ezResourceUpdateMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES
@@ -322,6 +333,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEditor, 1, ezRTTIDefaultAll
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("OutputSuccess", m_bOutputSuccess),
+    EZ_MEMBER_PROPERTY("FailureMsg", m_sFailureMsg),
   }
   EZ_END_PROPERTIES;
 }

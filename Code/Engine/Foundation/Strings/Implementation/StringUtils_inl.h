@@ -33,12 +33,12 @@ EZ_ALWAYS_INLINE bool ezStringUtils::IsNullOrEmpty(const T* pString, const T* pS
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezStringUtils::UpdateStringEnd(const T* szStringStart, const T*& szStringEnd)
+EZ_ALWAYS_INLINE void ezStringUtils::UpdateStringEnd(const T* pStringStart, const T*& ref_pStringEnd)
 {
-  if (szStringEnd != ezUnicodeUtils::GetMaxStringEnd<T>())
+  if (ref_pStringEnd != ezUnicodeUtils::GetMaxStringEnd<T>())
     return;
 
-  szStringEnd = szStringStart + GetStringElementCount(szStringStart, ezUnicodeUtils::GetMaxStringEnd<T>());
+  ref_pStringEnd = pStringStart + GetStringElementCount(pStringStart, ezUnicodeUtils::GetMaxStringEnd<T>());
 }
 
 template <typename T>
@@ -96,10 +96,10 @@ inline ezUInt32 ezStringUtils::GetCharacterCount(const char* szUtf8, const char*
 }
 
 inline void ezStringUtils::GetCharacterAndElementCount(
-  const char* szUtf8, ezUInt32& uiCharacterCount, ezUInt32& uiElementCount, const char* pStringEnd)
+  const char* szUtf8, ezUInt32& ref_uiCharacterCount, ezUInt32& ref_uiElementCount, const char* pStringEnd)
 {
-  uiCharacterCount = 0;
-  uiElementCount = 0;
+  ref_uiCharacterCount = 0;
+  ref_uiElementCount = 0;
 
   if (IsNullOrEmpty(szUtf8))
     return;
@@ -114,10 +114,10 @@ inline void ezStringUtils::GetCharacterAndElementCount(
 
     // skip all the Utf8 continuation bytes
     if (!ezUnicodeUtils::IsUtf8ContinuationByte(uiByte))
-      ++uiCharacterCount;
+      ++ref_uiCharacterCount;
 
     ++szUtf8;
-    ++uiElementCount;
+    ++ref_uiElementCount;
   }
 }
 

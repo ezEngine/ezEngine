@@ -8,8 +8,8 @@ using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEff
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleEffectResourceDescriptor
 {
-  virtual void Save(ezStreamWriter& stream) const;
-  virtual void Load(ezStreamReader& stream);
+  virtual void Save(ezStreamWriter& inout_stream) const;
+  virtual void Load(ezStreamReader& inout_stream);
 
   ezParticleEffectDescriptor m_Effect;
 };

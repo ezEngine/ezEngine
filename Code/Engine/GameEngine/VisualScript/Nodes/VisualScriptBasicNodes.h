@@ -124,7 +124,7 @@ public:
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
   virtual bool IsManuallyStepped() const override { return true; }
 
-  static ezResult ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type);
+  static ezResult ConvertArgumentToRequiredType(ezVariant& ref_var, ezVariantType::Enum type);
 
   const ezRTTI* m_pExpectedType = nullptr;
   const ezAbstractFunctionProperty* m_pFunctionToCall = nullptr;

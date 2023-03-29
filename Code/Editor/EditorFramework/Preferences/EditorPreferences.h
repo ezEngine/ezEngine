@@ -14,11 +14,10 @@ public:
   ezEditorPreferencesUser();
   ~ezEditorPreferencesUser();
 
-  void ApplyDefaultValues(ezEngineViewLightSettings& settings);
+  void ApplyDefaultValues(ezEngineViewLightSettings& ref_settings);
   void SetAsDefaultValues(const ezEngineViewLightSettings& settings);
 
   float m_fPerspectiveFieldOfView = 70.0f;
-  bool m_bOldGizmos = false;
   ezAngle m_RotationSnapValue = ezAngle::Degree(15.0f);
   float m_fScaleSnapValue = 0.125f;
   float m_fTranslationSnapValue = 0.25f;
@@ -27,7 +26,7 @@ public:
   bool m_bShowSplashscreen = true;
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = true;
-  bool m_bAssetFilterCombobox = true;
+  bool m_bHighlightUntranslatedUI = false;
 
   bool m_bSkyBox = true;
   bool m_bSkyLight = true;
@@ -44,6 +43,12 @@ public:
   bool GetShowInDevelopmentFeatures() const
   {
     return m_bShowInDevelopmentFeatures;
+  }
+
+  void SetHighlightUntranslatedUI(bool b);
+  bool GetHighlightUntranslatedUI() const
+  {
+    return m_bHighlightUntranslatedUI;
   }
 
   void SetGizmoSize(float f);

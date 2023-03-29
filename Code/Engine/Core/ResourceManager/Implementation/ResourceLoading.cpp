@@ -4,11 +4,11 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Profiling/Profiling.h>
 
-ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID)
+ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, ezStringView sResourceID)
 {
   // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
   EZ_LOCK(s_ResourceMutex);
-  return ezTypelessResourceHandle(GetResource(pResourceType, szResourceID, true));
+  return ezTypelessResourceHandle(GetResource(pResourceType, sResourceID, true));
 }
 
 void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHighestPriority)
@@ -366,6 +366,8 @@ ezUInt32 ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bFor
 
 ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
 {
+  EZ_PROFILE_SCOPE("ReloadAllResources");
+
   EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
 
@@ -391,12 +393,12 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
   return count;
 }
 
-void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& loader)
+void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& pLoader)
 {
   EZ_LOCK(s_ResourceMutex);
 
   hResource.m_pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader);
-  s_pState->m_CustomLoaders[hResource.m_pResource] = std::move(loader);
+  s_pState->m_CustomLoaders[hResource.m_pResource] = std::move(pLoader);
   // if there was already a custom loader set, but it got no action yet, it is deleted here and replaced with the newer loader
 
   ReloadResource(hResource.m_pResource, true);

@@ -8,11 +8,11 @@
 class ezPreferencesObjectManager : public ezDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override
   {
     for (auto pRtti : m_KnownTypes)
     {
-      Types.PushBack(pRtti);
+      ref_types.PushBack(pRtti);
     }
   }
 
@@ -34,8 +34,8 @@ public:
 
 
 
-ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

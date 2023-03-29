@@ -13,10 +13,10 @@ public:
   virtual const ezRTTI* GetInitializerType() const override;
   virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
+  virtual void Save(ezStreamWriter& inout_stream) const override;
+  virtual void Load(ezStreamReader& inout_stream) override;
 
-  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
 public:
   ezAngle m_Angle;

@@ -8,9 +8,9 @@
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
 
 template <typename T>
-static void SetComponentTest(ezVec2Template<T> vector, T value)
+static void SetComponentTest(ezVec2Template<T> vVector, T value)
 {
-  ezVariant var = vector;
+  ezVariant var = vVector;
   ezReflectionUtils::SetComponent(var, 0, value);
   EZ_TEST_BOOL(var.Get<ezVec2Template<T>>().x == value);
   ezReflectionUtils::SetComponent(var, 1, value);
@@ -18,9 +18,9 @@ static void SetComponentTest(ezVec2Template<T> vector, T value)
 }
 
 template <typename T>
-static void SetComponentTest(ezVec3Template<T> vector, T value)
+static void SetComponentTest(ezVec3Template<T> vVector, T value)
 {
-  ezVariant var = vector;
+  ezVariant var = vVector;
   ezReflectionUtils::SetComponent(var, 0, value);
   EZ_TEST_BOOL(var.Get<ezVec3Template<T>>().x == value);
   ezReflectionUtils::SetComponent(var, 1, value);
@@ -30,9 +30,9 @@ static void SetComponentTest(ezVec3Template<T> vector, T value)
 }
 
 template <typename T>
-static void SetComponentTest(ezVec4Template<T> vector, T value)
+static void SetComponentTest(ezVec4Template<T> vVector, T value)
 {
-  ezVariant var = vector;
+  ezVariant var = vVector;
   ezReflectionUtils::SetComponent(var, 0, value);
   EZ_TEST_BOOL(var.Get<ezVec4Template<T>>().x == value);
   ezReflectionUtils::SetComponent(var, 1, value);

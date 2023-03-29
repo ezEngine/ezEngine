@@ -69,17 +69,24 @@ ezQtContainerWindow::ezQtContainerWindow()
 
   UpdateWindowTitle();
 
+  ads::CDockManager::ConfigFlags flags =
+    ads::CDockManager::DefaultDockAreaButtons |
+    ads::CDockManager::ActiveTabHasCloseButton |
+    ads::CDockManager::XmlCompressionEnabled |
+    ads::CDockManager::FloatingContainerHasWidgetTitle |
+    ads::CDockManager::DragPreviewShowsContentPixmap |
+    ads::CDockManager::FocusHighlighting |
+    ads::CDockManager::AlwaysShowTabs |
+    ads::CDockManager::DockAreaHasCloseButton |
+    ads::CDockManager::DockAreaCloseButtonClosesTab |
+    ads::CDockManager::MiddleMouseButtonClosesTab |
+    ads::CDockManager::DockAreaHasTabsMenuButton |
+    ads::CDockManager::FloatingContainerHasWidgetIcon |
+    ads::CDockManager::AllTabsHaveCloseButton |
+    ads::CDockManager::OpaqueSplitterResize;
+  ads::CDockManager::setConfigFlags(flags);
+
   m_pDockManager = new ads::CDockManager(this);
-  m_pDockManager->setConfigFlags(
-    static_cast<ads::CDockManager::ConfigFlags>(
-      ads::CDockManager::DockAreaHasCloseButton |
-      ads::CDockManager::DockAreaCloseButtonClosesTab |
-      ads::CDockManager::OpaqueSplitterResize |
-      ads::CDockManager::AlwaysShowTabs |
-      ads::CDockManager::MiddleMouseButtonClosesTab |
-      ads::CDockManager::DockAreaHasTabsMenuButton |
-      ads::CDockManager::FloatingContainerHasWidgetIcon |
-      ads::CDockManager::AllTabsHaveCloseButton));
 
   connect(m_pDockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
 }
@@ -454,9 +461,9 @@ ezResult ezQtContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)
   return EZ_FAILURE;
 }
 
-void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& windows)
+void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& ref_windows)
 {
-  windows = m_DocumentWindows;
+  ref_windows = m_DocumentWindows;
 }
 
 bool ezQtContainerWindow::eventFilter(QObject* obj, QEvent* e)

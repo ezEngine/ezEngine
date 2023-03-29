@@ -1,6 +1,8 @@
 #pragma once
 
-#include <smmintrin.h>
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+
+#  include <smmintrin.h>
 
 // Cross product
 inline __m128 cross(__m128 a, __m128 b)
@@ -61,3 +63,5 @@ struct Aabb
     return _mm_dp_ps(extents, extents2, 0x7F);
   }
 };
+
+#endif

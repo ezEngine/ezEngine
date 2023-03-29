@@ -56,8 +56,8 @@ struct ezReflectionPool::Data
   ezReflectionProbeId AddProbe(const ezWorld* pWorld, ProbeData&& probeData);
   ezReflectionPool::Data::WorldReflectionData& GetWorldData(const ezWorld* pWorld);
   void RemoveProbe(const ezWorld* pWorld, ezReflectionProbeId id);
-  void UpdateProbeData(ProbeData& probeData, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
-  bool UpdateSkyLightData(ProbeData& probeData, const ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent);
+  void UpdateProbeData(ProbeData& ref_probeData, const ezReflectionProbeDesc& desc, const ezReflectionProbeComponentBase* pComponent);
+  bool UpdateSkyLightData(ProbeData& ref_probeData, const ezReflectionProbeDesc& desc, const ezSkyLightComponent* pComponent);
   void OnReflectionProbeMappingEvent(const ezUInt32 uiWorldIndex, const ezReflectionProbeMappingEvent& e);
 
   void PreExtraction();

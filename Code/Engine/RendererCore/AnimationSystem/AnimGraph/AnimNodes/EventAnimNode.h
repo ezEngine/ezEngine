@@ -19,7 +19,7 @@ protected:
   // ezEventAnimNode
 
 public:
-  void SetEventName(const char* sz) { m_sEventName.Assign(sz); }
+  void SetEventName(const char* szSz) { m_sEventName.Assign(szSz); }
   const char* GetEventName() const { return m_sEventName.GetString(); }
 
 private:

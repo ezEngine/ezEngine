@@ -18,7 +18,7 @@ public:
 
   ezRttiMappedObjectFactory<ezManipulatorAdapter> m_Factory;
 
-  void QueryGridSettings(const ezDocument* pDocument, ezGridSettingsMsgToEngine& outGridSettings);
+  void QueryGridSettings(const ezDocument* pDocument, ezGridSettingsMsgToEngine& out_gridSettings);
 
 private:
   void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);

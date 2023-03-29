@@ -114,7 +114,7 @@ ezBitflags<ezPropertyFlags> ezPhantomFunctionProperty::GetArgumentFlags(ezUInt32
   return m_Arguments[uiParamIndex].m_Flags;
 }
 
-void ezPhantomFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> values, ezVariant& returnValue) const
+void ezPhantomFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> values, ezVariant& ref_returnValue) const
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }

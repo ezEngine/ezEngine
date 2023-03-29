@@ -3,7 +3,7 @@
 template <typename T>
 EZ_ALWAYS_INLINE ezAmbientCube<T>::ezAmbientCube()
 {
-  ezMemoryUtils::ZeroFill(m_Values);
+  ezMemoryUtils::ZeroFillArray(m_Values);
 }
 
 template <typename T>
@@ -52,13 +52,13 @@ T ezAmbientCube<T>::Evaluate(const ezVec3& vNormal) const
 }
 
 template <typename T>
-ezResult ezAmbientCube<T>::Serialize(ezStreamWriter& stream) const
+ezResult ezAmbientCube<T>::Serialize(ezStreamWriter& inout_stream) const
 {
-  return stream.WriteArray(m_Values);
+  return inout_stream.WriteArray(m_Values);
 }
 
 template <typename T>
-ezResult ezAmbientCube<T>::Deserialize(ezStreamReader& stream)
+ezResult ezAmbientCube<T>::Deserialize(ezStreamReader& inout_stream)
 {
-  return stream.ReadArray(m_Values);
+  return inout_stream.ReadArray(m_Values);
 }

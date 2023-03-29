@@ -281,3 +281,6 @@ void ezPipeChannel_linux::ProcessIncomingPackages()
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Linux_PipeChannel_linux);

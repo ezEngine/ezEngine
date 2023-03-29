@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -80,7 +81,7 @@ TransformedShape RotatedTranslatedShape::GetSubShapeTransformedShape(const SubSh
 	// We don't use any bits in the sub shape ID
 	outRemainder = inSubShapeID;
 
-	TransformedShape ts(inPositionCOM, inRotation * mRotation, mInnerShape, BodyID());
+	TransformedShape ts(RVec3(inPositionCOM), inRotation * mRotation, mInnerShape, BodyID());
 	ts.SetShapeScale(TransformScale(inScale));
 	return ts;
 }
@@ -101,27 +102,27 @@ void RotatedTranslatedShape::GetSupportingFace(const SubShapeID &inSubShapeID, V
 	mInnerShape->GetSupportingFace(inSubShapeID, transform.Multiply3x3Transposed(inDirection), TransformScale(inScale), inCenterOfMassTransform * transform, outVertices);
 }
 
-void RotatedTranslatedShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy) const
+void RotatedTranslatedShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy JPH_IF_DEBUG_RENDERER(, RVec3Arg inBaseOffset)) const
 {
 	// Get center of mass transform of child
 	Mat44 transform = inCenterOfMassTransform * Mat44::sRotation(mRotation);
 
 	// Recurse to child
-	mInnerShape->GetSubmergedVolume(transform, TransformScale(inScale), inSurface, outTotalVolume, outSubmergedVolume, outCenterOfBuoyancy);
+	mInnerShape->GetSubmergedVolume(transform, TransformScale(inScale), inSurface, outTotalVolume, outSubmergedVolume, outCenterOfBuoyancy JPH_IF_DEBUG_RENDERER(, inBaseOffset));
 }
 
 #ifdef JPH_DEBUG_RENDERER
-void RotatedTranslatedShape::Draw(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const
+void RotatedTranslatedShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const
 {
 	mInnerShape->Draw(inRenderer, inCenterOfMassTransform * Mat44::sRotation(mRotation), TransformScale(inScale), inColor, inUseMaterialColors, inDrawWireframe);
 }
 
-void RotatedTranslatedShape::DrawGetSupportFunction(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const
+void RotatedTranslatedShape::DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const
 {
 	mInnerShape->DrawGetSupportFunction(inRenderer, inCenterOfMassTransform * Mat44::sRotation(mRotation), TransformScale(inScale), inColor, inDrawSupportDirection);
 }
 
-void RotatedTranslatedShape::DrawGetSupportingFace(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const
+void RotatedTranslatedShape::DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const
 {
 	mInnerShape->DrawGetSupportingFace(inRenderer, inCenterOfMassTransform * Mat44::sRotation(mRotation), TransformScale(inScale));
 }
@@ -139,7 +140,7 @@ bool RotatedTranslatedShape::CastRay(const RayCast &inRay, const SubShapeIDCreat
 void RotatedTranslatedShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	// Transform the ray
@@ -152,7 +153,7 @@ void RotatedTranslatedShape::CastRay(const RayCast &inRay, const RayCastSettings
 void RotatedTranslatedShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	// Transform the point
@@ -163,7 +164,7 @@ void RotatedTranslatedShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreat
 void RotatedTranslatedShape::CollectTransformedShapes(const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	// Test shape filter
-	if (!inShapeFilter.ShouldCollide(inSubShapeIDCreator.GetID()))
+	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
 	mInnerShape->CollectTransformedShapes(inBox, inPositionCOM, inRotation * mRotation, TransformScale(inScale), inSubShapeIDCreator, ioCollector, inShapeFilter);

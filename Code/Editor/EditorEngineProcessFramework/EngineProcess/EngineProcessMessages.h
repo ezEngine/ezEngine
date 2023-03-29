@@ -80,6 +80,15 @@ public:
   ezString m_sProfilingFile;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezReloadResourceMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezReloadResourceMsgToEngine, ezEditorEngineMsg);
+
+public:
+  ezString m_sResourceType;
+  ezString m_sResourceID;
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezResourceUpdateMsgToEngine : public ezEditorEngineMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezResourceUpdateMsgToEngine, ezEditorEngineMsg);
@@ -305,12 +314,8 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEditor : public e
   EZ_ADD_DYNAMIC_REFLECTION(ezExportDocumentMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-  ezExportDocumentMsgToEditor()
-    : m_bOutputSuccess(false)
-  {
-  }
-
-  bool m_bOutputSuccess;
+  bool m_bOutputSuccess = false;
+  ezString m_sFailureMsg;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEngine : public ezEditorEngineDocumentMsg

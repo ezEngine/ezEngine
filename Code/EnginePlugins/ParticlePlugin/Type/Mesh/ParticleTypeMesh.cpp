@@ -61,31 +61,31 @@ enum class TypeMeshVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeMeshFactory::Save(ezStreamWriter& stream) const
+void ezParticleTypeMeshFactory::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)TypeMeshVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_sMesh;
-  stream << m_sTintColorParameter;
+  inout_stream << m_sMesh;
+  inout_stream << m_sTintColorParameter;
 
   // Version 2
-  stream << m_sMaterial;
+  inout_stream << m_sMaterial;
 }
 
-void ezParticleTypeMeshFactory::Load(ezStreamReader& stream)
+void ezParticleTypeMeshFactory::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)TypeMeshVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  stream >> m_sMesh;
-  stream >> m_sTintColorParameter;
+  inout_stream >> m_sMesh;
+  inout_stream >> m_sTintColorParameter;
 
   if (uiVersion >= 2)
   {
-    stream >> m_sMaterial;
+    inout_stream >> m_sMaterial;
   }
 }
 
@@ -167,7 +167,7 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
   return true;
 }
 
-void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& msg, const ezTransform& instanceTransform) const
+void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
   if (!m_bRenderDataCached)
   {
@@ -228,7 +228,11 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& msg, cons
         pRenderData->FillBatchIdAndSortingKey();
       }
 
-      msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
+      ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Mesh_ParticleTypeMesh);
+

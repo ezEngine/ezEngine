@@ -1,7 +1,7 @@
 
-EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
+EZ_ALWAYS_INLINE ezStringView ezWorld::GetName() const
 {
-  return m_Data.m_sName.GetData();
+  return m_Data.m_sName;
 }
 
 EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetIndex() const
@@ -20,32 +20,32 @@ EZ_ALWAYS_INLINE const ezEvent<const ezGameObject*>& ezWorld::GetObjectDeletionE
   return m_Data.m_ObjectDeletionEvent;
 }
 
-EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) const
+EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& hObject) const
 {
   CheckForReadAccess();
-  EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == m_uiIndex,
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, hObject.m_InternalId.m_WorldIndex);
 
-  return m_Data.m_Objects.Contains(object);
+  return m_Data.m_Objects.Contains(hObject);
 }
 
-EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject)
+EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& hObject, ezGameObject*& out_pObject)
 {
   CheckForReadAccess();
-  EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == m_uiIndex,
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, hObject.m_InternalId.m_WorldIndex);
 
-  return m_Data.m_Objects.TryGetValue(object, out_pObject);
+  return m_Data.m_Objects.TryGetValue(hObject, out_pObject);
 }
 
-EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, const ezGameObject*& out_pObject) const
+EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& hObject, const ezGameObject*& out_pObject) const
 {
   CheckForReadAccess();
-  EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+  EZ_ASSERT_DEV(hObject.IsInvalidated() || hObject.m_InternalId.m_WorldIndex == m_uiIndex,
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, hObject.m_InternalId.m_WorldIndex);
 
   ezGameObject* pObject = nullptr;
-  bool bResult = m_Data.m_Objects.TryGetValue(object, pObject);
+  bool bResult = m_Data.m_Objects.TryGetValue(hObject, pObject);
   out_pObject = pObject;
   return bResult;
 }
@@ -244,16 +244,16 @@ EZ_ALWAYS_INLINE const ezComponentManagerBase* ezWorld::GetManagerForComponentTy
   return ezStaticCast<const ezComponentManagerBase*>(GetModule(pComponentRtti));
 }
 
-inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
+inline bool ezWorld::IsValidComponent(const ezComponentHandle& hComponent) const
 {
   CheckForReadAccess();
-  const ezWorldModuleTypeId uiTypeId = component.m_InternalId.m_TypeId;
+  const ezWorldModuleTypeId uiTypeId = hComponent.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     if (const ezWorldModule* pModule = m_Data.m_Modules[uiTypeId])
     {
-      return static_cast<const ezComponentManagerBase*>(pModule)->IsValidComponent(component);
+      return static_cast<const ezComponentManagerBase*>(pModule)->IsValidComponent(hComponent);
     }
   }
 
@@ -261,19 +261,19 @@ inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 }
 
 template <typename ComponentType>
-inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
+inline bool ezWorld::TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent)
 {
   CheckForWriteAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 
-  const ezWorldModuleTypeId uiTypeId = component.m_InternalId.m_TypeId;
+  const ezWorldModuleTypeId uiTypeId = hComponent.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     if (ezWorldModule* pModule = m_Data.m_Modules[uiTypeId])
     {
       ezComponent* pComponent = nullptr;
-      bool bResult = static_cast<ezComponentManagerBase*>(pModule)->TryGetComponent(component, pComponent);
+      bool bResult = static_cast<ezComponentManagerBase*>(pModule)->TryGetComponent(hComponent, pComponent);
       out_pComponent = ezDynamicCast<ComponentType*>(pComponent);
       return bResult && out_pComponent != nullptr;
     }
@@ -283,19 +283,19 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
 }
 
 template <typename ComponentType>
-inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
+inline bool ezWorld::TryGetComponent(const ezComponentHandle& hComponent, const ComponentType*& out_pComponent) const
 {
   CheckForReadAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 
-  const ezWorldModuleTypeId uiTypeId = component.m_InternalId.m_TypeId;
+  const ezWorldModuleTypeId uiTypeId = hComponent.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     if (const ezWorldModule* pModule = m_Data.m_Modules[uiTypeId])
     {
       const ezComponent* pComponent = nullptr;
-      bool bResult = static_cast<const ezComponentManagerBase*>(pModule)->TryGetComponent(component, pComponent);
+      bool bResult = static_cast<const ezComponentManagerBase*>(pModule)->TryGetComponent(hComponent, pComponent);
       out_pComponent = ezDynamicCast<const ComponentType*>(pComponent);
       return bResult && out_pComponent != nullptr;
     }
@@ -304,75 +304,75 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, const C
   return false;
 }
 
-EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg)
+EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg)
 {
   CheckForWriteAccess();
 
   ezGameObject* pReceiverObject = nullptr;
-  if (TryGetObject(receiverObject, pReceiverObject))
+  if (TryGetObject(hReceiverObject, pReceiverObject))
   {
-    pReceiverObject->SendMessage(msg);
+    pReceiverObject->SendMessage(ref_msg);
   }
   else
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (msg.GetDebugMessageRouting())
+    if (ref_msg.GetDebugMessageRouting())
     {
-      ezLog::Warning("ezWorld::SendMessage: The receiver ezGameObject for message of type '{0}' does not exist.", msg.GetId());
+      ezLog::Warning("ezWorld::SendMessage: The receiver ezGameObject for message of type '{0}' does not exist.", ref_msg.GetId());
     }
 #endif
   }
 }
 
-EZ_FORCE_INLINE void ezWorld::SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg)
+EZ_FORCE_INLINE void ezWorld::SendMessageRecursive(const ezGameObjectHandle& hReceiverObject, ezMessage& ref_msg)
 {
   CheckForWriteAccess();
 
   ezGameObject* pReceiverObject = nullptr;
-  if (TryGetObject(receiverObject, pReceiverObject))
+  if (TryGetObject(hReceiverObject, pReceiverObject))
   {
-    pReceiverObject->SendMessageRecursive(msg);
+    pReceiverObject->SendMessageRecursive(ref_msg);
   }
   else
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (msg.GetDebugMessageRouting())
+    if (ref_msg.GetDebugMessageRouting())
     {
-      ezLog::Warning("ezWorld::SendMessageRecursive: The receiver ezGameObject for message of type '{0}' does not exist.", msg.GetId());
+      ezLog::Warning("ezWorld::SendMessageRecursive: The receiver ezGameObject for message of type '{0}' does not exist.", ref_msg.GetId());
     }
 #endif
   }
 }
 
 EZ_ALWAYS_INLINE void ezWorld::PostMessage(
-  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+  const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
-  PostMessage(receiverObject, msg, queueType, delay, false);
+  PostMessage(hReceiverObject, msg, queueType, delay, false);
 }
 
 EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(
-  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+  const ezGameObjectHandle& hReceiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
-  PostMessage(receiverObject, msg, queueType, delay, true);
+  PostMessage(hReceiverObject, msg, queueType, delay, true);
 }
 
-EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg)
+EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& hReceiverComponent, ezMessage& ref_msg)
 {
   CheckForWriteAccess();
 
   ezComponent* pReceiverComponent = nullptr;
-  if (TryGetComponent(receiverComponent, pReceiverComponent))
+  if (TryGetComponent(hReceiverComponent, pReceiverComponent))
   {
-    pReceiverComponent->SendMessage(msg);
+    pReceiverComponent->SendMessage(ref_msg);
   }
   else
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (msg.GetDebugMessageRouting())
+    if (ref_msg.GetDebugMessageRouting())
     {
-      ezLog::Warning("ezWorld::SendMessage: The receiver ezComponent for message of type '{0}' does not exist.", msg.GetId());
+      ezLog::Warning("ezWorld::SendMessage: The receiver ezComponent for message of type '{0}' does not exist.", ref_msg.GetId());
     }
 #endif
   }
@@ -407,9 +407,9 @@ EZ_FORCE_INLINE const ezSpatialSystem* ezWorld::GetSpatialSystem() const
   return m_Data.m_pSpatialSystem.Borrow();
 }
 
-EZ_ALWAYS_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const
+EZ_ALWAYS_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const
 {
-  m_Data.m_pCoordinateSystemProvider->GetCoordinateSystem(vGlobalPosition, out_CoordinateSystem);
+  m_Data.m_pCoordinateSystemProvider->GetCoordinateSystem(vGlobalPosition, out_coordinateSystem);
 }
 
 EZ_ALWAYS_INLINE ezCoordinateSystemProvider& ezWorld::GetCoordinateSystemProvider()
@@ -519,15 +519,15 @@ EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
 }
 
 // static
-EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezGameObjectHandle& object)
+EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezGameObjectHandle& hObject)
 {
-  return s_Worlds[object.GetInternalID().m_WorldIndex];
+  return s_Worlds[hObject.GetInternalID().m_WorldIndex];
 }
 
 // static
-EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezComponentHandle& component)
+EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezComponentHandle& hComponent)
 {
-  return s_Worlds[component.GetInternalID().m_WorldIndex];
+  return s_Worlds[hComponent.GetInternalID().m_WorldIndex];
 }
 
 EZ_ALWAYS_INLINE void ezWorld::CheckForReadAccess() const

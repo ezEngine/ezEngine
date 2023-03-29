@@ -40,7 +40,7 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewConfig
   ezCamera m_Camera;
   ezEngineViewConfig* m_pLinkedViewConfig; // used to store which other view config this is linked to, for resetting values when switching views
 
-  void ApplyPerspectiveSetting(float fov = 0.0f, float nearPlane = 0.1f, float farPlane = 1000.0f);
+  void ApplyPerspectiveSetting(float fFov = 0.0f, float fNearPlane = 0.1f, float fFarPlane = 1000.0f);
 };
 struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewLightSettingsEvent
 {
@@ -70,31 +70,31 @@ public:
   ~ezEngineViewLightSettings();
 
   bool GetSkyBox() const;
-  void SetSkyBox(bool val);
+  void SetSkyBox(bool bVal);
 
   bool GetSkyLight() const;
-  void SetSkyLight(bool val);
+  void SetSkyLight(bool bVal);
 
   const char* GetSkyLightCubeMap() const;
-  void SetSkyLightCubeMap(const char* val);
+  void SetSkyLightCubeMap(const char* szVal);
 
   float GetSkyLightIntensity() const;
-  void SetSkyLightIntensity(float val);
+  void SetSkyLightIntensity(float fVal);
 
   bool GetDirectionalLight() const;
-  void SetDirectionalLight(bool val);
+  void SetDirectionalLight(bool bVal);
 
   ezAngle GetDirectionalLightAngle() const;
   void SetDirectionalLightAngle(ezAngle val);
 
   bool GetDirectionalLightShadows() const;
-  void SetDirectionalLightShadows(bool val);
+  void SetDirectionalLightShadows(bool bVal);
 
   float GetDirectionalLightIntensity() const;
-  void SetDirectionalLightIntensity(float val);
+  void SetDirectionalLightIntensity(float fVal);
 
   bool GetFog() const;
-  void SetFog(bool val);
+  void SetFog(bool bVal);
 
   mutable ezEvent<const ezEngineViewLightSettingsEvent&> m_EngineViewLightSettingsEvents;
 

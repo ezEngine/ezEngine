@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/AI/NpcComponent.h>
+#include <RecastPlugin/Components/NpcComponent.h>
 #include <RecastPlugin/RecastPluginDLL.h>
 
 class ezRecastWorldModule;
@@ -17,8 +17,8 @@ class EZ_RECASTPLUGIN_DLL ezSoldierComponent : public ezNpcComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void Deinitialize() override;

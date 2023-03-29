@@ -76,11 +76,27 @@ void ezJoltDistanceConstraintComponent::ApplySettings()
   }
 }
 
-void ezJoltDistanceConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+bool ezJoltDistanceConstraintComponent::ExceededBreakingPoint()
 {
-  SUPER::SerializeComponent(stream);
+  if (auto pConstraint = static_cast<JPH::DistanceConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition() >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+  }
 
-  auto& s = stream.GetStream();
+  return false;
+}
+
+void ezJoltDistanceConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+{
+  SUPER::SerializeComponent(inout_stream);
+
+  auto& s = inout_stream.GetStream();
 
   s << m_fMinDistance;
   s << m_fMaxDistance;
@@ -88,12 +104,12 @@ void ezJoltDistanceConstraintComponent::SerializeComponent(ezWorldWriter& stream
   s << m_fDamping;
 }
 
-void ezJoltDistanceConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltDistanceConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fMinDistance;
   s >> m_fMaxDistance;
@@ -118,3 +134,6 @@ void ezJoltDistanceConstraintComponent::CreateContstraintType(JPH::Body* pBody0,
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltDistanceConstraintComponent);

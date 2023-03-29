@@ -56,7 +56,7 @@ namespace
   EZ_END_COMPONENT_TYPE;
   // clang-format on
 
-  void AddObjectsToWorld(ezWorld& world, bool bDynamic, ezUInt32 uiNumObjects, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth,
+  void AddObjectsToWorld(ezWorld& ref_world, bool bDynamic, ezUInt32 uiNumObjects, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth,
     ezInt32 iAttachCompsDepth, ezGameObjectHandle hParent = ezGameObjectHandle())
   {
     if (uiTreeDepth == 0)
@@ -69,7 +69,7 @@ namespace
     float posX = 0.0f;
     float posY = uiTreeDepth * 5.0f;
 
-    ezTestComponentManager* pMan = world.GetOrCreateComponentManager<ezTestComponentManager>();
+    ezTestComponentManager* pMan = ref_world.GetOrCreateComponentManager<ezTestComponentManager>();
 
     for (ezUInt32 i = 0; i < uiNumObjects; ++i)
     {
@@ -77,7 +77,7 @@ namespace
       posX += 5.0f;
 
       ezGameObject* pObj;
-      auto hObj = world.CreateObject(gd, pObj);
+      auto hObj = ref_world.CreateObject(gd, pObj);
 
       if (iAttachCompsDepth > 0)
       {
@@ -86,7 +86,7 @@ namespace
       }
 
       AddObjectsToWorld(
-        world, bDynamic, ezMath::Max(uiNumObjects / uiTreeLevelNumNodeDiv, 1U), uiTreeLevelNumNodeDiv, uiTreeDepth - 1, iAttachCompsDepth - 1, hObj);
+        ref_world, bDynamic, ezMath::Max(uiNumObjects / uiTreeLevelNumNodeDiv, 1U), uiTreeLevelNumNodeDiv, uiTreeDepth - 1, iAttachCompsDepth - 1, hObj);
     }
   }
 

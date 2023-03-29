@@ -29,10 +29,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezColorAnimationComponent::ezColorAnimationComponent() = default;
 
-void ezColorAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezColorAnimationComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hGradient;
   s << m_Duration;
@@ -44,11 +44,11 @@ void ezColorAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
   s << GetApplyRecursive();
 }
 
-void ezColorAnimationComponent::DeserializeComponent(ezWorldReader& stream)
+void ezColorAnimationComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_hGradient;
   s >> m_Duration;

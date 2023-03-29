@@ -21,20 +21,20 @@ ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
 
   connect(
     GradientWidget, &ezQtColorGradientWidget::addColorCp, this, [this](double x, const ezColorGammaUB& color) { Q_EMIT ColorCpAdded(x, color); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 idx, double x) { Q_EMIT ColorCpMoved(idx, x); });
-  connect(GradientWidget, &ezQtColorGradientWidget::deleteColorCp, this, [this](ezInt32 idx) { Q_EMIT ColorCpDeleted(idx); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 iIdx, double x) { Q_EMIT ColorCpMoved(iIdx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteColorCp, this, [this](ezInt32 iIdx) { Q_EMIT ColorCpDeleted(iIdx); });
 
-  connect(GradientWidget, &ezQtColorGradientWidget::addAlphaCp, this, [this](double x, ezUInt8 alpha) { Q_EMIT AlphaCpAdded(x, alpha); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 idx, double x) { Q_EMIT AlphaCpMoved(idx, x); });
-  connect(GradientWidget, &ezQtColorGradientWidget::deleteAlphaCp, this, [this](ezInt32 idx) { Q_EMIT AlphaCpDeleted(idx); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addAlphaCp, this, [this](double x, ezUInt8 uiAlpha) { Q_EMIT AlphaCpAdded(x, uiAlpha); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 iIdx, double x) { Q_EMIT AlphaCpMoved(iIdx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteAlphaCp, this, [this](ezInt32 iIdx) { Q_EMIT AlphaCpDeleted(iIdx); });
 
   connect(
-    GradientWidget, &ezQtColorGradientWidget::addIntensityCp, this, [this](double x, float intensity) { Q_EMIT IntensityCpAdded(x, intensity); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveIntensityCpToPos, this, [this](ezInt32 idx, double x) { Q_EMIT IntensityCpMoved(idx, x); });
-  connect(GradientWidget, &ezQtColorGradientWidget::deleteIntensityCp, this, [this](ezInt32 idx) { Q_EMIT IntensityCpDeleted(idx); });
+    GradientWidget, &ezQtColorGradientWidget::addIntensityCp, this, [this](double x, float fIntensity) { Q_EMIT IntensityCpAdded(x, fIntensity); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveIntensityCpToPos, this, [this](ezInt32 iIdx, double x) { Q_EMIT IntensityCpMoved(iIdx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteIntensityCp, this, [this](ezInt32 iIdx) { Q_EMIT IntensityCpDeleted(iIdx); });
 
   connect(GradientWidget, &ezQtColorGradientWidget::beginOperation, this, [this]() { Q_EMIT BeginOperation(); });
-  connect(GradientWidget, &ezQtColorGradientWidget::endOperation, this, [this](bool commit) { Q_EMIT EndOperation(commit); });
+  connect(GradientWidget, &ezQtColorGradientWidget::endOperation, this, [this](bool bCommit) { Q_EMIT EndOperation(bCommit); });
 
   connect(GradientWidget, &ezQtColorGradientWidget::triggerPickColor, this, [this]() { on_ButtonColor_clicked(); });
 }

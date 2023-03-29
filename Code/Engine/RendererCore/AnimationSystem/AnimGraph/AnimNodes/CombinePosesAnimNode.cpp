@@ -186,3 +186,6 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
 
   m_LocalPosePin.SetPose(graph, pPinData);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_CombinePosesAnimNode);

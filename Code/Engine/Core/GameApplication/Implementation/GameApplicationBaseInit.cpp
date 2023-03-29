@@ -187,10 +187,16 @@ void ezGameApplicationBase::Init_ConfigureTags()
 {
   EZ_LOG_BLOCK("Reading Tags", "Tags.ddl");
 
+  ezStringView sFile = ":project/RuntimeConfigs/Tags.ddl";
+
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  sFile = ezFileSystem::MigrateFileLocation(":project/Tags.ddl", sFile);
+#endif
+
   ezFileReader file;
-  if (file.Open(":project/Tags.ddl").Failed())
+  if (file.Open(sFile).Failed())
   {
-    ezLog::Dev("'Tags.ddl' does not exist");
+    ezLog::Dev("'{}' does not exist", sFile);
     return;
   }
 

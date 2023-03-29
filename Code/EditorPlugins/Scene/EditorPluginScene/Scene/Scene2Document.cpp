@@ -234,7 +234,7 @@ void ezScene2Document::SendGameWorldToEngine()
     ezSceneDocument* pLayer = layer.Value().m_pLayer;
     if (pLayer != this && pLayer != nullptr)
     {
-      ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(pLayer, true);
+      pLayer->SendDocumentOpenMessage(true);
     }
   }
 }
@@ -818,23 +818,23 @@ ezStatus ezScene2Document::SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded)
   }
 }
 
-void ezScene2Document::GetAllLayers(ezDynamicArray<ezUuid>& out_LayerGuids)
+void ezScene2Document::GetAllLayers(ezDynamicArray<ezUuid>& out_layerGuids)
 {
-  out_LayerGuids.Clear();
+  out_layerGuids.Clear();
   for (auto it = m_Layers.GetIterator(); it.IsValid(); ++it)
   {
-    out_LayerGuids.PushBack(it.Key());
+    out_layerGuids.PushBack(it.Key());
   }
 }
 
-void ezScene2Document::GetLoadedLayers(ezDynamicArray<ezSceneDocument*>& out_Layers) const
+void ezScene2Document::GetLoadedLayers(ezDynamicArray<ezSceneDocument*>& out_layers) const
 {
-  out_Layers.Clear();
+  out_layers.Clear();
   for (auto it = m_Layers.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_pLayer)
     {
-      out_Layers.PushBack(it.Value().m_pLayer);
+      out_layers.PushBack(it.Value().m_pLayer);
     }
   }
 }

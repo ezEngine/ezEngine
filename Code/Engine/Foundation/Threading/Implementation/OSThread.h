@@ -15,7 +15,7 @@ public:
   ///
   /// Note that the thread won't start execution until Start() is called. Please note that szName must be valid until Start() has been
   /// called!
-  ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData = nullptr, const char* szName = "ezOSThread", ezUInt32 uiStackSize = 128 * 1024);
+  ezOSThread(ezOSThreadEntryPoint threadEntryPoint, void* pUserData = nullptr, const char* szName = "ezOSThread", ezUInt32 uiStackSize = 128 * 1024);
 
   /// \brief Destructor.
   virtual ~ezOSThread();

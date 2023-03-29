@@ -77,10 +77,10 @@ const char* ezPxRopeComponent::GetSurfaceFile() const
   return m_hSurface.GetResourceID();
 }
 
-void ezPxRopeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxRopeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_uiCollisionLayer;
   s << m_uiPieces;
@@ -99,13 +99,13 @@ void ezPxRopeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fTwistDamping;
   s << m_fSlack;
 
-  stream.WriteGameObjectHandle(m_hAnchor);
+  inout_stream.WriteGameObjectHandle(m_hAnchor);
 }
 
-void ezPxRopeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxRopeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   if (uiVersion < 2)
   {
@@ -113,7 +113,7 @@ void ezPxRopeComponent::DeserializeComponent(ezWorldReader& stream)
     return;
   }
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_uiCollisionLayer;
   s >> m_uiPieces;
@@ -132,7 +132,7 @@ void ezPxRopeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fTwistDamping;
   s >> m_fSlack;
 
-  m_hAnchor = stream.ReadGameObjectHandle();
+  m_hAnchor = inout_stream.ReadGameObjectHandle();
 }
 
 void ezPxRopeComponent::CreateFilterData(PxFilterData& filter)
@@ -653,7 +653,7 @@ void ezPxRopeComponent::SetAnchor(ezGameObjectHandle hActor)
   m_hAnchor = hActor;
 }
 
-void ezPxRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
+void ezPxRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& ref_msg)
 {
   if (m_pArticulation == nullptr || m_fMaxForcePerFrame <= 0.0f)
     return;
@@ -662,12 +662,12 @@ void ezPxRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
 
   PxArticulationLink* pLink[1] = {};
 
-  if (msg.m_pInternalPhysicsActor != nullptr)
-    pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
+  if (ref_msg.m_pInternalPhysicsActor != nullptr)
+    pLink[0] = reinterpret_cast<PxArticulationLink*>(ref_msg.m_pInternalPhysicsActor);
   else
     m_pArticulation->getLinks(pLink, 1);
 
-  ezVec3 vImp = msg.m_vForce;
+  ezVec3 vImp = ref_msg.m_vForce;
   const float fOrgImp = vImp.GetLength();
 
   if (fOrgImp > g_fMaxForce)
@@ -680,10 +680,10 @@ void ezPxRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
     m_fMaxForcePerFrame -= fOrgImp;
   }
 
-  PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(vImp), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
+  PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(vImp), ezPxConversionUtils::ToVec3(ref_msg.m_vGlobalPosition), PxForceMode::eFORCE);
 }
 
-void ezPxRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
+void ezPxRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 {
   if (m_pArticulation == nullptr || m_fMaxForcePerFrame <= 0.0f)
     return;
@@ -692,12 +692,12 @@ void ezPxRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
 
   PxArticulationLink* pLink[1] = {};
 
-  if (msg.m_pInternalPhysicsActor != nullptr)
-    pLink[0] = reinterpret_cast<PxArticulationLink*>(msg.m_pInternalPhysicsActor);
+  if (ref_msg.m_pInternalPhysicsActor != nullptr)
+    pLink[0] = reinterpret_cast<PxArticulationLink*>(ref_msg.m_pInternalPhysicsActor);
   else
     m_pArticulation->getLinks(pLink, 1);
 
-  ezVec3 vImp = msg.m_vImpulse;
+  ezVec3 vImp = ref_msg.m_vImpulse;
   const float fOrgImp = vImp.GetLength();
 
   if (fOrgImp > g_fMaxForce)
@@ -710,7 +710,7 @@ void ezPxRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
     m_fMaxForcePerFrame -= fOrgImp;
   }
 
-  PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(vImp), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+  PxRigidBodyExt::addForceAtPos(*pLink[0], ezPxConversionUtils::ToVec3(vImp), ezPxConversionUtils::ToVec3(ref_msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
 }
 
 //////////////////////////////////////////////////////////////////////////

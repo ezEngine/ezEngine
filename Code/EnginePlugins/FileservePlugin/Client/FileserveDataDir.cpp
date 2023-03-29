@@ -18,14 +18,14 @@ void ezDataDirectory::FileserveType::ReloadExternalConfigs()
   FolderType::ReloadExternalConfigs();
 }
 
-ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
+ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
 {
   // fileserve cannot handle absolute paths, which is actually already ruled out at creation time, so this is just an optimization
-  if (ezPathUtils::IsAbsolutePath(szFile))
+  if (ezPathUtils::IsAbsolutePath(sFile))
     return nullptr;
 
   ezStringBuilder sRedirected;
-  if (ResolveAssetRedirection(szFile, sRedirected))
+  if (ResolveAssetRedirection(sFile, sRedirected))
     bSpecificallyThisDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
@@ -40,18 +40,18 @@ ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char
   return FolderType::OpenFileToRead(sFullPath, FileShareMode, bSpecificallyThisDataDir);
 }
 
-ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode)
+ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode)
 {
   // fileserve cannot handle absolute paths, which is actually already ruled out at creation time, so this is just an optimization
-  if (ezPathUtils::IsAbsolutePath(szFile))
+  if (ezPathUtils::IsAbsolutePath(sFile))
     return nullptr;
 
-  return FolderType::OpenFileToWrite(szFile, FileShareMode);
+  return FolderType::OpenFileToWrite(sFile, FileShareMode);
 }
 
-ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(const char* szDirectory)
+ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(ezStringView sDirectory)
 {
-  ezStringBuilder sDataDir = szDirectory;
+  ezStringBuilder sDataDir = sDirectory;
   sDataDir.MakeCleanPath();
 
   ezStringBuilder sCacheFolder, sCacheMetaFolder;
@@ -73,14 +73,14 @@ void ezDataDirectory::FileserveType::RemoveDataDirectory()
   FolderType::RemoveDataDirectory();
 }
 
-void ezDataDirectory::FileserveType::DeleteFile(const char* szFile)
+void ezDataDirectory::FileserveType::DeleteFile(ezStringView sFile)
 {
   if (ezFileserveClient::GetSingleton())
   {
-    ezFileserveClient::GetSingleton()->DeleteFile(m_uiDataDirID, szFile);
+    ezFileserveClient::GetSingleton()->DeleteFile(m_uiDataDirID, sFile);
   }
 
-  FolderType::DeleteFile(szFile);
+  FolderType::DeleteFile(sFile);
 }
 
 ezDataDirectory::FolderReader* ezDataDirectory::FileserveType::CreateFolderReader() const
@@ -93,10 +93,10 @@ ezDataDirectory::FolderWriter* ezDataDirectory::FileserveType::CreateFolderWrite
   return EZ_DEFAULT_NEW(FileserveDataDirectoryWriter);
 }
 
-ezResult ezDataDirectory::FileserveType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
+ezResult ezDataDirectory::FileserveType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
 {
   ezStringBuilder sRedirected;
-  if (ResolveAssetRedirection(szFileOrFolder, sRedirected))
+  if (ResolveAssetRedirection(sFileOrFolder, sRedirected))
     bOneSpecificDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
@@ -108,10 +108,10 @@ ezResult ezDataDirectory::FileserveType::GetFileStats(const char* szFileOrFolder
   return ezOSFile::GetFileStats(sFullPath, out_Stats);
 }
 
-bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
+bool ezDataDirectory::FileserveType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
 {
   ezStringBuilder sRedirected;
-  if (ResolveAssetRedirection(szFile, sRedirected))
+  if (ResolveAssetRedirection(sFile, sRedirected))
     bOneSpecificDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
@@ -121,27 +121,27 @@ bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpe
   return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, nullptr).Succeeded();
 }
 
-ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
+ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage)
 {
   if (!ezFileserveClient::s_bEnableFileserve || ezFileserveClient::GetSingleton() == nullptr)
     return nullptr; // this would only happen if the functionality is switched off, but not before the factory was added
 
   // ignore the empty data dir, which handles absolute paths, as we cannot translate these paths to the fileserve host OS
-  if (ezStringUtils::IsNullOrEmpty(szDataDirectory))
+  if (sDataDirectory.IsEmpty())
     return nullptr;
 
   // Fileserve can only translate paths on the server that start with a 'Special Directory' (e.g. ">sdk/" or ">project/")
   // ignore everything else
-  if (szDataDirectory[0] != '>')
+  if (!sDataDirectory.StartsWith(">"))
     return nullptr;
 
   if (ezFileserveClient::GetSingleton()->EnsureConnected().Failed())
     return nullptr;
 
   ezDataDirectory::FileserveType* pDataDir = EZ_DEFAULT_NEW(ezDataDirectory::FileserveType);
-  pDataDir->m_uiDataDirID = ezFileserveClient::GetSingleton()->MountDataDirectory(szDataDirectory, szRootName);
+  pDataDir->m_uiDataDirID = ezFileserveClient::GetSingleton()->MountDataDirectory(sDataDirectory, sRootName);
 
-  if (pDataDir->m_uiDataDirID < 0xffff && pDataDir->InitializeDataDirectory(szDataDirectory) == EZ_SUCCESS)
+  if (pDataDir->m_uiDataDirID < 0xffff && pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
     return pDataDir;
 
   EZ_DEFAULT_DELETE(pDataDir);

@@ -41,7 +41,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& Menus);
+  static void MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& menus);
 
   static ezActionDescriptorHandle s_hMenuFile;
   static ezActionDescriptorHandle s_hMenuEdit;
@@ -64,7 +64,7 @@ public:
     : ezDynamicMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
+  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
 

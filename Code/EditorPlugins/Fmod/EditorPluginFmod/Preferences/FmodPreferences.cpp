@@ -26,9 +26,9 @@ ezFmodProjectPreferences::~ezFmodProjectPreferences()
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezFmodProjectPreferences::ProcessEventHandler, this));
 }
 
-void ezFmodProjectPreferences::SetMute(bool mute)
+void ezFmodProjectPreferences::SetMute(bool bMute)
 {
-  m_bMute = mute;
+  m_bMute = bMute;
 
   SyncCVars();
 }

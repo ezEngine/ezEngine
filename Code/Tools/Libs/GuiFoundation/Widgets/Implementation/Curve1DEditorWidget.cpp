@@ -732,18 +732,18 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     ezMap<ezString, QMenu*> subMenus;
     subMenus[""] = presentsMenu;
 
-    auto GetSubMenu = [&](const ezStringBuilder& path, auto GetSubMenu2) {
-      auto it = subMenus.Find(path);
+    auto GetSubMenu = [&](const ezStringBuilder& sPath, auto getSubMenu2) {
+      auto it = subMenus.Find(sPath);
       if (it.IsValid())
         return it.Value();
 
-      ezStringBuilder parent = path;
+      ezStringBuilder parent = sPath;
       parent.PathParentDirectory();
       parent.Trim("/");
 
-      QMenu* pParentMenu = GetSubMenu2(parent, GetSubMenu2);
-      QMenu* pMenu = pParentMenu->addMenu(path.GetFileName().GetData(parent));
-      subMenus[path] = pMenu;
+      QMenu* pParentMenu = getSubMenu2(parent, getSubMenu2);
+      QMenu* pMenu = pParentMenu->addMenu(sPath.GetFileName().GetData(parent));
+      subMenus[sPath] = pMenu;
 
       return pMenu;
     };
@@ -957,10 +957,10 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezMath::ezCurveFunction function, 
     samples[i].m_fCorrectValue = GetCurveValue(function, x, inverse);
   }
 
-  auto AddPt = [&](ezUInt32 idx) {
-    samples[idx].m_bInserted = true;
-    const double x = samples[idx].m_fPos;
-    const double y = samples[idx].m_fCorrectValue;
+  auto AddPt = [&](ezUInt32 uiIdx) {
+    samples[uiIdx].m_bInserted = true;
+    const double x = samples[uiIdx].m_fPos;
+    const double y = samples[uiIdx].m_fCorrectValue;
 
     cmp.AddControlPoint(x).m_Position.y = y;
     InsertCpAt(x, y, ezVec2d::ZeroVector());

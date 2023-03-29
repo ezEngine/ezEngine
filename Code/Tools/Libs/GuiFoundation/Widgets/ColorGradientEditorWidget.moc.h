@@ -26,25 +26,25 @@ public:
   void FrameGradient();
 
 Q_SIGNALS:
-  void ColorCpAdded(double posX, const ezColorGammaUB& color);
-  void ColorCpMoved(ezInt32 index, float newPosX);
-  void ColorCpDeleted(ezInt32 index);
-  void ColorCpChanged(ezInt32 index, const ezColorGammaUB& color);
+  void ColorCpAdded(double fPosX, const ezColorGammaUB& color);
+  void ColorCpMoved(ezInt32 iIndex, float fNewPosX);
+  void ColorCpDeleted(ezInt32 iIndex);
+  void ColorCpChanged(ezInt32 iIndex, const ezColorGammaUB& color);
 
-  void AlphaCpAdded(double posX, ezUInt8 alpha);
-  void AlphaCpMoved(ezInt32 index, double newPosX);
-  void AlphaCpDeleted(ezInt32 index);
-  void AlphaCpChanged(ezInt32 index, ezUInt8 alpha);
+  void AlphaCpAdded(double fPosX, ezUInt8 uiAlpha);
+  void AlphaCpMoved(ezInt32 iIndex, double fNewPosX);
+  void AlphaCpDeleted(ezInt32 iIndex);
+  void AlphaCpChanged(ezInt32 iIndex, ezUInt8 uiAlpha);
 
-  void IntensityCpAdded(double posX, float intensity);
-  void IntensityCpMoved(ezInt32 index, double newPosX);
-  void IntensityCpDeleted(ezInt32 index);
-  void IntensityCpChanged(ezInt32 index, float intensity);
+  void IntensityCpAdded(double fPosX, float fIntensity);
+  void IntensityCpMoved(ezInt32 iIndex, double fNewPosX);
+  void IntensityCpDeleted(ezInt32 iIndex);
+  void IntensityCpChanged(ezInt32 iIndex, float fIntensity);
 
   void NormalizeRange();
 
   void BeginOperation();
-  void EndOperation(bool commit);
+  void EndOperation(bool bCommit);
 
 private Q_SLOTS:
   void on_ButtonFrame_clicked();

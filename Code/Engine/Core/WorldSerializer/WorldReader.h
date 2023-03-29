@@ -45,7 +45,7 @@ class EZ_CORE_DLL ezWorldReader
 public:
   /// \brief A context object is returned from InstantiateWorld or InstantiatePrefab if a maxStepTime greater than zero is specified.
   ///
-  /// Call the Step function periodically until it returns true to complete the instantiation.
+  /// Call the Step() function periodically to complete the instantiation.
   /// Each step will try to spend not more than the given maxStepTime.
   /// E.g. this is useful if the instantiation cost of large prefabs needs to be distributed over multiple frames.
   class InstantiationContextBase
@@ -53,9 +53,9 @@ public:
   public:
     enum class StepResult
     {
-      Continue,
-      ContinueNextFrame,
-      Finished,
+      Continue,          ///< The available time slice is used up. Call Step() again to continue the process.
+      ContinueNextFrame, ///< The process has reached a point where you need to call ezWorld::Update(). Otherwise no further progress can be made.
+      Finished,          ///< The instantiation is finished and you can delete the context. Don't call 'Step()' on it again.
     };
 
     virtual ~InstantiationContextBase() {}
@@ -79,7 +79,7 @@ public:
   /// to actually get an objects into an ezWorld.
   /// By default, the method will warn if it skips bytes in the stream that are of unknown
   /// types. The warnings can be suppressed by setting warningOnUnkownSkip to false.
-  ezResult ReadWorldDescription(ezStreamReader& stream, bool warningOnUnkownSkip = true);
+  ezResult ReadWorldDescription(ezStreamReader& inout_stream, bool bWarningOnUnkownSkip = true);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -95,7 +95,7 @@ public:
   ///
   /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
+  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
@@ -112,7 +112,7 @@ public:
   ///
   /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
+  ezUniquePtr<InstantiationContextBase> InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
 
   /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
   ezStreamReader& GetStream() const { return *m_pStream; }
@@ -149,8 +149,8 @@ public:
   ezUInt32 GetRootObjectCount() const;
   ezUInt32 GetChildObjectCount() const;
 
-  static void SetMaxStepTime(InstantiationContextBase* context, ezTime maxStepTime);
-  static ezTime GetMaxStepTime(InstantiationContextBase* context);
+  static void SetMaxStepTime(InstantiationContextBase* pContext, ezTime maxStepTime);
+  static ezTime GetMaxStepTime(InstantiationContextBase* pContext);
 
 private:
   struct GameObjectToCreate
@@ -193,14 +193,14 @@ private:
   class InstantiationContext : public InstantiationContextBase
   {
   public:
-    InstantiationContext(ezWorldReader& worldReader, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
+    InstantiationContext(ezWorldReader& ref_worldReader, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
     ~InstantiationContext();
 
     virtual StepResult Step() override;
     virtual void Cancel() override;
 
     template <bool UseTransform>
-    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_CreatedObjects, ezTime endTime);
+    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_pCreatedObjects, ezTime endTime);
 
     bool CreateComponents(ezTime endTime);
     bool DeserializeComponents(ezTime endTime);
@@ -210,7 +210,7 @@ private:
     ezTime GetMaxStepTime() const;
 
   private:
-    void BeginNextProgressStep(const char* szName);
+    void BeginNextProgressStep(ezStringView sName);
     void SetSubProgressCompletion(double fCompletion);
 
     friend class ezWorldReader;

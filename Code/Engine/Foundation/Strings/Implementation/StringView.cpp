@@ -12,10 +12,10 @@ ezUInt32 ezStringView::GetCharacter() const
   return ezUnicodeUtils::ConvertUtf8ToUtf32(m_pStart);
 }
 
-const char* ezStringView::GetData(ezStringBuilder& tempStorage) const
+const char* ezStringView::GetData(ezStringBuilder& ref_sTempStorage) const
 {
-  tempStorage = *this;
-  return tempStorage.GetData();
+  ref_sTempStorage = *this;
+  return ref_sTempStorage.GetData();
 }
 
 bool ezStringView::IsEqualN(ezStringView sOther, ezUInt32 uiCharsToCompare) const
@@ -95,24 +95,24 @@ const char* ezStringView::FindLastSubString_NoCase(ezStringView sStringToFind, c
   return ezStringUtils::FindLastSubString_NoCase(GetStartPointer(), sStringToFind.GetStartPointer(), szStartSearchAt, GetEndPointer(), sStringToFind.GetEndPointer());
 }
 
-const char* ezStringView::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /*= nullptr*/) const
+const char* ezStringView::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt /*= nullptr*/) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = GetStartPointer();
 
   EZ_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindWholeWord(szStartSearchAt, szSearchFor, IsDelimiterCB, GetEndPointer());
+  return ezStringUtils::FindWholeWord(szStartSearchAt, szSearchFor, isDelimiterCB, GetEndPointer());
 }
 
-const char* ezStringView::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /*= nullptr*/) const
+const char* ezStringView::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt /*= nullptr*/) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = GetStartPointer();
 
   EZ_ASSERT_DEV((szStartSearchAt >= GetStartPointer()) && (szStartSearchAt <= GetEndPointer()), "The given pointer to start searching at is not inside this strings valid range.");
 
-  return ezStringUtils::FindWholeWord_NoCase(szStartSearchAt, szSearchFor, IsDelimiterCB, GetEndPointer());
+  return ezStringUtils::FindWholeWord_NoCase(szStartSearchAt, szSearchFor, isDelimiterCB, GetEndPointer());
 }
 
 void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack)
@@ -135,6 +135,24 @@ ezStringView ezStringView::GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShr
   ezStringView tmp = *this;
   tmp.Shrink(uiShrinkCharsFront, uiShrinkCharsBack);
   return tmp;
+}
+
+void ezStringView::ChopAwayFirstCharacterUtf8()
+{
+  if (IsValid())
+  {
+    ezUnicodeUtils::MoveToNextUtf8(m_pStart, m_pEnd, 1);
+  }
+}
+
+void ezStringView::ChopAwayFirstCharacterAscii()
+{
+  if (IsValid())
+  {
+    EZ_ASSERT_DEBUG(ezUnicodeUtils::IsASCII(*m_pStart), "ChopAwayFirstCharacterAscii() was called on a non-ASCII character.");
+
+    m_pStart += 1;
+  }
 }
 
 bool ezStringView::TrimWordStart(ezStringView sWord1, ezStringView sWord2, ezStringView sWord3, ezStringView sWord4, ezStringView sWord5)

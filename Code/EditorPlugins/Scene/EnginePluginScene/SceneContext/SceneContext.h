@@ -46,7 +46,7 @@ public:
 
   ezUInt32 RegisterLayer(ezLayerContext* pLayer);
   void UnregisterLayer(ezLayerContext* pLayer);
-  void AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& context, const ezTag& layerTag);
+  void AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& ref_context, const ezTag& layerTag);
   const ezArrayPtr<const ezTag> GetInvisibleLayerTags() const;
 
   ezEngineProcessDocumentContext* GetActiveDocumentContext();
@@ -62,7 +62,7 @@ protected:
 
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
-  virtual bool ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
+  virtual ezStatus ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
   void ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const;
 
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
@@ -78,7 +78,7 @@ private:
     ezTag m_Tag;
   };
 
-  void AddAmbientLight(bool bSetEditorTag);
+  void AddAmbientLight(bool bSetEditorTag, bool bForce);
   void RemoveAmbientLight();
 
   void HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg);
@@ -120,7 +120,8 @@ private:
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
-  ezGameObjectHandle m_hAmbientLight[3];
+  ezGameObjectHandle m_hSkyLight;
+  ezGameObjectHandle m_hDirectionalLight;
   ezDynamicArray<ezExposedSceneProperty> m_ExposedSceneProperties;
 
   ezPushObjectStateMsgToEditor m_PushObjectStateMsg;

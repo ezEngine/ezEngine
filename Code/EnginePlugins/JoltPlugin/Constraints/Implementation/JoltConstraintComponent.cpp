@@ -15,12 +15,12 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltConstraintComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    //EZ_ACCESSOR_PROPERTY("BreakForce", GetBreakForce, SetBreakForce),
-    //EZ_ACCESSOR_PROPERTY("BreakTorque", GetBreakTorque, SetBreakTorque),
     EZ_ACCESSOR_PROPERTY("PairCollision", GetPairCollision, SetPairCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("ParentActor", DummyGetter, SetParentActorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
     EZ_ACCESSOR_PROPERTY("ChildActor", DummyGetter, SetChildActorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
     EZ_ACCESSOR_PROPERTY("ChildActorAnchor", DummyGetter, SetChildActorAnchorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    EZ_ACCESSOR_PROPERTY("BreakForce", GetBreakForce, SetBreakForce),
+    EZ_ACCESSOR_PROPERTY("BreakTorque", GetBreakTorque, SetBreakTorque),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -43,17 +43,17 @@ EZ_END_STATIC_REFLECTED_ENUM;
 ezJoltConstraintComponent::ezJoltConstraintComponent() = default;
 ezJoltConstraintComponent::~ezJoltConstraintComponent() = default;
 
-// void ezJoltConstraintComponent::SetBreakForce(float value)
-//{
-//   m_fBreakForce = value;
-//   QueueApplySettings();
-// }
-//
-// void ezJoltConstraintComponent::SetBreakTorque(float value)
-//{
-//   m_fBreakTorque = value;
-//   QueueApplySettings();
-// }
+void ezJoltConstraintComponent::SetBreakForce(float value)
+{
+  m_fBreakForce = value;
+  QueueApplySettings();
+}
+
+void ezJoltConstraintComponent::SetBreakTorque(float value)
+{
+  m_fBreakTorque = value;
+  QueueApplySettings();
+}
 
 void ezJoltConstraintComponent::SetPairCollision(bool value)
 {
@@ -120,7 +120,43 @@ void ezJoltConstraintComponent::OnDeactivated()
     ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
     pModule->GetJoltSystem()->RemoveConstraint(m_pConstraint);
 
-    // pModule->m_BreakableConstraints.Remove(m_pConstraint->getConstraint());
+    pModule->m_BreakableConstraints.Remove(GetHandle());
+
+    // wake up the joined bodies, so that removing a constraint doesn't let them hang in the air
+    {
+      JPH::BodyID bodies[2] = {JPH::BodyID(JPH::BodyID::cInvalidBodyID), JPH::BodyID(JPH::BodyID::cInvalidBodyID)};
+      ezInt32 iBodies = 0;
+
+      if (!m_hActorA.IsInvalidated())
+      {
+        ezGameObject* pObject = nullptr;
+        ezJoltDynamicActorComponent* pRbComp = nullptr;
+
+        if (GetWorld()->TryGetObject(m_hActorA, pObject) && pObject->IsActive() && pObject->TryGetComponentOfBaseType(pRbComp))
+        {
+          bodies[iBodies] = JPH::BodyID(pRbComp->GetJoltBodyID());
+          ++iBodies;
+        }
+      }
+
+      if (!m_hActorB.IsInvalidated())
+      {
+        ezGameObject* pObject = nullptr;
+        ezJoltDynamicActorComponent* pRbComp = nullptr;
+
+        if (GetWorld()->TryGetObject(m_hActorB, pObject) && pObject->IsActive() && pObject->TryGetComponentOfBaseType(pRbComp))
+        {
+          bodies[iBodies] = JPH::BodyID(pRbComp->GetJoltBodyID());
+          ++iBodies;
+        }
+      }
+
+      if (iBodies > 0)
+      {
+        ezLog::Info("Waking up {} bodies", iBodies);
+        pModule->GetJoltSystem()->GetBodyInterface().ActivateBodies(bodies, iBodies);
+      }
+    }
 
     m_pConstraint->Release();
     m_pConstraint = nullptr;
@@ -129,44 +165,44 @@ void ezJoltConstraintComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   // s << m_fBreakForce;
   // s << m_fBreakTorque;
   s << m_bPairCollision;
 
-  stream.WriteGameObjectHandle(m_hActorA);
-  stream.WriteGameObjectHandle(m_hActorB);
+  inout_stream.WriteGameObjectHandle(m_hActorA);
+  inout_stream.WriteGameObjectHandle(m_hActorB);
 
   s << m_LocalFrameA;
   s << m_LocalFrameB;
 
-  stream.WriteGameObjectHandle(m_hActorBAnchor);
+  inout_stream.WriteGameObjectHandle(m_hActorBAnchor);
 }
 
-void ezJoltConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   // s >> m_fBreakForce;
   // s >> m_fBreakTorque;
   s >> m_bPairCollision;
 
-  m_hActorA = stream.ReadGameObjectHandle();
-  m_hActorB = stream.ReadGameObjectHandle();
+  m_hActorA = inout_stream.ReadGameObjectHandle();
+  m_hActorB = inout_stream.ReadGameObjectHandle();
 
   s >> m_LocalFrameA;
   s >> m_LocalFrameB;
 
-  m_hActorBAnchor = stream.ReadGameObjectHandle();
+  m_hActorBAnchor = inout_stream.ReadGameObjectHandle();
 }
 
 void ezJoltConstraintComponent::SetParentActorReference(const char* szReference)
@@ -236,26 +272,16 @@ void ezJoltConstraintComponent::ApplySettings()
 {
   SetUserFlag(2, false);
 
-  // const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakForce;
-  // const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakTorque;
-  // m_pConstraint->setBreakForce(fBreakForce, fBreakTorque);
-
-  // if (m_fBreakForce > 0.0f || m_fBreakTorque > 0.0f)
-  //{
-  //   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
-  //   pModule->m_BreakableConstraints[m_pConstraint->getConstraint()] = GetHandle();
-  // }
-
-  // m_pConstraint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
-
-  // JoltRigidActor* pActor0 = nullptr;
-  // JoltRigidActor* pActor1 = nullptr;
-  // m_pConstraint->getActors(pActor0, pActor1);
-
-  // if (pActor0 && pActor0->is<PxRigidDynamic>() && !static_cast<PxRigidDynamic*>(pActor0)->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
-  //   static_cast<PxRigidDynamic*>(pActor0)->wakeUp();
-  // if (pActor1 && pActor1->is<PxRigidDynamic>() && !static_cast<PxRigidDynamic*>(pActor1)->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
-  //   static_cast<PxRigidDynamic*>(pActor1)->wakeUp();
+  if (m_fBreakForce > 0.0f || m_fBreakTorque > 0.0f)
+  {
+    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    pModule->m_BreakableConstraints.Insert(GetHandle());
+  }
+  else
+  {
+    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    pModule->m_BreakableConstraints.Remove(GetHandle());
+  }
 }
 
 ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID)
@@ -301,6 +327,18 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID)
         m_LocalFrameA = GetOwner()->GetGlobalTransform();
       }
       return EZ_SUCCESS;
+    }
+    else
+    {
+      if (GetUserFlag(0) == true)
+      {
+        ezTransform globalFrame = m_LocalFrameA;
+
+        // m_localFrameA is already valid
+        // assume it was in global space and move it into local space of the found parent
+        m_LocalFrameA.SetLocalTransform(pRbComp->GetOwner()->GetGlobalTransform(), globalFrame);
+        m_LocalFrameA.m_vPosition = m_LocalFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
+      }
     }
   }
 
@@ -439,3 +477,6 @@ void ezJoltConstraintComponent::QueueApplySettings()
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
   pModule->m_RequireUpdate.PushBack(GetHandle());
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltConstraintComponent);

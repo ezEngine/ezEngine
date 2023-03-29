@@ -3,20 +3,20 @@
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <QWidget>
 
-ezQtTreeSearchFilterModel::ezQtTreeSearchFilterModel(QWidget* parent)
-  : QSortFilterProxyModel(parent)
+ezQtTreeSearchFilterModel::ezQtTreeSearchFilterModel(QWidget* pParent)
+  : QSortFilterProxyModel(pParent)
 {
   m_bIncludeChildren = false;
 }
 
-void ezQtTreeSearchFilterModel::SetFilterText(const QString& text)
+void ezQtTreeSearchFilterModel::SetFilterText(const QString& sText)
 {
   // only clear the current visible state, if the new filter text got shorter
   // this way previous information stays valid and can be used to early out
-  if (!text.contains(m_sFilterText, Qt::CaseInsensitive))
+  if (!sText.contains(m_sFilterText, Qt::CaseInsensitive))
     m_Visible.Clear();
 
-  m_sFilterText = text;
+  m_sFilterText = sText;
 
   if (!m_sFilterText.isEmpty())
   {

@@ -212,7 +212,7 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
   if (auto type = GetExposedParamsType(pObject))
   {
     auto props = type->GetProperties();
-    return std::any_of(cbegin(props), cend(props), [pProp](const ezAbstractProperty* prop) { return prop == pProp; });
+    return std::any_of(cbegin(props), cend(props), [&](const ezAbstractProperty* pProp) { return pProp == pProp; });
   }
   return false;
 }
@@ -306,11 +306,11 @@ void ezQtExposedParametersPropertyWidget::OnInit()
       m_pRemoveUnusedAction = pFixMeMenu->addAction(QStringLiteral("Remove unused keys"));
       m_pRemoveUnusedAction->setToolTip(
         QStringLiteral("The map contains keys that are no longer used by the asset's exposed parameters and thus can be removed."));
-      connect(m_pRemoveUnusedAction, &QAction::triggered, this, [this](bool checked) { RemoveUnusedKeys(false); });
+      connect(m_pRemoveUnusedAction, &QAction::triggered, this, [this](bool bChecked) { RemoveUnusedKeys(false); });
     }
     {
       m_pFixTypesAction = pFixMeMenu->addAction(QStringLiteral("Fix keys with wrong types"));
-      connect(m_pFixTypesAction, &QAction::triggered, this, [this](bool checked) { FixKeyTypes(false); });
+      connect(m_pFixTypesAction, &QAction::triggered, this, [this](bool bChecked) { FixKeyTypes(false); });
     }
     m_pFixMeButton->setMenu(pFixMeMenu);
 

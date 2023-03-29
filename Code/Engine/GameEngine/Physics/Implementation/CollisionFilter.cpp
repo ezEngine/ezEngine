@@ -96,10 +96,10 @@ ezInt32 ezCollisionFilterConfig::FindUnnamedGroup() const
   return -1;
 }
 
-ezResult ezCollisionFilterConfig::Save(const char* szFile) const
+ezResult ezCollisionFilterConfig::Save(ezStringView sFile) const
 {
   ezFileWriter file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
     return EZ_FAILURE;
 
   Save(file);
@@ -107,37 +107,44 @@ ezResult ezCollisionFilterConfig::Save(const char* szFile) const
   return EZ_SUCCESS;
 }
 
-ezResult ezCollisionFilterConfig::Load(const char* szFile)
+ezResult ezCollisionFilterConfig::Load(ezStringView sFile)
 {
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  if (sFile == s_sConfigFile)
+  {
+    sFile = ezFileSystem::MigrateFileLocation(":project/CollisionLayers.cfg", s_sConfigFile);
+  }
+#endif
+
   ezFileReader file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
     return EZ_FAILURE;
 
   Load(file);
   return EZ_SUCCESS;
 }
 
-void ezCollisionFilterConfig::Save(ezStreamWriter& stream) const
+void ezCollisionFilterConfig::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
 
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32).IgnoreResult();
-  stream.WriteBytes(m_GroupNames, sizeof(char) * 32 * 32).IgnoreResult();
+  inout_stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32).IgnoreResult();
+  inout_stream.WriteBytes(m_GroupNames, sizeof(char) * 32 * 32).IgnoreResult();
 }
 
 
-void ezCollisionFilterConfig::Load(ezStreamReader& stream)
+void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
 
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion == 1, "Invalid version {0} for ezCollisionFilterConfig file", uiVersion);
 
-  stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
-  stream.ReadBytes(m_GroupNames, sizeof(char) * 32 * 32);
+  inout_stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
+  inout_stream.ReadBytes(m_GroupNames, sizeof(char) * 32 * 32);
 }
 
 

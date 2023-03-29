@@ -12,17 +12,17 @@ class ezStreamReader;
 
 struct EZ_RENDERERCORE_DLL ezMeshInstanceData
 {
-  void SetLocalPosition(ezVec3 position);
+  void SetLocalPosition(ezVec3 vPosition);
   ezVec3 GetLocalPosition() const;
 
-  void SetLocalRotation(ezQuat rotation);
+  void SetLocalRotation(ezQuat qRotation);
   ezQuat GetLocalRotation() const;
 
-  void SetLocalScaling(ezVec3 scaling);
+  void SetLocalScaling(ezVec3 vScaling);
   ezVec3 GetLocalScaling() const;
 
-  ezResult Serialize(ezStreamWriter& writer) const;
-  ezResult Deserialize(ezStreamReader& reader);
+  ezResult Serialize(ezStreamWriter& ref_writer) const;
+  ezResult Deserialize(ezStreamReader& ref_reader);
 
   ezTransform m_transform;
 
@@ -80,8 +80,8 @@ class EZ_RENDERERCORE_DLL ezInstancedMeshComponent : public ezMeshComponentBase
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -92,7 +92,7 @@ protected:
   // ezRenderComponent
 
 public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezMeshComponentBase
@@ -109,7 +109,7 @@ public:
   ~ezInstancedMeshComponent();
 
   /// \brief Extracts the render geometry for export etc.
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg); // [ msg handler ]
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg); // [ msg handler ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;

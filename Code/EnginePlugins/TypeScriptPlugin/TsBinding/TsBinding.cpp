@@ -72,7 +72,7 @@ ezTypeScriptBinding* ezTypeScriptBinding::RetrieveBinding(duk_context* pDuk)
   return pBinding;
 }
 
-ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
+ezResult ezTypeScriptBinding::Initialize(ezWorld& ref_world)
 {
   EZ_LOG_BLOCK("Initialize TypeScript Binding");
   EZ_PROFILE_SCOPE("Initialize TypeScript Binding");
@@ -84,7 +84,7 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
 
   m_Duk.RegisterGlobalFunction("__CPP_Binding_RegisterMessageHandler", &ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler, 2);
 
-  StoreWorld(&world);
+  StoreWorld(&ref_world);
 
   SetupRttiFunctionBindings();
   SetupRttiPropertyBindings();
@@ -107,7 +107,7 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_TypeInfo)
+ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_typeInfo)
 {
   if (!m_bInitialized || !typeGuid.IsValid())
   {
@@ -120,7 +120,7 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
 
     if (itLoaded.IsValid())
     {
-      out_TypeInfo = m_TsComponentTypes.Find(typeGuid);
+      out_typeInfo = m_TsComponentTypes.Find(typeGuid);
       return itLoaded.Value() ? EZ_SUCCESS : EZ_FAILURE;
     }
   }
@@ -164,18 +164,18 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
 
   bLoaded = true;
 
-  out_TypeInfo = m_TsComponentTypes.FindOrAdd(typeGuid, nullptr);
+  out_typeInfo = m_TsComponentTypes.FindOrAdd(typeGuid, nullptr);
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::FindScriptComponentInfo(const char* szComponentType, TsComponentTypeInfo& out_TypeInfo)
+ezResult ezTypeScriptBinding::FindScriptComponentInfo(const char* szComponentType, TsComponentTypeInfo& out_typeInfo)
 {
   for (auto it : m_TsComponentTypes)
   {
     if (it.Value().m_sComponentTypeName == szComponentType)
     {
-      out_TypeInfo = it;
+      out_typeInfo = it;
       return EZ_SUCCESS;
     }
   }
@@ -256,9 +256,9 @@ ezUInt32 ezTypeScriptBinding::AcquireStashObjIndex()
   return idx;
 }
 
-void ezTypeScriptBinding::ReleaseStashObjIndex(ezUInt32 idx)
+void ezTypeScriptBinding::ReleaseStashObjIndex(ezUInt32 uiIdx)
 {
-  m_FreeStashObjIdx.PushBack(idx);
+  m_FreeStashObjIdx.PushBack(uiIdx);
 }
 
 void ezTypeScriptBinding::StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx)

@@ -14,11 +14,11 @@ namespace ezInternal
   constexpr ezUInt64 PRIME64_4 = 0x85EBCA77C2B2AE63ULL;
   constexpr ezUInt64 PRIME64_5 = 0x27D4EB2F165667C5ULL;
 
-  constexpr ezUInt32 ezRotLeft(ezUInt32 value, ezUInt32 amount) { return (value << amount) | (value >> (32 - amount)); }
-  constexpr ezUInt64 ezRotLeft(ezUInt64 value, ezUInt64 amount) { return (value << amount) | (value >> (64 - amount)); }
+  constexpr ezUInt32 ezRotLeft(ezUInt32 value, ezUInt32 uiAmount) { return (value << uiAmount) | (value >> (32 - uiAmount)); }
+  constexpr ezUInt64 ezRotLeft(ezUInt64 value, ezUInt64 uiAmount) { return (value << uiAmount) | (value >> (64 - uiAmount)); }
 
   template <size_t N>
-  constexpr ezUInt32 CompileTimeXxHash32(const char (&str)[N], ezUInt32 seed)
+  constexpr ezUInt32 CompileTimeXxHash32(const char (&str)[N], ezUInt32 uiSeed)
   {
     // Note: N will contain the trailing 0 of a string literal. This needs to be ignored.
     constexpr ezUInt32 length = static_cast<ezUInt32>(N - 1);
@@ -33,11 +33,11 @@ namespace ezInternal
       // Perform simple initialization if N < 16
       if constexpr (length < 16)
       {
-        acc = seed + PRIME32_5;
+        acc = uiSeed + PRIME32_5;
       }
       else
       {
-        ezUInt32 accs[4] = {seed + PRIME32_1 + PRIME32_2, seed + PRIME32_2, seed, seed - PRIME32_1};
+        ezUInt32 accs[4] = {uiSeed + PRIME32_1 + PRIME32_2, uiSeed + PRIME32_2, uiSeed, uiSeed - PRIME32_1};
         for (; length - index >= 16; index += 16)
         {
           for (int i = 0; i < 4; i++)
@@ -182,12 +182,12 @@ constexpr EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::xxHash64String(const char (&
   return ezInternal::CompileTimeXxHash64(str, uiSeed);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::xxHash32String(ezStringView str, ezUInt32 uiSeed)
+EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::xxHash32String(ezStringView sStr, ezUInt32 uiSeed)
 {
-  return xxHash32(str.GetStartPointer(), str.GetElementCount(), uiSeed);
+  return xxHash32(sStr.GetStartPointer(), sStr.GetElementCount(), uiSeed);
 }
 
-EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::xxHash64String(ezStringView str, ezUInt64 uiSeed)
+EZ_ALWAYS_INLINE ezUInt64 ezHashingUtils::xxHash64String(ezStringView sStr, ezUInt64 uiSeed)
 {
-  return xxHash64(str.GetStartPointer(), str.GetElementCount(), uiSeed);
+  return xxHash64(sStr.GetStartPointer(), sStr.GetElementCount(), uiSeed);
 }

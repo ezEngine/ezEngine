@@ -31,7 +31,7 @@ public:
   /// \param out_sReplicationOpType must name the ezLongOpWorker that shall be executed in the engine process.
   /// \param config can be optionally written to. The data is transmitted to the ezLongOpWorker on the other side
   /// and fed to it in ezLongOpWorker::InitializeExecution().
-  virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& config) = 0;
+  virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& inout_config) = 0;
 
   /// \brief Called once the corresponding ezLongOpWorker has finished.
   /// \param result Whether the operation succeeded or failed (e.g. via user cancellation).
@@ -57,7 +57,7 @@ public:
   /// The function may lock the ezWorld from the given scene document and extract vital information.
   /// It should try to be as quick as possible and leave the heavy lifting to Execute(), which will run on a background thread.
   /// If this function return failure, the long op is canceled right away.
-  virtual ezResult InitializeExecution(ezStreamReader& config, const ezUuid& DocumentGuid) { return EZ_SUCCESS; }
+  virtual ezResult InitializeExecution(ezStreamReader& ref_config, const ezUuid& documentGuid) { return EZ_SUCCESS; }
 
   /// \brief Executed in a separete thread after InitializeExecution(). This should do the work that takes a while.
   ///
@@ -68,5 +68,5 @@ public:
   /// All updates to \a progress will be automatically synchronized back to the editor process and become visible through
   /// the ezLongOpControllerManager via the ezLongOpControllerEvent.
   /// Use ezProgressRange for convenient progress updates.
-  virtual ezResult Execute(ezProgress& progress, ezStreamWriter& proxydata) = 0;
+  virtual ezResult Execute(ezProgress& ref_progress, ezStreamWriter& ref_proxydata) = 0;
 };

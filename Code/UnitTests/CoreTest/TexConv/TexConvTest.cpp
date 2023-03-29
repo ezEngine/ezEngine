@@ -15,9 +15,9 @@ class ezTexConvTest : public ezTestBaseClass
 public:
   virtual const char* GetTestName() const override { return "TexConvTool"; }
 
-  virtual ezResult GetImage(ezImage& img) override
+  virtual ezResult GetImage(ezImage& ref_img) override
   {
-    img.ResetAndMove(std::move(m_pState->m_image));
+    ref_img.ResetAndMove(std::move(m_pState->m_image));
     return EZ_SUCCESS;
   }
 

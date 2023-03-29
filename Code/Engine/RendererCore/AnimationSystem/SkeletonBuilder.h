@@ -18,10 +18,10 @@ public:
   /// so that child joints always come after their parent joints
   ezUInt16 AddJoint(const char* szName, const ezTransform& localBindPose, ezUInt16 uiParentIndex = ezInvalidJointIndex);
 
-  void SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& localOrientation, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle);
+  void SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle);
 
   /// \brief Creates a skeleton from the accumulated data.
-  void BuildSkeleton(ezSkeleton& skeleton) const;
+  void BuildSkeleton(ezSkeleton& ref_skeleton) const;
 
   /// \brief Returns true if there any joints have been added to the skeleton builder
   bool HasJoints() const;

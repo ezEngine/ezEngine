@@ -15,16 +15,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltPointConstraintComponent::ezJoltPointConstraintComponent() = default;
 ezJoltPointConstraintComponent::~ezJoltPointConstraintComponent() = default;
 
-void ezJoltPointConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltPointConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
   // auto& s = stream.GetStream();
 }
 
-void ezJoltPointConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltPointConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   // auto& s = stream.GetStream();
 }
@@ -48,3 +48,21 @@ void ezJoltPointConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JP
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
+
+bool ezJoltPointConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::PointConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition().ReduceMax() >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltPointConstraintComponent);

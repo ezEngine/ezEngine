@@ -46,8 +46,8 @@ class EZ_RENDERERCORE_DLL ezCameraComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -76,16 +76,16 @@ public:
   void SetCameraMode(ezEnum<ezCameraMode> val);                 // [ property ]
 
   float GetNearPlane() const { return m_fNearPlane; } // [ property ]
-  void SetNearPlane(float val);                       // [ property ]
+  void SetNearPlane(float fVal);                      // [ property ]
 
   float GetFarPlane() const { return m_fFarPlane; } // [ property ]
-  void SetFarPlane(float val);                      // [ property ]
+  void SetFarPlane(float fVal);                     // [ property ]
 
   float GetFieldOfView() const { return m_fPerspectiveFieldOfView; } // [ property ]
-  void SetFieldOfView(float val);                                    // [ property ]
+  void SetFieldOfView(float fVal);                                   // [ property ]
 
   float GetOrthoDimension() const { return m_fOrthoDimension; } // [ property ]
-  void SetOrthoDimension(float val);                            // [ property ]
+  void SetOrthoDimension(float fVal);                           // [ property ]
 
   ezRenderPipelineResourceHandle GetRenderPipeline() const; // [ property ]
 
@@ -96,7 +96,7 @@ public:
   void SetAperture(float fAperture);                // [ property ]
 
   ezTime GetShutterTime() const { return m_ShutterTime; } // [ property ]
-  void SetShutterTime(ezTime ShutterTime);                // [ property ]
+  void SetShutterTime(ezTime shutterTime);                // [ property ]
 
   float GetISO() const { return m_fISO; } // [ property ]
   void SetISO(float fISO);                // [ property ]

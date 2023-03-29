@@ -9,9 +9,9 @@
 
 namespace
 {
-  ezSerializedBlock* FindBlock(ezHybridArray<ezSerializedBlock, 3>& blocks, const char* szName)
+  ezSerializedBlock* FindBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, const char* szName)
   {
-    for (auto& block : blocks)
+    for (auto& block : ref_blocks)
     {
       if (block.m_Name == szName)
       {
@@ -21,11 +21,11 @@ namespace
     return nullptr;
   }
 
-  ezSerializedBlock* FindHeaderBlock(ezHybridArray<ezSerializedBlock, 3>& blocks, ezInt32& out_iVersion)
+  ezSerializedBlock* FindHeaderBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezInt32& out_iVersion)
   {
     ezStringBuilder sHeaderName = "HeaderV";
     out_iVersion = 0;
-    for (auto& block : blocks)
+    for (auto& block : ref_blocks)
     {
       if (block.m_Name.StartsWith(sHeaderName))
       {
@@ -40,12 +40,12 @@ namespace
     return nullptr;
   }
 
-  ezSerializedBlock* GetOrCreateBlock(ezHybridArray<ezSerializedBlock, 3>& blocks, const char* szName)
+  ezSerializedBlock* GetOrCreateBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, const char* szName)
   {
-    ezSerializedBlock* pBlock = FindBlock(blocks, szName);
+    ezSerializedBlock* pBlock = FindBlock(ref_blocks, szName);
     if (!pBlock)
     {
-      pBlock = &blocks.ExpandAndGetRef();
+      pBlock = &ref_blocks.ExpandAndGetRef();
       pBlock->m_Name = szName;
     }
     if (!pBlock->m_Graph)
@@ -56,53 +56,53 @@ namespace
   }
 } // namespace
 
-static void WriteGraph(ezOpenDdlWriter& writer, const ezAbstractObjectGraph* pGraph, const char* szName)
+static void WriteGraph(ezOpenDdlWriter& ref_writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
   ezMap<const char*, const ezVariant*, CompareConstChar> SortedProperties;
 
-  writer.BeginObject(szName);
+  ref_writer.BeginObject(szName);
 
   const auto& Nodes = pGraph->GetAllNodes();
   for (auto itNode = Nodes.GetIterator(); itNode.IsValid(); ++itNode)
   {
     const auto& node = *itNode.Value();
 
-    writer.BeginObject("o");
+    ref_writer.BeginObject("o");
 
     {
 
-      ezOpenDdlUtils::StoreUuid(writer, node.GetGuid(), "id");
-      ezOpenDdlUtils::StoreString(writer, node.GetType(), "t");
-      ezOpenDdlUtils::StoreUInt32(writer, node.GetTypeVersion(), "v");
+      ezOpenDdlUtils::StoreUuid(ref_writer, node.GetGuid(), "id");
+      ezOpenDdlUtils::StoreString(ref_writer, node.GetType(), "t");
+      ezOpenDdlUtils::StoreUInt32(ref_writer, node.GetTypeVersion(), "v");
 
       if (!ezStringUtils::IsNullOrEmpty(node.GetNodeName()))
-        ezOpenDdlUtils::StoreString(writer, node.GetNodeName(), "n");
+        ezOpenDdlUtils::StoreString(ref_writer, node.GetNodeName(), "n");
 
-      writer.BeginObject("p");
+      ref_writer.BeginObject("p");
       {
         for (const auto& prop : node.GetProperties())
           SortedProperties[prop.m_szPropertyName] = &prop.m_Value;
 
         for (auto it = SortedProperties.GetIterator(); it.IsValid(); ++it)
         {
-          ezOpenDdlUtils::StoreVariant(writer, *it.Value(), it.Key());
+          ezOpenDdlUtils::StoreVariant(ref_writer, *it.Value(), it.Key());
         }
 
         SortedProperties.Clear();
       }
-      writer.EndObject();
+      ref_writer.EndObject();
     }
-    writer.EndObject();
+    ref_writer.EndObject();
   }
 
-  writer.EndObject();
+  ref_writer.EndObject();
 }
 
-void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph,
+void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& inout_stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph,
   bool bCompactMmode, ezOpenDdlWriter::TypeStringMode typeMode)
 {
   ezOpenDdlWriter writer;
-  writer.SetOutputStream(&stream);
+  writer.SetOutputStream(&inout_stream);
   writer.SetCompactMode(bCompactMmode);
   writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Exact);
   writer.SetPrimitiveTypeStringMode(typeMode);
@@ -115,12 +115,12 @@ void ezAbstractGraphDdlSerializer::Write(ezStreamWriter& stream, const ezAbstrac
 
 
 void ezAbstractGraphDdlSerializer::Write(
-  ezOpenDdlWriter& writer, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph /*= nullptr*/)
+  ezOpenDdlWriter& ref_writer, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph /*= nullptr*/)
 {
-  WriteGraph(writer, pGraph, "Objects");
+  WriteGraph(ref_writer, pGraph, "Objects");
   if (pTypesGraph)
   {
-    WriteGraph(writer, pTypesGraph, "Types");
+    WriteGraph(ref_writer, pTypesGraph, "Types");
   }
 }
 
@@ -179,10 +179,10 @@ static void ReadGraph(ezAbstractObjectGraph* pGraph, const ezOpenDdlReaderElemen
 }
 
 ezResult ezAbstractGraphDdlSerializer::Read(
-  ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
+  ezStreamReader& inout_stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
 {
   ezOpenDdlReader reader;
-  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  if (reader.ParseDocument(inout_stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
     ezLog::Error("Failed to parse DDL graph");
     return EZ_FAILURE;
@@ -250,11 +250,11 @@ ezResult ezAbstractGraphDdlSerializer::ReadBlocks(ezStreamReader& stream, ezHybr
 
 #define EZ_DOCUMENT_VERSION 2
 
-void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& stream, const ezAbstractObjectGraph* pHeader, const ezAbstractObjectGraph* pGraph,
+void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& inout_stream, const ezAbstractObjectGraph* pHeader, const ezAbstractObjectGraph* pGraph,
   const ezAbstractObjectGraph* pTypes, bool bCompactMode, ezOpenDdlWriter::TypeStringMode typeMode)
 {
   ezOpenDdlWriter writer;
-  writer.SetOutputStream(&stream);
+  writer.SetOutputStream(&inout_stream);
   writer.SetCompactMode(bCompactMode);
   writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Exact);
   writer.SetPrimitiveTypeStringMode(typeMode);
@@ -269,11 +269,11 @@ void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& stream, const e
   WriteGraph(writer, pTypes, "Types");
 }
 
-ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& stream, ezUniquePtr<ezAbstractObjectGraph>& pHeader,
-  ezUniquePtr<ezAbstractObjectGraph>& pGraph, ezUniquePtr<ezAbstractObjectGraph>& pTypes, bool bApplyPatches)
+ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& inout_stream, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader,
+  ezUniquePtr<ezAbstractObjectGraph>& ref_pGraph, ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes, bool bApplyPatches)
 {
   ezHybridArray<ezSerializedBlock, 3> blocks;
-  if (ReadBlocks(stream, blocks).Failed())
+  if (ReadBlocks(inout_stream, blocks).Failed())
   {
     return EZ_FAILURE;
   }
@@ -318,11 +318,11 @@ ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& stream, ezUn
     ezGraphVersioning::GetSingleton()->PatchGraph(pOB->m_Graph.Borrow(), pTB->m_Graph.Borrow());
   }
 
-  pHeader = std::move(pHB->m_Graph);
-  pGraph = std::move(pOB->m_Graph);
+  ref_pHeader = std::move(pHB->m_Graph);
+  ref_pGraph = std::move(pOB->m_Graph);
   if (pTB)
   {
-    pTypes = std::move(pTB->m_Graph);
+    ref_pTypes = std::move(pTB->m_Graph);
   }
 
   return EZ_SUCCESS;
@@ -420,10 +420,10 @@ public:
   }
 };
 
-ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
+ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& inout_stream, ezAbstractObjectGraph* pGraph)
 {
   HeaderReader reader;
-  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  if (reader.ParseDocument(inout_stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
     EZ_REPORT_FAILURE("Failed to parse DDL graph");
     return EZ_FAILURE;

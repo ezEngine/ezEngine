@@ -65,7 +65,7 @@ struct ezActionType
 struct EZ_GUIFOUNDATION_DLL ezActionContext
 {
   ezActionContext() = default;
-  ezActionContext(ezDocument* doc) { m_pDocument = doc; }
+  ezActionContext(ezDocument* pDoc) { m_pDocument = pDoc; }
 
   ezDocument* m_pDocument = nullptr;
   ezString m_sMapping;

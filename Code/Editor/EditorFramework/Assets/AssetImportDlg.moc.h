@@ -10,7 +10,7 @@ class ezQtAssetImportDlg : public QDialog, public Ui_AssetImportDlg
   Q_OBJECT
 
 public:
-  ezQtAssetImportDlg(QWidget* parent, ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
+  ezQtAssetImportDlg(QWidget* pParent, ezDynamicArray<ezAssetDocumentGenerator::ImportData>& ref_allImports);
   ~ezQtAssetImportDlg();
 
 private Q_SLOTS:

@@ -11,7 +11,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtLaunchFileserveDlg(QWidget* parent);
+  ezQtLaunchFileserveDlg(QWidget* pParent);
   ~ezQtLaunchFileserveDlg();
 
   ezString m_sFileserveCmdLine;

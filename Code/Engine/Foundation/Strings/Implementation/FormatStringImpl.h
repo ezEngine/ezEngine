@@ -28,7 +28,7 @@ public:
   ///
   /// Requires an ezStringBuilder as storage, ie. writes the formatted text into it. Additionally it returns a const char* to that
   /// string builder data for convenience.
-  virtual const char* GetText(ezStringBuilder& sb) const override
+  virtual const char* GetText(ezStringBuilder& ref_sSb) const override
   {
     if (ezStringUtils::IsNullOrEmpty(m_szString))
     {
@@ -44,14 +44,14 @@ public:
 
     int iLastParam = -1;
 
-    SBClear(sb);
+    SBClear(ref_sSb);
     while (*szString != '\0')
     {
       if (*szString == '%')
       {
         if (*(szString + 1) == '%')
         {
-          SBAppendView(sb, "%");
+          SBAppendView(ref_sSb, "%");
         }
         else
         {
@@ -64,7 +64,7 @@ public:
       else if (*szString == '{' && *(szString + 1) >= '0' && *(szString + 1) <= '9' && *(szString + 2) == '}')
       {
         iLastParam = *(szString + 1) - '0';
-        SBAppendView(sb, param[iLastParam]);
+        SBAppendView(ref_sSb, param[iLastParam]);
 
         szString += 3;
       }
@@ -75,7 +75,7 @@ public:
 
         if (iLastParam < MaxNumParameters)
         {
-          SBAppendView(sb, param[iLastParam]);
+          SBAppendView(ref_sSb, param[iLastParam]);
         }
 
         szString += 2;
@@ -83,11 +83,11 @@ public:
       else
       {
         const ezUInt32 character = ezUnicodeUtils::DecodeUtf8ToUtf32(szString);
-        SBAppendChar(sb, character);
+        SBAppendChar(ref_sSb, character);
       }
     }
 
-    return SBReturn(sb);
+    return SBReturn(ref_sSb);
   }
 
 private:

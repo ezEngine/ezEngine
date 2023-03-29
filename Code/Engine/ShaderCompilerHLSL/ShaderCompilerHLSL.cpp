@@ -6,9 +6,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerHLSL, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult CompileDXShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
+ezResult CompileDXShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_byteCode)
 {
-  out_ByteCode.Clear();
+  out_byteCode.Clear();
 
   ID3DBlob* pResultBlob = nullptr;
   ID3DBlob* pErrorBlob = nullptr;
@@ -58,8 +58,8 @@ ezResult CompileDXShader(const char* szFile, const char* szSource, bool bDebug, 
 
   if (pResultBlob != nullptr)
   {
-    out_ByteCode.SetCountUninitialized((ezUInt32)pResultBlob->GetBufferSize());
-    ezMemoryUtils::Copy(out_ByteCode.GetData(), static_cast<ezUInt8*>(pResultBlob->GetBufferPointer()), out_ByteCode.GetCount());
+    out_byteCode.SetCountUninitialized((ezUInt32)pResultBlob->GetBufferSize());
+    ezMemoryUtils::Copy(out_byteCode.GetData(), static_cast<ezUInt8*>(pResultBlob->GetBufferPointer()), out_byteCode.GetCount());
     pResultBlob->Release();
   }
 
@@ -293,11 +293,11 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
   return pLayout;
 }
 
-const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
+const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum stage)
 {
   if (ezStringUtils::IsEqual(szPlatform, "DX11_SM40_93"))
   {
-    switch (Stage)
+    switch (stage)
     {
       case ezGALShaderStage::VertexShader:
         return "vs_4_0_level_9_3";
@@ -310,7 +310,7 @@ const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
 
   if (ezStringUtils::IsEqual(szPlatform, "DX11_SM40"))
   {
-    switch (Stage)
+    switch (stage)
     {
       case ezGALShaderStage::VertexShader:
         return "vs_4_0";
@@ -327,7 +327,7 @@ const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
 
   if (ezStringUtils::IsEqual(szPlatform, "DX11_SM41"))
   {
-    switch (Stage)
+    switch (stage)
     {
       case ezGALShaderStage::GeometryShader:
         return "gs_4_0";
@@ -344,7 +344,7 @@ const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
 
   if (ezStringUtils::IsEqual(szPlatform, "DX11_SM50"))
   {
-    switch (Stage)
+    switch (stage)
     {
       case ezGALShaderStage::VertexShader:
         return "vs_5_0";
@@ -363,29 +363,29 @@ const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
     }
   }
 
-  EZ_REPORT_FAILURE("Unknown Platform '{0}' or Stage {1}", szPlatform, Stage);
+  EZ_REPORT_FAILURE("Unknown Platform '{0}' or Stage {1}", szPlatform, stage);
   return "";
 }
 
-ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog)
+ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog)
 {
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     // shader already compiled
-    if (!inout_Data.m_StageBinary[stage].GetByteCode().IsEmpty())
+    if (!inout_data.m_StageBinary[stage].GetByteCode().IsEmpty())
     {
       ezLog::Debug("Shader for stage '{0}' is already compiled.", ezGALShaderStage::Names[stage]);
       continue;
     }
 
-    const char* szShaderSource = inout_Data.m_szShaderSource[stage];
+    const char* szShaderSource = inout_data.m_szShaderSource[stage];
     const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szShaderSource);
 
     if (uiLength > 0 && ezStringUtils::FindSubString(szShaderSource, "main") != nullptr)
     {
-      if (CompileDXShader(inout_Data.m_szSourceFile, szShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
+      if (CompileDXShader(inout_data.m_szSourceFile, szShaderSource, inout_data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_data.m_szPlatform, (ezGALShaderStage::Enum)stage), "main", inout_data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {
-        ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum)stage);
+        ReflectShaderStage(inout_data, (ezGALShaderStage::Enum)stage);
       }
       else
       {

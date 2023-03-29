@@ -7,8 +7,8 @@ struct EZ_CORE_DLL ezColorGradientResourceDescriptor
 {
   ezColorGradient m_Gradient;
 
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  void Load(ezStreamReader& inout_stream);
 };
 
 using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;

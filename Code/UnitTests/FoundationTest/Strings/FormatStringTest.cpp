@@ -18,15 +18,15 @@ void TestFormat(const ezFormatString& str, const char* szExpected)
   EZ_TEST_STRING(szText, szExpected);
 }
 
-void TestFormatWChar(const ezFormatString& str, const wchar_t* szExpected)
+void TestFormatWChar(const ezFormatString& str, const wchar_t* pExpected)
 {
   ezStringBuilder sb;
   const char* szText = str.GetText(sb);
 
-  EZ_TEST_WSTRING(ezStringWChar(szText), szExpected);
+  EZ_TEST_WSTRING(ezStringWChar(szText), pExpected);
 }
 
-void CompareSnprintf(ezStringBuilder& log, const ezFormatString& str, const char* szFormat, ...)
+void CompareSnprintf(ezStringBuilder& ref_sLog, const ezFormatString& str, const char* szFormat, ...)
 {
   va_list args;
   va_start(args, szFormat);
@@ -75,7 +75,7 @@ void CompareSnprintf(ezStringBuilder& log, const ezFormatString& str, const char
     t3 = sw.Checkpoint();
   }
 
-  log.AppendFormat("ez: {0} msec, std: {1} msec, ezFmt: {2} msec : {3} -> {4}\n", ezArgF(t1.GetMilliseconds(), 2), ezArgF(t2.GetMilliseconds(), 2),
+  ref_sLog.AppendFormat("ez: {0} msec, std: {1} msec, ezFmt: {2} msec : {3} -> {4}\n", ezArgF(t1.GetMilliseconds(), 2), ezArgF(t2.GetMilliseconds(), 2),
     ezArgF(t3.GetMilliseconds(), 2), szFormat, Temp1);
 
   va_end(args);
@@ -197,7 +197,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("{}", ezTime::Seconds(59)), "59sec");
     TestFormat(ezFmt("{}", ezTime::Seconds(-59.9)), "-59.9sec");
     TestFormat(ezFmt("{}", ezTime::Seconds(75)), "1min 15sec");
-    TestFormat(ezFmt("{}", ezTime::Seconds(-75.4)), "-1min 15.4sec");
+    TestFormat(ezFmt("{}", ezTime::Seconds(-75.4)), "-1min 15sec");
     TestFormat(ezFmt("{}", ezTime::Minutes(59)), "59min 0sec");
     TestFormat(ezFmt("{}", ezTime::Minutes(-1)), "-1min 0sec");
     TestFormat(ezFmt("{}", ezTime::Minutes(90)), "1h 30min 0sec");

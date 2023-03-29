@@ -33,7 +33,7 @@ EZ_ALWAYS_INLINE void ezProcessingStreamIterator<Type>::Advance()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezProcessingStreamIterator<Type>::Advance(ezUInt32 numElements)
+EZ_ALWAYS_INLINE void ezProcessingStreamIterator<Type>::Advance(ezUInt32 uiNumElements)
 {
-  m_pCurrentPtr = ezMemoryUtils::AddByteOffset(m_pCurrentPtr, static_cast<ptrdiff_t>(m_uiElementStride * numElements));
+  m_pCurrentPtr = ezMemoryUtils::AddByteOffset(m_pCurrentPtr, static_cast<ptrdiff_t>(m_uiElementStride * uiNumElements));
 }

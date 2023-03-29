@@ -30,8 +30,8 @@ bool ezQtRemoteConnectionDlg::Address::IsEmpty() const
   return part[0] == 0 && part[1] == 0 && part[2] == 0 && part[3] == 0;
 }
 
-ezQtRemoteConnectionDlg::ezQtRemoteConnectionDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtRemoteConnectionDlg::ezQtRemoteConnectionDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 

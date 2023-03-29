@@ -337,7 +337,7 @@ ezArrayPtr<const T> ezMakeArrayPtr(const ezDynamicArray<T, AllocatorWrapper>& dy
 }
 
 template <typename T, typename AllocatorWrapper>
-ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray)
+ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& in_dynArray)
 {
-  return ezArrayPtr<T>(dynArray.GetData(), dynArray.GetCount());
+  return ezArrayPtr<T>(in_dynArray.GetData(), in_dynArray.GetCount());
 }

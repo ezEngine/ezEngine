@@ -17,5 +17,5 @@ public:
   ~ezMeshComponent();
 
   /// \brief Extracts the render geometry for export etc.
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
 };

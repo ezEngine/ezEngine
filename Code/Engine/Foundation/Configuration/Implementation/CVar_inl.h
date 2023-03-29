@@ -3,13 +3,13 @@
 #include <Foundation/Configuration/CVar.h>
 
 template <typename Type, ezCVarType::Enum CVarType>
-ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
-  : ezCVar(szName, Flags, szDescription)
+ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& value, ezBitflags<ezCVarFlags> flags, const char* szDescription)
+  : ezCVar(szName, flags, szDescription)
 {
   EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "CVar names must not contain whitespace");
 
   for (ezUInt32 i = 0; i < ezCVarValue::ENUM_COUNT; ++i)
-    m_Values[i] = Value;
+    m_Values[i] = value;
 }
 
 template <typename Type, ezCVarType::Enum CVarType>

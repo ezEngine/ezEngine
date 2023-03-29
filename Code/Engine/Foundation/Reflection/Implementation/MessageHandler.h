@@ -11,12 +11,12 @@ class ezMessage;
 class EZ_FOUNDATION_DLL ezAbstractMessageHandler
 {
 public:
-  EZ_ALWAYS_INLINE void operator()(void* pInstance, ezMessage& msg) { (*m_DispatchFunc)(pInstance, msg); }
+  EZ_ALWAYS_INLINE void operator()(void* pInstance, ezMessage& ref_msg) { (*m_DispatchFunc)(pInstance, ref_msg); }
 
-  EZ_FORCE_INLINE void operator()(const void* pInstance, ezMessage& msg)
+  EZ_FORCE_INLINE void operator()(const void* pInstance, ezMessage& ref_msg)
   {
     EZ_ASSERT_DEV(m_bIsConst, "Calling a non const message handler with a const instance.");
-    (*m_ConstDispatchFunc)(pInstance, msg);
+    (*m_ConstDispatchFunc)(pInstance, ref_msg);
   }
 
   EZ_ALWAYS_INLINE ezMessageId GetMessageId() const { return m_Id; }
@@ -65,10 +65,10 @@ namespace ezInternal
         m_bIsConst = false;
       }
 
-      static void Dispatch(void* pInstance, ezMessage& msg)
+      static void Dispatch(void* pInstance, ezMessage& ref_msg)
       {
         Class* pTargetInstance = static_cast<Class*>(pInstance);
-        (pTargetInstance->*Method)(static_cast<MessageType&>(msg));
+        (pTargetInstance->*Method)(static_cast<MessageType&>(ref_msg));
       }
     };
   };
@@ -88,10 +88,10 @@ namespace ezInternal
       }
 
       /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.
-      static void Dispatch(const void* pInstance, ezMessage& msg)
+      static void Dispatch(const void* pInstance, ezMessage& ref_msg)
       {
         const Class* pTargetInstance = static_cast<const Class*>(pInstance);
-        (pTargetInstance->*Method)(static_cast<MessageType&>(msg));
+        (pTargetInstance->*Method)(static_cast<MessageType&>(ref_msg));
       }
     };
   };

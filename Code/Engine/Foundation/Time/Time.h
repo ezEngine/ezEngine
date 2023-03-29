@@ -90,10 +90,10 @@ public:
   constexpr void operator+=(const ezTime& other);
 
   /// \brief Multiplies the time by the given factor
-  constexpr void operator*=(double factor);
+  constexpr void operator*=(double fFactor);
 
   /// \brief Divides the time by the given factor
-  constexpr void operator/=(double factor);
+  constexpr void operator/=(double fFactor);
 
   /// \brief Returns the difference: "this instance - other"
   constexpr ezTime operator-(const ezTime& other) const;

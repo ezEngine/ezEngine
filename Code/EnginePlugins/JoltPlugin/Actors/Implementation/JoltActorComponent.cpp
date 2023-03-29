@@ -38,21 +38,21 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezJoltActorComponent::ezJoltActorComponent() = default;
 ezJoltActorComponent::~ezJoltActorComponent() = default;
 
-void ezJoltActorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_uiCollisionLayer;
 }
 
-void ezJoltActorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_uiCollisionLayer;
 }
@@ -154,7 +154,7 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
         pShape = pScaledShape;
       }
 
-      opt.AddShape(ezJoltConversionUtils::ToVec3(shape.m_Transform.m_vPosition), ezJoltConversionUtils::ToQuat(shape.m_Transform.m_qRotation), pShape);
+      opt.AddShape(ezJoltConversionUtils::ToVec3(shape.m_Transform.m_vPosition), ezJoltConversionUtils::ToQuat(shape.m_Transform.m_qRotation).Normalized(), pShape);
     }
 
     auto res = opt.Create();
@@ -226,3 +226,7 @@ void ezJoltActorComponent::SetInitialObjectFilterID(ezUInt32 uiObjectFilterID)
   EZ_ASSERT_DEBUG(!IsActiveAndSimulating(), "The object filter ID can't be changed after simulation has started.");
   m_uiObjectFilterID = uiObjectFilterID;
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltActorComponent);
+

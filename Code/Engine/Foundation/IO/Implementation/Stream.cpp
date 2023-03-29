@@ -7,11 +7,11 @@
 ezStreamReader::ezStreamReader() = default;
 ezStreamReader::~ezStreamReader() = default;
 
-ezResult ezStreamReader::ReadString(ezStringBuilder& builder)
+ezResult ezStreamReader::ReadString(ezStringBuilder& ref_sBuilder)
 {
   if (auto context = ezStringDeduplicationReadContext::GetContext())
   {
-    builder = context->DeserializeString(*this);
+    ref_sBuilder = context->DeserializeString(*this);
   }
   else
   {
@@ -22,26 +22,26 @@ ezResult ezStreamReader::ReadString(ezStringBuilder& builder)
     {
       // We access the string builder directly here to
       // read the string efficiently with one allocation
-      builder.m_Data.Reserve(uiCount + 1);
-      builder.m_Data.SetCountUninitialized(uiCount);
-      ReadBytes(builder.m_Data.GetData(), uiCount);
-      builder.m_uiCharacterCount = uiCount;
-      builder.AppendTerminator();
+      ref_sBuilder.m_Data.Reserve(uiCount + 1);
+      ref_sBuilder.m_Data.SetCountUninitialized(uiCount);
+      ReadBytes(ref_sBuilder.m_Data.GetData(), uiCount);
+      ref_sBuilder.m_uiCharacterCount = uiCount;
+      ref_sBuilder.AppendTerminator();
     }
     else
     {
-      builder.Clear();
+      ref_sBuilder.Clear();
     }
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezStreamReader::ReadString(ezString& string)
+ezResult ezStreamReader::ReadString(ezString& ref_sString)
 {
   ezStringBuilder tmp;
   const ezResult res = ReadString(tmp);
-  string = tmp;
+  ref_sString = tmp;
 
   return res;
 }
@@ -49,20 +49,20 @@ ezResult ezStreamReader::ReadString(ezString& string)
 ezStreamWriter::ezStreamWriter() = default;
 ezStreamWriter::~ezStreamWriter() = default;
 
-ezResult ezStreamWriter::WriteString(const ezStringView szStringView)
+ezResult ezStreamWriter::WriteString(const ezStringView sStringView)
 {
-  const ezUInt32 uiCount = szStringView.GetElementCount();
+  const ezUInt32 uiCount = sStringView.GetElementCount();
 
   if (auto context = ezStringDeduplicationWriteContext::GetContext())
   {
-    context->SerializeString(szStringView, *this);
+    context->SerializeString(sStringView, *this);
   }
   else
   {
     EZ_SUCCEED_OR_RETURN(WriteDWordValue(&uiCount));
     if (uiCount > 0)
     {
-      EZ_SUCCEED_OR_RETURN(WriteBytes(szStringView.GetStartPointer(), uiCount));
+      EZ_SUCCEED_OR_RETURN(WriteBytes(sStringView.GetStartPointer(), uiCount));
     }
   }
 

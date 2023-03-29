@@ -693,13 +693,13 @@ ezResult ezConvexHullGenerator::Build(const ezArrayPtr<const ezVec3> vertices)
   return EZ_SUCCESS;
 }
 
-void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_Vertices, ezDynamicArray<Face>& out_Faces)
+void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_vertices, ezDynamicArray<Face>& out_faces)
 {
-  out_Vertices.Clear();
-  out_Faces.Clear();
+  out_vertices.Clear();
+  out_faces.Clear();
 
-  out_Vertices.Reserve(m_Triangles.GetCount() * 2);
-  out_Faces.Reserve(m_Triangles.GetCount());
+  out_vertices.Reserve(m_Triangles.GetCount() * 2);
+  out_faces.Reserve(m_Triangles.GetCount());
 
   ezMap<ezUInt32, ezUInt32> vtxMap;
 
@@ -707,7 +707,7 @@ void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_Vertices, ezDyn
 
   for (const auto& tri : m_Triangles)
   {
-    auto& face = out_Faces.ExpandAndGetRef();
+    auto& face = out_faces.ExpandAndGetRef();
 
     for (int v = 0; v < 3; ++v)
     {
@@ -717,11 +717,11 @@ void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_Vertices, ezDyn
       auto it = vtxMap.FindOrAdd(orgIdx, &bExisted);
       if (!bExisted)
       {
-        it.Value() = out_Vertices.GetCount();
+        it.Value() = out_vertices.GetCount();
 
         const ezVec3d pos = (m_Vertices[orgIdx] * fScaleBack) + m_vCenter;
 
-        ezVec3& vtx = out_Vertices.ExpandAndGetRef();
+        ezVec3& vtx = out_vertices.ExpandAndGetRef();
         vtx.Set((float)pos.x, (float)pos.y, (float)pos.z);
       }
 
@@ -735,10 +735,10 @@ void ezConvexHullGenerator::Retrieve(ezDynamicArray<ezVec3>& out_Vertices, ezDyn
   }
 }
 
-void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_Vertices)
+void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_vertices)
 {
-  out_Vertices.Clear();
-  out_Vertices.Reserve(m_Triangles.GetCount() * 2);
+  out_vertices.Clear();
+  out_vertices.Reserve(m_Triangles.GetCount() * 2);
 
   ezMap<ezUInt32, ezUInt32> vtxMap;
 
@@ -754,11 +754,11 @@ void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_Vertice
       auto it = vtxMap.FindOrAdd(orgIdx, &bExisted);
       if (!bExisted)
       {
-        it.Value() = out_Vertices.GetCount();
+        it.Value() = out_vertices.GetCount();
 
         const ezVec3d pos = (m_Vertices[orgIdx] * fScaleBack) + m_vCenter;
 
-        ezVec3& vtx = out_Vertices.ExpandAndGetRef();
+        ezVec3& vtx = out_vertices.ExpandAndGetRef();
         vtx.Set((float)pos.x, (float)pos.y, (float)pos.z);
       }
     }

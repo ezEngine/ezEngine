@@ -11,7 +11,7 @@ class EZ_GUIFOUNDATION_DLL ezQGridBarWidget : public QWidget
   Q_OBJECT
 
 public:
-  ezQGridBarWidget(QWidget* parent);
+  ezQGridBarWidget(QWidget* pParent);
 
   void SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPointF(const QPointF&)> mapFromSceneFunc);
 

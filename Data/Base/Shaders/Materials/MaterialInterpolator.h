@@ -19,34 +19,34 @@ struct VS_IN
 {
   float3 Position : POSITION;
 
-  #if defined(USE_NORMAL)
-    float3 Normal : NORMAL;
-  #endif
+#if defined(USE_NORMAL)
+  float3 Normal : NORMAL;
+#endif
 
-  #if defined(USE_TANGENT)
-    float4 Tangent : TANGENT;
-  #endif
+#if defined(USE_TANGENT)
+  float4 Tangent : TANGENT;
+#endif
 
-  #if defined(USE_TEXCOORD0)
-    float2 TexCoord0 : TEXCOORD0;
+#if defined(USE_TEXCOORD0)
+  float2 TexCoord0 : TEXCOORD0;
 
-    #if defined(USE_TEXCOORD1)
-      float2 TexCoord1 : TEXCOORD1;
-    #endif
-  #endif
+#  if defined(USE_TEXCOORD1)
+  float2 TexCoord1 : TEXCOORD1;
+#  endif
+#endif
 
-  #if defined(USE_COLOR0)
-    float4 Color0 : COLOR0;
-    
-    #if defined(USE_COLOR1)
-      float4 Color1 : COLOR1;
-    #endif
-  #endif
+#if defined(USE_COLOR0)
+  float4 Color0 : COLOR0;
 
-  #if defined(USE_SKINNING)
-    float4 BoneWeights : BONEWEIGHTS0;
-    uint4 BoneIndices : BONEINDICES0;
-  #endif
+#  if defined(USE_COLOR1)
+  float4 Color1 : COLOR1;
+#  endif
+#endif
+
+#if defined(USE_SKINNING)
+  float4 BoneWeights : BONEWEIGHTS0;
+  uint4 BoneIndices : BONEINDICES0;
+#endif
 
   uint InstanceID : SV_InstanceID;
   uint VertexID : SV_VertexID;

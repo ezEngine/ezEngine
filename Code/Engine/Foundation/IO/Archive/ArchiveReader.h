@@ -12,7 +12,7 @@ class EZ_FOUNDATION_DLL ezArchiveReader
 {
 public:
   /// \brief Opens the given file and validates that it is a valid archive file.
-  ezResult OpenArchive(const char* szPath);
+  ezResult OpenArchive(ezStringView sPath);
 
   /// \brief Returns the table-of-contents for the previously opened archive.
   const ezArchiveTOC& GetArchiveTOC();
@@ -20,22 +20,22 @@ public:
   /// \brief Extracts the given entry to the target folder.
   ///
   /// Calls ExtractFileProgressCallback() to report progress.
-  ezResult ExtractFile(ezUInt32 uiEntryIdx, const char* szTargetFolder) const;
+  ezResult ExtractFile(ezUInt32 uiEntryIdx, ezStringView sTargetFolder) const;
 
   /// \brief Extracts all files to the target folder.
   ///
   /// Calls ExtractNextFileCallback() for every file that is being extracted.
-  ezResult ExtractAllFiles(const char* szTargetFolder) const;
+  ezResult ExtractAllFiles(ezStringView sTargetFolder) const;
 
   /// \brief Sets up \a memReader for reading the raw (potentially compressed) data that is stored for the given entry in the archive.
-  void ConfigureRawMemoryStreamReader(ezUInt32 uiEntryIdx, ezRawMemoryStreamReader& memReader) const;
+  void ConfigureRawMemoryStreamReader(ezUInt32 uiEntryIdx, ezRawMemoryStreamReader& ref_memReader) const;
 
   /// \brief Creates a reader that will decompress the given file entry.
   ezUniquePtr<ezStreamReader> CreateEntryReader(ezUInt32 uiEntryIdx) const;
 
 protected:
   /// \brief Called by ExtractAllFiles() for progress reporting. Return false to abort.
-  virtual bool ExtractNextFileCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, const char* szSourceFile) const;
+  virtual bool ExtractNextFileCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, ezStringView sSourceFile) const;
 
   /// \brief Called by ExtractFile() for progress reporting. Return false to abort.
   virtual bool ExtractFileProgressCallback(ezUInt64 bytesWritten, ezUInt64 bytesTotal) const;

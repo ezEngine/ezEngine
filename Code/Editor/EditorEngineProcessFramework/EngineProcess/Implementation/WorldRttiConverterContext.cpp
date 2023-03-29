@@ -12,13 +12,16 @@ void ezWorldRttiConverterContext::Clear()
 
   m_OtherPickingMap.Clear();
   m_ComponentPickingMap.Clear();
-}
 
+  m_UnknownTypes.Clear();
+}
 
 void ezWorldRttiConverterContext::DeleteExistingObjects()
 {
   if (m_pWorld == nullptr)
     return;
+
+  m_UnknownTypes.Clear();
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
@@ -46,7 +49,10 @@ void ezWorldRttiConverterContext::DeleteExistingObjects()
   m_ComponentPickingMap.Clear();
   // Need to do this to make sure all deleted objects are actually deleted as singleton components are
   // still considered alive until Update actually deletes them.
+  const bool bSim = m_pWorld->GetWorldSimulationEnabled();
+  m_pWorld->SetWorldSimulationEnabled(false);
   m_pWorld->Update();
+  m_pWorld->SetWorldSimulationEnabled(bSim);
   // m_OtherPickingMap.Clear(); // do not clear this
 }
 
@@ -263,4 +269,11 @@ ezUuid ezWorldRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const voi
     return m_ComponentMap.GetGuid(pComponent->GetHandle());
   }
   return ezRttiConverterContext::GetObjectGUID(pRtti, pObject);
+}
+
+void ezWorldRttiConverterContext::OnUnknownTypeError(ezStringView sTypeName)
+{
+  ezRttiConverterContext::OnUnknownTypeError(sTypeName);
+
+  m_UnknownTypes.Insert(sTypeName);
 }

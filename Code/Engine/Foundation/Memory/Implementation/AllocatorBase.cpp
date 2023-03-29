@@ -1,10 +1,10 @@
 #include <Foundation/FoundationPCH.h>
 
-void* ezAllocatorBase::Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
+void* ezAllocatorBase::Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
 {
   void* pNewMem = Allocate(uiNewSize, uiAlign);
-  memcpy(pNewMem, ptr, uiCurrentSize);
-  Deallocate(ptr);
+  memcpy(pNewMem, pPtr, uiCurrentSize);
+  Deallocate(pPtr);
   return pNewMem;
 }
 

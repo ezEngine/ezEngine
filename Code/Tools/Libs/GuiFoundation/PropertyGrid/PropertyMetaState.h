@@ -66,20 +66,20 @@ public:
   ezPropertyMetaState();
 
   /// \brief Queries the property meta state for a single ezDocumentObject
-  void GetTypePropertiesState(const ezDocumentObject* pObject, ezMap<ezString, ezPropertyUiState>& out_PropertyStates);
+  void GetTypePropertiesState(const ezDocumentObject* pObject, ezMap<ezString, ezPropertyUiState>& out_propertyStates);
 
   /// \brief Queries the property meta state for a multi selection of ezDocumentObject's
   ///
   /// This will query the information for every single selected object and then merge the result into one.
-  void GetTypePropertiesState(const ezHybridArray<ezPropertySelection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_PropertyStates);
+  void GetTypePropertiesState(const ezHybridArray<ezPropertySelection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_propertyStates);
 
   /// \brief Queries the meta state for the elements of a single container property on one ezDocumentObject.
-  void GetContainerElementsState(const ezDocumentObject* pObject, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_PropertyStates);
+  void GetContainerElementsState(const ezDocumentObject* pObject, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates);
 
   /// \brief Queries the meta state for the elements of a single container property on a multi selection of ezDocumentObjects.
   ///
   /// This will query the information for every single selected object and then merge the result into one.
-  void GetContainerElementsState(const ezHybridArray<ezPropertySelection, 8>& items, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_PropertyStates);
+  void GetContainerElementsState(const ezHybridArray<ezPropertySelection, 8>& items, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates);
 
   /// Attach to this event to get notified of property state queries.
   /// Add information to ezPropertyMetaStateEvent::m_pPropertyStates to return data.

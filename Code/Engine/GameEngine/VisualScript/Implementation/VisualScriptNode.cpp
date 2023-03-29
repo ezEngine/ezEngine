@@ -71,9 +71,9 @@ ezVisualScriptDataPinType::Enum ezVisualScriptDataPinType::GetDataPinTypeForType
 }
 
 // static
-void ezVisualScriptDataPinType::EnforceSupportedType(ezVariant& var)
+void ezVisualScriptDataPinType::EnforceSupportedType(ezVariant& ref_var)
 {
-  switch (var.GetType())
+  switch (ref_var.GetType())
   {
     case ezVariantType::Int8:
     case ezVariantType::UInt8:
@@ -85,8 +85,8 @@ void ezVisualScriptDataPinType::EnforceSupportedType(ezVariant& var)
     case ezVariantType::UInt64:
     case ezVariantType::Float:
     {
-      const double value = var.ConvertTo<double>();
-      var = value;
+      const double value = ref_var.ConvertTo<double>();
+      ref_var = value;
       return;
     }
 

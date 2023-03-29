@@ -28,18 +28,18 @@ void ezViewActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hLinkDeviceCamera);
 }
 
-void ezViewActions::MapActions(const char* szMapping, const char* szPath, ezUInt32 flags)
+void ezViewActions::MapActions(const char* szMapping, const char* szPath, ezUInt32 uiFlags)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
 
-  if (flags & Flags::PerspectiveMode)
+  if (uiFlags & Flags::PerspectiveMode)
     pMap->MapAction(s_hPerspective, szPath, 1.0f);
 
-  if (flags & Flags::RenderMode)
+  if (uiFlags & Flags::RenderMode)
     pMap->MapAction(s_hRenderMode, szPath, 2.0f);
 
-  if (flags & Flags::ActivateRemoteProcess)
+  if (uiFlags & Flags::ActivateRemoteProcess)
   {
     pMap->MapAction(s_hActivateRemoteProcess, szPath, 4.0f);
     pMap->MapAction(s_hLinkDeviceCamera, szPath, 5.0f);

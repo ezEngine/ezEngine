@@ -11,15 +11,15 @@ public:
 
   ezSimdVec4f(); // [tested]
 
-  explicit ezSimdVec4f(float xyzw); // [tested]
+  explicit ezSimdVec4f(float fXyzw); // [tested]
 
-  explicit ezSimdVec4f(const ezSimdFloat& xyzw); // [tested]
+  explicit ezSimdVec4f(const ezSimdFloat& fXyzw); // [tested]
 
   ezSimdVec4f(float x, float y, float z, float w = 1.0f); // [tested]
 
   ezSimdVec4f(ezInternal::QuadFloat v); // [tested]
 
-  void Set(float xyzw); // [tested]
+  void Set(float fXyzw); // [tested]
 
   void Set(float x, float y, float z, float w); // [tested]
 
@@ -115,13 +115,17 @@ public:
 
   ezSimdVec4f CompMin(const ezSimdVec4f& rhs) const; // [tested]
   ezSimdVec4f CompMax(const ezSimdVec4f& rhs) const; // [tested]
-  ezSimdVec4f Abs() const;                           // [tested]
-  ezSimdVec4f Floor() const;                         // [tested]
-  ezSimdVec4f Ceil() const;                          // [tested]
 
-  ezSimdVec4f FlipSign(const ezSimdVec4b& cmp) const; // [tested]
+  ezSimdVec4f Abs() const;      // [tested]
+  ezSimdVec4f Round() const;    // [tested]
+  ezSimdVec4f Floor() const;    // [tested]
+  ezSimdVec4f Ceil() const;     // [tested]
+  ezSimdVec4f Trunc() const;    // [tested]
+  ezSimdVec4f Fraction() const; // [tested]
 
-  static ezSimdVec4f Select(const ezSimdVec4b& cmp, const ezSimdVec4f& ifTrue, const ezSimdVec4f& ifFalse); // [tested]
+  ezSimdVec4f FlipSign(const ezSimdVec4b& vCmp) const; // [tested]
+
+  static ezSimdVec4f Select(const ezSimdVec4b& vCmp, const ezSimdVec4f& vTrue, const ezSimdVec4f& vFalse); // [tested]
 
   static ezSimdVec4f Lerp(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& t);
 
@@ -166,7 +170,7 @@ public:
   static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
   static ezSimdVec4f MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
 
-  static ezSimdVec4f CopySign(const ezSimdVec4f& magnitude, const ezSimdVec4f& sign); // [tested]
+  static ezSimdVec4f CopySign(const ezSimdVec4f& vMagnitude, const ezSimdVec4f& vSign); // [tested]
 
 public:
   ezInternal::QuadFloat m_v;

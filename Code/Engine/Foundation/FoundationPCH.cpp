@@ -23,7 +23,15 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_Android_AndroidUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_Win_HResultUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_Win_MinWindows);
+  EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_Win_WinRTUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_uwp_UWPUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Expression_Implementation_ExpressionAST);
+  EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Expression_Implementation_ExpressionASTTransforms);
+  EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Expression_Implementation_ExpressionByteCode);
+  EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Expression_Implementation_ExpressionCompiler);
+  EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Expression_Implementation_ExpressionDeclarations);
+  EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Expression_Implementation_ExpressionParser);
+  EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Expression_Implementation_ExpressionVM);
   EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Implementation_Conditions);
   EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Implementation_Defines);
   EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Implementation_Expand);
@@ -38,6 +46,8 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_GlobalEvent);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_IpcChannel);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_IpcChannelEnet);
+  EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Linux_MessageLoop_linux);
+  EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Linux_PipeChannel_linux);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Message);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_MessageLoop);
   EZ_STATICLINK_REFERENCE(Foundation_Communication_Implementation_Mobile_MessageLoop_mobile);
@@ -89,7 +99,9 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_Stream);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamOperations);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamOperationsOther);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamUtils);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StringDeduplicationContext);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_TypeVersionContext);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_ConsoleWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_ETWWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_HTMLWriter);
@@ -98,6 +110,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_VisualStudioWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Win_ETWProvider_win);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Color);
+  EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_ColorScheme);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Float16);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Frustum);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Intersection);
@@ -112,12 +125,14 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_PageAllocator);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Policies_GuardedAllocation);
   EZ_STATICLINK_REFERENCE(Foundation_Profiling_Implementation_Profiling);
+  EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_DynamicRTTI);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_PropertyAttributes);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_PropertyPath);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_RTTI);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_ReflectionUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_StandardTypes);
   EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_AbstractObjectGraph);
+  EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_ApplyNativePropertyChangesContext);
   EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_BinarySerializer);
   EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_DdlSerializer);
   EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_GraphPatch);
@@ -149,6 +164,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ConditionVariable);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_OSThread);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ParallelFor);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Semaphore);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Task);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskGroup);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskSystem);
@@ -174,6 +190,9 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_TagRegistry);
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_VarianceTypes);
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_Variant);
+  EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_VariantType);
+  EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_VariantTypeRegistry);
+  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_CommandLineOptions);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_CommandLineUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Compression);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ConversionUtils);

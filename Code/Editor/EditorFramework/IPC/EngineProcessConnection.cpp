@@ -29,26 +29,6 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
 }
 
-void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezAssetDocument* pDocument, bool bOpen)
-{
-  EZ_PROFILE_SCOPE("SendDocumentOpenMessage");
-
-  if (!pDocument)
-    return;
-
-  // it is important to have up-to-date lookup tables in the engine process, because document contexts might try to
-  // load resources, and if the file redirection does not happen correctly, derived resource types may not be created as they should
-  ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
-
-  ezDocumentOpenMsgToEngine m;
-  m.m_DocumentGuid = pDocument->GetGuid();
-  m.m_bDocumentOpen = bOpen;
-  m.m_sDocumentType = pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName;
-  m.m_DocumentMetaData = pDocument->GetCreateEngineMetaData();
-
-  SendMessage(&m);
-}
-
 void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicationChannel::Event& e)
 {
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEditor>())
@@ -103,14 +83,14 @@ ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnectio
 
   m_DocumentByGuid[pDocument->GetGuid()] = pDocument;
 
-  SendDocumentOpenMessage(pDocument, true);
+  pDocument->SendDocumentOpenMessage(true);
 
   return pConnection;
 }
 
 void ezEditorEngineProcessConnection::DestroyEngineConnection(ezAssetDocument* pDocument)
 {
-  SendDocumentOpenMessage(pDocument, false);
+  pDocument->SendDocumentOpenMessage(false);
 
   m_DocumentByGuid.Remove(pDocument->GetGuid());
 
@@ -135,7 +115,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   QStringList args;
   if (m_bProcessShouldWaitForDebugger)
   {
-    args << "-debug";
+    args << "-WaitForDebugger";
   }
 
   if (!m_sRenderer.IsEmpty())
@@ -146,10 +126,19 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
 
   {
     ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-    sWndCfgPath.AppendPath("Window.ddl");
+    sWndCfgPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-    args << "-wnd";
-    args << sWndCfgPath.GetData();
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+    ezStringBuilder sWndCfgPathOld = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sWndCfgPathOld.AppendPath("Window.ddl");
+    sWndCfgPath = ezFileSystem::MigrateFileLocation(sWndCfgPathOld, sWndCfgPath);
+#endif
+
+    if (ezFileSystem::ExistsFile(sWndCfgPath))
+    {
+      args << "-wnd";
+      args << sWndCfgPath.GetData();
+    }
   }
 
   // set up the EditorEngineProcess telemetry server on a different port
@@ -302,13 +291,13 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   }
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
+ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
   EZ_PROFILE_SCOPE(pMessageType->GetTypeName());
-  return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
+  return m_IPC.WaitForMessage(pMessageType, timeout, pCallback);
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
+ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
 {
   if (!m_bProcessShouldBeRunning)
   {
@@ -338,7 +327,7 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
     return false;
   };
 
-  return m_IPC.WaitForMessage(pMessageType, tTimeout, &callback);
+  return m_IPC.WaitForMessage(pMessageType, timeout, &callback);
 }
 
 ezResult ezEditorEngineProcessConnection::RestartProcess()
@@ -401,13 +390,14 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b) {
     if (a->IsMainDocument() != b->IsMainDocument())
       return a->IsMainDocument();
-    return a < b;
-  });
+    return a < b; });
 
   for (ezAssetDocument* pDoc : docs)
   {
-    SendDocumentOpenMessage(pDoc, true);
+    pDoc->SendDocumentOpenMessage(true);
   }
+
+  ezAssetCurator::GetSingleton()->InvalidateAssetsWithTransformState(ezAssetInfo::TransformState::TransformError);
 
   ezLog::Success("Engine Process is running");
 

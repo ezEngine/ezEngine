@@ -53,21 +53,21 @@ class EZ_GUIFOUNDATION_DLL ezQtTimeScrubberToolbar : public QToolBar
   Q_OBJECT
 
 public:
-  explicit ezQtTimeScrubberToolbar(QWidget* parent);
+  explicit ezQtTimeScrubberToolbar(QWidget* pParent);
 
   /// \brief Sets the duration in 'ticks'. There are 4800 ticks per second.
-  void SetDuration(ezUInt64 iNumTicks);
+  void SetDuration(ezUInt64 uiNumTicks);
 
   /// \brief Sets the current position in 'ticks'. There are 4800 ticks per second.
   void SetScrubberPosition(ezUInt64 uiTick);
 
-  void SetButtonState(bool playing, bool repeatEnabled);
+  void SetButtonState(bool bPlaying, bool bRepeatEnabled);
 
 Q_SIGNALS:
   void ScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
   void PlayPauseEvent();
   void RepeatEvent();
-  void DurationChangedEvent(double duration);
+  void DurationChangedEvent(double fDuration);
   void AdjustDurationEvent();
 
 private:

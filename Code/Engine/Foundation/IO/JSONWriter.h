@@ -62,7 +62,7 @@ public:
   void AddVariableDouble(const char* szName, double value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteString(value); EndVariable(); "
-  void AddVariableString(const char* szName, const char* value); // [tested]
+  void AddVariableString(const char* szName, ezStringView value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteNULL(value); EndVariable(); "
   void AddVariableNULL(const char* szName); // [tested]
@@ -138,7 +138,7 @@ public:
   virtual void WriteDouble(double value) = 0;
 
   /// \brief Writes a string to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
-  virtual void WriteString(const char* value) = 0;
+  virtual void WriteString(ezStringView value) = 0;
 
   /// \brief Writes the value 'null' to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
   virtual void WriteNULL() = 0;
@@ -314,7 +314,7 @@ public:
   virtual void WriteDouble(double value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteString()
-  virtual void WriteString(const char* value) override; // [tested]
+  virtual void WriteString(ezStringView value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteNULL()
   virtual void WriteNULL() override; // [tested]
@@ -417,8 +417,8 @@ protected:
     ezStandardJSONWriter* m_pWriter;
   };
 
-  void OutputString(const char* sz);
-  void OutputEscapedString(const char* sz);
+  void OutputString(ezStringView s);
+  void OutputEscapedString(ezStringView s);
   void OutputIndentation();
 
   ezInt32 m_iIndentation;

@@ -84,11 +84,11 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezVisualScriptResource, ezVisualScriptResourceD
 /// ezVisualScriptResourceDescriptor
 //////////////////////////////////////////////////////////////////////////
 
-void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
+void ezVisualScriptResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
 
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
   EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 8, "Incorrect version {0} for visual script", uiVersion);
 
   if (uiVersion < 7)
@@ -99,10 +99,10 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt32 uiNumDataCon = 0;
   ezUInt32 uiNumProps = 0;
 
-  stream >> uiNumNodes;
-  stream >> uiNumExecCon;
-  stream >> uiNumDataCon;
-  stream >> uiNumProps;
+  inout_stream >> uiNumNodes;
+  inout_stream >> uiNumExecCon;
+  inout_stream >> uiNumDataCon;
+  inout_stream >> uiNumProps;
 
   m_Nodes.SetCount(uiNumNodes);
   m_ExecutionPaths.SetCountUninitialized(uiNumExecCon);
@@ -112,7 +112,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezStringBuilder sType;
   for (auto& node : m_Nodes)
   {
-    stream >> sType;
+    inout_stream >> sType;
 
     node.m_isMsgSender = 0;
     node.m_isMsgHandler = 0;
@@ -148,36 +148,36 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
       node.m_pType = ezRTTI::FindTypeByName(sType);
     }
 
-    stream >> node.m_uiFirstProperty;
-    stream >> node.m_uiNumProperties;
+    inout_stream >> node.m_uiFirstProperty;
+    inout_stream >> node.m_uiNumProperties;
   }
 
   for (auto& con : m_ExecutionPaths)
   {
-    stream >> con.m_uiSourceNode;
-    stream >> con.m_uiTargetNode;
-    stream >> con.m_uiOutputPin;
-    stream >> con.m_uiInputPin;
+    inout_stream >> con.m_uiSourceNode;
+    inout_stream >> con.m_uiTargetNode;
+    inout_stream >> con.m_uiOutputPin;
+    inout_stream >> con.m_uiInputPin;
   }
 
   for (auto& con : m_DataPaths)
   {
-    stream >> con.m_uiSourceNode;
-    stream >> con.m_uiTargetNode;
-    stream >> con.m_uiOutputPin;
-    stream >> con.m_uiOutputPinType;
-    stream >> con.m_uiInputPin;
-    stream >> con.m_uiInputPinType;
+    inout_stream >> con.m_uiSourceNode;
+    inout_stream >> con.m_uiTargetNode;
+    inout_stream >> con.m_uiOutputPin;
+    inout_stream >> con.m_uiOutputPinType;
+    inout_stream >> con.m_uiInputPin;
+    inout_stream >> con.m_uiInputPinType;
   }
 
   for (auto& prop : m_Properties)
   {
-    stream >> prop.m_sName;
-    stream >> prop.m_Value;
+    inout_stream >> prop.m_sName;
+    inout_stream >> prop.m_Value;
 
     if (uiVersion >= 6)
     {
-      stream >> prop.m_iMappingIndex;
+      inout_stream >> prop.m_iMappingIndex;
     }
   }
 
@@ -186,22 +186,22 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   {
     ezUInt32 num;
 
-    stream >> num;
+    inout_stream >> num;
     m_BoolParameters.SetCount(num);
 
     for (ezUInt32 i = 0; i < num; ++i)
     {
-      stream >> m_BoolParameters[i].m_sName;
-      stream >> m_BoolParameters[i].m_Value;
+      inout_stream >> m_BoolParameters[i].m_sName;
+      inout_stream >> m_BoolParameters[i].m_Value;
     }
 
-    stream >> num;
+    inout_stream >> num;
     m_NumberParameters.SetCount(num);
 
     for (ezUInt32 i = 0; i < num; ++i)
     {
-      stream >> m_NumberParameters[i].m_sName;
-      stream >> m_NumberParameters[i].m_Value;
+      inout_stream >> m_NumberParameters[i].m_sName;
+      inout_stream >> m_NumberParameters[i].m_Value;
     }
   }
 
@@ -210,34 +210,34 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   {
     ezUInt32 num;
 
-    stream >> num;
+    inout_stream >> num;
     m_StringParameters.SetCount(num);
 
     for (ezUInt32 i = 0; i < num; ++i)
     {
-      stream >> m_StringParameters[i].m_sName;
-      stream >> m_StringParameters[i].m_sValue;
+      inout_stream >> m_StringParameters[i].m_sName;
+      inout_stream >> m_StringParameters[i].m_sValue;
     }
   }
 
   PrecomputeMessageHandlers();
 }
 
-void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
+void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 8;
 
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
   const ezUInt32 uiNumNodes = m_Nodes.GetCount();
   const ezUInt32 uiNumExecCon = m_ExecutionPaths.GetCount();
   const ezUInt32 uiNumDataCon = m_DataPaths.GetCount();
   const ezUInt32 uiNumProps = m_Properties.GetCount();
 
-  stream << uiNumNodes;
-  stream << uiNumExecCon;
-  stream << uiNumDataCon;
-  stream << uiNumProps;
+  inout_stream << uiNumNodes;
+  inout_stream << uiNumExecCon;
+  inout_stream << uiNumDataCon;
+  inout_stream << uiNumProps;
 
   ezStringBuilder sType;
 
@@ -259,63 +259,63 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
     else if (node.m_isFunctionCall)
       sType.Append("<call>");
 
-    stream << sType;
+    inout_stream << sType;
 
-    stream << node.m_uiFirstProperty;
-    stream << node.m_uiNumProperties;
+    inout_stream << node.m_uiFirstProperty;
+    inout_stream << node.m_uiNumProperties;
   }
 
   for (const auto& con : m_ExecutionPaths)
   {
-    stream << con.m_uiSourceNode;
-    stream << con.m_uiTargetNode;
-    stream << con.m_uiOutputPin;
-    stream << con.m_uiInputPin;
+    inout_stream << con.m_uiSourceNode;
+    inout_stream << con.m_uiTargetNode;
+    inout_stream << con.m_uiOutputPin;
+    inout_stream << con.m_uiInputPin;
   }
 
   for (const auto& con : m_DataPaths)
   {
-    stream << con.m_uiSourceNode;
-    stream << con.m_uiTargetNode;
-    stream << con.m_uiOutputPin;
-    stream << con.m_uiOutputPinType;
-    stream << con.m_uiInputPin;
-    stream << con.m_uiInputPinType;
+    inout_stream << con.m_uiSourceNode;
+    inout_stream << con.m_uiTargetNode;
+    inout_stream << con.m_uiOutputPin;
+    inout_stream << con.m_uiOutputPinType;
+    inout_stream << con.m_uiInputPin;
+    inout_stream << con.m_uiInputPinType;
   }
 
   for (const auto& prop : m_Properties)
   {
-    stream << prop.m_sName;
-    stream << prop.m_Value;
+    inout_stream << prop.m_sName;
+    inout_stream << prop.m_Value;
 
     // Version 6
-    stream << prop.m_iMappingIndex;
+    inout_stream << prop.m_iMappingIndex;
   }
 
   // Version 5
   {
-    stream << m_BoolParameters.GetCount();
+    inout_stream << m_BoolParameters.GetCount();
     for (const auto& param : m_BoolParameters)
     {
-      stream << param.m_sName;
-      stream << param.m_Value;
+      inout_stream << param.m_sName;
+      inout_stream << param.m_Value;
     }
 
-    stream << m_NumberParameters.GetCount();
+    inout_stream << m_NumberParameters.GetCount();
     for (const auto& param : m_NumberParameters)
     {
-      stream << param.m_sName;
-      stream << param.m_Value;
+      inout_stream << param.m_sName;
+      inout_stream << param.m_Value;
     }
   }
 
   // Version 8
   {
-    stream << m_StringParameters.GetCount();
+    inout_stream << m_StringParameters.GetCount();
     for (const auto& param : m_StringParameters)
     {
-      stream << param.m_sName;
-      stream << param.m_sValue;
+      inout_stream << param.m_sName;
+      inout_stream << param.m_sValue;
     }
   }
 }
@@ -359,19 +359,19 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
   }
 }
 
-void ezVisualScriptResourceDescriptor::AssignNodeProperties(ezVisualScriptNode& vsNode, const Node& properties) const
+void ezVisualScriptResourceDescriptor::AssignNodeProperties(ezVisualScriptNode& ref_node, const Node& properties) const
 {
   for (ezUInt32 i = 0; i < properties.m_uiNumProperties; ++i)
   {
     const ezUInt32 uiProp = properties.m_uiFirstProperty + i;
     const auto& prop = m_Properties[uiProp];
 
-    ezAbstractProperty* pAbstract = vsNode.GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+    ezAbstractProperty* pAbstract = ref_node.GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
     if (pAbstract->GetCategory() != ezPropertyCategory::Member)
       continue;
 
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
-    ezReflectionUtils::SetMemberPropertyValue(pMember, &vsNode, prop.m_Value);
+    ezReflectionUtils::SetMemberPropertyValue(pMember, &ref_node, prop.m_Value);
   }
 }
 

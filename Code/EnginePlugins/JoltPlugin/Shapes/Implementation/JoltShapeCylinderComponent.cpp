@@ -34,22 +34,22 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltShapeCylinderComponent::ezJoltShapeCylinderComponent() = default;
 ezJoltShapeCylinderComponent::~ezJoltShapeCylinderComponent() = default;
 
-void ezJoltShapeCylinderComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltShapeCylinderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s << m_fRadius;
   s << m_fHeight;
 }
 
-void ezJoltShapeCylinderComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltShapeCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s >> m_fRadius;
   s >> m_fHeight;
 }
@@ -97,3 +97,7 @@ void ezJoltShapeCylinderComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& 
   sub.m_pShape = pNewShape;
   sub.m_Transform.SetLocalTransform(rootTransform, tOwn);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeCylinderComponent);
+

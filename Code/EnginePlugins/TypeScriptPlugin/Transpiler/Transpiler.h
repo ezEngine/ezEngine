@@ -15,9 +15,9 @@ public:
   void SetOutputFolder(const char* szFolder);
   void StartLoadTranspiler();
   void FinishLoadTranspiler();
-  ezResult TranspileString(const char* szString, ezStringBuilder& out_Result);
-  ezResult TranspileFile(const char* szFile, ezUInt64 uiSkipIfFileHash, ezStringBuilder& out_Result, ezUInt64& out_uiFileHash);
-  ezResult TranspileFileAndStoreJS(const char* szFile, ezStringBuilder& out_Result);
+  ezResult TranspileString(const char* szString, ezStringBuilder& out_sResult);
+  ezResult TranspileFile(const char* szFile, ezUInt64 uiSkipIfFileHash, ezStringBuilder& out_sResult, ezUInt64& out_uiFileHash);
+  ezResult TranspileFileAndStoreJS(const char* szFile, ezStringBuilder& out_sResult);
   void SetModifyTsBeforeTranspilationCallback(ezDelegate<void(ezStringBuilder&)> callback);
 
 private:

@@ -21,20 +21,20 @@ namespace ezDataDirectory
     ArchiveType();
     ~ArchiveType();
 
-    static ezDataDirectoryType* Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
+    static ezDataDirectoryType* Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage);
 
     virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
 
   protected:
-    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
+    virtual ezDataDirectoryReader* OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
 
     virtual void RemoveDataDirectory() override;
 
-    virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir) override;
+    virtual bool ExistsFile(ezStringView sFile, bool bOneSpecificDataDir) override;
 
-    virtual ezResult GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
+    virtual ezResult GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
 
-    virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
+    virtual ezResult InternalInitializeDataDirectory(ezStringView sDirectory) override;
 
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
 

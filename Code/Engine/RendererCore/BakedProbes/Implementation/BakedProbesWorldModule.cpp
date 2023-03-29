@@ -31,7 +31,7 @@ bool ezBakedProbesWorldModule::HasProbeData() const
   return m_hProbeTree.IsValid();
 }
 
-ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& globalPosition, const ezVec3& normal, ProbeIndexData& out_ProbeIndexData) const
+ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& vGlobalPosition, const ezVec3& vNormal, ProbeIndexData& out_probeIndexData) const
 {
   // TODO: optimize
 
@@ -42,7 +42,7 @@ ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& globalPositio
   if (pProbeTree.GetAcquireResult() != ezResourceAcquireResult::Final)
     return EZ_FAILURE;
 
-  ezSimdVec4f gridSpacePos = ezSimdConversion::ToVec3((globalPosition - pProbeTree->GetGridOrigin()).CompDiv(pProbeTree->GetProbeSpacing()));
+  ezSimdVec4f gridSpacePos = ezSimdConversion::ToVec3((vGlobalPosition - pProbeTree->GetGridOrigin()).CompDiv(pProbeTree->GetProbeSpacing()));
   gridSpacePos = gridSpacePos.CompMax(ezSimdVec4f::ZeroVector());
 
   ezSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
@@ -63,38 +63,38 @@ ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& globalPositio
   ezUInt32 xCount = pProbeTree->GetProbeCount().x;
   ezUInt32 xyCount = xCount * pProbeTree->GetProbeCount().y;
 
-  out_ProbeIndexData.m_probeIndices[0] = z0 * xyCount + y0 * xCount + x0;
-  out_ProbeIndexData.m_probeIndices[1] = z0 * xyCount + y0 * xCount + x1;
-  out_ProbeIndexData.m_probeIndices[2] = z0 * xyCount + y1 * xCount + x0;
-  out_ProbeIndexData.m_probeIndices[3] = z0 * xyCount + y1 * xCount + x1;
-  out_ProbeIndexData.m_probeIndices[4] = z1 * xyCount + y0 * xCount + x0;
-  out_ProbeIndexData.m_probeIndices[5] = z1 * xyCount + y0 * xCount + x1;
-  out_ProbeIndexData.m_probeIndices[6] = z1 * xyCount + y1 * xCount + x0;
-  out_ProbeIndexData.m_probeIndices[7] = z1 * xyCount + y1 * xCount + x1;
+  out_probeIndexData.m_probeIndices[0] = z0 * xyCount + y0 * xCount + x0;
+  out_probeIndexData.m_probeIndices[1] = z0 * xyCount + y0 * xCount + x1;
+  out_probeIndexData.m_probeIndices[2] = z0 * xyCount + y1 * xCount + x0;
+  out_probeIndexData.m_probeIndices[3] = z0 * xyCount + y1 * xCount + x1;
+  out_probeIndexData.m_probeIndices[4] = z1 * xyCount + y0 * xCount + x0;
+  out_probeIndexData.m_probeIndices[5] = z1 * xyCount + y0 * xCount + x1;
+  out_probeIndexData.m_probeIndices[6] = z1 * xyCount + y1 * xCount + x0;
+  out_probeIndexData.m_probeIndices[7] = z1 * xyCount + y1 * xCount + x1;
 
   ezVec3 w1 = ezSimdConversion::ToVec3(weights);
   ezVec3 w0 = ezVec3(1.0f) - w1;
 
   // TODO: add geometry factor to weight
-  out_ProbeIndexData.m_probeWeights[0] = w0.x * w0.y * w0.z;
-  out_ProbeIndexData.m_probeWeights[1] = w1.x * w0.y * w0.z;
-  out_ProbeIndexData.m_probeWeights[2] = w0.x * w1.y * w0.z;
-  out_ProbeIndexData.m_probeWeights[3] = w1.x * w1.y * w0.z;
-  out_ProbeIndexData.m_probeWeights[4] = w0.x * w0.y * w1.z;
-  out_ProbeIndexData.m_probeWeights[5] = w1.x * w0.y * w1.z;
-  out_ProbeIndexData.m_probeWeights[6] = w0.x * w1.y * w1.z;
-  out_ProbeIndexData.m_probeWeights[7] = w1.x * w1.y * w1.z;
+  out_probeIndexData.m_probeWeights[0] = w0.x * w0.y * w0.z;
+  out_probeIndexData.m_probeWeights[1] = w1.x * w0.y * w0.z;
+  out_probeIndexData.m_probeWeights[2] = w0.x * w1.y * w0.z;
+  out_probeIndexData.m_probeWeights[3] = w1.x * w1.y * w0.z;
+  out_probeIndexData.m_probeWeights[4] = w0.x * w0.y * w1.z;
+  out_probeIndexData.m_probeWeights[5] = w1.x * w0.y * w1.z;
+  out_probeIndexData.m_probeWeights[6] = w0.x * w1.y * w1.z;
+  out_probeIndexData.m_probeWeights[7] = w1.x * w1.y * w1.z;
 
   float weightSum = 0;
   for (ezUInt32 i = 0; i < ProbeIndexData::NumProbes; ++i)
   {
-    weightSum += out_ProbeIndexData.m_probeWeights[i];
+    weightSum += out_probeIndexData.m_probeWeights[i];
   }
 
   float normalizeFactor = 1.0f / weightSum;
   for (ezUInt32 i = 0; i < ProbeIndexData::NumProbes; ++i)
   {
-    out_ProbeIndexData.m_probeWeights[i] *= normalizeFactor;
+    out_probeIndexData.m_probeWeights[i] *= normalizeFactor;
   }
 
   return EZ_SUCCESS;
@@ -133,3 +133,6 @@ void ezBakedProbesWorldModule::SetProbeTreeResourcePrefix(const ezHashedString& 
 
   m_hProbeTree = ezResourceManager::LoadResource<ezProbeTreeSectorResource>(sResourcePath);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakedProbesWorldModule);

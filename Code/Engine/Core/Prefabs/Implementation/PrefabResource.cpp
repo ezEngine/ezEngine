@@ -17,7 +17,7 @@ ezPrefabResource::ezPrefabResource()
 {
 }
 
-void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues)
+void ezPrefabResource::InstantiatePrefab(ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues)
 {
   if (GetLoadingState() != ezResourceState::Loaded)
     return;
@@ -37,13 +37,31 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
       options.m_pCreatedChildObjectsOut = &createdChildObjects;
     }
 
-    m_WorldReader.InstantiatePrefab(world, rootTransform, options);
+    m_WorldReader.InstantiatePrefab(ref_world, rootTransform, options);
 
     ApplyExposedParameterValues(pExposedParamValues, *options.m_pCreatedChildObjectsOut, *options.m_pCreatedRootObjectsOut);
   }
   else
   {
-    m_WorldReader.InstantiatePrefab(world, rootTransform, options);
+    m_WorldReader.InstantiatePrefab(ref_world, rootTransform, options);
+  }
+}
+
+ezPrefabResource::InstantiateResult ezPrefabResource::InstantiatePrefab(const ezPrefabResourceHandle& hPrefab, bool bBlockTillLoaded, ezWorld& ref_world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues /*= nullptr*/)
+{
+  ezResourceLock<ezPrefabResource> pPrefab(hPrefab, bBlockTillLoaded ? ezResourceAcquireMode::BlockTillLoaded_NeverFail : ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+
+  switch (pPrefab.GetAcquireResult())
+  {
+    case ezResourceAcquireResult::Final:
+      pPrefab->InstantiatePrefab(ref_world, rootTransform, options, pExposedParamValues);
+      return InstantiateResult::Success;
+
+    case ezResourceAcquireResult::LoadingFallback:
+      return InstantiateResult::NotYetLoaded;
+
+    default:
+      return InstantiateResult::Error;
   }
 }
 
@@ -228,39 +246,39 @@ ezUInt32 ezPrefabResource::FindFirstParamWithName(ezUInt64 uiNameHash) const
   return lb;
 }
 
-void ezExposedPrefabParameterDesc::Save(ezStreamWriter& stream) const
+void ezExposedPrefabParameterDesc::Save(ezStreamWriter& inout_stream) const
 {
   ezUInt32 comb = m_uiWorldReaderObjectIndex | (m_uiWorldReaderChildObject << 31);
 
-  stream << m_sExposeName;
-  stream << comb;
-  stream << m_sComponentType;
-  stream << m_sProperty;
+  inout_stream << m_sExposeName;
+  inout_stream << comb;
+  inout_stream << m_sComponentType;
+  inout_stream << m_sProperty;
 }
 
-void ezExposedPrefabParameterDesc::Load(ezStreamReader& stream)
+void ezExposedPrefabParameterDesc::Load(ezStreamReader& inout_stream)
 {
   ezUInt32 comb = 0;
 
-  stream >> m_sExposeName;
-  stream >> comb;
-  stream >> m_sComponentType;
-  stream >> m_sProperty;
+  inout_stream >> m_sExposeName;
+  inout_stream >> comb;
+  inout_stream >> m_sComponentType;
+  inout_stream >> m_sProperty;
 
   m_uiWorldReaderObjectIndex = comb & 0x7FFFFFFF;
   m_uiWorldReaderChildObject = (comb >> 31);
 }
 
-void ezExposedPrefabParameterDesc::LoadOld(ezStreamReader& stream)
+void ezExposedPrefabParameterDesc::LoadOld(ezStreamReader& inout_stream)
 {
   ezUInt32 comb = 0;
 
   ezUInt32 uiComponentTypeMurmurHash;
 
-  stream >> m_sExposeName;
-  stream >> comb;
-  stream >> uiComponentTypeMurmurHash;
-  stream >> m_sProperty;
+  inout_stream >> m_sExposeName;
+  inout_stream >> comb;
+  inout_stream >> uiComponentTypeMurmurHash;
+  inout_stream >> m_sProperty;
 
   m_sComponentType.Clear();
   if (uiComponentTypeMurmurHash != 0)

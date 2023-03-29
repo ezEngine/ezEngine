@@ -176,11 +176,11 @@ void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
     case ezTextureCubeChannelMappingEnum::RGBA1:
     {
       // remove file dependencies, that aren't used
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile1());
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile2());
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile3());
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile4());
-      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile5());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile1());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile2());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile3());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile4());
+      pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile5());
       break;
     }
 
@@ -222,6 +222,7 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
 {
   AddSupportedFileType("dds");
   AddSupportedFileType("hdr");
+  AddSupportedFileType("exr");
 
   // these formats would need to use 6 files for the faces
   // more elaborate detection and mapping would need to be implemented
@@ -233,12 +234,12 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
 
 ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() {}
 
-void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
 
   const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
-  const bool isHDR = ezPathUtils::HasExtension(szParentDirRelativePath, "hdr");
+  const bool isHDR = ezPathUtils::HasExtension(sParentDirRelativePath, "hdr") || ezPathUtils::HasExtension(sParentDirRelativePath, "exr");
 
   /// \todo Make this configurable
   const bool isCubemap = ((baseFilename.FindSubString_NoCase("cubemap") != nullptr) || (baseFilename.FindSubString_NoCase("skybox") != nullptr));
@@ -248,7 +249,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
   if (isHDR)
   {
     {
-      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
       info.m_Priority = isCubemap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::Undecided;
       info.m_sName = "CubemapImport.SkyboxHDR";
       info.m_sOutputFileParentRelative = baseOutputFile;
@@ -258,7 +259,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
   else
   {
     {
-      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
       info.m_Priority = isCubemap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::Undecided;
       info.m_sName = "CubemapImport.Skybox";
       info.m_sOutputFileParentRelative = baseOutputFile;
@@ -267,7 +268,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(const char* szParentDir
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -280,7 +281,7 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(const char* szDataDirRela
     return ezStatus("Target document is not a valid ezTextureCubeAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("Input1", szDataDirRelativePath);
+  accessor.SetValue("Input1", sDataDirRelativePath);
   accessor.SetValue("ChannelMapping", (int)ezTextureCubeChannelMappingEnum::RGB1);
 
   if (info.m_sName == "CubemapImport.SkyboxHDR")

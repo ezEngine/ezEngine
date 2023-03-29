@@ -12,8 +12,8 @@ struct EZ_RENDERERCORE_DLL ezShaderStateResourceDescriptor
   ezGALRasterizerStateCreationDescription m_RasterizerDesc;
 
   ezResult Load(const char* szSource);
-  void Load(ezStreamReader& stream);
-  void Save(ezStreamWriter& stream) const;
+  void Load(ezStreamReader& inout_stream);
+  void Save(ezStreamWriter& inout_stream) const;
 
   ezUInt32 CalculateHash() const;
 };
@@ -23,8 +23,8 @@ class EZ_RENDERERCORE_DLL ezShaderPermutationBinary
 public:
   ezShaderPermutationBinary();
 
-  ezResult Write(ezStreamWriter& Stream);
-  ezResult Read(ezStreamReader& Stream, bool& out_bOldVersion);
+  ezResult Write(ezStreamWriter& inout_stream);
+  ezResult Read(ezStreamReader& inout_stream, bool& out_bOldVersion);
 
   ezUInt32 m_uiShaderStageHashes[ezGALShaderStage::ENUM_COUNT];
 

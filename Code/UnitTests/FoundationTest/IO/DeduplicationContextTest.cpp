@@ -15,15 +15,15 @@ namespace
     {
     }
 
-    ezResult Serialize(ezStreamWriter& stream) const
+    ezResult Serialize(ezStreamWriter& inout_stream) const
     {
-      stream << m_v;
+      inout_stream << m_v;
       return EZ_SUCCESS;
     }
 
-    ezResult Deserialize(ezStreamReader& stream)
+    ezResult Deserialize(ezStreamReader& inout_stream)
     {
-      stream >> m_v;
+      inout_stream >> m_v;
       return EZ_SUCCESS;
     }
 
@@ -37,23 +37,23 @@ namespace
     ezSharedPtr<RefCountedVec3> m_pScale;
     ezUInt32 m_uiIndex = ezInvalidIndex;
 
-    ezResult Serialize(ezStreamWriter& stream) const
+    ezResult Serialize(ezStreamWriter& inout_stream) const
     {
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteObject(stream, m_pTransform));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteObject(stream, m_pPosition));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteObject(stream, m_pScale));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteObject(inout_stream, m_pTransform));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteObject(inout_stream, m_pPosition));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteObject(inout_stream, m_pScale));
 
-      stream << m_uiIndex;
+      inout_stream << m_uiIndex;
       return EZ_SUCCESS;
     }
 
-    ezResult Deserialize(ezStreamReader& stream)
+    ezResult Deserialize(ezStreamReader& inout_stream)
     {
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadObject(stream, m_pTransform));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadObject(stream, m_pPosition));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadObject(stream, m_pScale));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadObject(inout_stream, m_pTransform));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadObject(inout_stream, m_pPosition));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadObject(inout_stream, m_pScale));
 
-      stream >> m_uiIndex;
+      inout_stream >> m_uiIndex;
       return EZ_SUCCESS;
     }
   };
@@ -69,28 +69,28 @@ namespace
     ezMap<ezUInt32, ezTransform*> m_TransformMap;
     ezSet<ezVec3*> m_UniquePositions;
 
-    ezResult Serialize(ezStreamWriter& stream) const
+    ezResult Serialize(ezStreamWriter& inout_stream) const
     {
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(stream, m_Transforms));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(stream, m_Positions));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(stream, m_Scales));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(inout_stream, m_Transforms));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(inout_stream, m_Positions));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(inout_stream, m_Scales));
       EZ_SUCCEED_OR_RETURN(
-        ezDeduplicationWriteContext::GetContext()->WriteMap(stream, m_TransformMap, ezDeduplicationWriteContext::WriteMapMode::DedupValue));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteSet(stream, m_UniquePositions));
-      EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Components));
+        ezDeduplicationWriteContext::GetContext()->WriteMap(inout_stream, m_TransformMap, ezDeduplicationWriteContext::WriteMapMode::DedupValue));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteSet(inout_stream, m_UniquePositions));
+      EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_Components));
       return EZ_SUCCESS;
     }
 
-    ezResult Deserialize(ezStreamReader& stream)
+    ezResult Deserialize(ezStreamReader& inout_stream)
     {
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(stream, m_Transforms));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(stream, m_Positions,
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(inout_stream, m_Transforms));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(inout_stream, m_Positions,
         nullptr)); // should not allocate anything
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(stream, m_Scales));
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(inout_stream, m_Scales));
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadMap(
-        stream, m_TransformMap, ezDeduplicationReadContext::ReadMapMode::DedupValue, nullptr, nullptr));           // should not allocate anything
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadSet(stream, m_UniquePositions, nullptr)); // should not allocate anything
-      EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Components));
+        inout_stream, m_TransformMap, ezDeduplicationReadContext::ReadMapMode::DedupValue, nullptr, nullptr));           // should not allocate anything
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadSet(inout_stream, m_UniquePositions, nullptr)); // should not allocate anything
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Components));
       return EZ_SUCCESS;
     }
   };

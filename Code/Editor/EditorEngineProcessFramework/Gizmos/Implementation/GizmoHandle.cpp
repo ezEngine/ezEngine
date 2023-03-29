@@ -68,16 +68,16 @@ void ezGizmoHandle::SetTransformation(const ezMat4& m)
   SetTransformation(t);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferResource(ezGeometry& geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
+static ezMeshBufferResourceHandle CreateMeshBufferResource(ezGeometry& inout_geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
 {
-  geom.ComputeFaceNormals();
-  geom.ComputeSmoothVertexNormals();
+  inout_geom.ComputeFaceNormals();
+  inout_geom.ComputeSmoothVertexNormals();
 
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
   desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  desc.AllocateStreamsFromGeometry(geom, topology);
+  desc.AllocateStreamsFromGeometry(inout_geom, topology);
   desc.ComputeBounds();
 
   return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, std::move(desc), szDescription);

@@ -60,24 +60,24 @@ const char* ezParticleInitializerFactory_RandomSize::GetSizeCurveFile() const
   return m_hCurve.GetResourceID();
 }
 
-void ezParticleInitializerFactory_RandomSize::Save(ezStreamWriter& stream) const
+void ezParticleInitializerFactory_RandomSize::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 2;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_hCurve;
-  stream << m_Size.m_Value;
-  stream << m_Size.m_fVariance;
+  inout_stream << m_hCurve;
+  inout_stream << m_Size.m_Value;
+  inout_stream << m_Size.m_fVariance;
 }
 
-void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& stream)
+void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_hCurve;
-  stream >> m_Size.m_Value;
-  stream >> m_Size.m_fVariance;
+  inout_stream >> m_hCurve;
+  inout_stream >> m_Size.m_Value;
+  inout_stream >> m_Size.m_fVariance;
 }
 
 
@@ -142,7 +142,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("Size").IgnoreResult();
   }

@@ -13,5 +13,5 @@ public:
   ezIPCObjectMirrorEngine();
   ~ezIPCObjectMirrorEngine();
 
-  virtual void ApplyOp(ezObjectChange& change) override;
+  virtual void ApplyOp(ezObjectChange& inout_change) override;
 };

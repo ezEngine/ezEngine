@@ -104,7 +104,7 @@ void ezEditorSceneDocumentTest::CloseSimpleScene()
   {
     bool bSaved = false;
     ezTaskGroupID id = m_pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* doc, ezStatus res) {
+      [&bSaved](ezDocument* pDoc, ezStatus res) {
         bSaved = true;
       },
       true);
@@ -202,7 +202,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
   {
     bool bSaved = false;
     ezTaskGroupID id = pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* doc, ezStatus res) {
+      [&bSaved](ezDocument* pDoc, ezStatus res) {
         bSaved = true;
       },
       true);
@@ -295,7 +295,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
   {
     bool bSaved = false;
     ezTaskGroupID id = pDoc->SaveDocumentAsync(
-      [&bSaved](ezDocument* doc, ezStatus res) {
+      [&bSaved](ezDocument* pDoc, ezStatus res) {
         bSaved = true;
       },
       true);
@@ -363,8 +363,8 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       EZ_TEST_BOOL(!defaultState.IsDefaultValue("Components"));
 
       // Does default state match that of pSphere2 which is unmodified?
-      auto MatchesDefaultValue = [&](ezDefaultObjectState& defaultState, const char* szProperty) {
-        ezVariant defaultValue = defaultState.GetDefaultValue(szProperty);
+      auto MatchesDefaultValue = [&](ezDefaultObjectState& ref_defaultState, const char* szProperty) {
+        ezVariant defaultValue = ref_defaultState.GetDefaultValue(szProperty);
         ezVariant sphere2value;
         EZ_TEST_STATUS(pAccessor->GetValue(pSphere2, szProperty, sphere2value));
         EZ_TEST_BOOL(defaultValue == sphere2value);

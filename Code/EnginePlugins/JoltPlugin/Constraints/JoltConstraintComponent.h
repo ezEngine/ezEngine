@@ -55,8 +55,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltConstraintComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -70,11 +70,11 @@ public:
   ezJoltConstraintComponent();
   ~ezJoltConstraintComponent();
 
-  // void SetBreakForce(float value);                      // [ property ]
-  // float GetBreakForce() const { return m_fBreakForce; } // [ property ]
+  void SetBreakForce(float value);                      // [ property ]
+  float GetBreakForce() const { return m_fBreakForce; } // [ property ]
 
-  // void SetBreakTorque(float value);                       // [ property ]
-  // float GetBreakTorque() const { return m_fBreakTorque; } // [ property ]
+  void SetBreakTorque(float value);                       // [ property ]
+  float GetBreakTorque() const { return m_fBreakTorque; } // [ property ]
 
   void SetPairCollision(bool value);                         // [ property ]
   bool GetPairCollision() const { return m_bPairCollision; } // [ property ]
@@ -90,6 +90,8 @@ public:
   void SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB);
 
   virtual void ApplySettings() = 0;
+
+  virtual bool ExceededBreakingPoint() = 0;
 
 protected:
   ezResult FindParentBody(ezUInt32& out_uiJoltBodyID);
@@ -113,8 +115,8 @@ protected:
 
   JPH::Constraint* m_pConstraint = nullptr;
 
-  // float m_fBreakForce = 0.0f;
-  // float m_fBreakTorque = 0.0f;
+  float m_fBreakForce = 0.0f;
+  float m_fBreakTorque = 0.0f;
   bool m_bPairCollision = true;
 
 private:

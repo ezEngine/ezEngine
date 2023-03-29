@@ -38,12 +38,12 @@ ezInternal::NewInstance<ezGALDevice> ezGALDeviceFactory::CreateDevice(const char
   return ezInternal::NewInstance<ezGALDevice>(nullptr, pAllocator);
 }
 
-void ezGALDeviceFactory::GetShaderModelAndCompiler(const char* szRendererName, const char*& szShaderModel, const char*& szShaderCompiler)
+void ezGALDeviceFactory::GetShaderModelAndCompiler(const char* szRendererName, const char*& ref_szShaderModel, const char*& ref_szShaderCompiler)
 {
   if (auto pFuncInfo = GetCreatorFuncInfo(szRendererName))
   {
-    szShaderModel = pFuncInfo->m_sShaderModel;
-    szShaderCompiler = pFuncInfo->m_sShaderCompiler;
+    ref_szShaderModel = pFuncInfo->m_sShaderModel;
+    ref_szShaderCompiler = pFuncInfo->m_sShaderCompiler;
   }
 }
 
@@ -61,3 +61,6 @@ void ezGALDeviceFactory::UnregisterCreatorFunc(const char* szRendererName)
 {
   EZ_VERIFY(s_CreatorFuncs.Remove(szRendererName), "Creator func not registered");
 }
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_DeviceFactory);

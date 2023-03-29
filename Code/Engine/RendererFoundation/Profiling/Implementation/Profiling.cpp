@@ -112,11 +112,11 @@ GPUTimingScope* ezProfilingScopeAndMarker::Start(ezGALCommandEncoder* pCommandEn
   return &timingScope;
 }
 
-void ezProfilingScopeAndMarker::Stop(ezGALCommandEncoder* pCommandEncoder, GPUTimingScope*& pTimingScope)
+void ezProfilingScopeAndMarker::Stop(ezGALCommandEncoder* pCommandEncoder, GPUTimingScope*& ref_pTimingScope)
 {
   pCommandEncoder->PopMarker();
-  pTimingScope->m_EndTimestamp = pCommandEncoder->InsertTimestamp();
-  pTimingScope = nullptr;
+  ref_pTimingScope->m_EndTimestamp = pCommandEncoder->InsertTimestamp();
+  ref_pTimingScope = nullptr;
 }
 
 ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName)

@@ -20,7 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Script", GetTypeScriptComponentFile, SetTypeScriptComponentFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Code_TypeScript")),
+    EZ_ACCESSOR_PROPERTY("Script", GetTypeScriptComponentFile, SetTypeScriptComponentFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Code_TypeScript", ezDependencyFlags::Package)),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Script")),
   }
   EZ_END_PROPERTIES;
@@ -98,6 +98,13 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
+bool ezTypeScriptComponent::HandlesMessage(const ezMessage& msg) const
+{
+  ezTypeScriptBinding& binding = static_cast<const ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
+
+  return binding.HasMessageHandler(m_ComponentTypeInfo, msg.GetDynamicRTTI());
+}
+
 bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
   return HandleUnhandledMessage(msg, bWasPostedMsg);
@@ -118,29 +125,22 @@ bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg, bool bWasPost
   return binding.DeliverMessage(m_ComponentTypeInfo, this, msg, bWasPostedMsg == false);
 }
 
-bool ezTypeScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
+void ezTypeScriptComponent::BroadcastEventMsg(ezEventMessage& ref_msg)
 {
-  ezTypeScriptBinding& binding = static_cast<const ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
-
-  return binding.HasMessageHandler(m_ComponentTypeInfo, msg.GetDynamicRTTI());
-}
-
-void ezTypeScriptComponent::BroadcastEventMsg(ezEventMessage& msg)
-{
-  const ezRTTI* pType = msg.GetDynamicRTTI();
+  const ezRTTI* pType = ref_msg.GetDynamicRTTI();
 
   for (auto& sender : m_EventSenders)
   {
     if (sender.m_pMsgType == pType)
     {
-      sender.m_Sender.SendEventMessage(msg, this, GetOwner()->GetParent());
+      sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
       return;
     }
   }
 
   auto& sender = m_EventSenders.ExpandAndGetRef();
   sender.m_pMsgType = pType;
-  sender.m_Sender.SendEventMessage(msg, this, GetOwner()->GetParent());
+  sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
 }
 
 bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
@@ -341,9 +341,9 @@ const char* ezTypeScriptComponent::GetTypeScriptComponentFile() const
   return "";
 }
 
-void ezTypeScriptComponent::SetTypeScriptComponentGuid(const ezUuid& hResource)
+void ezTypeScriptComponent::SetTypeScriptComponentGuid(const ezUuid& resource)
 {
-  m_TypeScriptComponentGuid = hResource;
+  m_TypeScriptComponentGuid = resource;
 }
 
 const ezUuid& ezTypeScriptComponent::GetTypeScriptComponentGuid() const
@@ -363,13 +363,10 @@ void ezTypeScriptComponent::OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg
 
 const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
-    { return 0; },
-    [this]() -> ezUInt32
-    { return m_Parameters.GetCount(); },
-    [](ezUInt32& it)
-    { ++it; },
-    [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

@@ -9,7 +9,7 @@ EZ_FORCE_INLINE void* ezAlignedHeapAllocation::Allocate(size_t uiSize, size_t ui
   return ptr;
 }
 
-EZ_ALWAYS_INLINE void ezAlignedHeapAllocation::Deallocate(void* ptr)
+EZ_ALWAYS_INLINE void ezAlignedHeapAllocation::Deallocate(void* pPtr)
 {
-  _aligned_free(ptr);
+  _aligned_free(pPtr);
 }

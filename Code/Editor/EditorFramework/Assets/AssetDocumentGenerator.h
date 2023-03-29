@@ -48,27 +48,26 @@ public:
 
   static void ImportAssets();
   static void ImportAssets(const ezHybridArray<ezString, 16>& filesToImport);
-  static void ExecuteImport(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
+  static void ExecuteImport(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& ref_allImports);
 
-  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const = 0;
-  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& mode, ezDocument*& out_pGeneratedDocument) = 0;
-  virtual const char* GetDocumentExtension() const = 0;
-  virtual const char* GetGeneratorGroup() const = 0;
+  virtual void GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const = 0;
+  virtual ezStatus Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& mode, ezDocument*& out_pGeneratedDocument) = 0;
+  virtual ezStringView GetDocumentExtension() const = 0;
+  virtual ezStringView GetGeneratorGroup() const = 0;
 
-  bool SupportsFileType(const char* szFile) const;
-  void BuildFileDialogFilterString(ezStringBuilder& out_Filter) const;
-  void AppendFileFilterStrings(ezStringBuilder& out_Filter, bool& semicolon) const;
+  bool SupportsFileType(ezStringView sFile) const;
+  void BuildFileDialogFilterString(ezStringBuilder& out_sFilter) const;
+  void AppendFileFilterStrings(ezStringBuilder& out_sFilter, bool& ref_bSemicolon) const;
 
 protected:
-  void AddSupportedFileType(const char* szExtension);
+  void AddSupportedFileType(ezStringView sExtension);
 
 private:
   static void CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_Generators);
   static void DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
   static ezResult DetermineInputAndOutputFiles(ImportData& data, Info& option);
   static void SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
-  static void CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport,
-    ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
+  static void CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
 
   ezHybridArray<ezString, 16> m_SupportedFileTypes;
 };

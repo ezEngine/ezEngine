@@ -2,15 +2,15 @@
 
 #include <RendererCore/BakedProbes/BakingUtils.h>
 
-ezVec3 ezBakingUtils::FibonacciSphere(ezUInt32 sampleIndex, ezUInt32 numSamples)
+ezVec3 ezBakingUtils::FibonacciSphere(ezUInt32 uiSampleIndex, ezUInt32 uiNumSamples)
 {
-  float offset = 2.0f / numSamples;
+  float offset = 2.0f / uiNumSamples;
   float increment = ezMath::Pi<float>() * (3.0f - ezMath::Sqrt(5.0f));
 
-  float y = ((sampleIndex * offset) - 1) + (offset / 2);
+  float y = ((uiSampleIndex * offset) - 1) + (offset / 2);
   float r = ezMath::Sqrt(1 - y * y);
 
-  ezAngle phi = ezAngle::Radian(((sampleIndex + 1) % numSamples) * increment);
+  ezAngle phi = ezAngle::Radian(((uiSampleIndex + 1) % uiNumSamples) * increment);
 
   float x = ezMath::Cos(phi) * r;
   float z = ezMath::Sin(phi) * r;
@@ -35,13 +35,16 @@ ezCompressedSkyVisibility ezBakingUtils::CompressSkyVisibility(const ezAmbientCu
   return result;
 }
 
-void ezBakingUtils::DecompressSkyVisibility(ezCompressedSkyVisibility compressedSkyVisibility, ezAmbientCube<float>& out_SkyVisibility)
+void ezBakingUtils::DecompressSkyVisibility(ezCompressedSkyVisibility compressedSkyVisibility, ezAmbientCube<float>& out_skyVisibility)
 {
   ezUInt32 uiOffset = 0;
   for (ezUInt32 i = 0; i < ezAmbientCubeBasis::NumDirs; ++i)
   {
     ezUInt32 maxValue = (1u << s_BitsPerDir[i]) - 1u;
-    out_SkyVisibility.m_Values[i] = static_cast<float>((compressedSkyVisibility >> uiOffset) & maxValue) * (1.0f / maxValue);
+    out_skyVisibility.m_Values[i] = static_cast<float>((compressedSkyVisibility >> uiOffset) & maxValue) * (1.0f / maxValue);
     uiOffset += s_BitsPerDir[i];
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakingUtils);

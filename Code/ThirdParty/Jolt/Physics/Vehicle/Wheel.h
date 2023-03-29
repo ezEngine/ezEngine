@@ -1,3 +1,4 @@
+// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
@@ -77,7 +78,7 @@ public:
 	SubShapeID				GetContactSubShapeID() const				{ return mContactSubShapeID; }
 
 	/// Returns the current contact position in world space (note by the time you call this the vehicle has moved)
-	Vec3					GetContactPosition() const					{ JPH_ASSERT(mContactBody != nullptr); return mContactPosition; }
+	RVec3					GetContactPosition() const					{ JPH_ASSERT(mContactBody != nullptr); return mContactPosition; }
 
 	/// Velocity of the contact point (m / s, not relative to the wheel but in world space)
 	Vec3					GetContactPointVelocity() const				{ JPH_ASSERT(mContactBody != nullptr); return mContactPointVelocity; }
@@ -92,7 +93,7 @@ public:
 	Vec3					GetContactLateral() const					{ JPH_ASSERT(mContactBody != nullptr); return mContactLateral; }
 
 	/// Get the length of the suspension for a wheel (m) relative to the suspension attachment point (hard point)
-	float					GetSuspensionLength() const					{ return mContactLength - mSettings->mRadius; }
+	float					GetSuspensionLength() const					{ return mSuspensionLength; }
 
 	/// Check if the suspension hit its upper limit
 	bool					HasHitHardPoint() const						{ return mSuspensionMaxUpPart.IsActive(); }
@@ -119,8 +120,8 @@ protected:
 	BodyID					mContactBodyID;								///< ID of body for ground
 	SubShapeID				mContactSubShapeID;							///< Sub shape ID for ground
 	Body *					mContactBody = nullptr;						///< Body for ground
-	float					mContactLength;								///< Length between attachment point and ground
-	Vec3					mContactPosition;							///< Position of the contact point between wheel and ground
+	float					mSuspensionLength;							///< Current length of the suspension
+	RVec3					mContactPosition;							///< Position of the contact point between wheel and ground
 	Vec3					mContactPointVelocity;						///< Velocity of the contact point (m / s, not relative to the wheel but in world space)
 	Vec3					mContactNormal;								///< Normal of the contact point between wheel and ground
 	Vec3					mContactLongitudinal;						///< Vector perpendicular to normal in the forward direction

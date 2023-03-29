@@ -113,10 +113,10 @@ void ezLayerContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
   EZ_REPORT_FAILURE("Layers should not create views.");
 }
 
-bool ezLayerContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+ezStatus ezLayerContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
   EZ_REPORT_FAILURE("Layers do not support export yet. THe layer content is baked into the main scene instead.");
-  return false;
+  return ezStatus("Nope");
 }
 
 void ezLayerContext::UpdateDocumentContext()

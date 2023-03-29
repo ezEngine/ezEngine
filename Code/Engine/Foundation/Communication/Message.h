@@ -60,15 +60,15 @@ public:
   ///
   /// Note that PackageForTransfer() will automatically include the ezRTTI type version into the stream
   /// and ReplicatePackedMessage() will pass this into Deserialize(). Use this if the serialization changes.
-  virtual void Serialize(ezStreamWriter& stream) const { EZ_ASSERT_NOT_IMPLEMENTED; }
+  virtual void Serialize(ezStreamWriter& inout_stream) const { EZ_ASSERT_NOT_IMPLEMENTED; }
 
   /// \see Serialize()
-  virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion) { EZ_ASSERT_NOT_IMPLEMENTED; }
+  virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) { EZ_ASSERT_NOT_IMPLEMENTED; }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   /// set to true while debugging a message routing problem
   /// if the message is not delivered to any recipient at all, information about why that is will be written to ezLog
-  EZ_ALWAYS_INLINE void SetDebugMessageRouting(bool debug) { m_uiDebugMessageRouting = debug; }
+  EZ_ALWAYS_INLINE void SetDebugMessageRouting(bool bDebug) { m_uiDebugMessageRouting = bDebug; }
 
   EZ_ALWAYS_INLINE bool GetDebugMessageRouting() const { return m_uiDebugMessageRouting; }
 #endif
@@ -98,13 +98,13 @@ public:
   /// For this to work the message type has to have the Serialize and Deserialize functions implemented.
   ///
   /// \note This is NOT used by ezWorld. Within the same process messages can be dispatched more efficiently.
-  static void PackageForTransfer(const ezMessage& msg, ezStreamWriter& stream);
+  static void PackageForTransfer(const ezMessage& msg, ezStreamWriter& inout_stream);
 
   /// \brief Restores a message that was written by PackageForTransfer()
   ///
   /// If the message type is unknown, nullptr is returned.
   /// \see PackageForTransfer()
-  static ezUniquePtr<ezMessage> ReplicatePackedMessage(ezStreamReader& stream);
+  static ezUniquePtr<ezMessage> ReplicatePackedMessage(ezStreamReader& inout_stream);
 
 private:
 };

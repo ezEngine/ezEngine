@@ -21,8 +21,8 @@ public:
   /// \brief The matrix as a 9-element Type array (column-major)
   Type m_fElementsCM[9];
 
-  EZ_ALWAYS_INLINE Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 3 + row]; }
-  EZ_ALWAYS_INLINE Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 3 + row]; }
+  EZ_ALWAYS_INLINE Type& Element(ezInt32 iColumn, ezInt32 iRow) { return m_fElementsCM[iColumn * 3 + iRow]; }
+  EZ_ALWAYS_INLINE Type Element(ezInt32 iColumn, ezInt32 iRow) const { return m_fElementsCM[iColumn * 3 + iRow]; }
 
   // *** Constructors ***
 public:
@@ -128,19 +128,19 @@ public:
   ezVec3Template<Type> GetRow(ezUInt32 uiRow) const; // [tested]
 
   /// \brief Sets all 3 components of the i-th row.
-  void SetRow(ezUInt32 uiRow, const ezVec3Template<Type>& row); // [tested]
+  void SetRow(ezUInt32 uiRow, const ezVec3Template<Type>& vRow); // [tested]
 
   /// \brief Returns all 3 components of the i-th column.
   ezVec3Template<Type> GetColumn(ezUInt32 uiColumn) const; // [tested]
 
   /// \brief Sets all 3 components of the i-th column.
-  void SetColumn(ezUInt32 uiColumn, const ezVec3Template<Type>& column); // [tested]
+  void SetColumn(ezUInt32 uiColumn, const ezVec3Template<Type>& vColumn); // [tested]
 
   /// \brief Returns all 3 components on the diagonal of the matrix.
   ezVec3Template<Type> GetDiagonal() const; // [tested]
 
   /// \brief Sets all 3 components on the diagonal of the matrix.
-  void SetDiagonal(const ezVec3Template<Type>& diag); // [tested]
+  void SetDiagonal(const ezVec3Template<Type>& vDiag); // [tested]
 
   /// \brief Returns the 3 scaling factors that are encoded in the matrix.
   const ezVec3Template<Type> GetScalingFactors() const; // [tested]

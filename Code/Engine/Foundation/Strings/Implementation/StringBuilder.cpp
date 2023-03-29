@@ -6,18 +6,18 @@
 
 #include <stdarg.h>
 
-ezStringBuilder::ezStringBuilder(ezStringView pData1, ezStringView pData2, ezStringView pData3, ezStringView pData4, ezStringView pData5, ezStringView pData6)
+ezStringBuilder::ezStringBuilder(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
 
-  Append(pData1, pData2, pData3, pData4, pData5, pData6);
+  Append(sData1, sData2, sData3, sData4, sData5, sData6);
 }
 
-void ezStringBuilder::Set(ezStringView pData1, ezStringView pData2, ezStringView pData3, ezStringView pData4, ezStringView pData5, ezStringView pData6)
+void ezStringBuilder::Set(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6)
 {
   Clear();
-  Append(pData1, pData2, pData3, pData4, pData5, pData6);
+  Append(sData1, sData2, sData3, sData4, sData5, sData6);
 }
 
 void ezStringBuilder::SetSubString_FromTo(const char* pStart, const char* pEnd)
@@ -46,14 +46,14 @@ void ezStringBuilder::SetSubString_CharacterCount(const char* pStart, ezUInt32 u
   *this = view;
 }
 
-void ezStringBuilder::Append(ezStringView pData1, ezStringView pData2, ezStringView pData3, ezStringView pData4, ezStringView pData5, ezStringView pData6)
+void ezStringBuilder::Append(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6)
 {
   // it is not possible to find out how many parameters were passed to a vararg function
   // with a fixed size of parameters we do not need to have a parameter that tells us how many strings will come
 
   const ezUInt32 uiMaxParams = 6;
 
-  const ezStringView pStrings[uiMaxParams] = {pData1, pData2, pData3, pData4, pData5, pData6};
+  const ezStringView pStrings[uiMaxParams] = {sData1, sData2, sData3, sData4, sData5, sData6};
   ezUInt32 uiStrLen[uiMaxParams] = {0};
 
   ezUInt32 uiMoreBytes = 0;
@@ -94,14 +94,14 @@ void ezStringBuilder::Append(ezStringView pData1, ezStringView pData2, ezStringV
   }
 }
 
-void ezStringBuilder::Prepend(ezStringView pData1, ezStringView pData2, ezStringView pData3, ezStringView pData4, ezStringView pData5, ezStringView pData6)
+void ezStringBuilder::Prepend(ezStringView sData1, ezStringView sData2, ezStringView sData3, ezStringView sData4, ezStringView sData5, ezStringView sData6)
 {
   // it is not possible to find out how many parameters were passed to a vararg function
   // with a fixed size of parameters we do not need to have a parameter that tells us how many strings will come
 
   const ezUInt32 uiMaxParams = 6;
 
-  const ezStringView pStrings[uiMaxParams] = {pData1, pData2, pData3, pData4, pData5, pData6};
+  const ezStringView pStrings[uiMaxParams] = {sData1, sData2, sData3, sData4, sData5, sData6};
   ezUInt32 uiStrLen[uiMaxParams] = {0};
 
   ezUInt32 uiMoreBytes = 0;
@@ -144,10 +144,10 @@ void ezStringBuilder::Prepend(ezStringView pData1, ezStringView pData2, ezString
   }
 }
 
-void ezStringBuilder::PrintfArgs(const char* szUtf8Format, va_list args0)
+void ezStringBuilder::PrintfArgs(const char* szUtf8Format, va_list szArgs0)
 {
   va_list args;
-  va_copy(args, args0);
+  va_copy(args, szArgs0);
 
   Clear();
 
@@ -292,7 +292,7 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
   m_uiCharacterCount -= uiShrinkCharsBack;
 }
 
-void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEndPos, ezStringView szReplaceWith)
+void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEndPos, ezStringView sReplaceWith)
 {
   EZ_ASSERT_DEV(ezMath::IsInRange(szStartPos, GetData(), GetData() + m_Data.GetCount()), "szStartPos is not inside this string.");
   EZ_ASSERT_DEV(ezMath::IsInRange(szEndPos, GetData(), GetData() + m_Data.GetCount()), "szEndPos is not inside this string.");
@@ -300,12 +300,12 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
 
   ezUInt32 uiWordChars = 0;
   ezUInt32 uiWordBytes = 0;
-  ezStringUtils::GetCharacterAndElementCount(szReplaceWith.GetStartPointer(), uiWordChars, uiWordBytes, szReplaceWith.GetEndPointer());
+  ezStringUtils::GetCharacterAndElementCount(sReplaceWith.GetStartPointer(), uiWordChars, uiWordBytes, sReplaceWith.GetEndPointer());
 
   const ezUInt32 uiSubStringBytes = (ezUInt32)(szEndPos - szStartPos);
 
   char* szWritePos = const_cast<char*>(szStartPos); // szStartPos points into our own data anyway
-  const char* szReadPos = szReplaceWith.GetStartPointer();
+  const char* szReadPos = sReplaceWith.GetStartPointer();
 
   // most simple case, just replace characters
   if (uiSubStringBytes == uiWordBytes)
@@ -334,7 +334,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     m_uiCharacterCount += uiWordChars;
 
     // first copy the replacement to the correct position
-    ezMemoryUtils::Copy(szWritePos, szReplaceWith.GetStartPointer(), uiWordBytes);
+    ezMemoryUtils::Copy(szWritePos, sReplaceWith.GetStartPointer(), uiWordBytes);
 
     const ezUInt32 uiDifference = uiSubStringBytes - uiWordBytes;
 
@@ -367,7 +367,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     ezMemoryUtils::CopyOverlapped(szWritePos + uiWordBytes, szWritePos + uiSubStringBytes, szStringEnd - (szWritePos + uiSubStringBytes));
 
     // now copy the replacement to the correct position
-    ezMemoryUtils::Copy(szWritePos, szReplaceWith.GetStartPointer(), uiWordBytes);
+    ezMemoryUtils::Copy(szWritePos, sReplaceWith.GetStartPointer(), uiWordBytes);
   }
 }
 
@@ -520,37 +520,37 @@ ezUInt32 ezStringBuilder::ReplaceAll_NoCase(ezStringView sSearchFor, ezStringVie
   return uiReplacements;
 }
 
-const char* ezStringBuilder::ReplaceWholeWord(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
+const char* ezStringBuilder::ReplaceWholeWord(const char* szSearchFor, ezStringView sReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB)
 {
-  const char* szPos = FindWholeWord(szSearchFor, IsDelimiterCB);
+  const char* szPos = FindWholeWord(szSearchFor, isDelimiterCB);
 
   if (szPos == nullptr)
     return nullptr;
 
   const ezUInt32 uiOffset = static_cast<ezUInt32>(szPos - GetData());
 
-  ReplaceSubString(szPos, szPos + ezStringUtils::GetStringElementCount(szSearchFor), szReplaceWith);
+  ReplaceSubString(szPos, szPos + ezStringUtils::GetStringElementCount(szSearchFor), sReplaceWith);
   return GetData() + uiOffset;
 }
 
-const char* ezStringBuilder::ReplaceWholeWord_NoCase(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
+const char* ezStringBuilder::ReplaceWholeWord_NoCase(const char* szSearchFor, ezStringView sReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB)
 {
-  const char* szPos = FindWholeWord_NoCase(szSearchFor, IsDelimiterCB);
+  const char* szPos = FindWholeWord_NoCase(szSearchFor, isDelimiterCB);
 
   if (szPos == nullptr)
     return nullptr;
 
   const ezUInt32 uiOffset = static_cast<ezUInt32>(szPos - GetData());
 
-  ReplaceSubString(szPos, szPos + ezStringUtils::GetStringElementCount(szSearchFor), szReplaceWith);
+  ReplaceSubString(szPos, szPos + ezStringUtils::GetStringElementCount(szSearchFor), sReplaceWith);
   return GetData() + uiOffset;
 }
 
 
-ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
+ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, ezStringView sReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB)
 {
   const ezUInt32 uiSearchBytes = ezStringUtils::GetStringElementCount(szSearchFor);
-  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplaceWith.GetStartPointer(), szReplaceWith.GetEndPointer());
+  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(sReplaceWith.GetStartPointer(), sReplaceWith.GetEndPointer());
 
   ezUInt32 uiReplacements = 0;
   ezUInt32 uiOffset = 0;
@@ -559,7 +559,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, ezStringV
   {
     // during ReplaceSubString the string data might get reallocated and the memory addresses do not stay valid
     // so we need to work with offsets and recompute the pointers every time
-    const char* szFoundAt = ezStringUtils::FindWholeWord(GetData() + uiOffset, szSearchFor, IsDelimiterCB, GetData() + m_Data.GetCount() - 1);
+    const char* szFoundAt = ezStringUtils::FindWholeWord(GetData() + uiOffset, szSearchFor, isDelimiterCB, GetData() + m_Data.GetCount() - 1);
 
     if (szFoundAt == nullptr)
       return uiReplacements;
@@ -567,7 +567,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, ezStringV
     // do not search withing the replaced part, otherwise we get recursive replacement which will not end
     uiOffset = static_cast<ezUInt32>(szFoundAt - GetData()) + uiWordBytes;
 
-    ReplaceSubString(szFoundAt, szFoundAt + uiSearchBytes, szReplaceWith);
+    ReplaceSubString(szFoundAt, szFoundAt + uiSearchBytes, sReplaceWith);
 
     ++uiReplacements;
   }
@@ -575,10 +575,10 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, ezStringV
   return uiReplacements;
 }
 
-ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, ezStringView szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
+ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, ezStringView sReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB)
 {
   const ezUInt32 uiSearchBytes = ezStringUtils::GetStringElementCount(szSearchFor);
-  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplaceWith.GetStartPointer(), szReplaceWith.GetEndPointer());
+  const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(sReplaceWith.GetStartPointer(), sReplaceWith.GetEndPointer());
 
   ezUInt32 uiReplacements = 0;
   ezUInt32 uiOffset = 0;
@@ -587,7 +587,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, ez
   {
     // during ReplaceSubString the string data might get reallocated and the memory addresses do not stay valid
     // so we need to work with offsets and recompute the pointers every time
-    const char* szFoundAt = ezStringUtils::FindWholeWord_NoCase(GetData() + uiOffset, szSearchFor, IsDelimiterCB, GetData() + m_Data.GetCount() - 1);
+    const char* szFoundAt = ezStringUtils::FindWholeWord_NoCase(GetData() + uiOffset, szSearchFor, isDelimiterCB, GetData() + m_Data.GetCount() - 1);
 
     if (szFoundAt == nullptr)
       return uiReplacements;
@@ -595,7 +595,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, ez
     // do not search withing the replaced part, otherwise we get recursive replacement which will not end
     uiOffset = static_cast<ezUInt32>(szFoundAt - GetData()) + uiWordBytes;
 
-    ReplaceSubString(szFoundAt, szFoundAt + uiSearchBytes, szReplaceWith);
+    ReplaceSubString(szFoundAt, szFoundAt + uiSearchBytes, sReplaceWith);
 
     ++uiReplacements;
   }
@@ -772,7 +772,7 @@ void ezStringBuilder::AppendPath(ezStringView sPath1, ezStringView sPath2, ezStr
       {
         // prevent creating multiple path separators through concatenation
         while (ezPathUtils::IsPathSeparator(*sThisPath.GetStartPointer()))
-          sThisPath.Shrink(1, 0);
+          sThisPath.ChopAwayFirstCharacterAscii();
       }
 
       if (IsEmpty() || ezPathUtils::IsPathSeparator(GetIteratorBack().GetCharacter()))
@@ -783,19 +783,19 @@ void ezStringBuilder::AppendPath(ezStringView sPath1, ezStringView sPath2, ezStr
   }
 }
 
-void ezStringBuilder::AppendWithSeparator(ezStringView optional, ezStringView sText1, ezStringView sText2 /*= ezStringView()*/,
+void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView sText1, ezStringView sText2 /*= ezStringView()*/,
   ezStringView sText3 /*= ezStringView()*/, ezStringView sText4 /*= ezStringView()*/, ezStringView sText5 /*= ezStringView()*/,
   ezStringView sText6 /*= ezStringView()*/)
 {
   // if this string already ends with the optional string, reset it to be empty
-  if (IsEmpty() || ezStringUtils::EndsWith(GetData(), optional.GetStartPointer(), GetData() + GetElementCount(), optional.GetEndPointer()))
+  if (IsEmpty() || ezStringUtils::EndsWith(GetData(), sOptional.GetStartPointer(), GetData() + GetElementCount(), sOptional.GetEndPointer()))
   {
-    optional = ezStringView();
+    sOptional = ezStringView();
   }
 
   const ezUInt32 uiMaxParams = 7;
 
-  const ezStringView pStrings[uiMaxParams] = {optional, sText1, sText2, sText3, sText4, sText5, sText6};
+  const ezStringView pStrings[uiMaxParams] = {sOptional, sText1, sText2, sText3, sText4, sText5, sText6};
   ezUInt32 uiStrLen[uiMaxParams] = {0};
   ezUInt32 uiMoreBytes = 0;
 
@@ -853,7 +853,7 @@ void ezStringBuilder::ChangeFileExtension(ezStringView sNewExtension)
 {
   while (sNewExtension.StartsWith("."))
   {
-    sNewExtension.Shrink(1, 0);
+    sNewExtension.ChopAwayFirstCharacterAscii();
   }
 
   const ezStringView it = ezPathUtils::GetFileExtension(GetView());
@@ -1033,7 +1033,7 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
 }
 
 
-void ezStringBuilder::ReadAll(ezStreamReader& Stream)
+void ezStringBuilder::ReadAll(ezStreamReader& inout_stream)
 {
   Clear();
 
@@ -1042,7 +1042,7 @@ void ezStringBuilder::ReadAll(ezStreamReader& Stream)
 
   while (true)
   {
-    const ezUInt32 uiRead = (ezUInt32)Stream.ReadBytes(Temp, 1024);
+    const ezUInt32 uiRead = (ezUInt32)inout_stream.ReadBytes(Temp, 1024);
 
     if (uiRead == 0)
       break;

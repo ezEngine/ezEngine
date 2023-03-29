@@ -8,15 +8,15 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCommandLineOption);
 
-void ezCommandLineOption::GetSortingGroup(ezStringBuilder& out) const
+void ezCommandLineOption::GetSortingGroup(ezStringBuilder& ref_sOut) const
 {
-  out = m_szSortingGroup;
+  ref_sOut = m_szSortingGroup;
 }
 
-void ezCommandLineOption::GetSplitOptions(ezStringBuilder& outAll, ezDynamicArray<ezStringView>& splitOptions) const
+void ezCommandLineOption::GetSplitOptions(ezStringBuilder& out_sAll, ezDynamicArray<ezStringView>& ref_splitOptions) const
 {
-  GetOptions(outAll);
-  outAll.Split(false, splitOptions, ";", "|");
+  GetOptions(out_sAll);
+  out_sAll.Split(false, ref_splitOptions, ";", "|");
 }
 
 bool ezCommandLineOption::IsHelpRequested(const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
@@ -24,10 +24,10 @@ bool ezCommandLineOption::IsHelpRequested(const ezCommandLineUtils* pUtils /*= e
   return pUtils->GetBoolOption("-help") || pUtils->GetBoolOption("--help") || pUtils->GetBoolOption("-h") || pUtils->GetBoolOption("-?");
 }
 
-ezResult ezCommandLineOption::RequireOptions(const char* requiredOptions, ezString* pMissingOption /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+ezResult ezCommandLineOption::RequireOptions(const char* szRequiredOptions, ezString* pMissingOption /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
 {
   ezStringBuilder tmp;
-  ezStringBuilder allOpts = requiredOptions;
+  ezStringBuilder allOpts = szRequiredOptions;
   ezHybridArray<ezStringView, 16> options;
   allOpts.Split(false, options, ";");
 
@@ -157,14 +157,14 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, const char
 }
 
 
-bool ezCommandLineOption::LogAvailableOptionsToBuffer(ezStringBuilder& out_Buffer, LogAvailableModes mode, const char* szGroupFilter /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
+bool ezCommandLineOption::LogAvailableOptionsToBuffer(ezStringBuilder& out_sBuffer, LogAvailableModes mode, const char* szGroupFilter /*= nullptr*/, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/)
 {
   ezLogSystemToBuffer log;
   ezLogSystemScope ls(&log);
 
   const bool res = ezCommandLineOption::LogAvailableOptions(mode, szGroupFilter, pUtils);
 
-  out_Buffer = log.m_sBuffer;
+  out_sBuffer = log.m_sBuffer;
 
   return res;
 }
@@ -183,27 +183,27 @@ ezCommandLineOptionDoc::ezCommandLineOptionDoc(const char* szSortingGroup, const
   m_bCaseSensitive = bCaseSensitive;
 }
 
-void ezCommandLineOptionDoc::GetOptions(ezStringBuilder& out) const
+void ezCommandLineOptionDoc::GetOptions(ezStringBuilder& ref_sOut) const
 {
-  out = m_szArgument;
+  ref_sOut = m_szArgument;
 }
 
-void ezCommandLineOptionDoc::GetParamShortDesc(ezStringBuilder& out) const
+void ezCommandLineOptionDoc::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 {
-  out = m_szParamShortDesc;
+  ref_sOut = m_szParamShortDesc;
 }
 
-void ezCommandLineOptionDoc::GetParamDefaultValueDesc(ezStringBuilder& out) const
+void ezCommandLineOptionDoc::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
-  out = m_szParamDefaultValue;
+  ref_sOut = m_szParamDefaultValue;
 }
 
-void ezCommandLineOptionDoc::GetLongDesc(ezStringBuilder& out) const
+void ezCommandLineOptionDoc::GetLongDesc(ezStringBuilder& ref_sOut) const
 {
-  out = m_szLongDesc;
+  ref_sOut = m_szLongDesc;
 }
 
-bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_which, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
+bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_pWhich, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
 {
   ezStringBuilder sOptions, tmp;
   ezHybridArray<ezStringView, 4> eachOption;
@@ -213,18 +213,18 @@ bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_which, const
   {
     if (pUtils->GetOptionIndex(o.GetData(tmp), m_bCaseSensitive) >= 0)
     {
-      if (out_which)
+      if (out_pWhich)
       {
-        *out_which = tmp;
+        *out_pWhich = tmp;
       }
 
       return true;
     }
   }
 
-  if (out_which)
+  if (out_pWhich)
   {
-    *out_which = m_szArgument;
+    *out_pWhich = m_szArgument;
   }
 
   return false;
@@ -303,21 +303,21 @@ ezCommandLineOptionInt::ezCommandLineOptionInt(const char* szSortingGroup, const
   EZ_ASSERT_DEV(m_iMinValue < m_iMaxValue, "Invalid min/max value");
 }
 
-void ezCommandLineOptionInt::GetParamDefaultValueDesc(ezStringBuilder& out) const
+void ezCommandLineOptionInt::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
-  out.Format("{}", m_iDefaultValue);
+  ref_sOut.Format("{}", m_iDefaultValue);
 }
 
 
-void ezCommandLineOptionInt::GetParamShortDesc(ezStringBuilder& out) const
+void ezCommandLineOptionInt::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 {
   if (m_iMinValue == ezMath::MinValue<int>() && m_iMaxValue == ezMath::MaxValue<int>())
   {
-    out = "<int>";
+    ref_sOut = "<int>";
   }
   else
   {
-    out.Format("<int> [{} .. {}]", m_iMinValue, m_iMaxValue);
+    ref_sOut.Format("<int> [{} .. {}]", m_iMinValue, m_iMaxValue);
   }
 }
 
@@ -366,20 +366,20 @@ ezCommandLineOptionFloat::ezCommandLineOptionFloat(const char* szSortingGroup, c
   EZ_ASSERT_DEV(m_fMinValue < m_fMaxValue, "Invalid min/max value");
 }
 
-void ezCommandLineOptionFloat::GetParamDefaultValueDesc(ezStringBuilder& out) const
+void ezCommandLineOptionFloat::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
-  out.Format("{}", m_fDefaultValue);
+  ref_sOut.Format("{}", m_fDefaultValue);
 }
 
-void ezCommandLineOptionFloat::GetParamShortDesc(ezStringBuilder& out) const
+void ezCommandLineOptionFloat::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 {
   if (m_fMinValue == ezMath::MinValue<float>() && m_fMaxValue == ezMath::MaxValue<float>())
   {
-    out = "<float>";
+    ref_sOut = "<float>";
   }
   else
   {
-    out.Format("<float> [{} .. {}]", m_fMinValue, m_fMaxValue);
+    ref_sOut.Format("<float> [{} .. {}]", m_fMinValue, m_fMaxValue);
   }
 }
 
@@ -531,21 +531,21 @@ found:
   return result;
 }
 
-void ezCommandLineOptionEnum::GetParamShortDesc(ezStringBuilder& out) const
+void ezCommandLineOptionEnum::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 {
   ezHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   for (const auto& e : keysAndValues)
   {
-    out.AppendWithSeparator(" | ", e.m_Key);
+    ref_sOut.AppendWithSeparator(" | ", e.m_Key);
   }
 
-  out.Prepend("<");
-  out.Append(">");
+  ref_sOut.Prepend("<");
+  ref_sOut.Append(">");
 }
 
-void ezCommandLineOptionEnum::GetParamDefaultValueDesc(ezStringBuilder& out) const
+void ezCommandLineOptionEnum::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
   ezHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
@@ -554,20 +554,20 @@ void ezCommandLineOptionEnum::GetParamDefaultValueDesc(ezStringBuilder& out) con
   {
     if (m_iDefaultValue == e.m_iValue)
     {
-      out = e.m_Key;
+      ref_sOut = e.m_Key;
       return;
     }
   }
 }
 
-void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>& out_KeysAndValues) const
+void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>& out_keysAndValues) const
 {
   ezStringBuilder tmp = m_szEnumKeysAndValues;
 
   ezHybridArray<ezStringView, 16> enums;
   tmp.Split(false, enums, ";", "|");
 
-  out_KeysAndValues.SetCount(enums.GetCount());
+  out_keysAndValues.SetCount(enums.GetCount());
 
   ezInt32 eVal = 0;
   for (ezUInt32 e = 0; e < enums.GetCount(); ++e)
@@ -591,9 +591,12 @@ void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>&
     pStart += (ezInt64)eName.GetStartPointer();
     pStart -= (ezInt64)tmp.GetData();
 
-    out_KeysAndValues[e].m_iValue = eVal;
-    out_KeysAndValues[e].m_Key = ezStringView(pStart, eName.GetElementCount());
+    out_keysAndValues[e].m_iValue = eVal;
+    out_keysAndValues[e].m_Key = ezStringView(pStart, eName.GetElementCount());
 
     eVal++;
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_CommandLineOptions);

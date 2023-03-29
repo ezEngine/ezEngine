@@ -14,6 +14,10 @@ o
 		u4 %Hash{1394242861671256051}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
+		}
 		VarArray %References
 		{
 			s{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
@@ -1023,7 +1027,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBloomPass"}
-		u3 %TypeSize{184}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1051,7 +1054,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezImguiExtractor"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1069,7 +1071,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleRenderPass"}
-		u3 %TypeSize{208}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1087,7 +1088,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPickingRenderPass"}
-		u3 %TypeSize{368}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1105,7 +1105,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMsaaResolvePass"}
-		u3 %TypeSize{160}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1126,7 +1125,6 @@ o
 			Uuid{u4{16631111678292622734,8500933737344926134}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1952}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1163,7 +1161,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGALResourceFormat"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1181,7 +1178,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTonemapPass"}
-		u3 %TypeSize{240}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1199,7 +1195,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransparentForwardRenderPass"}
-		u3 %TypeSize{176}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1217,7 +1212,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezForwardRenderShadingQuality"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1238,7 +1232,6 @@ o
 			Uuid{u4{12950237853838076772,9116017699839074966}}
 		}
 		s %TypeName{"ezEditorSelectedObjectsExtractor"}
-		u3 %TypeSize{448}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1256,7 +1249,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeInputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1284,7 +1276,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezOpaqueForwardRenderPass"}
-		u3 %TypeSize{184}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1302,7 +1293,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMsaaUpscalePass"}
-		u3 %TypeSize{160}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1320,7 +1310,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezForwardRenderPass"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1338,7 +1327,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodePassThrougPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1366,7 +1354,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAntialiasingPass"}
-		u3 %TypeSize{160}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1399,7 +1386,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1417,7 +1403,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSelectionHighlightPass"}
-		u3 %TypeSize{176}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1463,7 +1448,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezClusteredDataExtractor"}
-		u3 %TypeSize{280}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1481,7 +1465,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDepthOnlyPass"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1499,7 +1482,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"DocumentNodeManager_DefaultConnection"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1527,7 +1509,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSourcePass"}
-		u3 %TypeSize{160}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1545,7 +1526,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAOPass"}
-		u3 %TypeSize{232}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1563,7 +1543,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyRenderPass"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1581,7 +1560,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTargetPass"}
-		u3 %TypeSize{256}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1599,7 +1577,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSelectedObjectsExtractorBase"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1617,7 +1594,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNode"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1635,7 +1611,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezExtractor"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1656,7 +1631,6 @@ o
 			Uuid{u4{10462729562359278992,15663395223454521224}}
 		}
 		s %TypeName{"ezEditorGridExtractor"}
-		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1674,7 +1648,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1697,7 +1670,6 @@ o
 			Uuid{u4{2983652561674142551,9223704730500304874}}
 		}
 		s %TypeName{"ezEditorShapeIconsExtractor"}
-		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1715,7 +1687,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeOutputPin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1766,7 +1737,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGALMSAASampleCount"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1794,7 +1764,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisibleObjectsExtractor"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1822,7 +1791,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1408}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1840,7 +1808,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1858,7 +1825,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodePin"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1876,7 +1842,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelinePass"}
-		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }

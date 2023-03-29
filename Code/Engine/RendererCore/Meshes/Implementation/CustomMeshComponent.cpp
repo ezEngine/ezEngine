@@ -48,10 +48,10 @@ ezCustomMeshComponent::ezCustomMeshComponent()
 
 ezCustomMeshComponent::~ezCustomMeshComponent() = default;
 
-void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_Color;
   s << m_hMaterial;
@@ -60,12 +60,12 @@ void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& stream) const
   s << uiCategory;
 }
 
-void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& stream)
+void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_Color;
   s >> m_hMaterial;
@@ -75,11 +75,11 @@ void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& stream)
   m_RenderDataCategory.m_uiValue = static_cast<ezUInt16>(uiCategory);
 }
 
-ezResult ezCustomMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezCustomMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_Bounds.IsValid())
   {
-    bounds = m_Bounds;
+    ref_bounds = m_Bounds;
     return EZ_SUCCESS;
   }
 
@@ -160,14 +160,14 @@ const ezColor& ezCustomMeshComponent::GetColor() const
   return m_Color;
 }
 
-void ezCustomMeshComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg)
+void ezCustomMeshComponent::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
 {
-  SetMaterial(msg.m_hMaterial);
+  SetMaterial(ref_msg.m_hMaterial);
 }
 
-void ezCustomMeshComponent::OnMsgSetColor(ezMsgSetColor& msg)
+void ezCustomMeshComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  msg.ModifyColor(m_Color);
+  ref_msg.ModifyColor(m_Color);
 
   InvalidateCachedRenderData();
 }
@@ -307,17 +307,17 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezCustomMeshRenderer::ezCustomMeshRenderer() = default;
 ezCustomMeshRenderer::~ezCustomMeshRenderer() = default;
 
-void ezCustomMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezCustomMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
-  categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
-  categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
-  categories.PushBack(ezDefaultRenderDataCategories::Selection);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::Selection);
 }
 
-void ezCustomMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezCustomMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezCustomMeshRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezCustomMeshRenderData>());
 }
 
 void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
@@ -383,3 +383,6 @@ void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
     renderViewContext.m_pRenderContext->DrawMeshBuffer(pRenderData->m_uiNumPrimitives, pRenderData->m_uiFirstPrimitive).IgnoreResult();
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CustomMeshComponent);

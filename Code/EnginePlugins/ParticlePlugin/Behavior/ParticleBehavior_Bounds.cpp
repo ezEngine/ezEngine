@@ -57,31 +57,31 @@ enum class BehaviorBoundsVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Bounds::Save(ezStreamWriter& stream) const
+void ezParticleBehaviorFactory_Bounds::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = (int)BehaviorBoundsVersion::Version_Current;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_vPositionOffset;
-  stream << m_vBoxExtents;
+  inout_stream << m_vPositionOffset;
+  inout_stream << m_vBoxExtents;
 
   // version 1
-  stream << m_OutOfBoundsMode;
+  inout_stream << m_OutOfBoundsMode;
 }
 
-void ezParticleBehaviorFactory_Bounds::Load(ezStreamReader& stream)
+void ezParticleBehaviorFactory_Bounds::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)BehaviorBoundsVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  stream >> m_vPositionOffset;
-  stream >> m_vBoxExtents;
+  inout_stream >> m_vPositionOffset;
+  inout_stream >> m_vBoxExtents;
 
   if (uiVersion >= 1)
   {
-    stream >> m_OutOfBoundsMode;
+    inout_stream >> m_OutOfBoundsMode;
   }
 }
 
@@ -163,3 +163,7 @@ void ezParticleBehavior_Bounds::Process(ezUInt64 uiNumElements)
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Bounds);
+

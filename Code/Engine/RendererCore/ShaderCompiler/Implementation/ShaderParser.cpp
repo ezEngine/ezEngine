@@ -48,26 +48,29 @@ namespace
     return pType;
   }
 
-  ezVariant ParseValue(const TokenStream& Tokens, ezUInt32& uiCurToken)
+  ezVariant ParseValue(const TokenStream& tokens, ezUInt32& ref_uiCurToken)
   {
-    ezUInt32 uiValueToken = uiCurToken;
+    ezUInt32 uiValueToken = ref_uiCurToken;
 
-    if (Accept(Tokens, uiCurToken, ezTokenType::String1, &uiValueToken) || Accept(Tokens, uiCurToken, ezTokenType::String2, &uiValueToken))
+    if (Accept(tokens, ref_uiCurToken, ezTokenType::String1, &uiValueToken) || Accept(tokens, ref_uiCurToken, ezTokenType::String2, &uiValueToken))
     {
-      ezStringBuilder sValue = Tokens[uiValueToken]->m_DataView;
+      ezStringBuilder sValue = tokens[uiValueToken]->m_DataView;
       sValue.Trim("\"'");
 
       return ezVariant(sValue.GetData());
     }
 
-    if (Accept(Tokens, uiCurToken, ezTokenType::Integer, &uiValueToken))
+    if (Accept(tokens, ref_uiCurToken, ezTokenType::Integer, &uiValueToken))
     {
-      ezString sValue = Tokens[uiValueToken]->m_DataView;
+      ezString sValue = tokens[uiValueToken]->m_DataView;
 
       ezInt64 iValue = 0;
       if (sValue.StartsWith_NoCase("0x"))
       {
-        iValue = ezConversionUtils::ConvertHexStringToUInt32(sValue);
+        ezUInt32 uiValue32 = 0;
+        ezConversionUtils::ConvertHexStringToUInt32(sValue, uiValue32).IgnoreResult();
+
+        iValue = uiValue32;
       }
       else
       {
@@ -77,9 +80,9 @@ namespace
       return ezVariant(iValue);
     }
 
-    if (Accept(Tokens, uiCurToken, ezTokenType::Float, &uiValueToken))
+    if (Accept(tokens, ref_uiCurToken, ezTokenType::Float, &uiValueToken))
     {
-      ezString sValue = Tokens[uiValueToken]->m_DataView;
+      ezString sValue = tokens[uiValueToken]->m_DataView;
 
       double fValue = 0;
       ezConversionUtils::StringToFloat(sValue, fValue).IgnoreResult();
@@ -87,14 +90,14 @@ namespace
       return ezVariant(fValue);
     }
 
-    if (Accept(Tokens, uiCurToken, "true", &uiValueToken) || Accept(Tokens, uiCurToken, "false", &uiValueToken))
+    if (Accept(tokens, ref_uiCurToken, "true", &uiValueToken) || Accept(tokens, ref_uiCurToken, "false", &uiValueToken))
     {
-      bool bValue = Tokens[uiValueToken]->m_DataView == "true";
+      bool bValue = tokens[uiValueToken]->m_DataView == "true";
       return ezVariant(bValue);
     }
 
-    auto& dataView = Tokens[uiCurToken]->m_DataView;
-    if (Tokens[uiCurToken]->m_iType == ezTokenType::Identifier && ezStringUtils::IsValidIdentifierName(dataView.GetStartPointer(), dataView.GetEndPointer()))
+    auto& dataView = tokens[ref_uiCurToken]->m_DataView;
+    if (tokens[ref_uiCurToken]->m_iType == ezTokenType::Identifier && ezStringUtils::IsValidIdentifierName(dataView.GetStartPointer(), dataView.GetEndPointer()))
     {
       // complex type constructor
       const ezRTTI* pType = nullptr;
@@ -104,14 +107,14 @@ namespace
         return ezVariant();
       }
 
-      ++uiCurToken;
-      Accept(Tokens, uiCurToken, "(");
+      ++ref_uiCurToken;
+      Accept(tokens, ref_uiCurToken, "(");
 
       ezHybridArray<ezVariant, 8> constructorArgs;
 
-      while (!Accept(Tokens, uiCurToken, ")"))
+      while (!Accept(tokens, ref_uiCurToken, ")"))
       {
-        ezVariant value = ParseValue(Tokens, uiCurToken);
+        ezVariant value = ParseValue(tokens, ref_uiCurToken);
         if (value.IsValid())
         {
           constructorArgs.PushBack(value);
@@ -122,7 +125,7 @@ namespace
           return EZ_FAILURE;
         }
 
-        Accept(Tokens, uiCurToken, ",");
+        Accept(tokens, ref_uiCurToken, ",");
       }
 
       // find matching constructor
@@ -163,27 +166,27 @@ namespace
     return ezVariant();
   }
 
-  ezResult ParseAttribute(const TokenStream& Tokens, ezUInt32& uiCurToken, ezShaderParser::ParameterDefinition& out_ParameterDefinition)
+  ezResult ParseAttribute(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderParser::ParameterDefinition& out_parameterDefinition)
   {
-    if (!Accept(Tokens, uiCurToken, "@"))
+    if (!Accept(tokens, ref_uiCurToken, "@"))
     {
       return EZ_FAILURE;
     }
 
-    ezUInt32 uiTypeToken = uiCurToken;
-    if (!Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiTypeToken))
+    ezUInt32 uiTypeToken = ref_uiCurToken;
+    if (!Accept(tokens, ref_uiCurToken, ezTokenType::Identifier, &uiTypeToken))
     {
       return EZ_FAILURE;
     }
 
-    ezShaderParser::AttributeDefinition& attributeDef = out_ParameterDefinition.m_Attributes.ExpandAndGetRef();
-    attributeDef.m_sType = Tokens[uiTypeToken]->m_DataView;
+    ezShaderParser::AttributeDefinition& attributeDef = out_parameterDefinition.m_Attributes.ExpandAndGetRef();
+    attributeDef.m_sType = tokens[uiTypeToken]->m_DataView;
 
-    Accept(Tokens, uiCurToken, "(");
+    Accept(tokens, ref_uiCurToken, "(");
 
-    while (!Accept(Tokens, uiCurToken, ")"))
+    while (!Accept(tokens, ref_uiCurToken, ")"))
     {
-      ezVariant value = ParseValue(Tokens, uiCurToken);
+      ezVariant value = ParseValue(tokens, ref_uiCurToken);
       if (value.IsValid())
       {
         attributeDef.m_Values.PushBack(value);
@@ -194,34 +197,34 @@ namespace
         return EZ_FAILURE;
       }
 
-      Accept(Tokens, uiCurToken, ",");
+      Accept(tokens, ref_uiCurToken, ",");
     }
 
     return EZ_SUCCESS;
   }
 
-  ezResult ParseParameter(const TokenStream& Tokens, ezUInt32& uiCurToken, ezShaderParser::ParameterDefinition& out_ParameterDefinition)
+  ezResult ParseParameter(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderParser::ParameterDefinition& out_parameterDefinition)
   {
-    ezUInt32 uiTypeToken = uiCurToken;
-    if (!Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiTypeToken))
+    ezUInt32 uiTypeToken = ref_uiCurToken;
+    if (!Accept(tokens, ref_uiCurToken, ezTokenType::Identifier, &uiTypeToken))
     {
       return EZ_FAILURE;
     }
 
-    out_ParameterDefinition.m_sType = Tokens[uiTypeToken]->m_DataView;
-    out_ParameterDefinition.m_pType = GetType(out_ParameterDefinition.m_sType);
+    out_parameterDefinition.m_sType = tokens[uiTypeToken]->m_DataView;
+    out_parameterDefinition.m_pType = GetType(out_parameterDefinition.m_sType);
 
-    ezUInt32 uiNameToken = uiCurToken;
-    if (!Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiNameToken))
+    ezUInt32 uiNameToken = ref_uiCurToken;
+    if (!Accept(tokens, ref_uiCurToken, ezTokenType::Identifier, &uiNameToken))
     {
       return EZ_FAILURE;
     }
 
-    out_ParameterDefinition.m_sName = Tokens[uiNameToken]->m_DataView;
+    out_parameterDefinition.m_sName = tokens[uiNameToken]->m_DataView;
 
-    while (!Accept(Tokens, uiCurToken, ";"))
+    while (!Accept(tokens, ref_uiCurToken, ";"))
     {
-      if (ParseAttribute(Tokens, uiCurToken, out_ParameterDefinition).Failed())
+      if (ParseAttribute(tokens, ref_uiCurToken, out_parameterDefinition).Failed())
       {
         return EZ_FAILURE;
       }
@@ -230,23 +233,23 @@ namespace
     return EZ_SUCCESS;
   }
 
-  ezResult ParseEnum(const TokenStream& Tokens, ezUInt32& uiCurToken, ezShaderParser::EnumDefinition& out_EnumDefinition, bool bCheckPrefix)
+  ezResult ParseEnum(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderParser::EnumDefinition& out_enumDefinition, bool bCheckPrefix)
   {
-    if (!Accept(Tokens, uiCurToken, "enum"))
+    if (!Accept(tokens, ref_uiCurToken, "enum"))
     {
       return EZ_FAILURE;
     }
 
-    ezUInt32 uiNameToken = uiCurToken;
-    if (!Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiNameToken))
+    ezUInt32 uiNameToken = ref_uiCurToken;
+    if (!Accept(tokens, ref_uiCurToken, ezTokenType::Identifier, &uiNameToken))
     {
       return EZ_FAILURE;
     }
 
-    out_EnumDefinition.m_sName = Tokens[uiNameToken]->m_DataView;
-    ezStringBuilder sEnumPrefix(out_EnumDefinition.m_sName, "_");
+    out_enumDefinition.m_sName = tokens[uiNameToken]->m_DataView;
+    ezStringBuilder sEnumPrefix(out_enumDefinition.m_sName, "_");
 
-    if (!Accept(Tokens, uiCurToken, "{"))
+    if (!Accept(tokens, ref_uiCurToken, "{"))
     {
       ezLog::Error("Opening bracket expected for enum definition.");
       return EZ_FAILURE;
@@ -257,27 +260,27 @@ namespace
 
     while (true)
     {
-      ezUInt32 uiValueNameToken = uiCurToken;
-      if (!Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiValueNameToken))
+      ezUInt32 uiValueNameToken = ref_uiCurToken;
+      if (!Accept(tokens, ref_uiCurToken, ezTokenType::Identifier, &uiValueNameToken))
       {
         return EZ_FAILURE;
       }
 
-      ezStringView sValueName = Tokens[uiValueNameToken]->m_DataView;
+      ezStringView sValueName = tokens[uiValueNameToken]->m_DataView;
 
-      if (Accept(Tokens, uiCurToken, "="))
+      if (Accept(tokens, ref_uiCurToken, "="))
       {
-        ezUInt32 uiValueToken = uiCurToken;
-        Accept(Tokens, uiCurToken, ezTokenType::Integer, &uiValueToken);
+        ezUInt32 uiValueToken = ref_uiCurToken;
+        Accept(tokens, ref_uiCurToken, ezTokenType::Integer, &uiValueToken);
 
         ezInt32 iValue = 0;
-        if (ezConversionUtils::StringToInt(Tokens[uiValueToken]->m_DataView.GetStartPointer(), iValue).Succeeded() && iValue >= 0)
+        if (ezConversionUtils::StringToInt(tokens[uiValueToken]->m_DataView.GetStartPointer(), iValue).Succeeded() && iValue >= 0)
         {
           uiCurrentValue = iValue;
         }
         else
         {
-          ezLog::Error("Invalid enum value '{0}'. Only positive numbers are allowed.", Tokens[uiValueToken]->m_DataView);
+          ezLog::Error("Invalid enum value '{0}'. Only positive numbers are allowed.", tokens[uiValueToken]->m_DataView);
         }
       }
 
@@ -292,14 +295,14 @@ namespace
           ezLog::Error("Enum value does not start with the expected enum name as prefix: '{0}'", sEnumPrefix);
         }
 
-        auto& ev = out_EnumDefinition.m_Values.ExpandAndGetRef();
+        auto& ev = out_enumDefinition.m_Values.ExpandAndGetRef();
 
         const ezStringBuilder sFinalName = sValueName;
         ev.m_sValueName.Assign(sFinalName.GetData());
         ev.m_iValueValue = static_cast<ezInt32>(uiCurrentValue);
       }
 
-      if (Accept(Tokens, uiCurToken, ","))
+      if (Accept(tokens, ref_uiCurToken, ","))
       {
         ++uiCurrentValue;
       }
@@ -308,11 +311,11 @@ namespace
         break;
       }
 
-      if (Accept(Tokens, uiCurToken, "}"))
+      if (Accept(tokens, ref_uiCurToken, "}"))
         goto after_braces;
     }
 
-    if (!Accept(Tokens, uiCurToken, "}"))
+    if (!Accept(tokens, ref_uiCurToken, "}"))
     {
       ezLog::Error("Closing bracket expected for enum definition.");
       return EZ_FAILURE;
@@ -320,9 +323,9 @@ namespace
 
   after_braces:
 
-    out_EnumDefinition.m_uiDefaultValue = uiDefaultValue;
+    out_enumDefinition.m_uiDefaultValue = uiDefaultValue;
 
-    Accept(Tokens, uiCurToken, ";");
+    Accept(tokens, ref_uiCurToken, ";");
 
     return EZ_SUCCESS;
   }
@@ -337,10 +340,10 @@ namespace
 } // namespace
 
 // static
-void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHybridArray<ParameterDefinition, 16>& out_Parameter, ezHybridArray<EnumDefinition, 4>& out_EnumDefinitions)
+void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& inout_stream, ezHybridArray<ParameterDefinition, 16>& out_parameter, ezHybridArray<EnumDefinition, 4>& out_enumDefinitions)
 {
   ezString sContent;
-  sContent.ReadAll(stream);
+  sContent.ReadAll(inout_stream);
 
   ezShaderHelper::ezTextSectionizer Sections;
   ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
@@ -363,14 +366,14 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
     {
       EZ_ASSERT_DEV(!enumDef.m_sName.IsEmpty(), "");
 
-      out_EnumDefinitions.PushBack(std::move(enumDef));
+      out_enumDefinitions.PushBack(std::move(enumDef));
       continue;
     }
 
     ParameterDefinition paramDef;
     if (ParseParameter(tokens, uiCurToken, paramDef).Succeeded())
     {
-      out_Parameter.PushBack(std::move(paramDef));
+      out_parameter.PushBack(std::move(paramDef));
       continue;
     }
 
@@ -380,24 +383,24 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
 }
 
 // static
-void ezShaderParser::ParsePermutationSection(ezStreamReader& stream, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
+void ezShaderParser::ParsePermutationSection(ezStreamReader& inout_stream, ezHybridArray<ezHashedString, 16>& out_permVars, ezHybridArray<ezPermutationVar, 16>& out_fixedPermVars)
 {
   ezString sContent;
-  sContent.ReadAll(stream);
+  sContent.ReadAll(inout_stream);
 
   ezShaderHelper::ezTextSectionizer Sections;
   ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
 
   ezUInt32 uiFirstLine = 0;
   ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
-  ParsePermutationSection(sPermutations, out_PermVars, out_FixedPermVars);
+  ParsePermutationSection(sPermutations, out_permVars, out_fixedPermVars);
 }
 
 // static
-void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
+void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHashedString, 16>& out_permVars, ezHybridArray<ezPermutationVar, 16>& out_fixedPermVars)
 {
-  out_PermVars.Clear();
-  out_FixedPermVars.Clear();
+  out_permVars.Clear();
+  out_fixedPermVars.Clear();
 
   ezTokenizer tokenizer;
   tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetStartPointer(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
@@ -435,7 +438,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
 
       if (state == State::HasName)
       {
-        out_PermVars.ExpandAndGetRef().Assign(sVarName.GetData());
+        out_permVars.ExpandAndGetRef().Assign(sVarName.GetData());
       }
 
       state = State::Idle;
@@ -463,7 +466,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
 
       if (state == State::HasEqual)
       {
-        auto& res = out_FixedPermVars.ExpandAndGetRef();
+        auto& res = out_fixedPermVars.ExpandAndGetRef();
         res.m_sName.Assign(sVarName.GetData());
         res.m_sValue.Assign(sToken.GetData());
         state = State::HasValue;
@@ -476,7 +479,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
 }
 
 // static
-void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_DefaultValue, EnumDefinition& out_EnumDefinition)
+void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_defaultValue, EnumDefinition& out_enumDefinition)
 {
   SkipWhitespace(s);
 
@@ -500,8 +503,8 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
     }
 
     name.Trim(" \t\r\n");
-    out_EnumDefinition.m_sName = name;
-    out_DefaultValue = bDefaultValue;
+    out_enumDefinition.m_sName = name;
+    out_defaultValue = bDefaultValue;
   }
   else if (s.StartsWith("enum"))
   {
@@ -512,15 +515,15 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
     tokenizer.GetAllLines(tokens);
 
     ezUInt32 uiCurToken = 0;
-    if (ParseEnum(tokens, uiCurToken, out_EnumDefinition, true).Failed())
+    if (ParseEnum(tokens, uiCurToken, out_enumDefinition, true).Failed())
     {
       ezLog::Error("Invalid enum PermutationVar definition.");
     }
     else
     {
-      EZ_ASSERT_DEV(!out_EnumDefinition.m_sName.IsEmpty(), "");
+      EZ_ASSERT_DEV(!out_enumDefinition.m_sName.IsEmpty(), "");
 
-      out_DefaultValue = out_EnumDefinition.m_uiDefaultValue;
+      out_defaultValue = out_enumDefinition.m_uiDefaultValue;
     }
   }
   else

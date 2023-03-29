@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Communication/Message.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 
 namespace JPH
@@ -25,8 +26,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltGrabObjectComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -41,7 +42,7 @@ public:
 
   /// \brief Checks whether there is an object nearby. Note that this function reports static and dynamic objects that are within reach.
   /// Whether these objects are interact able or not is up to the caller.
-  bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_LocalGrabPoint) const;
+  bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint) const;
 
   /// \brief Grabs the given object at the given grab point if possible.
   bool GrabObject(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint);
@@ -97,6 +98,8 @@ protected:
   void CreateJoint(ezJoltDynamicActorComponent* pParent, ezJoltDynamicActorComponent* pChild);
   void DetectDistanceViolation(ezJoltDynamicActorComponent* pGrabbedActor);
   bool IsCharacterStandingOnObject(ezGameObjectHandle hActorToGrab) const;
+
+  void OnMsgReleaseObjectGrab(ezMsgReleaseObjectGrab& msg); // [ message handler ]
 
   ezComponentHandle m_hGrabbedActor;
   float m_fGrabbedActorGravity = 1.0f;

@@ -26,12 +26,12 @@ public:
   ezPointerWithFlags() = default;
 
   /// \brief Initializes the pointer and flags
-  explicit ezPointerWithFlags(PtrType* ptr, uint8_t flags = 0) { SetPtrAndFlags(ptr, flags); }
+  explicit ezPointerWithFlags(PtrType* pPtr, uint8_t flags = 0) { SetPtrAndFlags(pPtr, flags); }
 
   /// \brief Changes the pointer and flags
-  void SetPtrAndFlags(PtrType* ptr, uint8_t flags)
+  void SetPtrAndFlags(PtrType* pPtr, uint8_t flags)
   {
-    const std::uintptr_t isrc = *reinterpret_cast<std::uintptr_t*>(&ptr);
+    const std::uintptr_t isrc = *reinterpret_cast<std::uintptr_t*>(&pPtr);
     std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_pPtr);
 
     iptr = (isrc & PtrMask) | (flags & FlagsMask);
@@ -52,9 +52,9 @@ public:
   }
 
   /// \brief Changes the pointer value only. Flags stay unchanged.
-  void SetPtr(PtrType* ptr)
+  void SetPtr(PtrType* pPtr)
   {
-    const std::uintptr_t isrc = *reinterpret_cast<std::uintptr_t*>(&ptr);
+    const std::uintptr_t isrc = *reinterpret_cast<std::uintptr_t*>(&pPtr);
     EZ_ASSERT_DEBUG(
       (isrc & FlagsMask) == 0, "The given pointer does not have an {} byte alignment and thus cannot be stored lossless.", 1u << NumFlagBits);
 
@@ -86,19 +86,19 @@ public:
   operator const PtrType*() const { return GetPtr(); }
 
   /// \brief Changes the pointer value only. Flags stay unchanged.
-  void operator=(PtrType* ptr) { SetPtr(ptr); }
+  void operator=(PtrType* pPtr) { SetPtr(pPtr); }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
-  bool operator==(const PtrType* ptr) const { return GetPtr() == ptr; }
+  bool operator==(const PtrType* pPtr) const { return GetPtr() == pPtr; }
 
   /// \brief Compares the pointer part for inequality (flags are ignored)
-  bool operator!=(const PtrType* ptr) const { return !(*this == ptr); }
+  bool operator!=(const PtrType* pPtr) const { return !(*this == pPtr); }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
-  bool operator==(PtrType* ptr) const { return GetPtr() == ptr; }
+  bool operator==(PtrType* pPtr) const { return GetPtr() == pPtr; }
 
   /// \brief Compares the pointer part for inequality (flags are ignored)
-  bool operator!=(PtrType* ptr) const { return !(*this == ptr); }
+  bool operator!=(PtrType* pPtr) const { return !(*this == pPtr); }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(std::nullptr_t) const { return GetPtr() == nullptr; }
@@ -107,7 +107,7 @@ public:
   bool operator!=(std::nullptr_t) const { return !(*this == nullptr); }
 
   /// \brief Checks whether the pointer part is not nullptr (flags are ignored)
-  operator bool() const { return GetPtr() != nullptr; }
+  explicit operator bool() const { return GetPtr() != nullptr; }
 
   /// \brief Dereferences the pointer
   const PtrType* operator->() const { return GetPtr(); }

@@ -107,32 +107,32 @@ void ezPxJointComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezPxJointComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxJointComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fBreakForce;
   s << m_fBreakTorque;
   s << m_bPairCollision;
 
-  stream.WriteGameObjectHandle(m_hActorA);
-  stream.WriteGameObjectHandle(m_hActorB);
+  inout_stream.WriteGameObjectHandle(m_hActorA);
+  inout_stream.WriteGameObjectHandle(m_hActorB);
 
   s << m_LocalFrameA;
   s << m_LocalFrameB;
 
-  stream.WriteGameObjectHandle(m_hActorBAnchor);
+  inout_stream.WriteGameObjectHandle(m_hActorBAnchor);
 }
 
-void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxJointComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fBreakForce;
   s >> m_fBreakTorque;
@@ -140,8 +140,8 @@ void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (uiVersion >= 2)
   {
-    m_hActorA = stream.ReadGameObjectHandle();
-    m_hActorB = stream.ReadGameObjectHandle();
+    m_hActorA = inout_stream.ReadGameObjectHandle();
+    m_hActorB = inout_stream.ReadGameObjectHandle();
 
     s >> m_LocalFrameA;
     s >> m_LocalFrameB;
@@ -149,7 +149,7 @@ void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (uiVersion >= 3)
   {
-    m_hActorBAnchor = stream.ReadGameObjectHandle();
+    m_hActorBAnchor = inout_stream.ReadGameObjectHandle();
   }
 }
 

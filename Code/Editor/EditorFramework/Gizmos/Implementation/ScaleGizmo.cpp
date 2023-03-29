@@ -12,28 +12,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezScaleGizmo::ezScaleGizmo()
 {
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-  m_bUseExperimentalGizmo = !pPreferences->m_bOldGizmos;
+  const ezColor colr = ezColorScheme::LightUI(ezColorScheme::Red);
+  const ezColor colg = ezColorScheme::LightUI(ezColorScheme::Green);
+  const ezColor colb = ezColorScheme::LightUI(ezColorScheme::Blue);
+  const ezColor coly = ezColorScheme::LightUI(ezColorScheme::Gray);
 
-  if (m_bUseExperimentalGizmo)
-  {
-    const ezColor colr = ezColorScheme::LightUI(ezColorScheme::Red);
-    const ezColor colg = ezColorScheme::LightUI(ezColorScheme::Green);
-    const ezColor colb = ezColorScheme::LightUI(ezColorScheme::Blue);
-    const ezColor coly = ezColorScheme::LightUI(ezColorScheme::Gray);
-
-    m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowX.obj");
-    m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowY.obj");
-    m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowZ.obj");
-    m_hAxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, coly, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleXYZ.obj");
-  }
-  else
-  {
-    m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-    m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-    m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Piston, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-    m_hAxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  }
+  m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowX.obj");
+  m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowY.obj");
+  m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleArrowZ.obj");
+  m_hAxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, coly, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleXYZ.obj");
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
@@ -63,31 +50,10 @@ void ezScaleGizmo::OnVisibleChanged(bool bVisible)
 
 void ezScaleGizmo::OnTransformationChanged(const ezTransform& transform)
 {
-  if (m_bUseExperimentalGizmo)
-  {
-    m_hAxisX.SetTransformation(transform);
-    m_hAxisY.SetTransformation(transform);
-    m_hAxisZ.SetTransformation(transform);
-    m_hAxisXYZ.SetTransformation(transform);
-  }
-  else
-  {
-    ezTransform t;
-    t.SetIdentity();
-
-    t.m_vScale.Set(2.0f);
-    m_hAxisX.SetTransformation(transform * t);
-
-    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-    m_hAxisY.SetTransformation(transform * t);
-
-    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-    m_hAxisZ.SetTransformation(transform * t);
-
-    t.SetIdentity();
-    t.m_vScale = ezVec3(0.2f);
-    m_hAxisXYZ.SetTransformation(transform * t);
-  }
+  m_hAxisX.SetTransformation(transform);
+  m_hAxisY.SetTransformation(transform);
+  m_hAxisZ.SetTransformation(transform);
+  m_hAxisXYZ.SetTransformation(transform);
 }
 
 void ezScaleGizmo::DoFocusLost(bool bCancel)

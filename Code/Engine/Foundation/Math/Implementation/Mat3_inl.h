@@ -171,13 +171,13 @@ ezVec3Template<Type> ezMat3Template<Type>::GetRow(ezUInt32 uiRow) const
 }
 
 template <typename Type>
-void ezMat3Template<Type>::SetRow(ezUInt32 uiRow, const ezVec3Template<Type>& row)
+void ezMat3Template<Type>::SetRow(ezUInt32 uiRow, const ezVec3Template<Type>& vRow)
 {
   EZ_ASSERT_DEBUG(uiRow <= 2, "Invalid Row Index {0}", uiRow);
 
-  Element(0, uiRow) = row.x;
-  Element(1, uiRow) = row.y;
-  Element(2, uiRow) = row.z;
+  Element(0, uiRow) = vRow.x;
+  Element(1, uiRow) = vRow.y;
+  Element(2, uiRow) = vRow.z;
 }
 
 template <typename Type>
@@ -195,13 +195,13 @@ ezVec3Template<Type> ezMat3Template<Type>::GetColumn(ezUInt32 uiColumn) const
 }
 
 template <typename Type>
-void ezMat3Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec3Template<Type>& column)
+void ezMat3Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec3Template<Type>& vColumn)
 {
   EZ_ASSERT_DEBUG(uiColumn <= 2, "Invalid Column Index {0}", uiColumn);
 
-  Element(uiColumn, 0) = column.x;
-  Element(uiColumn, 1) = column.y;
-  Element(uiColumn, 2) = column.z;
+  Element(uiColumn, 0) = vColumn.x;
+  Element(uiColumn, 1) = vColumn.y;
+  Element(uiColumn, 2) = vColumn.z;
 }
 
 template <typename Type>
@@ -213,11 +213,11 @@ ezVec3Template<Type> ezMat3Template<Type>::GetDiagonal() const
 }
 
 template <typename Type>
-void ezMat3Template<Type>::SetDiagonal(const ezVec3Template<Type>& diag)
+void ezMat3Template<Type>::SetDiagonal(const ezVec3Template<Type>& vDiag)
 {
-  Element(0, 0) = diag.x;
-  Element(1, 1) = diag.y;
-  Element(2, 2) = diag.z;
+  Element(0, 0) = vDiag.x;
+  Element(1, 1) = vDiag.y;
+  Element(2, 2) = vDiag.z;
 }
 
 template <typename Type>

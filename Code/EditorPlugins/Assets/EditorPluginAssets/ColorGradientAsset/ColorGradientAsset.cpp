@@ -60,21 +60,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocument, 1, ezRTTINoAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezColorControlPoint::SetTickFromTime(ezTime time, ezInt64 fps)
+void ezColorControlPoint::SetTickFromTime(ezTime time, ezInt64 iFps)
 {
-  const ezUInt32 uiTicksPerStep = 4800 / fps;
+  const ezUInt32 uiTicksPerStep = 4800 / iFps;
   m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-void ezAlphaControlPoint::SetTickFromTime(ezTime time, ezInt64 fps)
+void ezAlphaControlPoint::SetTickFromTime(ezTime time, ezInt64 iFps)
 {
-  const ezUInt32 uiTicksPerStep = 4800 / fps;
+  const ezUInt32 uiTicksPerStep = 4800 / iFps;
   m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-void ezIntensityControlPoint::SetTickFromTime(ezTime time, ezInt64 fps)
+void ezIntensityControlPoint::SetTickFromTime(ezTime time, ezInt64 iFps)
 {
-  const ezUInt32 uiTicksPerStep = 4800 / fps;
+  const ezUInt32 uiTicksPerStep = 4800 / iFps;
   m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
@@ -83,7 +83,7 @@ ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumen
 {
 }
 
-void ezColorGradientAssetDocument::WriteResource(ezStreamWriter& stream) const
+void ezColorGradientAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
 {
   const ezColorGradientAssetData* pProp = GetProperties();
 
@@ -91,7 +91,7 @@ void ezColorGradientAssetDocument::WriteResource(ezStreamWriter& stream) const
   pProp->FillGradientData(desc.m_Gradient);
   desc.m_Gradient.SortControlPoints();
 
-  desc.Save(stream);
+  desc.Save(inout_stream);
 }
 
 ezInt64 ezColorGradientAssetData::TickFromTime(ezTime time)
@@ -102,21 +102,21 @@ ezInt64 ezColorGradientAssetData::TickFromTime(ezTime time)
   return (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-void ezColorGradientAssetData::FillGradientData(ezColorGradient& out_Result) const
+void ezColorGradientAssetData::FillGradientData(ezColorGradient& out_result) const
 {
   for (const auto& cp : m_ColorCPs)
   {
-    out_Result.AddColorControlPoint(cp.GetTickAsTime().GetSeconds(), ezColorGammaUB(cp.m_Red, cp.m_Green, cp.m_Blue));
+    out_result.AddColorControlPoint(cp.GetTickAsTime().GetSeconds(), ezColorGammaUB(cp.m_Red, cp.m_Green, cp.m_Blue));
   }
 
   for (const auto& cp : m_AlphaCPs)
   {
-    out_Result.AddAlphaControlPoint(cp.GetTickAsTime().GetSeconds(), cp.m_Alpha);
+    out_result.AddAlphaControlPoint(cp.GetTickAsTime().GetSeconds(), cp.m_Alpha);
   }
 
   for (const auto& cp : m_IntensityCPs)
   {
-    out_Result.AddIntensityControlPoint(cp.GetTickAsTime().GetSeconds(), cp.m_fIntensity);
+    out_result.AddIntensityControlPoint(cp.GetTickAsTime().GetSeconds(), cp.m_fIntensity);
   }
 }
 
@@ -260,7 +260,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Color CPs", "ColorCPs");
     pNode->RenameProperty("Alpha CPs", "AlphaCPs");
@@ -280,7 +280,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Position");
     if (pPoint && pPoint->m_Value.IsA<float>())
@@ -303,7 +303,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Position");
     if (pPoint && pPoint->m_Value.IsA<float>())
@@ -326,7 +326,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Position");
     if (pPoint && pPoint->m_Value.IsA<float>())

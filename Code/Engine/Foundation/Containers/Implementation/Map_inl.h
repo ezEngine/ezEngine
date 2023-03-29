@@ -439,7 +439,7 @@ ValueType& ezMapBase<KeyType, ValueType, Comparer>::operator[](const CompatibleK
 
 template <typename KeyType, typename ValueType, typename Comparer>
 template <typename CompatibleKeyType>
-typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::FindOrAdd(CompatibleKeyType&& key, bool* bExisted)
+typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::FindOrAdd(CompatibleKeyType&& key, bool* out_pExisted)
 {
   Node* pNilNode = reinterpret_cast<Node*>(&m_NilNode);
   Node* pInsertedNode = nullptr;
@@ -459,8 +459,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
       {
         if (m_Comparer.Equal(it->m_Key, key))
         {
-          if (bExisted)
-            *bExisted = true;
+          if (out_pExisted)
+            *out_pExisted = true;
 
           return Iterator(it);
         }
@@ -509,8 +509,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 
   EZ_ASSERT_DEBUG(pInsertedNode != nullptr, "Implementation Error.");
 
-  if (bExisted)
-    *bExisted = false;
+  if (out_pExisted)
+    *out_pExisted = false;
 
   return Iterator(pInsertedNode);
 }

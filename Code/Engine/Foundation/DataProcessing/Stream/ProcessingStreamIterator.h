@@ -22,7 +22,7 @@ public:
   void Advance();
 
   /// \brief Advances the current pointer by the given number of elements.
-  void Advance(ezUInt32 numElements);
+  void Advance(ezUInt32 uiNumElements);
 
   // TODO: Add iterator interface? Only makes really sense for element spawners and processors which work on a single stream
 

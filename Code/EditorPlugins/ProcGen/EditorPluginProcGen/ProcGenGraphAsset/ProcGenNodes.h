@@ -12,11 +12,19 @@ class ezProcGenNodeBase : public ezReflectedClass
 public:
   struct GraphContext
   {
+    enum OutputType
+    {
+      Unknown,
+      Placement,
+      Color,
+    };
+
     ezProcGenInternal::GraphSharedData m_SharedData;
     ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
+    OutputType m_OutputType = OutputType::Unknown;
   };
 
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) = 0;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -28,7 +36,7 @@ class ezProcGenOutput : public ezProcGenNodeBase
 public:
   bool m_bActive = true;
 
-  void Save(ezStreamWriter& stream);
+  void Save(ezStreamWriter& inout_stream);
 
   ezString m_sName;
 
@@ -42,9 +50,9 @@ class ezProcGen_PlacementOutput : public ezProcGenOutput
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_PlacementOutput, ezProcGenOutput);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
-  void Save(ezStreamWriter& stream);
+  void Save(ezStreamWriter& inout_stream);
 
   ezHybridArray<ezString, 4> m_ObjectsToPlace;
 
@@ -82,9 +90,9 @@ class ezProcGen_VertexColorOutput : public ezProcGenOutput
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_VertexColorOutput, ezProcGenOutput);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
-  void Save(ezStreamWriter& stream);
+  void Save(ezStreamWriter& inout_stream);
 
   ezRenderPipelineNodeInputPin m_RPin;
   ezRenderPipelineNodeInputPin m_GPin;
@@ -99,7 +107,7 @@ class ezProcGen_Random : public ezProcGenNodeBase
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Random, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
   ezInt32 m_iSeed = -1;
 
@@ -121,7 +129,7 @@ class ezProcGen_PerlinNoise : public ezProcGenNodeBase
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_PerlinNoise, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
   ezVec3 m_Scale = ezVec3(10);
   ezVec3 m_Offset = ezVec3::ZeroVector();
@@ -140,7 +148,7 @@ class ezProcGen_Blend : public ezProcGenNodeBase
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Blend, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
   ezEnum<ezProcGenBinaryOperator> m_Operator;
   float m_fInputValueA = 1.0f;
@@ -159,7 +167,7 @@ class ezProcGen_Height : public ezProcGenNodeBase
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Height, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
   float m_fMinHeight = 0.0f;
   float m_fMaxHeight = 1000.0f;
@@ -176,7 +184,7 @@ class ezProcGen_Slope : public ezProcGenNodeBase
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Slope, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
   ezAngle m_MinSlope = ezAngle::Degree(0.0f);
   ezAngle m_MaxSlope = ezAngle::Degree(30.0f);
@@ -193,7 +201,7 @@ class ezProcGen_MeshVertexColor : public ezProcGenNodeBase
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_MeshVertexColor, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
   ezRenderPipelineNodeOutputPin m_RPin;
   ezRenderPipelineNodeOutputPin m_GPin;
@@ -208,7 +216,7 @@ class ezProcGen_ApplyVolumes : public ezProcGenNodeBase
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_ApplyVolumes, ezProcGenNodeBase);
 
 public:
-  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GraphContext& context) override;
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
   float m_fInputValue = 0.0f;
 

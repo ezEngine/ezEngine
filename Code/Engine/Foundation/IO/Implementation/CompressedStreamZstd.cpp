@@ -4,6 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 
+#  include <Foundation/System/SystemInformation.h>
 #  include <zstd/zstd.h>
 
 ezCompressedStreamReaderZstd::ezCompressedStreamReaderZstd() = default;
@@ -134,9 +135,9 @@ ezResult ezCompressedStreamReaderZstd::RefillReadCache()
 
 ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd() = default;
 
-ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, Compression Ratio)
+ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, Compression ratio)
 {
-  SetOutputStream(pOutputStream, Ratio);
+  SetOutputStream(pOutputStream, ratio);
 }
 
 ezCompressedStreamWriterZstd::~ezCompressedStreamWriterZstd()
@@ -158,7 +159,7 @@ ezCompressedStreamWriterZstd::~ezCompressedStreamWriterZstd()
   }
 }
 
-void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream, Compression Ratio /*= Compression::Default*/, ezUInt32 uiCompressionCacheSizeKB /*= 4*/)
+void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream, Compression ratio /*= Compression::Default*/, ezUInt32 uiCompressionCacheSizeKB /*= 4*/)
 {
   if (m_pOutputStream == pOutputStream)
     return;
@@ -182,7 +183,12 @@ void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream
       m_pZstdCStream = ZSTD_createCStream();
     }
 
-    ZSTD_initCStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), (int)Ratio);
+    const ezUInt32 uiCoreCount = ezMath::Clamp(ezSystemInformation::Get().GetCPUCoreCount(), 1u, 12u);
+
+    ZSTD_CCtx_reset(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), ZSTD_reset_session_only);
+    ZSTD_CCtx_refCDict(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), nullptr);
+    ZSTD_CCtx_setParameter(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), ZSTD_c_compressionLevel, (int)ratio);
+    ZSTD_CCtx_setParameter(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), ZSTD_c_nbWorkers, uiCoreCount);
 
     m_CompressedCache.SetCountUninitialized(ezMath::Max(1U, uiCompressionCacheSizeKB) * 1024);
 
@@ -200,7 +206,12 @@ ezResult ezCompressedStreamWriterZstd::FinishCompressedStream()
   if (Flush().Failed())
     return EZ_FAILURE;
 
-  const size_t res = ZSTD_endStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer));
+  ZSTD_inBuffer emptyBuffer;
+  emptyBuffer.pos = 0;
+  emptyBuffer.size = 0;
+  emptyBuffer.src = nullptr;
+
+  const size_t res = ZSTD_compressStream2(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer), &emptyBuffer, ZSTD_e_end);
   EZ_VERIFY(!ZSTD_isError(res), "Deinitializing the zstd compression stream failed: '{0}'", ZSTD_getErrorName(res));
 
   // one more flush to write out the last chunk
@@ -223,7 +234,12 @@ ezResult ezCompressedStreamWriterZstd::Flush()
   if (m_pOutputStream == nullptr)
     return EZ_SUCCESS;
 
-  while (ZSTD_flushStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer)) > 0)
+  ZSTD_inBuffer emptyBuffer;
+  emptyBuffer.pos = 0;
+  emptyBuffer.size = 0;
+  emptyBuffer.src = nullptr;
+
+  while (ZSTD_compressStream2(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer), &emptyBuffer, ZSTD_e_flush) > 0)
   {
     if (FlushWriteCache() == EZ_FAILURE)
       return EZ_FAILURE;
@@ -279,7 +295,7 @@ ezResult ezCompressedStreamWriterZstd::WriteBytes(const void* pWriteBuffer, ezUI
         return EZ_FAILURE;
     }
 
-    const size_t res = ZSTD_compressStream(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer), &inBuffer);
+    const size_t res = ZSTD_compressStream2(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), reinterpret_cast<ZSTD_outBuffer*>(&m_OutBuffer), &inBuffer, ZSTD_e_continue);
 
     EZ_VERIFY(!ZSTD_isError(res), "Compressing the zstd stream failed: '{0}'", ZSTD_getErrorName(res));
   }

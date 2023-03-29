@@ -30,8 +30,8 @@ struct EZ_RECASTPLUGIN_DLL ezRecastConfig
   float m_fDetailMeshSampleDistanceFactor = 1.0f;
   float m_fDetailMeshSampleErrorFactor = 1.0f;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RECASTPLUGIN_DLL, ezRecastConfig);
@@ -46,8 +46,8 @@ public:
 
   static ezResult ExtractWorldGeometry(const ezWorld& world, ezWorldGeoExtractionUtil::MeshObjectList& out_worldGeo);
 
-  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::MeshObjectList& worldGeo, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc,
-    ezProgress& progress);
+  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::MeshObjectList& worldGeo, ezRecastNavMeshResourceDescriptor& out_navMeshDesc,
+    ezProgress& ref_progress);
 
 private:
   static void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config, const ezBoundingBox& bbox);

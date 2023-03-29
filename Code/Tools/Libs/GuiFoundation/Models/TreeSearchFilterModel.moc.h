@@ -11,9 +11,9 @@ class EZ_GUIFOUNDATION_DLL ezQtTreeSearchFilterModel : public QSortFilterProxyMo
   Q_OBJECT
 
 public:
-  ezQtTreeSearchFilterModel(QWidget* parent);
+  ezQtTreeSearchFilterModel(QWidget* pParent);
 
-  void SetFilterText(const QString& text);
+  void SetFilterText(const QString& sText);
 
   /// \brief By default only nodes (and their parents) are shown that fit the search criterion.
   /// If this is enabled, all child nodes of nodes that fit the criterion are included as well.

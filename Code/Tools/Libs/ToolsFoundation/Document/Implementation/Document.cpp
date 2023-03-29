@@ -143,7 +143,7 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     m_ActiveSaveTask.Invalidate();
   }
   ezStatus result;
-  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) { result = res; });
+  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res) { result = res; });
   ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   m_ActiveSaveTask.Invalidate();
   return result;
@@ -224,8 +224,8 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   return afterSaveID;
 }
 
-ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header, ezUniquePtr<ezAbstractObjectGraph>& objects,
-  ezUniquePtr<ezAbstractObjectGraph>& types)
+ezStatus ezDocument::ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
+  ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes)
 {
   ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
@@ -233,7 +233,7 @@ ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstr
   {
     EZ_PROFILE_SCOPE("Read File");
     ezFileReader file;
-    if (file.Open(sDocumentPath) == EZ_FAILURE)
+    if (file.Open(szDocumentPath) == EZ_FAILURE)
     {
       return ezStatus("Unable to open file for reading!");
     }
@@ -245,7 +245,7 @@ ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstr
     {
       EZ_PROFILE_SCOPE("parse DDL graph");
       ezStopwatch sw;
-      if (ezAbstractGraphDdlSerializer::ReadDocument(memreader, header, objects, types, true).Failed())
+      if (ezAbstractGraphDdlSerializer::ReadDocument(memreader, ref_pHeader, ref_pObjects, ref_pTypes, true).Failed())
         return ezStatus("Failed to parse DDL graph");
 
       ezTime t = sw.GetRunningTotal();
@@ -422,9 +422,9 @@ void ezDocument::ShowDocumentStatus(const ezFormatString& msg) const
 }
 
 
-ezResult ezDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const
+ezResult ezDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_result) const
 {
-  out_Result.SetIdentity();
+  out_result.SetIdentity();
   return EZ_FAILURE;
 }
 

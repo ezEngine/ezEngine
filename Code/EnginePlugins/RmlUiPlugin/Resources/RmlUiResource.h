@@ -21,8 +21,8 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RMLUIPLUGIN_DLL, ezRmlUiScaleMode);
 
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiResourceDescriptor
 {
-  ezResult Save(ezStreamWriter& stream);
-  ezResult Load(ezStreamReader& stream);
+  ezResult Save(ezStreamWriter& inout_stream);
+  ezResult Load(ezStreamReader& inout_stream);
 
   ezDependencyFile m_DependencyFile;
 

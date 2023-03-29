@@ -87,12 +87,12 @@ ezEditorTestApplication* ezEditorTest::CreateApplication()
   return EZ_DEFAULT_NEW(ezEditorTestApplication);
 }
 
-ezResult ezEditorTest::GetImage(ezImage& img)
+ezResult ezEditorTest::GetImage(ezImage& ref_img)
 {
   if (!m_CapturedImage.IsValid())
     return EZ_FAILURE;
 
-  img.ResetAndMove(std::move(m_CapturedImage));
+  ref_img.ResetAndMove(std::move(m_CapturedImage));
   return EZ_SUCCESS;
 }
 

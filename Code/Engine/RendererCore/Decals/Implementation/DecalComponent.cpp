@@ -78,10 +78,10 @@ ezDecalComponent::ezDecalComponent() {}
 
 ezDecalComponent::~ezDecalComponent() = default;
 
-void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezDecalComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
   s << m_Color;
@@ -102,19 +102,19 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_ProjectionAxis;
 
   // version 6
-  stream.WriteGameObjectHandle(m_hApplyOnlyToObject);
+  inout_stream.WriteGameObjectHandle(m_hApplyOnlyToObject);
 
   // version 7
   s << m_uiRandomDecalIdx;
   s.WriteArray(m_Decals).IgnoreResult();
 }
 
-void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
+void ezDecalComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  ezStreamReader& s = stream.GetStream();
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
 
@@ -173,7 +173,7 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (uiVersion >= 6)
   {
-    SetApplyOnlyTo(stream.ReadGameObjectHandle());
+    SetApplyOnlyTo(inout_stream.ReadGameObjectHandle());
   }
 
   if (uiVersion >= 7)
@@ -335,9 +335,9 @@ const ezDecalResourceHandle& ezDecalComponent::GetDecal(ezUInt32 uiIndex) const
   return m_Decals[uiIndex];
 }
 
-void ezDecalComponent::SetProjectionAxis(ezEnum<ezBasisAxis> ProjectionAxis)
+void ezDecalComponent::SetProjectionAxis(ezEnum<ezBasisAxis> projectionAxis)
 {
-  m_ProjectionAxis = ProjectionAxis;
+  m_ProjectionAxis = projectionAxis;
 
   TriggerLocalBoundsUpdate();
 }
@@ -414,12 +414,12 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       const auto& item = atlas.m_Items.GetValue(decalIdx);
       uiDecalFlags = item.m_uiFlags;
 
-      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 textureSize) {
+      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 vTextureSize) {
         ezVec4 result;
-        result.x = (float)layerRect.width / textureSize.x * 0.5f;
-        result.y = (float)layerRect.height / textureSize.y * 0.5f;
-        result.z = (float)layerRect.x / textureSize.x + result.x;
-        result.w = (float)layerRect.y / textureSize.y + result.y;
+        result.x = (float)layerRect.width / vTextureSize.x * 0.5f;
+        result.y = (float)layerRect.height / vTextureSize.y * 0.5f;
+        result.z = (float)layerRect.x / vTextureSize.x + result.x;
+        result.w = (float)layerRect.y / vTextureSize.y + result.y;
         return result;
       };
 
@@ -553,6 +553,8 @@ void ezDecalComponent::OnSimulationStarted()
     m_vExtents *= scale;
 
     TriggerLocalBoundsUpdate();
+
+    InvalidateCachedRenderData();
   }
 }
 
@@ -637,7 +639,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pDecal = pNode->FindProperty("Decal");
     if (pDecal && pDecal->m_Value.IsA<ezString>())

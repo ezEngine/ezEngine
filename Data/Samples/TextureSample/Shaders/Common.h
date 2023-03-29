@@ -20,6 +20,3 @@ struct VS_OUT
 typedef VS_OUT PS_IN;
 
 #endif
-
-
-

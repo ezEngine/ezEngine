@@ -3,7 +3,7 @@
 #include <Core/Console/Console.h>
 #include <Core/Console/QuakeConsole.h>
 
-void ezCommandInterpreter::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& AutoCompleteOptions, ezDeque<ezConsoleString>& AutoCompleteDescriptions)
+void ezCommandInterpreter::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& inout_autoCompleteOptions, ezDeque<ezConsoleString>& inout_autoCompleteDescriptions)
 {
   ezStringBuilder sText;
 
@@ -17,16 +17,16 @@ void ezCommandInterpreter::FindPossibleCVars(const char* szVariable, ezDeque<ezS
       ezConsoleString cs;
       cs.m_sText = sText;
       cs.m_Type = ezConsoleString::Type::VarName;
-      AutoCompleteDescriptions.PushBack(cs);
+      inout_autoCompleteDescriptions.PushBack(cs);
 
-      AutoCompleteOptions.PushBack(pCVar->GetName());
+      inout_autoCompleteOptions.PushBack(pCVar->GetName());
     }
 
     pCVar = pCVar->GetNextInstance();
   }
 }
 
-void ezCommandInterpreter::FindPossibleFunctions(const char* szVariable, ezDeque<ezString>& AutoCompleteOptions, ezDeque<ezConsoleString>& AutoCompleteDescriptions)
+void ezCommandInterpreter::FindPossibleFunctions(const char* szVariable, ezDeque<ezString>& inout_autoCompleteOptions, ezDeque<ezConsoleString>& inout_autoCompleteDescriptions)
 {
   ezStringBuilder sText;
 
@@ -40,9 +40,9 @@ void ezCommandInterpreter::FindPossibleFunctions(const char* szVariable, ezDeque
       ezConsoleString cs;
       cs.m_sText = sText;
       cs.m_Type = ezConsoleString::Type::FuncName;
-      AutoCompleteDescriptions.PushBack(cs);
+      inout_autoCompleteDescriptions.PushBack(cs);
 
-      AutoCompleteOptions.PushBack(pFunc->GetName());
+      inout_autoCompleteOptions.PushBack(pFunc->GetName());
     }
 
     pFunc = pFunc->GetNextInstance();
@@ -115,20 +115,20 @@ ezString ezQuakeConsole::GetFullInfoAsString(ezCVar* pCVar)
   return s;
 }
 
-const ezString ezCommandInterpreter::FindCommonString(const ezDeque<ezString>& vStrings)
+const ezString ezCommandInterpreter::FindCommonString(const ezDeque<ezString>& strings)
 {
   ezStringBuilder sCommon;
   ezUInt32 c;
 
   ezUInt32 uiPos = 0;
-  auto it1 = vStrings[0].GetIteratorFront();
+  auto it1 = strings[0].GetIteratorFront();
   while (it1.IsValid())
   {
     c = it1.GetCharacter();
 
-    for (int v = 1; v < (int)vStrings.GetCount(); v++)
+    for (int v = 1; v < (int)strings.GetCount(); v++)
     {
-      auto it2 = vStrings[v].GetIteratorFront();
+      auto it2 = strings[v].GetIteratorFront();
 
       it2 += uiPos;
 
@@ -145,11 +145,11 @@ const ezString ezCommandInterpreter::FindCommonString(const ezDeque<ezString>& v
   return sCommon;
 }
 
-void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_State)
+void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_state)
 {
-  ezString sVarName = inout_State.m_sInput;
+  ezString sVarName = inout_state.m_sInput;
 
-  auto it = rbegin(inout_State.m_sInput);
+  auto it = rbegin(inout_state.m_sInput);
 
   // dots are allowed in CVar names
   while (it.IsValid() && (it.GetCharacter() == '.' || !ezStringUtils::IsIdentifierDelimiter_C_Code(*it)))
@@ -172,24 +172,24 @@ void ezCommandInterpreter::AutoComplete(ezCommandInterpreterState& inout_State)
   {
     AutoCompleteDescriptions.Sort();
 
-    inout_State.AddOutputLine("");
+    inout_state.AddOutputLine("");
 
     for (ezUInt32 i = 0; i < AutoCompleteDescriptions.GetCount(); i++)
     {
-      inout_State.AddOutputLine(AutoCompleteDescriptions[i].m_sText.GetData(), AutoCompleteDescriptions[i].m_Type);
+      inout_state.AddOutputLine(AutoCompleteDescriptions[i].m_sText.GetData(), AutoCompleteDescriptions[i].m_Type);
     }
 
-    inout_State.AddOutputLine("");
+    inout_state.AddOutputLine("");
   }
 
   if (AutoCompleteOptions.GetCount() > 0)
   {
     if (szLastWordDelimiter != nullptr)
-      inout_State.m_sInput = ezStringView(inout_State.m_sInput.GetData(), szLastWordDelimiter + 1);
+      inout_state.m_sInput = ezStringView(inout_state.m_sInput.GetData(), szLastWordDelimiter + 1);
     else
-      inout_State.m_sInput.Clear();
+      inout_state.m_sInput.Clear();
 
-    inout_State.m_sInput.Append(FindCommonString(AutoCompleteOptions).GetData());
+    inout_state.m_sInput.Append(FindCommonString(AutoCompleteOptions).GetData());
   }
 }
 

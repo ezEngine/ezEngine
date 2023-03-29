@@ -61,20 +61,20 @@ EZ_END_COMPONENT_TYPE
 ezRcNavMeshComponent::ezRcNavMeshComponent() {}
 ezRcNavMeshComponent::~ezRcNavMeshComponent() {}
 
-void ezRcNavMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezRcNavMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_bShowNavMesh;
   s << m_hNavMesh;
 }
 
-void ezRcNavMeshComponent::DeserializeComponent(ezWorldReader& stream)
+void ezRcNavMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_bShowNavMesh;
 

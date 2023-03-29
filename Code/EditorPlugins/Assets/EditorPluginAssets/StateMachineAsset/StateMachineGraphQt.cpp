@@ -42,8 +42,8 @@ QRectF ezQtStateMachinePin::GetPinRect() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtStateMachineConnection::ezQtStateMachineConnection(QGraphicsItem* parent /*= nullptr*/)
-  : ezQtConnection(parent)
+ezQtStateMachineConnection::ezQtStateMachineConnection(QGraphicsItem* pParent /*= nullptr*/)
+  : ezQtConnection(pParent)
 {
   setFlag(QGraphicsItem::ItemIsSelectable);
 }
@@ -134,12 +134,12 @@ void ezQtStateMachineNode::UpdateState()
   }
 }
 
-void ezQtStateMachineNode::ExtendContextMenu(QMenu& menu)
+void ezQtStateMachineNode::ExtendContextMenu(QMenu& ref_menu)
 {
   if (IsAnyState())
     return;
 
-  QAction* pAction = new QAction("Set as Initial State", &menu);
+  QAction* pAction = new QAction("Set as Initial State", &ref_menu);
   pAction->setEnabled(IsInitialState() == false);
   pAction->connect(pAction, &QAction::triggered,
     [this]() {
@@ -147,7 +147,7 @@ void ezQtStateMachineNode::ExtendContextMenu(QMenu& menu)
       pScene->SetInitialState(this);
     });
 
-  menu.addAction(pAction);
+  ref_menu.addAction(pAction);
 }
 
 bool ezQtStateMachineNode::IsInitialState() const
@@ -182,8 +182,8 @@ void ezQtStateMachineNode::UpdateHeaderColor()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtStateMachineAssetScene::ezQtStateMachineAssetScene(QObject* parent /*= nullptr*/)
-  : ezQtNodeScene(parent)
+ezQtStateMachineAssetScene::ezQtStateMachineAssetScene(QObject* pParent /*= nullptr*/)
+  : ezQtNodeScene(pParent)
 {
   SetConnectionStyle(ezQtNodeScene::ConnectionStyle::StraightLine);
   SetConnectionDecorationFlags(ezQtNodeScene::ConnectionDecorationFlags::DirectionArrows);

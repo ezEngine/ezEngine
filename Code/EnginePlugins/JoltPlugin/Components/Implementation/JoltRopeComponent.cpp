@@ -39,7 +39,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 1, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(0.01f), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-      EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+      EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("SelfCollision", m_bSelfCollision),
       EZ_MEMBER_PROPERTY("ContinuousCollisionDetection", m_bCCD),
@@ -82,10 +82,10 @@ const char* ezJoltRopeComponent::GetSurfaceFile() const
   return m_hSurface.GetResourceID();
 }
 
-void ezJoltRopeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltRopeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_uiCollisionLayer;
   s << m_uiPieces;
@@ -102,15 +102,15 @@ void ezJoltRopeComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSlack;
   s << m_bCCD;
 
-  stream.WriteGameObjectHandle(m_hAnchor);
+  inout_stream.WriteGameObjectHandle(m_hAnchor);
 }
 
-void ezJoltRopeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltRopeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_uiCollisionLayer;
   s >> m_uiPieces;
@@ -127,7 +127,7 @@ void ezJoltRopeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSlack;
   s >> m_bCCD;
 
-  m_hAnchor = stream.ReadGameObjectHandle();
+  m_hAnchor = inout_stream.ReadGameObjectHandle();
 }
 
 void ezJoltRopeComponent::OnSimulationStarted()
@@ -666,19 +666,19 @@ void ezJoltRopeComponent::SetAnchor(ezGameObjectHandle hActor)
   m_hAnchor = hActor;
 }
 
-void ezJoltRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
+void ezJoltRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& ref_msg)
 {
   if (m_pRagdoll == nullptr || m_fMaxForcePerFrame <= 0.0f)
     return;
 
   JPH::BodyID bodyId;
 
-  if (msg.m_pInternalPhysicsActor != nullptr)
-    bodyId = JPH::BodyID(reinterpret_cast<size_t>(msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
+  if (ref_msg.m_pInternalPhysicsActor != nullptr)
+    bodyId = JPH::BodyID(reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
   else
     bodyId = m_pRagdoll->GetBodyID(0);
 
-  ezVec3 vImp = msg.m_vForce;
+  ezVec3 vImp = ref_msg.m_vForce;
   const float fOrgImp = vImp.GetLength();
 
   if (fOrgImp > g_fMaxForce)
@@ -692,22 +692,22 @@ void ezJoltRopeComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
   }
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
-  pModule->GetJoltSystem()->GetBodyInterface().AddForce(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition));
+  pModule->GetJoltSystem()->GetBodyInterface().AddForce(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
 }
 
-void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
+void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 {
   if (m_pRagdoll == nullptr || m_fMaxForcePerFrame <= 0.0f)
     return;
 
   JPH::BodyID bodyId;
 
-  if (msg.m_pInternalPhysicsActor != nullptr)
-    bodyId = JPH::BodyID(reinterpret_cast<size_t>(msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
+  if (ref_msg.m_pInternalPhysicsActor != nullptr)
+    bodyId = JPH::BodyID(reinterpret_cast<size_t>(ref_msg.m_pInternalPhysicsActor) & 0xFFFFFFFF);
   else
     bodyId = m_pRagdoll->GetBodyID(0);
 
-  ezVec3 vImp = msg.m_vImpulse;
+  ezVec3 vImp = ref_msg.m_vImpulse;
   const float fOrgImp = vImp.GetLength();
 
   if (fOrgImp > g_fMaxForce)
@@ -721,7 +721,7 @@ void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
   }
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
-  pModule->GetJoltSystem()->GetBodyInterface().AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(msg.m_vGlobalPosition));
+  pModule->GetJoltSystem()->GetBodyInterface().AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -775,3 +775,7 @@ void ezJoltRopeComponentManager::Update(const ezWorldModule::UpdateContext& cont
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltRopeComponent);
+

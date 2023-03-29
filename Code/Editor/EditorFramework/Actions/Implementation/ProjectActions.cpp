@@ -3,6 +3,7 @@
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/Dialogs/AssetProfilesDlg.moc.h>
 #include <EditorFramework/Dialogs/CppProjectDlg.moc.h>
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
@@ -46,6 +47,7 @@ ezActionDescriptorHandle ezProjectActions::s_hImportAsset;
 ezActionDescriptorHandle ezProjectActions::s_hAssetProfiles;
 ezActionDescriptorHandle ezProjectActions::s_hExportProject;
 ezActionDescriptorHandle ezProjectActions::s_hPluginSelection;
+ezActionDescriptorHandle ezProjectActions::s_hClearAssetCaches;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
@@ -56,7 +58,10 @@ ezActionDescriptorHandle ezProjectActions::s_hLaunchInspector;
 ezActionDescriptorHandle ezProjectActions::s_hSaveProfiling;
 ezActionDescriptorHandle ezProjectActions::s_hOpenVsCode;
 
+ezActionDescriptorHandle ezProjectActions::s_hCppProjectMenu;
 ezActionDescriptorHandle ezProjectActions::s_hSetupCppProject;
+ezActionDescriptorHandle ezProjectActions::s_hOpenCppProject;
+ezActionDescriptorHandle ezProjectActions::s_hCompileCppProject;
 
 void ezProjectActions::RegisterActions()
 {
@@ -89,6 +94,7 @@ void ezProjectActions::RegisterActions()
   s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction, ezProjectAction::ButtonType::ImportAsset);
   s_hAssetProfiles = EZ_REGISTER_ACTION_1("Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::AssetProfiles);
   s_hExportProject = EZ_REGISTER_ACTION_1("Project.ExportProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ExportProject);
+  s_hClearAssetCaches = EZ_REGISTER_ACTION_1("Project.ClearAssetCaches", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ClearAssetCaches);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -99,7 +105,10 @@ void ezProjectActions::RegisterActions()
   s_hSaveProfiling = EZ_REGISTER_ACTION_1("Editor.SaveProfiling", ezActionScope::Global, "Engine", "Ctrl+Alt+P", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
   s_hOpenVsCode = EZ_REGISTER_ACTION_1("Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
 
+  s_hCppProjectMenu = EZ_REGISTER_MENU("Project.Cpp");
   s_hSetupCppProject = EZ_REGISTER_ACTION_1("Project.SetupCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::SetupCppProject);
+  s_hOpenCppProject = EZ_REGISTER_ACTION_1("Project.OpenCppProject", ezActionScope::Global, "Project", "Ctrl+Shift+O", ezProjectAction, ezProjectAction::ButtonType::OpenCppProject);
+  s_hCompileCppProject = EZ_REGISTER_ACTION_1("Project.CompileCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CompileCppProject);
 
   s_hDocsAndCommunity = EZ_REGISTER_ACTION_1("Editor.DocsAndCommunity", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::ShowDocsAndCommunity);
 }
@@ -135,9 +144,13 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hDataDirectories);
   ezActionManager::UnregisterAction(s_hWindowConfig);
   ezActionManager::UnregisterAction(s_hImportAsset);
+  ezActionManager::UnregisterAction(s_hClearAssetCaches);
   ezActionManager::UnregisterAction(s_hInputConfig);
   ezActionManager::UnregisterAction(s_hAssetProfiles);
+  ezActionManager::UnregisterAction(s_hCppProjectMenu);
   ezActionManager::UnregisterAction(s_hSetupCppProject);
+  ezActionManager::UnregisterAction(s_hOpenCppProject);
+  ezActionManager::UnregisterAction(s_hCompileCppProject);
   ezActionManager::UnregisterAction(s_hExportProject);
   ezActionManager::UnregisterAction(s_hPluginSelection);
 }
@@ -161,9 +174,13 @@ void ezProjectActions::MapActions(const char* szMapping)
   // pMap->MapAction(s_hOpenProject, "Menu.Editor/ProjectCategory", 2.0f);   // use dashboard
   // pMap->MapAction(s_hRecentProjects, "Menu.Editor/ProjectCategory", 3.0f);// use dashboard
   pMap->MapAction(s_hCloseProject, "Menu.Editor/ProjectCategory", 4.0f);
-  pMap->MapAction(s_hSetupCppProject, "Menu.Editor/ProjectCategory", 5.0f);
   pMap->MapAction(s_hExportProject, "Menu.Editor/ProjectCategory", 6.0f);
   pMap->MapAction(s_hProjectSettingsMenu, "Menu.Editor/ProjectCategory", 1000.0f);
+
+  pMap->MapAction(s_hCppProjectMenu, "Menu.Editor/ProjectCategory", 5.0f);
+  pMap->MapAction(s_hSetupCppProject, "Menu.Editor/ProjectCategory/Project.Cpp", 1.0f);
+  pMap->MapAction(s_hOpenCppProject, "Menu.Editor/ProjectCategory/Project.Cpp", 2.0f);
+  pMap->MapAction(s_hCompileCppProject, "Menu.Editor/ProjectCategory/Project.Cpp", 3.0f);
 
   pMap->MapAction(s_hSettingsCategory, "Menu.Editor", 3.0f);
   pMap->MapAction(s_hEditorSettingsMenu, "Menu.Editor/SettingsCategory", 1.0f);
@@ -176,6 +193,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hLaunchInspector, "Menu.Tools/ToolsCategory", 3.5f);
   pMap->MapAction(s_hSaveProfiling, "Menu.Tools/ToolsCategory", 4.0f);
   pMap->MapAction(s_hOpenVsCode, "Menu.Tools/ToolsCategory", 5.0f);
+  pMap->MapAction(s_hClearAssetCaches, "Menu.Tools/ToolsCategory", 6.0f);
 
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
   pMap->MapAction(s_hPreferencesDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
@@ -199,9 +217,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
-void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
+void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
-  out_Entries.Clear();
+  out_entries.Clear();
 
   if (ezQtEditorApp::GetSingleton()->GetRecentDocumentsList().GetFileList().IsEmpty())
     return;
@@ -231,13 +249,13 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
 
       item.m_sDisplay = sRelativePath;
 
-      out_Entries.PushBack(item);
+      out_entries.PushBack(item);
     }
     else
     {
       item.m_sDisplay = file.m_File;
 
-      out_Entries.PushBack(item);
+      out_entries.PushBack(item);
     }
 
     --iMaxDocumentsToAdd;
@@ -258,16 +276,11 @@ void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, 1, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-
-void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
+void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
-  out_Entries.Clear();
-
-  if (ezQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList().IsEmpty())
-    return;
+  out_entries.Clear();
 
   ezStringBuilder sTemp;
 
@@ -284,7 +297,7 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::I
     item.m_sDisplay = sTemp;
     item.m_UserValue = file.m_File;
 
-    out_Entries.PushBack(item);
+    out_entries.PushBack(item);
   }
 }
 
@@ -377,33 +390,100 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::SetupCppProject:
       SetIconPath(":/EditorFramework/Icons/VisualStudio.svg");
       break;
+    case ezProjectAction::ButtonType::OpenCppProject:
+      // SetIconPath(":/EditorFramework/Icons/VisualStudio.svg"); // TODO
+      break;
+    case ezProjectAction::ButtonType::CompileCppProject:
+      // SetIconPath(":/EditorFramework/Icons/VisualStudio.svg"); // TODO
+      break;
     case ezProjectAction::ButtonType::ShowDocsAndCommunity:
-      //SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
+      // SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
+      break;
+    case ezProjectAction::ButtonType::ClearAssetCaches:
+      // SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
       break;
   }
 
-  if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::TagsDialog ||
-      m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig ||
-      m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject || m_ButtonType == ButtonType::ExportProject || m_ButtonType == ButtonType::PluginSelection)
+  if (m_ButtonType == ButtonType::CloseProject ||
+      m_ButtonType == ButtonType::DataDirectories ||
+      m_ButtonType == ButtonType::WindowConfig ||
+      m_ButtonType == ButtonType::ImportAsset ||
+      m_ButtonType == ButtonType::TagsDialog ||
+      m_ButtonType == ButtonType::ReloadEngine ||
+      m_ButtonType == ButtonType::ReloadResources ||
+      m_ButtonType == ButtonType::LaunchFileserve ||
+      m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::OpenVsCode ||
+      m_ButtonType == ButtonType::InputConfig ||
+      m_ButtonType == ButtonType::AssetProfiles ||
+      m_ButtonType == ButtonType::SetupCppProject ||
+      m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject ||
+      m_ButtonType == ButtonType::ExportProject ||
+      m_ButtonType == ButtonType::ClearAssetCaches ||
+      m_ButtonType == ButtonType::PluginSelection)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
 
     ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
+
+  if (m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject)
+  {
+    SetEnabled(ezCppProject::ExistsProjectCMakeListsTxt());
+
+    ezCppProject::s_ChangeEvents.AddEventHandler(ezMakeDelegate(&ezProjectAction::CppEventHandler, this));
+  }
 }
 
 ezProjectAction::~ezProjectAction()
 {
-  if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig || m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::TagsDialog ||
-      m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources || m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode || m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles || m_ButtonType == ButtonType::SetupCppProject || m_ButtonType == ButtonType::ExportProject || m_ButtonType == ButtonType::PluginSelection)
+  if (m_ButtonType == ButtonType::CloseProject ||
+      m_ButtonType == ButtonType::DataDirectories ||
+      m_ButtonType == ButtonType::WindowConfig ||
+      m_ButtonType == ButtonType::ImportAsset ||
+      m_ButtonType == ButtonType::TagsDialog ||
+      m_ButtonType == ButtonType::ReloadEngine ||
+      m_ButtonType == ButtonType::ReloadResources ||
+      m_ButtonType == ButtonType::LaunchFileserve ||
+      m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::OpenVsCode ||
+      m_ButtonType == ButtonType::InputConfig ||
+      m_ButtonType == ButtonType::AssetProfiles ||
+      m_ButtonType == ButtonType::SetupCppProject ||
+      m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject ||
+      m_ButtonType == ButtonType::ExportProject ||
+      m_ButtonType == ButtonType::ClearAssetCaches ||
+      m_ButtonType == ButtonType::PluginSelection)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
+  }
+
+  if (m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject)
+  {
+    ezCppProject::s_ChangeEvents.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::CppEventHandler, this));
   }
 }
 
 void ezProjectAction::ProjectEventHandler(const ezToolsProjectEvent& e)
 {
-  SetEnabled(ezToolsProject::IsProjectOpen());
+  if (m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject)
+  {
+    SetEnabled(ezCppProject::ExistsProjectCMakeListsTxt());
+  }
+  else
+  {
+    SetEnabled(ezToolsProject::IsProjectOpen());
+  }
+}
+
+void ezProjectAction::CppEventHandler(const ezCppSettings& e)
+{
+  SetEnabled(ezCppProject::ExistsProjectCMakeListsTxt());
 }
 
 void ezProjectAction::Execute(const ezVariant& value)
@@ -504,10 +584,21 @@ void ezProjectAction::Execute(const ezVariant& value)
     case ezProjectAction::ButtonType::ExportProject:
     {
       ezQtExportProjectDlg dlg(nullptr);
-      if (dlg.exec() == QDialog::Accepted)
-      {
-        // TODO
-      }
+      dlg.exec();
+    }
+    break;
+
+    case ezProjectAction::ButtonType::ClearAssetCaches:
+    {
+      auto res = ezQtUiServices::GetSingleton()->MessageBoxQuestion("Delete ALL cached asset files?\n\n* 'Yes All' deletes everything and takes a long time to re-process. This is rarely needed.\n* 'No All' only deletes assets that are likely to make problems.", QMessageBox::StandardButton::YesAll | QMessageBox::StandardButton::NoAll | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
+
+      if (res == QMessageBox::StandardButton::Cancel)
+        break;
+
+      if (res == QMessageBox::StandardButton::YesAll)
+        ezAssetCurator::GetSingleton()->ClearAssetCaches(ezAssetDocumentManager::Perfect);
+      else
+        ezAssetCurator::GetSingleton()->ClearAssetCaches(ezAssetDocumentManager::Unknown);
     }
     break;
 
@@ -524,6 +615,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
       ezSimpleConfigMsgToEngine msg;
       msg.m_sWhatToDo = "ReloadResources";
+      msg.m_sPayload = "ReloadAllResources";
       ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 
       ezEditorAppEvent e;
@@ -701,6 +793,52 @@ void ezProjectAction::Execute(const ezVariant& value)
     {
       ezQtCppProjectDlg dlg(nullptr);
       dlg.exec();
+    }
+    break;
+
+    case ezProjectAction::ButtonType::OpenCppProject:
+    {
+      ezCppSettings cpp;
+      cpp.Load().IgnoreResult();
+
+      if (ezCppProject::ExistsProjectCMakeListsTxt())
+      {
+        if (ezCppProject::RunCMakeIfNecessary(cpp).Failed())
+        {
+          ezQtUiServices::GetSingleton()->MessageBoxWarning("Generating the C++ solution failed.");
+        }
+        else if (!ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cpp)))
+        {
+          ezQtUiServices::GetSingleton()->MessageBoxWarning("Opening the solution failed.");
+        }
+      }
+      else
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxInformation("C++ code has not been set up, opening a solution is not possible.");
+      }
+    }
+    break;
+
+    case ezProjectAction::ButtonType::CompileCppProject:
+    {
+      ezCppSettings cpp;
+      cpp.Load().IgnoreResult();
+
+      if (ezCppProject::ExistsProjectCMakeListsTxt())
+      {
+        if (ezCppProject::BuildCodeIfNecessary(cpp).Succeeded())
+        {
+          ezQtUiServices::GetSingleton()->MessageBoxInformation("Successfully compiled the C++ code.");
+        }
+        else
+        {
+          ezQtUiServices::GetSingleton()->MessageBoxWarning("Compiling the code failed. See log for details.");
+        }
+      }
+      else
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxInformation("C++ code has not been set up, compilation is not necessary.");
+      }
     }
     break;
 

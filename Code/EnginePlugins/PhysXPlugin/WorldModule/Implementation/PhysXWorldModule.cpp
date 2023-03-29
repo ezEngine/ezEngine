@@ -57,7 +57,7 @@ namespace
   public:
     ezPxCpuDispatcher() {}
 
-    virtual void submitTask(PxBaseTask& task) override
+    virtual void submitTask(PxBaseTask& ref_task) override
     {
       ezSharedPtr<ezTask> pTask;
 
@@ -76,9 +76,8 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
-        { FinishTask(pTask); });
-      static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
+      pTask->ConfigureTask(ref_task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &ref_task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
 
@@ -97,7 +96,7 @@ namespace
 
   static ezPxCpuDispatcher s_CpuDispatcher;
 
-  PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+  PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& ref_pairFlags, const void* pConstantBlock, PxU32 constantBlockSize)
   {
     const bool kinematic0 = PxFilterObjectIsKinematic(attributes0);
     const bool kinematic1 = PxFilterObjectIsKinematic(attributes1);
@@ -121,7 +120,7 @@ namespace
     //  return PxFilterFlag::eSUPPRESS;
     //}
 
-    pairFlags = (PxPairFlag::Enum)0;
+    ref_pairFlags = (PxPairFlag::Enum)0;
 
     // trigger the contact callback for pairs (A,B) where
     // the filter mask of A contains the ID of B and vice versa.
@@ -132,14 +131,14 @@ namespace
       // same for character controllers
       if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
       {
-        pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+        ref_pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
         return PxFilterFlag::eDEFAULT;
       }
 
       // set when "report contacts" is enabled on a shape
       if (filterData0.word3 != 0 || filterData1.word3 != 0)
       {
-        pairFlags |= (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_CONTACT_POINTS);
+        ref_pairFlags |= (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_CONTACT_POINTS);
       }
 
       // if neither object is a trigger and both are kinematic, just suppress the contact
@@ -148,8 +147,8 @@ namespace
         return PxFilterFlag::eSUPPRESS;
       }
 
-      pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
-      pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT;
+      ref_pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+      ref_pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT;
 
       return PxFilterFlag::eDEFAULT;
     }
@@ -165,7 +164,7 @@ namespace
     {
     }
 
-    virtual PxAgain processTouches(const PxRaycastHit* buffer, PxU32 nbHits) override { return false; }
+    virtual PxAgain processTouches(const PxRaycastHit* pBuffer, PxU32 hits) override { return false; }
   };
 
   class ezPxSweepCallback : public PxSweepCallback
@@ -176,7 +175,7 @@ namespace
     {
     }
 
-    virtual PxAgain processTouches(const PxSweepHit* buffer, PxU32 nbHits) override { return false; }
+    virtual PxAgain processTouches(const PxSweepHit* pBuffer, PxU32 hits) override { return false; }
   };
 
   class ezPxOverlapCallback : public PxOverlapCallback
@@ -187,40 +186,40 @@ namespace
     {
     }
 
-    virtual PxAgain processTouches(const PxOverlapHit* buffer, PxU32 nbHits) override { return false; }
+    virtual PxAgain processTouches(const PxOverlapHit* pBuffer, PxU32 hits) override { return false; }
   };
 
   template <typename T>
-  void FillHitResult(const T& hit, ezPhysicsCastResult& out_Result)
+  void FillHitResult(const T& hit, ezPhysicsCastResult& out_result)
   {
     PxShape* pHitShape = hit.shape;
     EZ_ASSERT_DEBUG(pHitShape != nullptr, "Raycast should have hit a shape");
 
-    out_Result.m_vPosition = ezPxConversionUtils::ToVec3(hit.position);
-    out_Result.m_vNormal = ezPxConversionUtils::ToVec3(hit.normal);
-    out_Result.m_fDistance = hit.distance;
-    EZ_ASSERT_DEBUG(!out_Result.m_vPosition.IsNaN(), "Raycast hit Position is NaN");
-    EZ_ASSERT_DEBUG(!out_Result.m_vNormal.IsNaN(), "Raycast hit Normal is NaN");
+    out_result.m_vPosition = ezPxConversionUtils::ToVec3(hit.position);
+    out_result.m_vNormal = ezPxConversionUtils::ToVec3(hit.normal);
+    out_result.m_fDistance = hit.distance;
+    EZ_ASSERT_DEBUG(!out_result.m_vPosition.IsNaN(), "Raycast hit Position is NaN");
+    EZ_ASSERT_DEBUG(!out_result.m_vNormal.IsNaN(), "Raycast hit Normal is NaN");
 
-    out_Result.m_pInternalPhysicsShape = pHitShape;
-    out_Result.m_pInternalPhysicsActor = pHitShape->getActor();
+    out_result.m_pInternalPhysicsShape = pHitShape;
+    out_result.m_pInternalPhysicsActor = pHitShape->getActor();
 
     if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData))
     {
-      out_Result.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-      out_Result.m_uiObjectFilterID = pHitShape->getQueryFilterData().word2;
+      out_result.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
+      out_result.m_uiObjectFilterID = pHitShape->getQueryFilterData().word2;
     }
 
     if (ezComponent* pActorComponent = ezPxUserData::GetComponent(pHitShape->getActor()->userData))
     {
-      out_Result.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
+      out_result.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
     }
 
     if (PxMaterial* pMaterial = pHitShape->getMaterialFromInternalFaceIndex(hit.faceIndex))
     {
       ezSurfaceResource* pSurface = ezPxUserData::GetSurfaceResource(pMaterial->userData);
 
-      out_Result.m_hSurface = ezSurfaceResourceHandle(pSurface);
+      out_result.m_hSurface = ezSurfaceResourceHandle(pSurface);
     }
   }
 } // namespace
@@ -348,14 +347,14 @@ ezUInt32 ezPhysXWorldModule::CreateShapeId()
   return m_uiNextShapeId++;
 }
 
-void ezPhysXWorldModule::DeleteShapeId(ezUInt32& uiShapeId)
+void ezPhysXWorldModule::DeleteShapeId(ezUInt32& ref_uiShapeId)
 {
-  if (uiShapeId == ezInvalidIndex)
+  if (ref_uiShapeId == ezInvalidIndex)
     return;
 
-  m_FreeShapeIds.PushBack(uiShapeId);
+  m_FreeShapeIds.PushBack(ref_uiShapeId);
 
-  uiShapeId = ezInvalidIndex;
+  ref_uiShapeId = ezInvalidIndex;
 }
 
 ezUInt32 ezPhysXWorldModule::AllocateUserData(ezPxUserData*& out_pUserData)
@@ -373,16 +372,16 @@ ezUInt32 ezPhysXWorldModule::AllocateUserData(ezPxUserData*& out_pUserData)
   return m_AllocatedUserData.GetCount() - 1;
 }
 
-void ezPhysXWorldModule::DeallocateUserData(ezUInt32& uiUserDataId)
+void ezPhysXWorldModule::DeallocateUserData(ezUInt32& ref_uiUserDataId)
 {
-  if (uiUserDataId == ezInvalidIndex)
+  if (ref_uiUserDataId == ezInvalidIndex)
     return;
 
-  m_AllocatedUserData[uiUserDataId].Invalidate();
+  m_AllocatedUserData[ref_uiUserDataId].Invalidate();
 
-  m_FreeUserDataAfterSimulationStep.PushBack(uiUserDataId);
+  m_FreeUserDataAfterSimulationStep.PushBack(ref_uiUserDataId);
 
-  uiUserDataId = ezInvalidIndex;
+  ref_uiUserDataId = ezInvalidIndex;
 }
 
 ezPxUserData& ezPhysXWorldModule::GetUserData(ezUInt32 uiUserDataId)
@@ -392,10 +391,10 @@ ezPxUserData& ezPhysXWorldModule::GetUserData(ezUInt32 uiUserDataId)
   return m_AllocatedUserData[uiUserDataId];
 }
 
-void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
+void ezPhysXWorldModule::SetGravity(const ezVec3& vObjectGravity, const ezVec3& vCharacterGravity)
 {
-  m_Settings.m_vObjectGravity = objectGravity;
-  m_Settings.m_vCharacterGravity = characterGravity;
+  m_Settings.m_vObjectGravity = vObjectGravity;
+  m_Settings.m_vCharacterGravity = vCharacterGravity;
 
   if (m_pPxScene)
   {
@@ -405,7 +404,7 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
   }
 }
 
-bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection /*= ezPhysicsHitCollection::Closest*/) const
+bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection /*= ezPhysicsHitCollection::Closest*/) const
 {
   if (fDistance <= 0.001f || vDir.IsZero())
     return false;
@@ -443,7 +442,7 @@ bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& 
 
   if (m_pPxScene->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance, closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
   {
-    FillHitResult(closestHit.block, out_Result);
+    FillHitResult(closestHit.block, out_result);
 
     return true;
   }
@@ -451,7 +450,7 @@ bool ezPhysXWorldModule::Raycast(ezPhysicsCastResult& out_Result, const ezVec3& 
   return false;
 }
 
-bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const
+bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const
 {
   if (fDistance <= 0.001f || vDir.IsZero())
     return false;
@@ -482,11 +481,11 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
 
   if (m_pPxScene->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance, allHits, PxHitFlag::eDEFAULT | PxHitFlag::eMESH_MULTIPLE | PxHitFlag::eMESH_BOTH_SIDES, filterData, &queryFilter))
   {
-    out_Results.m_Results.SetCount(allHits.nbTouches);
+    out_results.m_Results.SetCount(allHits.nbTouches);
 
     for (ezUInt32 i = 0; i < allHits.nbTouches; ++i)
     {
-      FillHitResult(allHits.touches[i], out_Results.m_Results[i]);
+      FillHitResult(allHits.touches[i], out_results.m_Results[i]);
     }
 
     return true;
@@ -495,25 +494,25 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
   return false;
 }
 
-bool ezPhysXWorldModule::SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
+bool ezPhysXWorldModule::SweepTestSphere(ezPhysicsCastResult& out_result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
 
   PxTransform transform = ezPxConversionUtils::ToTransform(vStart, ezQuat::IdentityQuaternion());
 
-  return SweepTest(out_Result, sphere, transform, vDir, fDistance, params, collection);
+  return SweepTest(out_result, sphere, transform, vDir, fDistance, params, collection);
 }
 
-bool ezPhysXWorldModule::SweepTestBox(ezPhysicsCastResult& out_Result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
+bool ezPhysXWorldModule::SweepTestBox(ezPhysicsCastResult& out_result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {
   PxBoxGeometry box;
   box.halfExtents = ezPxConversionUtils::ToVec3(vBoxExtends * 0.5f);
 
-  return SweepTest(out_Result, box, ezPxConversionUtils::ToTransform(transform), vDir, fDistance, params, collection);
+  return SweepTest(out_result, box, ezPxConversionUtils::ToTransform(transform), vDir, fDistance, params, collection);
 }
 
-bool ezPhysXWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_Result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
+bool ezPhysXWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
 {
   PxCapsuleGeometry capsule;
   capsule.radius = fCapsuleRadius;
@@ -527,7 +526,7 @@ bool ezPhysXWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_Result, float
   qRot = transform.m_qRotation;
   qRot = qFixRot * qRot;
 
-  return SweepTest(out_Result, capsule, ezPxConversionUtils::ToTransform(transform.m_vPosition, qRot), vDir, fDistance, params, collection);
+  return SweepTest(out_result, capsule, ezPxConversionUtils::ToTransform(transform.m_vPosition, qRot), vDir, fDistance, params, collection);
 }
 
 bool ezPhysXWorldModule::SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const
@@ -621,11 +620,11 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
   return m_pPxScene->overlap(geometry, transform, closestHit, filterData, &queryFilter);
 }
 
-void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const
+void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const
 {
   EZ_PROFILE_SCOPE("QueryShapesInSphere");
 
-  out_Results.m_Results.Clear();
+  out_results.m_Results.Clear();
 
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreObjectFilterID);
@@ -658,12 +657,12 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
 
   m_pPxScene->overlap(sphere, transform, overlapHitsBuffer, filterData, &queryFilter);
 
-  out_Results.m_Results.Reserve(overlapHitsBuffer.nbTouches);
+  out_results.m_Results.Reserve(overlapHitsBuffer.nbTouches);
 
   for (ezUInt32 i = 0; i < overlapHitsBuffer.nbTouches; ++i)
   {
     auto& overlapHit = overlapHitsBuffer.touches[i];
-    auto& overlapResult = out_Results.m_Results.ExpandAndGetRef();
+    auto& overlapResult = out_results.m_Results.ExpandAndGetRef();
 
     if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(overlapHit.shape->userData))
     {
@@ -678,14 +677,14 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   }
 }
 
-void ezPhysXWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize)
+void ezPhysXWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize)
 {
   ezPxStaticActorComponent* pActor = nullptr;
   ezPxStaticActorComponent::CreateComponent(pObject, pActor);
 
   ezPxShapeBoxComponent* pBox;
   ezPxShapeBoxComponent::CreateComponent(pObject, pBox);
-  pBox->SetExtents(boxSize);
+  pBox->SetExtents(vBoxSize);
 }
 
 void ezPhysXWorldModule::FreeUserDataAfterSimulationStep()
@@ -748,9 +747,9 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
 }
 
-ezColorGammaUB FromARGB(ezUInt32 col)
+ezColorGammaUB FromARGB(ezUInt32 uiCol)
 {
-  return ezColorGammaUB(static_cast<ezUInt8>((col & 0x00FF0000) >> 16), static_cast<ezUInt8>((col & 0x0000FF00) >> 8), static_cast<ezUInt8>((col & 0x000000FF)));
+  return ezColorGammaUB(static_cast<ezUInt8>((uiCol & 0x00FF0000) >> 16), static_cast<ezUInt8>((uiCol & 0x0000FF00) >> 8), static_cast<ezUInt8>((uiCol & 0x000000FF)));
 }
 
 void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
@@ -938,8 +937,7 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&]
-      { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 

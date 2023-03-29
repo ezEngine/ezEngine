@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureContext, 1, ezRTTIDefaultAllocator<ezTe
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static void CreatePreviewRect(ezGeometry& geom)
+static void CreatePreviewRect(ezGeometry& ref_geom)
 {
   const ezMat4 mTransform = ezMat4::IdentityMatrix();
   const ezVec2 size(1.0f);
@@ -27,12 +27,12 @@ static void CreatePreviewRect(ezGeometry& geom)
 
   ezUInt32 idx[4];
 
-  idx[0] = geom.AddVertex(ezVec3(-halfSize.x, 0, -halfSize.y), ezVec3(-1, 0, 0), ezVec2(-1, 2), color, 0, mTransform);
-  idx[1] = geom.AddVertex(ezVec3(halfSize.x, 0, -halfSize.y), ezVec3(-1, 0, 0), ezVec2(2, 2), color, 0, mTransform);
-  idx[2] = geom.AddVertex(ezVec3(halfSize.x, 0, halfSize.y), ezVec3(-1, 0, 0), ezVec2(2, -1), color, 0, mTransform);
-  idx[3] = geom.AddVertex(ezVec3(-halfSize.x, 0, halfSize.y), ezVec3(-1, 0, 0), ezVec2(-1, -1), color, 0, mTransform);
+  idx[0] = ref_geom.AddVertex(ezVec3(-halfSize.x, 0, -halfSize.y), ezVec3(-1, 0, 0), ezVec2(-1, 2), color, 0, mTransform);
+  idx[1] = ref_geom.AddVertex(ezVec3(halfSize.x, 0, -halfSize.y), ezVec3(-1, 0, 0), ezVec2(2, 2), color, 0, mTransform);
+  idx[2] = ref_geom.AddVertex(ezVec3(halfSize.x, 0, halfSize.y), ezVec3(-1, 0, 0), ezVec2(2, -1), color, 0, mTransform);
+  idx[3] = ref_geom.AddVertex(ezVec3(-halfSize.x, 0, halfSize.y), ezVec3(-1, 0, 0), ezVec2(-1, -1), color, 0, mTransform);
 
-  geom.AddPolygon(idx, false);
+  ref_geom.AddPolygon(idx, false);
 }
 
 ezTextureContext::ezTextureContext()

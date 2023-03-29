@@ -109,7 +109,7 @@ public:
   /// \internal struct used by ezPlugin macros
   struct EZ_FOUNDATION_DLL Init
   {
-    Init(ezPluginInitCallback OnLoadOrUnloadCB, bool bOnLoad);
+    Init(ezPluginInitCallback onLoadOrUnloadCB, bool bOnLoad);
     Init(const char* szAddPluginDependency);
   };
 
@@ -122,10 +122,10 @@ public:
   };
 
   /// \brief Returns information about all currently loaded plugins.
-  static void GetAllPluginInfos(ezDynamicArray<PluginInfo>& infos);
+  static void GetAllPluginInfos(ezDynamicArray<PluginInfo>& ref_infos);
 
   /// \internal Determines the plugin paths.
-  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber);
+  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber);
 
 private:
   ezPlugin() = delete;

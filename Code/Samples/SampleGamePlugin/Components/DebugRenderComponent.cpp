@@ -53,11 +53,11 @@ EZ_END_COMPONENT_TYPE
 DebugRenderComponent::DebugRenderComponent() = default;
 DebugRenderComponent::~DebugRenderComponent() = default;
 
-void DebugRenderComponent::SerializeComponent(ezWorldWriter& stream) const
+void DebugRenderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_fSize;
   s << m_Color;
@@ -65,12 +65,12 @@ void DebugRenderComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_RenderTypes;
 }
 
-void DebugRenderComponent::DeserializeComponent(ezWorldReader& stream)
+void DebugRenderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_fSize;
   s >> m_Color;
@@ -108,9 +108,9 @@ const char* DebugRenderComponent::GetTextureFile(void) const
   return nullptr;
 }
 
-void DebugRenderComponent::OnSetColor(ezMsgSetColor& msg)
+void DebugRenderComponent::OnSetColor(ezMsgSetColor& ref_msg)
 {
-  m_Color = msg.m_Color;
+  m_Color = ref_msg.m_Color;
 }
 
 void DebugRenderComponent::SetRandomColor()

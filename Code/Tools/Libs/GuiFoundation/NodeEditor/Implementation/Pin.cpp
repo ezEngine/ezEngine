@@ -165,9 +165,9 @@ void ezQtPin::SetHighlightState(ezQtPinHighlightState state)
   }
 }
 
-void ezQtPin::SetActive(bool active)
+void ezQtPin::SetActive(bool bActive)
 {
-  m_bIsActive = active;
+  m_bIsActive = bActive;
 
   if (AdjustRenderingForHighlight(m_HighlightState))
   {

@@ -51,7 +51,7 @@ public:
   ezUInt32 GetNumUnknownObjectCreations() const { return m_uiUnknownTypeInstances; }
   const ezSet<ezString>& GetUnknownObjectTypes() const { return m_UnknownTypes; }
 
-  static void ApplyDiffToObject(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& diff);
+  static void ApplyDiffToObject(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& ref_diff);
 
 private:
   void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);

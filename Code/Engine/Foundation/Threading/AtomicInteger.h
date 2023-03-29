@@ -92,7 +92,7 @@ public:
 
   /// \brief Sets the internal value to \a newValue if the internal value is equal to \a expected and returns true, otherwise does nothing and returns
   /// false.
-  bool TestAndSet(bool expected, bool newValue);
+  bool TestAndSet(bool bExpected, bool bNewValue);
 
 private:
   ezAtomicInteger<ezInt32> m_iAtomicInt;

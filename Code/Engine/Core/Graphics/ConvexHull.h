@@ -40,16 +40,16 @@ public:
   /// \note The length is not in 'mesh space' coordinates, but instead in 'unit cube space'.
   /// That means, every mesh is scaled to fit into a cube of size [-1; +1] for each axis. Thus the exact scale of the mesh does not matter
   /// when setting this value. Default is 0.05.
-  void SetSimplificationMinTriangleEdgeLength(double len) { m_fMinTriangleEdgeLength = len; }
+  void SetSimplificationMinTriangleEdgeLength(double fLen) { m_fMinTriangleEdgeLength = fLen; }
 
   /// \brief Generates the convex hull. Simplifies the mesh according to the previously specified parameters.
   ezResult Build(const ezArrayPtr<const ezVec3> vertices);
 
   /// \brief When Build() was successful this can be called to retrieve the resulting vertices and triangles.
-  void Retrieve(ezDynamicArray<ezVec3>& out_Vertices, ezDynamicArray<Face>& out_Faces);
+  void Retrieve(ezDynamicArray<ezVec3>& out_vertices, ezDynamicArray<Face>& out_faces);
 
   /// \brief Same as Retrieve() but only returns the vertices.
-  void RetrieveVertices(ezDynamicArray<ezVec3>& out_Vertices);
+  void RetrieveVertices(ezDynamicArray<ezVec3>& out_vertices);
 
 private:
   ezResult ComputeCenterAndScale(const ezArrayPtr<const ezVec3> vertices);

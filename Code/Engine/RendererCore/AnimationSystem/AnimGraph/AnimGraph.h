@@ -54,15 +54,15 @@ public:
   ezAnimGraph();
   ~ezAnimGraph();
 
-  void Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard = nullptr);
+  void Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard = nullptr);
 
-  void Update(ezTime tDiff, ezGameObject* pTarget);
-  void GetRootMotion(ezVec3& translation, ezAngle& rotationX, ezAngle& rotationY, ezAngle& rotationZ) const;
+  void Update(ezTime diff, ezGameObject* pTarget);
+  void GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rotationX, ezAngle& ref_rotationY, ezAngle& ref_rotationZ) const;
 
   const ezSharedPtr<ezBlackboard>& GetBlackboard() { return m_pBlackboard; }
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
   ezAnimPoseGenerator& GetPoseGenerator() { return *m_pPoseGenerator; }
 
@@ -73,7 +73,7 @@ public:
   ezAnimGraphPinDataModelTransforms* AddPinDataModelTransforms();
 
   void SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform);
-  void SetRootMotion(const ezVec3& translation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ);
+  void SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ);
 
 private:
   ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;

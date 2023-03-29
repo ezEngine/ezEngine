@@ -13,15 +13,15 @@ public:
   virtual void SetShaderPlatform(const ezGALShader* pShader) = 0;
 
   virtual void SetConstantBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer) = 0;
-  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState) = 0;
-  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) = 0;
+  virtual void SetSamplerStatePlatform(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, const ezGALSamplerState* pSamplerState) = 0;
+  virtual void SetResourceViewPlatform(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, const ezGALResourceView* pResourceView) = 0;
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, const ezGALUnorderedAccessView* pUnorderedAccessView) = 0;
 
   // Query functions
 
   virtual void BeginQueryPlatform(const ezGALQuery* pQuery) = 0;
   virtual void EndQueryPlatform(const ezGALQuery* pQuery) = 0;
-  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& uiQueryResult) = 0;
+  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& ref_uiQueryResult) = 0;
 
   // Timestamp functions
 
@@ -29,24 +29,24 @@ public:
 
   // Resource update functions
 
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 clearValues) = 0;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 clearValues) = 0;
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) = 0;
+  virtual void ClearUnorderedAccessViewPlatform(const ezGALUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) = 0;
 
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) = 0;
   virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) = 0;
 
-  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode) = 0;
+  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode) = 0;
 
   virtual void CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) = 0;
-  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box) = 0;
+  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box) = 0;
 
-  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) = 0;
+  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData) = 0;
 
-  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) = 0;
+  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource) = 0;
 
   virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) = 0;
 
-  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData) = 0;
+  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData) = 0;
 
   virtual void GenerateMipMapsPlatform(const ezGALResourceView* pResourceView) = 0;
 
@@ -56,9 +56,9 @@ public:
 
   // Debug helper functions
 
-  virtual void PushMarkerPlatform(const char* Marker) = 0;
+  virtual void PushMarkerPlatform(const char* szMarker) = 0;
   virtual void PopMarkerPlatform() = 0;
-  virtual void InsertEventMarkerPlatform(const char* Marker) = 0;
+  virtual void InsertEventMarkerPlatform(const char* szMarker) = 0;
 };
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderPlatformInterface
@@ -66,7 +66,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderPlatformInterface
 public:
   // Draw functions
 
-  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
+  virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
 
   virtual void DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) = 0;
   virtual void DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) = 0;
@@ -84,9 +84,9 @@ public:
   virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) = 0;
   virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer) = 0;
   virtual void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration) = 0;
-  virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology) = 0;
+  virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum topology) = 0;
 
-  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) = 0;
+  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask) = 0;
   virtual void SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) = 0;
   virtual void SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState) = 0;
 

@@ -2,7 +2,6 @@
 
 #include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 
 class EZ_FOUNDATION_DLL ezExpressionParser
 {
@@ -10,44 +9,40 @@ public:
   ezExpressionParser();
   ~ezExpressionParser();
 
-  struct Stream
-  {
-    Stream(ezStringView sName, ezProcessingStream::DataType dataType)
-      : m_DataType(dataType)
-    {
-      m_sName.Assign(sName);
-    }
-
-    ezHashedString m_sName;
-    ezProcessingStream::DataType m_DataType;
-  };
+  void RegisterFunction(const ezExpression::FunctionDesc& funcDesc);
+  void UnregisterFunction(const ezExpression::FunctionDesc& funcDesc);
 
   struct Options
   {
     bool m_bTreatUnknownVariablesAsInputs = false;
   };
 
-  ezResult Parse(ezStringView code, ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs, const Options& options, ezExpressionAST& out_ast);
+  ezResult Parse(ezStringView sCode, ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs, const Options& options, ezExpressionAST& out_ast);
 
 private:
   static constexpr int s_iLowestPrecedence = 20;
 
+  void RegisterKnownTypes();
   void RegisterBuiltinFunctions();
-  void SetupInAndOutputs(ezArrayPtr<Stream> inputs, ezArrayPtr<Stream> outputs);
+  void SetupInAndOutputs(ezArrayPtr<ezExpression::StreamDesc> inputs, ezArrayPtr<ezExpression::StreamDesc> outputs);
 
   ezResult ParseStatement();
-  ezResult ParseType(ezStringView sTypeName);
-  ezResult ParseVariableDefinition();
+  ezResult ParseType(ezStringView sTypeName, ezEnum<ezExpressionAST::DataType>& out_type);
+  ezResult ParseVariableDefinition(ezEnum<ezExpressionAST::DataType> type);
   ezResult ParseAssignment();
 
   ezExpressionAST::Node* ParseFactor();
   ezExpressionAST::Node* ParseExpression(int iPrecedence = s_iLowestPrecedence);
   ezExpressionAST::Node* ParseUnaryExpression();
   ezExpressionAST::Node* ParseFunctionCall(ezStringView sFunctionName);
+  ezExpressionAST::Node* ParseSwizzle(ezExpressionAST::Node* pExpression);
 
   bool AcceptStatementTerminator();
-  bool AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence);
+  bool AcceptOperator(ezStringView sName);
+  bool AcceptBinaryOperator(ezExpressionAST::NodeType::Enum& out_binaryOp, int& out_iOperatorPrecedence, ezUInt32& out_uiOperatorLength);
   ezExpressionAST::Node* GetVariable(ezStringView sVarName);
+  ezExpressionAST::Node* EnsureExpectedType(ezExpressionAST::Node* pNode, ezExpressionAST::DataType::Enum expectedType);
+  ezExpressionAST::Node* Unpack(ezExpressionAST::Node* pNode, bool bUnassignedError = true);
 
   ezResult Expect(const char* szToken, const ezToken** pExpectedToken = nullptr);
   ezResult Expect(ezTokenType::Enum Type, const ezToken** pExpectedToken = nullptr);
@@ -63,8 +58,11 @@ private:
   ezUInt32 m_uiCurrentToken = 0;
   ezExpressionAST* m_pAST = nullptr;
 
+  ezHashTable<ezHashedString, ezEnum<ezExpressionAST::DataType>> m_KnownTypes;
+
   ezHashTable<ezHashedString, ezExpressionAST::Node*> m_KnownVariables;
   ezHashTable<ezHashedString, ezEnum<ezExpressionAST::NodeType>> m_BuiltinFunctions;
+  ezHashTable<ezHashedString, ezHybridArray<ezExpression::FunctionDesc, 1>> m_FunctionDescs;
 };
 
 #include <Foundation/CodeUtils/Expression/Implementation/ExpressionParser_inl.h>

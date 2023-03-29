@@ -11,8 +11,8 @@
 
 ezQtMainWidget* ezQtMainWidget::s_pWidget = nullptr;
 
-ezQtMainWidget::ezQtMainWidget(QWidget* parent)
-  : ads::CDockWidget("Main", parent)
+ezQtMainWidget::ezQtMainWidget(QWidget* pParent)
+  : ads::CDockWidget("Main", pParent)
 {
   s_pWidget = this;
 
@@ -226,7 +226,7 @@ void ezQtMainWidget::UpdateStats()
 }
 
 
-void ezQtMainWidget::closeEvent(QCloseEvent* event)
+void ezQtMainWidget::closeEvent(QCloseEvent* pEvent)
 {
   QSettings Settings;
 

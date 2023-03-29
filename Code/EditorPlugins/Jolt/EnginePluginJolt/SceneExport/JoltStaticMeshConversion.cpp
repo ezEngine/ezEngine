@@ -10,9 +10,22 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_JoltStaticMeshConversion, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_JoltStaticMeshConversion>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)
+void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
 {
-  EZ_LOCK(world.GetWriteMarker());
+  if (sDocumentType == "Prefab")
+  {
+    // the auto generated static meshes are needed in the prefab document, so that physical interactions for previewing purposes work
+    // however, the scene also exports the static colmesh, including all the prefabs (with overridden materials)
+    // in the final scene this would create double colmeshes in the same place, but the materials may differ
+    // therefore we don't want to export the colmesh other than for preview purposes, so we ignore this, if 'bForExport' is true
+
+    if (bForExport)
+    {
+      return;
+    }
+  }
+
+  EZ_LOCK(ref_world.GetWriteMarker());
 
   ezSmcDescription desc;
   desc.m_Surfaces.PushBack(); // add a dummy empty material
@@ -20,7 +33,7 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& world,
   ezMsgBuildStaticMesh msg;
   msg.m_pStaticMeshDescription = &desc;
 
-  for (auto it = world.GetObjects(); it.IsValid(); ++it)
+  for (auto it = ref_world.GetObjects(); it.IsValid(); ++it)
   {
     if (!it->IsStatic())
       continue;
@@ -106,9 +119,9 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& world,
     ezGameObject* pGo;
     ezGameObjectDesc god;
     god.m_sName.Assign("Greybox Collision Mesh");
-    world.CreateObject(god, pGo);
+    ref_world.CreateObject(god, pGo);
 
-    auto* pCompMan = world.GetOrCreateComponentManager<ezJoltStaticActorComponentManager>();
+    auto* pCompMan = ref_world.GetOrCreateComponentManager<ezJoltStaticActorComponentManager>();
 
     ezJoltStaticActorComponent* pComp;
     pCompMan->CreateComponent(pGo, pComp);

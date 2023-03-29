@@ -3,7 +3,7 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/HashedString.h>
-#include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/Variant.h>
 
 class ezStreamReader;
@@ -64,12 +64,42 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardEntryFlags);
 /// and then NPCs might use that information to make decisions.
 class EZ_CORE_DLL ezBlackboard : public ezRefCounted
 {
-public:
+private:
   ezBlackboard();
+
+public:
   ~ezBlackboard();
 
-  void SetName(const char* szName);
+  /// \brief Factory method to create a new blackboard.
+  ///
+  /// Since blackboards use shared ownership we need to make sure that blackboards are created in ezCore.dll.
+  /// Some compilers (MSVC) create local v-tables which can become stale if a blackboard was registered as global but the DLL
+  /// which created the blackboard is already unloaded.
+  ///
+  /// See https://groups.google.com/g/microsoft.public.vc.language/c/atSh_2VSc2w/m/EgJ3r_7OzVUJ?pli=1
+  static ezSharedPtr<ezBlackboard> Create(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+
+  /// \brief Factory method to get access to a globally registered blackboard.
+  ///
+  /// If a blackboard with that name was already created globally before, its reference is returned.
+  /// Otherwise it will be created and permanently registered under that name.
+  /// Global blackboards cannot be removed. Although you can change their name via "SetName()",
+  /// the name under which they are registered globally will not change.
+  ///
+  /// If at some point you want to "remove" a global blackboard, instead call UnregisterAllEntries() to
+  /// clear all its values.
+  static ezSharedPtr<ezBlackboard> GetOrCreateGlobal(const ezHashedString& sBlackboardName, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());
+
+  /// \brief Finds a global blackboard with the given name.
+  static ezSharedPtr<ezBlackboard> FindGlobal(const ezTempHashedString& sBlackboardName);
+
+  /// \brief Changes the name of the blackboard.
+  ///
+  /// \note For global blackboards this has no effect under which name they are found. A global blackboard continues to
+  /// be found by the name under which it was originally registered.
+  void SetName(ezStringView sName);
   const char* GetName() const { return m_sName; }
+  const ezHashedString& GetNameHashed() const { return m_sName; }
 
   struct Entry
   {
@@ -90,12 +120,12 @@ public:
 
   /// \brief Registers an entry with a name, value and flags.
   ///
-  /// If the same entry already exists, this will act like SetEntryValue, but additionally it will add the entry flags
-  /// that hadn't been set before.
-  void RegisterEntry(const ezHashedString& name, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags = ezBlackboardEntryFlags::None);
+  /// If the entry already exists, it will add the entry flags that hadn't been set before, but NOT change the value.
+  /// Thus you can use it to make sure that a value exists with a given start value, but keep it unchanged, if it already existed.
+  void RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags = ezBlackboardEntryFlags::None);
 
   /// \brief Removes the named entry. Does nothing, if no such entry exists.
-  void UnregisterEntry(const ezHashedString& name);
+  void UnregisterEntry(const ezHashedString& sName);
 
   ///  \brief Removes all entries.
   void UnregisterAllEntries();
@@ -107,17 +137,17 @@ public:
   /// If the 'OnChangeEvent' flag is set for this entry, OnEntryEvent() will be broadcast.
   /// However, if the new value is no different to the old, no event will be broadcast, unless 'force' is set to true.
   ///
-  /// Logs an error, if the named entry hasn't been registered before.
-  ezResult SetEntryValue(const ezTempHashedString& name, const ezVariant& value, bool force = false);
+  /// Returns EZ_FAILURE, if the named entry hasn't been registered before.
+  ezResult SetEntryValue(const ezTempHashedString& sName, const ezVariant& value, bool bForce = false);
 
   /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
-  const Entry* GetEntry(const ezTempHashedString& name) const;
+  const Entry* GetEntry(const ezTempHashedString& sName) const;
 
   /// \brief Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
-  ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& name) const;
+  ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& sName) const;
 
-  /// \brief Returns the value of the named entry, or an invalid ezVariant, if no such entry was registered.
-  ezVariant GetEntryValue(const ezTempHashedString& name) const;
+  /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
+  ezVariant GetEntryValue(const ezTempHashedString& sName, ezVariant fallback = {}) const;
 
   /// \brief Grants read access to the entire map of entries.
   const ezHashTable<ezHashedString, Entry>& GetAllEntries() const { return m_Entries; }
@@ -136,13 +166,13 @@ public:
   ezUInt32 GetBlackboardEntryChangeCounter() const { return m_uiBlackboardEntryChangeCounter; }
 
   /// \brief Stores all entries that have the 'Save' flag in the stream.
-  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
 
   /// \brief Restores entries from the stream.
   ///
   /// If the blackboard already contains entries, the deserialized data is ADDED to the blackboard.
   /// If deserialized entries overlap with existing ones, the deserialized entries will overwrite the existing ones (both values and flags).
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
 private:
   ezHashedString m_sName;
@@ -150,6 +180,10 @@ private:
   ezUInt32 m_uiBlackboardChangeCounter = 0;
   ezUInt32 m_uiBlackboardEntryChangeCounter = 0;
   ezHashTable<ezHashedString, Entry> m_Entries;
+
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, Blackboard);
+  static ezMutex s_GlobalBlackboardsMutex;
+  static ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> s_GlobalBlackboards;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -162,8 +196,8 @@ struct EZ_CORE_DLL ezBlackboardCondition
 
   bool IsConditionMet(const ezBlackboard& blackboard) const;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
   const char* GetEntryName() const { return m_sEntryName; }
   void SetEntryName(const char* szName) { m_sEntryName.Assign(szName); }

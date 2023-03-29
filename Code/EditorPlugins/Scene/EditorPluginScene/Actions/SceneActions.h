@@ -103,7 +103,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
   void LaunchPlayer(const char* szPlayerApp);
-  QStringList GetPlayerCommandLine(ezStringBuilder& out_SingleLine) const;
+  QStringList GetPlayerCommandLine(ezStringBuilder& out_sSingleLine) const;
 
 private:
   void SceneEventHandler(const ezGameObjectEvent& e);

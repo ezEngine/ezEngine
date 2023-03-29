@@ -11,7 +11,7 @@ class ezQtShaderTemplateDlg : public QDialog, public Ui_ShaderTemplateDlg
   Q_OBJECT
 
 public:
-  ezQtShaderTemplateDlg(QWidget* parent, const ezDocument* pDoc);
+  ezQtShaderTemplateDlg(QWidget* pParent, const ezDocument* pDoc);
 
   ezString m_sResult;
 

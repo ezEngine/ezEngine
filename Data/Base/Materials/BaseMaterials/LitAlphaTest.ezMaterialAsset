@@ -17,9 +17,14 @@ o
 		u4 %Hash{9079957415905950339}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"RebeccaPurple.color"}
+		}
 		VarArray %References
 		{
 			s{"RebeccaPurple.color"}
+			s{"Shaders/Materials/DefaultMaterial.ezShader"}
 		}
 	}
 }
@@ -136,7 +141,6 @@ o
 			Uuid{u4{7112520311663299231,13449969507408498145}}
 		}
 		s %TypeName{"Shaders/Materials/DefaultMaterial.ezShader"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{2}
 	}
 }
@@ -236,7 +240,6 @@ o
 			Uuid{u4{5650026407490086663,5768478847879086899}}
 		}
 		s %TypeName{"BLEND_MODE"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -520,6 +523,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -552,7 +556,6 @@ o
 			Uuid{u4{14201946371216656691,8983156218640221597}}
 		}
 		s %TypeName{"SHADING_MODE"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{1}
 	}
 }
@@ -580,6 +583,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -590,6 +594,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -692,7 +697,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -753,7 +757,6 @@ o
 		s %PluginName{"ShaderTypes"}
 		VarArray %Properties{}
 		s %TypeName{"ezShaderTypeBase"}
-		u3 %TypeSize{0}
 		u3 %TypeVersion{2}
 	}
 }
@@ -764,6 +767,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -818,6 +822,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -965,7 +970,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -996,6 +1000,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -1091,7 +1096,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialShaderMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1109,7 +1113,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1138,6 +1141,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Texture_2D;"}
 	}
 }
@@ -1165,7 +1169,6 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{320}
 		u3 %TypeVersion{4}
 	}
 }

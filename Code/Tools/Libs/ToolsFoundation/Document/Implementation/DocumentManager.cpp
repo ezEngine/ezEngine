@@ -134,11 +134,11 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
   }
 }
 
-void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_documentTypes) const
 {
-  InternalGetSupportedDocumentTypes(inout_DocumentTypes);
+  InternalGetSupportedDocumentTypes(inout_documentTypes);
 
-  for (auto& dt : inout_DocumentTypes)
+  for (auto& dt : inout_documentTypes)
   {
     EZ_ASSERT_DEBUG(dt->m_pDocumentType != nullptr, "No document type is set");
     EZ_ASSERT_DEBUG(!dt->m_sFileExtension.IsEmpty(), "File extension must be valid");
@@ -409,17 +409,16 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
 
   Event e;
   e.m_pDocument = pDocument;
+
   e.m_Type = Event::Type::DocumentClosing;
   s_Events.Broadcast(e);
 
-  e.m_pDocument = pDocument;
   e.m_Type = Event::Type::DocumentClosing2;
   s_Events.Broadcast(e);
 
   pDocument->BeforeClosing();
-  delete pDocument;
+  delete pDocument; // the pointer in e.m_pDocument won't be valid anymore at broadcast time, it is only sent for comparison purposes, not to be dereferenced
 
-  e.m_pDocument = pDocument;
   e.m_Type = Event::Type::DocumentClosed;
   s_Events.Broadcast(e);
 }

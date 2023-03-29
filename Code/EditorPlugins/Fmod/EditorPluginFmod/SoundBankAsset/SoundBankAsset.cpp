@@ -29,7 +29,7 @@ void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInf
 
   const ezSoundBankAssetProperties* pProp = GetProperties();
 
-  pInfo->m_AssetTransformDependencies.Insert(pProp->m_sSoundBank);
+  pInfo->m_TransformDependencies.Insert(pProp->m_sSoundBank);
 }
 
 ezTransformStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
@@ -54,7 +54,7 @@ ezTransformStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWrite
 
   // we copy the entire sound bank into our transformed asset
   // however, at least during development, we typically do not load the data from there,
-  // but from the fmod sound bank files directly, so that we do not need to wait for an asset transform
+  // but from the Fmod sound bank files directly, so that we do not need to wait for an asset transform
 
   ezDefaultMemoryStreamStorage storage;
 

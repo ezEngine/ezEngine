@@ -96,21 +96,21 @@ EZ_ALWAYS_INLINE void ezSimdBBoxSphere::Transform(const ezSimdTransform& t)
   Transform(t.GetAsMat4());
 }
 
-EZ_ALWAYS_INLINE void ezSimdBBoxSphere::Transform(const ezSimdMat4f& mat)
+EZ_ALWAYS_INLINE void ezSimdBBoxSphere::Transform(const ezSimdMat4f& mMat)
 {
   ezSimdFloat radius = m_CenterAndRadius.w();
-  m_CenterAndRadius = mat.TransformPosition(m_CenterAndRadius);
+  m_CenterAndRadius = mMat.TransformPosition(m_CenterAndRadius);
 
-  ezSimdFloat maxRadius = mat.m_col0.Dot<3>(mat.m_col0);
-  maxRadius = maxRadius.Max(mat.m_col1.Dot<3>(mat.m_col1));
-  maxRadius = maxRadius.Max(mat.m_col2.Dot<3>(mat.m_col2));
+  ezSimdFloat maxRadius = mMat.m_col0.Dot<3>(mMat.m_col0);
+  maxRadius = maxRadius.Max(mMat.m_col1.Dot<3>(mMat.m_col1));
+  maxRadius = maxRadius.Max(mMat.m_col2.Dot<3>(mMat.m_col2));
   radius *= maxRadius.GetSqrt();
 
   m_CenterAndRadius.SetW(radius);
 
-  ezSimdVec4f newHalfExtents = mat.m_col0.Abs() * m_BoxHalfExtents.x();
-  newHalfExtents += mat.m_col1.Abs() * m_BoxHalfExtents.y();
-  newHalfExtents += mat.m_col2.Abs() * m_BoxHalfExtents.z();
+  ezSimdVec4f newHalfExtents = mMat.m_col0.Abs() * m_BoxHalfExtents.x();
+  newHalfExtents += mMat.m_col1.Abs() * m_BoxHalfExtents.y();
+  newHalfExtents += mMat.m_col2.Abs() * m_BoxHalfExtents.z();
 
   m_BoxHalfExtents = newHalfExtents.CompMin(ezSimdVec4f(radius));
 }

@@ -65,7 +65,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Particle_Effect")),
+    EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Particle_Effect", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("SpawnAtStart", m_bSpawnAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction2, m_OnFinishedAction),
     EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
@@ -111,9 +111,9 @@ void ezParticleComponent::OnDeactivated()
   ezRenderComponent::OnDeactivated();
 }
 
-void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezParticleComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hEffectResource;
   s << m_bSpawnAtStart;
@@ -156,10 +156,10 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
   /// \todo store effect state
 }
 
-void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
+void ezParticleComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  auto& s = stream.GetStream();
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   s >> m_hEffectResource;
   s >> m_bSpawnAtStart;
@@ -257,9 +257,9 @@ bool ezParticleComponent::IsEffectActive() const
 }
 
 
-void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& msg)
+void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
 {
-  if (msg.m_bPlay)
+  if (ref_msg.m_bPlay)
   {
     StartEffect();
   }
@@ -301,7 +301,7 @@ const char* ezParticleComponent::GetParticleEffectFile() const
 }
 
 
-ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
+ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   if (m_EffectController.IsAlive())
   {
@@ -323,7 +323,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
         volume.Transform((-GetOwner()->GetGlobalRotation()).GetAsMat4());
       }
 
-      bounds = volume;
+      ref_bounds = volume;
       return EZ_SUCCESS;
     }
   }
@@ -419,12 +419,12 @@ void ezParticleComponent::Update()
 
 const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); }, [this](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it) -> const char* {
-      if (it < m_FloatParams.GetCount())
-        return m_FloatParams[it].m_sName.GetData();
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); }, [this](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* {
+      if (uiIt < m_FloatParams.GetCount())
+        return m_FloatParams[uiIt].m_sName.GetData();
       else
-        return m_ColorParams[it - m_FloatParams.GetCount()].m_sName.GetData();
+        return m_ColorParams[uiIt - m_FloatParams.GetCount()].m_sName.GetData();
     });
 }
 

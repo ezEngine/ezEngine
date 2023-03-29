@@ -10,7 +10,7 @@ class EZ_FOUNDATION_DLL ezHashStreamWriter32 : public ezStreamWriter
 {
 public:
   /// \brief Pass an initial seed for the hash calculation.
-  ezHashStreamWriter32(ezUInt32 seed = 0);
+  ezHashStreamWriter32(ezUInt32 uiSeed = 0);
   ~ezHashStreamWriter32();
 
   /// \brief Writes bytes directly to the stream.
@@ -32,7 +32,7 @@ class EZ_FOUNDATION_DLL ezHashStreamWriter64 : public ezStreamWriter
 {
 public:
   /// \brief Pass an initial seed for the hash calculation.
-  ezHashStreamWriter64(ezUInt64 seed = 0);
+  ezHashStreamWriter64(ezUInt64 uiSeed = 0);
   ~ezHashStreamWriter64();
 
   /// \brief Writes bytes directly to the stream.

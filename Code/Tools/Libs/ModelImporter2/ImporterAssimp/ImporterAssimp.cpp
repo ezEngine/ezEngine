@@ -19,19 +19,19 @@ namespace ezModelImporter2
   class aiLogStreamError : public Assimp::LogStream
   {
   public:
-    void write(const char* message) { ezLog::Warning("AssImp: {0}", message); }
+    void write(const char* szMessage) { ezLog::Warning("AssImp: {0}", szMessage); }
   };
 
   class aiLogStreamWarning : public Assimp::LogStream
   {
   public:
-    void write(const char* message) { ezLog::Warning("AssImp: {0}", message); }
+    void write(const char* szMessage) { ezLog::Warning("AssImp: {0}", szMessage); }
   };
 
   class aiLogStreamInfo : public Assimp::LogStream
   {
   public:
-    void write(const char* message) { ezLog::Dev("AssImp: {0}", message); }
+    void write(const char* szMessage) { ezLog::Dev("AssImp: {0}", szMessage); }
   };
 
   ezResult ImporterAssimp::DoImport()

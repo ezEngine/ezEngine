@@ -45,23 +45,23 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezKrautTreeComponent::ezKrautTreeComponent() = default;
 ezKrautTreeComponent::~ezKrautTreeComponent() = default;
 
-void ezKrautTreeComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezKrautTreeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hKrautGenerator;
   s << m_uiVariationIndex;
   s << m_uiCustomRandomSeed;
 }
 
-void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& stream)
+void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   if (uiVersion <= 1)
   {
@@ -451,7 +451,7 @@ void ezKrautTreeComponent::ComputeWind() const
   }
 }
 
-void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
   ezStringBuilder sResourceName;
   sResourceName.Format("KrautTreeCpu:{}", m_hKrautGenerator.GetResourceID());
@@ -460,7 +460,7 @@ void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
   if (!hMesh.IsValid())
   {
     ezGeometry geo;
-    if (CreateGeometry(geo, msg.m_Mode).Failed())
+    if (CreateGeometry(geo, ref_msg.m_Mode).Failed())
       return;
 
     ezMeshResourceDescriptor desc;
@@ -475,17 +475,17 @@ void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
     hMesh = ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sResourceName, std::move(desc), sResourceName);
   }
 
-  msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
+  ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMesh);
 }
 
-void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
+void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) const
 {
   ezGeometry geo;
   if (CreateGeometry(geo, ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh).Failed())
     return;
 
-  auto& desc = *msg.m_pStaticMeshDescription;
-  auto& subMesh = msg.m_pStaticMeshDescription->m_SubMeshes.ExpandAndGetRef();
+  auto& desc = *ref_msg.m_pStaticMeshDescription;
+  auto& subMesh = ref_msg.m_pStaticMeshDescription->m_SubMeshes.ExpandAndGetRef();
 
   {
     ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::BlockTillLoaded_NeverFail);

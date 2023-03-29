@@ -17,8 +17,8 @@ namespace ezLogWriter
 
       msg.GetWriter() << (ezInt8)eventData.m_EventType;
       msg.GetWriter() << (ezUInt8)eventData.m_uiIndentation;
-      msg.GetWriter() << eventData.m_szTag;
-      msg.GetWriter() << eventData.m_szText;
+      msg.GetWriter() << eventData.m_sTag;
+      msg.GetWriter() << eventData.m_sText;
 
       if (eventData.m_EventType == ezLogMsgType::EndGroup)
       {

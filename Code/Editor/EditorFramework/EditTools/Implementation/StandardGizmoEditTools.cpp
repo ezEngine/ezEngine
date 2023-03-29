@@ -163,44 +163,44 @@ void ezTranslateGizmoEditTool::OnPreferenceChange(ezPreferences* pref)
   m_TranslateGizmo.SetCameraSpeed(ezCameraMoveContext::ConvertCameraSpeed(pPref->GetCameraSpeed()));
 }
 
-void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
+void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_msg)
 {
   auto pSceneDoc = GetDocument();
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
   // if density != 0, it is enabled at least in ortho mode
-  msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
+  ref_msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
 
   // to be active in perspective mode, tangents have to be non-zero
-  msg.m_vGridTangent1.SetZero();
-  msg.m_vGridTangent2.SetZero();
+  ref_msg.m_vGridTangent1.SetZero();
+  ref_msg.m_vGridTangent2.SetZero();
 
   ezTranslateGizmo& translateGizmo = m_TranslateGizmo;
 
   if (pPreferences->GetShowGrid() && translateGizmo.IsVisible())
   {
-    msg.m_vGridCenter = translateGizmo.GetStartPosition();
+    ref_msg.m_vGridCenter = translateGizmo.GetStartPosition();
 
     if (translateGizmo.GetTranslateMode() == ezTranslateGizmo::TranslateMode::Axis)
-      msg.m_vGridCenter = translateGizmo.GetTransformation().m_vPosition;
+      ref_msg.m_vGridCenter = translateGizmo.GetTransformation().m_vPosition;
 
     if (pSceneDoc->GetGizmoWorldSpace())
     {
-      ezSnapProvider::SnapTranslation(msg.m_vGridCenter);
+      ezSnapProvider::SnapTranslation(ref_msg.m_vGridCenter);
 
       switch (translateGizmo.GetLastPlaneInteraction())
       {
         case ezTranslateGizmo::PlaneInteraction::PlaneX:
-          msg.m_vGridCenter.y = ezMath::RoundToMultiple(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
-          msg.m_vGridCenter.z = ezMath::RoundToMultiple(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.y = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.z = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
           break;
         case ezTranslateGizmo::PlaneInteraction::PlaneY:
-          msg.m_vGridCenter.x = ezMath::RoundToMultiple(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
-          msg.m_vGridCenter.z = ezMath::RoundToMultiple(msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.x = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.z = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.z, ezSnapProvider::GetTranslationSnapValue() * 10);
           break;
         case ezTranslateGizmo::PlaneInteraction::PlaneZ:
-          msg.m_vGridCenter.x = ezMath::RoundToMultiple(msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
-          msg.m_vGridCenter.y = ezMath::RoundToMultiple(msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.x = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.x, ezSnapProvider::GetTranslationSnapValue() * 10);
+          ref_msg.m_vGridCenter.y = ezMath::RoundToMultiple(ref_msg.m_vGridCenter.y, ezSnapProvider::GetTranslationSnapValue() * 10);
           break;
       }
     }
@@ -208,16 +208,16 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
     switch (translateGizmo.GetLastPlaneInteraction())
     {
       case ezTranslateGizmo::PlaneInteraction::PlaneX:
-        msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
-        msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
         break;
       case ezTranslateGizmo::PlaneInteraction::PlaneY:
-        msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-        msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
+        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 0, 1);
         break;
       case ezTranslateGizmo::PlaneInteraction::PlaneZ:
-        msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
-        msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
+        ref_msg.m_vGridTangent1 = translateGizmo.GetTransformation().m_qRotation * ezVec3(1, 0, 0);
+        ref_msg.m_vGridTangent2 = translateGizmo.GetTransformation().m_qRotation * ezVec3(0, 1, 0);
         break;
     }
   }

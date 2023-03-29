@@ -2,14 +2,14 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize /*= 1024 * 64*/,
-  ezFileShareMode::Enum FileShareMode /*= ezFileShareMode::SharedReads*/, bool bAllowFileEvents /*= true*/)
+ezResult ezFileReader::Open(ezStringView sFile, ezUInt32 uiCacheSize /*= 1024 * 64*/,
+  ezFileShareMode::Enum fileShareMode /*= ezFileShareMode::SharedReads*/, bool bAllowFileEvents /*= true*/)
 {
-  EZ_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '{0}')", szFile);
+  EZ_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '{0}')", sFile);
 
   uiCacheSize = ezMath::Clamp<ezUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
 
-  m_pDataDirReader = GetFileReader(szFile, FileShareMode, bAllowFileEvents);
+  m_pDataDirReader = GetFileReader(sFile, fileShareMode, bAllowFileEvents);
 
   if (!m_pDataDirReader)
     return EZ_FAILURE;
@@ -45,7 +45,11 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
   {
     // if any data is still in the cache, use that first
     const ezUInt64 uiCachedBytesLeft = m_uiBytesCached - m_uiCacheReadPosition;
-    ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiCachedBytesLeft);
+
+    if (uiCachedBytesLeft > 0)
+    {
+      ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiCachedBytesLeft);
+    }
 
     uiBufferPosition += uiCachedBytesLeft;
     m_uiCacheReadPosition += uiCachedBytesLeft;

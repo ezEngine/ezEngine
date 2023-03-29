@@ -14,30 +14,30 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 static ezTypeVersion s_RmlUiDescVersion = 1;
 
-ezResult ezRmlUiResourceDescriptor::Save(ezStreamWriter& stream)
+ezResult ezRmlUiResourceDescriptor::Save(ezStreamWriter& inout_stream)
 {
   // write this at the beginning so that the file can be read as an ezDependencyFile
   m_DependencyFile.StoreCurrentTimeStamp();
-  EZ_SUCCEED_OR_RETURN(m_DependencyFile.WriteDependencyFile(stream));
+  EZ_SUCCEED_OR_RETURN(m_DependencyFile.WriteDependencyFile(inout_stream));
 
-  stream.WriteVersion(s_RmlUiDescVersion);
+  inout_stream.WriteVersion(s_RmlUiDescVersion);
 
-  stream << m_sRmlFile;
-  stream << m_ScaleMode;
-  stream << m_ReferenceResolution;
+  inout_stream << m_sRmlFile;
+  inout_stream << m_ScaleMode;
+  inout_stream << m_ReferenceResolution;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezRmlUiResourceDescriptor::Load(ezStreamReader& stream)
+ezResult ezRmlUiResourceDescriptor::Load(ezStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(stream));
+  EZ_SUCCEED_OR_RETURN(m_DependencyFile.ReadDependencyFile(inout_stream));
 
-  ezTypeVersion uiVersion = stream.ReadVersion(s_RmlUiDescVersion);
+  ezTypeVersion uiVersion = inout_stream.ReadVersion(s_RmlUiDescVersion);
 
-  stream >> m_sRmlFile;
-  stream >> m_ScaleMode;
-  stream >> m_ReferenceResolution;
+  inout_stream >> m_sRmlFile;
+  inout_stream >> m_ScaleMode;
+  inout_stream >> m_ReferenceResolution;
 
   return EZ_SUCCESS;
 }

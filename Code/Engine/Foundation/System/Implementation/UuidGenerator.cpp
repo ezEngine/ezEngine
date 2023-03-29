@@ -16,13 +16,11 @@
 #  error "Uuid generation functions are not implemented on current platform"
 #endif
 
-ezUuid ezUuid::StableUuidForString(const char* szString)
+ezUuid ezUuid::StableUuidForString(ezStringView sString)
 {
-  size_t length = std::strlen(szString);
-
   ezUuid NewUuid;
-  NewUuid.m_uiLow = ezHashingUtils::xxHash64(szString, length);
-  NewUuid.m_uiHigh = ezHashingUtils::xxHash64(szString, length, 0x7FFFFFFFFFFFFFE7u);
+  NewUuid.m_uiLow = ezHashingUtils::xxHash64String(sString);
+  NewUuid.m_uiHigh = ezHashingUtils::xxHash64String(sString, 0x7FFFFFFFFFFFFFE7u);
 
   return NewUuid;
 }

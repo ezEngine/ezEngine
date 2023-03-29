@@ -1,6 +1,11 @@
 name: ezEngine_ClangTidyVerification_$(Date:yyyyMMdd)$(Rev:.r)
 
-trigger: none
+trigger:
+  branches:
+    include:
+    - dev
+    exclude:
+    - release
 
 jobs:
 - job: ClangTidyVerification

@@ -19,7 +19,7 @@ public:
   void SetIdentity(); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle (angle is given in Radians or as an ezAngle)
-  void SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& angle); // [tested]
+  void SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle); // [tested]
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
   void SetShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVec4f& vDirTo); // [tested]
@@ -33,7 +33,7 @@ public:
 
   /// \brief Returns the rotation-axis and angle (in Radians), that this quaternion rotates around.
   ezResult GetRotationAxisAndAngle(
-    ezSimdVec4f& vAxis, ezSimdFloat& angle, const ezSimdFloat& fEpsilon = ezMath::DefaultEpsilon<float>()) const; // [tested]
+    ezSimdVec4f& ref_vAxis, ezSimdFloat& ref_fAngle, const ezSimdFloat& fEpsilon = ezMath::DefaultEpsilon<float>()) const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.
   ezSimdMat4f GetAsMat4() const; // [tested]

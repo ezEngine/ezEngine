@@ -3,8 +3,8 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 
-ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* parent /*= nullptr*/)
-  : QLineEdit(parent)
+ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* pParent /*= nullptr*/)
+  : QLineEdit(pParent)
 {
 }
 

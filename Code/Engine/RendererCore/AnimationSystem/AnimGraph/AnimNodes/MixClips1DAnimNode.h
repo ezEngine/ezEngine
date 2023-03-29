@@ -7,7 +7,7 @@ struct EZ_RENDERERCORE_DLL ezAnimClip1D
   ezAnimationClipResourceHandle m_hAnimation;
   float m_fPosition;
 
-  void SetAnimationFile(const char* sz);
+  void SetAnimationFile(const char* szSz);
   const char* GetAnimationFile() const;
 };
 

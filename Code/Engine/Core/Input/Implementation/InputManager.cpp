@@ -183,7 +183,7 @@ void ezInputManager::PollHardware()
   GatherDeviceInputSlotValues();
 }
 
-void ezInputManager::Update(ezTime tTimeDifference)
+void ezInputManager::Update(ezTime timeDifference)
 {
   PollHardware();
 
@@ -191,11 +191,11 @@ void ezInputManager::Update(ezTime tTimeDifference)
 
   s_uiLastCharacter = ezInputDevice::RetrieveLastCharacterFromAllDevices();
 
-  UpdateInputActions(tTimeDifference);
+  UpdateInputActions(timeDifference);
 
   ezInputDevice::ResetAllDevices();
 
-  ezInputDevice::UpdateAllHardwareStates(tTimeDifference);
+  ezInputDevice::UpdateAllHardwareStates(timeDifference);
 
   s_bInputSlotResetRequired = true;
 }
@@ -269,15 +269,15 @@ void ezInputManager::UpdateInputSlotStates()
   }
 }
 
-void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_InputSlots)
+void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_inputSlots)
 {
-  out_InputSlots.Clear();
-  out_InputSlots.Reserve(GetInternals().s_InputSlots.GetCount());
+  out_inputSlots.Clear();
+  out_inputSlots.Reserve(GetInternals().s_InputSlots.GetCount());
 
   // just copy all slot names into the given array
   for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
-    out_InputSlots.PushBack(it.Key().GetData());
+    out_inputSlots.PushBack(it.Key().GetData());
   }
 }
 
@@ -296,26 +296,26 @@ void ezInputManager::InjectInputSlotValue(const char* szInputSlot, float fValue)
   GetInternals().s_InjectedInputSlots[szInputSlot] = ezMath::Max(GetInternals().s_InjectedInputSlots[szInputSlot], fValue);
 }
 
-const char* ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveFlags, ezInputSlotFlags::Enum MustNotHaveFlags)
+const char* ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum mustHaveFlags, ezInputSlotFlags::Enum mustNotHaveFlags)
 {
   for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_State != ezKeyState::Pressed)
       continue;
 
-    if (it.Value().m_SlotFlags.IsAnySet(MustNotHaveFlags))
+    if (it.Value().m_SlotFlags.IsAnySet(mustNotHaveFlags))
       continue;
 
-    if (it.Value().m_SlotFlags.AreAllSet(MustHaveFlags))
+    if (it.Value().m_SlotFlags.AreAllSet(mustHaveFlags))
       return it.Key().GetData();
   }
 
   return ezInputSlot_None;
 }
 
-const char* ezInputManager::GetInputSlotTouchPoint(unsigned int index)
+const char* ezInputManager::GetInputSlotTouchPoint(unsigned int uiIndex)
 {
-  switch (index)
+  switch (uiIndex)
   {
     case 0:
       return ezInputSlot_TouchPoint0;
@@ -343,9 +343,9 @@ const char* ezInputManager::GetInputSlotTouchPoint(unsigned int index)
   }
 }
 
-const char* ezInputManager::GetInputSlotTouchPointPositionX(unsigned int index)
+const char* ezInputManager::GetInputSlotTouchPointPositionX(unsigned int uiIndex)
 {
-  switch (index)
+  switch (uiIndex)
   {
     case 0:
       return ezInputSlot_TouchPoint0_PositionX;
@@ -373,9 +373,9 @@ const char* ezInputManager::GetInputSlotTouchPointPositionX(unsigned int index)
   }
 }
 
-const char* ezInputManager::GetInputSlotTouchPointPositionY(unsigned int index)
+const char* ezInputManager::GetInputSlotTouchPointPositionY(unsigned int uiIndex)
 {
-  switch (index)
+  switch (uiIndex)
   {
     case 0:
       return ezInputSlot_TouchPoint0_PositionY;

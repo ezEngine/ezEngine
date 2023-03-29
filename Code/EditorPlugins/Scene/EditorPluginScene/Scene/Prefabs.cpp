@@ -6,12 +6,12 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 
-void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
+void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection)
 {
-  SUPER::UnlinkPrefabs(Selection);
+  SUPER::UnlinkPrefabs(selection);
 
   // Clear cached names.
-  for (auto pObject : Selection)
+  for (auto pObject : selection)
   {
     auto pMetaScene = m_GameObjectMetaData->BeginModifyMetaData(pObject->GetGuid());
     pMetaScene->m_CachedNodeName.Clear();
@@ -20,14 +20,14 @@ void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Sele
 }
 
 
-bool ezSceneDocument::IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid) const
+bool ezSceneDocument::IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid) const
 {
   auto pMeta = m_DocumentObjectMetaData->BeginReadMetaData(object);
   const bool bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
 
-  if (out_PrefabAssetGuid)
+  if (out_pPrefabAssetGuid)
   {
-    *out_PrefabAssetGuid = pMeta->m_CreateFromPrefab;
+    *out_pPrefabAssetGuid = pMeta->m_CreateFromPrefab;
   }
 
   m_DocumentObjectMetaData->EndReadMetaData();
@@ -36,7 +36,7 @@ bool ezSceneDocument::IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_Pre
 }
 
 
-bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid) const
+bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_pPrefabAssetGuid) const
 {
   const ezDocumentObject* pObject = GetObjectManager()->GetObject(object);
 
@@ -54,7 +54,7 @@ bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_Pre
 
       if (varPrefab.IsA<ezString>())
       {
-        if (out_PrefabAssetGuid)
+        if (out_pPrefabAssetGuid)
         {
           const ezString sAsset = varPrefab.Get<ezString>();
 
@@ -62,7 +62,7 @@ bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_Pre
 
           if (info.isValid())
           {
-            *out_PrefabAssetGuid = info->m_Data.m_Guid;
+            *out_pPrefabAssetGuid = info->m_Data.m_Guid;
           }
         }
 
@@ -81,9 +81,9 @@ void ezSceneDocument::UpdatePrefabs()
 }
 
 
-ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab)
+ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab)
 {
-  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, PrefabAsset, PrefabSeed, bEnginePrefab);
+  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, prefabAsset, prefabSeed, bEnginePrefab);
   if (newGuid.IsValid())
   {
     auto pMeta = m_GameObjectMetaData->BeginModifyMetaData(newGuid);
@@ -161,14 +161,14 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   }
 }
 
-void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& Selection)
+void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& selection)
 {
   ezDeque<const ezDocumentObject*> newSelection;
 
   auto pHistory = GetCommandHistory();
   pHistory->StartTransaction("Convert to Editor Prefab");
 
-  for (const ezDocumentObject* pObject : Selection)
+  for (const ezDocumentObject* pObject : selection)
   {
     ezUuid assetGuid;
     if (!IsObjectEnginePrefab(pObject->GetGuid(), &assetGuid))
@@ -199,7 +199,7 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
   GetSelectionManager()->SetSelection(newSelection);
 }
 
-void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& Selection)
+void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& selection)
 {
   ezDeque<const ezDocumentObject*> newSelection;
 
@@ -208,7 +208,7 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
 
   ezStringBuilder tmp;
 
-  for (const ezDocumentObject* pObject : Selection)
+  for (const ezDocumentObject* pObject : selection)
   {
     ezUuid assetGuid;
     if (!IsObjectEditorPrefab(pObject->GetGuid(), &assetGuid))

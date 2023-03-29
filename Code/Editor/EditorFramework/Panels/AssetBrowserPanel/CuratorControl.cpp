@@ -49,8 +49,9 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   colors[ezAssetInfo::TransformState::NeedsTransform] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
   colors[ezAssetInfo::TransformState::NeedsThumbnail] = ezToQtColor(ezColorScheme::DarkUI(float(ezColorScheme::Blue + ezColorScheme::Green) * 0.5f * ezColorScheme::s_fIndexNormalizer));
   colors[ezAssetInfo::TransformState::UpToDate] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Green));
-  colors[ezAssetInfo::TransformState::MissingDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
-  colors[ezAssetInfo::TransformState::MissingReference] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Orange));
+  colors[ezAssetInfo::TransformState::MissingTransformDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
+  colors[ezAssetInfo::TransformState::MissingThumbnailDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Orange));
+  colors[ezAssetInfo::TransformState::CircularDependency] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
   colors[ezAssetInfo::TransformState::TransformError] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
 
   const float fTotalCount = uiNumAssets;
@@ -75,8 +76,8 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   ezStringBuilder s;
   s.Format("[Un: {0}, Imp: {4}, Tr: {1}, Th: {2}, Err: {3}]", sections[ezAssetInfo::TransformState::Unknown],
     sections[ezAssetInfo::TransformState::NeedsTransform], sections[ezAssetInfo::TransformState::NeedsThumbnail],
-    sections[ezAssetInfo::TransformState::MissingDependency] + sections[ezAssetInfo::TransformState::MissingReference] +
-      sections[ezAssetInfo::TransformState::TransformError],
+    sections[ezAssetInfo::TransformState::MissingTransformDependency] + sections[ezAssetInfo::TransformState::MissingThumbnailDependency] +
+      sections[ezAssetInfo::TransformState::TransformError] + sections[ezAssetInfo::TransformState::CircularDependency],
     sections[ezAssetInfo::TransformState::NeedsImport]);
 
   painter.setPen(QPen(Qt::white));
@@ -136,11 +137,15 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
 
   if (uiNumAssets > 0)
   {
-    s.Format("Unknown: {0}\nImport Needed: {6}\nTransform Needed: {1}\nThumbnail Needed: {2}\nMissing Dependency: {3}\nMissing Reference: {4}\nFailed "
-             "Transform: {5}",
-      sections[ezAssetInfo::TransformState::Unknown], sections[ezAssetInfo::TransformState::NeedsTransform],
-      sections[ezAssetInfo::TransformState::NeedsThumbnail], sections[ezAssetInfo::TransformState::MissingDependency],
-      sections[ezAssetInfo::TransformState::MissingReference], sections[ezAssetInfo::TransformState::TransformError], sections[ezAssetInfo::TransformState::NeedsImport]);
+    s.Format("Unknown: {0}\nImport Needed: {1}\nTransform Needed: {2}\nThumbnail Needed: {3}\nMissing Dependency: {4}\nMissing Reference: {5}\nCircular Dependency: {6}\nFailed Transform: {7}",
+      sections[ezAssetInfo::TransformState::Unknown],
+      sections[ezAssetInfo::TransformState::NeedsImport],
+      sections[ezAssetInfo::TransformState::NeedsTransform],
+      sections[ezAssetInfo::TransformState::NeedsThumbnail],
+      sections[ezAssetInfo::TransformState::MissingTransformDependency],
+      sections[ezAssetInfo::TransformState::MissingThumbnailDependency],
+      sections[ezAssetInfo::TransformState::CircularDependency],
+      sections[ezAssetInfo::TransformState::TransformError]);
     setToolTip(s.GetData());
   }
   else
@@ -171,6 +176,7 @@ void ezQtCuratorControl::AssetCuratorEvents(const ezAssetCuratorEvent& e)
       break;
   }
 }
+
 void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
 {
   switch (e.m_Type)

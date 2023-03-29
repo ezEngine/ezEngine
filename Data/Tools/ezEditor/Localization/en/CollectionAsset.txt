@@ -1,0 +1,11 @@
+# Asset Types
+
+Collection;Collection
+
+# Component Types
+
+ezCollectionComponent;Collection;;https://ezengine.net/pages/docs/performance/collection-component.html
+
+# Properties
+
+ezCollectionAssetEntry::Name;Lookup Name

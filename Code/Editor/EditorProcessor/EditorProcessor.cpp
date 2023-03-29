@@ -6,13 +6,15 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessorMessages.h>
+#include <EditorFramework/CodeGen/CppProject.h>
+#include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
 ezCommandLineOptionPath opt_OutputDir("_EditorProcessor", "-outputDir", "Output directory", "");
-ezCommandLineOptionBool opt_Debug("_EditorProcessor", "-debug", "Writes various debug logs into the output folder.", false);
+ezCommandLineOptionBool opt_SaveProfilingData("_EditorProcessor", "-profiling", "Saves performance profiling information into the output folder.", false);
 ezCommandLineOptionPath opt_Project("_EditorProcessor", "-project", "Path to the project folder.", "");
 ezCommandLineOptionBool opt_Resave("_EditorProcessor", "-resave", "If specified, assets will be resaved.", false);
 ezCommandLineOptionString opt_Transform("_EditorProcessor", "-transform", "If specified, assets will be transformed for the given platform profile.\n\
@@ -61,9 +63,14 @@ public:
   {
     if (const ezProcessAssetMsg* pMsg = ezDynamicCast<const ezProcessAssetMsg*>(e.m_pMessage))
     {
+      if (pMsg->m_sAssetPath.HasExtension("ezPrefab") || pMsg->m_sAssetPath.HasExtension("ezScene"))
+      {
+        ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+      }
+
       ezProcessAssetResponseMsg msg;
       {
-        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); },
+        ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
           ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
@@ -150,30 +157,52 @@ public:
     DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
+    const ezString sTransformProfile = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bResave = opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave;
     const ezString sOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::Always);
-    ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::Headless, sOutputDir);
+    const ezBitflags<ezQtEditorApp::StartupFlags> startupFlags = bBackgroundMode ? ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::Background : ezQtEditorApp::StartupFlags::Headless;
+    ezQtEditorApp::GetSingleton()->StartupEditor(startupFlags, sOutputDir);
     ezQtUiServices::SetHeadless(true);
 
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    if (!ezStringUtils::IsNullOrEmpty(opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified)))
+    if (!sTransformProfile.IsEmpty())
     {
-      ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
+      if (ezQtEditorApp::GetSingleton()->OpenProject(sProject).Failed())
+      {
+        SetReturnCode(2);
+        return ezApplication::Execution::Quit;
+      }
+
+      // before we transform any assets, make sure the C++ code is properly built
+      {
+        ezCppSettings cppSettings;
+        if (cppSettings.Load().Succeeded())
+        {
+          if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
+          {
+            SetReturnCode(3);
+            return ezApplication::Execution::Quit;
+          }
+
+          ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+        }
+      }
 
       bool bTransform = true;
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
+      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]() {
         if (!bTransform)
           return;
 
         bTransform = false;
 
-        const char* szPlatform = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::Never);
-        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(szPlatform);
+        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sTransformProfile);
 
         if (uiPlatform == ezInvalidIndex)
         {
-          ezLog::Error("Asset platform config '{0}' is unknown", szPlatform);
+          ezLog::Error("Asset platform config '{0}' is unknown", sTransformProfile);
         }
         else
         {
@@ -184,7 +213,7 @@ public:
             SetReturnCode(1);
           }
 
-          if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
+          if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
           {
             ezActionContext context;
             ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
@@ -203,11 +232,11 @@ public:
 
       ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
         ezAssetCurator::GetSingleton()->ResaveAllAssets();
-        
-          if (opt_Debug.GetOptionValue(ezCommandLineOption::LogMode::Always))
-          {
-            ezActionContext context;
-            ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
+
+        if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
+        {
+          ezActionContext context;
+          ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
           }
 
         QApplication::quit(); });

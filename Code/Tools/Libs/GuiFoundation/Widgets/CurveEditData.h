@@ -12,12 +12,12 @@ class ezCurve1D;
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezCurveTangentMode);
 
 template <typename T>
-void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lhs, T*& rhs, T*& rrhs)
+void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& ref_pLlhs, T*& lhs, T*& rhs, T*& ref_pRrhs)
 {
-  llhs = nullptr;
+  ref_pLlhs = nullptr;
   lhs = nullptr;
   rhs = nullptr;
-  rrhs = nullptr;
+  ref_pRrhs = nullptr;
   ezInt64 lhsTick = ezMath::MinValue<ezInt64>();
   ezInt64 llhsTick = ezMath::MinValue<ezInt64>();
   ezInt64 rhsTick = ezMath::MaxValue<ezInt64>();
@@ -29,7 +29,7 @@ void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lh
     {
       if (cp.m_iTick > lhsTick)
       {
-        llhs = lhs;
+        ref_pLlhs = lhs;
         llhsTick = lhsTick;
 
         lhs = &cp;
@@ -37,7 +37,7 @@ void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lh
       }
       else if (cp.m_iTick > llhsTick)
       {
-        llhs = &cp;
+        ref_pLlhs = &cp;
         llhsTick = cp.m_iTick;
       }
     }
@@ -46,7 +46,7 @@ void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lh
     {
       if (cp.m_iTick < rhsTick)
       {
-        rrhs = rhs;
+        ref_pRrhs = rhs;
         rrhsTick = rhsTick;
 
         rhs = &cp;
@@ -54,7 +54,7 @@ void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lh
       }
       else if (cp.m_iTick < rrhsTick)
       {
-        rrhs = &cp;
+        ref_pRrhs = &cp;
         rrhsTick = cp.m_iTick;
       }
     }
@@ -67,7 +67,7 @@ class EZ_GUIFOUNDATION_DLL ezCurveControlPointData : public ezReflectedClass
 
 public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 fps);
+  void SetTickFromTime(ezTime time, ezInt64 iFps);
 
   ezInt64 m_iTick; // 4800 ticks per second
   double m_fValue;
@@ -86,8 +86,8 @@ public:
   ezColorGammaUB m_CurveColor;
   ezDynamicArray<ezCurveControlPointData> m_ControlPoints;
 
-  void ConvertToRuntimeData(ezCurve1D& out_Result) const;
-  double Evaluate(ezInt64 uiTick) const;
+  void ConvertToRuntimeData(ezCurve1D& out_result) const;
+  double Evaluate(ezInt64 iTick) const;
 };
 
 class EZ_GUIFOUNDATION_DLL ezCurveExtentsAttribute : public ezPropertyAttribute
@@ -128,7 +128,7 @@ public:
 
   ezInt64 TickFromTime(ezTime time) const;
 
-  void ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const;
+  void ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_result) const;
 };
 
 struct EZ_GUIFOUNDATION_DLL ezSelectedCurveCP

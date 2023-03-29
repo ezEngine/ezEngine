@@ -22,6 +22,7 @@ void OnLoadPlugin()
     ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezProjectActions::MapActions("SoundBankAssetMenuBar");
     ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
+    ezAssetActions::MapMenuActions("SoundBankAssetMenuBar", "Menu.File");
     ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
 
     // Tool Bar
@@ -29,7 +30,7 @@ void OnLoadPlugin()
       ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("SoundBankAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("SoundBankAssetToolBar", "");
-      ezAssetActions::MapActions("SoundBankAssetToolBar", true);
+      ezAssetActions::MapToolBarActions("SoundBankAssetToolBar", true);
     }
   }
 

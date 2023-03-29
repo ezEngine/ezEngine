@@ -61,13 +61,13 @@ struct EZ_CORE_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResourceDescriptor, ezReflectedClass);
 
 public:
-  void Load(ezStreamReader& stream);
-  void Save(ezStreamWriter& stream) const;
+  void Load(ezStreamReader& inout_stream);
+  void Save(ezStreamWriter& inout_stream) const;
 
   void SetBaseSurfaceFile(const char* szFile);
   const char* GetBaseSurfaceFile() const;
 
-  void SetCollisionInteraction(const char* name);
+  void SetCollisionInteraction(const char* szName);
   const char* GetCollisionInteraction() const;
 
   void SetSlideReactionPrefabFile(const char* szFile);

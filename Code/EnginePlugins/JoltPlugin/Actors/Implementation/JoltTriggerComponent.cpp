@@ -5,6 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <JoltPlugin/Actors/JoltTriggerComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeComponent.h>
+#include <JoltPlugin/System/JoltContacts.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
@@ -54,21 +55,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltTriggerComponent::ezJoltTriggerComponent() = default;
 ezJoltTriggerComponent::~ezJoltTriggerComponent() = default;
 
-void ezJoltTriggerComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltTriggerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_sTriggerMessage;
 }
 
-void ezJoltTriggerComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltTriggerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_sTriggerMessage;
 }
@@ -118,6 +119,11 @@ void ezJoltTriggerComponent::OnSimulationStarted()
 
 void ezJoltTriggerComponent::OnDeactivated()
 {
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+
+  ezJoltContactListener* pContactListener = pModule->GetContactListener();
+  pContactListener->RemoveTrigger(this);
+
   if (GetOwner()->IsDynamic())
   {
     ezJoltTriggerComponentManager* pManager = static_cast<ezJoltTriggerComponentManager*>(GetOwningManager());
@@ -137,3 +143,7 @@ void ezJoltTriggerComponent::PostTriggerMessage(const ezGameObjectHandle& hOther
 
   m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltTriggerComponent);
+

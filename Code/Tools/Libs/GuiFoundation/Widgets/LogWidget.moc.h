@@ -15,10 +15,10 @@ class EZ_GUIFOUNDATION_DLL ezQtLogWidget : public QWidget, public Ui_LogWidget
   Q_OBJECT
 
 public:
-  ezQtLogWidget(QWidget* parent);
+  ezQtLogWidget(QWidget* pParent);
   ~ezQtLogWidget();
 
-  void ShowControls(bool show);
+  void ShowControls(bool bShow);
 
   ezQtLogModel* GetLog();
   ezQtSearchWidget* GetSearchWidget();

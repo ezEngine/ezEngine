@@ -10,12 +10,12 @@ void RtsAiUtilitySystem::AddUtility(ezUniquePtr<RtsAiUtility>&& pUtility)
   m_Utilities.PushBack(std::move(pUtility));
 }
 
-void RtsAiUtilitySystem::Reevaluate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow, ezTime frequency)
+void RtsAiUtilitySystem::Reevaluate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now, ezTime frequency)
 {
-  if (tNow - m_LastUpdate < frequency)
+  if (now - m_LastUpdate < frequency)
     return;
 
-  m_LastUpdate = tNow;
+  m_LastUpdate = now;
 
   double fBestPrio = 0;
   RtsAiUtility* pBestUtility = nullptr;
@@ -43,12 +43,12 @@ void RtsAiUtilitySystem::Reevaluate(ezGameObject* pOwnerObject, ezComponent* pOw
     m_pActiveUtility->Activate(pOwnerObject, pOwnerComponent);
 }
 
-bool RtsAiUtilitySystem::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow)
+bool RtsAiUtilitySystem::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime now)
 {
   if (m_pActiveUtility == nullptr)
     return false;
 
-  m_pActiveUtility->Execute(pOwnerObject, pOwnerComponent, tNow);
+  m_pActiveUtility->Execute(pOwnerObject, pOwnerComponent, now);
   return true;
 }
 

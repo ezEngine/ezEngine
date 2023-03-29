@@ -19,12 +19,12 @@ public:
   virtual void OnDeactivated() override;
 
   const ezVec3& GetExtents() const { return m_vExtents; }
-  void SetExtents(const ezVec3& extents);
+  void SetExtents(const ezVec3& vExtents);
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const;
 
 private:
   ezVec3 m_vExtents = ezVec3(10.0f);

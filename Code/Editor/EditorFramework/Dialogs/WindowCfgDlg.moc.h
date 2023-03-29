@@ -12,7 +12,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtWindowCfgDlg(QWidget* parent);
+  ezQtWindowCfgDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_m_ButtonBox_clicked(QAbstractButton* button);
@@ -30,4 +30,3 @@ private:
   ezWindowCreationDesc m_Descs[2];
   bool m_bOverrideProjectDefault[2];
 };
-

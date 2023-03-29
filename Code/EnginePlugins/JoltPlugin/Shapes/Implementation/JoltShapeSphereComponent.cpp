@@ -34,21 +34,21 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltShapeSphereComponent::ezJoltShapeSphereComponent() = default;
 ezJoltShapeSphereComponent::~ezJoltShapeSphereComponent() = default;
 
-void ezJoltShapeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltShapeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s << m_fRadius;
 }
 
-void ezJoltShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltShapeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s >> m_fRadius;
 }
 
@@ -79,3 +79,7 @@ void ezJoltShapeSphereComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
   sub.m_pShape = pNewShape;
   sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeSphereComponent);
+

@@ -22,12 +22,12 @@ HANDLE g_hChildStd_OUT_Wr = NULL;
 
 std::atomic<bool> g_runThreads = true;
 
-PROCESS_INFORMATION CreateChildProcess(int argc, TCHAR* argv[]);
-void ForwardThread(HANDLE readHandle, HANDLE writeHandle, const char* logname, const char* logMode);
-void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout);
+PROCESS_INFORMATION CreateChildProcess(int iArgc, TCHAR* pArgv[]);
+void ForwardThread(HANDLE hReadHandle, HANDLE hWriteHandle, const char* szLogname, const char* szLogMode);
+void ForwardStdin(HANDLE hReadHandle, HANDLE hWriteHandle, HANDLE hParentStdout);
 void ErrorExit(const wchar_t*);
 
-int _tmain(int argc, TCHAR* argv[])
+int _tmain(int iArgc, TCHAR* pArgv[])
 {
 #ifdef OUTPUT_STREAMS_TO_FILE
   FILE* argumentFile = fopen("H:\\temp\\arguments.txt", "w");
@@ -70,7 +70,7 @@ int _tmain(int argc, TCHAR* argv[])
 
   // Create the child process.
 
-  auto childProcess = CreateChildProcess(argc, argv);
+  auto childProcess = CreateChildProcess(iArgc, pArgv);
 
   HANDLE parentStdin = GetStdHandle(STD_INPUT_HANDLE);
   HANDLE parentStdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -99,15 +99,15 @@ int _tmain(int argc, TCHAR* argv[])
   return exitCode;
 }
 
-BOOL FileExists(const TCHAR* szPath)
+BOOL FileExists(const TCHAR* pPath)
 {
-  DWORD dwAttrib = GetFileAttributes(szPath);
+  DWORD dwAttrib = GetFileAttributes(pPath);
 
   return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 // Create a child process that uses the previously created pipes for STDIN and STDOUT.
-PROCESS_INFORMATION CreateChildProcess(int argc, TCHAR* argv[])
+PROCESS_INFORMATION CreateChildProcess(int iArgc, TCHAR* pArgv[])
 {
   TCHAR appTmp[] = TEXT("%ANDROID_NDK_HOME%\\prebuilt\\windows-x86_64\\bin\\gdb.exe");
   TCHAR app[MAX_PATH] = {};
@@ -128,10 +128,10 @@ PROCESS_INFORMATION CreateChildProcess(int argc, TCHAR* argv[])
 
   TCHAR szCmdline[4096];
   wsprintf(szCmdline, L"\"%ws\"", app);
-  for (int i = 1; i < argc; i++)
+  for (int i = 1; i < iArgc; i++)
   {
     TCHAR* start = szCmdline + wcslen(szCmdline);
-    wsprintf(start, L" \"%ws\"", argv[i]);
+    wsprintf(start, L" \"%ws\"", pArgv[i]);
   }
 
   PROCESS_INFORMATION piProcInfo;
@@ -181,7 +181,7 @@ PROCESS_INFORMATION CreateChildProcess(int argc, TCHAR* argv[])
   return piProcInfo;
 }
 
-void ErrorExit(const wchar_t* lpszFunction)
+void ErrorExit(const wchar_t* pLpszFunction)
 
 // Format a readable error message, display a message box,
 // and exit from the application.
@@ -193,8 +193,8 @@ void ErrorExit(const wchar_t* lpszFunction)
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw,
     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
 
-  lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
-  StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR), TEXT("%s failed with error %d: %s"), lpszFunction, dw, lpMsgBuf);
+  lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)pLpszFunction) + 40) * sizeof(TCHAR));
+  StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR), TEXT("%s failed with error %d: %s"), pLpszFunction, dw, lpMsgBuf);
   MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
 
   LocalFree(lpMsgBuf);
@@ -202,7 +202,7 @@ void ErrorExit(const wchar_t* lpszFunction)
   ExitProcess(1);
 }
 
-void ForwardThread(HANDLE readHandle, HANDLE writeHandle, const char* logname, const char* logmode)
+void ForwardThread(HANDLE hReadHandle, HANDLE hWriteHandle, const char* szLogname, const char* szLogmode)
 {
 #ifdef OUTPUT_STREAMS_TO_FILE
   FILE* log = fopen(logname, logmode);
@@ -213,7 +213,7 @@ void ForwardThread(HANDLE readHandle, HANDLE writeHandle, const char* logname, c
   while (g_runThreads)
   {
     DWORD numberOfBytesRead = 0;
-    if (ReadFile(readHandle, buffer, ARRAYSIZE(buffer), &numberOfBytesRead, NULL))
+    if (ReadFile(hReadHandle, buffer, ARRAYSIZE(buffer), &numberOfBytesRead, NULL))
     {
       const char* writeBuf = buffer;
       while (numberOfBytesRead > 0)
@@ -226,7 +226,7 @@ void ForwardThread(HANDLE readHandle, HANDLE writeHandle, const char* logname, c
         }
 #endif
         DWORD bytesWritten = 0;
-        if (WriteFile(writeHandle, writeBuf, numberOfBytesRead, &bytesWritten, NULL))
+        if (WriteFile(hWriteHandle, writeBuf, numberOfBytesRead, &bytesWritten, NULL))
         {
           numberOfBytesRead -= bytesWritten;
           writeBuf += bytesWritten;
@@ -255,7 +255,7 @@ error:
   return;
 }
 
-void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
+void ForwardStdin(HANDLE hReadHandle, HANDLE hWriteHandle, HANDLE hParentStdout)
 {
 #ifdef OUTPUT_STREAMS_TO_FILE
   FILE* log = fopen("H:\\temp\\stdin.log", "wb");
@@ -274,7 +274,7 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
   while (g_runThreads && (!solibSearchPathSkipped || !fileExecAndSymbolsSkipped))
   {
     DWORD numberOfBytesRead = 0;
-    if (ReadFile(readHandle, buffer, ARRAYSIZE(buffer), &numberOfBytesRead, NULL))
+    if (ReadFile(hReadHandle, buffer, ARRAYSIZE(buffer), &numberOfBytesRead, NULL))
     {
       const char* writeBuf = buffer;
       while (numberOfBytesRead > 0)
@@ -294,7 +294,7 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
           char answer[256];
           sprintf_s(answer, "%.*s^done\r\n(gdb) \r\n", 4, buffer);
           DWORD bytesWritten = 0;
-          if (!WriteFile(parentStdout, answer, (DWORD)strlen(answer), &bytesWritten, NULL))
+          if (!WriteFile(hParentStdout, answer, (DWORD)strlen(answer), &bytesWritten, NULL))
           {
             goto error;
           }
@@ -307,7 +307,7 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
           char answer[256];
           sprintf_s(answer, "%.*s^done\r\n(gdb) \r\n", 4, buffer);
           DWORD bytesWritten = 0;
-          if (!WriteFile(parentStdout, answer, (DWORD)strlen(answer), &bytesWritten, NULL))
+          if (!WriteFile(hParentStdout, answer, (DWORD)strlen(answer), &bytesWritten, NULL))
           {
             goto error;
           }
@@ -315,7 +315,7 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
         else
         {
           DWORD bytesWritten = 0;
-          if (WriteFile(writeHandle, writeBuf, numberOfBytesRead, &bytesWritten, NULL))
+          if (WriteFile(hWriteHandle, writeBuf, numberOfBytesRead, &bytesWritten, NULL))
           {
             numberOfBytesRead -= bytesWritten;
             writeBuf += bytesWritten;
@@ -336,7 +336,7 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
   while (g_runThreads)
   {
     DWORD numberOfBytesRead = 0;
-    if (ReadFile(readHandle, buffer, ARRAYSIZE(buffer), &numberOfBytesRead, NULL))
+    if (ReadFile(hReadHandle, buffer, ARRAYSIZE(buffer), &numberOfBytesRead, NULL))
     {
       const char* writeBuf = buffer;
       while (numberOfBytesRead > 0)
@@ -351,7 +351,7 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
         {
           DWORD bytesWritten = 0;
           numberOfBytesRead = 0;
-          if (!WriteFile(writeHandle, "quit\r\n", 6, &bytesWritten, NULL))
+          if (!WriteFile(hWriteHandle, "quit\r\n", 6, &bytesWritten, NULL))
           {
             goto error;
           }
@@ -359,7 +359,7 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
         else
         {
           DWORD bytesWritten = 0;
-          if (WriteFile(writeHandle, writeBuf, numberOfBytesRead, &bytesWritten, NULL))
+          if (WriteFile(hWriteHandle, writeBuf, numberOfBytesRead, &bytesWritten, NULL))
           {
             numberOfBytesRead -= bytesWritten;
             writeBuf += bytesWritten;

@@ -3,8 +3,8 @@
 #include <EditorFramework/Dialogs/EditDynamicEnumsDlg.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
-ezQtEditDynamicEnumsDlg::ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWidget* parent)
-  : QDialog(parent)
+ezQtEditDynamicEnumsDlg::ezQtEditDynamicEnumsDlg(ezDynamicStringEnum* pEnum, QWidget* pParent)
+  : QDialog(pParent)
 {
   m_pEnum = pEnum;
   m_Values = m_pEnum->GetAllValidValues();

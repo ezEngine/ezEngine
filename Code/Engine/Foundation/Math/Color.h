@@ -251,12 +251,12 @@ public:
   /// \brief Sets this color from a HSV (hue, saturation, value) format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
-  void SetHSV(float hue, float sat, float val); // [tested]
+  void SetHSV(float fHue, float fSat, float fVal); // [tested]
 
   /// \brief Converts the color part to HSV format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
-  void GetHSV(float& hue, float& sat, float& val) const; // [tested]
+  void GetHSV(float& ref_fHue, float& ref_fSat, float& ref_fVal) const; // [tested]
 
   /// \brief Conversion to const float*
   const float* GetData() const { return &r; }
@@ -268,14 +268,14 @@ public:
   const ezVec4 GetAsVec4() const;
 
   /// \brief Helper function to convert a float color value from gamma space to linear color space.
-  static float GammaToLinear(float gamma); // [tested]
+  static float GammaToLinear(float fGamma); // [tested]
   /// \brief Helper function to convert a float color value from linear space to gamma color space.
-  static float LinearToGamma(float gamma); // [tested]
+  static float LinearToGamma(float fGamma); // [tested]
 
   /// \brief Helper function to convert a float RGB color value from gamma space to linear color space.
-  static ezVec3 GammaToLinear(const ezVec3& gamma); // [tested]
+  static ezVec3 GammaToLinear(const ezVec3& vGamma); // [tested]
   /// \brief Helper function to convert a float RGB color value from linear space to gamma color space.
-  static ezVec3 LinearToGamma(const ezVec3& gamma); // [tested]
+  static ezVec3 LinearToGamma(const ezVec3& vGamma); // [tested]
 
   // *** Color specific functions ***
 public:
@@ -301,7 +301,7 @@ public:
   ezColor GetComplementaryColor() const; // [tested]
 
   /// \brief Multiplies the given factor into red, green and blue, but not alpha.
-  void ScaleRGB(float factor);
+  void ScaleRGB(float fFactor);
 
   /// \brief Returns 1 for an LDR color (all ´RGB components < 1). Otherwise the value of the largest component. Ignores alpha.
   float ComputeHdrMultiplier() const;
@@ -311,7 +311,7 @@ public:
   float ComputeHdrExposureValue() const;
 
   /// \brief Raises 2 to the power \a ev and multiplies RGB with that factor.
-  void ApplyHdrExposureValue(float ev);
+  void ApplyHdrExposureValue(float fEv);
 
   /// \brief If this is an HDR color, the largest component value is used to normalize RGB to LDR range. Alpha is unaffected.
   void NormalizeToLdrRange();
@@ -366,7 +366,7 @@ public:
   bool IsEqualRGBA(const ezColor& rhs, float fEpsilon) const; // [tested]
 
   /// \brief Returns the current color but with changes the alpha value to the given value.
-  ezColor WithAlpha(float alpha) const;
+  ezColor WithAlpha(float fAlpha) const;
 };
 
 // *** Operators ***

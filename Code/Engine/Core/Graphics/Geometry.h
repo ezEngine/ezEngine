@@ -88,18 +88,18 @@ public:
   void Clear();
 
   /// \brief Adds a vertex, returns the index to the added vertex.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& boneIndices = ezVec4U16::ZeroVector(), const ezColorLinearUB& boneWeights = ezColorLinearUB(255, 0, 0, 0));
+  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices = ezVec4U16::ZeroVector(), const ezColorLinearUB& boneWeights = ezColorLinearUB(255, 0, 0, 0));
 
   /// \brief Adds a vertex, returns the index to the added vertex. Position and normal are transformed with the given matrix.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& boneIndices, const ezColorLinearUB& boneWeights, const ezMat4& mTransform)
+  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, const ezMat4& mTransform)
   {
-    return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color, boneIndices, boneWeights);
+    return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color, vBoneIndices, boneWeights);
   }
 
   /// \brief Adds a vertex with a single bone index, returns the index to the added vertex. Position and normal are transformed with the given matrix.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezUInt16 boneIndex, const ezMat4& mTransform)
+  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezUInt16 uiBoneIndex, const ezMat4& mTransform)
   {
-    return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color, ezVec4U16(boneIndex, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0));
+    return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal).GetNormalized(), vTexCoord, color, ezVec4U16(uiBoneIndex, 0, 0, 0), ezColorLinearUB(255, 0, 0, 0));
   }
 
   /// \brief Adds a vertex with a single bone index, returns the index to the added vertex. Position and normal are transformed with the given matrix.
@@ -109,7 +109,7 @@ public:
   }
 
   /// \brief Adds a polygon that consists of all the referenced vertices. No face normal is computed at this point.
-  void AddPolygon(const ezArrayPtr<ezUInt32>& Vertices, bool bFlipWinding);
+  void AddPolygon(const ezArrayPtr<ezUInt32>& vertices, bool bFlipWinding);
 
   /// \brief Adds a line.
   void AddLine(ezUInt32 uiStartVertex, ezUInt32 uiEndVertex);
@@ -139,19 +139,19 @@ public:
   /// Checks if the tangents are approximately orthogonal to the vertex normal and
   /// of unit length. If this is not the case the respective tangent will be zeroed.
   /// The caller can provide a custom floating point comparison epsilon
-  void ValidateTangents(float epsilon = 0.01f);
+  void ValidateTangents(float fEpsilon = 0.01f);
 
   /// \brief Returns the number of triangles that the polygons are made up of
   ezUInt32 CalculateTriangleCount() const;
 
   /// \brief Changes the bone indices for all vertices (starting at vertex \a uiFirstVertex).
-  void SetAllVertexBoneIndices(const ezVec4U16& boneIndices, ezUInt32 uiFirstVertex = 0);
+  void SetAllVertexBoneIndices(const ezVec4U16& vBoneIndices, ezUInt32 uiFirstVertex = 0);
 
   /// \brief Changes the color for all vertices (starting at vertex \a uiFirstVertex).
   void SetAllVertexColor(const ezColor& color, ezUInt32 uiFirstVertex = 0);
 
   /// \brief Changes the texture coordinates for all vertices (starting at vertex \a uiFirstVertex).
-  void SetAllVertexTexCoord(const ezVec2& texCoord, ezUInt32 uiFirstVertex = 0);
+  void SetAllVertexTexCoord(const ezVec2& vTexCoord, ezUInt32 uiFirstVertex = 0);
 
   /// \brief Transforms all vertices by the given transform.
   ///
@@ -165,7 +165,7 @@ public:
   /// \brief Adds a rectangle shape in the XY plane, with the front in positive Z direction.
   /// It is centered at the origin, extending half size.x and half size.y into direction +X, -X, +Y and -Y.
   /// Optionally tessellates the rectangle for more detail.
-  void AddRectXY(const ezVec2& size, ezUInt32 uiTesselationX = 1, ezUInt32 uiTesselationY = 1, const GeoOptions& options = GeoOptions());
+  void AddRectXY(const ezVec2& vSize, ezUInt32 uiTesselationX = 1, ezUInt32 uiTesselationY = 1, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a box.
   /// If bExtraVerticesForTexturing is false, 8 shared vertices are added.
@@ -173,17 +173,17 @@ public:
   void AddBox(const ezVec3& vFullExtents, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds box out of lines (8 vertices).
-  void AddLineBox(const ezVec3& size, const GeoOptions& options = GeoOptions());
+  void AddLineBox(const ezVec3& vSize, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds the 8 corners of a box as lines.
   ///
   /// fCornerFraction must be between 1.0 and 0.0, with 1 making it a completely closed box and 0 no lines at all.
-  void AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const GeoOptions& options = GeoOptions());
+  void AddLineBoxCorners(const ezVec3& vSize, float fCornerFraction, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a pyramid. This is different to a low-res cone in that the corners are placed differently (like on a box).
   ///
   /// The origin is at the center of the base quad.size.z is the height of the pyramid.
-  void AddPyramid(const ezVec3& size, bool bCap, const GeoOptions& options = GeoOptions());
+  void AddPyramid(const ezVec3& vSize, bool bCap, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a geodesic sphere with radius 1 at the origin.
   ///
@@ -249,12 +249,12 @@ public:
   void AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, bool bExtraVerticesForTexturing, const GeoOptions& options = GeoOptions());
 
   /// \brief Adds a ramp that has UV coordinates set.
-  void AddTexturedRamp(const ezVec3& size, const GeoOptions& options = GeoOptions());
+  void AddTexturedRamp(const ezVec3& vSize, const GeoOptions& options = GeoOptions());
 
   /// \brief Generates a straight stair mesh along the X axis. The number of steps determines the step height and depth.
-  void AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const GeoOptions& options = GeoOptions());
+  void AddStairs(const ezVec3& vSize, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const GeoOptions& options = GeoOptions());
 
-  void AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, bool bCapTopAndBottom, const GeoOptions& options = GeoOptions());
+  void AddArch(const ezVec3& vSize, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, bool bCapTopAndBottom, const GeoOptions& options = GeoOptions());
 
   /// \todo GeomUtils improvements:
   // ThickLine

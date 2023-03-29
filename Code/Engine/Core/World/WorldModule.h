@@ -57,10 +57,10 @@ protected:
       };
     };
 
-    UpdateFunctionDesc(const UpdateFunction& function, ezStringView szFunctionName)
+    UpdateFunctionDesc(const UpdateFunction& function, ezStringView sFunctionName)
     {
       m_Function = function;
-      m_sFunctionName.Assign(szFunctionName);
+      m_sFunctionName.Assign(sFunctionName);
     }
 
     UpdateFunction m_Function;                    ///< Delegate to the actual update function.
@@ -125,7 +125,7 @@ public:
   ezWorldModuleTypeId GetTypeId(const ezRTTI* pRtti);
 
   /// \brief Creates a new instance of the world module with the given type id and world.
-  ezWorldModule* CreateWorldModule(ezUInt16 typeId, ezWorld* pWorld);
+  ezWorldModule* CreateWorldModule(ezUInt16 uiTypeId, ezWorld* pWorld);
 
   /// \brief Register explicit a mapping of a world module interface to a specific implementation.
   ///

@@ -343,3 +343,6 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurfa
 
   return IsBasedOn(pThisOrBaseSurface.GetPointer());
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_Physics_Implementation_SurfaceResource);

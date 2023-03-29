@@ -254,7 +254,6 @@ void ezReflectionProbeMapping::MapProbe(ezReflectionProbeId id, ezInt32 iReflect
   ProbeDataInternal& probeData = m_RegisteredProbes[id.m_InstanceIndex];
 
   probeData.m_uiReflectionIndex = iReflectionIndex;
-  EZ_ASSERT_DEBUG(m_MappedCubes[probeData.m_uiReflectionIndex].IsInvalidated(), "A probe is already mapped on this index.");
   m_MappedCubes[probeData.m_uiReflectionIndex] = id;
   m_ActiveProbes.PushBack({id, 0.0f});
 
@@ -274,3 +273,6 @@ void ezReflectionProbeMapping::UnmapProbe(ezReflectionProbeId id)
     m_Events.Broadcast(e);
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionProbeMapping);

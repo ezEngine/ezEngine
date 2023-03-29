@@ -78,7 +78,7 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
   m_pFmod.Clear();
 }
 
-void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
+void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_subAssets) const
 {
   ezHashedString sAssetsDocumentTypeName;
   sAssetsDocumentTypeName.Assign("Sound Event");
@@ -87,7 +87,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 
   ezHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
 
-  for (const ezString& dep : assetInfo.m_AssetTransformDependencies)
+  for (const ezString& dep : assetInfo.m_TransformDependencies)
   {
     if (!ezPathUtils::HasExtension(dep, "bank"))
       continue;
@@ -156,7 +156,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
             sEventName.Shrink(7, 0);
           else
           {
-            ezLog::Warning("Skipping unknown fmod event type: '{0}", sEventName);
+            ezLog::Warning("Skipping unknown Fmod event type: '{0}", sEventName);
             continue;
           }
 
@@ -167,7 +167,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           sGuidNoSpace = sGuid;
           sGuidNoSpace.ReplaceAll(" ", "");
 
-          auto& sub = out_SubAssets.ExpandAndGetRef();
+          auto& sub = out_subAssets.ExpandAndGetRef();
           sub.m_Guid = *ezGuid;
           sub.m_sName = sEventName;
           sub.m_sSubAssetsDocumentTypeName = sAssetsDocumentTypeName;
@@ -185,7 +185,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
 ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   // at the moment we don't reference the actual transformed asset file
-  // instead we reference the source fmod sound bank file
+  // instead we reference the source Fmod sound bank file
   // this makes development easier, as we don't need to wait for an asset transform before changes are available
 
   /// \todo For final release we should reference the transformed file, as it's the one that gets packaged etc.
@@ -193,7 +193,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
 
   // if (pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile())
   {
-    for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_AssetTransformDependencies)
+    for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_TransformDependencies)
     {
       if (dep.EndsWith_NoCase(".bank") && !dep.EndsWith_NoCase(".strings.bank"))
       {

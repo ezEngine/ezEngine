@@ -9,11 +9,11 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i()
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 xyzw)
+EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 iXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  m_v = _mm_set1_epi32(xyzw);
+  m_v = _mm_set1_epi32(iXyzw);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w)
@@ -28,9 +28,9 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInternal::QuadInt v)
   m_v = v;
 }
 
-EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 xyzw)
+EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 iXyzw)
 {
-  m_v = _mm_set1_epi32(xyzw);
+  m_v = _mm_set1_epi32(iXyzw);
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w)
@@ -41,6 +41,55 @@ EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 
 EZ_ALWAYS_INLINE void ezSimdVec4i::SetZero()
 {
   m_v = _mm_setzero_si128();
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<1>(const ezInt32* pInts)
+{
+  m_v = _mm_loadu_si32(pInts);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<2>(const ezInt32* pInts)
+{
+  m_v = _mm_loadu_si64(pInts);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<3>(const ezInt32* pInts)
+{
+  m_v = _mm_setr_epi32(pInts[0], pInts[1], pInts[2], 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<4>(const ezInt32* pInts)
+{
+  m_v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pInts));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<1>(ezInt32* pInts) const
+{
+  _mm_storeu_si32(pInts, m_v);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<2>(ezInt32* pInts) const
+{
+  _mm_storeu_si64(pInts, m_v);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<3>(ezInt32* pInts) const
+{
+  _mm_storeu_si64(pInts, m_v);
+  _mm_storeu_si32(pInts + 2, _mm_castps_si128(_mm_movehl_ps(_mm_castsi128_ps(m_v), _mm_castsi128_ps(m_v))));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<4>(ezInt32* pInts) const
+{
+  _mm_storeu_si128(reinterpret_cast<__m128i*>(pInts), m_v);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ToFloat() const
@@ -117,6 +166,27 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMul(const ezSimdVec4i& v) const
 #endif
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompDiv(const ezSimdVec4i& v) const
+{
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
+  return _mm_div_epi32(m_v, v.m_v);
+#else
+  int a[4];
+  int b[4];
+  Store<4>(a);
+  v.Store<4>(b);
+
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    a[i] = a[i] / b[i];
+  }
+
+  ezSimdVec4i r;
+  r.Load<4>(a);
+  return r;
+#endif
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator|(const ezSimdVec4i& v) const
 {
   return _mm_or_si128(m_v, v.m_v);
@@ -146,6 +216,40 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator<<(ezUInt32 uiShift) const
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(ezUInt32 uiShift) const
 {
   return _mm_srai_epi32(m_v, uiShift);
+}
+
+EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
+{
+  int a[4];
+  int b[4];
+  Store<4>(a);
+  v.Store<4>(b);
+
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    a[i] = a[i] << b[i];
+  }
+
+  ezSimdVec4i r;
+  r.Load<4>(a);
+  return r;
+}
+
+EZ_FORCE_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
+{
+  int a[4];
+  int b[4];
+  Store<4>(a);
+  v.Store<4>(b);
+
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    a[i] = a[i] >> b[i];
+  }
+
+  ezSimdVec4i r;
+  r.Load<4>(a);
+  return r;
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i& ezSimdVec4i::operator+=(const ezSimdVec4i& v)
@@ -255,6 +359,16 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
 {
   return _mm_setzero_si128();
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse)
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(vFalse.m_v), _mm_castsi128_ps(vTrue.m_v), vCmp.m_v));
+#else
+  return _mm_castps_si128(_mm_or_ps(_mm_andnot_ps(cmp.m_v, _mm_castsi128_ps(ifFalse.m_v)), _mm_and_ps(cmp.m_v, _mm_castsi128_ps(ifTrue.m_v))));
+#endif
 }
 
 // not needed atm

@@ -14,8 +14,8 @@ namespace ezRmlUiInternal
     BlackboardDataBinding(const ezSharedPtr<ezBlackboard>& pBlackboard);
     ~BlackboardDataBinding();
 
-    virtual ezResult Initialize(Rml::Context& context) override;
-    virtual void Deinitialize(Rml::Context& context) override;
+    virtual ezResult Initialize(Rml::Context& ref_context) override;
+    virtual void Deinitialize(Rml::Context& ref_context) override;
     virtual void Update() override;
 
   private:
@@ -25,15 +25,15 @@ namespace ezRmlUiInternal
 
     struct EntryWrapper
     {
-      EntryWrapper(ezBlackboard& blackboard, const ezHashedString& sName, ezUInt32 uiChangeCounter)
-        : m_Blackboard(blackboard)
+      EntryWrapper(ezBlackboard& ref_blackboard, const ezHashedString& sName, ezUInt32 uiChangeCounter)
+        : m_Blackboard(ref_blackboard)
         , m_sName(sName)
         , m_uiChangeCounter(uiChangeCounter)
       {
       }
 
       void SetValue(const Rml::Variant& value);
-      void GetValue(Rml::Variant& out_Value) const;
+      void GetValue(Rml::Variant& out_value) const;
 
       ezBlackboard& m_Blackboard;
       ezHashedString m_sName;

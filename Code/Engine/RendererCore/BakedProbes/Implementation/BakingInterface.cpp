@@ -17,24 +17,27 @@ EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 static ezTypeVersion s_BakingSettingsVersion = 1;
-ezResult ezBakingSettings::Serialize(ezStreamWriter& stream) const
+ezResult ezBakingSettings::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(s_BakingSettingsVersion);
+  inout_stream.WriteVersion(s_BakingSettingsVersion);
 
-  stream << m_vProbeSpacing;
-  stream << m_uiNumSamplesPerProbe;
-  stream << m_fMaxRayDistance;
+  inout_stream << m_vProbeSpacing;
+  inout_stream << m_uiNumSamplesPerProbe;
+  inout_stream << m_fMaxRayDistance;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezBakingSettings::Deserialize(ezStreamReader& stream)
+ezResult ezBakingSettings::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = stream.ReadVersion(s_BakingSettingsVersion);
+  const ezTypeVersion version = inout_stream.ReadVersion(s_BakingSettingsVersion);
 
-  stream >> m_vProbeSpacing;
-  stream >> m_uiNumSamplesPerProbe;
-  stream >> m_fMaxRayDistance;
+  inout_stream >> m_vProbeSpacing;
+  inout_stream >> m_uiNumSamplesPerProbe;
+  inout_stream >> m_fMaxRayDistance;
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_BakedProbes_Implementation_BakingInterface);

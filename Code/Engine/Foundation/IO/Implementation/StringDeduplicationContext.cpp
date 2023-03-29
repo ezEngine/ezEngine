@@ -6,9 +6,9 @@ static const ezTypeVersion s_uiStringDeduplicationVersion = 1;
 
 EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezStringDeduplicationWriteContext)
 
-ezStringDeduplicationWriteContext::ezStringDeduplicationWriteContext(ezStreamWriter& OriginalStream)
+ezStringDeduplicationWriteContext::ezStringDeduplicationWriteContext(ezStreamWriter& ref_originalStream)
   : ezSerializationContext()
-  , m_OriginalStream(OriginalStream)
+  , m_OriginalStream(ref_originalStream)
 {
 }
 
@@ -55,17 +55,17 @@ ezResult ezStringDeduplicationWriteContext::End()
   return EZ_SUCCESS;
 }
 
-void ezStringDeduplicationWriteContext::SerializeString(const ezStringView& String, ezStreamWriter& Writer)
+void ezStringDeduplicationWriteContext::SerializeString(const ezStringView& sString, ezStreamWriter& ref_writer)
 {
   bool bAlreadDeduplicated = false;
-  auto it = m_DeduplicatedStrings.FindOrAdd(String, &bAlreadDeduplicated);
+  auto it = m_DeduplicatedStrings.FindOrAdd(sString, &bAlreadDeduplicated);
 
   if (!bAlreadDeduplicated)
   {
     it.Value() = m_DeduplicatedStrings.GetCount() - 1;
   }
 
-  Writer << it.Value();
+  ref_writer << it.Value();
 }
 
 ezUInt32 ezStringDeduplicationWriteContext::GetUniqueStringCount() const
@@ -76,22 +76,22 @@ ezUInt32 ezStringDeduplicationWriteContext::GetUniqueStringCount() const
 
 EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezStringDeduplicationReadContext)
 
-ezStringDeduplicationReadContext::ezStringDeduplicationReadContext(ezStreamReader& Stream)
+ezStringDeduplicationReadContext::ezStringDeduplicationReadContext(ezStreamReader& inout_stream)
   : ezSerializationContext()
 {
   // We set the context manually to nullptr to get the original string table
   SetContext(nullptr);
 
   // Read the string table first
-  /*auto version =*/Stream.ReadVersion(s_uiStringDeduplicationVersion);
+  /*auto version =*/inout_stream.ReadVersion(s_uiStringDeduplicationVersion);
 
   ezUInt64 uiNumEntries = 0;
-  Stream >> uiNumEntries;
+  inout_stream >> uiNumEntries;
 
   for (ezUInt64 i = 0; i < uiNumEntries; ++i)
   {
     ezStringBuilder Builder;
-    Stream >> Builder;
+    inout_stream >> Builder;
 
     m_DeduplicatedStrings.ExpandAndGetRef() = std::move(Builder);
   }
@@ -101,10 +101,10 @@ ezStringDeduplicationReadContext::ezStringDeduplicationReadContext(ezStreamReade
 
 ezStringDeduplicationReadContext::~ezStringDeduplicationReadContext() = default;
 
-ezStringView ezStringDeduplicationReadContext::DeserializeString(ezStreamReader& Reader)
+ezStringView ezStringDeduplicationReadContext::DeserializeString(ezStreamReader& ref_reader)
 {
   ezUInt32 uiIndex;
-  Reader >> uiIndex;
+  ref_reader >> uiIndex;
 
   return m_DeduplicatedStrings[uiIndex].GetView();
 }

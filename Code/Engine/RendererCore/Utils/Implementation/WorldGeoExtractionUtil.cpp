@@ -13,14 +13,14 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractGeometry);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractGeometry, 1, ezRTTIDefaultAllocator<ezMsgExtractGeometry>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags /*= nullptr*/)
+void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, ezTagSet* pExcludeTags /*= nullptr*/)
 {
   EZ_PROFILE_SCOPE("ExtractWorldGeometry");
   EZ_LOG_BLOCK("ExtractWorldGeometry", world.GetName());
 
   ezMsgExtractGeometry msg;
   msg.m_Mode = mode;
-  msg.m_pMeshObjects = &objects;
+  msg.m_pMeshObjects = &ref_objects;
 
   EZ_LOCK(world.GetReadMarker());
 
@@ -33,14 +33,14 @@ void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& objects, con
   }
 }
 
-void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& objects, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection)
+void ezWorldGeoExtractionUtil::ExtractWorldGeometry(MeshObjectList& ref_objects, const ezWorld& world, ExtractionMode mode, const ezDeque<ezGameObjectHandle>& selection)
 {
   EZ_PROFILE_SCOPE("ExtractWorldGeometry");
   EZ_LOG_BLOCK("ExtractWorldGeometry", world.GetName());
 
   ezMsgExtractGeometry msg;
   msg.m_Mode = mode;
-  msg.m_pMeshObjects = &objects;
+  msg.m_pMeshObjects = &ref_objects;
 
   EZ_LOCK(world.GetReadMarker());
 
@@ -195,4 +195,4 @@ void ezMsgExtractGeometry::AddBox(const ezTransform& transform, ezVec3 vExtents)
   meshObject.m_hMeshResource = hBoxMesh;
 }
 
-EZ_STATICLINK_FILE(Core, Core_Utils_Implementation_WorldGeoExtractionUtil);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Utils_Implementation_WorldGeoExtractionUtil);

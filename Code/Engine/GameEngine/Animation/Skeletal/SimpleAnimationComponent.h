@@ -12,7 +12,6 @@
 #include <ozz/base/maths/soa_transform.h>
 
 class ezEventTrack;
-struct ezMsgAnimationReachedEnd;
 struct ezMsgGenericEvent;
 
 using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
@@ -28,8 +27,8 @@ class EZ_GAMEENGINE_DLL ezSimpleAnimationComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;

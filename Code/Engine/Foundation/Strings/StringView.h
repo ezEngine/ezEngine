@@ -74,8 +74,8 @@ public:
   ///
   /// The string will be copied to \a tempStorage and the pointer to that is returned.
   /// If you really need the raw pointer to the ezStringView memory or are absolutely certain that the view points
-  /// to a zero-terminated string, you can use
-  const char* GetData(ezStringBuilder& tempStorage) const; // [tested]
+  /// to a zero-terminated string, you can use GetStartPointer()
+  const char* GetData(ezStringBuilder& ref_sTempStorage) const; // [tested]
 
   /// \brief Returns the number of bytes from the start position up to its end.
   ///
@@ -159,11 +159,11 @@ public:
 
   /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
   /// returned. Otherwise nullptr.
-  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
   /// returned. Otherwise nullptr. Ignores case.
-  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
+  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER isDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
 
 
   /// \brief Shrinks the view range by uiShrinkCharsFront characters at the front and by uiShrinkCharsBack characters at the back.
@@ -177,6 +177,14 @@ public:
 
   /// \brief Returns a sub-string that is shrunk at the start and front by the given amount of characters (not bytes!).
   ezStringView GetShrunk(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack = 0) const;
+
+  /// \brief Identical to 'Shrink(1, 0)' in functionality, but slightly more efficient.
+  void ChopAwayFirstCharacterUtf8(); // [tested]
+
+  /// \brief Similar to ChopAwayFirstCharacterUtf8(), but assumes that the first character is ASCII and thus exactly one byte in length.
+  /// Asserts that this is the case.
+  /// More efficient than ChopAwayFirstCharacterUtf8(), if it is known that the first character is ASCII.
+  void ChopAwayFirstCharacterAscii(); // [tested]
 
   /// \brief Removes all characters from the start and end that appear in the given strings by adjusting the begin and end of the view.
   void Trim(const char* szTrimChars); // [tested]
@@ -196,7 +204,7 @@ public:
   /// szSeparator1 to szSeparator6 are strings which act as separators and indicate where to split the string.
   /// This string itself will not be modified.
   template <typename Container>
-  void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
+  void Split(bool bReturnEmptyStrings, Container& ref_output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
 
   /// \brief Returns an iterator to this string, which points to the very first character.
   ///
@@ -268,47 +276,47 @@ private:
 ///
 /// Example:
 /// "Hello World"
-constexpr ezStringView operator"" _ezsv(const char* pString, size_t len);
+constexpr ezStringView operator"" _ezsv(const char* pString, size_t uiLen);
 
-EZ_ALWAYS_INLINE typename ezStringView::iterator begin(ezStringView container)
+EZ_ALWAYS_INLINE typename ezStringView::iterator begin(ezStringView sContainer)
 {
-  return typename ezStringView::iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetStartPointer());
+  return typename ezStringView::iterator(sContainer.GetStartPointer(), sContainer.GetEndPointer(), sContainer.GetStartPointer());
 }
 
-EZ_ALWAYS_INLINE typename ezStringView::const_iterator cbegin(ezStringView container)
+EZ_ALWAYS_INLINE typename ezStringView::const_iterator cbegin(ezStringView sContainer)
 {
-  return typename ezStringView::const_iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetStartPointer());
+  return typename ezStringView::const_iterator(sContainer.GetStartPointer(), sContainer.GetEndPointer(), sContainer.GetStartPointer());
 }
 
-EZ_ALWAYS_INLINE typename ezStringView::iterator end(ezStringView container)
+EZ_ALWAYS_INLINE typename ezStringView::iterator end(ezStringView sContainer)
 {
-  return typename ezStringView::iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetEndPointer());
+  return typename ezStringView::iterator(sContainer.GetStartPointer(), sContainer.GetEndPointer(), sContainer.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE typename ezStringView::const_iterator cend(ezStringView container)
+EZ_ALWAYS_INLINE typename ezStringView::const_iterator cend(ezStringView sContainer)
 {
-  return typename ezStringView::const_iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetEndPointer());
+  return typename ezStringView::const_iterator(sContainer.GetStartPointer(), sContainer.GetEndPointer(), sContainer.GetEndPointer());
 }
 
 
-EZ_ALWAYS_INLINE typename ezStringView::reverse_iterator rbegin(ezStringView container)
+EZ_ALWAYS_INLINE typename ezStringView::reverse_iterator rbegin(ezStringView sContainer)
 {
-  return typename ezStringView::reverse_iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetEndPointer());
+  return typename ezStringView::reverse_iterator(sContainer.GetStartPointer(), sContainer.GetEndPointer(), sContainer.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE typename ezStringView::const_reverse_iterator crbegin(ezStringView container)
+EZ_ALWAYS_INLINE typename ezStringView::const_reverse_iterator crbegin(ezStringView sContainer)
 {
-  return typename ezStringView::const_reverse_iterator(container.GetStartPointer(), container.GetEndPointer(), container.GetEndPointer());
+  return typename ezStringView::const_reverse_iterator(sContainer.GetStartPointer(), sContainer.GetEndPointer(), sContainer.GetEndPointer());
 }
 
-EZ_ALWAYS_INLINE typename ezStringView::reverse_iterator rend(ezStringView container)
+EZ_ALWAYS_INLINE typename ezStringView::reverse_iterator rend(ezStringView sContainer)
 {
-  return typename ezStringView::reverse_iterator(container.GetStartPointer(), container.GetEndPointer(), nullptr);
+  return typename ezStringView::reverse_iterator(sContainer.GetStartPointer(), sContainer.GetEndPointer(), nullptr);
 }
 
-EZ_ALWAYS_INLINE typename ezStringView::const_reverse_iterator crend(ezStringView container)
+EZ_ALWAYS_INLINE typename ezStringView::const_reverse_iterator crend(ezStringView sContainer)
 {
-  return typename ezStringView::const_reverse_iterator(container.GetStartPointer(), container.GetEndPointer(), nullptr);
+  return typename ezStringView::const_reverse_iterator(sContainer.GetStartPointer(), sContainer.GetEndPointer(), nullptr);
 }
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>

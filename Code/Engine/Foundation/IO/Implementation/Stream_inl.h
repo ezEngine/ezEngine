@@ -140,22 +140,22 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 
 #endif
 
-ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion uiExpectedMaxVersion)
+ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion expectedMaxVersion)
 {
   ezTypeVersion v = 0;
   ReadWordValue(&v).IgnoreResult();
 
-  EZ_ASSERT_ALWAYS(v <= uiExpectedMaxVersion, "Read version ({0}) is larger than expected max version ({1}).", v, uiExpectedMaxVersion);
+  EZ_ASSERT_ALWAYS(v <= expectedMaxVersion, "Read version ({0}) is larger than expected max version ({1}).", v, expectedMaxVersion);
   EZ_ASSERT_ALWAYS(v > 0, "Invalid version.");
 
   return v;
 }
 
-void ezStreamWriter::WriteVersion(ezTypeVersion uiVersion)
+void ezStreamWriter::WriteVersion(ezTypeVersion version)
 {
-  EZ_ASSERT_ALWAYS(uiVersion > 0, "Version cannot be zero.");
+  EZ_ASSERT_ALWAYS(version > 0, "Version cannot be zero.");
 
-  WriteWordValue(&uiVersion).IgnoreResult();
+  WriteWordValue(&version).IgnoreResult();
 }
 
 
@@ -164,84 +164,93 @@ namespace ezStreamWriterUtil
   // single element serialization
 
   template <class T>
-  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, int) -> decltype(stream << Obj, ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& inout_stream, const T& obj, int) -> decltype(inout_stream << obj, ezResult(EZ_SUCCESS))
   {
-    stream << Obj;
+    inout_stream << obj;
 
     return EZ_SUCCESS;
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, long) -> decltype(Obj.Serialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& inout_stream, const T& obj, long) -> decltype(obj.Serialize(inout_stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return ezToResult(Obj.Serialize(stream));
+    return ezToResult(obj.Serialize(inout_stream));
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& stream, const T& Obj, float) -> decltype(Obj.serialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeImpl(ezStreamWriter& inout_stream, const T& obj, float) -> decltype(obj.serialize(inout_stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return ezToResult(Obj.serialize(stream));
+    return ezToResult(obj.serialize(inout_stream));
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto Serialize(ezStreamWriter& stream, const T& Obj) -> decltype(SerializeImpl(stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto Serialize(ezStreamWriter& inout_stream, const T& obj) -> decltype(SerializeImpl(inout_stream, obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return SerializeImpl(stream, Obj, 0);
+    return SerializeImpl(inout_stream, obj, 0);
   }
 
   // serialization of array
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   template <class T>
-  EZ_ALWAYS_INLINE auto SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, int) -> decltype(SerializeArray(stream, pArray, uiCount), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto SerializeArrayImpl(ezStreamWriter& inout_stream, const T* pArray, ezUInt64 uiCount, int) -> decltype(SerializeArray(inout_stream, pArray, uiCount), ezResult(EZ_SUCCESS))
   {
-    return SerializeArray(stream, pArray, uiCount);
+    return SerializeArray(inout_stream, pArray, uiCount);
   }
 #endif
 
   template <class T>
-  ezResult SerializeArrayImpl(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount, long)
+  ezResult SerializeArrayImpl(ezStreamWriter& inout_stream, const T* pArray, ezUInt64 uiCount, long)
   {
     for (ezUInt64 i = 0; i < uiCount; ++i)
     {
-      EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<T>(stream, pArray[i]));
+      EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<T>(inout_stream, pArray[i]));
     }
 
     return EZ_SUCCESS;
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE ezResult SerializeArray(ezStreamWriter& stream, const T* pArray, ezUInt64 uiCount)
+  EZ_ALWAYS_INLINE ezResult SerializeArray(ezStreamWriter& inout_stream, const T* pArray, ezUInt64 uiCount)
   {
-    return SerializeArrayImpl(stream, pArray, uiCount, 0);
+    return SerializeArrayImpl(inout_stream, pArray, uiCount, 0);
   }
 } // namespace ezStreamWriterUtil
 
 template <typename ArrayType, typename ValueType>
-ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& Array)
+ezResult ezStreamWriter::WriteArray(const ezArrayBase<ValueType, ArrayType>& array)
 {
-  const ezUInt64 uiCount = Array.GetCount();
+  const ezUInt64 uiCount = array.GetCount();
   EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiCount));
 
-  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, Array.GetArrayPtr().GetPtr(), Array.GetCount());
+  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, array.GetData(), array.GetCount());
+}
+
+template <typename ValueType, ezUInt16 uiSize>
+ezResult ezStreamWriter::WriteArray(const ezSmallArrayBase<ValueType, uiSize>& array)
+{
+  const ezUInt32 uiCount = array.GetCount();
+  EZ_SUCCEED_OR_RETURN(WriteDWordValue(&uiCount));
+
+  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, array.GetData(), array.GetCount());
 }
 
 template <typename ValueType, ezUInt32 uiSize>
-ezResult ezStreamWriter::WriteArray(const ValueType (&Array)[uiSize])
+ezResult ezStreamWriter::WriteArray(const ValueType (&array)[uiSize])
 {
   const ezUInt64 uiWriteSize = uiSize;
   EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
-  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, Array, uiSize);
+  return ezStreamWriterUtil::SerializeArray<ValueType>(*this, array, uiSize);
 }
 
 template <typename KeyType, typename Comparer>
-ezResult ezStreamWriter::WriteSet(const ezSetBase<KeyType, Comparer>& Set)
+ezResult ezStreamWriter::WriteSet(const ezSetBase<KeyType, Comparer>& set)
 {
-  const ezUInt64 uiWriteSize = Set.GetCount();
+  const ezUInt64 uiWriteSize = set.GetCount();
   EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
-  for (const auto& item : Set)
+  for (const auto& item : set)
   {
     EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<KeyType>(*this, item));
   }
@@ -250,12 +259,12 @@ ezResult ezStreamWriter::WriteSet(const ezSetBase<KeyType, Comparer>& Set)
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezResult ezStreamWriter::WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& Map)
+ezResult ezStreamWriter::WriteMap(const ezMapBase<KeyType, ValueType, Comparer>& map)
 {
-  const ezUInt64 uiWriteSize = Map.GetCount();
+  const ezUInt64 uiWriteSize = map.GetCount();
   EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
-  for (auto It = Map.GetIterator(); It.IsValid(); ++It)
+  for (auto It = map.GetIterator(); It.IsValid(); ++It)
   {
     EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<KeyType>(*this, It.Key()));
     EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<ValueType>(*this, It.Value()));
@@ -265,12 +274,12 @@ ezResult ezStreamWriter::WriteMap(const ezMapBase<KeyType, ValueType, Comparer>&
 }
 
 template <typename KeyType, typename ValueType, typename Hasher>
-ezResult ezStreamWriter::WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& HashTable)
+ezResult ezStreamWriter::WriteHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& hashTable)
 {
-  const ezUInt64 uiWriteSize = HashTable.GetCount();
+  const ezUInt64 uiWriteSize = hashTable.GetCount();
   EZ_SUCCEED_OR_RETURN(WriteQWordValue(&uiWriteSize));
 
-  for (auto It = HashTable.GetIterator(); It.IsValid(); ++It)
+  for (auto It = hashTable.GetIterator(); It.IsValid(); ++It)
   {
     EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<KeyType>(*this, It.Key()));
     EZ_SUCCEED_OR_RETURN(ezStreamWriterUtil::Serialize<ValueType>(*this, It.Value()));
@@ -282,75 +291,75 @@ ezResult ezStreamWriter::WriteHashTable(const ezHashTableBase<KeyType, ValueType
 namespace ezStreamReaderUtil
 {
   template <class T>
-  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, int) -> decltype(stream >> Obj, ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& inout_stream, T& ref_obj, int) -> decltype(inout_stream >> ref_obj, ezResult(EZ_SUCCESS))
   {
-    stream >> Obj;
+    inout_stream >> ref_obj;
 
     return EZ_SUCCESS;
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, long) -> decltype(Obj.Deserialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& inout_stream, T& inout_obj, long) -> decltype(inout_obj.Deserialize(inout_stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return ezToResult(Obj.Deserialize(stream));
+    return ezToResult(inout_obj.Deserialize(inout_stream));
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& stream, T& Obj, float) -> decltype(Obj.deserialize(stream).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeImpl(ezStreamReader& inout_stream, T& inout_obj, float) -> decltype(inout_obj.deserialize(inout_stream).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return ezToResult(Obj.deserialize(stream));
+    return ezToResult(inout_obj.deserialize(inout_stream));
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE auto Deserialize(ezStreamReader& stream, T& Obj) -> decltype(DeserializeImpl(stream, Obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto Deserialize(ezStreamReader& inout_stream, T& inout_obj) -> decltype(DeserializeImpl(inout_stream, inout_obj, 0).IgnoreResult(), ezResult(EZ_SUCCESS))
   {
-    return DeserializeImpl(stream, Obj, 0);
+    return DeserializeImpl(inout_stream, inout_obj, 0);
   }
 
   // serialization of array
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   template <class T>
-  EZ_ALWAYS_INLINE auto DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, int) -> decltype(DeserializeArray(stream, pArray, uiCount), ezResult(EZ_SUCCESS))
+  EZ_ALWAYS_INLINE auto DeserializeArrayImpl(ezStreamReader& inout_stream, T* pArray, ezUInt64 uiCount, int) -> decltype(DeserializeArray(inout_stream, pArray, uiCount), ezResult(EZ_SUCCESS))
   {
-    return DeserializeArray(stream, pArray, uiCount);
+    return DeserializeArray(inout_stream, pArray, uiCount);
   }
 #endif
 
   template <class T>
-  ezResult DeserializeArrayImpl(ezStreamReader& stream, T* pArray, ezUInt64 uiCount, long)
+  ezResult DeserializeArrayImpl(ezStreamReader& inout_stream, T* pArray, ezUInt64 uiCount, long)
   {
     for (ezUInt64 i = 0; i < uiCount; ++i)
     {
-      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(stream, pArray[i]));
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(inout_stream, pArray[i]));
     }
 
     return EZ_SUCCESS;
   }
 
   template <class T>
-  EZ_ALWAYS_INLINE ezResult DeserializeArray(ezStreamReader& stream, T* pArray, ezUInt64 uiCount)
+  EZ_ALWAYS_INLINE ezResult DeserializeArray(ezStreamReader& inout_stream, T* pArray, ezUInt64 uiCount)
   {
-    return DeserializeArrayImpl(stream, pArray, uiCount, 0);
+    return DeserializeArrayImpl(inout_stream, pArray, uiCount, 0);
   }
 
 } // namespace ezStreamReaderUtil
 
 template <typename ArrayType, typename ValueType>
-ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
+ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& inout_array)
 {
   ezUInt64 uiCount = 0;
   EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
   if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    Array.Clear();
+    inout_array.Clear();
 
     if (uiCount > 0)
     {
-      static_cast<ArrayType&>(Array).SetCount(static_cast<ezUInt32>(uiCount));
+      static_cast<ArrayType&>(inout_array).SetCount(static_cast<ezUInt32>(uiCount));
 
-      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::DeserializeArray<ValueType>(*this, Array.GetData(), uiCount));
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::DeserializeArray<ValueType>(*this, inout_array.GetData(), uiCount));
     }
 
     return EZ_SUCCESS;
@@ -362,8 +371,34 @@ ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
   }
 }
 
+template <typename ValueType, ezUInt16 uiSize, typename AllocatorWrapper>
+ezResult ezStreamReader::ReadArray(ezSmallArray<ValueType, uiSize, AllocatorWrapper>& ref_array)
+{
+  ezUInt32 uiCount = 0;
+  EZ_SUCCEED_OR_RETURN(ReadDWordValue(&uiCount));
+
+  if (uiCount < ezMath::MaxValue<ezUInt16>())
+  {
+    ref_array.Clear();
+
+    if (uiCount > 0)
+    {
+      ref_array.SetCount(static_cast<ezUInt16>(uiCount));
+
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::DeserializeArray<ValueType>(*this, ref_array.GetData(), uiCount));
+    }
+
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    // Small array uses 16 bit for counts internally. Value from file is too large.
+    return EZ_FAILURE;
+  }
+}
+
 template <typename ValueType, ezUInt32 uiSize>
-ezResult ezStreamReader::ReadArray(ValueType (&Array)[uiSize])
+ezResult ezStreamReader::ReadArray(ValueType (&array)[uiSize])
 {
   ezUInt64 uiCount = 0;
   EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
@@ -373,7 +408,7 @@ ezResult ezStreamReader::ReadArray(ValueType (&Array)[uiSize])
 
   if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::DeserializeArray<ValueType>(*this, Array, uiCount));
+    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::DeserializeArray<ValueType>(*this, array, uiCount));
 
     return EZ_SUCCESS;
   }
@@ -383,21 +418,21 @@ ezResult ezStreamReader::ReadArray(ValueType (&Array)[uiSize])
 }
 
 template <typename KeyType, typename Comparer>
-ezResult ezStreamReader::ReadSet(ezSetBase<KeyType, Comparer>& Set)
+ezResult ezStreamReader::ReadSet(ezSetBase<KeyType, Comparer>& inout_set)
 {
   ezUInt64 uiCount = 0;
   EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
   if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    Set.Clear();
+    inout_set.Clear();
 
     for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
     {
       KeyType Item;
       EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Item));
 
-      Set.Insert(std::move(Item));
+      inout_set.Insert(std::move(Item));
     }
 
     return EZ_SUCCESS;
@@ -410,14 +445,14 @@ ezResult ezStreamReader::ReadSet(ezSetBase<KeyType, Comparer>& Set)
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezResult ezStreamReader::ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map)
+ezResult ezStreamReader::ReadMap(ezMapBase<KeyType, ValueType, Comparer>& inout_map)
 {
   ezUInt64 uiCount = 0;
   EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
   if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    Map.Clear();
+    inout_map.Clear();
 
     for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
     {
@@ -426,7 +461,7 @@ ezResult ezStreamReader::ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map)
       EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Key));
       EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Value));
 
-      Map.Insert(std::move(Key), std::move(Value));
+      inout_map.Insert(std::move(Key), std::move(Value));
     }
 
     return EZ_SUCCESS;
@@ -439,15 +474,15 @@ ezResult ezStreamReader::ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map)
 }
 
 template <typename KeyType, typename ValueType, typename Hasher>
-ezResult ezStreamReader::ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& HashTable)
+ezResult ezStreamReader::ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& inout_hashTable)
 {
   ezUInt64 uiCount = 0;
   EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
   if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    HashTable.Clear();
-    HashTable.Reserve(static_cast<ezUInt32>(uiCount));
+    inout_hashTable.Clear();
+    inout_hashTable.Reserve(static_cast<ezUInt32>(uiCount));
 
     for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
     {
@@ -456,7 +491,7 @@ ezResult ezStreamReader::ReadHashTable(ezHashTableBase<KeyType, ValueType, Hashe
       EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Key));
       EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Value));
 
-      HashTable.Insert(std::move(Key), std::move(Value));
+      inout_hashTable.Insert(std::move(Key), std::move(Value));
     }
 
     return EZ_SUCCESS;

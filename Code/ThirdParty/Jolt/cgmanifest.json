@@ -5,7 +5,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/jrouwe/JoltPhysics",
-          "commitHash": "31145e820ae6f79d567ef4cd62f63db57f2a53aa"
+          "commitHash": "364071164528f173539d49c7043e94798a40473d"
         }
       }
     }

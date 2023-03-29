@@ -33,11 +33,13 @@ public:
   /// \brief Searches for a group without a name and returns the index or -1 if none found.
   ezInt32 FindUnnamedGroup() const;
 
-  void Save(ezStreamWriter& stream) const;
-  void Load(ezStreamReader& stream);
+  void Save(ezStreamWriter& inout_stream) const;
+  void Load(ezStreamReader& inout_stream);
 
-  ezResult Save(const char* szFile) const;
-  ezResult Load(const char* szFile);
+  static constexpr const ezStringView s_sConfigFile = ":project/RuntimeConfigs/CollisionLayers.cfg"_ezsv;
+
+  ezResult Save(ezStringView sFile = s_sConfigFile) const;
+  ezResult Load(ezStringView sFile = s_sConfigFile);
 
 
 private:

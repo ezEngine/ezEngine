@@ -40,6 +40,8 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
   for (ezUInt32 i = 0; i < eventData.m_uiIndentation; ++i)
     printf(" ");
 
+  ezStringBuilder sTemp1, sTemp2;
+
   switch (eventData.m_EventType)
   {
     case ezLogMsgType::Flush:
@@ -48,58 +50,58 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
 
     case ezLogMsgType::BeginGroup:
       SetConsoleColor(0x02);
-      printf("+++++ %s (%s) +++++\n", eventData.m_szText, eventData.m_szTag);
+      printf("+++++ %s (%s) +++++\n", eventData.m_sText.GetData(sTemp1), eventData.m_sTag.GetData(sTemp2));
       break;
 
     case ezLogMsgType::EndGroup:
       SetConsoleColor(0x02);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      printf("----- %s (%.6f sec)-----\n\n", eventData.m_szText, eventData.m_fSeconds);
+      printf("----- %s (%.6f sec)-----\n\n", eventData.m_sText.GetData(sTemp1), eventData.m_fSeconds);
 #else
-      printf("----- %s (%s)-----\n\n", eventData.m_szText, "timing info not available");
+      printf("----- %s (%s)-----\n\n", eventData.m_sText.GetData(sTemp1), "timing info not available");
 #endif
       break;
 
     case ezLogMsgType::ErrorMsg:
       SetConsoleColor(0x0C);
-      printf("%sError: %s\n", sTimestamp.GetData(), eventData.m_szText);
+      printf("%sError: %s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       fflush(stdout);
       break;
 
     case ezLogMsgType::SeriousWarningMsg:
       SetConsoleColor(0x0C);
-      printf("%sSeriously: %s\n", sTimestamp.GetData(), eventData.m_szText);
+      printf("%sSeriously: %s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     case ezLogMsgType::WarningMsg:
       SetConsoleColor(0x0E);
-      printf("%sWarning: %s\n", sTimestamp.GetData(), eventData.m_szText);
+      printf("%sWarning: %s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     case ezLogMsgType::SuccessMsg:
       SetConsoleColor(0x0A);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_szText);
+      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       fflush(stdout);
       break;
 
     case ezLogMsgType::InfoMsg:
       SetConsoleColor(0x07);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_szText);
+      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     case ezLogMsgType::DevMsg:
       SetConsoleColor(0x08);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_szText);
+      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     case ezLogMsgType::DebugMsg:
       SetConsoleColor(0x09);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_szText);
+      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
       break;
 
     default:
       SetConsoleColor(0x0D);
-      printf("%s%s\n", sTimestamp.GetData(), eventData.m_szText);
+      printf("%s%s\n", sTimestamp.GetData(), eventData.m_sText.GetData(sTemp1));
 
       ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
       break;

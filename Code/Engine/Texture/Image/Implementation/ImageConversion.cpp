@@ -104,25 +104,25 @@ namespace
 
   struct IntermediateBuffer
   {
-    IntermediateBuffer(ezUInt32 bitsPerBlock)
-      : m_bitsPerBlock(bitsPerBlock)
+    IntermediateBuffer(ezUInt32 uiBitsPerBlock)
+      : m_bitsPerBlock(uiBitsPerBlock)
     {
     }
     ezUInt32 m_bitsPerBlock;
   };
 
-  ezUInt32 allocateScratchBufferIndex(ezHybridArray<IntermediateBuffer, 16>& scratchBuffers, ezUInt32 bitsPerBlock, ezUInt32 excludedIndex)
+  ezUInt32 allocateScratchBufferIndex(ezHybridArray<IntermediateBuffer, 16>& ref_scratchBuffers, ezUInt32 uiBitsPerBlock, ezUInt32 uiExcludedIndex)
   {
     int foundIndex = -1;
 
-    for (ezUInt32 bufferIndex = 0; bufferIndex < ezUInt32(scratchBuffers.GetCount()); ++bufferIndex)
+    for (ezUInt32 bufferIndex = 0; bufferIndex < ezUInt32(ref_scratchBuffers.GetCount()); ++bufferIndex)
     {
-      if (bufferIndex == excludedIndex)
+      if (bufferIndex == uiExcludedIndex)
       {
         continue;
       }
 
-      if (scratchBuffers[bufferIndex].m_bitsPerBlock == bitsPerBlock)
+      if (ref_scratchBuffers[bufferIndex].m_bitsPerBlock == uiBitsPerBlock)
       {
         foundIndex = bufferIndex;
         break;
@@ -137,8 +137,8 @@ namespace
     else
     {
       // Allocate new scratch buffer
-      scratchBuffers.PushBack(IntermediateBuffer(bitsPerBlock));
-      return scratchBuffers.GetCount() - 1;
+      ref_scratchBuffers.PushBack(IntermediateBuffer(uiBitsPerBlock));
+      return ref_scratchBuffers.GetCount() - 1;
     }
   }
 } // namespace
@@ -154,12 +154,12 @@ ezImageConversionStep::~ezImageConversionStep()
 }
 
 ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget,
-  ezHybridArray<ezImageConversion::ConversionPathNode, 16>& path_out, ezUInt32& numScratchBuffers_out)
+  ezHybridArray<ezImageConversion::ConversionPathNode, 16>& ref_path_out, ezUInt32& ref_uiNumScratchBuffers_out)
 {
   EZ_LOCK(s_conversionTableLock);
 
-  path_out.Clear();
-  numScratchBuffers_out = 0;
+  ref_path_out.Clear();
+  ref_uiNumScratchBuffers_out = 0;
 
   if (sourceFormat == targetFormat)
   {
@@ -170,7 +170,7 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
     node.m_sourceBufferIndex = 0;
     node.m_targetBufferIndex = 0;
     node.m_step = nullptr;
-    path_out.PushBack(node);
+    ref_path_out.PushBack(node);
     return EZ_SUCCESS;
   }
 
@@ -198,30 +198,30 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
 
     current = entry.m_targetFormat;
 
-    path_out.PushBack(step);
+    ref_path_out.PushBack(step);
   }
 
   ezHybridArray<IntermediateBuffer, 16> scratchBuffers;
   scratchBuffers.PushBack(IntermediateBuffer(ezImageFormat::GetBitsPerBlock(targetFormat)));
 
-  for (int i = path_out.GetCount() - 1; i >= 0; --i)
+  for (int i = ref_path_out.GetCount() - 1; i >= 0; --i)
   {
-    if (i == path_out.GetCount() - 1)
-      path_out[i].m_targetBufferIndex = 0;
+    if (i == ref_path_out.GetCount() - 1)
+      ref_path_out[i].m_targetBufferIndex = 0;
     else
-      path_out[i].m_targetBufferIndex = path_out[i + 1].m_sourceBufferIndex;
+      ref_path_out[i].m_targetBufferIndex = ref_path_out[i + 1].m_sourceBufferIndex;
 
     if (i > 0)
     {
-      if (path_out[i].m_inPlace)
+      if (ref_path_out[i].m_inPlace)
       {
-        path_out[i].m_sourceBufferIndex = path_out[i].m_targetBufferIndex;
+        ref_path_out[i].m_sourceBufferIndex = ref_path_out[i].m_targetBufferIndex;
       }
       else
       {
-        ezUInt32 bitsPerBlock = ezImageFormat::GetBitsPerBlock(path_out[i].m_sourceFormat);
+        ezUInt32 bitsPerBlock = ezImageFormat::GetBitsPerBlock(ref_path_out[i].m_sourceFormat);
 
-        path_out[i].m_sourceBufferIndex = allocateScratchBufferIndex(scratchBuffers, bitsPerBlock, path_out[i].m_targetBufferIndex);
+        ref_path_out[i].m_sourceBufferIndex = allocateScratchBufferIndex(scratchBuffers, bitsPerBlock, ref_path_out[i].m_targetBufferIndex);
       }
     }
   }
@@ -229,41 +229,41 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
   if (bSourceEqualsTarget)
   {
     // Enforce constraint that source == target
-    path_out[0].m_sourceBufferIndex = 0;
+    ref_path_out[0].m_sourceBufferIndex = 0;
 
     // Did we accidentally break the in-place invariant?
-    if (path_out[0].m_sourceBufferIndex == path_out[0].m_targetBufferIndex && !path_out[0].m_inPlace)
+    if (ref_path_out[0].m_sourceBufferIndex == ref_path_out[0].m_targetBufferIndex && !ref_path_out[0].m_inPlace)
     {
-      if (path_out.GetCount() == 1)
+      if (ref_path_out.GetCount() == 1)
       {
         // Only a single step, so we need to add a copy step
         ezImageConversion::ConversionPathNode copy;
         copy.m_inPlace = false;
         copy.m_sourceFormat = sourceFormat;
         copy.m_targetFormat = sourceFormat;
-        copy.m_sourceBufferIndex = path_out[0].m_sourceBufferIndex;
+        copy.m_sourceBufferIndex = ref_path_out[0].m_sourceBufferIndex;
         copy.m_targetBufferIndex =
-          allocateScratchBufferIndex(scratchBuffers, ezImageFormat::GetBitsPerBlock(path_out[0].m_sourceFormat), path_out[0].m_sourceBufferIndex);
-        path_out[0].m_sourceBufferIndex = copy.m_targetBufferIndex;
+          allocateScratchBufferIndex(scratchBuffers, ezImageFormat::GetBitsPerBlock(ref_path_out[0].m_sourceFormat), ref_path_out[0].m_sourceBufferIndex);
+        ref_path_out[0].m_sourceBufferIndex = copy.m_targetBufferIndex;
         copy.m_step = nullptr;
-        path_out.Insert(copy, 0);
+        ref_path_out.Insert(copy, 0);
       }
       else
       {
         // Turn second step to non-inplace
-        path_out[1].m_inPlace = false;
-        path_out[1].m_sourceBufferIndex =
-          allocateScratchBufferIndex(scratchBuffers, ezImageFormat::GetBitsPerBlock(path_out[1].m_sourceFormat), path_out[0].m_sourceBufferIndex);
-        path_out[0].m_targetBufferIndex = path_out[1].m_sourceBufferIndex;
+        ref_path_out[1].m_inPlace = false;
+        ref_path_out[1].m_sourceBufferIndex =
+          allocateScratchBufferIndex(scratchBuffers, ezImageFormat::GetBitsPerBlock(ref_path_out[1].m_sourceFormat), ref_path_out[0].m_sourceBufferIndex);
+        ref_path_out[0].m_targetBufferIndex = ref_path_out[1].m_sourceBufferIndex;
       }
     }
   }
   else
   {
-    path_out[0].m_sourceBufferIndex = scratchBuffers.GetCount();
+    ref_path_out[0].m_sourceBufferIndex = scratchBuffers.GetCount();
   }
 
-  numScratchBuffers_out = scratchBuffers.GetCount() - 1;
+  ref_uiNumScratchBuffers_out = scratchBuffers.GetCount() - 1;
 
   return EZ_SUCCESS;
 }
@@ -370,7 +370,7 @@ void ezImageConversion::RebuildConversionTable()
   s_conversionTableValid = true;
 }
 
-ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, ezImageFormat::Enum targetFormat)
+ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& ref_target, ezImageFormat::Enum targetFormat)
 {
   EZ_PROFILE_SCOPE("ezImageConversion::Convert");
 
@@ -379,31 +379,31 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, 
   // Trivial copy
   if (sourceFormat == targetFormat)
   {
-    if (&source != &target)
+    if (&source != &ref_target)
     {
       // copy if not already the same
-      target.ResetAndCopy(source);
+      ref_target.ResetAndCopy(source);
     }
     return EZ_SUCCESS;
   }
 
   ezHybridArray<ConversionPathNode, 16> path;
   ezUInt32 numScratchBuffers = 0;
-  if (BuildPath(sourceFormat, targetFormat, &source == &target, path, numScratchBuffers).Failed())
+  if (BuildPath(sourceFormat, targetFormat, &source == &ref_target, path, numScratchBuffers).Failed())
   {
     return EZ_FAILURE;
   }
 
-  return Convert(source, target, path, numScratchBuffers);
+  return Convert(source, ref_target, path, numScratchBuffers);
 }
 
-ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers)
+ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& ref_target, ezArrayPtr<ConversionPathNode> path, ezUInt32 uiNumScratchBuffers)
 {
   EZ_ASSERT_DEV(path.GetCount() > 0, "Invalid conversion path");
   EZ_ASSERT_DEV(path[0].m_sourceFormat == source.GetImageFormat(), "Invalid conversion path");
 
   ezHybridArray<ezImage, 16> intermediates;
-  intermediates.SetCount(numScratchBuffers);
+  intermediates.SetCount(uiNumScratchBuffers);
 
   const ezImageView* pSource = &source;
 
@@ -411,7 +411,7 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, 
   {
     ezUInt32 targetIndex = path[i].m_targetBufferIndex;
 
-    ezImage* pTarget = targetIndex == 0 ? &target : &intermediates[targetIndex - 1];
+    ezImage* pTarget = targetIndex == 0 ? &ref_target : &intermediates[targetIndex - 1];
 
     if (ConvertSingleStep(path[i].m_step, *pSource, *pTarget, path[i].m_targetFormat).Failed())
     {
@@ -425,9 +425,9 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, 
 }
 
 ezResult ezImageConversion::ConvertRaw(
-  ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat)
+  ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat)
 {
-  if (numElements == 0)
+  if (uiNumElements == 0)
   {
     return EZ_SUCCESS;
   }
@@ -436,7 +436,7 @@ ezResult ezImageConversion::ConvertRaw(
   if (sourceFormat == targetFormat)
   {
     if (target.GetPtr() != source.GetPtr())
-      memcpy(target.GetPtr(), source.GetPtr(), numElements * ezUInt64(ezImageFormat::GetBitsPerPixel(sourceFormat)) / 8);
+      memcpy(target.GetPtr(), source.GetPtr(), uiNumElements * ezUInt64(ezImageFormat::GetBitsPerPixel(sourceFormat)) / 8);
     return EZ_SUCCESS;
   }
 
@@ -452,15 +452,15 @@ ezResult ezImageConversion::ConvertRaw(
     return EZ_FAILURE;
   }
 
-  return ConvertRaw(source, target, numElements, path, numScratchBuffers);
+  return ConvertRaw(source, target, uiNumElements, path, numScratchBuffers);
 }
 
 ezResult ezImageConversion::ConvertRaw(
-  ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements, ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers)
+  ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumElements, ezArrayPtr<ConversionPathNode> path, ezUInt32 uiNumScratchBuffers)
 {
   EZ_ASSERT_DEV(path.GetCount() > 0, "Path of length 0 is invalid.");
 
-  if (numElements == 0)
+  if (uiNumElements == 0)
   {
     return EZ_SUCCESS;
   }
@@ -471,7 +471,7 @@ ezResult ezImageConversion::ConvertRaw(
   }
 
   ezHybridArray<ezBlob, 16> intermediates;
-  intermediates.SetCount(numScratchBuffers);
+  intermediates.SetCount(uiNumScratchBuffers);
 
   for (ezUInt32 i = 0; i < path.GetCount(); ++i)
   {
@@ -485,19 +485,19 @@ ezResult ezImageConversion::ConvertRaw(
     }
     else
     {
-      ezUInt32 expectedSize = static_cast<ezUInt32>(targetBpp * numElements / 8);
+      ezUInt32 expectedSize = static_cast<ezUInt32>(targetBpp * uiNumElements / 8);
       intermediates[targetIndex - 1].SetCountUninitialized(expectedSize);
       stepTarget = intermediates[targetIndex - 1].GetByteBlobPtr();
     }
 
     if (path[i].m_step == nullptr)
     {
-      memcpy(stepTarget.GetPtr(), source.GetPtr(), numElements * targetBpp / 8);
+      memcpy(stepTarget.GetPtr(), source.GetPtr(), uiNumElements * targetBpp / 8);
     }
     else
     {
       if (static_cast<const ezImageConversionStepLinear*>(path[i].m_step)
-            ->ConvertPixels(source, stepTarget, numElements, path[i].m_sourceFormat, path[i].m_targetFormat)
+            ->ConvertPixels(source, stepTarget, uiNumElements, path[i].m_sourceFormat, path[i].m_targetFormat)
             .Failed())
       {
         return EZ_FAILURE;

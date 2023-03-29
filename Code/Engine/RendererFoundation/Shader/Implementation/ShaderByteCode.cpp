@@ -4,9 +4,9 @@
 
 ezGALShaderByteCode::ezGALShaderByteCode() {}
 
-ezGALShaderByteCode::ezGALShaderByteCode(const ezArrayPtr<const ezUInt8>& pByteCode)
+ezGALShaderByteCode::ezGALShaderByteCode(const ezArrayPtr<const ezUInt8>& byteCode)
 {
-  CopyFrom(pByteCode);
+  CopyFrom(byteCode);
 }
 
 void ezGALShaderByteCode::CopyFrom(const ezArrayPtr<const ezUInt8>& pByteCode)

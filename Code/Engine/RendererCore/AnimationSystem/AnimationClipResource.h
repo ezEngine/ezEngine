@@ -23,8 +23,8 @@ public:
 
   void operator=(ezAnimationClipResourceDescriptor&& rhs) noexcept;
 
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
   ezUInt64 GetHeapMemoryUsage() const;
 

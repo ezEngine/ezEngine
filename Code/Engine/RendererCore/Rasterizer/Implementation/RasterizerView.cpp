@@ -16,14 +16,14 @@ ezCVarInt cvar_SpatialCullingOcclusionMaxOccluders("Spatial.Occlusion.MaxOcclude
 ezRasterizerView::ezRasterizerView() = default;
 ezRasterizerView::~ezRasterizerView() = default;
 
-void ezRasterizerView::SetResolution(ezUInt32 width, ezUInt32 height, float fAspectRatio)
+void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
 {
-  if (m_uiResolutionX != width || m_uiResolutionY != height)
+  if (m_uiResolutionX != uiWidth || m_uiResolutionY != uiHeight)
   {
-    m_uiResolutionX = width;
-    m_uiResolutionY = height;
+    m_uiResolutionX = uiWidth;
+    m_uiResolutionY = uiHeight;
 
-    m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, width, height);
+    m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, uiWidth, uiHeight);
   }
 
   if (fAspectRatio == 0.0f)
@@ -158,43 +158,43 @@ bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
 #endif
 }
 
-ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 width, ezUInt32 height, float fAspectRatio)
+ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
 {
   EZ_PROFILE_SCOPE("Occlusion::GetViewFromPool");
 
   EZ_LOCK(m_Mutex);
 
-  const float divX = (float)width / (float)cvar_SpatialCullingOcclusionMaxResolution;
-  const float divY = (float)height / (float)cvar_SpatialCullingOcclusionMaxResolution;
+  const float divX = (float)uiWidth / (float)cvar_SpatialCullingOcclusionMaxResolution;
+  const float divY = (float)uiHeight / (float)cvar_SpatialCullingOcclusionMaxResolution;
   const float div = ezMath::Max(divX, divY);
 
   if (div > 1.0)
   {
-    width = (ezUInt32)(width / div);
-    height = (ezUInt32)(height / div);
+    uiWidth = (ezUInt32)(uiWidth / div);
+    uiHeight = (ezUInt32)(uiHeight / div);
   }
 
-  width = ezMath::RoundDown(width, 8);
-  height = ezMath::RoundDown(height, 8);
+  uiWidth = ezMath::RoundDown(uiWidth, 8);
+  uiHeight = ezMath::RoundDown(uiHeight, 8);
 
-  width = ezMath::Clamp<ezUInt32>(width, 32u, cvar_SpatialCullingOcclusionMaxResolution);
-  height = ezMath::Clamp<ezUInt32>(height, 32u, cvar_SpatialCullingOcclusionMaxResolution);
+  uiWidth = ezMath::Clamp<ezUInt32>(uiWidth, 32u, cvar_SpatialCullingOcclusionMaxResolution);
+  uiHeight = ezMath::Clamp<ezUInt32>(uiHeight, 32u, cvar_SpatialCullingOcclusionMaxResolution);
 
   for (PoolEntry& entry : m_Entries)
   {
     if (entry.m_bInUse)
       continue;
 
-    if (entry.m_RasterizerView.GetResolutionX() == width && entry.m_RasterizerView.GetResolutionY() == height)
+    if (entry.m_RasterizerView.GetResolutionX() == uiWidth && entry.m_RasterizerView.GetResolutionY() == uiHeight)
     {
       entry.m_bInUse = true;
-      entry.m_RasterizerView.SetResolution(width, height, fAspectRatio);
+      entry.m_RasterizerView.SetResolution(uiWidth, uiHeight, fAspectRatio);
       return &entry.m_RasterizerView;
     }
   }
 
   auto& ne = m_Entries.ExpandAndGetRef();
-  ne.m_RasterizerView.SetResolution(width, height, fAspectRatio);
+  ne.m_RasterizerView.SetResolution(uiWidth, uiHeight, fAspectRatio);
   ne.m_bInUse = true;
 
   return &ne.m_RasterizerView;
@@ -222,3 +222,6 @@ void ezRasterizerViewPool::ReturnRasterizerView(ezRasterizerView* pView)
 
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Rasterizer_Implementation_RasterizerView);

@@ -5,10 +5,10 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 
-void ezToolsSerializationUtils::SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph)
+void ezToolsSerializationUtils::SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& ref_typesGraph)
 {
   ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&typesGraph, &context, true, true);
+  ezRttiConverterWriter rttiConverter(&ref_typesGraph, &context, true, true);
   for (const ezRTTI* pType : types)
   {
     ezReflectedTypeDescriptor desc;
@@ -26,7 +26,7 @@ void ezToolsSerializationUtils::SerializeTypes(const ezSet<const ezRTTI*>& types
   }
 }
 
-void ezToolsSerializationUtils::CopyProperties(const ezDocumentObject* pSource, const ezDocumentObjectManager* pSourceManager, void* pTarget, const ezRTTI* pTargetType, FilterFunction PropertFilter)
+void ezToolsSerializationUtils::CopyProperties(const ezDocumentObject* pSource, const ezDocumentObjectManager* pSourceManager, void* pTarget, const ezRTTI* pTargetType, FilterFunction propertFilter)
 {
   ezAbstractObjectGraph graph;
   ezDocumentObjectConverterWriter writer(&graph, pSourceManager, [](const ezDocumentObject*, const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });

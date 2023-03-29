@@ -1,16 +1,18 @@
 #pragma once
 
-#include <Foundation/CodeUtils/Expression/ExpressionFunctions.h>
+#include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 
 class ezVolumeCollection;
 
 struct EZ_PROCGENPLUGIN_DLL ezProcGenExpressionFunctions
 {
-  static void ApplyVolumes(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData);
-  static ezResult ApplyVolumesValidate(const ezExpression::GlobalData& globalData);
+  static ezExpressionFunction s_ApplyVolumesFunc;
+  static ezExpressionFunction s_GetInstanceSeedFunc;
 };
 
 namespace ezProcGenInternal
 {
-  void ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& volumeCollections, ezExpression::GlobalData& globalData);
-}
+  void ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& ref_volumeCollections, ezExpression::GlobalData& ref_globalData);
+
+  void SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData);
+} // namespace ezProcGenInternal

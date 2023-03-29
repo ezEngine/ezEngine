@@ -42,9 +42,9 @@ ezOccluderComponentManager::ezOccluderComponentManager(ezWorld* pWorld)
 ezOccluderComponent::ezOccluderComponent() = default;
 ezOccluderComponent::~ezOccluderComponent() = default;
 
-void ezOccluderComponent::SetExtents(const ezVec3& extents)
+void ezOccluderComponent::SetExtents(const ezVec3& vExtents)
 {
-  m_vExtents = extents;
+  m_vExtents = vExtents;
   m_pOccluderObject.Clear();
 
   if (IsActiveAndInitialized())
@@ -74,20 +74,20 @@ void ezOccluderComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg
   }
 }
 
-void ezOccluderComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezOccluderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  ezStreamWriter& s = stream.GetStream();
+  ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
 }
 
-void ezOccluderComponent::DeserializeComponent(ezWorldReader& stream)
+void ezOccluderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
 }
@@ -102,3 +102,6 @@ void ezOccluderComponent::OnDeactivated()
 {
   m_pOccluderObject.Clear();
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_OccluderComponent);

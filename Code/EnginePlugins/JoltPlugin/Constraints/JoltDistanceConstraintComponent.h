@@ -12,8 +12,8 @@ class EZ_JOLTPLUGIN_DLL ezJoltDistanceConstraintComponent : public ezJoltConstra
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,7 @@ public:
   float GetDamping() const { return m_fDamping; } // [ property ]
 
   virtual void ApplySettings() final override;
+  virtual bool ExceededBreakingPoint() final override;
 
 protected:
   float m_fMinDistance = 0.0f;

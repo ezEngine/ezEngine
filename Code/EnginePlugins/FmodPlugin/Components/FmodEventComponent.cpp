@@ -233,7 +233,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event")),
+    EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
     EZ_ACCESSOR_PROPERTY("OcclusionThreshold", GetOcclusionThreshold, SetOcclusionThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("OcclusionCollisionLayer", GetOcclusionCollisionLayer, SetOcclusionCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
@@ -285,11 +285,11 @@ ezFmodEventComponent::ezFmodEventComponent()
 
 ezFmodEventComponent::~ezFmodEventComponent() = default;
 
-void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezFmodEventComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_bPaused;
   s << m_bUseOcclusion;
@@ -319,12 +319,12 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
   s << iTimelinePosition;
 }
 
-void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
+void ezFmodEventComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_bPaused;
 
@@ -492,7 +492,8 @@ void ezFmodEventComponent::OnDeactivated()
     m_pEventInstance->getDescription(&pDesc);
     pDesc->isOneshot(&bLetFinish);
 
-    if (!bLetFinish)
+    // if this is a looped sound, or the world is not simulating (usually because it is shutting down), stop the sound immediately
+    if (!bLetFinish || !GetWorld()->GetWorldSimulationEnabled())
     {
       EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
     }
@@ -649,9 +650,9 @@ void ezFmodEventComponent::SetEventParameter(const char* szParamName, float fVal
   SetParameter(paramId, fValue);
 }
 
-void ezFmodEventComponent::OnMsgSetFloatParameter(ezMsgSetFloatParameter& msg)
+void ezFmodEventComponent::OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg)
 {
-  SetEventParameter(msg.m_sParameterName, msg.m_fValue);
+  SetEventParameter(ref_msg.m_sParameterName, ref_msg.m_fValue);
 }
 
 void ezFmodEventComponent::Update()
@@ -764,8 +765,8 @@ void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstan
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetVelocity();
-  const auto fwd = (GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0)).GetNormalized();
-  const auto up = (GetOwner()->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized();
+  const auto fwd = GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0);
+  const auto up = GetOwner()->GetGlobalRotation() * ezVec3(0, 0, 1);
 
   FMOD_3D_ATTRIBUTES attr;
   attr.position.x = pos.x;

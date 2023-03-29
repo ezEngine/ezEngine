@@ -33,7 +33,7 @@ public:
   ezQuatTemplate(); // [tested]
 
   /// \brief For internal use. You should never construct quaternions this way.
-  ezQuatTemplate(Type X, Type Y, Type Z, Type W); // [tested]
+  ezQuatTemplate(Type x, Type y, Type z, Type w); // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -55,7 +55,7 @@ public:
   /// angle.
   ///
   /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
-  void SetElements(Type X, Type Y, Type Z, Type W); // [tested]
+  void SetElements(Type x, Type y, Type z, Type w); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle.
   void SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle); // [tested]
@@ -88,7 +88,7 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.
   const ezMat3Template<Type> GetAsMat3() const; // [tested]

@@ -31,6 +31,9 @@ void ezRecentFilesList::Insert(const char* szFile, ezInt32 iContainerWindow)
 
 void ezRecentFilesList::Save(const char* szFile)
 {
+  if (m_Files.IsEmpty())
+    return;
+
   ezDeferredFileWriter File;
   File.SetOutput(szFile);
 

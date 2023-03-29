@@ -35,7 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
   {
     EZ_ENUM_ACCESSOR_PROPERTY("ShaderMode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
     EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader", "CustomAction_CreateShaderFromTemplate")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
@@ -611,12 +611,12 @@ public:
     {
       case ezLogMsgType::ErrorMsg:
         m_Status = EZ_FAILURE;
-        m_sResult.Append("Error: ", le.m_szText, "\n");
+        m_sResult.Append("Error: ", le.m_sText, "\n");
         break;
 
       case ezLogMsgType::SeriousWarningMsg:
       case ezLogMsgType::WarningMsg:
-        m_sResult.Append("Warning: ", le.m_szText, "\n");
+        m_sResult.Append("Warning: ", le.m_sText, "\n");
         break;
 
       default:
@@ -755,13 +755,15 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::BaseMaterial)
   {
     // remove base material dependency, if it isn't used
-    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetBaseMaterial());
+    pInfo->m_TransformDependencies.Remove(GetProperties()->GetBaseMaterial());
+    pInfo->m_ThumbnailDependencies.Remove(GetProperties()->GetBaseMaterial());
   }
 
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::File)
   {
     // remove shader file dependency, if it isn't used
-    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetShader());
+    pInfo->m_TransformDependencies.Remove(GetProperties()->GetShader());
+    pInfo->m_ThumbnailDependencies.Remove(GetProperties()->GetShader());
   }
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
@@ -769,7 +771,8 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     // We write our own guid into the shader field so BaseMaterial materials can find the shader file.
     // This would cause us to have a dependency to ourselves so we need to remove it.
     ezStringBuilder tmp;
-    pInfo->m_AssetTransformDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
+    pInfo->m_TransformDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
+    pInfo->m_ThumbnailDependencies.Remove(ezConversionUtils::ToString(GetGuid(), tmp));
 
     ezVisualShaderCodeGenerator codeGen;
 
@@ -778,7 +781,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
     for (const auto& sCfgFile : cfgFiles)
     {
-      pInfo->m_AssetTransformDependencies.Insert(sCfgFile);
+      pInfo->m_TransformDependencies.Insert(sCfgFile);
     }
 
     pInfo->m_Outputs.Insert(ezMaterialAssetDocumentManager::s_szShaderOutputTag);
@@ -787,7 +790,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   }
 }
 
-ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, const ezPlatformProfile* pAssetProfile, bool bEmbedLowResData) const
+ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_stream0, const ezPlatformProfile* pAssetProfile, bool bEmbedLowResData) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
 
@@ -797,18 +800,18 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
   {
     const ezUInt8 uiVersion = 6;
 
-    stream0 << uiVersion;
+    inout_stream0 << uiVersion;
 
     ezUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
     uiCompressionMode = 1;
-    ezCompressedStreamWriterZstd stream(&stream0, ezCompressedStreamWriterZstd::Compression::Average);
+    ezCompressedStreamWriterZstd stream(&inout_stream0, ezCompressedStreamWriterZstd::Compression::Average);
 #else
     ezStreamWriter& stream = stream0;
 #endif
 
-    stream0 << uiCompressionMode;
+    inout_stream0 << uiCompressionMode;
 
     stream << pProp->m_sBaseMaterial;
     stream << pProp->m_sSurface;
@@ -1027,7 +1030,7 @@ void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const ezPlatformProfile
   }
 }
 
-ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHeader& AssetHeader)
+ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHeader& assetHeader)
 {
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::Custom)
   {
@@ -1045,7 +1048,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHead
   if (file.Open(sAutoGenShader).Succeeded())
   {
     ezStringBuilder shader = codeGen.GetFinalShaderCode();
-    shader.PrependFormat("//{0}|{1}\n", AssetHeader.GetFileHash(), AssetHeader.GetFileVersion());
+    shader.PrependFormat("//{0}|{1}\n", assetHeader.GetFileHash(), assetHeader.GetFileVersion());
 
     EZ_SUCCEED_OR_RETURN(file.WriteBytes(shader.GetData(), shader.GetElementCount()));
     file.Close();
@@ -1084,12 +1087,12 @@ void ezMaterialAssetDocument::EditorEventHandler(const ezEditorAppEvent& e)
   }
 }
 
-static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, const ezDocumentObject* pRoot, ezDocumentNodeManager* pNodeManager)
+static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& ref_allNodes, const ezDocumentObject* pRoot, ezDocumentNodeManager* pNodeManager)
 {
-  if (AllNodes[pRoot])
+  if (ref_allNodes[pRoot])
     return;
 
-  AllNodes[pRoot] = true;
+  ref_allNodes[pRoot] = true;
 
   auto allInputs = pNodeManager->GetInputPins(pRoot);
 
@@ -1105,7 +1108,7 @@ static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, c
       const ezPin& sourcePin = pConnection->GetSourcePin();
 
       // recurse from here
-      MarkReachableNodes(AllNodes, sourcePin.GetParent(), pNodeManager);
+      MarkReachableNodes(ref_allNodes, sourcePin.GetParent(), pNodeManager);
     }
   }
 }
@@ -1205,14 +1208,14 @@ ezUuid ezMaterialAssetDocument::GetNeutralNormalMap()
   return s_NeutralNormalMap;
 }
 
-void ezMaterialAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezMaterialAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.NodeGraph");
+  out_mimeTypes.PushBack("application/ezEditor.NodeGraph");
 }
 
-bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
+bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const
 {
-  out_MimeType = "application/ezEditor.NodeGraph";
+  out_sMimeType = "application/ezEditor.NodeGraph";
 
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
@@ -1238,7 +1241,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Shader Mode", "ShaderMode");
     pNode->RenameProperty("Base Material", "BaseMaterial");
@@ -1256,7 +1259,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pBaseMatProp = pNode->FindProperty("BaseMaterial");
     auto* pShaderModeProp = pNode->FindProperty("ShaderMode");

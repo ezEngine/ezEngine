@@ -1,0 +1,113 @@
+# Asset Types
+
+Texture 2D;Texture 2D
+Texture Cube;Texture Cube
+Render Target;Render Target
+
+# UI
+
+TextureAsset.LodSlider;Mipmap
+TextureAsset.ChannelMode;Channel to Display
+
+TextureImport.Diffuse;Diffuse Texture
+TextureImport.Normal;Normal Map
+TextureImport.HDR;HDR Texture
+TextureImport.Linear;Linear Texture
+TextureImport.Occlusion;Occlusion Texture
+TextureImport.Height;Height Map Texture
+TextureImport.Metalness;Metalness Texture
+TextureImport.Roughness;Roughness Texture
+TextureImport.ORM;Occlusion / Roughness / Metalness
+
+CubemapImport.Skybox;Skybox
+CubemapImport.SkyboxHDR;HDR Skybox
+
+# Enums
+
+ezTexConvUsage::Hdr;HDR
+ezTexConvUsage::NormalMap_Inverted; Normal Map (inverted)
+
+ezRenderTargetFormat::RGBA8;RGBA8 (linear)
+ezRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
+ezRenderTargetFormat::RGB10;RGB10
+ezRenderTargetFormat::RGBA16;RGBA16
+
+ezTextureFilterSetting::FixedNearest;Fixed: Nearest
+ezTextureFilterSetting::FixedBilinear;Fixed: Bilinear
+ezTextureFilterSetting::FixedTrilinear;Fixed: Trilinear
+ezTextureFilterSetting::FixedAnisotropic2x;Fixed: Anisotropic 2x
+ezTextureFilterSetting::FixedAnisotropic4x;Fixed: Anisotropic 4x
+ezTextureFilterSetting::FixedAnisotropic8x;Fixed: Anisotropic 8x
+ezTextureFilterSetting::FixedAnisotropic16x;Fixed: Anisotropic 16x
+
+ezTexture2DResolution::Fixed64x64;64 * 64
+ezTexture2DResolution::Fixed128x128;128 * 128
+ezTexture2DResolution::Fixed256x256;256 * 256
+ezTexture2DResolution::Fixed512x512;512 * 512
+ezTexture2DResolution::Fixed1024x1024;1024 * 1024
+ezTexture2DResolution::Fixed2048x2048;2048 * 2048
+ezTexture2DResolution::CVarRtResolution1;CVar RT Resolution 1
+ezTexture2DResolution::CVarRtResolution2;CVar RT Resolution 2
+
+ezTexConvMipmapMode::None;No Mipmaps
+ezTexConvMipmapMode::Linear;Generate: Linear
+ezTexConvMipmapMode::Kaiser;Generate: Kaiser
+
+ezTexConvCompressionMode::None;Uncompressed
+ezTexConvCompressionMode::Medium;Medium Compression
+ezTexConvCompressionMode::High;Strong Compression
+
+ezImageAddressMode::ClampBorder;Clamp to Black
+
+ezTexture2DChannelMappingEnum::R1;Red - Single Input
+ezTexture2DChannelMappingEnum::RG1;Red Green - Single Input
+ezTexture2DChannelMappingEnum::R1_G2;RG - Input1.r, Input2.r
+ezTexture2DChannelMappingEnum::RGB1;RGB - Single Input
+ezTexture2DChannelMappingEnum::R1_G2_B3;RGB - Input1.r, Input2.r, Input3.r
+ezTexture2DChannelMappingEnum::RGBA1;RGBA - Single Input
+ezTexture2DChannelMappingEnum::RGB1_A2;RGBA - Input1.rgb, Input2.r
+ezTexture2DChannelMappingEnum::R1_G2_B3_A4;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
+ezTexture2DChannelMappingEnum::RGB1_ABLACK;RGBA - Input1.rgb, Alpha = Black
+
+ezTextureCubeChannelMappingEnum::RGB1;Cubemap: RGB - Single Input
+ezTextureCubeChannelMappingEnum::RGBA1;Cubemap: RGBA - Single Input
+ezTextureCubeChannelMappingEnum::RGB1TO6;Cubemap: RGB - 6 Inputs
+ezTextureCubeChannelMappingEnum::RGBA1TO6;Cubemap: RGBA - 6 Inputs
+
+# Enums
+
+ezTextureChannelMode::RGBA;Display Channel: RGB*A
+ezTextureChannelMode::RGB;Display Channel: RGB
+ezTextureChannelMode::Red;Display Channel: Red
+ezTextureChannelMode::Green;Display Channel: Green
+ezTextureChannelMode::Blue;Display Channel: Blue
+ezTextureChannelMode::Alpha;Display Channel: Alpha
+
+ezTextureCubeUsageEnum::Unknown;Unknown
+ezTextureCubeUsageEnum::Skybox;Skybox
+ezTextureCubeUsageEnum::LookupTable;Lookup Table
+ezTextureCubeUsageEnum::SkyboxHDR;Skybox HDR
+ezTextureCubeUsageEnum::Other_sRGB;Other sRGB
+ezTextureCubeUsageEnum::Other_Linear;Other Linear
+
+ezTextureAssetProperties::MipmapMode;Mipmaps
+ezTextureAssetProperties::CompressionMode;Compression
+ezTextureAssetProperties::TextureFilter;Filtering
+ezTextureAssetProperties::PremultipliedAlpha;Premultiply Alpha
+ezTextureAssetProperties::CVarResScale;CVar Resolution Scale
+ezTextureAssetProperties::HdrExposureBias;HDR Exposure Bias
+
+ezTextureCubeAssetProperties::MipmapMode;Mipmaps
+ezTextureCubeAssetProperties::CompressionMode;Compression
+ezTextureCubeAssetProperties::TextureFilter;Filtering
+ezTextureCubeAssetProperties::ChannelMapping;Channel Mapping
+ezTextureCubeAssetProperties::HdrExposureBias;HDR Exposure Bias
+
+# Dynamic UI
+TextureAsset::CM_Left;Left (-X)
+TextureAsset::CM_Right;Right (+X)
+TextureAsset::CM_Top;Top (+Y)
+TextureAsset::CM_Bottom;Bottom (-Y)
+TextureAsset::CM_Front;Front (+Z)
+TextureAsset::CM_Back;Back (-Z)
+

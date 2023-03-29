@@ -155,7 +155,7 @@ public:
 
   /// \brief Will set the command line arguments that were passed to the app by the OS.
   /// This is automatically called by EZ_APPLICATION_ENTRY_POINT() and EZ_CONSOLEAPP_ENTRY_POINT().
-  void SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** ppArguments);
+  void SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** pArguments);
 
   /// \brief Returns the one instance of ezApplication that is available.
   static ezApplication* GetApplicationInstance() { return s_pApplicationInstance; }

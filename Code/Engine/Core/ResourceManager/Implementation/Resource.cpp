@@ -105,15 +105,15 @@ void ezResource::PrintHandleStackTraces()
 #endif
 }
 
-void ezResource::SetResourceDescription(const char* szDescription)
+void ezResource::SetResourceDescription(ezStringView sDescription)
 {
-  m_sResourceDescription = szDescription;
+  m_sResourceDescription = sDescription;
 }
 
-void ezResource::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
+void ezResource::SetUniqueID(ezStringView sUniqueID, bool bIsReloadable)
 {
-  m_sUniqueID = szUniqueID;
-  m_uiUniqueIDHash = ezHashingUtils::StringHash(szUniqueID);
+  m_sUniqueID = sUniqueID;
+  m_uiUniqueIDHash = ezHashingUtils::StringHash(sUniqueID);
   SetIsReloadable(bIsReloadable);
 
   ezResourceEvent e;
@@ -189,7 +189,7 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
   ezLog::Debug("Updated {0} - '{1}'", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceDescription(), "ResourceDesc"));
 }
 
-float ezResource::GetLoadingPriority(ezTime tNow) const
+float ezResource::GetLoadingPriority(ezTime now) const
 {
   if (m_Priority == ezResourcePriority::Critical)
     return 0.0f;
@@ -223,7 +223,7 @@ float ezResource::GetLoadingPriority(ezTime tNow) const
 
   // everything acquired in the last N seconds gets a higher priority
   // by getting the lowest penalty
-  const float secondsSinceAcquire = (float)(tNow - GetLastAcquireTime()).GetSeconds();
+  const float secondsSinceAcquire = (float)(now - GetLastAcquireTime()).GetSeconds();
   const float fTimePriority = ezMath::Min(10.0f, secondsSinceAcquire);
 
   return fPriority + fTimePriority;

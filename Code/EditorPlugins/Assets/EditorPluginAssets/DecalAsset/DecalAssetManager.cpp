@@ -41,7 +41,7 @@ ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDecalAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const
+void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const
 {
   ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   projectDir.MakeCleanPath();
@@ -49,7 +49,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirec
 
   if (projectDir.StartsWith_NoCase(szDataDirectory))
   {
-    inout_GuidToPath["{ ProjectDecalAtlas }"] = "PC/Decals.ezTextureAtlas";
+    addEntry("{ ProjectDecalAtlas }", "PC/Decals.ezTextureAtlas", "Decal Atlas");
   }
 }
 

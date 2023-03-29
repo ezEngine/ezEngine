@@ -20,62 +20,62 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
   for (ezUInt32 i = 0; i < eventData.m_uiIndentation; ++i)
     OutputDebugStringA(" ");
 
-  char sz[4096];
+  ezStringBuilder s;
 
   switch (eventData.m_EventType)
   {
     case ezLogMsgType::BeginGroup:
-      ezStringUtils::snprintf(sz, 1024, "+++++ %s (%s) +++++\n", eventData.m_szText, eventData.m_szTag);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("+++++ {} ({}) +++++\n", eventData.m_sText, eventData.m_sTag);
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     case ezLogMsgType::EndGroup:
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      ezStringUtils::snprintf(sz, 1024, "----- %s (%.6f sec) -----\n\n", eventData.m_szText, eventData.m_fSeconds);
+      s.Format("----- {} ({} sec) -----\n\n", eventData.m_sText, eventData.m_fSeconds);
 #  else
-      ezStringUtils::snprintf(sz, 1024, "----- %s (%s) -----\n\n", eventData.m_szText, "timing info not available");
+      s.Format("----- {} (timing info not available) -----\n\n", eventData.m_sText);
 #  endif
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     case ezLogMsgType::ErrorMsg:
-      ezStringUtils::snprintf(sz, 1024, "Error: %s\n", eventData.m_szText);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("Error: {}\n", eventData.m_sText);
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     case ezLogMsgType::SeriousWarningMsg:
-      ezStringUtils::snprintf(sz, 1024, "Seriously: %s\n", eventData.m_szText);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("Seriously: {}\n", eventData.m_sText);
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     case ezLogMsgType::WarningMsg:
-      ezStringUtils::snprintf(sz, 1024, "Warning: %s\n", eventData.m_szText);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("Warning: {}\n", eventData.m_sText);
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     case ezLogMsgType::SuccessMsg:
-      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("{}\n", eventData.m_sText);
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     case ezLogMsgType::InfoMsg:
-      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("{}\n", eventData.m_sText);
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     case ezLogMsgType::DevMsg:
-      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("{}\n", eventData.m_sText);
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     case ezLogMsgType::DebugMsg:
-      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("{}\n", eventData.m_sText);
+      OutputDebugStringW(ezStringWChar(s));
       break;
 
     default:
-      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-      OutputDebugStringW(ezStringWChar(sz).GetData());
+      s.Format("{}\n", eventData.m_sText);
+      OutputDebugStringW(ezStringWChar(s));
 
       ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
       break;

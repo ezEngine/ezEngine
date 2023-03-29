@@ -12,16 +12,16 @@ EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template(Type X, Type Y)
-  : x(X)
-  , y(Y)
+EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template(Type x, Type y)
+  : x(x)
+  , y(y)
 {
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template(Type V)
-  : x(V)
-  , y(V)
+EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template(Type v)
+  : x(v)
+  , y(v)
 {
 }
 
@@ -33,10 +33,10 @@ EZ_ALWAYS_INLINE void ezVec2Template<Type>::Set(Type xy)
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezVec2Template<Type>::Set(Type X, Type Y)
+EZ_ALWAYS_INLINE void ezVec2Template<Type>::Set(Type inX, Type inY)
 {
-  x = X;
-  y = Y;
+  x = inX;
+  y = inY;
 }
 
 template <typename Type>
@@ -262,13 +262,13 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompMax(const e
 }
 
 template <typename Type>
-EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompClamp(const ezVec2Template<Type>& low, const ezVec2Template<Type>& high) const
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompClamp(const ezVec2Template<Type>& vLow, const ezVec2Template<Type>& vHigh) const
 {
   EZ_NAN_ASSERT(this);
-  EZ_NAN_ASSERT(&low);
-  EZ_NAN_ASSERT(&high);
+  EZ_NAN_ASSERT(&vLow);
+  EZ_NAN_ASSERT(&vHigh);
 
-  return ezVec2Template<Type>(ezMath::Clamp(x, low.x, high.x), ezMath::Clamp(y, low.y, high.y));
+  return ezVec2Template<Type>(ezMath::Clamp(x, vLow.x, vHigh.x), ezMath::Clamp(y, vLow.y, vHigh.y));
 }
 
 template <typename Type>

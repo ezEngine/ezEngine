@@ -25,8 +25,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
   ezStaticArray<ezUInt32, ::s_uiTotalNumberOfTaskItems> numbers;
 
   ezParallelForParams parallelForParams;
-  parallelForParams.uiBinSize = ::s_uiTaskItemSliceSize;
-  parallelForParams.uiMaxTasksPerThread = 1;
+  parallelForParams.m_uiBinSize = ::s_uiTaskItemSliceSize;
+  parallelForParams.m_uiMaxTasksPerThread = 1;
 
   auto ResetSharedVariables = [&uiRangesEncounteredCheck, &uiNumbersSum, &uiNumbersCheckSum, &numbers]() {
     uiRangesEncounteredCheck = 0;
@@ -166,9 +166,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // modify the original array of numbers
     ezTaskSystem::ParallelForSingle(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex](ezUInt32& uiNumber) {
+      [&dataAccessMutex](ezUInt32& ref_uiNumber) {
         EZ_LOCK(dataAccessMutex);
-        uiNumber = uiNumber * 3;
+        ref_uiNumber = ref_uiNumber * 3;
       },
       "ParallelFor Array Single Write Test (Write)", parallelForParams);
 
@@ -194,9 +194,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
     // modify the original array of numbers
     ezTaskSystem::ParallelForSingleIndex(
       numbers.GetArrayPtr(),
-      [&dataAccessMutex](ezUInt32, ezUInt32& uiNumber) {
+      [&dataAccessMutex](ezUInt32, ezUInt32& ref_uiNumber) {
         EZ_LOCK(dataAccessMutex);
-        uiNumber = uiNumber * 4;
+        ref_uiNumber = ref_uiNumber * 4;
       },
       "ParallelFor Array Single Write Test (Write)", parallelForParams);
 

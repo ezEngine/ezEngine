@@ -17,8 +17,8 @@ class EZ_EDITORPLUGINSCENE_DLL ezQtLayerAdapter : public ezQtDocumentTreeModelAd
 public:
   ezQtLayerAdapter(ezScene2Document* pDocument);
   ~ezQtLayerAdapter();
-  virtual QVariant data(const ezDocumentObject* pObject, int row, int column, int role) const override;
-  virtual bool setData(const ezDocumentObject* pObject, int row, int column, const QVariant& value, int role) const override;
+  virtual QVariant data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const override;
+  virtual bool setData(const ezDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const override;
 
   enum UserRoles
   {
@@ -45,12 +45,12 @@ class ezQtLayerDelegate : public ezQtItemDelegate
 public:
   ezQtLayerDelegate(QObject* pParent, ezScene2Document* pDocument);
 
-  virtual bool mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) override;
-  virtual bool mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) override;
-  virtual bool mouseMoveEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) override;
-  virtual void paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
+  virtual bool mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
+  virtual bool mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
+  virtual bool mouseMoveEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
+  virtual void paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
   virtual QSize sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
-  virtual bool helpEvent(QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option, const QModelIndex& index) override;
+  virtual bool helpEvent(QHelpEvent* pEvent, QAbstractItemView* pView, const QStyleOptionViewItem& option, const QModelIndex& index) override;
   static QRect GetVisibleIconRect(const QStyleOptionViewItem& opt);
   static QRect GetLoadedIconRect(const QStyleOptionViewItem& opt);
 

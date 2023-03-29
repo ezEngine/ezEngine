@@ -29,35 +29,35 @@ float ezColor::CalcAverageRGB() const
 }
 
 // http://en.literateprograms.org/RGB_to_HSV_color_space_conversion_%28C%29
-void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
+void ezColor::GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const
 {
   // The formula below assumes values in gamma space
   const float r2 = LinearToGamma(r);
   const float g2 = LinearToGamma(g);
   const float b2 = LinearToGamma(b);
 
-  out_value = ezMath::Max(r2, g2, b2); // Value
+  out_fValue = ezMath::Max(r2, g2, b2); // Value
 
-  if (out_value < ezMath::SmallEpsilon<float>())
+  if (out_fValue < ezMath::SmallEpsilon<float>())
   {
-    out_hue = 0.0f;
-    out_sat = 0.0f;
-    out_value = 0.0f;
+    out_fHue = 0.0f;
+    out_fSat = 0.0f;
+    out_fValue = 0.0f;
     return;
   }
 
-  const float invV = 1.0f / out_value;
+  const float invV = 1.0f / out_fValue;
   float norm_r = r2 * invV;
   float norm_g = g2 * invV;
   float norm_b = b2 * invV;
   float rgb_min = ezMath::Min(norm_r, norm_g, norm_b);
   float rgb_max = ezMath::Max(norm_r, norm_g, norm_b);
 
-  out_sat = rgb_max - rgb_min; // Saturation
+  out_fSat = rgb_max - rgb_min; // Saturation
 
-  if (out_sat == 0)
+  if (out_fSat == 0)
   {
-    out_hue = 0;
+    out_fHue = 0;
     return;
   }
 
@@ -72,56 +72,56 @@ void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
   // hue
   if (rgb_max == norm_r)
   {
-    out_hue = 60.0f * (norm_g - norm_b);
+    out_fHue = 60.0f * (norm_g - norm_b);
 
-    if (out_hue < 0.0f)
-      out_hue += 360.0f;
+    if (out_fHue < 0.0f)
+      out_fHue += 360.0f;
   }
   else if (rgb_max == norm_g)
-    out_hue = 120.0f + 60.0f * (norm_b - norm_r);
+    out_fHue = 120.0f + 60.0f * (norm_b - norm_r);
   else
-    out_hue = 240.0f + 60.0f * (norm_r - norm_g);
+    out_fHue = 240.0f + 60.0f * (norm_r - norm_g);
 }
 
 // http://www.rapidtables.com/convert/color/hsv-to-rgb.htm
-void ezColor::SetHSV(float hue, float sat, float val)
+void ezColor::SetHSV(float fHue, float fSat, float fVal)
 {
-  EZ_ASSERT_DEBUG(hue <= 360 && hue >= 0, "HSV 'hue' is in invalid range.");
-  EZ_ASSERT_DEBUG(sat <= 1 && val >= 0, "HSV 'saturation' is in invalid range.");
-  EZ_ASSERT_DEBUG(val >= 0, "HSV 'value' is in invalid range.");
+  EZ_ASSERT_DEBUG(fHue <= 360 && fHue >= 0, "HSV 'hue' is in invalid range.");
+  EZ_ASSERT_DEBUG(fSat <= 1 && fVal >= 0, "HSV 'saturation' is in invalid range.");
+  EZ_ASSERT_DEBUG(fVal >= 0, "HSV 'value' is in invalid range.");
 
-  float c = sat * val;
-  float x = c * (1.0f - ezMath::Abs(ezMath::Mod(hue / 60.0f, 2) - 1.0f));
-  float m = val - c;
+  float c = fSat * fVal;
+  float x = c * (1.0f - ezMath::Abs(ezMath::Mod(fHue / 60.0f, 2) - 1.0f));
+  float m = fVal - c;
 
 
   a = 1.0f;
 
-  if (hue < 60)
+  if (fHue < 60)
   {
     r = c + m;
     g = x + m;
     b = 0 + m;
   }
-  else if (hue < 120)
+  else if (fHue < 120)
   {
     r = x + m;
     g = c + m;
     b = 0 + m;
   }
-  else if (hue < 180)
+  else if (fHue < 180)
   {
     r = 0 + m;
     g = c + m;
     b = x + m;
   }
-  else if (hue < 240)
+  else if (fHue < 240)
   {
     r = 0 + m;
     g = x + m;
     b = c + m;
   }
-  else if (hue < 300)
+  else if (fHue < 300)
   {
     r = x + m;
     g = 0 + m;
@@ -201,11 +201,11 @@ void ezColor::operator*=(const ezMat4& rhs)
 }
 
 
-void ezColor::ScaleRGB(float factor)
+void ezColor::ScaleRGB(float fFactor)
 {
-  r *= factor;
-  g *= factor;
-  b *= factor;
+  r *= fFactor;
+  g *= fFactor;
+  b *= fFactor;
 }
 
 float ezColor::ComputeHdrMultiplier() const
@@ -218,9 +218,9 @@ float ezColor::ComputeHdrExposureValue() const
   return ezMath::Log2(ComputeHdrMultiplier());
 }
 
-void ezColor::ApplyHdrExposureValue(float ev)
+void ezColor::ApplyHdrExposureValue(float fEv)
 {
-  const float factor = ezMath::Pow2(ev);
+  const float factor = ezMath::Pow2(fEv);
   r *= factor;
   g *= factor;
   b *= factor;
@@ -249,26 +249,26 @@ const ezVec4 ezColor::GetAsVec4() const
   return ezVec4(r, g, b, a);
 }
 
-float ezColor::GammaToLinear(float gamma)
+float ezColor::GammaToLinear(float fGamma)
 {
-  return gamma <= 0.04045f ? (gamma / 12.92f) : (ezMath::Pow((gamma + 0.055f) / 1.055f, 2.4f));
+  return fGamma <= 0.04045f ? (fGamma / 12.92f) : (ezMath::Pow((fGamma + 0.055f) / 1.055f, 2.4f));
 }
 
-float ezColor::LinearToGamma(float linear)
+float ezColor::LinearToGamma(float fLinear)
 {
   // assuming we have linear color (not CIE xyY or CIE XYZ)
-  return linear <= 0.0031308f ? (12.92f * linear) : (1.055f * ezMath::Pow(linear, 1.0f / 2.4f) - 0.055f);
+  return fLinear <= 0.0031308f ? (12.92f * fLinear) : (1.055f * ezMath::Pow(fLinear, 1.0f / 2.4f) - 0.055f);
 }
 
-ezVec3 ezColor::GammaToLinear(const ezVec3& gamma)
+ezVec3 ezColor::GammaToLinear(const ezVec3& vGamma)
 {
-  return ezVec3(GammaToLinear(gamma.x), GammaToLinear(gamma.y), GammaToLinear(gamma.z));
+  return ezVec3(GammaToLinear(vGamma.x), GammaToLinear(vGamma.y), GammaToLinear(vGamma.z));
 }
 
-ezVec3 ezColor::LinearToGamma(const ezVec3& linear)
+ezVec3 ezColor::LinearToGamma(const ezVec3& vLinear)
 {
   // assuming we have linear color (not CIE xyY or CIE XYZ)
-  return ezVec3(LinearToGamma(linear.x), LinearToGamma(linear.y), LinearToGamma(linear.z));
+  return ezVec3(LinearToGamma(vLinear.x), LinearToGamma(vLinear.y), LinearToGamma(vLinear.z));
 }
 
 const ezColor ezColor::AliceBlue(ezColorGammaUB(0xF0, 0xF8, 0xFF));

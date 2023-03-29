@@ -65,33 +65,33 @@ public:
   void AddColorControlPoint(double x, const ezColorGammaUB& rgb);
 
   /// \brief Appends an alpha control point. SortControlPoints() must be called to before evaluating the curve.
-  void AddAlphaControlPoint(double x, ezUInt8 alpha);
+  void AddAlphaControlPoint(double x, ezUInt8 uiAlpha);
 
   /// \brief Appends an intensity control point. SortControlPoints() must be called to before evaluating the curve.
-  void AddIntensityControlPoint(double x, float intensity);
+  void AddIntensityControlPoint(double x, float fIntensity);
 
   /// \brief Determines the min and max x-coordinate value across all control points.
-  bool GetExtents(double& minx, double& maxx) const;
+  bool GetExtents(double& ref_fMinx, double& ref_fMaxx) const;
 
   /// \brief Returns the number of control points of each type.
-  void GetNumControlPoints(ezUInt32& rgb, ezUInt32& alpha, ezUInt32& intensity) const;
+  void GetNumControlPoints(ezUInt32& ref_uiRgb, ezUInt32& ref_uiAlpha, ezUInt32& ref_uiIntensity) const;
 
   /// \brief Const access to a control point.
-  const ColorCP& GetColorControlPoint(ezUInt32 idx) const { return m_ColorCPs[idx]; }
+  const ColorCP& GetColorControlPoint(ezUInt32 uiIdx) const { return m_ColorCPs[uiIdx]; }
   /// \brief Const access to a control point.
-  const AlphaCP& GetAlphaControlPoint(ezUInt32 idx) const { return m_AlphaCPs[idx]; }
+  const AlphaCP& GetAlphaControlPoint(ezUInt32 uiIdx) const { return m_AlphaCPs[uiIdx]; }
   /// \brief Const access to a control point.
-  const IntensityCP& GetIntensityControlPoint(ezUInt32 idx) const { return m_IntensityCPs[idx]; }
+  const IntensityCP& GetIntensityControlPoint(ezUInt32 uiIdx) const { return m_IntensityCPs[uiIdx]; }
 
   /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the
   /// curve.
-  ColorCP& ModifyColorControlPoint(ezUInt32 idx) { return m_ColorCPs[idx]; }
+  ColorCP& ModifyColorControlPoint(ezUInt32 uiIdx) { return m_ColorCPs[uiIdx]; }
   /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the
   /// curve.
-  AlphaCP& ModifyAlphaControlPoint(ezUInt32 idx) { return m_AlphaCPs[idx]; }
+  AlphaCP& ModifyAlphaControlPoint(ezUInt32 uiIdx) { return m_AlphaCPs[uiIdx]; }
   /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the
   /// curve.
-  IntensityCP& ModifyIntensityControlPoint(ezUInt32 idx) { return m_IntensityCPs[idx]; }
+  IntensityCP& ModifyIntensityControlPoint(ezUInt32 uiIdx) { return m_IntensityCPs[uiIdx]; }
 
   /// \brief Sorts the control point arrays by their x-coordinate. The CPs have to be sorted before calling Evaluate(), otherwise the result
   /// will be wrong.
@@ -100,28 +100,28 @@ public:
   /// \brief Evaluates the curve at the given x-coordinate and returns RGBA and intensity separately.
   ///
   /// The control points have to be sorted, so call SortControlPoints() before, if any modifications where done.
-  void Evaluate(double x, ezColorGammaUB& rgba, float& intensity) const;
+  void Evaluate(double x, ezColorGammaUB& ref_rgba, float& ref_fIntensity) const;
 
   /// \brief Evaluates the curve and returns RGBA and intensity in one combined ezColor value.
-  void Evaluate(double x, ezColor& hdr) const;
+  void Evaluate(double x, ezColor& ref_hdr) const;
 
   /// \brief Evaluates only the color curve.
-  void EvaluateColor(double x, ezColorGammaUB& rgb) const;
+  void EvaluateColor(double x, ezColorGammaUB& ref_rgb) const;
   /// \brief Evaluates only the color curve.
-  void EvaluateColor(double x, ezColor& rgb) const;
+  void EvaluateColor(double x, ezColor& ref_rgb) const;
   /// \brief Evaluates only the alpha curve.
-  void EvaluateAlpha(double x, ezUInt8& alpha) const;
+  void EvaluateAlpha(double x, ezUInt8& ref_uiAlpha) const;
   /// \brief Evaluates only the intensity curve.
-  void EvaluateIntensity(double x, float& intensity) const;
+  void EvaluateIntensity(double x, float& ref_fIntensity) const;
 
   /// \brief How much heap memory the curve uses.
   ezUInt64 GetHeapMemoryUsage() const;
 
   /// \brief Stores the current state in a stream.
-  void Save(ezStreamWriter& stream) const;
+  void Save(ezStreamWriter& inout_stream) const;
 
   /// \brief Restores the state from a stream.
-  void Load(ezStreamReader& stream);
+  void Load(ezStreamReader& inout_stream);
 
 private:
   void PrecomputeLerpNormalizer();

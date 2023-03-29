@@ -154,3 +154,6 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringVie
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Rasterizer_Implementation_RasterizerObject);

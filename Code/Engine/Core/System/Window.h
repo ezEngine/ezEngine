@@ -176,16 +176,16 @@ struct EZ_CORE_DLL ezWindowCreationDesc
   ezResult AdjustWindowSizeAndPosition();
 
   /// Serializes the configuration to DDL.
-  void SaveToDDL(ezOpenDdlWriter& writer);
+  void SaveToDDL(ezOpenDdlWriter& ref_writer);
 
   /// Serializes the configuration to DDL.
-  ezResult SaveToDDL(const char* szFile);
+  ezResult SaveToDDL(ezStringView sFile);
 
   /// Deserializes the configuration from DDL.
   void LoadFromDDL(const ezOpenDdlReaderElement* pParentElement);
 
   /// Deserializes the configuration from DDL.
-  ezResult LoadFromDDL(const char* szFile);
+  ezResult LoadFromDDL(ezStringView sFile);
 
 
   /// The window title to be displayed.
@@ -305,7 +305,7 @@ public:
   virtual void OnResize(const ezSizeU32& newWindowSize);
 
   /// \brief Called when the window position is changed. Not possible on all OSes.
-  virtual void OnWindowMove(const ezInt32 newPosX, const ezInt32 newPosY) {}
+  virtual void OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY) {}
 
   /// \brief Called when the window gets focus or loses focus.
   virtual void OnFocus(bool bHasFocus) {}
@@ -323,7 +323,7 @@ public:
   ///   Will be called <i>after</i> the On[...] callbacks!
   ///
   /// \see OnResizeMessage
-  virtual void OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM WParam, ezMinWindows::LPARAM LParam);
+  virtual void OnWindowMessage(ezMinWindows::HWND pWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam);
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
 

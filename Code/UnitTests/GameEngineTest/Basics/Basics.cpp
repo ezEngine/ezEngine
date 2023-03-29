@@ -99,7 +99,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   opt.m_Arguments.PushBack("PC");
   opt.m_Arguments.PushBack("-outputDir");
   opt.AddArgument("\"{0}\"", sOutputPath);
-  opt.m_Arguments.PushBack("-debug");
+  opt.m_Arguments.PushBack("-noRecent");
   opt.m_Arguments.PushBack("-AssetThumbnails");
   opt.m_Arguments.PushBack("never");
   opt.m_Arguments.PushBack("-renderer");

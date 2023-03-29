@@ -28,12 +28,12 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, const ezVariant& metaData, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
 
-  pContext->Initialize(guid, metaData, pIPC);
+  pContext->Initialize(guid, metaData, pIPC, sDocumentType);
 }
 
 bool ezEngineProcessDocumentContext::PendingOperationsInProgress()
@@ -106,11 +106,16 @@ ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
   m_Context.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
-void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType)
 {
-  m_DocumentGuid = DocumentGuid;
+  m_DocumentGuid = documentGuid;
   m_MetaData = metaData;
   m_pIPC = pIPC;
+
+  if (m_sDocumentType != sDocumentType)
+  {
+    m_sDocumentType = sDocumentType;
+  }
 
   if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
   {
@@ -203,7 +208,11 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     const ezExportDocumentMsgToEngine* pMsg2 = static_cast<const ezExportDocumentMsgToEngine*>(pMsg);
     ezExportDocumentMsgToEditor ret;
     ret.m_DocumentGuid = pMsg->m_DocumentGuid;
-    ret.m_bOutputSuccess = ExportDocument(pMsg2);
+
+    ezStatus res = ExportDocument(pMsg2);
+    ret.m_bOutputSuccess = res.Succeeded();
+    ret.m_sFailureMsg = res.m_sMessage;
+
     if (!ret.m_bOutputSuccess)
     {
       ezLog::Error("Could not export to file '{0}'.", pMsg2->m_sOutputFile);
@@ -383,7 +392,7 @@ void ezEngineProcessDocumentContext::Reset()
 
   Deinitialize();
 
-  Initialize(guid, m_MetaData, ipc);
+  Initialize(guid, m_MetaData, ipc, m_sDocumentType);
 }
 
 void ezEngineProcessDocumentContext::ClearExistingObjects()
@@ -496,10 +505,9 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   }
 }
 
-bool ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+ezStatus ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
-  ezLog::Error("Export document not implemented for '{0}'", GetDynamicRTTI()->GetTypeName());
-  return false;
+  return ezStatus(ezFmt("Export document not implemented for '{0}'", GetDynamicRTTI()->GetTypeName()));
 }
 
 
@@ -819,6 +827,10 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szTargetGuid), "Expected GUID references");
   }
 
+  if (ezStringUtils::IsNullOrEmpty(szComponentProperty))
+  {
+    return m_Context.m_GameObjectMap.GetHandle(newTargetGuid);
+  }
 
   // overview for the steps below:
   //

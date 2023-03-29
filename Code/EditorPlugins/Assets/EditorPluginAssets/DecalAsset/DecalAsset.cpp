@@ -20,11 +20,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 3, ezRTTIDefaultAllocato
   {
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezDecalMode, m_Mode),
     EZ_MEMBER_PROPERTY("BlendModeColorize", m_bBlendModeColorize),
-    EZ_MEMBER_PROPERTY("AlphaMask", m_sAlphaMask)->AddAttributes(new ezFileBrowserAttribute("Select Alpha Mask", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg"), new ezDefaultValueAttribute(ezStringView("Textures/NeutralNormal.tga"))), // wrap in ezStringView to prevent a memory leak report
-    EZ_MEMBER_PROPERTY("ORM", m_sORM)->AddAttributes(new ezFileBrowserAttribute("Select ORM Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_MEMBER_PROPERTY("Emissive", m_sEmissive)->AddAttributes(new ezFileBrowserAttribute("Select Emissive Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_MEMBER_PROPERTY("AlphaMask", m_sAlphaMask)->AddAttributes(new ezFileBrowserAttribute("Select Alpha Mask", ezFileBrowserAttribute::ImagesLdrOnly)),
+    EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", ezFileBrowserAttribute::ImagesLdrOnly)),
+    EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", ezFileBrowserAttribute::ImagesLdrOnly), new ezDefaultValueAttribute(ezStringView("Textures/NeutralNormal.tga"))), // wrap in ezStringView to prevent a memory leak report
+    EZ_MEMBER_PROPERTY("ORM", m_sORM)->AddAttributes(new ezFileBrowserAttribute("Select ORM Map", ezFileBrowserAttribute::ImagesLdrOnly)),
+    EZ_MEMBER_PROPERTY("Emissive", m_sEmissive)->AddAttributes(new ezFileBrowserAttribute("Select Emissive Map", ezFileBrowserAttribute::ImagesLdrOnly)),
   }
   EZ_END_PROPERTIES;
 }
@@ -174,9 +174,9 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
 
 ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() {}
 
-void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
 
   const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
 
@@ -186,7 +186,7 @@ void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelati
   const bool isDecal = (baseFilename.FindSubString_NoCase("decal") != nullptr);
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = isDecal ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "DecalImport.All";
     info.m_sOutputFileParentRelative = baseOutputFile;
@@ -194,7 +194,7 @@ void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelati
   }
 }
 
-ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
   out_pGeneratedDocument = pApp->CreateDocument(info.m_sOutputFileAbsolute, ezDocumentFlags::None);
@@ -207,7 +207,7 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePa
     return ezStatus("Target document is not a valid ezDecalAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("BaseColor", szDataDirRelativePath);
+  accessor.SetValue("BaseColor", sDataDirRelativePath);
 
   return ezStatus(EZ_SUCCESS);
 }

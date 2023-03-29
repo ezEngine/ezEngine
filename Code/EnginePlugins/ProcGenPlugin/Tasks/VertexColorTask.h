@@ -15,7 +15,7 @@ namespace ezProcGenInternal
     VertexColorTask();
     ~VertexColorTask();
 
-    void Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
+    void Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& desc, const ezTransform& transform,
       ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings,
       ezArrayPtr<ezUInt32> outputVertexColors);
 
@@ -32,7 +32,7 @@ namespace ezProcGenInternal
       ezVec3 m_vPosition;
       ezVec3 m_vNormal;
       ezColor m_Color;
-      float m_fIndex;
+      ezUInt32 m_uiIndex;
     };
 
     ezDynamicArray<InputVertex> m_InputVertices;

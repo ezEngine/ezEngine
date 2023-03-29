@@ -35,20 +35,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltShapeBoxComponent::ezJoltShapeBoxComponent() = default;
 ezJoltShapeBoxComponent::~ezJoltShapeBoxComponent() = default;
 
-void ezJoltShapeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltShapeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s << m_vHalfExtents;
 }
 
-void ezJoltShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltShapeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s >> m_vHalfExtents;
 }
 
@@ -57,9 +57,9 @@ void ezJoltShapeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) c
   msg.AddBounds(ezBoundingBox(-m_vHalfExtents, m_vHalfExtents), ezInvalidSpatialDataCategory);
 }
 
-void ezJoltShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezJoltShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 {
-  msg.AddBox(GetOwner()->GetGlobalTransform(), m_vHalfExtents * 2.0f);
+  ref_msg.AddBox(GetOwner()->GetGlobalTransform(), m_vHalfExtents * 2.0f);
 }
 
 void ezJoltShapeBoxComponent::SetHalfExtents(const ezVec3& value)
@@ -90,3 +90,7 @@ void ezJoltShapeBoxComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_S
   sub.m_pShape = pNewShape;
   sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltShapeBoxComponent);
+

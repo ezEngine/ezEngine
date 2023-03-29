@@ -51,9 +51,9 @@ struct FileStats
   ezUInt32 m_uiWords;
 };
 
-ezResult ReadCompleteFile(const char* szFile, ezDynamicArray<ezUInt8>& out_FileContent)
+ezResult ReadCompleteFile(const char* szFile, ezDynamicArray<ezUInt8>& out_fileContent)
 {
-  out_FileContent.Clear();
+  out_fileContent.Clear();
 
   ezFileReader File;
   if (File.Open(szFile) == EZ_FAILURE)
@@ -67,14 +67,14 @@ ezResult ReadCompleteFile(const char* szFile, ezDynamicArray<ezUInt8>& out_FileC
     if (uiRead == 0)
       return EZ_SUCCESS; // file is automatically closed here
 
-    out_FileContent.PushBackRange(ezArrayPtr<ezUInt8>(uiTemp, (ezUInt32)uiRead));
+    out_fileContent.PushBackRange(ezArrayPtr<ezUInt8>(uiTemp, (ezUInt32)uiRead));
   }
 
   return EZ_SUCCESS; // file is automatically closed here
 }
 
 // Removes all spaces and tabs from the front and end of a line
-void TrimWhitespaces(ezStringBuilder& sLine)
+void TrimWhitespaces(ezStringBuilder& ref_sLine)
 {
   bool b = true;
 
@@ -82,25 +82,25 @@ void TrimWhitespaces(ezStringBuilder& sLine)
   {
     b = false;
 
-    if (sLine.EndsWith(" "))
+    if (ref_sLine.EndsWith(" "))
     {
       b = true;
-      sLine.Shrink(0, 1);
+      ref_sLine.Shrink(0, 1);
     }
-    if (sLine.EndsWith("\t"))
+    if (ref_sLine.EndsWith("\t"))
     {
       b = true;
-      sLine.Shrink(0, 1);
+      ref_sLine.Shrink(0, 1);
     }
-    if (sLine.StartsWith(" "))
+    if (ref_sLine.StartsWith(" "))
     {
       b = true;
-      sLine.Shrink(1, 0);
+      ref_sLine.Shrink(1, 0);
     }
-    if (sLine.StartsWith("\t"))
+    if (ref_sLine.StartsWith("\t"))
     {
       b = true;
-      sLine.Shrink(1, 0);
+      ref_sLine.Shrink(1, 0);
     }
   }
 }

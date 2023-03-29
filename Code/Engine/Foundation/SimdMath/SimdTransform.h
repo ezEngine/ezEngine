@@ -11,11 +11,11 @@ public:
   ezSimdTransform(); // [tested]
 
   /// \brief Sets position, rotation and scale.
-  explicit ezSimdTransform(const ezSimdVec4f& position, const ezSimdQuat& rotation = ezSimdQuat::IdentityQuaternion(),
-    const ezSimdVec4f& scale = ezSimdVec4f(1.0f)); // [tested]
+  explicit ezSimdTransform(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation = ezSimdQuat::IdentityQuaternion(),
+    const ezSimdVec4f& vScale = ezSimdVec4f(1.0f)); // [tested]
 
   /// \brief Sets rotation.
-  explicit ezSimdTransform(const ezSimdQuat& rotation); // [tested]
+  explicit ezSimdTransform(const ezSimdQuat& qRotation); // [tested]
 
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
@@ -45,11 +45,11 @@ public:
 
 public:
   /// \brief Sets this transform to be the local transformation needed to get from the parent's transform to the child's.
-  void SetLocalTransform(const ezSimdTransform& GlobalTransformParent, const ezSimdTransform& GlobalTransformChild); // [tested]
+  void SetLocalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& globalTransformChild); // [tested]
 
   /// \brief Sets this transform to the global transform, that is reached by applying the child's local transform to the parent's global
   /// one.
-  void SetGlobalTransform(const ezSimdTransform& GlobalTransformParent, const ezSimdTransform& LocalTransformChild); // [tested]
+  void SetGlobalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& localTransformChild); // [tested]
 
   /// \brief Returns the transformation as a matrix.
   ezSimdMat4f GetAsMat4() const; // [tested]

@@ -69,8 +69,8 @@ class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
   virtual void OnSimulationStarted() override;
@@ -129,24 +129,24 @@ public:
   ///
   /// Pitch, volume, position, direction and velocity are copied to the new sound instance.
   /// The new sound event then plays to the end and cannot be controlled through this component any further.
-  /// If the referenced fmod sound event is not a "one shot" event, this function is ignored.
+  /// If the referenced Fmod sound event is not a "one shot" event, this function is ignored.
   /// The event that is controlled through this component is unaffected by this.
   void StartOneShot(); // [ scriptable ]
 
   /// Stops the current sound from playing. Typically allows the sound to fade out briefly, unless specified otherwise.
   void StopSound(bool bImmediate); // [ scriptable ]
 
-  /// \brief Triggers an fmod sound cue. Whatever that is useful for.
+  /// \brief Triggers an Fmod sound cue. Whatever that is useful for.
   void SoundCue(); // [ scriptable ]
 
-  /// \brief Tries to find the fmod event parameter by name. Returns the parameter id or -1, if no such parameter exists.
+  /// \brief Tries to find the Fmod event parameter by name. Returns the parameter id or -1, if no such parameter exists.
   ezFmodParameterId FindParameter(const char* szName) const;
 
-  /// \brief Sets an fmod event parameter value. See FindParameter() for the index.
-  void SetParameter(ezFmodParameterId ParamId, float fValue);
+  /// \brief Sets an Fmod event parameter value. See FindParameter() for the index.
+  void SetParameter(ezFmodParameterId paramId, float fValue);
 
-  /// \brief Gets an fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
-  float GetParameter(ezFmodParameterId ParamId) const;
+  /// \brief Gets an Fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
+  float GetParameter(ezFmodParameterId paramId) const;
 
   /// \brief Sets an event parameter via name lookup, so this is less efficient than SetParameter()
   void SetEventParameter(const char* szParamName, float fValue); // [ scriptable ]
@@ -154,7 +154,7 @@ public:
   /// \brief Allows one to set event parameters through the generic ezMsgSetFloatParameter message.
   ///
   /// Requires event parameter lookup via a name, so this is less efficient than SetParameter().
-  void OnMsgSetFloatParameter(ezMsgSetFloatParameter& msg); // [ msg handler ]
+  void OnMsgSetFloatParameter(ezMsgSetFloatParameter& ref_msg); // [ msg handler ]
 
 protected:
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg); // [ msg handler ]

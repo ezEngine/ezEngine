@@ -18,13 +18,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", "*.fbx;*.gltf;*.glb")),
+    EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Animation", ezFileBrowserAttribute::MeshesWithAnimations)),
     EZ_MEMBER_PROPERTY("UseAnimationClip", m_sAnimationClipToExtract),
     EZ_MEMBER_PROPERTY("Additive", m_bAdditive),
     EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezContainerAttribute(false, false, false)),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
     EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
-    EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned")), // TODO: need an attribute that something is 'UI only' (doesn't change the transform state, but is also not 'temporary'
+    EZ_MEMBER_PROPERTY("PreviewMesh", m_sPreviewMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned", ezDependencyFlags::None)),
     EZ_ENUM_MEMBER_PROPERTY("RootMotion", ezRootMotionSource, m_RootMotionMode),
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     //EZ_MEMBER_PROPERTY("Joint1", m_sJoint1),
@@ -176,7 +176,7 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalCreateThumbnail(const Th
   return status;
 }
 
-ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const char* szValue)
+ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue)
 {
   ezObjectCommandAccessor accessor(GetCommandHistory());
   ezObjectAccessorBase& acc = accessor;
@@ -190,7 +190,7 @@ ezUuid ezAnimationClipAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const c
     acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(),
     "");
   const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
-  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", tickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", iTickX).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(pCPObj, "Event", szValue).Succeeded(), "");
 
   acc.FinishTransaction();
@@ -362,13 +362,13 @@ ezAnimationClipAssetDocumentGenerator::ezAnimationClipAssetDocumentGenerator()
 
 ezAnimationClipAssetDocumentGenerator::~ezAnimationClipAssetDocumentGenerator() = default;
 
-void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezAnimationClipAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {
-  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  ezStringBuilder baseOutputFile = sParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    ezAssetDocumentGenerator::Info& info = out_modes.ExpandAndGetRef();
     info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
     info.m_sName = "AnimationClipImport";
     info.m_sOutputFileParentRelative = baseOutputFile;
@@ -376,7 +376,7 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentD
   }
 }
 
-ezStatus ezAnimationClipAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezAnimationClipAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -389,7 +389,7 @@ ezStatus ezAnimationClipAssetDocumentGenerator::Generate(const char* szDataDirRe
     return ezStatus("Target document is not a valid ezAnimationClipAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("File", szDataDirRelativePath);
+  accessor.SetValue("File", sDataDirRelativePath);
 
   return ezStatus(EZ_SUCCESS);
 }

@@ -18,7 +18,7 @@ public:
     ezString m_sDisplayName;
   };
 
-  ezQtPickDocumentObjectDlg(QWidget* parent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject);
+  ezQtPickDocumentObjectDlg(QWidget* pParent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject);
 
   /// Stores the result that the user picked
   const ezDocumentObject* m_pPickedObject = nullptr;

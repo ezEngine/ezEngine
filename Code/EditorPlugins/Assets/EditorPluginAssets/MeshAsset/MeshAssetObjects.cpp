@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("PrimitiveType", ezMeshPrimitive, m_PrimitiveType),
-    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx;*.gltf;*.glb")),
+    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes)),
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
     EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
@@ -43,7 +43,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Primitive Type", "PrimitiveType");
     pNode->RenameProperty("Forward Dir", "ForwardDir");
@@ -197,7 +197,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     // convert the "Angle" property from float to ezAngle
     if (auto pProp = pNode->FindProperty("Angle"))

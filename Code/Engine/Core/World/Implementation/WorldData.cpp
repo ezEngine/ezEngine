@@ -15,11 +15,11 @@ namespace ezInternal
     {
     }
 
-    virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const override
+    virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const override
     {
-      out_CoordinateSystem.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
-      out_CoordinateSystem.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
-      out_CoordinateSystem.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
+      out_coordinateSystem.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
+      out_coordinateSystem.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
+      out_coordinateSystem.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
     }
   };
 

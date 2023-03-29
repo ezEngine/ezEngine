@@ -141,12 +141,12 @@ ezGameObject* ezTypeScriptBinding::ExpectGameObject(duk_context* pDuk, ezInt32 i
   return pGameObject;
 }
 
-bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx)
+bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle hHandle, ezUInt32& out_uiStashIdx)
 {
-  if (handle.IsInvalidated())
+  if (hHandle.IsInvalidated())
     return false;
 
-  ezUInt32& uiStashIdx = m_GameObjectToStashIdx[handle];
+  ezUInt32& uiStashIdx = m_GameObjectToStashIdx[hHandle];
 
   if (uiStashIdx != 0)
   {
@@ -167,7 +167,7 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
   {
     ezGameObjectHandle* pHandleBuffer =
       reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject object buffer ]
-    *pHandleBuffer = handle;
+    *pHandleBuffer = hHandle;
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle); // [ global __GameObject object ]
   }
 
@@ -708,7 +708,7 @@ static int __CPP_GameObject_GetString(duk_context* pDuk)
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  const char* res = "";
+  ezStringView res;
 
   switch (duk.GetFunctionMagicValue())
   {

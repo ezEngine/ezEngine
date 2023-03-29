@@ -7,12 +7,12 @@
 ezNavMeshPointOfInterestGraph::ezNavMeshPointOfInterestGraph() = default;
 ezNavMeshPointOfInterestGraph::~ezNavMeshPointOfInterestGraph() = default;
 
-void ezNavMeshPointOfInterestGraph::IncreaseCheckVisibiblityTimeStamp(ezTime tNow)
+void ezNavMeshPointOfInterestGraph::IncreaseCheckVisibiblityTimeStamp(ezTime now)
 {
-  if (tNow - m_LastTimeStampStep < ezTime::Seconds(0.5f))
+  if (now - m_LastTimeStampStep < ezTime::Seconds(0.5f))
     return;
 
-  m_LastTimeStampStep = tNow;
+  m_LastTimeStampStep = now;
   m_uiCheckVisibilityTimeStamp += 4;
 }
 
@@ -37,30 +37,30 @@ struct PotentialPoI
   ezVec3 m_vLineDir;
 };
 
-EZ_ALWAYS_INLINE static void AddToInterestPoints(ezDeque<PotentialPoI>& interestPoints, ezInt32 iVertexIdx, const ezVec3& pos, const ezVec3& vPolyCenter, ezVec3 vLineDir)
+EZ_ALWAYS_INLINE static void AddToInterestPoints(ezDeque<PotentialPoI>& ref_interestPoints, ezInt32 iVertexIdx, const ezVec3& vPos, const ezVec3& vPolyCenter, ezVec3 vLineDir)
 {
-  ezVec3 toCenter = vPolyCenter - pos;
+  ezVec3 toCenter = vPolyCenter - vPos;
   toCenter.SetLength(toCenterOffset).IgnoreResult();
 
-  const ezVec3 posWithOffset = pos + toCenter + vLineDir * alongLineOffset;
+  const ezVec3 posWithOffset = vPos + toCenter + vLineDir * alongLineOffset;
 
   if (iVertexIdx < 0)
   {
-    auto& poi = interestPoints.ExpandAndGetRef();
+    auto& poi = ref_interestPoints.ExpandAndGetRef();
     poi.m_bUsed = true;
     poi.m_vPosition = posWithOffset;
     poi.m_vLineDir = vLineDir;
   }
-  else if (!interestPoints[iVertexIdx].m_bUsed)
+  else if (!ref_interestPoints[iVertexIdx].m_bUsed)
   {
-    auto& poi = interestPoints[iVertexIdx];
+    auto& poi = ref_interestPoints[iVertexIdx];
     poi.m_bUsed = true;
     poi.m_vPosition = posWithOffset;
     poi.m_vLineDir = vLineDir;
   }
   else
   {
-    auto& poi = interestPoints[iVertexIdx];
+    auto& poi = ref_interestPoints[iVertexIdx];
 
     ezPlane plane;
     plane.SetFromPoints(poi.m_vVertexPos, poi.m_vVertexPos + poi.m_vLineDir, poi.m_vVertexPos + ezVec3(0, 0, 1.0f)).IgnoreResult();
@@ -78,7 +78,7 @@ EZ_ALWAYS_INLINE static void AddToInterestPoints(ezDeque<PotentialPoI>& interest
     {
       // different sides, keep both points
 
-      auto& poi2 = interestPoints.ExpandAndGetRef();
+      auto& poi2 = ref_interestPoints.ExpandAndGetRef();
       poi2.m_bUsed = true;
       poi2.m_vPosition = posWithOffset;
       poi2.m_vLineDir = vLineDir;

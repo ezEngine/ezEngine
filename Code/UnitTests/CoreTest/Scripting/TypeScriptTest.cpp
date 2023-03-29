@@ -11,20 +11,20 @@
 #  include <Foundation/IO/FileSystem/FileWriter.h>
 #  include <TestFramework/Utilities/TestLogInterface.h>
 
-static ezResult TranspileString(const char* szSource, ezDuktapeContext& script, ezStringBuilder& result)
+static ezResult TranspileString(const char* szSource, ezDuktapeContext& ref_script, ezStringBuilder& ref_sResult)
 {
-  script.PushGlobalObject();                                           // [ global ]
-  script.PushLocalObject("ts").IgnoreResult();                         // [ global ts ]
-  EZ_SUCCEED_OR_RETURN(script.PrepareObjectFunctionCall("transpile")); // [ global ts transpile ]
-  script.PushString(szSource);                                         // [ global ts transpile source ]
-  EZ_SUCCEED_OR_RETURN(script.CallPreparedFunction());                 // [ global ts result ]
-  result = script.GetStringValue(-1);                                  // [ global ts result ]
-  script.PopStack(3);                                                  // [ ]
+  ref_script.PushGlobalObject();                                           // [ global ]
+  ref_script.PushLocalObject("ts").IgnoreResult();                         // [ global ts ]
+  EZ_SUCCEED_OR_RETURN(ref_script.PrepareObjectFunctionCall("transpile")); // [ global ts transpile ]
+  ref_script.PushString(szSource);                                         // [ global ts transpile source ]
+  EZ_SUCCEED_OR_RETURN(ref_script.CallPreparedFunction());                 // [ global ts result ]
+  ref_sResult = ref_script.GetStringValue(-1);                             // [ global ts result ]
+  ref_script.PopStack(3);                                                  // [ ]
 
   return EZ_SUCCESS;
 }
 
-static ezResult TranspileFile(const char* szFile, ezDuktapeContext& script, ezStringBuilder& result)
+static ezResult TranspileFile(const char* szFile, ezDuktapeContext& ref_script, ezStringBuilder& ref_sResult)
 {
   ezFileReader file;
   EZ_SUCCEED_OR_RETURN(file.Open(szFile));
@@ -32,12 +32,12 @@ static ezResult TranspileFile(const char* szFile, ezDuktapeContext& script, ezSt
   ezStringBuilder source;
   source.ReadAll(file);
 
-  return TranspileString(source, script, result);
+  return TranspileString(source, ref_script, ref_sResult);
 }
 
-static ezResult TranspileFileToJS(const char* szFile, ezDuktapeContext& script, ezStringBuilder& result)
+static ezResult TranspileFileToJS(const char* szFile, ezDuktapeContext& ref_script, ezStringBuilder& ref_sResult)
 {
-  EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, script, result));
+  EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, ref_script, ref_sResult));
 
   ezStringBuilder sFile(":TypeScriptTest/", szFile);
   sFile.ChangeFileExtension("js");
@@ -45,7 +45,7 @@ static ezResult TranspileFileToJS(const char* szFile, ezDuktapeContext& script, 
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
-  EZ_SUCCEED_OR_RETURN(file.WriteBytes(result.GetData(), result.GetElementCount()));
+  EZ_SUCCEED_OR_RETURN(file.WriteBytes(ref_sResult.GetData(), ref_sResult.GetElementCount()));
   return EZ_SUCCESS;
 }
 
@@ -58,9 +58,9 @@ static int Duk_Print(duk_context* pContext)
   return duk.ReturnVoid();
 }
 
-static duk_ret_t ModuleSearchFunction2(duk_context* ctx)
+static duk_ret_t ModuleSearchFunction2(duk_context* pCtx)
 {
-  ezDuktapeFunction script(ctx);
+  ezDuktapeFunction script(pCtx);
 
   /* Nargs was given as 4 and we get the following stack arguments:
    *   index 0: id

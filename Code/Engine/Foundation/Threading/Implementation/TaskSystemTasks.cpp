@@ -7,20 +7,20 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency,
+ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum priority, ezTaskGroupID dependency,
   ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
 {
-  ezTaskGroupID Group = CreateTaskGroup(Priority, callback);
-  AddTaskGroupDependency(Group, Dependency);
+  ezTaskGroupID Group = CreateTaskGroup(priority, callback);
+  AddTaskGroupDependency(Group, dependency);
   AddTaskToGroup(Group, pTask);
   StartTaskGroup(Group);
   return Group;
 }
 
 ezTaskGroupID ezTaskSystem::StartSingleTask(
-  const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
+  const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
 {
-  ezTaskGroupID Group = CreateTaskGroup(Priority, callback);
+  ezTaskGroupID Group = CreateTaskGroup(priority, callback);
   AddTaskToGroup(Group, pTask);
   StartTaskGroup(Group);
   return Group;
@@ -145,7 +145,7 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
 }
 
 
-ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunning::Enum OnTaskRunning)
+ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunning::Enum onTaskRunning)
 {
   if (pTask->IsTaskFinished())
     return EZ_SUCCESS;
@@ -200,7 +200,7 @@ ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunn
   // if we made it here, the task was already running
   // thus we just wait for it to finish
 
-  if (OnTaskRunning == ezOnTaskRunning::WaitTillFinished)
+  if (onTaskRunning == ezOnTaskRunning::WaitTillFinished)
   {
     WaitForCondition([pTask]()
       { return pTask->IsTaskFinished(); });

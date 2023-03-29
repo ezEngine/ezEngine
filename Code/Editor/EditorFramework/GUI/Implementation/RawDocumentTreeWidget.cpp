@@ -4,8 +4,8 @@
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 
-ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* parent)
-  : ezQtItemView<QTreeView>(parent)
+ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent)
+  : ezQtItemView<QTreeView>(pParent)
 {
 }
 

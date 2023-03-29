@@ -20,6 +20,8 @@ public:
   ezTextureAssetDocumentManager();
   ~ezTextureAssetDocumentManager();
 
+  virtual OutputReliability GetAssetTypeOutputReliability() const override { return ezAssetDocumentManager::OutputReliability::Perfect; }
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 
@@ -29,6 +31,8 @@ private:
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }
+
+  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const override;
 
 private:
   ezAssetDocumentTypeDescriptor m_DocTypeDesc;

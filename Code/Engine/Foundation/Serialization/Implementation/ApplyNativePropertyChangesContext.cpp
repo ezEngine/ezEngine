@@ -3,8 +3,8 @@
 #include <Foundation/Serialization/ApplyNativePropertyChangesContext.h>
 
 
-ezApplyNativePropertyChangesContext::ezApplyNativePropertyChangesContext(ezRttiConverterContext& source, const ezAbstractObjectGraph& originalGraph)
-  : m_NativeContext(source)
+ezApplyNativePropertyChangesContext::ezApplyNativePropertyChangesContext(ezRttiConverterContext& ref_source, const ezAbstractObjectGraph& originalGraph)
+  : m_NativeContext(ref_source)
   , m_OriginalGraph(originalGraph)
 {
 }
@@ -77,3 +77,6 @@ ezUuid ezApplyNativePropertyChangesContext::GenerateObjectGuid(const ezUuid& par
   guid.CreateNewUuid();
   return guid;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_ApplyNativePropertyChangesContext);

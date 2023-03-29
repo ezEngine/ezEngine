@@ -16,8 +16,8 @@ ezEvent<const ezEditorAppEvent&> ezQtEditorApp::m_Events;
 
 ezQtEditorApp::ezQtEditorApp()
   : m_SingletonRegistrar(this)
-  , m_RecentProjects(10)
-  , m_RecentDocuments(50)
+  , m_RecentProjects(20)
+  , m_RecentDocuments(100)
 {
   m_bSavePreferencesAfterOpenProject = false;
 
@@ -54,7 +54,18 @@ void ezQtEditorApp::SlotTimedUpdate()
 
   Q_EMIT IdleEvent();
 
-  RestartEngineProcessIfPluginsChanged();
+  RestartEngineProcessIfPluginsChanged(false);
+
+  if (m_bWroteCrashIndicatorFile)
+  {
+    m_bWroteCrashIndicatorFile = false;
+    QTimer::singleShot(2000, []() {
+      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+      sTemp.AppendPath("ezEditorCrashIndicator");
+      ezOSFile::DeleteFile(sTemp).IgnoreResult();
+      //
+    });
+  }
 
   m_pTimer->start(1);
 }
@@ -253,6 +264,9 @@ bool ezQtEditorApp::ExistsPluginSelectionStateDDL(const char* szProjectDir /*= "
 
 void ezQtEditorApp::WritePluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
 {
+  if (m_StartupFlags.IsAnySet(StartupFlags::Background | StartupFlags::Headless | StartupFlags::UnitTest))
+    return;
+
   ezStringBuilder path = szProjectDir;
   path.AppendPath("Editor/PluginSelection.ddl");
 
@@ -267,6 +281,9 @@ void ezQtEditorApp::WritePluginSelectionStateDDL(const char* szProjectDir /*= ":
 
 void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate)
 {
+  if (m_StartupFlags.IsAnySet(StartupFlags::Background | StartupFlags::Headless | StartupFlags::UnitTest))
+    return;
+
   ezStringBuilder sPath = szProjectFile;
   sPath.PathParentDirectory();
 
@@ -396,8 +413,6 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
     args << "-safe";
   if (m_StartupFlags.IsSet(StartupFlags::NoRecent))
     args << "-noRecent";
-  if (m_StartupFlags.IsSet(StartupFlags::Debug))
-    args << "-debug";
 
   QProcess proc;
   proc.startDetached(QString::fromUtf8(app, app.GetElementCount()), args);
@@ -423,5 +438,6 @@ void ezQtEditorApp::ReloadEngineResources()
 {
   ezSimpleConfigMsgToEngine msg;
   msg.m_sWhatToDo = "ReloadResources";
+  msg.m_sPayload = "ReloadAllResources";
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

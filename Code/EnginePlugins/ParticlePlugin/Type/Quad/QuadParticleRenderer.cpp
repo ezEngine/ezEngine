@@ -29,9 +29,9 @@ ezParticleQuadRenderer::~ezParticleQuadRenderer()
   DestroyParticleDataBuffer(m_hTangentDataBuffer);
 }
 
-void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezParticleQuadRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezParticleQuadRenderData>());
 }
 
 void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
@@ -124,3 +124,7 @@ void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData*
       break;
   }
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Quad_QuadParticleRenderer);
+

@@ -70,12 +70,9 @@ bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
 
 ezApplicationPluginConfig::ezApplicationPluginConfig() = default;
 
-ezResult ezApplicationPluginConfig::Save(const char* szConfigPath) const
+ezResult ezApplicationPluginConfig::Save(ezStringView sPath) const
 {
   m_Plugins.Sort();
-
-  ezStringBuilder sPath;
-  sPath = szConfigPath;
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
@@ -99,14 +96,21 @@ ezResult ezApplicationPluginConfig::Save(const char* szConfigPath) const
   return EZ_SUCCESS;
 }
 
-void ezApplicationPluginConfig::Load(const char* szConfigPath)
+void ezApplicationPluginConfig::Load(ezStringView sPath)
 {
   EZ_LOG_BLOCK("ezApplicationPluginConfig::Load()");
 
   m_Plugins.Clear();
 
-  ezStringBuilder sPath;
-  sPath = szConfigPath;
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  ezStringBuilder sOldLoc;
+  if (sPath.FindSubString("RuntimeConfigs/"))
+  {
+    sOldLoc = sPath;
+    sOldLoc.ReplaceLast("RuntimeConfigs/", "");
+    sPath = ezFileSystem::MigrateFileLocation(sOldLoc, sPath);
+  }
+#endif
 
   ezFileReader file;
   if (file.Open(sPath).Failed())

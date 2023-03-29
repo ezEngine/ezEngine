@@ -32,6 +32,8 @@ public:
   virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const override;
   virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const override;
 
+  virtual void OnUnknownTypeError(ezStringView sTypeName) override;
+
   ezWorld* m_pWorld;
   ezEditorGuidEngineHandleMap<ezGameObjectHandle> m_GameObjectMap;
   ezEditorGuidEngineHandleMap<ezComponentHandle> m_ComponentMap;
@@ -54,4 +56,6 @@ public:
   };
 
   ezEvent<const Event&> m_Events;
+
+  ezSet<ezString> m_UnknownTypes;
 };

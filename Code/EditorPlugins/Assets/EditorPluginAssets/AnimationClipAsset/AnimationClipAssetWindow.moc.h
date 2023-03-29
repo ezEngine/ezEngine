@@ -58,4 +58,3 @@ private:
   ezQtDocumentPanel* m_pEventTrackPanel = nullptr;
   ezQtEventTrackEditorWidget* m_pEventTrackEditor = nullptr;
 };
-

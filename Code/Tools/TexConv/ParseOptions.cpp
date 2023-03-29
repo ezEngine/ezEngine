@@ -437,10 +437,16 @@ ezResult ezTexConv::ParseAssetHeader()
 
   m_Processor.m_Descriptor.m_uiAssetVersion = (ezUInt16)opt_AssetVersion.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-  const ezUInt64 uiHashLow = ezConversionUtils::ConvertHexStringToUInt32(opt_AssetHashLow.GetOptionValue(ezCommandLineOption::LogMode::Always));
-  const ezUInt64 uiHashHigh = ezConversionUtils::ConvertHexStringToUInt32(opt_AssetHashHigh.GetOptionValue(ezCommandLineOption::LogMode::Always));
+  ezUInt32 uiHashLow = 0;
+  ezUInt32 uiHashHigh = 0;
+  if (ezConversionUtils::ConvertHexStringToUInt32(opt_AssetHashLow.GetOptionValue(ezCommandLineOption::LogMode::Always), uiHashLow).Failed() ||
+      ezConversionUtils::ConvertHexStringToUInt32(opt_AssetHashHigh.GetOptionValue(ezCommandLineOption::LogMode::Always), uiHashHigh).Failed())
+  {
+    ezLog::Error("'-assetHashLow 0xHEX32' and '-assetHashHigh 0xHEX32' have not been specified correctly.");
+    return EZ_FAILURE;
+  }
 
-  m_Processor.m_Descriptor.m_uiAssetHash = (uiHashHigh << 32) | uiHashLow;
+  m_Processor.m_Descriptor.m_uiAssetHash = (static_cast<ezUInt64>(uiHashHigh) << 32) | static_cast<ezUInt64>(uiHashLow);
 
   if (m_Processor.m_Descriptor.m_uiAssetHash == 0)
   {

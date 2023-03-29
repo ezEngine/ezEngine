@@ -41,7 +41,6 @@ protected:
   ezEngineGizmoHandle m_hAlignPZ;
   ezEngineGizmoHandle m_hAlignNZ;
 
-  bool m_bUseExperimentalGizmo = false;
   bool m_bModifiesRotation;
   ezTime m_LastInteraction;
   ezVec3 m_vStartPosition;

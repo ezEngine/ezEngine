@@ -252,7 +252,7 @@ namespace
   }
 
   template <typename AddFunc>
-  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& positionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment horizontalAlignment, ezDebugRenderer::VerticalAlignment verticalAlignment, AddFunc func)
+  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& vPositionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment horizontalAlignment, ezDebugRenderer::VerticalAlignment verticalAlignment, AddFunc func)
   {
     if (text0.IsEmpty())
       return 0;
@@ -311,11 +311,11 @@ namespace
     const float fGlyphWidth = ezMath::Ceil(fSizeInPixel * (8.0f / 16.0f));
     const float fLineHeight = ezMath::Ceil(fSizeInPixel * (20.0f / 16.0f));
 
-    float screenPosX = (float)positionInPixel.x;
+    float screenPosX = (float)vPositionInPixel.x;
     if (horizontalAlignment == ezDebugRenderer::HorizontalAlignment::Right)
       screenPosX -= maxLineLength * fGlyphWidth;
 
-    float screenPosY = (float)positionInPixel.y;
+    float screenPosY = (float)vPositionInPixel.y;
     if (verticalAlignment == ezDebugRenderer::VerticalAlignment::Center)
       screenPosY -= ezMath::Ceil(lines.GetCount() * fLineHeight * 0.5f);
     else if (verticalAlignment == ezDebugRenderer::VerticalAlignment::Bottom)
@@ -371,14 +371,14 @@ namespace
     return lines.GetCount();
   }
 
-  static void AppendGlyphs(ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper>& glyphs, const TextLineData2D& textLine)
+  static void AppendGlyphs(ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper>& ref_glyphs, const TextLineData2D& textLine)
   {
     ezVec2 currentPos = textLine.m_topLeftCorner;
     const float fGlyphWidth = ezMath::Ceil(textLine.m_uiSizeInPixel * (8.0f / 16.0f));
 
     for (ezUInt32 uiCharacter : textLine.m_text)
     {
-      auto& glyphData = glyphs.ExpandAndGetRef();
+      auto& glyphData = ref_glyphs.ExpandAndGetRef();
       glyphData.m_topLeftCorner = currentPos;
       glyphData.m_color = textLine.m_color;
       glyphData.m_glyphIndex = uiCharacter < 128 ? static_cast<ezUInt16>(uiCharacter) : 0;
@@ -495,7 +495,7 @@ void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArray
 }
 
 // static
-void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   if (fLineLength <= 0.0f)
     return;
@@ -509,14 +509,14 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
 
   auto& data = GetDataForExtraction(context);
 
-  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - xAxis), color});
-  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + xAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(vGlobalPosition - xAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(vGlobalPosition + xAxis), color});
 
-  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - yAxis), color});
-  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + yAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(vGlobalPosition - yAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(vGlobalPosition + yAxis), color});
 
-  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition - zAxis), color});
-  data.m_lineVertices.PushBack({transform.TransformPosition(globalPosition + zAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(vGlobalPosition - zAxis), color});
+  data.m_lineVertices.PushBack({transform.TransformPosition(vGlobalPosition + zAxis), color});
 }
 
 // static
@@ -868,28 +868,28 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_triangle2DVertices.PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 uvScale)
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 vScale)
 {
   ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::AllowLoadingFallback);
-  Draw2DRectangle(context, rectInPixel, fDepth, color, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()), uvScale);
+  Draw2DRectangle(context, rectInPixel, fDepth, color, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()), vScale);
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView, ezVec2 uvScale)
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView, ezVec2 vScale)
 {
   TexVertex vertices[6];
 
   vertices[0].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
-  vertices[0].m_texCoord = ezVec2(0, 0).CompMul(uvScale);
+  vertices[0].m_texCoord = ezVec2(0, 0).CompMul(vScale);
   vertices[1].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
-  vertices[1].m_texCoord = ezVec2(1, 1).CompMul(uvScale);
+  vertices[1].m_texCoord = ezVec2(1, 1).CompMul(vScale);
   vertices[2].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Bottom(), fDepth);
-  vertices[2].m_texCoord = ezVec2(0, 1).CompMul(uvScale);
+  vertices[2].m_texCoord = ezVec2(0, 1).CompMul(vScale);
   vertices[3].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
-  vertices[3].m_texCoord = ezVec2(0, 0).CompMul(uvScale);
+  vertices[3].m_texCoord = ezVec2(0, 0).CompMul(vScale);
   vertices[4].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Top(), fDepth);
-  vertices[4].m_texCoord = ezVec2(1, 0).CompMul(uvScale);
+  vertices[4].m_texCoord = ezVec2(1, 0).CompMul(vScale);
   vertices[5].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
-  vertices[5].m_texCoord = ezVec2(1, 1).CompMul(uvScale);
+  vertices[5].m_texCoord = ezVec2(1, 1).CompMul(vScale);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(vertices); ++i)
   {
@@ -904,19 +904,19 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hResourceView].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Top*/)
+ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Top*/)
 {
-  return AddTextLines(context, text, positionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
-    auto& textLine = data.m_textLines2D.ExpandAndGetRef();
-    textLine.m_text = line;
-    textLine.m_topLeftCorner = topLeftCorner;
+  return AddTextLines(context, text, vPositionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
+    auto& textLine = ref_data.m_textLines2D.ExpandAndGetRef();
+    textLine.m_text = sLine;
+    textLine.m_topLeftCorner = vTopLeftCorner;
     textLine.m_color = color;
     textLine.m_uiSizeInPixel = uiSizeInPixel;
   });
 }
 
 
-void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* groupName, const ezFormatString& text, const ezColor& color)
+void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* szGroupName, const ezFormatString& text, const ezColor& color)
 {
   EZ_LOCK(s_Mutex);
 
@@ -925,20 +925,20 @@ void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, Screen
   ezStringBuilder tmp;
 
   auto& e = data.m_infoTextData[(int)placement].ExpandAndGetRef();
-  e.m_group = groupName;
+  e.m_group = szGroupName;
   e.m_text = text.GetText(tmp);
   e.m_color = color;
 }
 
-ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& globalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Bottom*/)
+ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Bottom*/)
 {
-  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& data, ezStringView line, ezVec2 topLeftCorner) {
-    auto& textLine = data.m_textLines3D.ExpandAndGetRef();
-    textLine.m_text = line;
-    textLine.m_topLeftCorner = topLeftCorner;
+  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
+    auto& textLine = ref_data.m_textLines3D.ExpandAndGetRef();
+    textLine.m_text = sLine;
+    textLine.m_topLeftCorner = vTopLeftCorner;
     textLine.m_color = color;
     textLine.m_uiSizeInPixel = uiSizeInPixel;
-    textLine.m_position = globalPosition;
+    textLine.m_position = vGlobalPosition;
   });
 }
 
@@ -966,7 +966,7 @@ void ezDebugRenderer::AddPersistentLineSphere(const ezDebugRendererContext& cont
   item.m_Timeout = data.m_Now + duration;
 }
 
-void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& halfSize, const ezColor& color, const ezTransform& transform, ezTime duration)
+void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& vHalfSize, const ezColor& color, const ezTransform& transform, ezTime duration)
 {
   EZ_LOCK(s_Mutex);
 
@@ -974,11 +974,11 @@ void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context
   auto& item = data.m_Boxes.ExpandAndGetRef();
   item.m_Transform = transform;
   item.m_Color = color;
-  item.m_vHalfSize = halfSize;
+  item.m_vHalfSize = vHalfSize;
   item.m_Timeout = data.m_Now + duration;
 }
 
-void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 forwardAxis /*= ezVec3::UnitXAxis()*/, ezVec3 rotationAxis /*= ezVec3::UnitZAxis()*/)
+void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::UnitXAxis()*/, ezVec3 vRotationAxis /*= ezVec3::UnitZAxis()*/)
 {
   ezHybridArray<Triangle, 64> tris;
   ezHybridArray<Line, 64> lines;
@@ -994,12 +994,12 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   const ezAngle step = range / (float)uiTesselation;
 
   ezQuat qStart;
-  qStart.SetFromAxisAndAngle(rotationAxis, startAngle);
+  qStart.SetFromAxisAndAngle(vRotationAxis, startAngle);
 
   ezQuat qStep;
-  qStep.SetFromAxisAndAngle(rotationAxis, step);
+  qStep.SetFromAxisAndAngle(vRotationAxis, step);
 
-  ezVec3 vCurDir = qStart * forwardAxis;
+  ezVec3 vCurDir = qStart * vForwardAxis;
 
   if (lineColor.a > 0)
   {
@@ -1043,7 +1043,7 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   DrawLines(context, lines, lineColor, transform);
 }
 
-void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 forwardAxis /*= ezVec3::UnitXAxis()*/)
+void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::UnitXAxis()*/)
 {
   ezHybridArray<Triangle, 64> trisInside;
   ezHybridArray<Triangle, 64> trisOutside;
@@ -1053,15 +1053,15 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
   const ezAngle refAngle = halfAngle <= ezAngle::Degree(90) ? halfAngle : ezAngle::Degree(180) - halfAngle;
   const ezUInt32 uiTesselation = ezMath::Max(8u, (ezUInt32)(refAngle / ezAngle::Degree(2)));
 
-  const ezVec3 tangentAxis = forwardAxis.GetOrthogonalVector().GetNormalized();
+  const ezVec3 tangentAxis = vForwardAxis.GetOrthogonalVector().GetNormalized();
 
   ezQuat tilt;
   tilt.SetFromAxisAndAngle(tangentAxis, halfAngle);
 
   ezQuat step;
-  step.SetFromAxisAndAngle(forwardAxis, ezAngle::Degree(360) / (float)uiTesselation);
+  step.SetFromAxisAndAngle(vForwardAxis, ezAngle::Degree(360) / (float)uiTesselation);
 
-  ezVec3 vCurDir = tilt * forwardAxis;
+  ezVec3 vCurDir = tilt * vForwardAxis;
 
   for (ezUInt32 i = 0; i < uiTesselation; ++i)
   {
@@ -1148,7 +1148,7 @@ void ezDebugRenderer::DrawLimitCone(const ezDebugRendererContext& context, ezAng
   DrawLines(context, lines, lineColor, transform);
 }
 
-void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float radiusStart, float radiusEnd, float length, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool capStart /*= false*/, bool capEnd /*= false*/)
+void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool bCapStart /*= false*/, bool bCapEnd /*= false*/)
 {
   constexpr ezUInt32 NUM_SEGMENTS = 16;
   ezHybridArray<Line, NUM_SEGMENTS * 3> lines;
@@ -1163,19 +1163,19 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
   const bool bLine = lineColor.a > 0;
 
   const ezVec3 vLastCircle(0, ezMath::Cos(-step), ezMath::Sin(-step));
-  const ezVec3 vLastStart = transform.TransformPosition(ezVec3(0, vLastCircle.y * radiusStart, vLastCircle.z * radiusStart));
-  const ezVec3 vLastEnd = transform.TransformPosition(ezVec3(length, vLastCircle.y * radiusEnd, vLastCircle.z * radiusEnd));
+  const ezVec3 vLastStart = transform.TransformPosition(ezVec3(0, vLastCircle.y * fRadiusStart, vLastCircle.z * fRadiusStart));
+  const ezVec3 vLastEnd = transform.TransformPosition(ezVec3(fLength, vLastCircle.y * fRadiusEnd, vLastCircle.z * fRadiusEnd));
 
   for (ezUInt32 i = 0; i < NUM_SEGMENTS; ++i)
   {
     angle += step;
     const ezVec3 vNextCircle(0, ezMath::Cos(angle), ezMath::Sin(angle));
 
-    ezVec3 vCurStart = vCurCircle * radiusStart;
-    ezVec3 vNextStart = vNextCircle * radiusStart;
+    ezVec3 vCurStart = vCurCircle * fRadiusStart;
+    ezVec3 vNextStart = vNextCircle * fRadiusStart;
 
-    ezVec3 vCurEnd(length, vCurCircle.y * radiusEnd, vCurCircle.z * radiusEnd);
-    ezVec3 vNextEnd(length, vNextCircle.y * radiusEnd, vNextCircle.z * radiusEnd);
+    ezVec3 vCurEnd(fLength, vCurCircle.y * fRadiusEnd, vCurCircle.z * fRadiusEnd);
+    ezVec3 vNextEnd(fLength, vNextCircle.y * fRadiusEnd, vNextCircle.z * fRadiusEnd);
 
     if (bLine)
     {
@@ -1194,10 +1194,10 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
       tris.PushBack({vCurStart, vNextStart, vNextEnd});
       tris.PushBack({vCurStart, vNextEnd, vCurEnd});
 
-      if (capStart)
+      if (bCapStart)
         tris.PushBack({vLastStart, vNextStart, vCurStart});
 
-      if (capEnd)
+      if (bCapEnd)
         tris.PushBack({vLastEnd, vCurEnd, vNextEnd});
     }
 

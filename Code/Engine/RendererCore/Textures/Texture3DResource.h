@@ -51,8 +51,8 @@ public:
   EZ_ALWAYS_INLINE ezUInt32 GetDepth() const { return m_uiDepth; }
   EZ_ALWAYS_INLINE ezGALTextureType::Enum GetType() const { return m_Type; }
 
-  static void FillOutDescriptor(ezTexture3DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
-    ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData);
+  static void FillOutDescriptor(ezTexture3DResourceDescriptor& ref_td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
+    ezUInt32& out_uiMemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& ref_initData);
 
   const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
   const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }

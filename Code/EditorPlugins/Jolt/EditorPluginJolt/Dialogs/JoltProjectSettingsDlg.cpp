@@ -6,10 +6,8 @@
 
 void UpdateCollisionLayerDynamicEnumValues();
 
-constexpr const char* g_szJoltConfigFile = ":project/RuntimeConfigs/CollisionLayers.cfg";
-
-ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(QWidget* parent)
-  : QDialog(parent)
+ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(QWidget* pParent)
+  : QDialog(pParent)
 {
   setupUi(this);
 
@@ -25,7 +23,13 @@ ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(QWidget* parent)
 
 void ezQtJoltProjectSettingsDlg::EnsureConfigFileExists()
 {
-  if (ezFileSystem::ExistsFile(g_szJoltConfigFile))
+  ezStringView sConfigFile = ezCollisionFilterConfig::s_sConfigFile;
+
+#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
+  sConfigFile = ezFileSystem::MigrateFileLocation(":project/CollisionLayers.cfg", sConfigFile);
+#endif
+
+  if (ezFileSystem::ExistsFile(sConfigFile))
     return;
 
   ezCollisionFilterConfig cfg;
@@ -94,7 +98,9 @@ void ezQtJoltProjectSettingsDlg::EnsureConfigFileExists()
 
   cfg.EnableCollision(8, 8, false);
 
-  cfg.Save(g_szJoltConfigFile).IgnoreResult();
+  cfg.Save().IgnoreResult();
+
+  UpdateCollisionLayerDynamicEnumValues();
 }
 
 void ezQtJoltProjectSettingsDlg::SetupTable()
@@ -145,10 +151,10 @@ void ezQtJoltProjectSettingsDlg::SetupTable()
 
 ezResult ezQtJoltProjectSettingsDlg::Save()
 {
-  if (m_Config.Save(g_szJoltConfigFile).Failed())
+  if (m_Config.Save().Failed())
   {
     ezStringBuilder sError;
-    sError.Format("Failed to save the Collision Layer file\n'{0}'", g_szJoltConfigFile);
+    sError.Format("Failed to save the Collision Layer file\n'{0}'", ezCollisionFilterConfig::s_sConfigFile);
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
@@ -162,7 +168,7 @@ ezResult ezQtJoltProjectSettingsDlg::Save()
 
 ezResult ezQtJoltProjectSettingsDlg::Load()
 {
-  auto res = m_Config.Load(g_szJoltConfigFile);
+  auto res = m_Config.Load();
 
   m_ConfigReset = m_Config;
   return res;

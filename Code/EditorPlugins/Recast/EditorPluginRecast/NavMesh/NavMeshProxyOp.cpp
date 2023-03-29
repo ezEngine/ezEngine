@@ -14,7 +14,7 @@ void ezLongOpProxy_BuildNavMesh::InitializeRegistered(const ezUuid& documentGuid
   m_ComponentGuid = componentGuid;
 }
 
-void ezLongOpProxy_BuildNavMesh::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
+void ezLongOpProxy_BuildNavMesh::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& ref_description)
 {
   out_sReplicationOpType = "ezLongOpWorker_BuildNavMesh";
 
@@ -24,7 +24,7 @@ void ezLongOpProxy_BuildNavMesh::GetReplicationInfo(ezStringBuilder& out_sReplic
 
     sOutputFile.Format(":project/AssetCache/Generated/{0}.ezRecastNavMesh", sComponentGuid);
 
-    description << sOutputFile;
+    ref_description << sOutputFile;
   }
 
   const ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(m_DocumentGuid);
@@ -47,7 +47,7 @@ void ezLongOpProxy_BuildNavMesh::GetReplicationInfo(ezStringBuilder& out_sReplic
   rcCfg.m_fDetailMeshSampleErrorFactor = cfg.GetValue("SampleErrorFactor").Get<float>();
   rcCfg.m_fMaxSimplificationError = cfg.GetValue("MaxSimplification").Get<float>();
   rcCfg.m_fMaxEdgeLength = cfg.GetValue("MaxEdgeLength").Get<float>();
-  rcCfg.Serialize(description).IgnoreResult();
+  rcCfg.Serialize(ref_description).IgnoreResult();
 }
 
 void ezLongOpProxy_BuildNavMesh::Finalize(ezResult result, const ezDataBuffer& resultData)

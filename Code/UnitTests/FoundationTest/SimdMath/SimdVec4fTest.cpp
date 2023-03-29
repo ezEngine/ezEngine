@@ -14,16 +14,16 @@ namespace
   }
 
   template <ezMathAcc::Enum acc>
-  static void TestLength(const ezSimdVec4f& a, float r[4], const ezSimdFloat& eps)
+  static void TestLength(const ezSimdVec4f& a, float r[4], const ezSimdFloat& fEps)
   {
     ezSimdFloat l1 = a.GetLength<1, acc>();
     ezSimdFloat l2 = a.GetLength<2, acc>();
     ezSimdFloat l3 = a.GetLength<3, acc>();
     ezSimdFloat l4 = a.GetLength<4, acc>();
-    EZ_TEST_FLOAT(l1, r[0], eps);
-    EZ_TEST_FLOAT(l2, r[1], eps);
-    EZ_TEST_FLOAT(l3, r[2], eps);
-    EZ_TEST_FLOAT(l4, r[3], eps);
+    EZ_TEST_FLOAT(l1, r[0], fEps);
+    EZ_TEST_FLOAT(l2, r[1], fEps);
+    EZ_TEST_FLOAT(l3, r[2], fEps);
+    EZ_TEST_FLOAT(l4, r[3], fEps);
     EZ_TEST_BOOL(AllCompSame(l1));
     EZ_TEST_BOOL(AllCompSame(l2));
     EZ_TEST_BOOL(AllCompSame(l3));
@@ -31,16 +31,16 @@ namespace
   }
 
   template <ezMathAcc::Enum acc>
-  static void TestInvLength(const ezSimdVec4f& a, float r[4], const ezSimdFloat& eps)
+  static void TestInvLength(const ezSimdVec4f& a, float r[4], const ezSimdFloat& fEps)
   {
     ezSimdFloat l1 = a.GetInvLength<1, acc>();
     ezSimdFloat l2 = a.GetInvLength<2, acc>();
     ezSimdFloat l3 = a.GetInvLength<3, acc>();
     ezSimdFloat l4 = a.GetInvLength<4, acc>();
-    EZ_TEST_FLOAT(l1, r[0], eps);
-    EZ_TEST_FLOAT(l2, r[1], eps);
-    EZ_TEST_FLOAT(l3, r[2], eps);
-    EZ_TEST_FLOAT(l4, r[3], eps);
+    EZ_TEST_FLOAT(l1, r[0], fEps);
+    EZ_TEST_FLOAT(l2, r[1], fEps);
+    EZ_TEST_FLOAT(l3, r[2], fEps);
+    EZ_TEST_FLOAT(l4, r[3], fEps);
     EZ_TEST_BOOL(AllCompSame(l1));
     EZ_TEST_BOOL(AllCompSame(l2));
     EZ_TEST_BOOL(AllCompSame(l3));
@@ -48,16 +48,16 @@ namespace
   }
 
   template <ezMathAcc::Enum acc>
-  static void TestNormalize(const ezSimdVec4f& a, ezSimdVec4f n[4], ezSimdFloat r[4], const ezSimdFloat& eps)
+  static void TestNormalize(const ezSimdVec4f& a, ezSimdVec4f n[4], ezSimdFloat r[4], const ezSimdFloat& fEps)
   {
     ezSimdVec4f n1 = a.GetNormalized<1, acc>();
     ezSimdVec4f n2 = a.GetNormalized<2, acc>();
     ezSimdVec4f n3 = a.GetNormalized<3, acc>();
     ezSimdVec4f n4 = a.GetNormalized<4, acc>();
-    EZ_TEST_BOOL(n1.IsEqual(n[0], eps).AllSet());
-    EZ_TEST_BOOL(n2.IsEqual(n[1], eps).AllSet());
-    EZ_TEST_BOOL(n3.IsEqual(n[2], eps).AllSet());
-    EZ_TEST_BOOL(n4.IsEqual(n[3], eps).AllSet());
+    EZ_TEST_BOOL(n1.IsEqual(n[0], fEps).AllSet());
+    EZ_TEST_BOOL(n2.IsEqual(n[1], fEps).AllSet());
+    EZ_TEST_BOOL(n3.IsEqual(n[2], fEps).AllSet());
+    EZ_TEST_BOOL(n4.IsEqual(n[3], fEps).AllSet());
 
     ezSimdVec4f a1 = a;
     ezSimdVec4f a2 = a;
@@ -68,27 +68,27 @@ namespace
     ezSimdFloat l2 = a2.GetLengthAndNormalize<2, acc>();
     ezSimdFloat l3 = a3.GetLengthAndNormalize<3, acc>();
     ezSimdFloat l4 = a4.GetLengthAndNormalize<4, acc>();
-    EZ_TEST_FLOAT(l1, r[0], eps);
-    EZ_TEST_FLOAT(l2, r[1], eps);
-    EZ_TEST_FLOAT(l3, r[2], eps);
-    EZ_TEST_FLOAT(l4, r[3], eps);
+    EZ_TEST_FLOAT(l1, r[0], fEps);
+    EZ_TEST_FLOAT(l2, r[1], fEps);
+    EZ_TEST_FLOAT(l3, r[2], fEps);
+    EZ_TEST_FLOAT(l4, r[3], fEps);
     EZ_TEST_BOOL(AllCompSame(l1));
     EZ_TEST_BOOL(AllCompSame(l2));
     EZ_TEST_BOOL(AllCompSame(l3));
     EZ_TEST_BOOL(AllCompSame(l4));
 
-    EZ_TEST_BOOL(a1.IsEqual(n[0], eps).AllSet());
-    EZ_TEST_BOOL(a2.IsEqual(n[1], eps).AllSet());
-    EZ_TEST_BOOL(a3.IsEqual(n[2], eps).AllSet());
-    EZ_TEST_BOOL(a4.IsEqual(n[3], eps).AllSet());
+    EZ_TEST_BOOL(a1.IsEqual(n[0], fEps).AllSet());
+    EZ_TEST_BOOL(a2.IsEqual(n[1], fEps).AllSet());
+    EZ_TEST_BOOL(a3.IsEqual(n[2], fEps).AllSet());
+    EZ_TEST_BOOL(a4.IsEqual(n[3], fEps).AllSet());
 
-    EZ_TEST_BOOL(a1.IsNormalized<1>(eps));
-    EZ_TEST_BOOL(a2.IsNormalized<2>(eps));
-    EZ_TEST_BOOL(a3.IsNormalized<3>(eps));
-    EZ_TEST_BOOL(a4.IsNormalized<4>(eps));
-    EZ_TEST_BOOL(!a1.IsNormalized<2>(eps));
-    EZ_TEST_BOOL(!a2.IsNormalized<3>(eps));
-    EZ_TEST_BOOL(!a3.IsNormalized<4>(eps));
+    EZ_TEST_BOOL(a1.IsNormalized<1>(fEps));
+    EZ_TEST_BOOL(a2.IsNormalized<2>(fEps));
+    EZ_TEST_BOOL(a3.IsNormalized<3>(fEps));
+    EZ_TEST_BOOL(a4.IsNormalized<4>(fEps));
+    EZ_TEST_BOOL(!a1.IsNormalized<2>(fEps));
+    EZ_TEST_BOOL(!a2.IsNormalized<3>(fEps));
+    EZ_TEST_BOOL(!a3.IsNormalized<4>(fEps));
 
     a1 = a;
     a1.Normalize<1, acc>();
@@ -98,38 +98,38 @@ namespace
     a3.Normalize<3, acc>();
     a4 = a;
     a4.Normalize<4, acc>();
-    EZ_TEST_BOOL(a1.IsEqual(n[0], eps).AllSet());
-    EZ_TEST_BOOL(a2.IsEqual(n[1], eps).AllSet());
-    EZ_TEST_BOOL(a3.IsEqual(n[2], eps).AllSet());
-    EZ_TEST_BOOL(a4.IsEqual(n[3], eps).AllSet());
+    EZ_TEST_BOOL(a1.IsEqual(n[0], fEps).AllSet());
+    EZ_TEST_BOOL(a2.IsEqual(n[1], fEps).AllSet());
+    EZ_TEST_BOOL(a3.IsEqual(n[2], fEps).AllSet());
+    EZ_TEST_BOOL(a4.IsEqual(n[3], fEps).AllSet());
   }
 
   template <ezMathAcc::Enum acc>
-  static void TestNormalizeIfNotZero(const ezSimdVec4f& a, ezSimdVec4f n[4], const ezSimdFloat& eps)
+  static void TestNormalizeIfNotZero(const ezSimdVec4f& a, ezSimdVec4f n[4], const ezSimdFloat& fEps)
   {
     ezSimdVec4f a1 = a;
-    a1.NormalizeIfNotZero<1>(eps);
+    a1.NormalizeIfNotZero<1>(fEps);
     ezSimdVec4f a2 = a;
-    a2.NormalizeIfNotZero<2>(eps);
+    a2.NormalizeIfNotZero<2>(fEps);
     ezSimdVec4f a3 = a;
-    a3.NormalizeIfNotZero<3>(eps);
+    a3.NormalizeIfNotZero<3>(fEps);
     ezSimdVec4f a4 = a;
-    a4.NormalizeIfNotZero<4>(eps);
-    EZ_TEST_BOOL(a1.IsEqual(n[0], eps).AllSet());
-    EZ_TEST_BOOL(a2.IsEqual(n[1], eps).AllSet());
-    EZ_TEST_BOOL(a3.IsEqual(n[2], eps).AllSet());
-    EZ_TEST_BOOL(a4.IsEqual(n[3], eps).AllSet());
+    a4.NormalizeIfNotZero<4>(fEps);
+    EZ_TEST_BOOL(a1.IsEqual(n[0], fEps).AllSet());
+    EZ_TEST_BOOL(a2.IsEqual(n[1], fEps).AllSet());
+    EZ_TEST_BOOL(a3.IsEqual(n[2], fEps).AllSet());
+    EZ_TEST_BOOL(a4.IsEqual(n[3], fEps).AllSet());
 
-    EZ_TEST_BOOL(a1.IsNormalized<1>(eps));
-    EZ_TEST_BOOL(a2.IsNormalized<2>(eps));
-    EZ_TEST_BOOL(a3.IsNormalized<3>(eps));
-    EZ_TEST_BOOL(a4.IsNormalized<4>(eps));
-    EZ_TEST_BOOL(!a1.IsNormalized<2>(eps));
-    EZ_TEST_BOOL(!a2.IsNormalized<3>(eps));
-    EZ_TEST_BOOL(!a3.IsNormalized<4>(eps));
+    EZ_TEST_BOOL(a1.IsNormalized<1>(fEps));
+    EZ_TEST_BOOL(a2.IsNormalized<2>(fEps));
+    EZ_TEST_BOOL(a3.IsNormalized<3>(fEps));
+    EZ_TEST_BOOL(a4.IsNormalized<4>(fEps));
+    EZ_TEST_BOOL(!a1.IsNormalized<2>(fEps));
+    EZ_TEST_BOOL(!a2.IsNormalized<3>(fEps));
+    EZ_TEST_BOOL(!a3.IsNormalized<4>(fEps));
 
-    ezSimdVec4f b(eps);
-    b.NormalizeIfNotZero<4>(eps);
+    ezSimdVec4f b(fEps);
+    b.NormalizeIfNotZero<4>(fEps);
     EZ_TEST_BOOL(b.IsZero<4>());
   }
 } // namespace
@@ -500,11 +500,20 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       c = a.Abs();
       EZ_TEST_BOOL(c.x() == 3.4f && c.y() == 5.4f && c.z() == 7.6f && c.w() == 9.6f);
 
+      c = a.Round();
+      EZ_TEST_BOOL(c.x() == -3.0f && c.y() == 5.0f && c.z() == -8.0f && c.w() == 10.0f);
+
       c = a.Floor();
       EZ_TEST_BOOL(c.x() == -4.0f && c.y() == 5.0f && c.z() == -8.0f && c.w() == 9.0f);
 
       c = a.Ceil();
       EZ_TEST_BOOL(c.x() == -3.0f && c.y() == 6.0f && c.z() == -7.0f && c.w() == 10.0f);
+
+      c = a.Trunc();
+      EZ_TEST_BOOL(c.x() == -3.0f && c.y() == 5.0f && c.z() == -7.0f && c.w() == 9.0f);
+
+      c = a.Fraction();
+      EZ_TEST_BOOL(c.IsEqual(ezSimdVec4f(-0.4f, 0.4f, -0.6f, 0.6f), ezMath::SmallEpsilon<float>()).AllSet());
     }
 
     {

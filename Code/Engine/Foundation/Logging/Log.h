@@ -55,11 +55,11 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
   ezUInt8 m_uiIndentation = 0;
 
   /// \brief The information text.
-  const char* m_szText = "";
+  ezStringView m_sText;
 
   /// \brief An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for
   /// additional configuration, or simply be ignored.
-  const char* m_szTag = "";
+  ezStringView m_sTag;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Used by log-blocks for profiling the duration of the block
@@ -81,7 +81,7 @@ public:
 
   /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be
   /// filtered out.
-  EZ_ALWAYS_INLINE void SetLogLevel(ezLogMsgType::Enum LogLevel) { m_LogLevel = LogLevel; }
+  EZ_ALWAYS_INLINE void SetLogLevel(ezLogMsgType::Enum logLevel) { m_LogLevel = logLevel; }
 
   /// \brief Returns the currently set log level.
   EZ_ALWAYS_INLINE ezLogMsgType::Enum GetLogLevel() { return m_LogLevel; }
@@ -126,10 +126,10 @@ public:
   static void RemoveLogWriter(ezLoggingEvent::Handler handler);
 
   /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
-  static void RemoveLogWriter(ezEventSubscriptionID& subscriptionID);
+  static void RemoveLogWriter(ezEventSubscriptionID& ref_subscriptionID);
 
   /// \brief Returns how many message of the given type occurred.
-  static ezUInt32 GetMessageCount(ezLogMsgType::Enum MessageType) { return s_uiMessageCount[MessageType]; }
+  static ezUInt32 GetMessageCount(ezLogMsgType::Enum messageType) { return s_uiMessageCount[messageType]; }
 
   /// ezLogInterfaces are thread_local and therefore a dedicated ezGlobalLog is created per thread.
   /// Especially during testing one may want to replace the log system everywhere, to catch certain messages, no matter on which thread they
@@ -176,7 +176,7 @@ public:
   static ezLogInterface* GetThreadLocalLogSystem();
 
   /// \brief Sets the default log level which is used by all ezLogInterface's that have their log level set to ezLogMsgType::GlobalDefault
-  static void SetDefaultLogLevel(ezLogMsgType::Enum LogLevel);
+  static void SetDefaultLogLevel(ezLogMsgType::Enum logLevel);
 
   /// \brief Returns the currently set default log level.
   static ezLogMsgType::Enum GetDefaultLogLevel();
@@ -363,7 +363,7 @@ public:
     TimeOnly = 3, ///< A short timestamp (time only, no timezone indicator) is added. Ex: [13:40:30.345] Log message.
   };
 
-  static void GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTimestampOut);
+  static void GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_sTimestampOut);
 
 private:
   // Needed to call 'EndLogBlock'
@@ -395,12 +395,12 @@ public:
   /// header will not be printed, to prevent spamming the log.
   ///
   /// This constructor will output the log block data to the ezGlobalLog.
-  ezLogBlock(const char* szName, const char* szContextInfo = "");
+  ezLogBlock(ezStringView sName, ezStringView sContextInfo = {});
 
   /// \brief Creates a named grouping block for log messages.
   ///
   /// This variant of the constructor takes an explicit ezLogInterface to write the log messages to.
-  ezLogBlock(ezLogInterface* pInterface, const char* szName, const char* szContextInfo = "");
+  ezLogBlock(ezLogInterface* pInterface, ezStringView sName, ezStringView sContextInfo = {});
 
   ~ezLogBlock();
 
@@ -409,8 +409,8 @@ private:
 
   ezLogInterface* m_pLogInterface;
   ezLogBlock* m_pParentBlock;
-  const char* m_szName;
-  const char* m_szContextInfo;
+  ezStringView m_sName;
+  ezStringView m_sContextInfo;
   ezUInt8 m_uiBlockDepth;
   bool m_bWritten;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -450,17 +450,17 @@ public:
     switch (le.m_EventType)
     {
       case ezLogMsgType::ErrorMsg:
-        m_sBuffer.Append("Error: ", le.m_szText, "\n");
+        m_sBuffer.Append("Error: ", le.m_sText, "\n");
         break;
       case ezLogMsgType::SeriousWarningMsg:
       case ezLogMsgType::WarningMsg:
-        m_sBuffer.Append("Warning: ", le.m_szText, "\n");
+        m_sBuffer.Append("Warning: ", le.m_sText, "\n");
         break;
       case ezLogMsgType::SuccessMsg:
       case ezLogMsgType::InfoMsg:
       case ezLogMsgType::DevMsg:
       case ezLogMsgType::DebugMsg:
-        m_sBuffer.Append(le.m_szText, "\n");
+        m_sBuffer.Append(le.m_sText, "\n");
         break;
       default:
         break;

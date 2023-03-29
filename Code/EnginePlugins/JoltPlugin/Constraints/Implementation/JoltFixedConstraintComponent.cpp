@@ -17,6 +17,30 @@ void ezJoltFixedConstraintComponent::ApplySettings()
   ezJoltConstraintComponent::ApplySettings();
 }
 
+bool ezJoltFixedConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::FixedConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition().ReduceMax() >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+
+    if (m_fBreakTorque > 0)
+    {
+      if (pConstraint->GetTotalLambdaRotation().ReduceMax() >= m_fBreakTorque)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 void ezJoltFixedConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH::Body* pBody1)
 {
   const auto inv1 = pBody0->GetInverseCenterOfMassTransform() * pBody0->GetWorldTransform();
@@ -35,3 +59,6 @@ void ezJoltFixedConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JP
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltFixedConstraintComponent);

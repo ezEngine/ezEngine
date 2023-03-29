@@ -14,13 +14,13 @@ void ezLongOpProxy_BakeScene::InitializeRegistered(const ezUuid& documentGuid, c
   m_ComponentGuid = componentGuid;
 }
 
-void ezLongOpProxy_BakeScene::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& description)
+void ezLongOpProxy_BakeScene::GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& ref_description)
 {
   out_sReplicationOpType = "ezLongOpWorker_BakeScene";
 
   ezStringBuilder sOutputPath;
   sOutputPath.Format(":project/AssetCache/Generated/{0}", m_ComponentGuid);
-  description << sOutputPath;
+  ref_description << sOutputPath;
 }
 
 void ezLongOpProxy_BakeScene::Finalize(ezResult result, const ezDataBuffer& resultData)

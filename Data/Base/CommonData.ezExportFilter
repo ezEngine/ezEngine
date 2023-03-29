@@ -4,6 +4,10 @@
 *.dds
 *.jpg
 *.tga
+*.png
+*.gltf
+*.glb
+*.fbx
 */CppSource
 */AssetCache
 */Editor/*
@@ -12,6 +16,13 @@
 */.gitignore
 */TypeScript/*
 *.ts
+
+// Fmod specific
+*.wav
+*.mp3
+*.ogg
+*/Metadata/*
+*.fspro
 
 [INCLUDE]
 

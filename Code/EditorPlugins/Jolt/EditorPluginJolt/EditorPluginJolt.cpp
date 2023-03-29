@@ -32,6 +32,7 @@ void OnLoadPlugin()
       ezStandardMenus::MapActions("JoltCollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezProjectActions::MapActions("JoltCollisionMeshAssetMenuBar");
       ezDocumentActions::MapActions("JoltCollisionMeshAssetMenuBar", "Menu.File", false);
+      ezAssetActions::MapMenuActions("JoltCollisionMeshAssetMenuBar", "Menu.File");
       ezCommandHistoryActions::MapActions("JoltCollisionMeshAssetMenuBar", "Menu.Edit");
     }
 
@@ -40,7 +41,7 @@ void OnLoadPlugin()
       ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetToolBar").IgnoreResult();
       ezDocumentActions::MapActions("JoltCollisionMeshAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("JoltCollisionMeshAssetToolBar", "");
-      ezAssetActions::MapActions("JoltCollisionMeshAssetToolBar", true);
+      ezAssetActions::MapToolBarActions("JoltCollisionMeshAssetToolBar", true);
       ezCommonAssetActions::MapActions("JoltCollisionMeshAssetToolBar", "", ezCommonAssetUiState::Grid);
     }
   }
@@ -81,12 +82,11 @@ void UpdateCollisionLayerDynamicEnumValues()
   auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsCollisionLayer");
   cfe.Clear();
 
-  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sPath.AppendPath("RuntimeConfigs/CollisionLayers.cfg");
-
   ezCollisionFilterConfig cfg;
-  if (cfg.Load(sPath).Failed())
+  if (cfg.Load().Failed())
+  {
     return;
+  }
 
   // add all names and values that are valid (non-empty)
   for (ezInt32 i = 0; i < 32; ++i)

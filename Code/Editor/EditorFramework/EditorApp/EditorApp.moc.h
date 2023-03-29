@@ -56,11 +56,11 @@ public:
     typedef ezUInt8 StorageType;
     enum Enum
     {
-      Headless = EZ_BIT(0), ///< The app does not do any rendering.
-      SafeMode = EZ_BIT(1), ///< '-safe' : Prevent automatic loading of projects, scenes, etc. to minimize risk of crashing.
-      NoRecent = EZ_BIT(2), ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
-      Debug = EZ_BIT(3),    ///< '-debug' : Tell the engine process to wait for a debugger to attach.
-      UnitTest = EZ_BIT(4), ///< Specified when the process is running as a unit test
+      Headless = EZ_BIT(0),   ///< The app does not do any rendering.
+      SafeMode = EZ_BIT(1),   ///< '-safe' : Prevent automatic loading of projects, scenes, etc. to minimize risk of crashing.
+      NoRecent = EZ_BIT(2),   ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
+      UnitTest = EZ_BIT(3),   ///< Specified when the process is running as a unit test
+      Background = EZ_BIT(4), ///< This process is an editor processor background process handling IPC tasks of the editor parent process.
       Default = 0,
     };
 
@@ -70,6 +70,8 @@ public:
       StorageType SafeMode : 1;
       StorageType NoRecent : 1;
       StorageType Debug : 1;
+      StorageType UnitTest : 1;
+      StorageType Background : 1;
     };
   };
 
@@ -83,20 +85,17 @@ public:
   // External Tools
   //
 
-  /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools,
-  /// otherwise the currently compiled ones. If bForceUseCustomTools is true, it always returns the folder in which custom compiled tools
-  /// are stored (app binary dir)
-  ezString GetExternalToolsFolder(bool bForceUseCustomTools = false);
-
-  /// \brief Searches for an external tool by calling GetExternalToolsFolder(). Falls back to the currently compiled tools, if a tool cannot
-  /// be found in the precompiled folder.
+  /// \brief Searches for an external tool.
+  ///
+  /// Either uses one from the precompiled tools folder, or from the currently compiled binaries, depending where it finds one.
+  /// If the editor preference is set to use precompiled tools, that folder is preferred, otherwise the other folder is preferred.
   ezString FindToolApplication(const char* szToolName);
 
   /// \brief Executes an external tool as found by FindToolApplication().
   ///
   /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
   /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
-  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg, const char* szCWD = nullptr);
+  ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum logLevel = ezLogMsgType::WarningMsg, const char* szCWD = nullptr);
 
   /// \brief Creates the string with which to run Fileserve for the currently open project.
   ezString BuildFileserveCommandLine() const;
@@ -117,8 +116,11 @@ public:
   /// \brief Returns true if the the app shouldn't display anything. This is the case in an EditorProcessor.
   bool IsInHeadlessMode() const { return m_StartupFlags.IsSet(StartupFlags::Headless); }
 
-  /// \brief Returns true if the editor is started is run in test mode.
+  /// \brief Returns true if the editor is started in run in test mode.
   bool IsInUnitTestMode() const { return m_StartupFlags.IsSet(StartupFlags::UnitTest); }
+
+  /// \brief Returns true if the editor is started in run in background mode.
+  bool IsBackgroundMode() const { return m_StartupFlags.IsSet(StartupFlags::Background); }
 
   const ezPluginBundleSet& GetPluginBundles() const { return m_PluginBundles; }
   ezPluginBundleSet& GetPluginBundles() { return m_PluginBundles; }
@@ -137,7 +139,7 @@ public:
   /// \brief Reads the list of last open documents in the current project.
   ezRecentFilesList LoadOpenDocumentsList();
 
-  void InitQt(int argc, char** argv);
+  void InitQt(int iArgc, char** pArgv);
   void StartupEditor();
   void StartupEditor(ezBitflags<StartupFlags> startupFlags, const char* szUserDataFolder = nullptr);
   void ShutdownEditor();
@@ -189,13 +191,13 @@ public:
 
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
 
-  bool MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const;
-  bool MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const;
-  bool MakePathDataDirectoryRelative(ezStringBuilder& sPath) const;
-  bool MakePathDataDirectoryRelative(ezString& sPath) const;
+  bool MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_sPath) const;
+  bool MakeDataDirectoryRelativePathAbsolute(ezString& ref_sPath) const;
+  bool MakePathDataDirectoryRelative(ezStringBuilder& ref_sPath) const;
+  bool MakePathDataDirectoryRelative(ezString& ref_sPath) const;
 
-  bool MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) const;
-  bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath, bool bCheckExists) const;
+  bool MakePathDataDirectoryParentRelative(ezStringBuilder& ref_sPath) const;
+  bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_sPath, bool bCheckExists) const;
 
   ezStatus SaveTagRegistry();
 
@@ -207,6 +209,8 @@ public:
 
   /// \brief Instructs the engine to reload its resources
   void ReloadEngineResources();
+
+  void RestartEngineProcessIfPluginsChanged(bool bForce);
 
 Q_SIGNALS:
   void IdleEvent();
@@ -245,7 +249,6 @@ private:
   void LoadProjectPreferences();
   void StoreEnginePluginModificationTimes();
   bool CheckForEnginePluginModifications();
-  void RestartEngineProcessIfPluginsChanged();
   void SaveAllOpenDocuments();
 
   void ReadTagRegistry();
@@ -262,6 +265,7 @@ private:
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;
   bool m_bAnyProjectOpened = false;
+  bool m_bWroteCrashIndicatorFile = false;
 
   ezBitflags<StartupFlags> m_StartupFlags;
   ezDynamicArray<ezString> m_DocumentsToOpen;

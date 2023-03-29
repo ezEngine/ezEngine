@@ -36,13 +36,13 @@ inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAl
   *this = szUTF8;
 }
 
-inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator)
+inline ezStringBuilder::ezStringBuilder(const wchar_t* pWChar, ezAllocatorBase* pAllocator)
   : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
 
-  *this = szWChar;
+  *this = pWChar;
 }
 
 inline ezStringBuilder::ezStringBuilder(ezStringView rhs, ezAllocatorBase* pAllocator)
@@ -64,11 +64,11 @@ EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const char* szUTF8)
   Set(szUTF8);
 }
 
-EZ_FORCE_INLINE void ezStringBuilder::operator=(const wchar_t* szWChar)
+EZ_FORCE_INLINE void ezStringBuilder::operator=(const wchar_t* pWChar)
 {
   // fine to do this, szWChar can never come from the stringbuilder's own data array
   Clear();
-  Append(szWChar);
+  Append(pWChar);
 }
 
 EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const ezStringBuilder& rhs)
@@ -187,23 +187,23 @@ inline void ezStringBuilder::ToLower()
   m_Data.SetCountUninitialized(uiNewStringLength + 1);
 }
 
-inline void ezStringBuilder::ChangeCharacter(iterator& it, ezUInt32 uiCharacter)
+inline void ezStringBuilder::ChangeCharacter(iterator& ref_it, ezUInt32 uiCharacter)
 {
-  EZ_ASSERT_DEV(it.IsValid(), "The given character iterator does not point to a valid character.");
-  EZ_ASSERT_DEV(it.GetData() >= GetData() && it.GetData() < GetData() + GetElementCount(),
+  EZ_ASSERT_DEV(ref_it.IsValid(), "The given character iterator does not point to a valid character.");
+  EZ_ASSERT_DEV(ref_it.GetData() >= GetData() && ref_it.GetData() < GetData() + GetElementCount(),
     "The given character iterator does not point into this string. It was either created from another string, or this string "
     "has been reallocated in the mean time.");
 
   // this is only an optimization for pure ASCII strings
   // without it, the code below would still work
-  if (ezUnicodeUtils::IsASCII(*it) && ezUnicodeUtils::IsASCII(uiCharacter))
+  if (ezUnicodeUtils::IsASCII(*ref_it) && ezUnicodeUtils::IsASCII(uiCharacter))
   {
-    char* pPos = const_cast<char*>(it.GetData()); // yes, I know...
+    char* pPos = const_cast<char*>(ref_it.GetData()); // yes, I know...
     *pPos = uiCharacter & 0xFF;
     return;
   }
 
-  ChangeCharacterNonASCII(it, uiCharacter);
+  ChangeCharacterNonASCII(ref_it, uiCharacter);
 }
 
 EZ_ALWAYS_INLINE bool ezStringBuilder::IsPureASCII() const
@@ -216,9 +216,9 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
   m_Data.Reserve(uiNumElements);
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, ezStringView szTextToInsert)
+EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, ezStringView sTextToInsert)
 {
-  ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert);
+  ReplaceSubString(szInsertAtPos, szInsertAtPos, sTextToInsert);
 }
 
 EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)

@@ -13,7 +13,7 @@ class ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
 public:
-  ezQtAssetBrowserWidget(QWidget* parent);
+  ezQtAssetBrowserWidget(QWidget* pParent);
   ~ezQtAssetBrowserWidget();
 
   void SetDialogMode();

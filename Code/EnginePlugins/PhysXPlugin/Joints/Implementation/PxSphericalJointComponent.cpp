@@ -31,11 +31,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxSphericalJointComponent::ezPxSphericalJointComponent() = default;
 ezPxSphericalJointComponent::~ezPxSphericalJointComponent() = default;
 
-void ezPxSphericalJointComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxSphericalJointComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   // version 2
   s << m_LimitMode;
@@ -48,12 +48,12 @@ void ezPxSphericalJointComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fSpringDamping;
 }
 
-void ezPxSphericalJointComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxSphericalJointComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   if (uiVersion < 2)
   {

@@ -21,17 +21,17 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
   if (!pInfo->m_bMainAsset)
     return true;
 
-  if (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingDependency &&
-      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingReference && pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError)
+  if (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingTransformDependency && pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::CircularDependency &&
+      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingThumbnailDependency && pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError)
   {
     return true;
   }
 
   if (m_bFilterTransitive)
   {
-    if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingReference)
+    if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingThumbnailDependency)
     {
-      for (auto& ref : pInfo->m_pAssetInfo->m_MissingReferences)
+      for (auto& ref : pInfo->m_pAssetInfo->m_MissingThumbnailDeps)
       {
         if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
         {
@@ -168,10 +168,10 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 
   ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
 
-  auto getNiceName = [](const ezString& dep) -> ezStringBuilder {
-    if (ezConversionUtils::IsStringUuid(dep))
+  auto getNiceName = [](const ezString& sDep) -> ezStringBuilder {
+    if (ezConversionUtils::IsStringUuid(sDep))
     {
-      ezUuid guid = ezConversionUtils::ConvertStringToUuid(dep);
+      ezUuid guid = ezConversionUtils::ConvertStringToUuid(sDep);
       auto assetInfoDep = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
       if (assetInfoDep)
       {
@@ -182,29 +182,38 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       ezUInt64 uiHigh;
       guid.GetValues(uiLow, uiHigh);
       ezStringBuilder sTmp;
-      sTmp.Format("{} - u4{{},{}}", dep, uiLow, uiHigh);
+      sTmp.Format("{} - u4{{},{}}", sDep, uiLow, uiHigh);
 
       return sTmp;
     }
 
-    return dep;
+    return sDep;
   };
 
-  ezLogEntryDelegate logger(([this](ezLogEntry& entry) -> void { TransformLog->GetLog()->AddLogMsg(std::move(entry)); }));
+  ezLogEntryDelegate logger(([this](ezLogEntry& ref_entry) -> void { TransformLog->GetLog()->AddLogMsg(std::move(ref_entry)); }));
   ezStringBuilder text;
-  if (pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency)
+  if (pAssetInfo->m_TransformState == ezAssetInfo::MissingTransformDependency)
   {
-    ezLog::Error(&logger, "Missing Dependency:");
-    for (const ezString& dep : pAssetInfo->m_MissingDependencies)
+    ezLog::Error(&logger, "Missing Transform Dependency:");
+    for (const ezString& dep : pAssetInfo->m_MissingTransformDeps)
     {
       ezStringBuilder sNiceName = getNiceName(dep);
       ezLog::Error(&logger, "{0}", sNiceName);
     }
   }
-  else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingReference)
+  else if (pAssetInfo->m_TransformState == ezAssetInfo::CircularDependency)
   {
-    ezLog::Error(&logger, "Missing Reference:");
-    for (const ezString& ref : pAssetInfo->m_MissingReferences)
+    ezLog::Error(&logger, "Circular Dependency:");
+    for (const ezString& ref : pAssetInfo->m_CircularDependencies)
+    {
+      ezStringBuilder sNiceName = getNiceName(ref);
+      ezLog::Error(&logger, "{0}", sNiceName);
+    }
+  }
+  else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingThumbnailDependency)
+  {
+    ezLog::Error(&logger, "Missing Thumbnail Dependency:");
+    for (const ezString& ref : pAssetInfo->m_MissingThumbnailDeps)
     {
       ezStringBuilder sNiceName = getNiceName(ref);
       ezLog::Error(&logger, "{0}", sNiceName);

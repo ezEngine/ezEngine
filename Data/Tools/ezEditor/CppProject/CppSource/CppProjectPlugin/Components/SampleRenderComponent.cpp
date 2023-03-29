@@ -57,10 +57,21 @@ void SampleRenderComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
-  s << m_fSize;
-  s << m_Color;
-  s << m_hTexture;
-  s << m_RenderTypes;
+  if (OWNTYPE::GetStaticRTTI()->GetTypeVersion() == 1)
+  {
+    // this automatically serializes all properties
+    // if you need more control, increase the component 'version' at the top of this file
+    // and then use the code path below for manual serialization
+    ezReflectionSerializer::WriteObjectToBinary(s, GetDynamicRTTI(), this);
+  }
+  else
+  {
+    // do custom serialization, for example:
+    // s << m_fSize;
+    // s << m_Color;
+    // s << m_hTexture;
+    // s << m_RenderTypes;
+  }
 }
 
 void SampleRenderComponent::DeserializeComponent(ezWorldReader& stream)
@@ -70,10 +81,21 @@ void SampleRenderComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
-  s >> m_fSize;
-  s >> m_Color;
-  s >> m_hTexture;
-  s >> m_RenderTypes;
+  if (uiVersion == 1)
+  {
+    // this automatically de-serializes all properties
+    // if you need more control, increase the component 'version' at the top of this file
+    // and then use the code path below for manual de-serialization
+    ezReflectionSerializer::ReadObjectPropertiesFromBinary(s, *GetDynamicRTTI(), this);
+  }
+  else
+  {
+    // do custom de-serialization, for example:
+    // s >> m_fSize;
+    // s >> m_Color;
+    // s >> m_hTexture;
+    // s >> m_RenderTypes;
+  }
 }
 
 void SampleRenderComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)

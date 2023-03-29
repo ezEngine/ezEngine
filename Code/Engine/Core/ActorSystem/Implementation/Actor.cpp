@@ -16,11 +16,11 @@ struct ezActorImpl
 };
 
 
-ezActor::ezActor(const char* szActorName, const void* pCreatedBy)
+ezActor::ezActor(ezStringView sActorName, const void* pCreatedBy)
 {
   m_pImpl = EZ_DEFAULT_NEW(ezActorImpl);
 
-  m_pImpl->m_sName = szActorName;
+  m_pImpl->m_sName = sActorName;
   m_pImpl->m_pCreatedBy = pCreatedBy;
 
   EZ_ASSERT_DEV(!m_pImpl->m_sName.IsEmpty(), "Actor name must not be empty");
@@ -28,7 +28,7 @@ ezActor::ezActor(const char* szActorName, const void* pCreatedBy)
 
 ezActor::~ezActor() = default;
 
-const char* ezActor::GetName() const
+ezStringView ezActor::GetName() const
 {
   return m_pImpl->m_sName;
 }
@@ -73,13 +73,13 @@ void ezActor::DestroyPlugin(ezActorPlugin* pPlugin)
   }
 }
 
-void ezActor::GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_AllPlugins)
+void ezActor::GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_allPlugins)
 {
-  out_AllPlugins.Clear();
+  out_allPlugins.Clear();
 
   for (auto& pPlugin : m_pImpl->m_AllPlugins)
   {
-    out_AllPlugins.PushBack(pPlugin.Borrow());
+    out_allPlugins.PushBack(pPlugin.Borrow());
   }
 }
 

@@ -31,7 +31,7 @@ public:
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  ezStatus WriteResource(ezStreamWriter& stream) const;
+  ezStatus WriteResource(ezStreamWriter& inout_stream) const;
 
   bool m_bIsTransforming = false;
 
@@ -42,19 +42,19 @@ public:
 
   const ezEvent<const ezSkeletonAssetEvent&>& Events() const { return m_Events; }
 
-  void SetRenderBones(bool enable);
+  void SetRenderBones(bool bEnable);
   bool GetRenderBones() const { return m_bRenderBones; }
 
-  void SetRenderColliders(bool enable);
+  void SetRenderColliders(bool bEnable);
   bool GetRenderColliders() const { return m_bRenderColliders; }
 
-  void SetRenderJoints(bool enable);
+  void SetRenderJoints(bool bEnable);
   bool GetRenderJoints() const { return m_bRenderJoints; }
 
-  void SetRenderSwingLimits(bool enable);
+  void SetRenderSwingLimits(bool bEnable);
   bool GetRenderSwingLimits() const { return m_bRenderSwingLimits; }
 
-  void SetRenderTwistLimits(bool enable);
+  void SetRenderTwistLimits(bool bEnable);
   bool GetRenderTwistLimits() const { return m_bRenderTwistLimits; }
 
 protected:
@@ -83,9 +83,8 @@ public:
   ezSkeletonAssetDocumentGenerator();
   ~ezSkeletonAssetDocumentGenerator();
 
-  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
-  virtual ezStatus Generate(
-    const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
-  virtual const char* GetDocumentExtension() const override { return "ezSkeletonAsset"; }
-  virtual const char* GetGeneratorGroup() const override { return "AnimationSkeletonGroup"; }
+  virtual void GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const override;
+  virtual ezStatus Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual ezStringView GetDocumentExtension() const override { return "ezSkeletonAsset"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "AnimationSkeletonGroup"; }
 };

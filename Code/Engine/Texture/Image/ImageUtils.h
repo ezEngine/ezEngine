@@ -10,39 +10,39 @@ class EZ_TEXTURE_DLL ezImageUtils
 {
 public:
   /// \brief Returns the image with the difference (absolute values) between ImageA and ImageB.
-  static void ComputeImageDifferenceABS(const ezImageView& ImageA, const ezImageView& ImageB, ezImage& out_Difference);
+  static void ComputeImageDifferenceABS(const ezImageView& imageA, const ezImageView& imageB, ezImage& out_difference);
 
   /// \brief Computes the mean square error for the block at (offsetx, offsety) to (offsetx + uiBlockSize, offsety + uiBlockSize).
   /// DifferenceImage is expected to be an image that represents the difference between two images.
-  static ezUInt32 ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize, ezUInt32 offsetx, ezUInt32 offsety);
+  static ezUInt32 ComputeMeanSquareError(const ezImageView& differenceImage, ezUInt8 uiBlockSize, ezUInt32 uiOffsetx, ezUInt32 uiOffsety);
 
   /// \brief Computes the mean square error of DifferenceImage, by computing the MSE for blocks of uiBlockSize and returning the maximum MSE
   /// that was found.
-  static ezUInt32 ComputeMeanSquareError(const ezImageView& DifferenceImage, ezUInt8 uiBlockSize);
+  static ezUInt32 ComputeMeanSquareError(const ezImageView& differenceImage, ezUInt8 uiBlockSize);
 
   /// \brief Rescales pixel values to use the full value range by scaling from [min, max] to [0, 255].
   /// Computes combined min/max for RGB and separate min/max for alpha.
-  static void Normalize(ezImage& image);
-  static void Normalize(ezImage& image, ezUInt8& uiMinRgb, ezUInt8& uiMaxRgb, ezUInt8& uiMinAlpha, ezUInt8& uiMaxAlpha);
+  static void Normalize(ezImage& ref_image);
+  static void Normalize(ezImage& ref_image, ezUInt8& ref_uiMinRgb, ezUInt8& ref_uiMaxRgb, ezUInt8& ref_uiMinAlpha, ezUInt8& ref_uiMaxAlpha);
 
   /// \brief Extracts the alpha channel from 8bpp 4 channel images into a 8bpp single channel image.
-  static void ExtractAlphaChannel(const ezImageView& inputImage, ezImage& outputImage);
+  static void ExtractAlphaChannel(const ezImageView& inputImage, ezImage& ref_outputImage);
 
   /// \brief Returns the sub-image of \a input that starts at \a offset and has the size \a newsize
-  static void CropImage(const ezImageView& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output);
+  static void CropImage(const ezImageView& input, const ezVec2I32& vOffset, const ezSizeU32& newsize, ezImage& ref_output);
 
   /// \brief rotates a sub image by 180 degrees in place. Only works with uncompressed images.
-  static void RotateSubImage180(ezImage& image, ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
+  static void RotateSubImage180(ezImage& ref_image, ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
 
   /// \brief Copies the source image into the destination image at the specified location.
   ///
   /// The image must fit, no scaling or cropping is done. Image formats must be identical. Compressed formats are not supported.
   /// If the target location leaves not enough room for the source image to be copied, bad stuff will happen.
-  static ezResult Copy(const ezImageView& srcImg, const ezRectU32& srcRect, ezImage& dstImg, const ezVec3U32& dstOffset, ezUInt32 uiDstMipLevel = 0,
+  static ezResult Copy(const ezImageView& srcImg, const ezRectU32& srcRect, ezImage& ref_dstImg, const ezVec3U32& vDstOffset, ezUInt32 uiDstMipLevel = 0,
     ezUInt32 uiDstFace = 0, ezUInt32 uiDstArrayIndex = 0);
 
   /// \brief Copies the lower uiNumMips data of a 2D image into another one.
-  static ezResult ExtractLowerMipChain(const ezImageView& src, ezImage& dst, ezUInt32 uiNumMips);
+  static ezResult ExtractLowerMipChain(const ezImageView& src, ezImage& ref_dst, ezUInt32 uiNumMips);
 
   /// Mip map generation options
   struct MipMapOptions
@@ -76,30 +76,30 @@ public:
   };
 
   /// Scales the image.
-  static ezResult Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, const ezImageFilter* filter = nullptr,
+  static ezResult Scale(const ezImageView& source, ezImage& ref_target, ezUInt32 uiWidth, ezUInt32 uiHeight, const ezImageFilter* pFilter = nullptr,
     ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp,
     const ezColor& borderColor = ezColor::Black);
 
   /// Scales the image.
-  static ezResult Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth,
-    const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp,
+  static ezResult Scale3D(const ezImageView& source, ezImage& ref_target, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth,
+    const ezImageFilter* pFilter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp,
     ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeW = ezImageAddressMode::Clamp,
     const ezColor& borderColor = ezColor::Black);
 
   /// Genererates the mip maps for the image. The input texture must be in ezImageFormat::R32_G32_B32_A32_FLOAT
-  static void GenerateMipMaps(const ezImageView& source, ezImage& target, const MipMapOptions& options);
+  static void GenerateMipMaps(const ezImageView& source, ezImage& ref_target, const MipMapOptions& options);
 
   /// Assumes that the Red and Green components of an image contain XY of an unit length normal and reconstructs the Z component into B
-  static void ReconstructNormalZ(ezImage& source);
+  static void ReconstructNormalZ(ezImage& ref_source);
 
   /// Renormalizes a normal map to unit length.
-  static void RenormalizeNormalMap(ezImage& image);
+  static void RenormalizeNormalMap(ezImage& ref_image);
 
   /// Adjust the roughness in lower mip levels so it maintains the same look from all distances.
-  static void AdjustRoughness(ezImage& roughnessMap, const ezImageView& normalMap);
+  static void AdjustRoughness(ezImage& ref_roughnessMap, const ezImageView& normalMap);
 
   /// \brief Changes the exposure of an HDR image by 2^bias
-  static void ChangeExposure(ezImage& image, float bias);
+  static void ChangeExposure(ezImage& ref_image, float fBias);
 
   /// \brief Creates a cubemap from srcImg and stores it in dstImg.
   ///
@@ -110,46 +110,46 @@ public:
   ///  * Vertical Cross
   ///  * Horizontal Cross
   ///  * Spherical mapping
-  static ezResult CreateCubemapFromSingleFile(ezImage& dstImg, const ezImageView& srcImg);
+  static ezResult CreateCubemapFromSingleFile(ezImage& ref_dstImg, const ezImageView& srcImg);
 
   /// \brief Copies the 6 given source images to the faces of dstImg.
   ///
   /// All input images must have the same square, power-of-two dimensions and mustn't be compressed.
-  static ezResult CreateCubemapFrom6Files(ezImage& dstImg, const ezImageView* pSourceImages);
+  static ezResult CreateCubemapFrom6Files(ezImage& ref_dstImg, const ezImageView* pSourceImages);
 
-  static ezResult CreateVolumeTextureFromSingleFile(ezImage& dstImg, const ezImageView& srcImg);
+  static ezResult CreateVolumeTextureFromSingleFile(ezImage& ref_dstImg, const ezImageView& srcImg);
 
-  static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor);
+  static ezUInt32 GetSampleIndex(ezUInt32 uiNumTexels, ezInt32 iIndex, ezImageAddressMode::Enum addressMode, bool& out_bUseBorderColor);
 
   /// \brief Samples the image at the given UV coordinates with nearest filtering.
   ///
   /// This function has to validate that the image is of the right format, and has to query the pixel pointer, which is slow.
   /// If you need to sample the image very often, use the overload that takes a pixel pointer instead of an image.
-  static ezColor NearestSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv);
+  static ezColor NearestSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 vUv);
 
   /// \brief Samples the image at the given UV coordinates with nearest filtering.
   ///
   /// Prefer this function over the one that takes an ezImageView when you need to sample the image very often,
   /// as it does away with internal validation that would be redundant. Also, the pixel pointer given to this function
   /// should be retrieved only once from the source image, as ezImage::GetPixelPointer() is rather slow due to validation overhead.
-  static ezColor NearestSample(const ezColor* pPixelPointer, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 uv);
+  static ezColor NearestSample(const ezColor* pPixelPointer, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 vUv);
 
   /// \brief Samples the image at the given UV coordinates with bilinear filtering.
   ///
   /// This function has to validate that the image is of the right format, and has to query the pixel pointer, which is slow.
   /// If you need to sample the image very often, use the overload that takes a pixel pointer instead of an image.
-  static ezColor BilinearSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv);
+  static ezColor BilinearSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 vUv);
 
   /// \brief Samples the image at the given UV coordinates with bilinear filtering.
   ///
   /// Prefer this function over the one that takes an ezImageView when you need to sample the image very often,
   /// as it does away with internal validation that would be redundant. Also, the pixel pointer given to this function
   /// should be retrieved only once from the source image, as ezImage::GetPixelPointer() is rather slow due to validation overhead.
-  static ezColor BilinearSample(const ezColor* pPixelPointer, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 uv);
+  static ezColor BilinearSample(const ezColor* pPixelPointer, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 vUv);
 
   /// \brief Copies channel 0, 1, 2 or 3 from srcImg into dstImg.
   ///
   /// Currently only supports images of format R32G32B32A32_FLOAT and with identical resolution.
   /// Returns failure if any of those requirements are not met.
-  static ezResult CopyChannel(ezImage& dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx);
+  static ezResult CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx);
 };

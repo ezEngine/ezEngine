@@ -12,7 +12,7 @@ public:
   ezFmodProjectPreferences();
   ~ezFmodProjectPreferences();
 
-  void SetMute(bool mute);
+  void SetMute(bool bMute);
   bool GetMute() const { return m_bMute; }
 
   void SetVolume(float fVolume);

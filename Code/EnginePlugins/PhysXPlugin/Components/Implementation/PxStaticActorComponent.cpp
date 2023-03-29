@@ -38,11 +38,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPxStaticActorComponent::ezPxStaticActorComponent() = default;
 ezPxStaticActorComponent::~ezPxStaticActorComponent() = default;
 
-void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hCollisionMesh;
   s << m_uiCollisionLayer;
@@ -50,12 +50,12 @@ void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hCollisionMesh;
   s >> m_uiCollisionLayer;
@@ -199,7 +199,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   }
 }
 
-void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<physx::PxMaterial*, 32>& pxMaterials)
+void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<physx::PxMaterial*, 32>& ref_materials)
 {
   // the materials don't hold a handle to the surfaces, so they don't keep them alive
   // therefore, we need to keep them alive by storing a handle
@@ -217,10 +217,10 @@ void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<physx:
   if (pMeshRes.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  if (pMeshRes->GetMaterials().GetCount() != pxMaterials.GetCount())
+  if (pMeshRes->GetMaterials().GetCount() != ref_materials.GetCount())
     return;
 
-  const ezUInt32 uiNumMats = pxMaterials.GetCount();
+  const ezUInt32 uiNumMats = ref_materials.GetCount();
   m_UsedSurfaces.SetCount(uiNumMats);
 
   for (ezUInt32 s = 0; s < uiNumMats; ++s)
@@ -251,7 +251,7 @@ void ezPxStaticActorComponent::PullSurfacesFromGraphicsMesh(ezHybridArray<physx:
       continue;
 
     EZ_ASSERT_DEV(pSurface->m_pPhysicsMaterialPhysX != nullptr, "Invalid PhysX material pointer on surface");
-    pxMaterials[s] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
+    ref_materials[s] = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
   }
 }
 

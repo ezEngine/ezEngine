@@ -10,7 +10,7 @@ class EZ_RENDERERFOUNDATION_DLL ezProfilingScopeAndMarker : public ezProfilingSc
 {
 public:
   static GPUTimingScope* Start(ezGALCommandEncoder* pCommandEncoder, const char* szName);
-  static void Stop(ezGALCommandEncoder* pCommandEncoder, GPUTimingScope*& pTimingScope);
+  static void Stop(ezGALCommandEncoder* pCommandEncoder, GPUTimingScope*& ref_pTimingScope);
 
   ezProfilingScopeAndMarker(ezGALCommandEncoder* pCommandEncoder, const char* szName);
 

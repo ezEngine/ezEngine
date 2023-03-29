@@ -76,53 +76,53 @@ ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
   return EZ_SUCCESS;
 }
 
-void ezWindowCreationDesc::SaveToDDL(ezOpenDdlWriter& writer)
+void ezWindowCreationDesc::SaveToDDL(ezOpenDdlWriter& ref_writer)
 {
-  writer.BeginObject("WindowDesc");
+  ref_writer.BeginObject("WindowDesc");
 
-  ezOpenDdlUtils::StoreString(writer, m_Title, "Title");
+  ezOpenDdlUtils::StoreString(ref_writer, m_Title, "Title");
 
   switch (m_WindowMode.GetValue())
   {
     case ezWindowMode::FullscreenBorderlessNativeResolution:
-      ezOpenDdlUtils::StoreString(writer, "Borderless", "Mode");
+      ezOpenDdlUtils::StoreString(ref_writer, "Borderless", "Mode");
       break;
     case ezWindowMode::FullscreenFixedResolution:
-      ezOpenDdlUtils::StoreString(writer, "Fullscreen", "Mode");
+      ezOpenDdlUtils::StoreString(ref_writer, "Fullscreen", "Mode");
       break;
     case ezWindowMode::WindowFixedResolution:
-      ezOpenDdlUtils::StoreString(writer, "Window", "Mode");
+      ezOpenDdlUtils::StoreString(ref_writer, "Window", "Mode");
       break;
     case ezWindowMode::WindowResizable:
-      ezOpenDdlUtils::StoreString(writer, "ResizableWindow", "Mode");
+      ezOpenDdlUtils::StoreString(ref_writer, "ResizableWindow", "Mode");
       break;
   }
 
   if (m_uiWindowNumber != 0)
-    ezOpenDdlUtils::StoreUInt8(writer, m_uiWindowNumber, "Index");
+    ezOpenDdlUtils::StoreUInt8(ref_writer, m_uiWindowNumber, "Index");
 
   if (m_iMonitor >= 0)
-    ezOpenDdlUtils::StoreInt8(writer, m_iMonitor, "Monitor");
+    ezOpenDdlUtils::StoreInt8(ref_writer, m_iMonitor, "Monitor");
 
   if (m_Position != ezVec2I32(0x80000000, 0x80000000))
   {
-    ezOpenDdlUtils::StoreVec2I(writer, m_Position, "Position");
+    ezOpenDdlUtils::StoreVec2I(ref_writer, m_Position, "Position");
   }
 
-  ezOpenDdlUtils::StoreVec2U(writer, ezVec2U32(m_Resolution.width, m_Resolution.height), "Resolution");
+  ezOpenDdlUtils::StoreVec2U(ref_writer, ezVec2U32(m_Resolution.width, m_Resolution.height), "Resolution");
 
-  ezOpenDdlUtils::StoreBool(writer, m_bClipMouseCursor, "ClipMouseCursor");
-  ezOpenDdlUtils::StoreBool(writer, m_bShowMouseCursor, "ShowMouseCursor");
-  ezOpenDdlUtils::StoreBool(writer, m_bSetForegroundOnInit, "SetForegroundOnInit");
+  ezOpenDdlUtils::StoreBool(ref_writer, m_bClipMouseCursor, "ClipMouseCursor");
+  ezOpenDdlUtils::StoreBool(ref_writer, m_bShowMouseCursor, "ShowMouseCursor");
+  ezOpenDdlUtils::StoreBool(ref_writer, m_bSetForegroundOnInit, "SetForegroundOnInit");
 
-  writer.EndObject();
+  ref_writer.EndObject();
 }
 
 
-ezResult ezWindowCreationDesc::SaveToDDL(const char* szFile)
+ezResult ezWindowCreationDesc::SaveToDDL(ezStringView sFile)
 {
   ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&file);
@@ -188,10 +188,10 @@ void ezWindowCreationDesc::LoadFromDDL(const ezOpenDdlReaderElement* pParentElem
 }
 
 
-ezResult ezWindowCreationDesc::LoadFromDDL(const char* szFile)
+ezResult ezWindowCreationDesc::LoadFromDDL(ezStringView sFile)
 {
   ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   ezOpenDdlReader reader;
   EZ_SUCCEED_OR_RETURN(reader.ParseDocument(file));
@@ -216,7 +216,9 @@ ezWindow::~ezWindow()
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM WParam, ezMinWindows::LPARAM LParam) {}
+void ezWindow::OnWindowMessage(ezMinWindows::HWND pWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+{
+}
 #endif
 
 ezUInt8 ezWindow::GetNextUnusedWindowNumber()

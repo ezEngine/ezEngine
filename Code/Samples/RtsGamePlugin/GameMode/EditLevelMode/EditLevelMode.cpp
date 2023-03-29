@@ -24,7 +24,7 @@ static ezHashedString s_sRemoveKey = ezMakeHashedString("RemoveKey");
 
 RtsEditLevelMode::RtsEditLevelMode()
 {
-  m_pBlackboard = EZ_DEFAULT_NEW(ezBlackboard);
+  m_pBlackboard = ezBlackboard::Create();
   m_pBlackboard->SetName("EditLevelModel");
 
   m_pBlackboard->RegisterEntry(s_sTeam, 0);

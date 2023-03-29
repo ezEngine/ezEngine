@@ -67,37 +67,37 @@ ezVec2I32 ezGameGrid<CellData>::GetCellAtWorldPosition(const ezVec3& vWorldSpace
 }
 
 template <class CellData>
-ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceOrigin(const ezVec2I32& Coord) const
+ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceOrigin(const ezVec2I32& vCoord) const
 {
-  return m_vWorldSpaceOrigin + m_mRotateToWorldspace * GetCellLocalSpaceOrigin(Coord);
+  return m_vWorldSpaceOrigin + m_mRotateToWorldspace * GetCellLocalSpaceOrigin(vCoord);
 }
 
 template <class CellData>
-ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceOrigin(const ezVec2I32& Coord) const
+ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceOrigin(const ezVec2I32& vCoord) const
 {
-  return m_vLocalSpaceCellSize.CompMul(ezVec3((float)Coord.x, (float)Coord.y, 0.0f));
+  return m_vLocalSpaceCellSize.CompMul(ezVec3((float)vCoord.x, (float)vCoord.y, 0.0f));
 }
 
 template <class CellData>
-ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceCenter(const ezVec2I32& Coord) const
+ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceCenter(const ezVec2I32& vCoord) const
 {
-  return m_vWorldSpaceOrigin + m_mRotateToWorldspace * GetCellLocalSpaceCenter(Coord);
+  return m_vWorldSpaceOrigin + m_mRotateToWorldspace * GetCellLocalSpaceCenter(vCoord);
 }
 
 template <class CellData>
-ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceCenter(const ezVec2I32& Coord) const
+ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceCenter(const ezVec2I32& vCoord) const
 {
-  return m_vLocalSpaceCellSize.CompMul(ezVec3((float)Coord.x + 0.5f, (float)Coord.y + 0.5f, 0.5f));
+  return m_vLocalSpaceCellSize.CompMul(ezVec3((float)vCoord.x + 0.5f, (float)vCoord.y + 0.5f, 0.5f));
 }
 
 template <class CellData>
-bool ezGameGrid<CellData>::IsValidCellCoordinate(const ezVec2I32& Coord) const
+bool ezGameGrid<CellData>::IsValidCellCoordinate(const ezVec2I32& vCoord) const
 {
-  return (Coord.x >= 0 && Coord.x < m_uiGridSizeX && Coord.y >= 0 && Coord.y < m_uiGridSizeY);
+  return (vCoord.x >= 0 && vCoord.x < m_uiGridSizeX && vCoord.y >= 0 && vCoord.y < m_uiGridSizeY);
 }
 
 template <class CellData>
-bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord, ezVec3* out_vIntersection) const
+bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_pCellCoord, ezVec3* out_pIntersection) const
 {
   ezPlane p;
   p.SetFromNormalAndPoint(m_mRotateToWorldspace * ezVec3(0, 0, -1), m_vWorldSpaceOrigin);
@@ -107,11 +107,11 @@ bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vR
   if (!p.GetRayIntersection(vRayStartPos, vRayDirNorm, nullptr, &vPos))
     return false;
 
-  if (out_vIntersection)
-    *out_vIntersection = vPos;
+  if (out_pIntersection)
+    *out_pIntersection = vPos;
 
-  if (out_CellCoord)
-    *out_CellCoord = GetCellAtWorldPosition(vPos);
+  if (out_pCellCoord)
+    *out_pCellCoord = GetCellAtWorldPosition(vPos);
 
   return true;
 }
@@ -128,7 +128,7 @@ ezBoundingBox ezGameGrid<CellData>::GetWorldBoundingBox() const
 
 template <class CellData>
 bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength,
-  float& out_fIntersection, ezVec2I32& out_CellCoord) const
+  float& out_fIntersection, ezVec2I32& out_vCellCoord) const
 {
   const ezVec3 vRayStart = m_mRotateToGridspace * (vRayStartWorldSpace - m_vWorldSpaceOrigin);
   const ezVec3 vRayDir = m_mRotateToGridspace * vRayDirNormalizedWorldSpace;
@@ -156,9 +156,9 @@ bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace,
   const ezVec3 vCell = vEnterPos.CompMul(m_vInverseLocalSpaceCellSize);
 
   // Without the Floor, the border case when the position is outside (-1 / -1) is not immediately detected
-  out_CellCoord = ezVec2I32((ezInt32)ezMath::Floor(vCell.x), (ezInt32)ezMath::Floor(vCell.y));
-  out_CellCoord.x = ezMath::Clamp(out_CellCoord.x, 0, m_uiGridSizeX - 1);
-  out_CellCoord.y = ezMath::Clamp(out_CellCoord.y, 0, m_uiGridSizeY - 1);
+  out_vCellCoord = ezVec2I32((ezInt32)ezMath::Floor(vCell.x), (ezInt32)ezMath::Floor(vCell.y));
+  out_vCellCoord.x = ezMath::Clamp(out_vCellCoord.x, 0, m_uiGridSizeX - 1);
+  out_vCellCoord.y = ezMath::Clamp(out_vCellCoord.y, 0, m_uiGridSizeY - 1);
 
   return true;
 }

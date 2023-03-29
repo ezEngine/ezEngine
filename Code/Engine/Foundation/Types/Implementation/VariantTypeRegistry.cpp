@@ -80,3 +80,6 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezVariantTypeInfo);
 ezVariantTypeInfo::ezVariantTypeInfo()
 {
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VariantTypeRegistry);

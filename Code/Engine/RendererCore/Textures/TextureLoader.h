@@ -27,9 +27,9 @@ public:
   };
 
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;
-  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData) override;
   virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 
-  static ezResult LoadTexFile(ezStreamReader& stream, LoadedData& data);
-  static void WriteTextureLoadStream(ezStreamWriter& stream, const LoadedData& data);
+  static ezResult LoadTexFile(ezStreamReader& inout_stream, LoadedData& ref_data);
+  static void WriteTextureLoadStream(ezStreamWriter& inout_stream, const LoadedData& data);
 };

@@ -60,11 +60,11 @@ void ezSkeletonPoseComponent::Update()
   }
 }
 
-void ezSkeletonPoseComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSkeletonPoseComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_hSkeleton;
   s << m_PoseMode;
@@ -82,12 +82,12 @@ void ezSkeletonPoseComponent::SerializeComponent(ezWorldWriter& stream) const
   }
 }
 
-void ezSkeletonPoseComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSkeletonPoseComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hSkeleton;
   s >> m_PoseMode;
@@ -171,14 +171,10 @@ void ezSkeletonPoseComponent::ResendPose()
 
 const ezRangeView<const char*, ezUInt32> ezSkeletonPoseComponent::GetBones() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
-    { return 0; },
-    [this]() -> ezUInt32
-    { return m_Bones.GetCount(); },
-    [](ezUInt32& it)
-    { ++it; },
-    [this](const ezUInt32& it) -> const char*
-    { return m_Bones.GetKey(it).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_Bones.GetCount(); },
+    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* { return m_Bones.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezSkeletonPoseComponent::SetBone(const char* szKey, const ezVariant& value)
@@ -378,3 +374,6 @@ void ezSkeletonPoseComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_SkeletonPoseComponent);

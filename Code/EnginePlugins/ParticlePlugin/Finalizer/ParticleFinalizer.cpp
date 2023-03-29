@@ -29,3 +29,7 @@ ezParticleFinalizer::ezParticleFinalizer()
   // run after the behaviors, before the types
   m_fPriority = +500.0f;
 }
+
+
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer);
+

@@ -25,50 +25,50 @@ void ezOBJLoader::Clear()
   m_Materials.Clear();
 }
 
-static ezStringView ReadLine(ezStringView& szPos)
+static ezStringView ReadLine(ezStringView& ref_sPos)
 {
-  while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
-    ++szPos;
+  while (ref_sPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+    ++ref_sPos;
 
-  const char* szStart = szPos.GetStartPointer();
+  const char* szStart = ref_sPos.GetStartPointer();
 
-  while (szPos.GetCharacter() != '\0' && szPos.GetCharacter() != '\r' && szPos.GetCharacter() != '\n')
-    ++szPos;
+  while (ref_sPos.GetCharacter() != '\0' && ref_sPos.GetCharacter() != '\r' && ref_sPos.GetCharacter() != '\n')
+    ++ref_sPos;
 
-  const char* szEnd = szPos.GetStartPointer();
+  const char* szEnd = ref_sPos.GetStartPointer();
 
-  while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
-    ++szPos;
+  while (ref_sPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+    ++ref_sPos;
 
   return ezStringView(szStart, szEnd);
 }
 
-static ezStringView ReadString(ezStringView& szPos)
+static ezStringView ReadString(ezStringView& ref_sPos)
 {
-  while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
-    ++szPos;
+  while (ref_sPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+    ++ref_sPos;
 
-  const char* szStart = szPos.GetStartPointer();
+  const char* szStart = ref_sPos.GetStartPointer();
 
-  while (szPos.GetCharacter() != '\0' && !ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
-    ++szPos;
+  while (ref_sPos.GetCharacter() != '\0' && !ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+    ++ref_sPos;
 
-  const char* szEnd = szPos.GetStartPointer();
+  const char* szEnd = ref_sPos.GetStartPointer();
 
-  while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
-    ++szPos;
+  while (ref_sPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(ref_sPos.GetCharacter()))
+    ++ref_sPos;
 
   return ezStringView(szStart, szEnd);
 }
 
-static bool SkipSlash(ezStringView& szPos)
+static bool SkipSlash(ezStringView& ref_sPos)
 {
-  if (szPos.GetCharacter() != '/')
+  if (ref_sPos.GetCharacter() != '/')
     return false;
 
-  ++szPos;
+  ++ref_sPos;
 
-  return (szPos.GetCharacter() != ' ' && szPos.GetCharacter() != '\t');
+  return (ref_sPos.GetCharacter() != ' ' && ref_sPos.GetCharacter() != '\t');
 }
 
 ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)

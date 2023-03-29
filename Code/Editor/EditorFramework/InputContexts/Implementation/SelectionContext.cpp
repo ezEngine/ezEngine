@@ -18,6 +18,17 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hMarqueeGizmo);
 }
 
+ezSelectionContext::~ezSelectionContext()
+{
+  // if anyone is registered for object picking, tell them that nothing was picked,
+  // so that they reset their state
+  if (m_PickObjectOverride.IsValid())
+  {
+    m_PickObjectOverride(nullptr);
+    ResetPickObjectOverride();
+  }
+}
+
 void ezSelectionContext::SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride)
 {
   m_PickObjectOverride = pickOverride;
@@ -26,8 +37,11 @@ void ezSelectionContext::SetPickObjectOverride(ezDelegate<void(const ezDocumentO
 
 void ezSelectionContext::ResetPickObjectOverride()
 {
-  m_PickObjectOverride.Invalidate();
-  GetOwnerView()->unsetCursor();
+  if (m_PickObjectOverride.IsValid())
+  {
+    m_PickObjectOverride.Invalidate();
+    GetOwnerView()->unsetCursor();
+  }
 }
 
 ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
@@ -58,7 +72,7 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 
     m_Mode = Mode::Single;
 
-    if (m_bPressedSpace)
+    if (m_bPressedSpace && !m_PickObjectOverride.IsValid())
     {
       m_uiMarqueeID += 23;
       m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), 0.01f);
@@ -281,6 +295,7 @@ ezEditorInput ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
     if (m_PickObjectOverride.IsValid())
     {
       m_PickObjectOverride(nullptr);
+      ResetPickObjectOverride();
     }
     else
     {
@@ -312,23 +327,23 @@ ezEditorInput ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
   return ezEditorInput::MayBeHandledByOthers;
 }
 
-static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject, const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild, const ezDocumentObject* pRootObject)
+static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject, const ezDocumentObject*& out_pParentInSelection, const ezDocumentObject*& out_pParentChild, const ezDocumentObject* pRootObject)
 {
   if (pObject == pRootObject)
     return false;
 
   if (selection.IndexOf(pObject) != ezInvalidIndex)
   {
-    out_ParentInSelection = pObject;
+    out_pParentInSelection = pObject;
     return true;
   }
 
   const ezDocumentObject* pParent = pObject->GetParent();
 
-  if (IsInSelection(selection, pParent, out_ParentInSelection, out_ParentChild, pRootObject))
+  if (IsInSelection(selection, pParent, out_pParentInSelection, out_pParentChild, pRootObject))
   {
-    if (out_ParentChild == nullptr)
-      out_ParentChild = pObject;
+    if (out_pParentChild == nullptr)
+      out_pParentChild = pObject;
 
     return true;
   }

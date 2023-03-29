@@ -15,7 +15,7 @@ public:
   ~ezStackAllocator();
 
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;
-  virtual void Deallocate(void* ptr) override;
+  virtual void Deallocate(void* pPtr) override;
 
   /// \brief
   ///   Resets the allocator freeing all memory.

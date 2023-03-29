@@ -1,5 +1,6 @@
 #include <EditorPluginScene/EditorPluginScenePCH.h>
 
+#include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
@@ -96,6 +97,7 @@ void OnLoadPlugin()
 
   // Add built in tags
   {
+    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "Exclude From Export", true));
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "CastShadow", true));
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "SkyLight", true));
   }
@@ -113,6 +115,7 @@ void OnLoadPlugin()
     ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::Panels | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
     ezProjectActions::MapActions(szMenuBar);
     ezDocumentActions::MapActions(szMenuBar, "Menu.File", false);
+    ezAssetActions::MapMenuActions(szMenuBar, "Menu.File");
     ezDocumentActions::MapToolsActions(szMenuBar, "Menu.Tools");
     ezCommandHistoryActions::MapActions(szMenuBar, "Menu.Edit");
     ezTransformGizmoActions::MapMenuActions(szMenuBar, "Menu.Edit");
@@ -232,6 +235,6 @@ void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent&
   auto& props = *e.m_pPropertyStates;
 
   props["CubeMap"].m_Visibility = bIsStatic ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  //props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  //props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  // props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  // props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 }

@@ -18,12 +18,12 @@ public:
   ~ezAssetDocumentManager();
 
   /// \brief Opens the asset file and reads the "Header" into the given ezAssetDocumentInfo.
-  virtual ezStatus ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& stream) const;
-  virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const {}
+  virtual ezStatus ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& inout_stream) const;
+  virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_subAssets) const {}
 
   /// If this asset type has additional output files that need to be generated (like a texture atlas that combines outputs from multiple assets)
   /// this function should make sure those files are all generated and return the list of relative file paths (from the data directory root).
-  virtual ezStatus GetAdditionalOutputs(ezDynamicArray<ezString>& files) { return ezStatus(EZ_SUCCESS); }
+  virtual ezStatus GetAdditionalOutputs(ezDynamicArray<ezString>& ref_files) { return ezStatus(EZ_SUCCESS); }
 
   // ezDocumentManager overrides:
 public:
@@ -63,23 +63,32 @@ public:
   /// \name Output Functions
   ///@{
 
-  virtual void AddEntriesToAssetTable(
-    const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const;
+  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const;
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
-  ezString GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDocumentPath, const char* szOutputTag,
-    const ezPlatformProfile* pAssetProfile = nullptr) const;
+  ezString GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
 
   /// \brief Relative to 'AssetCache' folder.
-  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory, const char* szDocumentPath,
-    const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
+  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
   virtual bool GeneratesProfileSpecificAssets() const = 0;
 
-  bool IsOutputUpToDate(
-    const char* szDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
-  virtual bool IsOutputUpToDate(
-    const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
+  bool IsOutputUpToDate(const char* szDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
+  virtual bool IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
+
+  /// Describes how likely it is that a generated file is 'corrupted', due to dependency issues and such.
+  /// For example a prefab may not work correctly, if it was written with a very different C++ plugin state, but this can't be detected later.
+  /// Whereas a texture always produces exactly the same output and is thus perfectly reliable.
+  /// This is used to clear asset caches selectively, and keep things that are unlikely to be in a broken state.
+  enum OutputReliability : ezUInt8
+  {
+    Unknown = 0,
+    Good = 1,
+    Perfect = 2,
+  };
+
+  /// \see OutputReliability
+  virtual OutputReliability GetAssetTypeOutputReliability() const { return OutputReliability::Unknown; }
 
   ///@}
 
@@ -91,6 +100,5 @@ public:
 
 protected:
   static bool IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion);
-  static void GenerateOutputFilename(
-    ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile, const char* szExtension, bool bPlatformSpecific);
+  static void GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile, const char* szExtension, bool bPlatformSpecific);
 };

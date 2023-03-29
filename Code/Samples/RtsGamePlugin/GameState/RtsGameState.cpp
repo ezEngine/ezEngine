@@ -21,9 +21,9 @@ float RtsGameState::GetCameraZoom() const
   return m_fCameraZoom;
 }
 
-float RtsGameState::SetCameraZoom(float zoom)
+float RtsGameState::SetCameraZoom(float fZoom)
 {
-  m_fCameraZoom = ezMath::Clamp(zoom, 1.0f, 50.0f);
+  m_fCameraZoom = ezMath::Clamp(fZoom, 1.0f, 50.0f);
 
   return m_fCameraZoom;
 }
@@ -92,6 +92,9 @@ void RtsGameState::PreloadAssets()
 
 void RtsGameState::BeforeWorldUpdate()
 {
+  if (IsLoadingScene())
+    return;
+
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
   ActivateQueuedGameMode();
@@ -355,9 +358,9 @@ ezGameObject* RtsGameState::PickSelectableObject() const
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: spatial-query
-void RtsGameState::InspectObjectsInArea(const ezVec2& position, float radius, ezSpatialSystem::QueryCallback callback) const
+void RtsGameState::InspectObjectsInArea(const ezVec2& vPosition, float fRadius, ezSpatialSystem::QueryCallback callback) const
 {
-  ezBoundingSphere sphere(position.GetAsVec3(0), radius);
+  ezBoundingSphere sphere(vPosition.GetAsVec3(0), fRadius);
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = RtsSelectableComponent::s_SelectableCategory.GetBitmask();
   m_pMainWorld->GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, callback);

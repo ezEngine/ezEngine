@@ -3,16 +3,16 @@
 #include <Foundation/IO/Archive/Archive.h>
 #include <Foundation/Logging/Log.h>
 
-void operator<<(ezStreamWriter& stream, const ezArchiveStoredString& value)
+void operator<<(ezStreamWriter& inout_stream, const ezArchiveStoredString& value)
 {
-  stream << value.m_uiLowerCaseHash;
-  stream << value.m_uiSrcStringOffset;
+  inout_stream << value.m_uiLowerCaseHash;
+  inout_stream << value.m_uiSrcStringOffset;
 }
 
-void operator>>(ezStreamReader& stream, ezArchiveStoredString& value)
+void operator>>(ezStreamReader& inout_stream, ezArchiveStoredString& value)
 {
-  stream >> value.m_uiLowerCaseHash;
-  stream >> value.m_uiSrcStringOffset;
+  inout_stream >> value.m_uiLowerCaseHash;
+  inout_stream >> value.m_uiSrcStringOffset;
 }
 
 ezUInt32 ezArchiveTOC::FindEntry(const char* szFile) const
@@ -36,19 +36,19 @@ const char* ezArchiveTOC::GetEntryPathString(ezUInt32 uiEntryIdx) const
   return reinterpret_cast<const char*>(&m_AllPathStrings[m_Entries[uiEntryIdx].m_uiPathStringOffset]);
 }
 
-ezResult ezArchiveTOC::Serialize(ezStreamWriter& stream) const
+ezResult ezArchiveTOC::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream.WriteVersion(2);
+  inout_stream.WriteVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Entries));
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_Entries));
 
   // write the hash of a known string to the archive, to detect hash function changes
   ezUInt64 uiStringHash = ezHashingUtils::StringHash("ezArchive");
-  stream << uiStringHash;
+  inout_stream << uiStringHash;
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteHashTable(m_PathToEntryIndex));
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteHashTable(m_PathToEntryIndex));
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_AllPathStrings));
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_AllPathStrings));
 
   return EZ_SUCCESS;
 }
@@ -80,14 +80,14 @@ struct ezHashHelper<ezOldTempHashedString>
   static bool Equal(const ezOldTempHashedString& a, const ezOldTempHashedString& b) { return a == b; }
 };
 
-ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVersion)
+ezResult ezArchiveTOC::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchiveVersion)
 {
   EZ_ASSERT_ALWAYS(uiArchiveVersion <= 4, "Unsupported archive version {}", uiArchiveVersion);
 
   // we don't use the TOC version anymore, but the archive version instead
-  const ezTypeVersion version = stream.ReadVersion(2);
+  const ezTypeVersion version = inout_stream.ReadVersion(2);
 
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Entries));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Entries));
 
   bool bRecreateStringHashes = true;
 
@@ -95,7 +95,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
   {
     // read and discard the data, it is regenerated below
     ezHashTable<ezOldTempHashedString, ezUInt32> m_PathToIndex;
-    EZ_SUCCEED_OR_RETURN(stream.ReadHashTable(m_PathToIndex));
+    EZ_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(m_PathToIndex));
   }
   else
   {
@@ -103,7 +103,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
     {
       // read the hash of a known string from the archive, to detect hash function changes
       ezUInt64 uiStringHash = 0;
-      stream >> uiStringHash;
+      inout_stream >> uiStringHash;
 
       if (uiStringHash == ezHashingUtils::StringHash("ezArchive"))
       {
@@ -111,10 +111,10 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
       }
     }
 
-    EZ_SUCCEED_OR_RETURN(stream.ReadHashTable(m_PathToEntryIndex));
+    EZ_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(m_PathToEntryIndex));
   }
 
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_AllPathStrings));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_AllPathStrings));
 
   if (bRecreateStringHashes)
   {
@@ -162,26 +162,26 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream, ezUInt8 uiArchiveVers
   return EZ_SUCCESS;
 }
 
-ezResult ezArchiveEntry::Serialize(ezStreamWriter& stream) const
+ezResult ezArchiveEntry::Serialize(ezStreamWriter& inout_stream) const
 {
-  stream << m_uiDataStartOffset;
-  stream << m_uiUncompressedDataSize;
-  stream << m_uiStoredDataSize;
-  stream << (ezUInt8)m_CompressionMode;
-  stream << m_uiPathStringOffset;
+  inout_stream << m_uiDataStartOffset;
+  inout_stream << m_uiUncompressedDataSize;
+  inout_stream << m_uiStoredDataSize;
+  inout_stream << (ezUInt8)m_CompressionMode;
+  inout_stream << m_uiPathStringOffset;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezArchiveEntry::Deserialize(ezStreamReader& stream)
+ezResult ezArchiveEntry::Deserialize(ezStreamReader& inout_stream)
 {
-  stream >> m_uiDataStartOffset;
-  stream >> m_uiUncompressedDataSize;
-  stream >> m_uiStoredDataSize;
+  inout_stream >> m_uiDataStartOffset;
+  inout_stream >> m_uiUncompressedDataSize;
+  inout_stream >> m_uiStoredDataSize;
   ezUInt8 uiCompressionMode = 0;
-  stream >> uiCompressionMode;
+  inout_stream >> uiCompressionMode;
   m_CompressionMode = (ezArchiveCompressionMode)uiCompressionMode;
-  stream >> m_uiPathStringOffset;
+  inout_stream >> m_uiPathStringOffset;
 
   return EZ_SUCCESS;
 }

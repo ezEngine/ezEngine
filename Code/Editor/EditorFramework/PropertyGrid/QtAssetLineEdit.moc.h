@@ -13,7 +13,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetLineEdit : public QLineEdit
   Q_OBJECT
 
 public:
-  explicit ezQtAssetLineEdit(QWidget* parent = nullptr);
+  explicit ezQtAssetLineEdit(QWidget* pParent = nullptr);
   virtual void dragMoveEvent(QDragMoveEvent* e) override;
   virtual void dragEnterEvent(QDragEnterEvent* e) override;
   virtual void dropEvent(QDropEvent* e) override;

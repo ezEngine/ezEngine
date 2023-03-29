@@ -53,7 +53,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepLinear : public ezImageConversionStep
 {
 public:
   /// \brief Converts a batch of pixels.
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 uiNumElements, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const = 0;
 };
 
@@ -62,7 +62,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepDecompressBlocks : public ezImageConve
 {
 public:
   /// \brief Decompresses the given number of blocks.
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocks, ezImageFormat::Enum sourceFormat,
+  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocks, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const = 0;
 };
 
@@ -71,7 +71,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepCompressBlocks : public ezImageConvers
 {
 public:
   /// \brief Compresses the given number of blocks.
-  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
+  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumBlocksX, ezUInt32 uiNumBlocksY,
     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
 };
 
@@ -80,7 +80,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepPlanarize : public ezImageConversionSt
 {
 public:
   /// \brief Converts a batch of pixels into the given target planes.
-  virtual ezResult ConvertPixels(const ezImageView& source, ezArrayPtr<ezImage> target, ezUInt32 numPixelsX, ezUInt32 numPixelsY, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(const ezImageView& source, ezArrayPtr<ezImage> target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const = 0;
 };
 
@@ -89,7 +89,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepDeplanarize : public ezImageConversion
 {
 public:
   /// \brief Converts a batch of pixels from the given source planes.
-  virtual ezResult ConvertPixels(ezArrayPtr<ezImageView> source, ezImage target, ezUInt32 numPixelsX, ezUInt32 numPixelsY, ezImageFormat::Enum sourceFormat,
+  virtual ezResult ConvertPixels(ezArrayPtr<ezImageView> source, ezImage target, ezUInt32 uiNumPixelsX, ezUInt32 uiNumPixelsY, ezImageFormat::Enum sourceFormat,
     ezImageFormat::Enum targetFormat) const = 0;
 };
 
@@ -132,22 +132,22 @@ public:
   /// \param path_out               The generated path.
   /// \param numScratchBuffers_out The number of scratch buffers required for the conversion path.
   /// \returns                      ez_SUCCESS if a path was found, ez_FAILURE otherwise.
-  static ezResult BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool sourceEqualsTarget,
-    ezHybridArray<ConversionPathNode, 16>& path_out, ezUInt32& numScratchBuffers_out);
+  static ezResult BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget,
+    ezHybridArray<ConversionPathNode, 16>& ref_path_out, ezUInt32& ref_uiNumScratchBuffers_out);
 
   /// \brief  Converts the source image into a target image with the given format. Source and target may be the same.
-  static ezResult Convert(const ezImageView& source, ezImage& target, ezImageFormat::Enum targetFormat);
+  static ezResult Convert(const ezImageView& source, ezImage& ref_target, ezImageFormat::Enum targetFormat);
 
   /// \brief Converts the source image into a target image using a precomputed conversion path.
-  static ezResult Convert(const ezImageView& source, ezImage& target, ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers);
+  static ezResult Convert(const ezImageView& source, ezImage& ref_target, ezArrayPtr<ConversionPathNode> path, ezUInt32 uiNumScratchBuffers);
 
   /// \brief Converts the raw source data into a target data buffer with the given format. Source and target may be the same.
   static ezResult ConvertRaw(
-    ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat);
+    ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat);
 
   /// \brief Converts the raw source data into a target data buffer using a precomputed conversion path.
   static ezResult ConvertRaw(
-    ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements, ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers);
+    ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 uiNumElements, ezArrayPtr<ConversionPathNode> path, ezUInt32 uiNumScratchBuffers);
 
 private:
   ezImageConversion();

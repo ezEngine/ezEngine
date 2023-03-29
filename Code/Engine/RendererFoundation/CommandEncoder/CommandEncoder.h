@@ -15,8 +15,8 @@ public:
   void SetShader(ezGALShaderHandle hShader);
 
   void SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer);
-  void SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerStateHandle hSamplerState);
-  void SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
+  void SetSamplerState(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, ezGALSamplerStateHandle hSamplerState);
+  void SetResourceView(ezGALShaderStage::Enum stage, ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
   void SetUnorderedAccessView(ezUInt32 uiSlot, ezGALUnorderedAccessViewHandle hUnorderedAccessView);
 
   // Returns whether a resource view has been unset for the given resource
@@ -30,7 +30,7 @@ public:
   void EndQuery(ezGALQueryHandle hQuery);
 
   /// \return Success if retrieving the query succeeded.
-  ezResult GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& uiQueryResult);
+  ezResult GetQueryResult(ezGALQueryHandle hQuery, ezUInt64& ref_uiQueryResult);
 
   // Timestamp functions
 
@@ -39,24 +39,24 @@ public:
   // Resource functions
 
   /// Clears an unordered access view with a float value.
-  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 clearValues);
+  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4 vClearValues);
 
   /// Clears an unordered access view with an int value.
-  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 clearValues);
+  void ClearUnorderedAccessView(ezGALUnorderedAccessViewHandle hUnorderedAccessView, ezVec4U32 vClearValues);
 
   void CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle hSource);
   void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
-  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::Discard);
+  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::Discard);
 
   void CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSource);
-  void CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box);
+  void CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box);
 
-  void UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData);
+  void UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData);
 
-  void ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource);
+  void ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource);
 
   void ReadbackTexture(ezGALTextureHandle hTexture);
-  void CopyTextureReadbackResult(ezGALTextureHandle hTexture, ezArrayPtr<ezGALTextureSubresource> SourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> TargetData);
+  void CopyTextureReadbackResult(ezGALTextureHandle hTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData);
 
   void GenerateMipMaps(ezGALResourceViewHandle hResourceView);
 
@@ -66,9 +66,9 @@ public:
 
   // Debug helper functions
 
-  void PushMarker(const char* Marker);
+  void PushMarker(const char* szMarker);
   void PopMarker();
-  void InsertEventMarker(const char* Marker);
+  void InsertEventMarker(const char* szMarker);
 
   virtual void ClearStatisticsCounters();
 

@@ -50,7 +50,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltQueryShapeActorComponent, 1, ezComponentMode::Stat
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
 }
@@ -60,20 +60,20 @@ EZ_END_COMPONENT_TYPE
 ezJoltQueryShapeActorComponent::ezJoltQueryShapeActorComponent() = default;
 ezJoltQueryShapeActorComponent::~ezJoltQueryShapeActorComponent() = default;
 
-void ezJoltQueryShapeActorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltQueryShapeActorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_hSurface;
 }
 
-void ezJoltQueryShapeActorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltQueryShapeActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_hSurface;
 }
@@ -163,3 +163,7 @@ const ezJoltMaterial* ezJoltQueryShapeActorComponent::GetJoltMaterial() const
 
   return nullptr;
 }
+
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Actors_Implementation_JoltQueryShapeActorComponent);
+

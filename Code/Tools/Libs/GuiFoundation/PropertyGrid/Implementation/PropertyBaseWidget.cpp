@@ -72,6 +72,12 @@ void ezQtPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8
   m_Items = items;
 }
 
+const char* ezQtPropertyWidget::GetLabel(ezStringBuilder& ref_sTmp) const
+{
+  ref_sTmp.Set(m_pType->GetTypeName(), "::", m_pProp->GetPropertyName());
+  return ref_sTmp;
+}
+
 void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
 {
   m.setToolTipsVisible(true);
@@ -322,7 +328,7 @@ const ezRTTI* ezQtPropertyWidget::GetCommonBaseType(const ezHybridArray<ezProper
   return pSubtype;
 }
 
-QColor ezQtPropertyWidget::SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& palette)
+QColor ezQtPropertyWidget::SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& ref_palette)
 {
   QColor qColor = qApp->palette().color(QPalette::Window);
   if (inputColor.a != 0)
@@ -335,12 +341,12 @@ QColor ezQtPropertyWidget::SetPaletteBackgroundColor(ezColorGammaUB inputColor, 
     qColor = ezToQtColor(blendedColor);
   }
 
-  palette.setBrush(QPalette::Window, QBrush(qColor, Qt::SolidPattern));
+  ref_palette.setBrush(QPalette::Window, QBrush(qColor, Qt::SolidPattern));
   return qColor;
 }
 
 bool ezQtPropertyWidget::GetCommonVariantSubType(
-  const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_Type)
+  const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_type)
 {
   bool bFirst = true;
   // check if we have multiple values
@@ -351,15 +357,15 @@ bool ezQtPropertyWidget::GetCommonVariantSubType(
       bFirst = false;
       ezVariant value;
       m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index);
-      out_Type = value.GetType();
+      out_type = value.GetType();
     }
     else
     {
       ezVariant valueNext;
       m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index);
-      if (valueNext.GetType() != out_Type)
+      if (valueNext.GetType() != out_type)
       {
-        out_Type = ezVariantType::Invalid;
+        out_type = ezVariantType::Invalid;
         return false;
       }
     }
@@ -497,6 +503,21 @@ void ezQtPropertyWidget::PropertyChangedHandler(const ezPropertyEvent& ed)
     }
     break;
   }
+}
+
+bool ezQtPropertyWidget::eventFilter(QObject* pWatched, QEvent* pEvent)
+{
+  if (pEvent->type() == QEvent::Wheel)
+  {
+    if (pWatched->parent())
+    {
+      pWatched->parent()->event(pEvent);
+    }
+
+    return true;
+  }
+
+  return false;
 }
 
 /// *** ezQtUnsupportedPropertyWidget ***
@@ -927,7 +948,7 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<ezPropertySelectio
 }
 
 
-void ezQtPropertyTypeWidget::SetIsDefault(bool isDefault)
+void ezQtPropertyTypeWidget::SetIsDefault(bool bIsDefault)
 {
   // The default state set by the parent object / container only refers to the element's correct position in the container but the entire state of the object. As recursively checking an entire object if is has any non-default values is quite costly, we just pretend the object is never in its default state the the user can click revert to default on any object at any time.
   m_bIsDefault = false;
@@ -983,7 +1004,7 @@ void ezQtPropertyContainerWidget::SetSelection(const ezHybridArray<ezPropertySel
   }
 }
 
-void ezQtPropertyContainerWidget::SetIsDefault(bool isDefault)
+void ezQtPropertyContainerWidget::SetIsDefault(bool bIsDefault)
 {
   // This is called from the type widget which we ignore as we have a tighter scoped default value provider for containers.
 }
@@ -1145,7 +1166,7 @@ void ezQtPropertyContainerWidget::OnElementButtonClicked()
   }
 }
 
-void ezQtPropertyContainerWidget::OnDragStarted(QMimeData& mimeData)
+void ezQtPropertyContainerWidget::OnDragStarted(QMimeData& ref_mimeData)
 {
   ezQtGroupBoxBase* pGroup = qobject_cast<ezQtGroupBoxBase*>(sender());
   Element* pDragElement =
@@ -1153,7 +1174,7 @@ void ezQtPropertyContainerWidget::OnDragStarted(QMimeData& mimeData)
       { return elem.m_pSubGroup == pGroup; });
   if (pDragElement)
   {
-    mimeData.setData("application/x-groupBoxDragProperty", QByteArray());
+    ref_mimeData.setData("application/x-groupBoxDragProperty", QByteArray());
   }
 }
 
@@ -1392,7 +1413,9 @@ void ezQtPropertyContainerWidget::Clear()
 
 void ezQtPropertyContainerWidget::OnInit()
 {
-  m_pGroup->SetTitle(ezTranslate(m_pProp->GetPropertyName()));
+  ezStringBuilder fullname(m_pType->GetTypeName(), "::", m_pProp->GetPropertyName());
+
+  m_pGroup->SetTitle(ezTranslate(fullname));
 
   const ezContainerAttribute* pArrayAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
   if (!pArrayAttr || pArrayAttr->CanAdd())
@@ -1716,11 +1739,11 @@ void ezQtVariantPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelec
   ezQtStandardPropertyWidget::SetSelection(items);
 }
 
-void ezQtVariantPropertyWidget::ExtendContextMenu(QMenu& menu)
+void ezQtVariantPropertyWidget::ExtendContextMenu(QMenu& ref_menu)
 {
-  ezQtStandardPropertyWidget::ExtendContextMenu(menu);
+  ezQtStandardPropertyWidget::ExtendContextMenu(ref_menu);
 
-  QMenu* ctm = menu.addMenu(QStringLiteral("Change Type"));
+  QMenu* ctm = ref_menu.addMenu(QStringLiteral("Change Type"));
   for (int i = ezVariantType::FirstStandardType + 1; i < ezVariantType::LastStandardType; ++i)
   {
     if (i == ezVariantType::StringView || i == ezVariantType::DataBuffer)

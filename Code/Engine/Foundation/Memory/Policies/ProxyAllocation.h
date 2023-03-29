@@ -20,14 +20,14 @@ namespace ezMemoryPolicies
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign) { return m_pParent->Allocate(uiSize, uiAlign); }
 
-    EZ_FORCE_INLINE void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
+    EZ_FORCE_INLINE void* Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
     {
-      return m_pParent->Reallocate(ptr, uiCurrentSize, uiNewSize, uiAlign);
+      return m_pParent->Reallocate(pPtr, uiCurrentSize, uiNewSize, uiAlign);
     }
 
-    EZ_FORCE_INLINE void Deallocate(void* ptr) { m_pParent->Deallocate(ptr); }
+    EZ_FORCE_INLINE void Deallocate(void* pPtr) { m_pParent->Deallocate(pPtr); }
 
-    EZ_FORCE_INLINE size_t AllocatedSize(const void* ptr) { return m_pParent->AllocatedSize(ptr); }
+    EZ_FORCE_INLINE size_t AllocatedSize(const void* pPtr) { return m_pParent->AllocatedSize(pPtr); }
 
     EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
 

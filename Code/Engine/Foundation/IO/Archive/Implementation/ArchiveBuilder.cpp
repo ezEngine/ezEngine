@@ -2,16 +2,18 @@
 
 #include <Foundation/IO/Archive/ArchiveBuilder.h>
 #include <Foundation/IO/Archive/ArchiveUtils.h>
+#include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Time/Stopwatch.h>
 
-void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath, ezArchiveCompressionMode defaultMode /*= ezArchiveCompressionMode::Uncompressed*/, InclusionCallback callback /*= InclusionCallback()*/)
+void ezArchiveBuilder::AddFolder(ezStringView sAbsFolderPath, ezArchiveCompressionMode defaultMode /*= ezArchiveCompressionMode::Uncompressed*/, InclusionCallback callback /*= InclusionCallback()*/)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezFileSystemIterator fileIt;
 
-  ezStringBuilder sBasePath = szAbsFolderPath;
+  ezStringBuilder sBasePath = sAbsFolderPath;
   sBasePath.MakeCleanPath();
 
   ezStringBuilder fullPath;
@@ -27,6 +29,7 @@ void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath, ezArchiveCompressi
     if (relPath.MakeRelativeTo(sBasePath).Succeeded())
     {
       ezArchiveCompressionMode compression = defaultMode;
+      ezInt32 iCompressionLevel = 0;
 
       if (callback.IsValid())
       {
@@ -39,8 +42,25 @@ void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath, ezArchiveCompressi
             compression = ezArchiveCompressionMode::Uncompressed;
             break;
 
-          case InclusionMode::Compress_zstd:
+          case InclusionMode::Compress_zstd_fastest:
             compression = ezArchiveCompressionMode::Compressed_zstd;
+            iCompressionLevel = ezCompressedStreamWriterZstd::Compression::Fastest;
+            break;
+          case InclusionMode::Compress_zstd_fast:
+            compression = ezArchiveCompressionMode::Compressed_zstd;
+            iCompressionLevel = ezCompressedStreamWriterZstd::Compression::Fast;
+            break;
+          case InclusionMode::Compress_zstd_average:
+            compression = ezArchiveCompressionMode::Compressed_zstd;
+            iCompressionLevel = ezCompressedStreamWriterZstd::Compression::Average;
+            break;
+          case InclusionMode::Compress_zstd_high:
+            compression = ezArchiveCompressionMode::Compressed_zstd;
+            iCompressionLevel = ezCompressedStreamWriterZstd::Compression::High;
+            break;
+          case InclusionMode::Compress_zstd_highest:
+            compression = ezArchiveCompressionMode::Compressed_zstd;
+            iCompressionLevel = ezCompressedStreamWriterZstd::Compression::Highest;
             break;
         }
       }
@@ -49,6 +69,7 @@ void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath, ezArchiveCompressi
       e.m_sAbsSourcePath = fullPath;
       e.m_sRelTargetPath = relPath;
       e.m_CompressionMode = compression;
+      e.m_iCompressionLevel = iCompressionLevel;
     }
   }
 
@@ -57,23 +78,23 @@ void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath, ezArchiveCompressi
 #endif
 }
 
-ezResult ezArchiveBuilder::WriteArchive(const char* szFile) const
+ezResult ezArchiveBuilder::WriteArchive(ezStringView sFile) const
 {
-  EZ_LOG_BLOCK("WriteArchive", szFile);
+  EZ_LOG_BLOCK("WriteArchive", sFile);
 
   ezFileWriter file;
-  if (file.Open(szFile, 1024 * 1024 * 16).Failed())
+  if (file.Open(sFile, 1024 * 1024 * 16).Failed())
   {
-    ezLog::Error("Could not open file for writing archive to: '{}'", szFile);
+    ezLog::Error("Could not open file for writing archive to: '{}'", sFile);
     return EZ_FAILURE;
   }
 
   return WriteArchive(file);
 }
 
-ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& stream) const
+ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(ezArchiveUtils::WriteHeader(stream));
+  EZ_SUCCEED_OR_RETURN(ezArchiveUtils::WriteHeader(inout_stream));
 
   ezArchiveTOC toc;
 
@@ -81,6 +102,8 @@ ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& stream) const
 
   ezUInt64 uiStreamSize = 0;
   const ezUInt32 uiNumEntries = m_Entries.GetCount();
+
+  ezStopwatch sw;
 
   for (ezUInt32 i = 0; i < uiNumEntries; ++i)
   {
@@ -97,15 +120,19 @@ ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& stream) const
     if (!WriteNextFileCallback(i + 1, uiNumEntries, e.m_sAbsSourcePath))
       return EZ_FAILURE;
 
-    EZ_SUCCEED_OR_RETURN(ezArchiveUtils::WriteEntryOptimal(stream, e.m_sAbsSourcePath, uiPathStringOffset, e.m_CompressionMode, toc.m_Entries.ExpandAndGetRef(), uiStreamSize, ezMakeDelegate(&ezArchiveBuilder::WriteFileProgressCallback, this)));
+    ezArchiveEntry& tocEntry = toc.m_Entries.ExpandAndGetRef();
+
+    EZ_SUCCEED_OR_RETURN(ezArchiveUtils::WriteEntryOptimal(inout_stream, e.m_sAbsSourcePath, uiPathStringOffset, e.m_CompressionMode, e.m_iCompressionLevel, tocEntry, uiStreamSize, ezMakeDelegate(&ezArchiveBuilder::WriteFileProgressCallback, this)));
+
+    WriteFileResultCallback(i + 1, uiNumEntries, e.m_sAbsSourcePath, tocEntry.m_uiUncompressedDataSize, tocEntry.m_uiStoredDataSize, sw.Checkpoint());
   }
 
-  EZ_SUCCEED_OR_RETURN(ezArchiveUtils::AppendTOC(stream, toc));
+  EZ_SUCCEED_OR_RETURN(ezArchiveUtils::AppendTOC(inout_stream, toc));
 
   return EZ_SUCCESS;
 }
 
-bool ezArchiveBuilder::WriteNextFileCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, const char* szSourceFile) const
+bool ezArchiveBuilder::WriteNextFileCallback(ezUInt32 uiCurEntry, ezUInt32 uiMaxEntries, ezStringView sSourceFile) const
 {
   return true;
 }

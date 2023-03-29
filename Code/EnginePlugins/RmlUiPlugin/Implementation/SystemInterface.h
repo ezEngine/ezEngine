@@ -9,8 +9,8 @@ namespace ezRmlUiInternal
   public:
     virtual double GetElapsedTime() override;
 
-    virtual void JoinPath(Rml::String& translated_path, const Rml::String& document_path, const Rml::String& path) override;
+    virtual void JoinPath(Rml::String& ref_sTranslated_path, const Rml::String& sDocument_path, const Rml::String& sPath) override;
 
-    virtual bool LogMessage(Rml::Log::Type type, const Rml::String& message) override;
+    virtual bool LogMessage(Rml::Log::Type type, const Rml::String& sMessage) override;
   };
 } // namespace ezRmlUiInternal

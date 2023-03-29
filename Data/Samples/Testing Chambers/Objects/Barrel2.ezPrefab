@@ -33,13 +33,18 @@ o
 			Uuid{u4{12245528259253396345,7105609957248947995}}
 		}
 		VarArray %Outputs{}
-		VarArray %References
+		VarArray %PackageDeps
 		{
 			s{"{ 05aa1141-42b4-43e9-90a6-ac4d7fbb0ee6 }"}
 			s{"{ 0b119394-1fa2-433a-90b3-35c329ab4f13 }"}
 			s{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
 			s{"{ 828a4980-1ff3-4b6e-9df4-e05a607ce1b9 }"}
 			s{"{ c1165a59-f3ff-4abf-858c-9d358fb2359a }"}
+		}
+		VarArray %References
+		{
+			s{"{ 0b119394-1fa2-433a-90b3-35c329ab4f13 }"}
+			s{"{ 828a4980-1ff3-4b6e-9df4-e05a607ce1b9 }"}
 		}
 	}
 }
@@ -63,6 +68,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
 		s %Filter{";CompatibleAsset_Material;"}
 	}
 }
@@ -387,7 +393,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -504,7 +509,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezExposedSceneProperty"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -522,7 +526,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabDocumentSettings"}
-		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -551,7 +554,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
 	}
 }
@@ -627,7 +629,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpawnComponent"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{3}
 	}
 }
@@ -666,6 +667,7 @@ o
 	u3 %v{1}
 	p
 	{
+		s %DependencyFlags{"ezDependencyFlags::Package"}
 		s %Filter{";CompatibleAsset_Surface;"}
 	}
 }
@@ -683,7 +685,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEventMessageHandlerComponent"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{3}
 	}
 }
@@ -725,7 +726,6 @@ o
 		s %PluginName{"ezJoltPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltShapeComponent"}
-		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }
@@ -764,7 +764,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -814,7 +813,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -853,7 +851,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBitflagsBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -894,7 +891,6 @@ o
 			Uuid{u4{18115423731678040207,4639548822328574800}}
 		}
 		s %TypeName{"ezJoltDynamicActorComponent"}
-		u3 %TypeSize{120}
 		u3 %TypeVersion{3}
 	}
 }
@@ -956,7 +952,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -969,7 +964,7 @@ o
 	{
 		s %Anchor{""}
 		s %Axis{"ezBasisAxis::PositiveZ"}
-		Color %Color{f{0x4035123F,0x70BAF53B,0x082E703E,0x0000803F}}
+		Color %Color{f{0x71941A3F,0x782DE03D,0x70944E3F,0x0000803F}}
 		Vec3 %OffsetOrScale{f{0,0,0}}
 		s %Property1{"Height"}
 		s %Property2{"Radius"}
@@ -1031,7 +1026,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
-		u3 %TypeSize{80}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1049,7 +1043,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1101,7 +1094,6 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{200}
 		u3 %TypeVersion{4}
 	}
 }
@@ -1160,7 +1152,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1217,7 +1208,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
-		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1259,7 +1249,6 @@ o
 			Uuid{u4{1169733456550287353,10163373658405488592}}
 		}
 		s %TypeName{"ezJoltActorComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1324,7 +1313,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1432,7 +1420,6 @@ o
 			Uuid{u4{16062387228877738411,1995890044582742863}}
 		}
 		s %TypeName{"ezJoltShapeCylinderComponent"}
-		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1478,7 +1465,6 @@ o
 			Uuid{u4{8247671856237943234,17604851697150064637}}
 		}
 		s %TypeName{"ezOnJoltContact"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1526,7 +1512,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

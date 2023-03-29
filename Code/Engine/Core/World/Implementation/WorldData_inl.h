@@ -35,9 +35,9 @@ namespace ezInternal
     Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
   {
     ezParallelForParams parallelForParams;
-    parallelForParams.uiBinSize = 100;
-    parallelForParams.uiMaxTasksPerThread = 2;
-    parallelForParams.pTaskAllocator = m_StackAllocator.GetCurrentAllocator();
+    parallelForParams.m_uiBinSize = 100;
+    parallelForParams.m_uiMaxTasksPerThread = 2;
+    parallelForParams.m_pTaskAllocator = m_StackAllocator.GetCurrentAllocator();
 
     ezTaskSystem::ParallelFor(
       blocks.GetArrayPtr(),
@@ -157,12 +157,12 @@ namespace ezInternal
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_FORCE_INLINE WorldData::InitBatch::InitBatch(ezAllocatorBase* pAllocator, ezStringView szName, bool bMustFinishWithinOneFrame)
+  EZ_FORCE_INLINE WorldData::InitBatch::InitBatch(ezAllocatorBase* pAllocator, ezStringView sName, bool bMustFinishWithinOneFrame)
     : m_bMustFinishWithinOneFrame(bMustFinishWithinOneFrame)
     , m_ComponentsToInitialize(pAllocator)
     , m_ComponentsToStartSimulation(pAllocator)
   {
-    m_sName.Assign(szName);
+    m_sName.Assign(sName);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -48,29 +48,29 @@ void ezParticleInitializerFactory_VelocityCone::CopyInitializerProperties(ezPart
   pInitializer->m_Speed = m_Speed;
 }
 
-void ezParticleInitializerFactory_VelocityCone::Save(ezStreamWriter& stream) const
+void ezParticleInitializerFactory_VelocityCone::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
+  inout_stream << uiVersion;
 
-  stream << m_Angle;
-  stream << m_Speed.m_Value;
-  stream << m_Speed.m_fVariance;
+  inout_stream << m_Angle;
+  inout_stream << m_Speed.m_Value;
+  inout_stream << m_Speed.m_fVariance;
 }
 
-void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& stream)
+void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  inout_stream >> uiVersion;
 
-  stream >> m_Angle;
-  stream >> m_Speed.m_Value;
-  stream >> m_Speed.m_fVariance;
+  inout_stream >> m_Angle;
+  inout_stream >> m_Speed.m_Value;
+  inout_stream >> m_Speed.m_fVariance;
 }
 
-void ezParticleInitializerFactory_VelocityCone::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+void ezParticleInitializerFactory_VelocityCone::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
 {
-  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_finalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->InlineProperty("Speed").IgnoreResult();
   }

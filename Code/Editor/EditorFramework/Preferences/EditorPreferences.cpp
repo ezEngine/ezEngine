@@ -18,15 +18,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("BackgroundAssetProcessing", m_bBackgroundAssetProcessing)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("FieldOfView", m_fPerspectiveFieldOfView)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(10.0f, 150.0f)),
     EZ_ACCESSOR_PROPERTY("GizmoSize", GetGizmoSize, SetGizmoSize)->AddAttributes(new ezDefaultValueAttribute(1.5f), new ezClampValueAttribute(0.2f, 5.0f)),
-    EZ_MEMBER_PROPERTY("UseOldGizmos", m_bOldGizmos),
     EZ_ACCESSOR_PROPERTY("ShowInDevelopmentFeatures", GetShowInDevelopmentFeatures, SetShowInDevelopmentFeatures),
-    EZ_MEMBER_PROPERTY("RotationSnap", m_RotationSnapValue)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15.0f))),
-    EZ_MEMBER_PROPERTY("ScaleSnap", m_fScaleSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.125f)),
-    EZ_MEMBER_PROPERTY("TranslationSnap", m_fTranslationSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
+    EZ_MEMBER_PROPERTY("RotationSnap", m_RotationSnapValue)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15.0f)), new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ScaleSnap", m_fScaleSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.125f), new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("TranslationSnap", m_fTranslationSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("UsePrecompiledTools", m_bUsePrecompiledTools)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ExpandSceneTreeOnSelection", m_bExpandSceneTreeOnSelection)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("AssetFilterCombobox", m_bAssetFilterCombobox)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ClearEditorLogsOnPlay", m_bClearEditorLogsOnPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("HighlightUntranslatedUI", GetHighlightUntranslatedUI, SetHighlightUntranslatedUI),
 
     // START GROUP Engine View Light Settings
     EZ_MEMBER_PROPERTY("SkyBox", m_bSkyBox)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Engine View Light Settings")),
@@ -51,17 +50,17 @@ ezEditorPreferencesUser::ezEditorPreferencesUser()
 
 ezEditorPreferencesUser::~ezEditorPreferencesUser() = default;
 
-void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& settings)
+void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& ref_settings)
 {
-  settings.SetSkyBox(m_bSkyBox);
-  settings.SetSkyLight(m_bSkyLight);
-  settings.SetSkyLightCubeMap(m_sSkyLightCubeMap);
-  settings.SetSkyLightIntensity(m_fSkyLightIntensity);
-  settings.SetDirectionalLight(m_bDirectionalLight);
-  settings.SetDirectionalLightAngle(m_DirectionalLightAngle);
-  settings.SetDirectionalLightShadows(m_bDirectionalLightShadows);
-  settings.SetDirectionalLightIntensity(m_fDirectionalLightIntensity);
-  settings.SetFog(m_bFog);
+  ref_settings.SetSkyBox(m_bSkyBox);
+  ref_settings.SetSkyLight(m_bSkyLight);
+  ref_settings.SetSkyLightCubeMap(m_sSkyLightCubeMap);
+  ref_settings.SetSkyLightIntensity(m_fSkyLightIntensity);
+  ref_settings.SetDirectionalLight(m_bDirectionalLight);
+  ref_settings.SetDirectionalLightAngle(m_DirectionalLightAngle);
+  ref_settings.SetDirectionalLightShadows(m_bDirectionalLightShadows);
+  ref_settings.SetDirectionalLightIntensity(m_fDirectionalLightIntensity);
+  ref_settings.SetFog(m_bFog);
 }
 
 void ezEditorPreferencesUser::SetAsDefaultValues(const ezEngineViewLightSettings& settings)
@@ -83,6 +82,13 @@ void ezEditorPreferencesUser::SetShowInDevelopmentFeatures(bool b)
   m_bShowInDevelopmentFeatures = b;
 
   ezQtAddSubElementButton::s_bShowInDevelopmentFeatures = b;
+}
+
+void ezEditorPreferencesUser::SetHighlightUntranslatedUI(bool b)
+{
+  m_bHighlightUntranslatedUI = b;
+
+  ezTranslator::HighlightUntranslated(m_bHighlightUntranslatedUI);
 }
 
 void ezEditorPreferencesUser::SetGizmoSize(float f)

@@ -379,7 +379,7 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezBoundingBoxTemplate<Type
 
 template <typename Type>
 bool ezBoundingBoxTemplate<Type>::GetRayIntersection(
-  const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
+  const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_pIntersectionDistance, ezVec3Template<Type>* out_pIntersection) const
 {
   // This code was taken from: http://people.csail.mit.edu/amy/papers/box-jgt.pdf
   // "An Efficient and Robust Ray-Box Intersection Algorithm"
@@ -462,27 +462,27 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(
   if (tMax <= 0.0f)
     return false;
 
-  if (out_fIntersection)
-    *out_fIntersection = tMin;
+  if (out_pIntersectionDistance)
+    *out_pIntersectionDistance = tMin;
 
-  if (out_vIntersection)
-    *out_vIntersection = vStartPos + tMin * vRayDir;
+  if (out_pIntersection)
+    *out_pIntersection = vStartPos + tMin * vRayDir;
 
   return true;
 }
 
 template <typename Type>
 bool ezBoundingBoxTemplate<Type>::GetLineSegmentIntersection(
-  const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_fLineFraction, ezVec3Template<Type>* out_vIntersection) const
+  const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_pLineFraction, ezVec3Template<Type>* out_pIntersection) const
 {
   const ezVec3Template<Type> vRayDir = vEndPos - vStartPos;
 
   Type fIntersection = 0.0f;
-  if (!GetRayIntersection(vStartPos, vRayDir, &fIntersection, out_vIntersection))
+  if (!GetRayIntersection(vStartPos, vRayDir, &fIntersection, out_pIntersection))
     return false;
 
-  if (out_fLineFraction)
-    *out_fLineFraction = fIntersection;
+  if (out_pLineFraction)
+    *out_pLineFraction = fIntersection;
 
   return fIntersection <= 1.0f;
 }

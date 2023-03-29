@@ -65,9 +65,8 @@ ezUInt32 ezVolumeCollection::ComputeSortingKey(float fSortOrder, float fMaxScale
   return uiSortingKey;
 }
 
-float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const
+float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const
 {
-  ezSimdVec4f globalPos = ezSimdConversion::ToVec3(vPosition);
   float fValue = fInitialValue;
 
   for (auto pShape : m_SortedShapes)
@@ -75,7 +74,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
     if (pShape->m_Type == ShapeType::Sphere)
     {
       auto& sphere = *static_cast<const Sphere*>(pShape);
-      const ezSimdVec4f localPos = sphere.GetGlobalToLocalTransform().TransformPosition(globalPos);
+      const ezSimdVec4f localPos = sphere.GetGlobalToLocalTransform().TransformPosition(vPosition);
       const float distSquared = localPos.GetLengthSquared<3>();
       if (distSquared <= 1.0f)
       {
@@ -87,7 +86,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
     else if (pShape->m_Type == ShapeType::Box)
     {
       auto& box = *static_cast<const Box*>(pShape);
-      const ezSimdVec4f absLocalPos = box.GetGlobalToLocalTransform().TransformPosition(globalPos).Abs();
+      const ezSimdVec4f absLocalPos = box.GetGlobalToLocalTransform().TransformPosition(vPosition).Abs();
       if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
       {
         const float fNewValue = ApplyValue(box.m_BlendMode, fValue, box.m_fValue);
@@ -101,7 +100,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
     {
       auto& image = *static_cast<const Image*>(pShape);
 
-      const ezSimdVec4f localPos = image.GetGlobalToLocalTransform().TransformPosition(globalPos);
+      const ezSimdVec4f localPos = image.GetGlobalToLocalTransform().TransformPosition(vPosition);
       const ezSimdVec4f absLocalPos = localPos.Abs();
 
       if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>() && image.m_pPixelData != nullptr)
@@ -150,10 +149,10 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
 
 // static
 void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
-  const ezTagSet& includeTags, ezVolumeCollection& out_Collection, const ezRTTI* pComponentBaseType)
+  const ezTagSet& includeTags, ezVolumeCollection& out_collection, const ezRTTI* pComponentBaseType)
 {
   ezMsgExtractVolumes msg;
-  msg.m_pCollection = &out_Collection;
+  msg.m_pCollection = &out_collection;
 
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
@@ -178,15 +177,15 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
     return ezVisitorExecution::Continue;
   });
 
-  out_Collection.m_Spheres.Sort();
-  out_Collection.m_Boxes.Sort();
-  out_Collection.m_Images.Sort();
+  out_collection.m_Spheres.Sort();
+  out_collection.m_Boxes.Sort();
+  out_collection.m_Images.Sort();
 
-  const ezUInt32 uiNumSpheres = out_Collection.m_Spheres.GetCount();
-  const ezUInt32 uiNumBoxes = out_Collection.m_Boxes.GetCount();
-  const ezUInt32 uiNumImages = out_Collection.m_Images.GetCount();
+  const ezUInt32 uiNumSpheres = out_collection.m_Spheres.GetCount();
+  const ezUInt32 uiNumBoxes = out_collection.m_Boxes.GetCount();
+  const ezUInt32 uiNumImages = out_collection.m_Images.GetCount();
 
-  out_Collection.m_SortedShapes.Reserve(uiNumSpheres + uiNumBoxes + uiNumImages);
+  out_collection.m_SortedShapes.Reserve(uiNumSpheres + uiNumBoxes + uiNumImages);
 
   ezUInt32 uiCurrentSphere = 0;
   ezUInt32 uiCurrentBox = 0;
@@ -194,9 +193,9 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
 
   while (uiCurrentSphere < uiNumSpheres || uiCurrentBox < uiNumBoxes || uiCurrentImage < uiNumImages)
   {
-    Sphere* pSphere = uiCurrentSphere < uiNumSpheres ? &out_Collection.m_Spheres[uiCurrentSphere] : nullptr;
-    Box* pBox = uiCurrentBox < uiNumBoxes ? &out_Collection.m_Boxes[uiCurrentBox] : nullptr;
-    Image* pImage = uiCurrentImage < uiNumImages ? &out_Collection.m_Images[uiCurrentImage] : nullptr;
+    Sphere* pSphere = uiCurrentSphere < uiNumSpheres ? &out_collection.m_Spheres[uiCurrentSphere] : nullptr;
+    Box* pBox = uiCurrentBox < uiNumBoxes ? &out_collection.m_Boxes[uiCurrentBox] : nullptr;
+    Image* pImage = uiCurrentImage < uiNumImages ? &out_collection.m_Images[uiCurrentImage] : nullptr;
 
     Shape* pSmallestShape = nullptr;
     ezUInt32 uiSmallestKey = 0xFFFFFFFF;
@@ -221,7 +220,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
 
     EZ_ASSERT_DEBUG(pSmallestShape != nullptr, "Error sorting proc-gen volumes.");
 
-    out_Collection.m_SortedShapes.PushBack(pSmallestShape);
+    out_collection.m_SortedShapes.PushBack(pSmallestShape);
 
     if (pSmallestShape == pSphere)
     {
@@ -269,7 +268,7 @@ void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& 
   box.m_vFadeOutBias = -box.m_vFadeOutScale;
 }
 
-void ezVolumeCollection::AddImage(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart, const ezImageDataResourceHandle& image)
+void ezVolumeCollection::AddImage(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart, const ezImageDataResourceHandle& hImage)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;
@@ -283,7 +282,7 @@ void ezVolumeCollection::AddImage(const ezSimdTransform& transform, const ezVec3
   shape.m_vFadeOutScale = ezVec3(-1.0f).CompDiv((ezVec3(1.0f) - vFadeOutStart).CompMax(ezVec3(0.0001f)));
   shape.m_vFadeOutBias = -shape.m_vFadeOutScale;
 
-  shape.m_Image = image;
+  shape.m_Image = hImage;
 
   if (shape.m_Image.IsValid())
   {

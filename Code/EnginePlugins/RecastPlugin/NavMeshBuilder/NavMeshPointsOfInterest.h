@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Time/Time.h>
-#include <GameEngine/AI/PointOfInterestGraph.h>
+#include <RecastPlugin/Components/PointOfInterestGraph.h>
 #include <RecastPlugin/RecastPluginDLL.h>
 
 struct rcPolyMesh;
@@ -21,7 +21,7 @@ public:
   void ExtractInterestPointsFromMesh(const rcPolyMesh& mesh, bool bReinitialize = true /* bad interface design */);
 
   ezUInt32 GetCheckVisibilityTimeStamp() const { return m_uiCheckVisibilityTimeStamp; }
-  void IncreaseCheckVisibiblityTimeStamp(ezTime tNow);
+  void IncreaseCheckVisibiblityTimeStamp(ezTime now);
 
   ezPointOfInterestGraph<ezNavMeshPointsOfInterest>& GetGraph() { return m_NavMeshPointGraph; }
   const ezPointOfInterestGraph<ezNavMeshPointsOfInterest>& GetGraph() const { return m_NavMeshPointGraph; }

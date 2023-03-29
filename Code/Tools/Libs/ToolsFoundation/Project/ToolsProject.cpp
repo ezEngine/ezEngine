@@ -230,7 +230,7 @@ void ezToolsProject::AddAllowedDocumentRoot(const char* szPath)
 }
 
 
-bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_RelativePath) const
+bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_pRelativePath) const
 {
   for (ezUInt32 i = m_AllowedDocumentRoots.GetCount(); i > 0; --i)
   {
@@ -240,12 +240,12 @@ bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezStrin
     if (!s.IsPathBelowFolder(root))
       continue;
 
-    if (out_RelativePath)
+    if (out_pRelativePath)
     {
       ezStringBuilder sText = szDocumentPath;
       sText.MakeRelativeTo(root).IgnoreResult();
 
-      *out_RelativePath = sText;
+      *out_pRelativePath = sText;
     }
 
     return true;

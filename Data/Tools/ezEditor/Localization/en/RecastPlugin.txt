@@ -1,8 +1,16 @@
-AI;AI
-ezRcAgentComponent;Recast Agent
-ezRcNavMeshComponent;Recast Navmesh;;https://ezengine.net/pages/docs/ai/recast-navmesh-component.html
-NavMeshConfig;Navmesh Config
-ezRcMarkPoiVisibleComponent;Recast Mark POI Visible
-ezSoldierComponent;Soldier
+# Asset Types
+
+# UI
+
 Menu.Recast;Recast
 NavMesh.Generate;Generate NavMesh
+
+# Component Types
+
+ezRcAgentComponent;Recast Agent
+ezRcNavMeshComponent;Recast Navmesh;;https://ezengine.net/pages/docs/ai/recast-navmesh-component.html
+ezRcMarkPoiVisibleComponent;Recast Mark POI Visible
+
+# Properties
+
+NavMeshConfig;Navmesh Config

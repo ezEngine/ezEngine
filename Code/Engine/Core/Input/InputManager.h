@@ -94,7 +94,7 @@ public:
   ///
   /// \param tTimeDifference The time elapsed since the last update. This will affect the value scaling of actions that
   /// use frame time scaling and is necessary to update controller vibration tracks.
-  static void Update(ezTime tTimeDifference); // [tested]
+  static void Update(ezTime timeDifference); // [tested]
 
   /// \brief Changes the display name of an input slot.
   static void SetInputSlotDisplayName(const char* szInputSlot, const char* szDefaultDisplayName); // [tested]
@@ -126,7 +126,7 @@ public:
   static ezKeyState::Enum GetInputSlotState(const char* szInputSlot, float* pValue = nullptr); // [tested]
 
   /// \brief Returns an array that contains all the names of all currently known input slots.
-  static void RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_InputSlots);
+  static void RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_inputSlots);
 
   /// \brief Returns the last typed character as the OS has reported it. Thus supports Unicode etc.
   ///
@@ -175,7 +175,7 @@ public:
   ///   That means no other action can be triggered by this key within this input set.
   ///   For most actions this should be set to true. However, if you have several actions that can be triggered by the same slot
   ///   (for example touch input) but only in different areas of the screen, this should be set to false.
-  static void SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config,
+  static void SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& config,
     bool bClearPreviousInputMappings); // [tested]
 
   /// \brief Returns the configuration for the given input action in the given input set. Returns a default configuration, if the action
@@ -192,7 +192,7 @@ public:
   /// This is the one function that is called repeatedly at runtime to figure out which actions are active and thus which game-play
   /// functions to execute. You can (and should) use the /a pValue to scale game play features (e.g. how fast to drive).
   static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = nullptr,
-    ezInt8* iTriggeredSlot = nullptr); // [tested]
+    ezInt8* pTriggeredSlot = nullptr); // [tested]
 
   /// \brief Sets the display name for the given action.
   static void SetActionDisplayName(const char* szAction, const char* szDisplayName); // [tested]
@@ -201,10 +201,10 @@ public:
   static const ezString GetActionDisplayName(const char* szAction); // [tested]
 
   /// \brief Returns the names of all currently registered input sets.
-  static void GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames); // [tested]
+  static void GetAllInputSets(ezDynamicArray<ezString>& out_inputSetNames); // [tested]
 
   /// \brief Returns the names of all input actions in the given input set.
-  static void GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions); // [tested]
+  static void GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_inputActions); // [tested]
 
   /// \brief This can be used to pass input exclusively to this input set and no others.
   ///
@@ -229,19 +229,19 @@ public:
   /// MustNotHaveFlags.
   ///
   /// This function can be used in a UI to wait for user input and then assign that input to a certain action.
-  static const char* GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveFlags, ezInputSlotFlags::Enum MustNotHaveFlags); // [tested]
+  static const char* GetPressedInputSlot(ezInputSlotFlags::Enum mustHaveFlags, ezInputSlotFlags::Enum mustNotHaveFlags); // [tested]
 
   /// \brief Mostly for internal use. Converts a scan-code value to the string that is used inside the engine for that key.
   static const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
 
   /// \brief Helper for retrieving the input slot string for touch point with a given index.
-  static const char* GetInputSlotTouchPoint(unsigned int index);
+  static const char* GetInputSlotTouchPoint(unsigned int uiIndex);
 
   /// \brief Helper for retrieving the input slot string for touch point x position with a given index.
-  static const char* GetInputSlotTouchPointPositionX(unsigned int index);
+  static const char* GetInputSlotTouchPointPositionX(unsigned int uiIndex);
 
   /// \brief Helper for retrieving the input slot string for touch point y position with a given index.
-  static const char* GetInputSlotTouchPointPositionY(unsigned int index);
+  static const char* GetInputSlotTouchPointPositionY(unsigned int uiIndex);
 
   /// \brief The data that is broadcast when certain events occur.
   struct InputEventData

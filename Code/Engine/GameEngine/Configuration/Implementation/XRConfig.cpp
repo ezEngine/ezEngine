@@ -17,29 +17,29 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezXRConfig, 2, ezRTTIDefaultAllocator<ezXRConfig
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezXRConfig::SaveRuntimeData(ezChunkStreamWriter& stream) const
+void ezXRConfig::SaveRuntimeData(ezChunkStreamWriter& inout_stream) const
 {
-  stream.BeginChunk("ezXRConfig", 2);
+  inout_stream.BeginChunk("ezXRConfig", 2);
 
-  stream << m_bEnableXR;
-  stream << m_sXRRenderPipeline;
+  inout_stream << m_bEnableXR;
+  inout_stream << m_sXRRenderPipeline;
 
-  stream.EndChunk();
+  inout_stream.EndChunk();
 }
 
-void ezXRConfig::LoadRuntimeData(ezChunkStreamReader& stream)
+void ezXRConfig::LoadRuntimeData(ezChunkStreamReader& inout_stream)
 {
-  const auto& chunk = stream.GetCurrentChunk();
+  const auto& chunk = inout_stream.GetCurrentChunk();
 
   if (chunk.m_sChunkName == "ezVRConfig" && chunk.m_uiChunkVersion == 1)
   {
-    stream >> m_bEnableXR;
-    stream >> m_sXRRenderPipeline;
+    inout_stream >> m_bEnableXR;
+    inout_stream >> m_sXRRenderPipeline;
   }
   else if (chunk.m_sChunkName == "ezXRConfig" && chunk.m_uiChunkVersion == 2)
   {
-    stream >> m_bEnableXR;
-    stream >> m_sXRRenderPipeline;
+    inout_stream >> m_bEnableXR;
+    inout_stream >> m_sXRRenderPipeline;
   }
 }
 
@@ -56,9 +56,9 @@ public:
     : ezGraphPatch("ezVRConfig", 5)
   {
   }
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    context.RenameClass("ezXRConfig");
+    ref_context.RenameClass("ezXRConfig");
     pNode->RenameProperty("EnableVR", "EnableXR");
     pNode->RenameProperty("VRRenderPipeline", "XRRenderPipeline");
   }

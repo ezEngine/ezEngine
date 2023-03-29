@@ -18,10 +18,10 @@ public:
   void InitializeFromCurrentTime();
 
   /// \brief Serializes the current state
-  void Save(ezStreamWriter& stream) const; // [tested]
+  void Save(ezStreamWriter& inout_stream) const; // [tested]
 
   /// \brief Deserializes the current state
-  void Load(ezStreamReader& stream); // [tested]
+  void Load(ezStreamReader& inout_stream); // [tested]
 
   /// \brief Returns a uint32 value, ie. ranging from 0 to (2 ^ 32) - 1
   ezUInt32 UInt(); // [tested]
@@ -105,10 +105,10 @@ public:
   ezInt32 SignedValue(); // [tested]
 
   /// \brief Serializes the current state
-  void Save(ezStreamWriter& stream) const; // [tested]
+  void Save(ezStreamWriter& inout_stream) const; // [tested]
 
   /// \brief Deserializes the current state
-  void Load(ezStreamReader& stream); // [tested]
+  void Load(ezStreamReader& inout_stream); // [tested]
 
 private:
   void SetupTable(ezUInt32 uiMaxValue, float fSigma);

@@ -89,12 +89,12 @@ void ezTelemetry::CreateServer()
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback, void* pPassThrough)
+void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback callback, void* pPassThrough)
 {
   EZ_LOCK(GetTelemetryMutex());
 
   s_SystemMessages[uiSystemID].m_bAcceptMessages = bAccept;
-  s_SystemMessages[uiSystemID].m_Callback = Callback;
+  s_SystemMessages[uiSystemID].m_Callback = callback;
   s_SystemMessages[uiSystemID].m_pPassThrough = pPassThrough;
 }
 
@@ -140,20 +140,20 @@ void ezTelemetry::Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsg
   Send(tm, uiSystemID, uiMsgID, pData, uiDataBytes);
 }
 
-void ezTelemetry::Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes)
+void ezTelemetry::Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& inout_stream, ezInt32 iDataBytes)
 {
   if (s_ConnectionMode != ezTelemetry::Server)
     return;
 
-  Send(tm, uiSystemID, uiMsgID, Stream, iDataBytes);
+  Send(tm, uiSystemID, uiMsgID, inout_stream, iDataBytes);
 }
 
-void ezTelemetry::Broadcast(TransmitMode tm, ezTelemetryMessage& Msg)
+void ezTelemetry::Broadcast(TransmitMode tm, ezTelemetryMessage& ref_msg)
 {
   if (s_ConnectionMode != ezTelemetry::Server)
     return;
 
-  Send(tm, Msg);
+  Send(tm, ref_msg);
 }
 
 void ezTelemetry::SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
@@ -164,20 +164,20 @@ void ezTelemetry::SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void
   Send(ezTelemetry::Reliable, uiSystemID, uiMsgID, pData, uiDataBytes);
 }
 
-void ezTelemetry::SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes)
+void ezTelemetry::SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& inout_stream, ezInt32 iDataBytes)
 {
   if (s_ConnectionMode != ezTelemetry::Client)
     return;
 
-  Send(ezTelemetry::Reliable, uiSystemID, uiMsgID, Stream, iDataBytes);
+  Send(ezTelemetry::Reliable, uiSystemID, uiMsgID, inout_stream, iDataBytes);
 }
 
-void ezTelemetry::SendToServer(ezTelemetryMessage& Msg)
+void ezTelemetry::SendToServer(ezTelemetryMessage& ref_msg)
 {
   if (s_ConnectionMode != ezTelemetry::Client)
     return;
 
-  Send(ezTelemetry::Reliable, Msg);
+  Send(ezTelemetry::Reliable, ref_msg);
 }
 
 void ezTelemetry::Send(TransmitMode tm, ezTelemetryMessage& msg)

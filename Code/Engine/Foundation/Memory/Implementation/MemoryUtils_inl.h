@@ -159,9 +159,9 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* source, size_t uiSourceCount, size_t uiCount)
+EZ_ALWAYS_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T* pSource, size_t uiSourceCount, size_t uiCount)
 {
-  Prepend(pDestination, source, uiSourceCount, uiCount, ezGetTypeClass<T>());
+  Prepend(pDestination, pSource, uiSourceCount, uiCount, ezGetTypeClass<T>());
 }
 
 template <typename T>
@@ -177,7 +177,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T* pDestination, size_t uiCount)
 }
 
 template <typename T, size_t N>
-EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T (&destination)[N])
+EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFillArray(T (&destination)[N])
 {
   return ZeroFill(destination, N);
 }
@@ -189,7 +189,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFill(T* pDestination, ezUInt8 uiByte
 }
 
 template <typename T, size_t N>
-EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFill(T (&destination)[N], ezUInt8 uiBytePattern)
+EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFillArray(T (&destination)[N], ezUInt8 uiBytePattern)
 {
   return PatternFill(destination, uiBytePattern, N);
 }
@@ -206,21 +206,21 @@ EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::RawByteCompare(const void* a, const void
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* ptr, ptrdiff_t iOffset)
+EZ_ALWAYS_INLINE T* ezMemoryUtils::AddByteOffset(T* pPtr, ptrdiff_t iOffset)
 {
-  return reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(ptr) + iOffset);
+  return reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(pPtr) + iOffset);
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::AlignBackwards(T* ptr, size_t uiAlignment)
+EZ_ALWAYS_INLINE T* ezMemoryUtils::AlignBackwards(T* pPtr, size_t uiAlignment)
 {
-  return reinterpret_cast<T*>(reinterpret_cast<size_t>(ptr) & ~(uiAlignment - 1));
+  return reinterpret_cast<T*>(reinterpret_cast<size_t>(pPtr) & ~(uiAlignment - 1));
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE T* ezMemoryUtils::AlignForwards(T* ptr, size_t uiAlignment)
+EZ_ALWAYS_INLINE T* ezMemoryUtils::AlignForwards(T* pPtr, size_t uiAlignment)
 {
-  return reinterpret_cast<T*>((reinterpret_cast<size_t>(ptr) + uiAlignment - 1) & ~(uiAlignment - 1));
+  return reinterpret_cast<T*>((reinterpret_cast<size_t>(pPtr) + uiAlignment - 1) & ~(uiAlignment - 1));
 }
 
 template <typename T>
@@ -230,9 +230,9 @@ EZ_ALWAYS_INLINE T ezMemoryUtils::AlignSize(T uiSize, T uiAlignment)
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
+EZ_ALWAYS_INLINE bool ezMemoryUtils::IsAligned(const T* pPtr, size_t uiAlignment)
 {
-  return (reinterpret_cast<size_t>(ptr) & (uiAlignment - 1)) == 0;
+  return (reinterpret_cast<size_t>(pPtr) & (uiAlignment - 1)) == 0;
 }
 
 template <typename T>

@@ -42,7 +42,7 @@ static int __CPP_Utils_FindPrefabRootNode(duk_context* pDuk)
     {
       for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
       {
-        if (ezStringUtils::IsEqual(it->GetName(), "root"))
+        if (it->GetName() == "root")
         {
           pBinding->DukPutGameObject(pObject->GetChildren());
           goto found;

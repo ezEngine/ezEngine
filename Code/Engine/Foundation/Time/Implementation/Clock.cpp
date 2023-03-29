@@ -100,34 +100,34 @@ void ezClock::SetAccumulatedTime(ezTime t)
   m_LastTimeDiff = ezTime::Seconds(0.01);
 }
 
-void ezClock::Save(ezStreamWriter& Stream) const
+void ezClock::Save(ezStreamWriter& inout_stream) const
 {
   const ezUInt8 uiVersion = 1;
 
-  Stream << uiVersion;
-  Stream << m_AccumulatedTime;
-  Stream << m_LastTimeDiff;
-  Stream << m_FixedTimeStep;
-  Stream << m_MinTimeStep;
-  Stream << m_MaxTimeStep;
-  Stream << m_fSpeed;
-  Stream << m_bPaused;
+  inout_stream << uiVersion;
+  inout_stream << m_AccumulatedTime;
+  inout_stream << m_LastTimeDiff;
+  inout_stream << m_FixedTimeStep;
+  inout_stream << m_MinTimeStep;
+  inout_stream << m_MaxTimeStep;
+  inout_stream << m_fSpeed;
+  inout_stream << m_bPaused;
 }
 
-void ezClock::Load(ezStreamReader& Stream)
+void ezClock::Load(ezStreamReader& inout_stream)
 {
   ezUInt8 uiVersion = 0;
-  Stream >> uiVersion;
+  inout_stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion == 1, "Wrong version for ezClock: {0}", uiVersion);
 
-  Stream >> m_AccumulatedTime;
-  Stream >> m_LastTimeDiff;
-  Stream >> m_FixedTimeStep;
-  Stream >> m_MinTimeStep;
-  Stream >> m_MaxTimeStep;
-  Stream >> m_fSpeed;
-  Stream >> m_bPaused;
+  inout_stream >> m_AccumulatedTime;
+  inout_stream >> m_LastTimeDiff;
+  inout_stream >> m_FixedTimeStep;
+  inout_stream >> m_MinTimeStep;
+  inout_stream >> m_MaxTimeStep;
+  inout_stream >> m_fSpeed;
+  inout_stream >> m_bPaused;
 
   // make sure we continue properly
   m_LastTimeUpdate = ezTime::Now() - m_MinTimeStep;

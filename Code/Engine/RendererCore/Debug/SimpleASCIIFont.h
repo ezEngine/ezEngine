@@ -13,5 +13,5 @@ namespace ezGraphicsUtils
   /// are not very useful, the first two rows are left black, except for the very first character, which is an upside down
   /// question mark. This character can be used for unknown characters (e.g. when Utf8 is printed as ASCII and thus characters
   /// above 127 are possible).
-  EZ_RENDERERCORE_DLL void CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyToUnknown = false);
+  EZ_RENDERERCORE_DLL void CreateSimpleASCIIFontTexture(ezImage& ref_img, bool bSetEmptyToUnknown = false);
 } // namespace ezGraphicsUtils

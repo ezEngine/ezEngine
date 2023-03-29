@@ -27,8 +27,8 @@ ezLogEntry::ezLogEntry() {}
 
 ezLogEntry::ezLogEntry(const ezLoggingEventData& le)
 {
-  m_sMsg = le.m_szText;
-  m_sTag = le.m_szTag;
+  m_sMsg = le.m_sText;
+  m_sTag = le.m_sTag;
   m_Type = le.m_EventType;
   m_uiIndentation = le.m_uiIndentation;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -38,10 +38,10 @@ ezLogEntry::ezLogEntry(const ezLoggingEventData& le)
 #endif
 }
 
-ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum LogLevel)
+ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum logLevel)
   : m_Callback(callback)
 {
-  SetLogLevel(LogLevel);
+  SetLogLevel(logLevel);
 }
 
 void ezLogEntryDelegate::HandleLogMessage(const ezLoggingEventData& le)

@@ -4,22 +4,22 @@
 
 // **************** ezStringWChar ****************
 
-void ezStringWChar::operator=(const ezUInt16* szUtf16)
+void ezStringWChar::operator=(const ezUInt16* pUtf16)
 {
   m_Data.Clear();
 
-  if (szUtf16 != nullptr)
+  if (pUtf16 != nullptr)
   {
     // skip any Utf16 little endian Byte Order Mark
-    ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    ezUnicodeUtils::SkipUtf16BomLE(pUtf16);
+    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(pUtf16), "Utf-16 Big Endian is currently not supported.");
 
     ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize>> tempInserter(&m_Data);
 
-    while (*szUtf16 != '\0')
+    while (*pUtf16 != '\0')
     {
       // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
+      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(pUtf16);
 
       // encode utf32 to wchar_t
       ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
@@ -30,19 +30,19 @@ void ezStringWChar::operator=(const ezUInt16* szUtf16)
   m_Data.PushBack('\0');
 }
 
-void ezStringWChar::operator=(const ezUInt32* szUtf32)
+void ezStringWChar::operator=(const ezUInt32* pUtf32)
 {
   m_Data.Clear();
 
-  if (szUtf32 != nullptr)
+  if (pUtf32 != nullptr)
   {
     ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize>> tempInserter(&m_Data);
 
-    while (*szUtf32 != '\0')
+    while (*pUtf32 != '\0')
     {
       // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = *szUtf32;
-      ++szUtf32;
+      const ezUInt32 uiUtf32 = *pUtf32;
+      ++pUtf32;
 
       // encode utf32 to wchar_t
       ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
@@ -53,17 +53,17 @@ void ezStringWChar::operator=(const ezUInt32* szUtf32)
   m_Data.PushBack('\0');
 }
 
-void ezStringWChar::operator=(const wchar_t* szWChar)
+void ezStringWChar::operator=(const wchar_t* pWChar)
 {
   m_Data.Clear();
 
-  if (szWChar != nullptr)
+  if (pWChar != nullptr)
   {
 
-    while (*szWChar != '\0')
+    while (*pWChar != '\0')
     {
-      m_Data.PushBack(*szWChar);
-      ++szWChar;
+      m_Data.PushBack(*pWChar);
+      ++pWChar;
     }
   }
 
@@ -126,22 +126,22 @@ void ezStringUtf8::operator=(const char* szUtf8)
 }
 
 
-void ezStringUtf8::operator=(const ezUInt16* szUtf16)
+void ezStringUtf8::operator=(const ezUInt16* pUtf16)
 {
   m_Data.Clear();
 
-  if (szUtf16 != nullptr)
+  if (pUtf16 != nullptr)
   {
     // skip any Utf16 little endian Byte Order Mark
-    ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    ezUnicodeUtils::SkipUtf16BomLE(pUtf16);
+    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(pUtf16), "Utf-16 Big Endian is currently not supported.");
 
     ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize>> tempInserter(&m_Data);
 
-    while (*szUtf16 != '\0')
+    while (*pUtf16 != '\0')
     {
       // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
+      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(pUtf16);
 
       // encode utf32 to wchar_t
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
@@ -153,19 +153,19 @@ void ezStringUtf8::operator=(const ezUInt16* szUtf16)
 }
 
 
-void ezStringUtf8::operator=(const ezUInt32* szUtf32)
+void ezStringUtf8::operator=(const ezUInt32* pUtf32)
 {
   m_Data.Clear();
 
-  if (szUtf32 != nullptr)
+  if (pUtf32 != nullptr)
   {
     ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize>> tempInserter(&m_Data);
 
-    while (*szUtf32 != '\0')
+    while (*pUtf32 != '\0')
     {
       // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = *szUtf32;
-      ++szUtf32;
+      const ezUInt32 uiUtf32 = *pUtf32;
+      ++pUtf32;
 
       // encode utf32 to wchar_t
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
@@ -176,18 +176,18 @@ void ezStringUtf8::operator=(const ezUInt32* szUtf32)
   m_Data.PushBack('\0');
 }
 
-void ezStringUtf8::operator=(const wchar_t* szWChar)
+void ezStringUtf8::operator=(const wchar_t* pWChar)
 {
   m_Data.Clear();
 
-  if (szWChar != nullptr)
+  if (pWChar != nullptr)
   {
     ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize>> tempInserter(&m_Data);
 
-    while (*szWChar != '\0')
+    while (*pWChar != '\0')
     {
       // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
+      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(pWChar);
 
       // encode utf32 to wchar_t
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
@@ -255,20 +255,20 @@ void ezStringUtf16::operator=(const char* szUtf8)
 }
 
 
-void ezStringUtf16::operator=(const ezUInt16* szUtf16)
+void ezStringUtf16::operator=(const ezUInt16* pUtf16)
 {
   m_Data.Clear();
 
-  if (szUtf16 != nullptr)
+  if (pUtf16 != nullptr)
   {
     // skip any Utf16 little endian Byte Order Mark
-    ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    ezUnicodeUtils::SkipUtf16BomLE(pUtf16);
+    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(pUtf16), "Utf-16 Big Endian is currently not supported.");
 
-    while (*szUtf16 != '\0')
+    while (*pUtf16 != '\0')
     {
-      m_Data.PushBack(*szUtf16);
-      ++szUtf16;
+      m_Data.PushBack(*pUtf16);
+      ++pUtf16;
     }
   }
 
@@ -277,19 +277,19 @@ void ezStringUtf16::operator=(const ezUInt16* szUtf16)
 }
 
 
-void ezStringUtf16::operator=(const ezUInt32* szUtf32)
+void ezStringUtf16::operator=(const ezUInt32* pUtf32)
 {
   m_Data.Clear();
 
-  if (szUtf32 != nullptr)
+  if (pUtf32 != nullptr)
   {
     ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize>> tempInserter(&m_Data);
 
-    while (*szUtf32 != '\0')
+    while (*pUtf32 != '\0')
     {
       // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = *szUtf32;
-      ++szUtf32;
+      const ezUInt32 uiUtf32 = *pUtf32;
+      ++pUtf32;
 
       // encode utf32 to wchar_t
       ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
@@ -300,18 +300,18 @@ void ezStringUtf16::operator=(const ezUInt32* szUtf32)
   m_Data.PushBack('\0');
 }
 
-void ezStringUtf16::operator=(const wchar_t* szWChar)
+void ezStringUtf16::operator=(const wchar_t* pWChar)
 {
   m_Data.Clear();
 
-  if (szWChar != nullptr)
+  if (pWChar != nullptr)
   {
     ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize>> tempInserter(&m_Data);
 
-    while (*szWChar != '\0')
+    while (*pWChar != '\0')
     {
       // decode utf8 to utf32
-      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
+      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(pWChar);
 
       // encode utf32 to wchar_t
       ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
@@ -350,20 +350,20 @@ void ezStringUtf32::operator=(const char* szUtf8)
 }
 
 
-void ezStringUtf32::operator=(const ezUInt16* szUtf16)
+void ezStringUtf32::operator=(const ezUInt16* pUtf16)
 {
   m_Data.Clear();
 
-  if (szUtf16 != nullptr)
+  if (pUtf16 != nullptr)
   {
     // skip any Utf16 little endian Byte Order Mark
-    ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    ezUnicodeUtils::SkipUtf16BomLE(pUtf16);
+    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(pUtf16), "Utf-16 Big Endian is currently not supported.");
 
-    while (*szUtf16 != '\0')
+    while (*pUtf16 != '\0')
     {
       // decode utf16 to utf32
-      m_Data.PushBack(ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16));
+      m_Data.PushBack(ezUnicodeUtils::DecodeUtf16ToUtf32(pUtf16));
     }
   }
 
@@ -372,16 +372,16 @@ void ezStringUtf32::operator=(const ezUInt16* szUtf16)
 }
 
 
-void ezStringUtf32::operator=(const ezUInt32* szUtf32)
+void ezStringUtf32::operator=(const ezUInt32* pUtf32)
 {
   m_Data.Clear();
 
-  if (szUtf32 != nullptr)
+  if (pUtf32 != nullptr)
   {
-    while (*szUtf32 != '\0')
+    while (*pUtf32 != '\0')
     {
-      m_Data.PushBack(*szUtf32);
-      ++szUtf32;
+      m_Data.PushBack(*pUtf32);
+      ++pUtf32;
     }
   }
 
@@ -389,16 +389,16 @@ void ezStringUtf32::operator=(const ezUInt32* szUtf32)
   m_Data.PushBack('\0');
 }
 
-void ezStringUtf32::operator=(const wchar_t* szWChar)
+void ezStringUtf32::operator=(const wchar_t* pWChar)
 {
   m_Data.Clear();
 
-  if (szWChar != nullptr)
+  if (pWChar != nullptr)
   {
-    while (*szWChar != '\0')
+    while (*pWChar != '\0')
     {
       // decode wchar_t to utf32
-      m_Data.PushBack(ezUnicodeUtils::DecodeWCharToUtf32(szWChar));
+      m_Data.PushBack(ezUnicodeUtils::DecodeWCharToUtf32(pWChar));
     }
   }
 

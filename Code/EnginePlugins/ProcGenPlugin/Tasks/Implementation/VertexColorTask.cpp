@@ -10,9 +10,9 @@
 namespace
 {
   template <typename T>
-  EZ_ALWAYS_INLINE ezProcessingStream MakeStream(ezArrayPtr<T> data, ezUInt32 uiOffset, const ezHashedString& sName)
+  EZ_ALWAYS_INLINE ezProcessingStream MakeStream(ezArrayPtr<T> data, ezUInt32 uiOffset, const ezHashedString& sName, ezProcessingStream::DataType dataType = ezProcessingStream::DataType::Float)
   {
-    return ezProcessingStream(sName, data.ToByteArray().GetSubArray(uiOffset), ezProcessingStream::DataType::Float, sizeof(T));
+    return ezProcessingStream(sName, data.ToByteArray().GetSubArray(uiOffset), dataType, sizeof(T));
   }
 
   EZ_ALWAYS_INLINE float Remap(ezEnum<ezProcVertexColorChannelMapping> channelMapping, const ezColor& srcColor)
@@ -32,21 +32,21 @@ using namespace ezProcGenInternal;
 
 VertexColorTask::VertexColorTask()
 {
-  m_VM.RegisterDefaultFunctions();
-  m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
+  m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_ApplyVolumesFunc);
+  m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_GetInstanceSeedFunc);
 }
 
 VertexColorTask::~VertexColorTask() = default;
 
-void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezUInt32> outputVertexColors)
+void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& desc, const ezTransform& transform, ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezUInt32> outputVertexColors)
 {
   EZ_PROFILE_SCOPE("VertexColorPrepare");
 
   m_InputVertices.Clear();
-  m_InputVertices.Reserve(mbDesc.GetVertexCount());
+  m_InputVertices.Reserve(desc.GetVertexCount());
 
-  const ezVertexDeclarationInfo& vdi = mbDesc.GetVertexDeclaration();
-  const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetPtr();
+  const ezVertexDeclarationInfo& vdi = desc.GetVertexDeclaration();
+  const ezUInt8* pRawVertexData = desc.GetVertexBufferData().GetPtr();
 
   const float* pPositions = nullptr;
   const ezUInt8* pNormals = nullptr;
@@ -100,10 +100,10 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   normalTransform.Invert(0.0f).IgnoreResult();
   normalTransform.Transpose();
 
-  const ezUInt32 uiElementStride = mbDesc.GetVertexDataSize();
+  const ezUInt32 uiElementStride = desc.GetVertexDataSize();
 
   // write out all vertices
-  for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
+  for (ezUInt32 i = 0; i < desc.GetVertexCount(); ++i)
   {
     ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal).IgnoreResult();
 
@@ -111,7 +111,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
     vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));
     vert.m_vNormal = normalTransform.TransformDirection(vNormal).GetNormalized();
     vert.m_Color = pColors != nullptr ? ezColor(*pColors) : ezColor::ZeroColor();
-    vert.m_fIndex = static_cast<float>(i);
+    vert.m_uiIndex = i;
 
     pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
     pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);
@@ -139,6 +139,9 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
       ezProcGenInternal::ExtractVolumeCollections(world, box, *pOutput, m_VolumeCollections, m_GlobalData);
     }
   }
+
+  const ezUInt32 uiTransformHash = ezHashingUtils::xxHash32(&transform, sizeof(ezTransform));
+  ezProcGenInternal::SetInstanceSeed(uiTransformHash, m_GlobalData);
 }
 
 void VertexColorTask::Execute()
@@ -173,15 +176,15 @@ void VertexColorTask::Execute()
       inputs.PushBack(MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_Color.b), ExpressionInputs::s_sColorB));
       inputs.PushBack(MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_Color.a), ExpressionInputs::s_sColorA));
 
-      inputs.PushBack(MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_fIndex), ExpressionInputs::s_sPointIndex));
+      inputs.PushBack(MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_uiIndex), ExpressionInputs::s_sPointIndex, ezProcessingStream::DataType::Int));
     }
 
     ezHybridArray<ezProcessingStream, 8> outputs;
     {
-      outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, r), ExpressionOutputs::s_sR));
-      outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, g), ExpressionOutputs::s_sG));
-      outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, b), ExpressionOutputs::s_sB));
-      outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, a), ExpressionOutputs::s_sA));
+      outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, r), ExpressionOutputs::s_sOutColorR));
+      outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, g), ExpressionOutputs::s_sOutColorG));
+      outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, b), ExpressionOutputs::s_sOutColorB));
+      outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, a), ExpressionOutputs::s_sOutColorA));
     }
 
     // Execute expression bytecode

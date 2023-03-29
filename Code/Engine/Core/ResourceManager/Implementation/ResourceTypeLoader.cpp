@@ -60,9 +60,9 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pR
   return res;
 }
 
-void ezResourceLoaderFromFile::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
+void ezResourceLoaderFromFile::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
-  FileResourceLoadData* pData = static_cast<FileResourceLoadData*>(LoaderData.m_pCustomLoaderData);
+  FileResourceLoadData* pData = static_cast<FileResourceLoadData*>(loaderData.m_pCustomLoaderData);
 
   EZ_DEFAULT_DELETE(pData);
 }
@@ -106,7 +106,7 @@ ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResource* 
   return res;
 }
 
-void ezResourceLoaderFromMemory::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData)
+void ezResourceLoaderFromMemory::CloseDataStream(const ezResource* pResource, const ezResourceLoadData& loaderData)
 {
   m_Reader.SetStorage(nullptr);
 }

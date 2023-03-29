@@ -143,10 +143,10 @@ namespace SourceBSP
     {
     }
 
-    Vertex_t(float _x, float _y, float _z)
-      : x(_x)
-      , y(_y)
-      , z(_z)
+    Vertex_t(float fX, float fY, float fZ)
+      : x(fX)
+      , y(fY)
+      , z(fZ)
     {
     }
 
@@ -321,7 +321,7 @@ namespace SourceBSP
     DispVertex_t* dispVertices = nullptr;
     ezUInt32 numDispVertices = 0;
 
-    const char* getTexDataString(ezUInt32 index) const;
+    const char* getTexDataString(ezUInt32 uiIndex) const;
 
     bool m_valid = false;
   };
@@ -392,11 +392,11 @@ namespace SourceBSP
     m_valid = true;
   }
 
-  const char* File::getTexDataString(ezUInt32 index) const
+  const char* File::getTexDataString(ezUInt32 uiIndex) const
   {
-    EZ_ASSERT_ALWAYS(index < numTexDataStringOffsets, "BSP file tex data string out of bounds.");
+    EZ_ASSERT_ALWAYS(uiIndex < numTexDataStringOffsets, "BSP file tex data string out of bounds.");
 
-    return texDataStrings + texDataStringOffsets[index];
+    return texDataStrings + texDataStringOffsets[uiIndex];
   }
 
 

@@ -44,7 +44,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
   ezResult ComputePickingRay(
-    float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir, ezCameraEye eye = ezCameraEye::Left) const
+    float fScreenPosX, float fScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir, ezCameraEye eye = ezCameraEye::Left) const
   {
     ezVec3 vScreenPos;
     vScreenPos.x = fScreenPosX;
@@ -52,7 +52,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
     vScreenPos.z = 0.0f;
 
     return ezGraphicsUtils::ConvertScreenPosToWorldPos(
-      m_InverseViewProjectionMatrix[static_cast<int>(eye)], 0, 0, 1, 1, vScreenPos, out_RayStartPos, &out_RayDir);
+      m_InverseViewProjectionMatrix[static_cast<int>(eye)], 0, 0, 1, 1, vScreenPos, out_vRayStartPos, &out_vRayDir);
   }
 
   ezResult ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos, ezCameraEye eye = ezCameraEye::Left) const

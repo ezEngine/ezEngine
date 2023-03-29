@@ -228,14 +228,14 @@ void ezRTTI::UnregisterType()
   pTable->m_Table.Remove(m_szTypeName);
 }
 
-void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const
+void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_properties) const
 {
-  out_Properties.Clear();
+  out_properties.Clear();
 
   if (m_pParentType)
-    m_pParentType->GetAllProperties(out_Properties);
+    m_pParentType->GetAllProperties(out_properties);
 
-  out_Properties.PushBackRange(GetProperties());
+  out_properties.PushBackRange(GetProperties());
 }
 
 ezRTTI* ezRTTI::FindTypeByName(const char* szName)
@@ -323,13 +323,13 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchB
   return nullptr;
 }
 
-bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
+bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& ref_msg) const
 {
   EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
                                                      "If this assert is triggered for a type loaded from a dynamic plugin,\n"
                                                      "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
-  const ezUInt32 uiIndex = msg.GetId() - m_uiMsgIdOffset;
+  const ezUInt32 uiIndex = ref_msg.GetId() - m_uiMsgIdOffset;
 
   // m_DynamicMessageHandlers contains all message handlers of this type and all base types
   if (uiIndex < m_DynamicMessageHandlers.GetCount())
@@ -337,7 +337,7 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
     ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers[uiIndex];
     if (pHandler != nullptr)
     {
-      (*pHandler)(pInstance, msg);
+      (*pHandler)(pInstance, ref_msg);
       return true;
     }
   }
@@ -345,13 +345,13 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
   return false;
 }
 
-bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& msg) const
+bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& ref_msg) const
 {
   EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
                                                      "If this assert is triggered for a type loaded from a dynamic plugin,\n"
                                                      "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
-  const ezUInt32 uiIndex = msg.GetId() - m_uiMsgIdOffset;
+  const ezUInt32 uiIndex = ref_msg.GetId() - m_uiMsgIdOffset;
 
   // m_DynamicMessageHandlers contains all message handlers of this type and all base types
   if (uiIndex < m_DynamicMessageHandlers.GetCount())
@@ -359,7 +359,7 @@ bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& msg) const
     ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers[uiIndex];
     if (pHandler != nullptr && pHandler->IsConst())
     {
-      (*pHandler)(pInstance, msg);
+      (*pHandler)(pInstance, ref_msg);
       return true;
     }
   }
@@ -368,23 +368,23 @@ bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& msg) const
 }
 
 const ezDynamicArray<const ezRTTI*>& ezRTTI::GetAllTypesDerivedFrom(
-  const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_DerivedTypes, bool bSortByName)
+  const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_derivedTypes, bool bSortByName)
 {
   for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {
     if (!pRtti->IsDerivedFrom(pBaseType))
       continue;
 
-    out_DerivedTypes.PushBack(pRtti);
+    out_derivedTypes.PushBack(pRtti);
   }
 
   if (bSortByName)
   {
-    out_DerivedTypes.Sort(
-      [](const ezRTTI* r1, const ezRTTI* r2) -> bool { return ezStringUtils::Compare(r1->GetTypeName(), r2->GetTypeName()) < 0; });
+    out_derivedTypes.Sort(
+      [](const ezRTTI* p1, const ezRTTI* p2) -> bool { return ezStringUtils::Compare(p1->GetTypeName(), p2->GetTypeName()) < 0; });
   }
 
-  return out_DerivedTypes;
+  return out_derivedTypes;
 }
 
 void ezRTTI::AssignPlugin(const char* szPluginName)
@@ -407,6 +407,8 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
   }
 }
 
+// warning C4505: 'IsValidIdentifierName': unreferenced function with internal linkage has been removed
+// happens in Release builds, because the function is only used in a debug assert
 #define EZ_MSVC_WARNING_NUMBER 4505
 #include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
@@ -441,6 +443,8 @@ static bool IsValidIdentifierName(const char* szIdentifier)
   return true;
 }
 
+#include <Foundation/Basics/Compiler/MSVC/RestoreWarning_MSVC.h>
+
 void ezRTTI::SanityCheckType(ezRTTI* pType)
 {
   EZ_ASSERT_DEV(pType->GetTypeFlags().IsSet(ezTypeFlags::StandardType) + pType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) +
@@ -453,14 +457,6 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     const ezRTTI* pSpecificType = pProp->GetSpecificType();
 
     EZ_ASSERT_DEBUG(IsValidIdentifierName(pProp->GetPropertyName()), "Property name is invalid: '{0}'", pProp->GetPropertyName());
-
-    // if (!IsValidIdentifierName(pProp->GetPropertyName()))
-    //{
-    //  ezStringBuilder s;
-    //  s.Format("RTTI: {0}\n", pProp->GetPropertyName());
-
-    //  ezLog::Print(s.GetData());
-    //}
 
     if (pProp->GetCategory() != ezPropertyCategory::Function)
     {

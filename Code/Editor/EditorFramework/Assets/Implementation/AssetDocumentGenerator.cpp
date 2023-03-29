@@ -12,38 +12,38 @@ ezAssetDocumentGenerator::ezAssetDocumentGenerator() {}
 
 ezAssetDocumentGenerator::~ezAssetDocumentGenerator() {}
 
-void ezAssetDocumentGenerator::AddSupportedFileType(const char* szExtension)
+void ezAssetDocumentGenerator::AddSupportedFileType(ezStringView sExtension)
 {
-  ezStringBuilder tmp = szExtension;
+  ezStringBuilder tmp = sExtension;
   tmp.ToLower();
 
   m_SupportedFileTypes.PushBack(tmp);
 }
 
-bool ezAssetDocumentGenerator::SupportsFileType(const char* szFile) const
+bool ezAssetDocumentGenerator::SupportsFileType(ezStringView sFile) const
 {
-  ezStringBuilder tmp = ezPathUtils::GetFileExtension(szFile);
+  ezStringBuilder tmp = ezPathUtils::GetFileExtension(sFile);
   tmp.ToLower();
 
   return m_SupportedFileTypes.Contains(tmp);
 }
 
-void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_Filter) const
+void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_sFilter) const
 {
   bool semicolon = false;
-  out_Filter.Format("{0} (", GetDocumentExtension());
-  AppendFileFilterStrings(out_Filter, semicolon);
-  out_Filter.Append(")");
+  out_sFilter.Format("{0} (", GetDocumentExtension());
+  AppendFileFilterStrings(out_sFilter, semicolon);
+  out_sFilter.Append(")");
 }
 
-void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_Filter, bool& semicolon) const
+void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFilter, bool& ref_bSemicolon) const
 {
   for (const ezString ext : m_SupportedFileTypes)
   {
     ezStringBuilder extWithStarDot;
     extWithStarDot.AppendFormat("*.{0}", ext);
 
-    if (const char* pos = out_Filter.FindSubString(extWithStarDot.GetData()))
+    if (const char* pos = out_sFilter.FindSubString(extWithStarDot.GetData()))
     {
       const char afterExt = *(pos + extWithStarDot.GetElementCount());
 
@@ -51,14 +51,14 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_Filt
         continue;
     }
 
-    if (semicolon)
+    if (ref_bSemicolon)
     {
-      out_Filter.AppendFormat("; {0}", extWithStarDot.GetView());
+      out_sFilter.AppendFormat("; {0}", extWithStarDot.GetView());
     }
     else
     {
-      out_Filter.Append(extWithStarDot.GetView());
-      semicolon = true;
+      out_sFilter.Append(extWithStarDot.GetView());
+      ref_bSemicolon = true;
     }
   }
 }
@@ -74,9 +74,7 @@ void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGen
   }
 
   // sort by name
-  out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool {
-    return ezStringUtils::Compare_NoCase(lhs->GetDocumentExtension(), rhs->GetDocumentExtension()) < 0;
-  });
+  out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });
 }
 
 void ezAssetDocumentGenerator::DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
@@ -90,9 +88,9 @@ void ezAssetDocumentGenerator::DestroyGenerators(ezHybridArray<ezAssetDocumentGe
 }
 
 
-void ezAssetDocumentGenerator::ExecuteImport(ezDynamicArray<ImportData>& allImports)
+void ezAssetDocumentGenerator::ExecuteImport(ezDynamicArray<ImportData>& ref_allImports)
 {
-  for (auto& data : allImports)
+  for (auto& data : ref_allImports)
   {
     if (data.m_iSelectedOption < 0)
       continue;
@@ -295,9 +293,7 @@ void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezStri
 
 void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports)
 {
-  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool {
-    return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative;
-  });
+  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool { return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative; });
 
   for (auto& singleImport : allImports)
   {

@@ -11,7 +11,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtFmodProjectSettingsDlg(QWidget* parent);
+  ezQtFmodProjectSettingsDlg(QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonBox_clicked(QAbstractButton* pButton);

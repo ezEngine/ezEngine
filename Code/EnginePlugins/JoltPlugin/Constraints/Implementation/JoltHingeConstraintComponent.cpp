@@ -38,11 +38,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezJoltHingeConstraintComponent::ezJoltHingeConstraintComponent() = default;
 ezJoltHingeConstraintComponent::~ezJoltHingeConstraintComponent() = default;
 
-void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s << m_LimitMode;
   s << m_LowerLimit;
@@ -55,12 +55,12 @@ void ezJoltHingeConstraintComponent::SerializeComponent(ezWorldWriter& stream) c
   s << m_fFriction;
 }
 
-void ezJoltHingeConstraintComponent::DeserializeComponent(ezWorldReader& stream)
+void ezJoltHingeConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
 
   s >> m_LimitMode;
   s >> m_LowerLimit;
@@ -196,3 +196,30 @@ void ezJoltHingeConstraintComponent::ApplySettings()
     pModule->GetJoltSystem()->GetBodyInterface().ActivateBody(pConstraint->GetBody2()->GetID());
   }
 }
+
+bool ezJoltHingeConstraintComponent::ExceededBreakingPoint()
+{
+  if (auto pConstraint = static_cast<JPH::HingeConstraint*>(m_pConstraint))
+  {
+    if (m_fBreakForce > 0)
+    {
+      if (pConstraint->GetTotalLambdaPosition().ReduceMax() >= m_fBreakForce)
+      {
+        return true;
+      }
+    }
+
+    if (m_fBreakTorque > 0)
+    {
+      if (pConstraint->GetTotalLambdaRotation()[0] >= m_fBreakTorque ||
+          pConstraint->GetTotalLambdaRotation()[1] >= m_fBreakTorque)
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltHingeConstraintComponent);

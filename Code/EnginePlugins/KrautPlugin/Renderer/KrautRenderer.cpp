@@ -25,15 +25,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezKrautRenderer::ezKrautRenderer() = default;
 ezKrautRenderer::~ezKrautRenderer() = default;
 
-void ezKrautRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
+void ezKrautRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
-  types.PushBack(ezGetStaticRTTI<ezKrautRenderData>());
+  ref_types.PushBack(ezGetStaticRTTI<ezKrautRenderData>());
 }
 
-void ezKrautRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const
+void ezKrautRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
 {
-  categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
-  categories.PushBack(ezDefaultRenderDataCategories::Selection);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::Selection);
 }
 
 void ezKrautRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

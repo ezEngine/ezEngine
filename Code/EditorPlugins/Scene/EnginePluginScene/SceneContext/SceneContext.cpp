@@ -18,6 +18,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
+#include <RendererCore/Lights/SkyLightComponent.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
@@ -402,7 +403,7 @@ void ezSceneContext::HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* pM
   m_bRenderSelectionBoxes = pMsg->m_bRenderSelectionBoxes;
 
   if (pMsg->m_bAddAmbientLight)
-    AddAmbientLight(true);
+    AddAmbientLight(true, false);
   else
     RemoveAmbientLight();
 }
@@ -465,7 +466,7 @@ void ezSceneContext::OnSimulationEnabled()
 {
   ezLog::Info("World Simulation enabled");
 
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
 
   ezResourceManager::ReloadAllResources(false);
 
@@ -526,14 +527,14 @@ void ezSceneContext::UnregisterLayer(ezLayerContext* pLayer)
     m_Layers.PopBack();
 }
 
-void ezSceneContext::AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& context, const ezTag& layerTag)
+void ezSceneContext::AddLayerIndexTag(const ezEntityMsgToEngine& msg, ezWorldRttiConverterContext& ref_context, const ezTag& layerTag)
 {
   if (msg.m_change.m_Change.m_Operation == ezObjectChangeType::NodeAdded)
   {
     if ((msg.m_change.m_Change.m_sProperty == "Children" || msg.m_change.m_Change.m_sProperty.IsEmpty()) && msg.m_change.m_Change.m_Value.IsA<ezUuid>())
     {
       const ezUuid& object = msg.m_change.m_Change.m_Value.Get<ezUuid>();
-      ezRttiConverterObject target = context.GetObjectByGUID(object);
+      ezRttiConverterObject target = ref_context.GetObjectByGUID(object);
       if (target.m_pType == ezGetStaticRTTI<ezGameObject>() && target.m_pObject != nullptr)
       {
         // We do postpone tagging until after the first frame so that prefab references are instantiated and affected as well.
@@ -566,9 +567,8 @@ void ezSceneContext::OnDeinitialize()
   m_Selection.Clear();
   m_SelectionWithChildren.Clear();
   m_SelectionWithChildrenSet.Clear();
-  m_hAmbientLight[0].Invalidate();
-  m_hAmbientLight[1].Invalidate();
-  m_hAmbientLight[2].Invalidate();
+  m_hSkyLight.Invalidate();
+  m_hDirectionalLight.Invalidate();
   m_LayerTag = ezTag();
   for (ezLayerContext* pLayer : m_Layers)
   {
@@ -634,7 +634,7 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
 
   ezLog::Info("Starting Play-the-Game mode");
 
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
 
   ezResourceManager::ReloadAllResources(false);
 
@@ -797,8 +797,22 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
   }
 }
 
-bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
+  if (!m_Context.m_UnknownTypes.IsEmpty())
+  {
+    ezStringBuilder s;
+
+    s.Append("Scene / prefab export failed: ");
+
+    for (const ezString& sType : m_Context.m_UnknownTypes)
+    {
+      s.AppendFormat("'{}' is unknown. ", sType);
+    }
+
+    return ezStatus(s.GetView());
+  }
+
   // make sure the world has been updated at least once, otherwise components aren't initialized
   // and messages for geometry extraction won't be delivered
   // this is necessary for the scene export modifiers to work
@@ -808,8 +822,8 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
     m_pWorld->Update();
   }
 
-  //#TODO layers
-  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentGuid());
+  // #TODO layers
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), true);
 
   ezDeferredFileWriter file;
   file.SetOutput(pMsg->m_sOutputFile);
@@ -827,12 +841,13 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
     }
 
     const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
-
+    const ezTag& tagNoExport = ezTagRegistry::GetGlobalRegistry().RegisterTag("Exclude From Export");
     const ezTag& tagEditorPrefabInstance = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
     ezTagSet tags;
     tags.Set(tagEditor);
     tags.Set(tagEditorPrefabInstance);
+    tags.Set(tagNoExport);
 
     ezWorldWriter ww;
     ww.WriteWorld(file, *m_pWorld, &tags);
@@ -841,7 +856,10 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
   }
 
   // do the actual file writing
-  return file.Close().Succeeded();
+  if (file.Close().Failed())
+    return ezStatus(ezFmt("Writing to '{}' failed.", pMsg->m_sOutputFile));
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const
@@ -854,6 +872,9 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     const ezRTTI* pComponenType = nullptr;
 
     ezRttiConverterObject obj = m_Context.GetObjectByGUID(esp.m_Object);
+
+    if (obj.m_pType == nullptr)
+      continue;
 
     if (obj.m_pType->IsDerivedFrom<ezGameObject>())
     {
@@ -933,14 +954,13 @@ void ezSceneContext::OnThumbnailViewContextCreated()
   // make sure there is ambient light in the thumbnails
   // TODO: should check whether this is a prefab (info currently not available in ezSceneContext)
   RemoveAmbientLight();
-  AddAmbientLight(false);
+  AddAmbientLight(false, true);
 }
 
 void ezSceneContext::OnDestroyThumbnailViewContext()
 {
   RemoveAmbientLight();
 }
-
 
 void ezSceneContext::UpdateDocumentContext()
 {
@@ -1016,28 +1036,46 @@ bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThu
   return result;
 }
 
-void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
+void ezSceneContext::AddAmbientLight(bool bSetEditorTag, bool bForce)
 {
-  if (!m_hAmbientLight[0].IsInvalidated())
+  if (!m_hSkyLight.IsInvalidated() || !m_hDirectionalLight.IsInvalidated())
     return;
 
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
-  const ezColorGammaUB ambient[3] = {ezColor::White, ezColor::White, ezColor::White};
-  const float intensity[3] = {10, 5, 3};
+  // delay adding ambient light until the scene isn't empty, to prevent adding two skylights
+  if (!bForce && GetWorld()->GetObjectCount() == 0)
+    return;
 
-  for (ezUInt32 i = 0; i < 3; ++i)
+  ezSkyLightComponentManager* pSkyMan = GetWorld()->GetComponentManager<ezSkyLightComponentManager>();
+  if (pSkyMan == nullptr || pSkyMan->GetSingletonComponent() == nullptr)
+  {
+    // only create a skylight, if there is none yet
+
+    ezGameObjectDesc obj;
+    obj.m_sName.Assign("Sky Light");
+
+    if (bSetEditorTag)
+    {
+      const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+      obj.m_Tags.Set(tagEditor); // to prevent it from being exported
+    }
+
+    ezGameObject* pObj;
+    m_hSkyLight = GetWorld()->CreateObject(obj, pObj);
+
+
+    ezSkyLightComponent* pSkyLight = nullptr;
+    ezSkyLightComponent::CreateComponent(pObj, pSkyLight);
+    pSkyLight->SetCubeMapFile("{ 0b202e08-a64f-465d-b38e-15b81d161822 }");
+    pSkyLight->SetReflectionProbeMode(ezReflectionProbeMode::Static);
+  }
+
   {
     ezGameObjectDesc obj;
     obj.m_sName.Assign("Ambient Light");
 
-    /// \todo These settings are crap, but I don't care atm
-    if (i == 0)
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
-    if (i == 1)
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::Degree(30.0f));
-    if (i == 2)
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(220.0f));
+    obj.m_LocalRotation.SetFromEulerAngles(ezAngle::Degree(-14.510815f), ezAngle::Degree(43.07951f), ezAngle::Degree(93.223808f));
 
     if (bSetEditorTag)
     {
@@ -1046,32 +1084,30 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
     }
 
     ezGameObject* pLight;
-    m_hAmbientLight[i] = GetWorld()->CreateObject(obj, pLight);
+    m_hDirectionalLight = GetWorld()->CreateObject(obj, pLight);
 
     ezDirectionalLightComponent* pDirLight = nullptr;
     ezDirectionalLightComponent::CreateComponent(pLight, pDirLight);
-    pDirLight->SetLightColor(ambient[i]);
-    pDirLight->SetIntensity(intensity[i]);
-
-    if (i == 0)
-    {
-      pDirLight->SetCastShadows(true);
-    }
+    pDirLight->SetIntensity(10.0f);
   }
 }
 
 void ezSceneContext::RemoveAmbientLight()
 {
-  if (m_hAmbientLight[0].IsInvalidated())
-    return;
-
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
-  for (ezUInt32 i = 0; i < 3; ++i)
+  if (!m_hSkyLight.IsInvalidated())
   {
     // make sure to remove the object RIGHT NOW, otherwise it may still exist during scene export (without the "Editor" tag)
-    GetWorld()->DeleteObjectNow(m_hAmbientLight[i]);
-    m_hAmbientLight[i].Invalidate();
+    GetWorld()->DeleteObjectNow(m_hSkyLight);
+    m_hSkyLight.Invalidate();
+  }
+
+  if (!m_hDirectionalLight.IsInvalidated())
+  {
+    // make sure to remove the object RIGHT NOW, otherwise it may still exist during scene export (without the "Editor" tag)
+    GetWorld()->DeleteObjectNow(m_hDirectionalLight);
+    m_hDirectionalLight.Invalidate();
   }
 }
 

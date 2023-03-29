@@ -35,10 +35,10 @@ EZ_END_COMPONENT_TYPE;
 RtsShipSteeringComponent::RtsShipSteeringComponent() = default;
 RtsShipSteeringComponent::~RtsShipSteeringComponent() = default;
 
-void RtsShipSteeringComponent::SerializeComponent(ezWorldWriter& stream) const
+void RtsShipSteeringComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  auto& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  auto& s = inout_stream.GetStream();
 
   s << m_fMaxSpeed;
   s << m_fMaxAcceleration;
@@ -46,11 +46,11 @@ void RtsShipSteeringComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fMaxDeceleration;
 }
 
-void RtsShipSteeringComponent::DeserializeComponent(ezWorldReader& stream)
+void RtsShipSteeringComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  auto& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = inout_stream.GetStream();
 
   s >> m_fMaxSpeed;
   s >> m_fMaxAcceleration;
@@ -58,13 +58,13 @@ void RtsShipSteeringComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fMaxDeceleration;
 }
 
-void RtsShipSteeringComponent::OnMsgNavigateTo(RtsMsgNavigateTo& msg)
+void RtsShipSteeringComponent::OnMsgNavigateTo(RtsMsgNavigateTo& ref_msg)
 {
-  m_vTargetPosition = msg.m_vTargetPosition;
+  m_vTargetPosition = ref_msg.m_vTargetPosition;
   m_Mode = RtsShipSteeringComponent::Mode::Steering;
 }
 
-void RtsShipSteeringComponent::OnMsgStopNavigation(RtsMsgStopNavigation& msg)
+void RtsShipSteeringComponent::OnMsgStopNavigation(RtsMsgStopNavigation& ref_msg)
 {
   if (m_Mode == RtsShipSteeringComponent::Mode::Steering)
   {

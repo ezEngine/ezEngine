@@ -17,7 +17,7 @@ struct EZ_CORE_DLL ezKeyState
   };
 
   /// \brief Computes the new key state from a previous key state and whether it is currently pressed or not.
-  static ezKeyState::Enum GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown);
+  static ezKeyState::Enum GetNewKeyState(ezKeyState::Enum prevState, bool bKeyDown);
 };
 
 // clang-format off

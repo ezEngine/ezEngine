@@ -15,11 +15,11 @@ public:
 
   /// \brief Fills out the ezCurve1D structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the curve, that must be called manually.
-  void FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const;
+  void FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_result) const;
 
   ezUInt32 GetCurveCount() const;
 
-  void WriteResource(ezStreamWriter& stream) const;
+  void WriteResource(ezStreamWriter& inout_stream) const;
 
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,

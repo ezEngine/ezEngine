@@ -50,6 +50,8 @@ public:
   virtual ezUuid EnqueObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
   virtual ezRttiConverterObject DequeueObject();
 
+  virtual void OnUnknownTypeError(ezStringView sTypeName);
+
 protected:
   ezHashTable<ezUuid, ezRttiConverterObject> m_GuidToObject;
   mutable ezHashTable<const void*, ezUuid> m_ObjectToGuid;
@@ -77,11 +79,11 @@ public:
   ezAbstractObjectNode* AddSubObjectToGraph(const ezRTTI* pRtti, const void* pObject, const ezUuid& guid, const char* szNodeName);
 
 private:
-  ezRttiConverterContext* m_pContext;
-  ezAbstractObjectGraph* m_pGraph;
+  ezRttiConverterContext* m_pContext = nullptr;
+  ezAbstractObjectGraph* m_pGraph = nullptr;
   FilterFunction m_Filter;
-  bool m_bSerializeReadOnly;
-  bool m_bSerializeOwnerPtrs;
+  bool m_bSerializeReadOnly = false;
+  bool m_bSerializeOwnerPtrs = false;
 };
 
 class EZ_FOUNDATION_DLL ezRttiConverterReader
@@ -96,6 +98,6 @@ private:
   void ApplyProperty(void* pObject, ezAbstractProperty* pProperty, const ezAbstractObjectNode::Property* pSource);
   void CallOnObjectCreated(const ezAbstractObjectNode* pNode, const ezRTTI* pRtti, void* pObject);
 
-  ezRttiConverterContext* m_pContext;
-  const ezAbstractObjectGraph* m_pGraph;
+  ezRttiConverterContext* m_pContext = nullptr;
+  const ezAbstractObjectGraph* m_pGraph = nullptr;
 };

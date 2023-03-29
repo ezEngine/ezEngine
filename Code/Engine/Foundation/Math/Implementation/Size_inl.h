@@ -6,9 +6,9 @@ EZ_ALWAYS_INLINE ezSizeTemplate<Type>::ezSizeTemplate()
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezSizeTemplate<Type>::ezSizeTemplate(Type Width, Type Height)
-  : width(Width)
-  , height(Height)
+EZ_ALWAYS_INLINE ezSizeTemplate<Type>::ezSizeTemplate(Type width, Type height)
+  : width(width)
+  , height(height)
 {
 }
 

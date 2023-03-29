@@ -34,17 +34,17 @@ ezSpatialAnchorComponent::~ezSpatialAnchorComponent()
   }
 }
 
-void ezSpatialAnchorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSpatialAnchorComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
 }
 
-void ezSpatialAnchorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSpatialAnchorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  ezStreamReader& s = stream.GetStream();
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = inout_stream.GetStream();
   if (uiVersion == 1)
   {
     ezString sAnchorName;
