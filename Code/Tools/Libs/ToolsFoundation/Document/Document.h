@@ -66,7 +66,7 @@ public:
 
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
-  const ezUuid& GetGuid() const { return m_pDocumentInfo->m_DocumentID; }
+  const ezUuid GetGuid() const { return m_pDocumentInfo ? m_pDocumentInfo->m_DocumentID : ezUuid(); }
 
   const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager.Borrow(); }
   ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager.Borrow(); }
