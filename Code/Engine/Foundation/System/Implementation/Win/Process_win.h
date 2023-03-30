@@ -51,13 +51,34 @@ struct ezPipeWin
     }
   }
 
+  static void ReportString(ezDelegate<void(ezStringView)> func, ezHybridArray<char, 256>& temp)
+  {
+    ezStringBuilder result;
+
+    ezUnicodeUtils::RepairNonUtf8Text(temp.GetData(), temp.GetData() + temp.GetCount(), result);
+    func(result);
+  }
+
+  static void ReportString(ezDelegate<void(ezStringView)> func, const char* szStart, const char* szEnd)
+  {
+    ezHybridArray<char, 256> tmp;
+
+    while (szStart < szEnd)
+    {
+      tmp.PushBack(*szStart);
+      ++szStart;
+    }
+
+    ReportString(func, tmp);
+  }
+
   void StartRead(ezDelegate<void(ezStringView)>& ref_onStdOut)
   {
     if (m_pipeWrite)
     {
       m_running = true;
       m_readThread = std::thread([&]() {
-        ezStringBuilder overflowBuffer;
+        ezHybridArray<char, 256> overflowBuffer;
 
         constexpr int BUFSIZE = 512;
         char chBuf[BUFSIZE];
@@ -69,13 +90,14 @@ struct ezPipeWin
           {
             if (!overflowBuffer.IsEmpty())
             {
-              ref_onStdOut(overflowBuffer);
+              ReportString(ref_onStdOut, overflowBuffer);
             }
             break;
           }
 
           const char* szCurrentPos = chBuf;
           const char* szEndPos = chBuf + bytesRead;
+
           while (szCurrentPos < szEndPos)
           {
             const char* szFound = ezStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
@@ -84,26 +106,39 @@ struct ezPipeWin
               if (overflowBuffer.IsEmpty())
               {
                 // If there is nothing in the overflow buffer this is a complete line and can be fired as is.
-                ref_onStdOut(ezStringView(szCurrentPos, szFound + 1));
+                ReportString(ref_onStdOut, szCurrentPos, szFound + 1);
               }
               else
               {
                 // We have data in the overflow buffer so this is the final part of a partial line so we need to complete and fire the overflow buffer.
-                overflowBuffer.Append(ezStringView(szCurrentPos, szFound + 1));
-                ref_onStdOut(overflowBuffer);
+
+                while (szCurrentPos < szFound + 1)
+                {
+                  overflowBuffer.PushBack(*szCurrentPos);
+                  ++szCurrentPos;
+                }
+
+                ReportString(ref_onStdOut, overflowBuffer);
+
                 overflowBuffer.Clear();
               }
+
               szCurrentPos = szFound + 1;
             }
             else
             {
               // This is either the start or a middle segment of a line, append to overflow buffer.
-              overflowBuffer.Append(ezStringView(szCurrentPos, szEndPos));
-              szCurrentPos = szEndPos;
+
+              while (szCurrentPos < szEndPos)
+              {
+                overflowBuffer.PushBack(*szCurrentPos);
+                ++szCurrentPos;
+              }
             }
           }
         }
         m_running = false;
+        //
       });
     }
   }

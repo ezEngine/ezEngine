@@ -69,14 +69,9 @@ void ezQtLogModel::AddLogMsg(const ezLogEntry& msg)
     m_NewMessages.PushBack(msg);
   }
 
-  if (QThread::currentThread() == thread())
-  {
-    ProcessNewMessages();
-  }
-  else
-  {
-    QMetaObject::invokeMethod(this, "ProcessNewMessages", Qt::ConnectionType::QueuedConnection);
-  }
+  // always queue the message processing, otherwise it can happen that an error during this
+  // triggers recursive logging, which is forbidden
+  QMetaObject::invokeMethod(this, "ProcessNewMessages", Qt::ConnectionType::QueuedConnection);
 
   return;
 }
