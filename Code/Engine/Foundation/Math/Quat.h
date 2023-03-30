@@ -109,6 +109,11 @@ public:
   /// representations for 'identity', so it's difficult to check for it).
   bool IsEqualRotation(const ezQuatTemplate& qOther, Type fEpsilon) const; // [tested]
 
+  /// \brief Inverts the rotation, so instead of rotating N degrees around its axis, the quaternion will rotate -N degrees around that axis.
+  ///
+  /// This modifies the quaternion in place. If you want to get the inverse as a copy, use the negation operator (-).
+  void Invert();
+
   // *** Operators ***
 public:
   /// \brief Returns a Quaternion that represents the negative / inverted rotation.

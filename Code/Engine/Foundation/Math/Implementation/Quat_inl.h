@@ -85,6 +85,14 @@ ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out
 }
 
 template <typename Type>
+EZ_FORCE_INLINE void ezQuatTemplate<Type>::Invert()
+{
+  EZ_NAN_ASSERT(this);
+
+  *this = -(*this);
+}
+
+template <typename Type>
 EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::operator-() const
 {
   EZ_NAN_ASSERT(this);
