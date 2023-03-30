@@ -314,12 +314,13 @@ ezResult ezTexConvProcessor::GenerateLowResOutput(const ezImage& srcImg, ezImage
 
   EZ_PROFILE_SCOPE("GenerateLowResOutput");
 
-  if (srcImg.GetNumMipLevels() <= uiLowResMip)
-  {
-    // probably just a low-resolution input image, do not generate output, but also do not fail
-    ezLog::Warning("LowRes image not generated, original resolution is already below threshold.");
-    return EZ_SUCCESS;
-  }
+  // don't early out here in this case, otherwise external processes may consider the output to be incomplete
+  //if (srcImg.GetNumMipLevels() <= uiLowResMip)
+  //{
+  //  // probably just a low-resolution input image, do not generate output, but also do not fail
+  //  ezLog::Warning("LowRes image not generated, original resolution is already below threshold.");
+  //  return EZ_SUCCESS;
+  //}
 
   if (ezImageUtils::ExtractLowerMipChain(srcImg, dstImg, uiLowResMip).Failed())
   {
