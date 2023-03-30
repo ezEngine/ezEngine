@@ -118,7 +118,15 @@ public:
 
     Container* m_pContainer;
   };
-};
 
+  /// \brief Checks an array of char's, whether it is a valid Utf8 string. If not, it repairs the string, ie by either re-encoding characters or removing them.
+  /// Writes the result to the desired container type (ezString or ezStringBuilder).
+  ///
+  /// Returns true if the text had to be repaired, false if it was already valid.
+  ///
+  /// \note That the for #include order reasons, the implementation is in StringBuilder_inl.h, so you need to have StringBuilder.h included to use it.
+  template <typename Container>
+  static bool RepairNonUtf8Text(const char* pStartData, const char* pEndData, Container& out_Result);
+};
 
 #include <Foundation/Strings/Implementation/UnicodeUtils_inl.h>
