@@ -374,6 +374,19 @@ EZ_ALWAYS_INLINE void ezStaticBitfield<T>::ClearBit(ezUInt32 uiBit)
 }
 
 template <typename T>
+EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetBitValue(ezUInt32 uiBit, bool bValue)
+{
+  if (bValue)
+  {
+    SetBit(uiBit);
+  }
+  else
+  {
+    ClearBit(uiBit);
+  }
+}
+
+template <typename T>
 EZ_ALWAYS_INLINE void ezStaticBitfield<T>::SetBit(ezUInt32 uiBit)
 {
   EZ_ASSERT_DEBUG(uiBit < GetNumBits(), "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, GetNumBits());

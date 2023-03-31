@@ -109,6 +109,9 @@ public:
   /// \brief Clears the given bit to 0.
   void ClearBit(ezUInt32 uiBit); // [tested]
 
+  /// \brief Sets the given bit to 1 or 0 dependen on the given value.
+  void SetBitValue(ezUInt32 uiBit, bool bValue);
+
   /// \brief Returns true, if the given bit is set to 1.
   bool IsBitSet(ezUInt32 uiBit) const; // [tested]
 
