@@ -56,6 +56,8 @@ namespace ezModelImporter2
       uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
     }
 
+
+
     m_pScene = m_Importer.ReadFile(m_Options.m_sSourceFile, uiAssimpFlags);
     if (m_pScene == nullptr)
     {
@@ -116,6 +118,28 @@ namespace ezModelImporter2
         {
           ezLog::Error("Recomputing the mesh tangents failed.");
           // do not return failure here, because we can still continue
+        }
+      }
+    }
+
+    if (m_pScene->mNumTextures > 0 && m_pScene->mTextures)
+    {
+      for (ezUInt32 i = 0; i < m_pScene->mNumTextures; ++i)
+      {
+        const auto& st = *m_pScene->mTextures[i];
+        ezStringBuilder fileName = st.mFilename.C_Str();
+
+        if (fileName.IsEmpty())
+        {
+          fileName.Format("*{}", i);
+        }
+
+        auto& tex = m_OutputTextures[fileName];
+
+        if (st.mHeight == 0 && st.mWidth > 0)
+        {
+          tex.m_sFileFormatExtension = st.achFormatHint;
+          tex.m_RawData = ezMakeArrayPtr((const ezUInt8*)st.pcData, st.mWidth);
         }
       }
     }
