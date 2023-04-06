@@ -62,7 +62,8 @@ namespace ezModelImporter2
 
   struct EZ_MODELIMPORTER2_DLL OutputTexture
   {
-    ezDataBuffer m_EmbeddedData; ///< Not yet used / implemented
+    ezString m_sFileFormatExtension;
+    ezConstByteArrayPtr m_RawData;
   };
 
   struct EZ_MODELIMPORTER2_DLL OutputMaterial
