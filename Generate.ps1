@@ -69,6 +69,8 @@ elseif ($Target -eq "Uwp64vs2019") {
 
     Write-Host "=== Generating Solution for Visual Studio 2019 x64 UWP ==="
 
+    $CMAKE_ARGS += "-DEZ_ENABLE_QT_SUPPORT:BOOL=OFF"
+
     $CMAKE_ARGS += "Visual Studio 16 2019"
     $CMAKE_ARGS += "-A"
     $CMAKE_ARGS += "x64"
@@ -89,6 +91,8 @@ elseif ($Target -eq "Win64vs2022") {
 elseif ($Target -eq "Uwp64vs2022") {
 
     Write-Host "=== Generating Solution for Visual Studio 2022 x64 UWP ==="
+
+    $CMAKE_ARGS += "-DEZ_ENABLE_QT_SUPPORT:BOOL=OFF"
 
     $CMAKE_ARGS += "Visual Studio 17 2022"
     $CMAKE_ARGS += "-A"
