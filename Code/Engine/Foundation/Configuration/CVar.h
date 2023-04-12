@@ -109,10 +109,10 @@ public:
   /// so \a szFolder must not be a file name, but only a path to a folder.
   ///
   /// After setting the storage folder, one should immediately load all CVars via LoadCVars.
-  static void SetStorageFolder(const char* szFolder); // [tested]
+  static void SetStorageFolder(ezStringView sFolder); // [tested]
 
   /// \brief Searches all CVars for one with the given name. Returns nullptr if no CVar could be found. The name is case-sensitive.
-  static ezCVar* FindCVarByName(const char* szName); // [tested]
+  static ezCVar* FindCVarByName(ezStringView sName); // [tested]
 
   /// \brief Stores all CVar values in files in the storage folder, that must have been set via 'SetStorageFolder'.
   ///
@@ -156,13 +156,13 @@ public:
   virtual void SetToRestartValue() = 0; // [tested]
 
   /// \brief Returns the (display) name of the CVar.
-  const char* GetName() const { return m_szName; } // [tested]
+  ezStringView GetName() const { return m_sName; } // [tested]
 
   /// \brief Returns the type of the CVar.
   virtual ezCVarType::Enum GetType() const = 0; // [tested]
 
   /// \brief Returns the description of the CVar.
-  const char* GetDescription() const { return m_szDescription; } // [tested]
+  ezStringView GetDescription() const { return m_sDescription; } // [tested]
 
   /// \brief Returns all the CVar flags.
   ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
@@ -174,31 +174,27 @@ public:
   static ezEvent<const ezCVarEvent&> s_AllCVarEvents;
 
   /// \brief Returns the name of the plugin which this CVar is declared in.
-  const char* GetPluginName() const { return m_szPluginName; }
+  ezStringView GetPluginName() const { return m_sPluginName; }
 
   /// \brief Call this after creating or destroying CVars dynamically (not through loading plugins) to allow UIs to update their state.
   ///
   /// Broadcasts ezCVarEvent::ListOfVarsChanged.
-  static void ListOfCVarsChanged(const char* szSetPluginNameTo);
+  static void ListOfCVarsChanged(ezStringView sSetPluginNameTo);
 
 protected:
-  ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
-
-  void RegisterCVarTelemetryChangeCB();
-
-  static void TelemetryMessage(void* pPassThrough);
+  ezCVar(ezStringView sName, ezBitflags<ezCVarFlags> Flags, ezStringView sDescription);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
 
-  static void AssignSubSystemPlugin(const char* szPluginName);
+  static void AssignSubSystemPlugin(ezStringView sPluginName);
   static void PluginEventHandler(const ezPluginEvent& EventData);
 
 
   bool m_bHasNeverBeenLoaded;
-  const char* m_szName;
-  const char* m_szDescription;
-  const char* m_szPluginName;
+  ezStringView m_sName;
+  ezStringView m_sDescription;
+  ezStringView m_sPluginName;
   ezBitflags<ezCVarFlags> m_Flags;
 
   static ezString s_sStorageFolder;
@@ -223,7 +219,7 @@ template <typename Type, ezCVarType::Enum CVarType>
 class ezTypedCVar : public ezCVar
 {
 public:
-  ezTypedCVar(const char* szName, const Type& value, ezBitflags<ezCVarFlags> flags, const char* szDescription);
+  ezTypedCVar(ezStringView sName, const Type& value, ezBitflags<ezCVarFlags> flags, ezStringView sDescription);
 
   /// \brief Returns the 'current' value of the CVar. Same as 'GetValue(ezCVarValue::Current)'
   operator const Type&() const; // [tested]

@@ -8,8 +8,8 @@ public:
 
   FUNC m_Func;
 
-  ezConsoleFunction(const char* szFunctionName, const char* szDescription, FUNC f)
-    : ezConsoleFunctionBase(szFunctionName, szDescription)
+  ezConsoleFunction(ezStringView sFunctionName, ezStringView sDescription, FUNC f)
+    : ezConsoleFunctionBase(sFunctionName, sDescription)
   {
     m_Func = f;
   }

@@ -56,14 +56,14 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezString ezCVar::s_sStorageFolder;
 ezEvent<const ezCVarEvent&> ezCVar::s_AllCVarEvents;
 
-void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
+void ezCVar::AssignSubSystemPlugin(ezStringView sPluginName)
 {
   ezCVar* pCVar = ezCVar::GetFirstInstance();
 
   while (pCVar)
   {
-    if (pCVar->m_szPluginName == nullptr)
-      pCVar->m_szPluginName = szPluginName;
+    if (pCVar->m_sPluginName.IsEmpty())
+      pCVar->m_sPluginName = sPluginName;
 
     pCVar = pCVar->GetNextInstance();
   }
@@ -104,29 +104,28 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
   }
 }
 
-ezCVar::ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
+ezCVar::ezCVar(ezStringView sName, ezBitflags<ezCVarFlags> Flags, ezStringView sDescription)
 {
-  m_szPluginName = nullptr;     // will be filled out when plugins are loaded
   m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
 
-  m_szName = szName;
+  m_sName = sName;
   m_Flags = Flags;
-  m_szDescription = szDescription;
+  m_sDescription = sDescription;
 
   // 'RequiresRestart' only works together with 'Save'
   if (m_Flags.IsAnySet(ezCVarFlags::RequiresRestart))
     m_Flags.Add(ezCVarFlags::Save);
 
-  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(m_szDescription), "Please add a useful description for CVar '{}'.", szName);
+  EZ_ASSERT_DEV(!m_sDescription.IsEmpty(), "Please add a useful description for CVar '{}'.", sName);
 }
 
-ezCVar* ezCVar::FindCVarByName(const char* szName)
+ezCVar* ezCVar::FindCVarByName(ezStringView sName)
 {
   ezCVar* pCVar = ezCVar::GetFirstInstance();
 
   while (pCVar)
   {
-    if (ezStringUtils::IsEqual(pCVar->GetName(), szName))
+    if (pCVar->GetName() == sName)
       return pCVar;
 
     pCVar = pCVar->GetNextInstance();
@@ -135,9 +134,9 @@ ezCVar* ezCVar::FindCVarByName(const char* szName)
   return nullptr;
 }
 
-void ezCVar::SetStorageFolder(const char* szFolder)
+void ezCVar::SetStorageFolder(ezStringView sFolder)
 {
-  s_sStorageFolder = szFolder;
+  s_sStorageFolder = sFolder;
 }
 
 ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
@@ -161,8 +160,8 @@ void ezCVar::SaveCVars()
       // only store cvars that should be saved
       if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
       {
-        if (pCVar->m_szPluginName != nullptr)
-          PluginCVars[pCVar->m_szPluginName].PushBack(pCVar);
+        if (!pCVar->m_sPluginName.IsEmpty())
+          PluginCVars[pCVar->m_sPluginName].PushBack(pCVar);
         else
           PluginCVars["Static"].PushBack(pCVar);
       }
@@ -337,8 +336,8 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue)
       {
         if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
         {
-          if (pCVar->m_szPluginName != nullptr)
-            PluginCVars[pCVar->m_szPluginName].PushBack(pCVar);
+          if (!pCVar->m_sPluginName.IsEmpty())
+            PluginCVars[pCVar->m_sPluginName].PushBack(pCVar);
           else
             PluginCVars["Static"].PushBack(pCVar);
         }
@@ -514,9 +513,9 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
   }
 }
 
-void ezCVar::ListOfCVarsChanged(const char* szSetPluginNameTo)
+void ezCVar::ListOfCVarsChanged(ezStringView sSetPluginNameTo)
 {
-  AssignSubSystemPlugin(szSetPluginNameTo);
+  AssignSubSystemPlugin(sSetPluginNameTo);
 
   LoadCVars();
 
