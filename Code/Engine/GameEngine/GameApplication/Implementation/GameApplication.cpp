@@ -380,6 +380,11 @@ void ezGameApplication::Init_ConfigureInput()
       ezGameAppInputConfig::ApplyAll(InputActions);
     }
   }
+
+  if (m_pConsole)
+  {
+    m_pConsole->LoadInputHistory(":appdata/ConsoleInputHistory.cfg");
+  }
 }
 
 bool ezGameApplication::Run_ProcessApplicationInput()
@@ -392,7 +397,10 @@ bool ezGameApplication::Run_ProcessApplicationInput()
     if (m_bShowConsole)
       ezInputManager::SetExclusiveInputSet("Console");
     else
+    {
       ezInputManager::SetExclusiveInputSet("");
+      m_pConsole->SaveInputHistory(":appdata/ConsoleInputHistory.cfg").IgnoreResult();
+    }
   }
 
   if (ezInputManager::GetInputActionState(s_szInputSet, s_szShowFpsAction) == ezKeyState::Pressed)

@@ -153,7 +153,7 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_state)
     ezConsoleFunctionBase* pFunc = ezConsoleFunctionBase::GetFirstInstance();
     while (pFunc)
     {
-      Script.RegisterCFunction(pFunc->GetName(), LUAFUNC_ConsoleFunc, pFunc);
+      Script.RegisterCFunction(pFunc->GetName().GetData(sTemp), LUAFUNC_ConsoleFunc, pFunc);
 
       pFunc = pFunc->GetNextInstance();
     }
@@ -200,7 +200,7 @@ void ezCommandInterpreterLua::Interpret(ezCommandInterpreterState& inout_state)
       sTemp.Format("{0} = {1}", sRealVarName, ezQuakeConsole::GetFullInfoAsString(pCVAR));
       inout_state.AddOutputLine(sTemp);
 
-      if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))
+      if (!pCVAR->GetDescription().IsEmpty())
       {
         sTemp.Format("  Description: {0}", pCVAR->GetDescription());
         inout_state.AddOutputLine(sTemp, ezConsoleString::Type::Success);

@@ -12,14 +12,14 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 #define ezCVarValueRestart ezCVarValue::Restart
 
 // Interestingly using 'ezCVarValue::Default' directly inside a macro does not work. (?!)
-#define CHECK_CVAR(var, Current, Default, Stored, Restart)                                                                                           \
-  EZ_TEST_BOOL(var != nullptr);                                                                                                                      \
-  if (var != nullptr)                                                                                                                                \
-  {                                                                                                                                                  \
-    EZ_TEST_BOOL(var->GetValue() == Current);                                                                                                        \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default);                                                                                      \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored);                                                                                        \
-    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart);                                                                                      \
+#define CHECK_CVAR(var, Current, Default, Stored, Restart)      \
+  EZ_TEST_BOOL(var != nullptr);                                 \
+  if (var != nullptr)                                           \
+  {                                                             \
+    EZ_TEST_BOOL(var->GetValue() == Current);                   \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default); \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueStored) == Stored);   \
+    EZ_TEST_BOOL(var->GetValue(ezCVarValueRestart) == Restart); \
   }
 
 static ezInt32 iChangedValue = 0;
@@ -186,8 +186,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       if (pInt)
       {
         EZ_TEST_BOOL(pInt->GetType() == ezCVarType::Int);
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pInt->GetName(), "test1_Int"));
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pInt->GetDescription(), "Desc: test1_Int"));
+        EZ_TEST_BOOL(pInt->GetName() == "test1_Int");
+        EZ_TEST_BOOL(pInt->GetDescription() == "Desc: test1_Int");
 
         pInt->m_CVarEvents.AddEventHandler(ChangedCVar);
 
@@ -208,8 +208,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       if (pFloat)
       {
         EZ_TEST_BOOL(pFloat->GetType() == ezCVarType::Float);
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pFloat->GetName(), "test1_Float"));
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pFloat->GetDescription(), "Desc: test1_Float"));
+        EZ_TEST_BOOL(pFloat->GetName() == "test1_Float");
+        EZ_TEST_BOOL(pFloat->GetDescription() == "Desc: test1_Float");
 
         pFloat->m_CVarEvents.AddEventHandler(ChangedCVar);
 
@@ -237,8 +237,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       if (pBool)
       {
         EZ_TEST_BOOL(pBool->GetType() == ezCVarType::Bool);
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pBool->GetName(), "test1_Bool"));
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pBool->GetDescription(), "Desc: test1_Bool"));
+        EZ_TEST_BOOL(pBool->GetName() == "test1_Bool");
+        EZ_TEST_BOOL(pBool->GetDescription() == "Desc: test1_Bool");
 
         *pBool = true;
         CHECK_CVAR(pBool, true, false, false, true);
@@ -250,8 +250,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       if (pString)
       {
         EZ_TEST_BOOL(pString->GetType() == ezCVarType::String);
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pString->GetName(), "test1_String"));
-        EZ_TEST_BOOL(ezStringUtils::IsEqual(pString->GetDescription(), "Desc: test1_String"));
+        EZ_TEST_BOOL(pString->GetName() == "test1_String");
+        EZ_TEST_BOOL(pString->GetDescription() == "Desc: test1_String");
 
         *pString = "test1_value2";
         CHECK_CVAR(pString, "test1_value2", "test1", "test1", "test1_value2");

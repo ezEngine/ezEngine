@@ -2,6 +2,8 @@
 
 #include <Core/Console/LuaInterpreter.h>
 #include <Core/Console/QuakeConsole.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezConsoleFunctionBase);
 
@@ -390,6 +392,44 @@ void ezConsole::RetrieveInputHistory(ezInt32 iHistoryUp, ezStringBuilder& ref_sR
   if (!m_InputHistory[m_iCurrentInputHistoryElement].IsEmpty())
   {
     ref_sResult = m_InputHistory[m_iCurrentInputHistoryElement];
+  }
+}
+
+ezResult ezConsole::SaveInputHistory(ezStringView sFile)
+{
+  ezFileWriter file;
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
+
+  ezStringBuilder str;
+
+  for (const ezString& line : m_InputHistory)
+  {
+    if (line.IsEmpty())
+      continue;
+
+    str.Set(line, "\n");
+
+    EZ_SUCCEED_OR_RETURN(file.WriteBytes(str.GetData(), str.GetElementCount()));
+  }
+
+  return EZ_SUCCESS;
+}
+
+void ezConsole::LoadInputHistory(ezStringView sFile)
+{
+  ezFileReader file;
+  if (file.Open(sFile).Failed())
+    return;
+
+  ezStringBuilder str;
+  str.ReadAll(file);
+
+  ezHybridArray<ezStringView, 32> lines;
+  str.Split(false, lines, "\n", "\r");
+
+  for (ezUInt32 i = 0; i < lines.GetCount(); ++i)
+  {
+    AddToInputHistory(lines[lines.GetCount() - 1 - i]);
   }
 }
 
