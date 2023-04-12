@@ -32,7 +32,7 @@ protected Q_SLOTS:
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox(ezInt32 iPurpose);
+  void QueryObjectBBox(ezInt32 iPurpose = 0);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   bool UpdatePreview();
 

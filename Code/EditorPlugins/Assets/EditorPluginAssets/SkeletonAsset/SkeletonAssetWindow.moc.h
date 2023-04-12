@@ -26,7 +26,7 @@ protected:
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox(ezInt32 iPurpose);
+  void QueryObjectBBox(ezInt32 iPurpose = 0);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void SkeletonAssetEventHandler(const ezSkeletonAssetEvent& e);
 

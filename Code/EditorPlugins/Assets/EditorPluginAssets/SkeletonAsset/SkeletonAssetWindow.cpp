@@ -45,7 +45,7 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig, true);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0, 0, 1), ezVec3(10.0f), ezVec3(-5, 1, 2));
+    m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
     pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "SkeletonAssetViewToolBar");
     setCentralWidget(pContainer);
@@ -81,8 +81,6 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
   GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::CommandEventHandler, this));
 
   FinishWindowCreation();
-
-  QueryObjectBBox(0);
 }
 
 ezQtSkeletonAssetDocumentWindow::~ezQtSkeletonAssetDocumentWindow()
@@ -151,10 +149,10 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
     pView->SyncToEngine();
   }
 
-  QueryObjectBBox(-1);
+  QueryObjectBBox();
 }
 
-void ezQtSkeletonAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
+void ezQtSkeletonAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose /*= 0*/)
 {
   ezQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
@@ -289,11 +287,9 @@ void ezQtSkeletonAssetDocumentWindow::ProcessMessageEventHandler(const ezEditorE
 
     if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid())
     {
-      const ezVec3 vHalfExtents = pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f));
-
-      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
+      m_pViewWidget->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents.CompMax(ezVec3(0.1f)));
     }
-    else if (pMessage->m_iPurpose == 0)
+    else
     {
       // try again
       QueryObjectBBox(pMessage->m_iPurpose);

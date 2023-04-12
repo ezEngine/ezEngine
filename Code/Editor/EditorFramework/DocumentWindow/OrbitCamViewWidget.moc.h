@@ -14,14 +14,18 @@ public:
   ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig, bool bPicking = false);
   ~ezQtOrbitCamViewWidget();
 
-  void ConfigureOrbitCameraVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition);
+  void ConfigureFixed(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vCamPosition);
+  void ConfigureRelative(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vCamDirection, float fCamDistanceScale);
+
+  void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize);
 
   ezOrbitCameraContext* GetOrbitCamera();
-
 
   virtual void SyncToEngine() override;
 
 private:
+  bool m_bSetDefaultCamPos = true;
+
   ezUniquePtr<ezOrbitCameraContext> m_pOrbitCameraContext;
   ezUniquePtr<ezSelectionContext> m_pSelectionContext;
 };

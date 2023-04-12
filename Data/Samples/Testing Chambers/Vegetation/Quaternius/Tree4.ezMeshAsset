@@ -14,7 +14,7 @@ o
 			s{"Vegetation/Quaternius/Tree4.fbx"}
 		}
 		Uuid %DocumentID{u4{15161069987595283885,5114199460025476296}}
-		u4 %Hash{10420116242101834105}
+		u4 %Hash{11425879192967618597}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -71,7 +71,7 @@ o
 		f %Radius2{0x0000003F}
 		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
-		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %RightDir{"ezBasisAxis::PositiveZ"}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
