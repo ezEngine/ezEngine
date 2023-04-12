@@ -77,6 +77,7 @@ elseif ($Target -eq "Uwp64vs2019") {
     $CMAKE_ARGS += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot\Code\BuildSystem\CMake\toolchain-winstore.cmake"
 
     $CMAKE_ARGS += "-DEZ_ENABLE_QT_SUPPORT:BOOL=OFF"
+    $CMAKE_ARGS += "-DEZ_BUILD_FILTER='UwpProjects'"
 }
 elseif ($Target -eq "Win64vs2022") {
 
@@ -100,6 +101,7 @@ elseif ($Target -eq "Uwp64vs2022") {
     $CMAKE_ARGS += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot\Code\BuildSystem\CMake\toolchain-winstore.cmake"
 
     $CMAKE_ARGS += "-DEZ_ENABLE_QT_SUPPORT:BOOL=OFF"
+    $CMAKE_ARGS += "-DEZ_BUILD_FILTER='UwpProjects'"
 }
 else {
     throw "Unknown target '$Target'."
