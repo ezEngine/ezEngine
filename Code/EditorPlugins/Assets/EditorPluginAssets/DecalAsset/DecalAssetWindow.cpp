@@ -46,7 +46,7 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureOrbitCameraVolume(ezVec3(0), ezVec3(0.0f), ezVec3(2, 0, 0));
+    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(2, 0, 0));
     AddViewWidget(m_pViewWidget);
 
     ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "DecalAssetViewToolBar");

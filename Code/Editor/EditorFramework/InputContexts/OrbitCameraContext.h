@@ -14,8 +14,13 @@ public:
   void SetCamera(ezCamera* pCamera);
   ezCamera* GetCamera() const;
 
+  void SetDefaultCameraRelative(const ezVec3& vDirection, float fDistanceScale);
+  void SetDefaultCameraFixed(const ezVec3& vPosition);
+
+  void MoveCameraToDefaultPosition();
+
   /// \brief Defines the box in which the user may move the camera around
-  void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat);
+  void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize);
 
   /// \brief The center point around which the camera can be moved and rotated.
   ezVec3 GetVolumeCenter() const { return m_Volume.GetCenter(); }
@@ -31,13 +36,14 @@ protected:
   virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
   virtual ezEditorInput DoWheelEvent(QWheelEvent* e) override;
   virtual ezEditorInput DoKeyPressEvent(QKeyEvent* e) override;
+  virtual ezEditorInput DoKeyReleaseEvent(QKeyEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
-
-
 private:
-  virtual void UpdateContext() override{};
+  virtual void UpdateContext() override;
+
+  float GetCameraSpeed() const;
 
   void ResetCursor();
   void SetCurrentMouseMode();
@@ -48,16 +54,25 @@ private:
   {
     Off,
     Orbit,
-    UpDown,
-    MovePlane,
+    Free,
     Pan,
   };
 
-  Mode m_Mode;
+  Mode m_Mode = Mode::Off;
   ezCamera* m_pCamera;
 
-  ezVec3 m_vDefaultCameraPosition;
-  ezVec3 m_vOrbitPoint;
-
   ezBoundingBox m_Volume;
+
+  bool m_bFixedDefaultCamera = true;
+  ezVec3 m_vDefaultCamera = ezVec3(1, 0, 0);
+
+  bool m_bRun = false;
+  bool m_bMoveForwards = false;
+  bool m_bMoveBackwards = false;
+  bool m_bMoveRight = false;
+  bool m_bMoveLeft = false;
+  bool m_bMoveUp = false;
+  bool m_bMoveDown = false;
+
+  ezTime m_LastUpdate;
 };

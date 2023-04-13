@@ -1149,12 +1149,12 @@ void ezAssetCurator::NeedsReloadResources(const ezUuid& assetGuid)
   }
 }
 
-void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& deps, bool bIncludeTransformDeps, bool bIncludeThumbnailDeps, bool bIncludePackageDeps) const
+void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& inout_deps, bool bIncludeTransformDeps, bool bIncludeThumbnailDeps, bool bIncludePackageDeps) const
 {
   EZ_LOCK(m_CuratorMutex);
 
   ezHybridArray<ezString, 6> toDoList;
-  deps.Insert(sAssetOrPath);
+  inout_deps.Insert(sAssetOrPath);
   toDoList.PushBack(sAssetOrPath);
 
   while (!toDoList.IsEmpty())
@@ -1171,9 +1171,9 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_TransformDependencies)
         {
-          if (!deps.Contains(dep))
+          if (!inout_deps.Contains(dep))
           {
-            deps.Insert(dep);
+            inout_deps.Insert(dep);
             toDoList.PushBack(dep);
           }
         }
@@ -1182,9 +1182,9 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_ThumbnailDependencies)
         {
-          if (!deps.Contains(dep))
+          if (!inout_deps.Contains(dep))
           {
-            deps.Insert(dep);
+            inout_deps.Insert(dep);
             toDoList.PushBack(dep);
           }
         }
@@ -1193,9 +1193,9 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_PackageDependencies)
         {
-          if (!deps.Contains(dep))
+          if (!inout_deps.Contains(dep))
           {
-            deps.Insert(dep);
+            inout_deps.Insert(dep);
             toDoList.PushBack(dep);
           }
         }
@@ -1204,13 +1204,13 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
   }
 }
 
-void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo, ezSet<ezUuid>& inverseDeps, bool bIncludeTransformDebs, bool bIncludeThumbnailDebs) const
+void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo, ezSet<ezUuid>& inout_inverseDeps, bool bIncludeTransformDebs, bool bIncludeThumbnailDebs) const
 {
   EZ_LOCK(m_CuratorMutex);
 
   ezHybridArray<const ezAssetInfo*, 6> toDoList;
   toDoList.PushBack(pAssetInfo);
-  inverseDeps.Insert(pAssetInfo->m_Info->m_DocumentID);
+  inout_inverseDeps.Insert(pAssetInfo->m_Info->m_DocumentID);
 
   while (!toDoList.IsEmpty())
   {
@@ -1223,13 +1223,13 @@ void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo
       {
         for (const ezUuid& asset : it.Value())
         {
-          if (!inverseDeps.Contains(asset))
+          if (!inout_inverseDeps.Contains(asset))
           {
             ezAssetInfo* pAssetInfo = nullptr;
             if (m_KnownAssets.TryGetValue(asset, pAssetInfo))
             {
               toDoList.PushBack(pAssetInfo);
-              inverseDeps.Insert(asset);
+              inout_inverseDeps.Insert(asset);
             }
           }
         }
@@ -1242,13 +1242,13 @@ void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo
       {
         for (const ezUuid& asset : it.Value())
         {
-          if (!inverseDeps.Contains(asset))
+          if (!inout_inverseDeps.Contains(asset))
           {
             ezAssetInfo* pAssetInfo = nullptr;
             if (m_KnownAssets.TryGetValue(asset, pAssetInfo))
             {
               toDoList.PushBack(pAssetInfo);
-              inverseDeps.Insert(asset);
+              inout_inverseDeps.Insert(asset);
             }
           }
         }
@@ -1311,8 +1311,8 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
 
       ezMap<ezUInt32, ezString> connection;
 
-      auto ExtendConnection = [&](const ezString& ref, ezStringView sLabel) {
-        ezUInt32 uiOutputNode = *nodeMap.GetValue(ref);
+      auto ExtendConnection = [&](const ezString& sRef, ezStringView sLabel) {
+        ezUInt32 uiOutputNode = *nodeMap.GetValue(sRef);
         sTemp = connection[uiOutputNode];
         if (sTemp.IsEmpty())
           sTemp = sLabel;

@@ -11,7 +11,6 @@ ezQtOrbitCamViewWidget::ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerW
 
   m_pOrbitCameraContext = EZ_DEFAULT_NEW(ezOrbitCameraContext, pOwnerWindow, this);
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
-  m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0, 0, 1), ezVec3(10.0f), ezVec3(-5, 1, 2), true);
 
   if (bPicking)
   {
@@ -25,9 +24,37 @@ ezQtOrbitCamViewWidget::ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerW
 ezQtOrbitCamViewWidget::~ezQtOrbitCamViewWidget() = default;
 
 
-void ezQtOrbitCamViewWidget::ConfigureOrbitCameraVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition)
+void ezQtOrbitCamViewWidget::ConfigureFixed(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vCamPosition)
 {
-  m_pOrbitCameraContext->SetOrbitVolume(vCenterPos, vHalfBoxSize, vDefaultCameraPosition, true);
+  m_pOrbitCameraContext->SetDefaultCameraFixed(vCamPosition);
+  m_pOrbitCameraContext->SetOrbitVolume(vCenterPos, vHalfBoxSize);
+  m_pOrbitCameraContext->MoveCameraToDefaultPosition();
+  m_bSetDefaultCamPos = false;
+}
+
+void ezQtOrbitCamViewWidget::ConfigureRelative(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vCamDirection, float fCamDistanceScale)
+{
+  m_pOrbitCameraContext->SetDefaultCameraRelative(vCamDirection, fCamDistanceScale);
+  m_pOrbitCameraContext->SetOrbitVolume(vCenterPos, vHalfBoxSize);
+  m_pOrbitCameraContext->MoveCameraToDefaultPosition();
+  m_bSetDefaultCamPos = true;
+}
+
+void ezQtOrbitCamViewWidget::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize)
+{
+  m_pOrbitCameraContext->SetOrbitVolume(vCenterPos, vHalfBoxSize);
+
+  if (m_bSetDefaultCamPos)
+  {
+    if (vHalfBoxSize != ezVec3(0.1f))
+    {
+      // 0.1f is a hard-coded value for the bounding box, in case nothing is available yet
+      // not pretty, but somehow we need to know when the first 'proper' bounds are available
+
+      m_bSetDefaultCamPos = false;
+      m_pOrbitCameraContext->MoveCameraToDefaultPosition();
+    }
+  }
 }
 
 ezOrbitCameraContext* ezQtOrbitCamViewWidget::GetOrbitCamera()
