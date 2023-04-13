@@ -227,15 +227,15 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const
 }
 
 template <typename Container>
-bool ezUnicodeUtils::RepairNonUtf8Text(const char* pStartData, const char* pEndData, Container& out_Result)
+bool ezUnicodeUtils::RepairNonUtf8Text(const char* pStartData, const char* pEndData, Container& out_result)
 {
   if (ezUnicodeUtils::IsValidUtf8(pStartData, pEndData))
   {
-    out_Result = ezStringView(pStartData, pEndData);
+    out_result = ezStringView(pStartData, pEndData);
     return false;
   }
 
-  out_Result.Clear();
+  out_result.Clear();
 
   ezHybridArray<char, 1024> fixedText;
   ezUnicodeUtils::UtfInserter<char, decltype(fixedText)> inserter(&fixedText);
@@ -248,7 +248,7 @@ bool ezUnicodeUtils::RepairNonUtf8Text(const char* pStartData, const char* pEndD
 
   EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(fixedText.GetData(), fixedText.GetData() + fixedText.GetCount()), "Repaired text is still not a valid Utf8 string.");
 
-  out_Result = ezStringView(fixedText.GetData(), fixedText.GetCount());
+  out_result = ezStringView(fixedText.GetData(), fixedText.GetCount());
   return true;
 }
 
