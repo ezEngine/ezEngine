@@ -1311,8 +1311,7 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
 
       ezMap<ezUInt32, ezString> connection;
 
-      auto ExtendConnection = [&](const ezString& sRef, ezStringView sLabel)
-      {
+      auto ExtendConnection = [&](const ezString& sRef, ezStringView sLabel) {
         ezUInt32 uiOutputNode = *nodeMap.GetValue(sRef);
         sTemp = connection[uiOutputNode];
         if (sTemp.IsEmpty())
