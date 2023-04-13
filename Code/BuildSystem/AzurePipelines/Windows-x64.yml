@@ -60,36 +60,6 @@ jobs:
       KeyVaultName: ezKeys
       SecretsFilter: AzureBlobPW,ThirdPartyWinx64Qt6
   - task: PowerShell@2
-    displayName: Download ThirdParty
-    inputs:
-      targetType: inline
-      script: >-
-        if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64) -or !(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qt6-6.4.0-vs143-x64))
-        {
-          if (!(Test-Path $(System.DefaultWorkingDirectory)\ThirdPartyWinx64))
-          {
-            & mkdir $(System.DefaultWorkingDirectory)\ThirdPartyWinx64
-          }
-          if (!(Test-Path $(System.DefaultWorkingDirectory)\build))
-          {
-            & mkdir $(System.DefaultWorkingDirectory)\build
-          }
-          & compact /c /s /i /f $(System.DefaultWorkingDirectory)\ThirdPartyWinx64\
-          & compact /c /s /i /f $(System.DefaultWorkingDirectory)\build\
-          & compact /c /s /i /f $(Build.ArtifactStagingDirectory)\
-          $url7zip = "https://vstsagenttools.blob.core.windows.net/tools/7zip/1/7zip.zip"
-          $output7zip = "./7zip.zip"
-          $urlThirdParty = "$(ThirdPartyWinx64Qt6)"
-          $outputThirdParty = "$(System.DefaultWorkingDirectory)\ThirdParty.7z"
-          $output = "$(System.DefaultWorkingDirectory)"
-          wget $url7zip -OutFile $output7zip
-          Expand-Archive -Path $output7zip -DestinationPath $output -Force
-          # Start-BitsTransfer -Source $urlThirdParty -Destination $outputThirdParty
-          wget $urlThirdParty -OutFile $outputThirdParty
-          & "$output/7zip/7z.exe" x -y -p$(AzureBlobPW) $outputThirdParty
-          & del $outputThirdParty
-        }
-  - task: PowerShell@2
     displayName: Delete old crash dumps
     inputs:
       targetType: inline
@@ -98,14 +68,16 @@ jobs:
         {
             Get-ChildItem $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2019Dev64\*.dmp | foreach { Remove-Item -Force -Path $_.FullName }
         }
-  - task: CMake@1
-    displayName: CMake Step
+  - task: PowerShell@2
+    displayName: Run CMake
     inputs:
-      cmakeArgs: -DEZ_SOLUTION_NAME:string="solution" -DCMAKE_PREFIX_PATH=$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qt6-6.4.0-vs143-x64; -DEZ_QT_DIR="$(System.DefaultWorkingDirectory)\ThirdPartyWinx64\Qt6-6.4.0-vs143-x64" -DEZ_ENABLE_FOLDER_UNITY_FILES=0 -DEZ_BUILD_OPENXR=1 -DEZ_COMPILE_ENGINE_AS_DLL=1 -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_SYSTEM_VERSION=10.0.18362.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.18362.0 -A "x64" -G "Visual Studio 16 2019" ../
+      targetType: filePath
+      filePath: "$(System.DefaultWorkingDirectory)/Generate.ps1"
+      arguments: "-Target Win64vs2019 -NoUnityBuild -NoSubmoduleUpdate -SolutionName solution"
   - task: MSBuild@1
-    displayName: Build solution
+    displayName: Build Solution
     inputs:
-      solution: build/solution.sln
+      solution: $(System.DefaultWorkingDirectory)\Workspace\vs2019x64\solution.sln
       msbuildArchitecture: x64
       platform: x64
       configuration: Dev
