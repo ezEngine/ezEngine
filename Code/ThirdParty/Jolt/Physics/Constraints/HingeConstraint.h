@@ -13,10 +13,10 @@
 JPH_NAMESPACE_BEGIN
 
 /// Hinge constraint settings, used to create a hinge constraint
-class HingeConstraintSettings final : public TwoBodyConstraintSettings
+class JPH_EXPORT HingeConstraintSettings final : public TwoBodyConstraintSettings
 {
 public:
-	JPH_DECLARE_SERIALIZABLE_VIRTUAL(HingeConstraintSettings)
+	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, HingeConstraintSettings)
 
 	// See: ConstraintSettings::SaveBinaryState
 	virtual void				SaveBinaryState(StreamOut &inStream) const override;
@@ -55,7 +55,7 @@ protected:
 };
 
 /// A hinge constraint constrains 2 bodies on a single point and allows only a single axis of rotation
-class HingeConstraint final : public TwoBodyConstraint
+class JPH_EXPORT HingeConstraint final : public TwoBodyConstraint
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -65,6 +65,7 @@ public:
 
 	// Generic interface of a constraint
 	virtual EConstraintSubType	GetSubType() const override								{ return EConstraintSubType::Hinge; }
+	virtual void				NotifyShapeChanged(const BodyID &inBodyID, Vec3Arg inDeltaCOM) override;
 	virtual void				SetupVelocityConstraint(float inDeltaTime) override;
 	virtual void				WarmStartVelocityConstraint(float inWarmStartImpulseRatio) override;
 	virtual bool				SolveVelocityConstraint(float inDeltaTime) override;

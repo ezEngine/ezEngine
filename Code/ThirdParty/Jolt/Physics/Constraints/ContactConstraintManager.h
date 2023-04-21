@@ -6,6 +6,7 @@
 
 #include <Jolt/Core/StaticArray.h>
 #include <Jolt/Core/LockFreeHashMap.h>
+#include <Jolt/Physics/EPhysicsUpdateError.h>
 #include <Jolt/Physics/Body/BodyPair.h>
 #include <Jolt/Physics/Collision/Shape/SubShapeIDPair.h>
 #include <Jolt/Physics/Collision/ManifoldBetweenTwoFaces.h>
@@ -23,7 +24,7 @@ JPH_NAMESPACE_BEGIN
 struct PhysicsSettings;
 class PhysicsUpdateContext;
 
-class ContactConstraintManager : public NonCopyable
+class JPH_EXPORT ContactConstraintManager : public NonCopyable
 {
 public:
 	JPH_OVERRIDE_NEW_DELETE
@@ -80,6 +81,7 @@ public:
 
 		uint					mNumBodyPairs = 0;													///< Total number of body pairs added using this allocator
 		uint					mNumManifolds = 0;													///< Total number of manifolds added using this allocator
+		EPhysicsUpdateError		mErrors = EPhysicsUpdateError::None;								///< Errors reported on this allocator
 	};
 
 	/// Get a new allocator context for storing contacts. Note that you should call this once and then add multiple contacts using the context.
