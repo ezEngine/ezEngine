@@ -81,7 +81,11 @@ void ezJoltActorComponent::OnDeactivated()
     auto* pSystem = pModule->GetJoltSystem();
     auto* pBodies = &pSystem->GetBodyInterface();
 
-    pBodies->RemoveBody(bodyId);
+    if (pBodies->IsAdded(bodyId))
+    {
+      pBodies->RemoveBody(bodyId);
+    }
+
     pBodies->DestroyBody(bodyId);
     m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
   }
