@@ -194,3 +194,5 @@ ezUpdateRate::Max2fps;Max 2 FPS
 ezUpdateRate::Max1fps;Max 1 FPS
 
 ezRootMotionMode::SendMoveCharacterMsg;Send MoveCharacterMsg
+
+Prefab.NameLabel;Proxy For;When this is set to '<Prefab-Root>' the node represents the game object in a scene on which the prefab gets instantiated. In this case you cannot edit its name, transform, etc, but you can attach additional components.

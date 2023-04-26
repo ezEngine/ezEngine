@@ -129,6 +129,12 @@ public:
   /// \brief Retrieves a custom flag. Index must be between 0 and 7.
   bool GetUserFlag(ezUInt8 uiFlagIndex) const;
 
+  /// \brief Adds ezObjectFlags::CreatedByPrefab to the component. See the flag for details.
+  void SetCreatedByPrefab() { m_ComponentFlags.Add(ezObjectFlags::CreatedByPrefab); }
+
+  /// \brief Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this component.
+  bool WasCreatedByPrefab() const { return m_ComponentFlags.IsSet(ezObjectFlags::CreatedByPrefab); }
+
 protected:
   friend class ezWorld;
   friend class ezGameObject;

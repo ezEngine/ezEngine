@@ -133,6 +133,12 @@ public:
   /// \sa ezGameObject::SetActiveFlag(), ezComponent::IsActive()
   bool IsActive() const;
 
+  /// \brief Adds ezObjectFlags::CreatedByPrefab to the object. See the flag for details.
+  void SetCreatedByPrefab() { m_Flags.Add(ezObjectFlags::CreatedByPrefab); }
+
+  /// \brief Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this object.
+  bool WasCreatedByPrefab() const { return m_Flags.IsSet(ezObjectFlags::CreatedByPrefab); }
+
   /// \brief Sets the name to identify this object. Does not have to be a unique name.
   void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);

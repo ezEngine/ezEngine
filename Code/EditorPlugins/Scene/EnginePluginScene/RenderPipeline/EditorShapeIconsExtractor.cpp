@@ -64,14 +64,15 @@ void ezEditorShapeIconsExtractor::Extract(
   }
 }
 
-void ezEditorShapeIconsExtractor::ExtractShapeIcon(
-  const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
+void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
 {
   static const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
   static const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
-  static const ezTag& tagPrefab = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
-  if (pObject->GetTags().IsSet(tagEditor) || pObject->GetTags().IsSet(tagHidden) || pObject->GetTags().IsSet(tagPrefab))
+  if (pObject->GetTags().IsSet(tagEditor) || pObject->GetTags().IsSet(tagHidden))
+    return;
+
+  if (pObject->WasCreatedByPrefab())
     return;
 
   if (pObject->GetComponents().IsEmpty())

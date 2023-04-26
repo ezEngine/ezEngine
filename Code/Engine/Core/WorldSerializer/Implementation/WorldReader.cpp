@@ -243,7 +243,8 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
 
 void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
 {
-  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents) {
+  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents)
+  {
     ezUInt8 Temp[4096];
     for (auto& compTypeInfo : m_ComponentTypes)
     {
@@ -376,6 +377,26 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
 
   if (m_Phase == Phase::CreateRootObjects)
   {
+    if (!m_Options.m_ReplaceNamedRootWithParent.IsEmpty())
+    {
+      EZ_ASSERT_DEBUG(!m_Options.m_hParent.IsInvalidated(), "Parent must be provided when m_ReplaceNamedRootWithParent is specified.");
+
+      if (m_WorldReader.m_RootObjectsToCreate.GetCount() == 1 && m_WorldReader.m_RootObjectsToCreate[0].m_Desc.m_sName == m_Options.m_ReplaceNamedRootWithParent)
+      {
+        m_uiCurrentIndex = 1;
+        m_WorldReader.m_IndexToGameObjectHandle.PushBack(m_Options.m_hParent);
+
+        if (m_WorldReader.m_RootObjectsToCreate[0].m_Desc.m_bDynamic)
+        {
+          ezGameObject* pParent = nullptr;
+          if (m_WorldReader.m_pWorld->TryGetObject(m_Options.m_hParent, pParent))
+          {
+            pParent->MakeDynamic();
+          }
+        }
+      }
+    }
+
     if (m_bUseTransform)
     {
       if (!CreateGameObjects<true>(m_WorldReader.m_RootObjectsToCreate, m_Options.m_hParent, m_Options.m_pCreatedRootObjectsOut, endTime))

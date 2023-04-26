@@ -259,27 +259,41 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 
     ezPrefabInstantiationOptions options;
     options.m_hParent = GetOwner()->GetHandle();
+    options.m_ReplaceNamedRootWithParent = "<Prefab-Root>";
     options.m_pOverrideTeamID = &GetOwner()->GetTeamID();
 
     // if this ID is valid, this prefab is instantiated at editor runtime
     // replicate the same ID across all instantiated sub components to get correct picking behavior
     if (GetUniqueID() != ezInvalidIndex)
     {
-      ezHybridArray<ezGameObject*, 8> createdRootObjects;
+      ezHybridArray<ezGameObject*, 24> allCreatedObjects;
 
-      options.m_pCreatedRootObjectsOut = &createdRootObjects;
+      options.m_pCreatedRootObjectsOut = &allCreatedObjects;
+      options.m_pCreatedChildObjectsOut = &allCreatedObjects;
+
+      ezUInt32 uiPrevCompCount = GetOwner()->GetComponents().GetCount();
 
       pResource->InstantiatePrefab(*GetWorld(), id, options, &m_Parameters);
 
-      // while exporting a scene all game objects with this tag are ignored and not exported
-      // set this tag on all game objects that were created by instantiating this prefab
-      // instead it should be instantiated at runtime again
-      // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
-      const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
-
-      for (ezGameObject* pChild : createdRootObjects)
+      for (ezGameObject* pChild : allCreatedObjects)
       {
-        SetUniqueIDRecursive(pChild, GetUniqueID(), tag);
+        // while exporting a scene all game objects with this flag are ignored and not exported
+        // set this flag on all game objects that were created by instantiating this prefab
+        // instead it should be instantiated at runtime again
+        // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
+        pChild->SetCreatedByPrefab();
+
+        for (auto pComponent : pChild->GetComponents())
+        {
+          pComponent->SetUniqueID(GetUniqueID());
+          pComponent->SetCreatedByPrefab();
+        }
+      }
+
+      for (; uiPrevCompCount < GetOwner()->GetComponents().GetCount(); ++uiPrevCompCount)
+      {
+        GetOwner()->GetComponents()[uiPrevCompCount]->SetUniqueID(GetUniqueID());
+        GetOwner()->GetComponents()[uiPrevCompCount]->SetCreatedByPrefab();
       }
     }
     else
@@ -315,11 +329,21 @@ void ezPrefabReferenceComponent::ClearPreviousInstances()
     // if this is in the editor, and the 'activate' flag is toggled,
     // get rid of all our created child objects
 
-    const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
+    ezArrayPtr<ezComponent* const> comps = GetOwner()->GetComponents();
+
+    for (ezUInt32 ip1 = comps.GetCount(); ip1 > 0; ip1--)
+    {
+      const ezUInt32 i = ip1 - 1;
+
+      if (comps[i]->WasCreatedByPrefab())
+      {
+        comps[i]->GetOwningManager()->DeleteComponent(comps[i]);
+      }
+    }
 
     for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
     {
-      if (it->GetTags().IsSet(tag))
+      if (it->WasCreatedByPrefab())
       {
         GetWorld()->DeleteObjectNow(it->GetHandle());
       }
@@ -357,7 +381,14 @@ void ezPrefabReferenceComponent::OnSimulationStarted()
 
 const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [](ezUInt32& ref_uiIt) { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant& value)
