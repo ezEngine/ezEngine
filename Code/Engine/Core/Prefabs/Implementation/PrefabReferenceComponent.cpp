@@ -381,14 +381,10 @@ void ezPrefabReferenceComponent::OnSimulationStarted()
 
 const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
-    { return 0; },
-    [this]() -> ezUInt32
-    { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt)
-    { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char*
-    { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant& value)
