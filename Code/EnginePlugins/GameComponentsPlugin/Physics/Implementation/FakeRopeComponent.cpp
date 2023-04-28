@@ -225,8 +225,6 @@ void ezFakeRopeComponent::SendPreviewPose()
   if (!IsActiveAndInitialized() || IsActiveAndSimulating())
     return;
 
-  ezUInt32 uiHash = 0;
-
   ezGameObject* pAnchor1 = nullptr;
   ezGameObject* pAnchor2 = nullptr;
   if (!GetWorld()->TryGetObject(m_hAnchor1, pAnchor1))
@@ -236,6 +234,8 @@ void ezFakeRopeComponent::SendPreviewPose()
 
   if (pAnchor1 == pAnchor2)
     return;
+
+  ezUInt32 uiHash = 0;
 
   ezVec3 pos = GetOwner()->GetGlobalPosition();
   uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
