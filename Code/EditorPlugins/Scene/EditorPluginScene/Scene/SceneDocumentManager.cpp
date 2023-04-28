@@ -61,8 +61,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
   }
 }
 
-void ezSceneDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   if (ezStringUtils::IsEqual(szDocumentTypeName, "Scene"))
   {

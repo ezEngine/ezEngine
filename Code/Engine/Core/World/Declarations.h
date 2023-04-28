@@ -188,6 +188,8 @@ struct ezObjectFlags
     StaticTransformChangesNotifications = EZ_BIT(11), ///< The object should send a notification message if it is static and its transform changes.
     ParentChangesNotifications = EZ_BIT(12),          ///< The object should send a notification message when the parent is changes.
 
+    CreatedByPrefab = EZ_BIT(13), ///< Such flagged objects and components are ignored during scene export (see ezWorldWriter) and will be removed when a prefab needs to be re-instantiated.
+
     UserFlag0 = EZ_BIT(24),
     UserFlag1 = EZ_BIT(25),
     UserFlag2 = EZ_BIT(26),
@@ -216,7 +218,9 @@ struct ezObjectFlags
     StorageType StaticTransformChangesNotifications : 1; //< 11
     StorageType ParentChangesNotifications : 1;          //< 12
 
-    StorageType Padding : 11; // 13 - 23
+    StorageType CreatedByPrefab : 1; //< 13
+
+    StorageType Padding : 10; // 14 - 23
 
     StorageType UserFlag0 : 1; //< 24
     StorageType UserFlag1 : 1; //< 25

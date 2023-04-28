@@ -20,6 +20,9 @@ struct ezPrefabInstantiationOptions
 
   bool m_bForceDynamic = false;
 
+  /// \brief If the prefab has a single root node with this non-empty name, rather than creating a new object, instead the m_hParent object is used.
+  ezTempHashedString m_ReplaceNamedRootWithParent;
+
   enum class RandomSeedMode
   {
     DeterministicFromParent,

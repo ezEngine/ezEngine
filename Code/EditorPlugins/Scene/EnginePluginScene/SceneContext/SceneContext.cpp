@@ -842,11 +842,9 @@ ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 
     const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
     const ezTag& tagNoExport = ezTagRegistry::GetGlobalRegistry().RegisterTag("Exclude From Export");
-    const ezTag& tagEditorPrefabInstance = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
     ezTagSet tags;
     tags.Set(tagEditor);
-    tags.Set(tagEditorPrefabInstance);
     tags.Set(tagNoExport);
 
     ezWorldWriter ww;

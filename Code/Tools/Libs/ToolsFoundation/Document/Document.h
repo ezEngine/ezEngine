@@ -220,14 +220,11 @@ public:
   /// \brief Removes the link between a prefab instance and its template, turning the instance into a regular object.
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection);
 
-  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
-    ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(),
-    ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>());
-  virtual ezStatus CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed,
-    ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, bool bKeepOpen = false);
+  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = {}, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {});
+  virtual ezStatus CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed, ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, bool bKeepOpen = false, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {});
+
   // Returns new guid of replaced object.
-  virtual ezUuid ReplaceByPrefab(
-    const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab);
+  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab);
   // Returns new guid of reverted object.
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
 

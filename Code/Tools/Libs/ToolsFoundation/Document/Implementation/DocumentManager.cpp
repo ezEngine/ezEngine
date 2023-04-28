@@ -222,7 +222,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
     {
       // See if there is a default asset document registered for the type, if so clone
       // it and use that as the new document instead of creating one from scratch.
-      if (bCreate)
+      if (bCreate && !flags.IsSet(ezDocumentFlags::EmptyDocument))
       {
         ezStringBuilder sTemplateDoc = "Editor/DocumentTemplates/Default";
         sTemplateDoc.ChangeFileExtension(sPath.GetFileExtension());

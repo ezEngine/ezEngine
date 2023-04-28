@@ -14,6 +14,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <QClipboard>
 #include <RendererCore/Components/CameraComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -22,6 +23,39 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezGameObject");
+  const char* szDocType = e.m_pObject->GetDocumentObjectManager()->GetDocument()->GetDocumentTypeName();
+
+  if (!ezStringUtils::IsEqual(szDocType, "Prefab"))
+    return;
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  auto pParent = e.m_pObject->GetParent();
+  if (pParent != nullptr)
+  {
+    if (pParent->GetTypeAccessor().GetType() == pRtti)
+      return;
+  }
+
+  const ezString name = e.m_pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+  if (name != "<Prefab-Root>")
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+  props["Name"].m_sNewLabelText = "Prefab.NameLabel";
+  props["Active"].m_Visibility = ezPropertyUiState::Invisible;
+  props["LocalPosition"].m_Visibility = ezPropertyUiState::Invisible;
+  props["LocalRotation"].m_Visibility = ezPropertyUiState::Invisible;
+  props["LocalScaling"].m_Visibility = ezPropertyUiState::Invisible;
+  props["LocalUniformScaling"].m_Visibility = ezPropertyUiState::Invisible;
+  props["GlobalKey"].m_Visibility = ezPropertyUiState::Invisible;
+  props["Tags"].m_Visibility = ezPropertyUiState::Invisible;
+}
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType documentType)
   : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
@@ -532,10 +566,11 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
   EZ_ASSERT_DEV(!adjustGraphNodeCB.IsValid(), "Not allowed");
   EZ_ASSERT_DEV(!adjustNewNodesCB.IsValid(), "Not allowed");
+  EZ_ASSERT_DEV(!finalizeGraphCB.IsValid(), "Not allowed");
 
   auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
 
@@ -544,7 +579,9 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
 
   const ezTransform tReference = QueryLocalTransform(Selection.PeekBack());
 
-  auto centerNodes = [tReference](ezAbstractObjectNode* pGraphNode) {
+  ezVariantArray varChildren;
+
+  auto centerNodes = [tReference, &varChildren](ezAbstractObjectNode* pGraphNode) {
     if (auto pPosition = pGraphNode->FindProperty("LocalPosition"))
     {
       ezVec3 pos = pPosition->m_Value.ConvertTo<ezVec3>();
@@ -560,6 +597,8 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
 
       pGraphNode->ChangeProperty("LocalRotation", rot);
     }
+
+    varChildren.PushBack(pGraphNode->GetGuid());
   };
 
   auto adjustResult = [tReference, this](ezDocumentObject* pObject) {
@@ -577,7 +616,25 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
     GetCommandHistory()->AddCommand(cmd);
   };
 
-  return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, centerNodes, adjustResult);
+  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes) {
+    if (graphRootNodes.GetCount() == 1)
+    {
+      graphRootNodes[0]->ChangeProperty("Name", "<Prefab-Root>");
+    }
+    else
+    {
+      const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+
+      ezAbstractObjectNode* pRoot = graph.AddNode(ezUuid::CreateUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
+      pRoot->AddProperty("Name", "<Prefab-Root>");
+      pRoot->AddProperty("Children", varChildren);
+
+      graphRootNodes.Clear();
+      graphRootNodes.PushBack(pRoot);
+    }
+  };
+
+  return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, centerNodes, adjustResult, finalizeGraph);
 }
 
 bool ezSceneDocument::CanEngineProcessBeRestarted() const

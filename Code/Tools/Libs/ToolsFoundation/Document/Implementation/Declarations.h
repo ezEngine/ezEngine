@@ -12,9 +12,10 @@ struct ezDocumentFlags
   enum Enum
   {
     None = 0,
-    RequestWindow = EZ_BIT(0),
-    AddToRecentFilesList = EZ_BIT(1),
-    AsyncSave = EZ_BIT(2),
+    RequestWindow = EZ_BIT(0),        ///< Open the document visibly (not just internally)
+    AddToRecentFilesList = EZ_BIT(1), ///< Add the document path to the recently used list for users
+    AsyncSave = EZ_BIT(2),            ///<
+    EmptyDocument = EZ_BIT(3),        ///< Don't populate a new document with default state (templates etc)
     Default = None,
   };
 

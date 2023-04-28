@@ -40,6 +40,9 @@ public:
   /// \brief Creates a new Uuid and stores is it in this object.
   void CreateNewUuid();
 
+  /// \brief Returns a new Uuid.
+  EZ_ALWAYS_INLINE static ezUuid CreateUuid();
+
   /// \brief Returns the internal 128 Bit of data
   void GetValues(ezUInt64& ref_uiLow, ezUInt64& ref_uiHigh) const
   {
