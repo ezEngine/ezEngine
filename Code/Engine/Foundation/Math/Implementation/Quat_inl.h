@@ -63,25 +63,25 @@ void ezQuatTemplate<Type>::Normalize()
 }
 
 template <typename Type>
-ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon) const
+void ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
 
-  const ezAngle acos = ezMath::ACos(static_cast<float>(w));
-  const float d = ezMath::Sin(acos);
+  out_angle = 2 * ezMath::ACos(static_cast<float>(w));
 
-  if (d < fEpsilon)
+  const float s = ezMath::Sqrt(1 - w * w);
+  const float ds = 1.0f / s;
+
+  if (s < fEpsilon)
   {
     out_vAxis.Set(1, 0, 0);
   }
   else
   {
-    out_vAxis = (v / static_cast<Type>(d));
+    out_vAxis.x = v.x * ds;
+    out_vAxis.y = v.y * ds;
+    out_vAxis.z = v.z * ds;
   }
-
-  out_angle = acos * 2;
-
-  return EZ_SUCCESS;
 }
 
 template <typename Type>
@@ -157,10 +157,8 @@ bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, T
   ezVec3Template<Type> vA1, vA2;
   ezAngle A1, A2;
 
-  if (GetRotationAxisAndAngle(vA1, A1) == EZ_FAILURE)
-    return false;
-  if (qOther.GetRotationAxisAndAngle(vA2, A2) == EZ_FAILURE)
-    return false;
+  GetRotationAxisAndAngle(vA1, A1);
+  qOther.GetRotationAxisAndAngle(vA2, A2);
 
   if ((A1.IsEqualSimple(A2, ezAngle::Degree(static_cast<float>(fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon)))
     return true;

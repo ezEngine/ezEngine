@@ -43,7 +43,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 2, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 0.5f)),
       EZ_MEMBER_PROPERTY("BendStiffness", m_fBendStiffness)->AddAttributes(new ezClampValueAttribute(0.0f,   ezVariant())),
       EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
-      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(0.01f), ezAngle::Degree(90))),
+      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(0.01f), ezAngle::Degree(90))),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
@@ -341,7 +341,7 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
   if (!GetWorld()->TryGetObject(hTarget, pTarget))
     return nullptr;
 
-  const auto targetLoc = pTarget->GetGlobalTransform();
+  // const auto targetLoc = pTarget->GetGlobalTransform();
 
   ezJoltDynamicActorComponent* pActor = nullptr;
   while (pTarget && !pTarget->TryGetComponentOfBaseType(pActor))
@@ -366,10 +366,10 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
 
     JPH::Body* pAnchor = bodies.GetBody(0) != nullptr ? bodies.GetBody(0) : &JPH::Body::sFixedToWorld;
 
-    const ezVec3 vTwistAxis1 = targetLoc.m_qRotation * ezVec3(1, 0, 0);
+    const ezVec3 vTwistAxis1 = pieceLoc.m_qRotation * ezVec3(1, 0, 0);
     const ezVec3 vTwistAxis2 = pieceLoc.m_qRotation * ezVec3(1, 0, 0);
 
-    const ezVec3 vOrthoAxis1 = targetLoc.m_qRotation * ezVec3(0, 1, 0);
+    const ezVec3 vOrthoAxis1 = pieceLoc.m_qRotation * ezVec3(0, 1, 0);
     const ezVec3 vOrthoAxis2 = pieceLoc.m_qRotation * ezVec3(0, 1, 0);
 
     JPH::Constraint* pConstraint = nullptr;
@@ -379,7 +379,7 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
       JPH::SwingTwistConstraintSettings constraint;
       constraint.mSpace = JPH::EConstraintSpace::WorldSpace;
       constraint.mDrawConstraintSize = 0.1f;
-      constraint.mPosition1 = ezJoltConversionUtils::ToVec3(targetLoc.m_vPosition);
+      constraint.mPosition1 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
       constraint.mPosition2 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
       constraint.mNormalHalfConeAngle = m_MaxBend.GetRadian();
       constraint.mPlaneHalfConeAngle = m_MaxBend.GetRadian();
@@ -401,7 +401,7 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
       JPH::PointConstraintSettings constraint;
       constraint.mSpace = JPH::EConstraintSpace::WorldSpace;
       constraint.mDrawConstraintSize = 0.1f;
-      constraint.mPoint1 = ezJoltConversionUtils::ToVec3(targetLoc.m_vPosition);
+      constraint.mPoint1 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
       constraint.mPoint2 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
 
       pConstraint = constraint.Create(*pAnchor, *bodies.GetBody(1));
@@ -411,7 +411,7 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
       JPH::FixedConstraintSettings constraint;
       constraint.mSpace = JPH::EConstraintSpace::WorldSpace;
       constraint.mDrawConstraintSize = 0.1f;
-      constraint.mPoint1 = ezJoltConversionUtils::ToVec3(targetLoc.m_vPosition);
+      constraint.mPoint1 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
       constraint.mPoint2 = ezJoltConversionUtils::ToVec3(pieceLoc.m_vPosition);
       constraint.mAxisX1 = ezJoltConversionUtils::ToVec3(vTwistAxis2).Normalized();
       constraint.mAxisY1 = ezJoltConversionUtils::ToVec3(vOrthoAxis2).Normalized();
@@ -462,6 +462,8 @@ void ezJoltRopeComponent::UpdatePreview()
 
   uiHash = ezHashingUtils::xxHash32(&m_fSlack, sizeof(float), uiHash);
   uiHash = ezHashingUtils::xxHash32(&m_uiPieces, sizeof(ezUInt16), uiHash);
+  uiHash = ezHashingUtils::xxHash32(&m_Anchor1ConstraintMode, sizeof(ezJoltRopeAnchorConstraintMode::StorageType), uiHash);
+  uiHash = ezHashingUtils::xxHash32(&m_Anchor2ConstraintMode, sizeof(ezJoltRopeAnchorConstraintMode::StorageType), uiHash);
 
   if (uiHash != m_uiPreviewHash)
   {
@@ -638,7 +640,13 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
       transforms[idx2].m_vScale.Set(1);
       transforms[idx2].m_vPosition = vOrgAnchor2;
-      transforms[idx2].m_qRotation = -pAnchor2->GetGlobalRotation();
+      transforms[idx2].m_qRotation = pAnchor2->GetGlobalRotation();
+
+      ezVec3 dir = transforms[idx2].m_qRotation * ezVec3(1, 0, 0);
+      transforms[idx2].m_qRotation.SetShortestRotation(ezVec3(1, 0, 0), -dir);
+
+      // transforms[idx2].m_qRotation.Flip();
+      transforms[idx2].m_qRotation.Normalize();
       transforms[idx2 - 1].m_qRotation = transforms[idx2].m_qRotation;
     }
 

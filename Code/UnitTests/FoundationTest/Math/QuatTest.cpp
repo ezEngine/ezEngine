@@ -137,24 +137,24 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     ezVec3T axis;
     ezAngle angle;
 
-    EZ_TEST_BOOL(q1.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
+    q1.GetRotationAxisAndAngle(axis, angle);
     EZ_TEST_VEC3(axis, ezVec3T(0, 0, -1), 0.001f);
     EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
 
-    EZ_TEST_BOOL(q2.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
+    q2.GetRotationAxisAndAngle(axis, angle);
     EZ_TEST_VEC3(axis, ezVec3T(0, 0, -1), 0.001f);
     EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
 
-    EZ_TEST_BOOL(q3.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
+    q3.GetRotationAxisAndAngle(axis, angle);
     EZ_TEST_VEC3(axis, ezVec3T(0, 0, -1), 0.001f);
     EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
 
-    EZ_TEST_BOOL(ezQuatT::IdentityQuaternion().GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
+    ezQuatT::IdentityQuaternion().GetRotationAxisAndAngle(axis, angle);
     EZ_TEST_VEC3(axis, ezVec3T(1, 0, 0), 0.001f);
     EZ_TEST_FLOAT(angle.GetDegree(), 0, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
 
     ezQuatT otherIdentity(0, 0, 0, -1);
-    EZ_TEST_BOOL(otherIdentity.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
+    otherIdentity.GetRotationAxisAndAngle(axis, angle);
     EZ_TEST_VEC3(axis, ezVec3T(1, 0, 0), 0.001f);
     EZ_TEST_FLOAT(angle.GetDegree(), 360, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
   }
@@ -194,7 +194,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST_BOOL(q.IsValid(0.001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator-")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator-/Invert")
   {
     ezQuatT q, q1;
     q.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Degree(90));
@@ -202,6 +202,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     ezQuatT q2 = -q;
     EZ_TEST_BOOL(q1.IsEqualRotation(q2, 0.0001f));
+
+    ezQuatT q3 = q;
+    q3.Invert();
+    EZ_TEST_BOOL(q1.IsEqualRotation(q3, 0.0001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dot")
