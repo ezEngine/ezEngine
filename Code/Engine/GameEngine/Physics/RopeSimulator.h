@@ -50,6 +50,8 @@ public:
   void SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIterations, ezSimdFloat fAllowedError);
   void SimulateTillEquilibrium(ezSimdFloat fAllowedMovement = 0.005f, ezUInt32 uiMaxIterations = 1000);
   bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
+  float GetTotalLength() const;
+  ezSimdVec4f GetPositionAtLength(float length) const;
 
 private:
   ezSimdFloat EnforceDistanceConstraint();

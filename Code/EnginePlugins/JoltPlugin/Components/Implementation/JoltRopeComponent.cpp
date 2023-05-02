@@ -209,13 +209,12 @@ void ezJoltRopeComponent::CreateRope()
 
   const ezTransform tRoot = GetOwner()->GetGlobalTransform();
 
-  ezHybridArray<ezTransform, 65> pieces;
+  ezHybridArray<ezTransform, 65> nodes;
   float fPieceLength;
-  if (CreateSegmentTransforms(pieces, fPieceLength, hAnchor1, hAnchor2).Failed())
+  if (CreateSegmentTransforms(nodes, fPieceLength, hAnchor1, hAnchor2).Failed())
     return;
 
-  const ezTransform endPiece = pieces.PeekBack();
-  pieces.PopBack(); // don't need the last transform
+  const ezUInt32 numPieces = nodes.GetCount() - 1;
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
   m_uiObjectFilterID = pModule->CreateObjectFilterID();
@@ -228,10 +227,10 @@ void ezJoltRopeComponent::CreateRope()
 
   JPH::Ref<JPH::RagdollSettings> opt = new JPH::RagdollSettings();
   opt->mSkeleton = new JPH::Skeleton();
-  opt->mSkeleton->GetJoints().resize(pieces.GetCount());
-  opt->mParts.resize(pieces.GetCount());
+  opt->mSkeleton->GetJoints().resize(numPieces);
+  opt->mParts.resize(numPieces);
 
-  const float fMass = m_fTotalMass / pieces.GetCount();
+  const float fPieceMass = m_fTotalMass / numPieces;
 
   ezStringBuilder name;
 
@@ -247,9 +246,7 @@ void ezJoltRopeComponent::CreateRope()
   capsOffset.mRotation = JPH::Quat::sRotation(JPH::Vec3::sAxisZ(), ezAngle::Degree(-90).GetRadian());
   capsOffset.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
-  ezVec3 vNextJointPos;
-
-  for (ezUInt32 idx = 0; idx < pieces.GetCount(); ++idx)
+  for (ezUInt32 idx = 0; idx < numPieces; ++idx)
   {
     // skeleton
     {
@@ -268,11 +265,11 @@ void ezJoltRopeComponent::CreateRope()
     part.mGravityFactor = m_fGravityFactor;
     part.mMotionQuality = m_bCCD ? JPH::EMotionQuality::LinearCast : JPH::EMotionQuality::Discrete;
     part.mMotionType = JPH::EMotionType::Dynamic;
-    part.mPosition = ezJoltConversionUtils::ToVec3(pieces[idx].m_vPosition);
-    part.mRotation = ezJoltConversionUtils::ToQuat(pieces[idx].m_qRotation);
+    part.mPosition = ezJoltConversionUtils::ToVec3(nodes[idx].m_vPosition);
+    part.mRotation = ezJoltConversionUtils::ToQuat(nodes[idx].m_qRotation);
     part.mUserData = reinterpret_cast<ezUInt64>(pUserData);
     part.SetShape(capsOffset.Create().Get()); // shape is cached, only 1 is created
-    part.mMassPropertiesOverride.mMass = fMass;
+    part.mMassPropertiesOverride.mMass = fPieceMass;
     part.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateInertia;
     part.mRestitution = pMaterial->m_fRestitution;
     part.mFriction = pMaterial->m_fFriction;
@@ -285,23 +282,22 @@ void ezJoltRopeComponent::CreateRope()
     {
       JPH::SwingTwistConstraintSettings* pConstraint = new JPH::SwingTwistConstraintSettings();
       pConstraint->mDrawConstraintSize = 0.1f;
-      pConstraint->mPosition1 = ezJoltConversionUtils::ToVec3(vNextJointPos);
-      pConstraint->mPosition2 = ezJoltConversionUtils::ToVec3(vNextJointPos);
+      pConstraint->mPosition1 = ezJoltConversionUtils::ToVec3(nodes[idx].m_vPosition);
+      pConstraint->mPosition2 = pConstraint->mPosition1;
       pConstraint->mNormalHalfConeAngle = m_MaxBend.GetRadian();
       pConstraint->mPlaneHalfConeAngle = m_MaxBend.GetRadian();
-      pConstraint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(pieces[idx - 1].m_qRotation * ezVec3(1, 0, 0)).Normalized();
-      pConstraint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(pieces[idx].m_qRotation * ezVec3(1, 0, 0)).Normalized();
-      pConstraint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(pieces[idx - 1].m_qRotation * ezVec3(0, 1, 0)).Normalized();
-      pConstraint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(pieces[idx].m_qRotation * ezVec3(0, 1, 0)).Normalized();
+      pConstraint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(nodes[idx - 1].m_qRotation * ezVec3(1, 0, 0)).Normalized();
+      pConstraint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(nodes[idx].m_qRotation * ezVec3(1, 0, 0)).Normalized();
+      pConstraint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(nodes[idx - 1].m_qRotation * ezVec3(0, 1, 0)).Normalized();
+      pConstraint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(nodes[idx].m_qRotation * ezVec3(0, 1, 0)).Normalized();
       pConstraint->mTwistMinAngle = -m_MaxTwist.GetRadian();
       pConstraint->mTwistMaxAngle = m_MaxTwist.GetRadian();
       pConstraint->mMaxFrictionTorque = m_fBendStiffness;
       part.mToParent = pConstraint;
     }
 
-    vNextJointPos = pieces[idx].m_vPosition + pieces[idx].m_qRotation * ezVec3(fPieceLength, 0, 0);
-
-    if ((m_Anchor1ConstraintMode != ezJoltRopeAnchorConstraintMode::None && idx == 0) || (m_Anchor2ConstraintMode != ezJoltRopeAnchorConstraintMode::None && idx + 1 == pieces.GetCount()))
+    if ((m_Anchor1ConstraintMode != ezJoltRopeAnchorConstraintMode::None && idx == 0) ||
+        (m_Anchor2ConstraintMode != ezJoltRopeAnchorConstraintMode::None && idx + 1 == numPieces))
     {
       // disable all collisions for the first and last rope segment
       // this prevents colliding with walls that the rope is attached to
@@ -309,13 +305,13 @@ void ezJoltRopeComponent::CreateRope()
     }
   }
 
-  opt->Stabilize();
-
   if (m_bSelfCollision)
   {
     // overrides the group filter above to one that allows collision with itself, except for directly joined bodies
     opt->DisableParentChildCollisions();
   }
+
+  opt->Stabilize();
 
   m_pRagdoll = opt->CreateRagdoll(m_uiObjectFilterID, reinterpret_cast<ezUInt64>(pUserData), pModule->GetJoltSystem());
   m_pRagdoll->AddRef();
@@ -323,16 +319,14 @@ void ezJoltRopeComponent::CreateRope()
 
   if (m_Anchor1ConstraintMode != ezJoltRopeAnchorConstraintMode::None)
   {
-    ezTransform firstPiece = pieces[0];
-    m_pConstraintAnchor1 = CreateConstraint(hAnchor1, firstPiece, m_pRagdoll->GetBodyID(0).GetIndexAndSequenceNumber(), m_Anchor1ConstraintMode);
+    m_pConstraintAnchor1 = CreateConstraint(hAnchor1, nodes[0], m_pRagdoll->GetBodyID(0).GetIndexAndSequenceNumber(), m_Anchor1ConstraintMode);
   }
 
   if (m_Anchor2ConstraintMode != ezJoltRopeAnchorConstraintMode::None)
   {
-    ezTransform lastPiece = endPiece;
-    lastPiece.m_qRotation = -lastPiece.m_qRotation;
-
-    m_pConstraintAnchor2 = CreateConstraint(hAnchor2, lastPiece, m_pRagdoll->GetBodyIDs().back().GetIndexAndSequenceNumber(), m_Anchor2ConstraintMode);
+    ezTransform end = nodes.PeekBack();
+    end.m_qRotation = -end.m_qRotation;
+    m_pConstraintAnchor2 = CreateConstraint(hAnchor2, end, m_pRagdoll->GetBodyIDs().back().GetIndexAndSequenceNumber(), m_Anchor2ConstraintMode);
   }
 }
 
@@ -451,15 +445,20 @@ void ezJoltRopeComponent::UpdatePreview()
     return;
 
   ezUInt32 uiHash = 0;
+  ezQuat rot;
 
   ezVec3 pos = GetOwner()->GetGlobalPosition();
   uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
 
   pos = pAnchor1->GetGlobalPosition();
   uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
+  rot = pAnchor1->GetGlobalRotation();
+  uiHash = ezHashingUtils::xxHash32(&rot, sizeof(ezQuat), uiHash);
 
   pos = pAnchor2->GetGlobalPosition();
   uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
+  rot = pAnchor2->GetGlobalRotation();
+  uiHash = ezHashingUtils::xxHash32(&rot, sizeof(ezQuat), uiHash);
 
   uiHash = ezHashingUtils::xxHash32(&m_fSlack, sizeof(float), uiHash);
   uiHash = ezHashingUtils::xxHash32(&m_uiPieces, sizeof(ezUInt16), uiHash);
@@ -478,47 +477,47 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
   if (m_uiPieces == 0)
     return EZ_FAILURE;
 
-  ezPathComponent* pPath;
-  if (GetOwner()->TryGetComponentOfBaseType(pPath))
-  {
-    // generally working, but the usability is still WIP
+  // ezPathComponent* pPath;
+  // if (GetOwner()->TryGetComponentOfBaseType(pPath))
+  //{
+  //   // generally working, but the usability is still WIP
 
-    pPath->EnsureLinearizedRepresentationIsUpToDate();
+  //  pPath->EnsureLinearizedRepresentationIsUpToDate();
 
-    const float fLength = pPath->GetLinearizedRepresentationLength();
+  //  const float fLength = pPath->GetLinearizedRepresentationLength();
 
-    if (ezMath::IsZero(fLength, 0.001f))
-      return EZ_FAILURE;
+  //  if (ezMath::IsZero(fLength, 0.001f))
+  //    return EZ_FAILURE;
 
-    const ezTransform ownTrans = GetOwner()->GetGlobalTransform();
+  //  const ezTransform ownTrans = GetOwner()->GetGlobalTransform();
 
-    out_fPieceLength = fLength / m_uiPieces;
+  //  out_fPieceLength = fLength / m_uiPieces;
 
-    transforms.SetCountUninitialized(m_uiPieces + 1);
+  //  transforms.SetCountUninitialized(m_uiPieces + 1);
 
-    ezPathComponent::LinearSampler sampler;
-    auto t0 = pPath->SampleLinearizedRepresentation(sampler);
+  //  ezPathComponent::LinearSampler sampler;
+  //  auto t0 = pPath->SampleLinearizedRepresentation(sampler);
 
-    for (ezUInt16 p = 0; p < m_uiPieces; ++p)
-    {
-      float fAddDistance = out_fPieceLength;
-      pPath->AdvanceLinearSamplerBy(sampler, fAddDistance);
-      const auto t1 = pPath->SampleLinearizedRepresentation(sampler);
+  //  for (ezUInt16 p = 0; p < m_uiPieces; ++p)
+  //  {
+  //    float fAddDistance = out_fPieceLength;
+  //    pPath->AdvanceLinearSamplerBy(sampler, fAddDistance);
+  //    const auto t1 = pPath->SampleLinearizedRepresentation(sampler);
 
-      transforms[p].m_vPosition = ownTrans * t0.m_vPosition;
-      transforms[p].m_vScale.Set(1);
-      transforms[p].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ownTrans.m_qRotation * (t1.m_vPosition - t0.m_vPosition).GetNormalized());
+  //    transforms[p].m_vPosition = ownTrans * t0.m_vPosition;
+  //    transforms[p].m_vScale.Set(1);
+  //    transforms[p].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ownTrans.m_qRotation * (t1.m_vPosition - t0.m_vPosition).GetNormalized());
 
-      t0 = t1;
-    }
+  //    t0 = t1;
+  //  }
 
-    transforms.PeekBack().m_vPosition = ownTrans * t0.m_vPosition;
-    transforms.PeekBack().m_vScale.Set(1);
-    transforms.PeekBack().m_qRotation = transforms[m_uiPieces - 1].m_qRotation;
+  //  transforms.PeekBack().m_vPosition = ownTrans * t0.m_vPosition;
+  //  transforms.PeekBack().m_vScale.Set(1);
+  //  transforms.PeekBack().m_qRotation = transforms[m_uiPieces - 1].m_qRotation;
 
-    return EZ_SUCCESS;
-  }
-  else
+  //  return EZ_SUCCESS;
+  //}
+  // else
   {
     const ezGameObject* pAnchor1 = nullptr;
     const ezGameObject* pAnchor2 = nullptr;
@@ -528,8 +527,11 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
     if (!GetWorld()->TryGetObject(hAnchor2, pAnchor2))
       return EZ_FAILURE;
 
-    const ezSimdVec4f vAnchor1 = ezSimdConversion::ToVec3(pAnchor1->GetGlobalPosition());
-    const ezSimdVec4f vAnchor2 = ezSimdConversion::ToVec3(pAnchor2->GetGlobalPosition());
+    const ezVec3 vOrgAnchor1 = pAnchor1->GetGlobalPosition();
+    const ezVec3 vOrgAnchor2 = pAnchor2->GetGlobalPosition();
+
+    ezSimdVec4f vAnchor1 = ezSimdConversion::ToVec3(vOrgAnchor1);
+    ezSimdVec4f vAnchor2 = ezSimdConversion::ToVec3(vOrgAnchor2);
 
     const float fLength = (vAnchor2 - vAnchor1).GetLength<3>();
     if (ezMath::IsZero(fLength, 0.001f))
@@ -540,17 +542,40 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
     // we could also drastically ramp up the simulation steps, but that costs way too much performance
     const float fIntendedRopeLength = fLength + fLength * (ezMath::Abs(m_fSlack) - 0.1f);
 
+    const float fPieceLength = fIntendedRopeLength / m_uiPieces;
+
+    ezUInt16 uiSimulatedPieces = m_uiPieces;
+
+    bool bAnchor1Fixed = false;
+    bool bAnchor2Fixed = false;
+
+    if (m_Anchor1ConstraintMode == ezJoltRopeAnchorConstraintMode::Cone ||
+        m_Anchor1ConstraintMode == ezJoltRopeAnchorConstraintMode::Fixed)
+    {
+      bAnchor1Fixed = true;
+      vAnchor1 += ezSimdConversion::ToVec3(pAnchor1->GetGlobalDirForwards()) * fPieceLength;
+      --uiSimulatedPieces;
+    }
+
+    if (m_Anchor2ConstraintMode == ezJoltRopeAnchorConstraintMode::Cone ||
+        m_Anchor2ConstraintMode == ezJoltRopeAnchorConstraintMode::Fixed)
+    {
+      bAnchor2Fixed = true;
+      vAnchor2 += ezSimdConversion::ToVec3(pAnchor2->GetGlobalDirForwards()) * fPieceLength;
+      --uiSimulatedPieces;
+    }
+
     ezRopeSimulator rope;
     rope.m_bFirstNodeIsFixed = true;
     rope.m_bLastNodeIsFixed = true;
     rope.m_fDampingFactor = 0.97f;
-    rope.m_fSegmentLength = fIntendedRopeLength / m_uiPieces;
-    rope.m_Nodes.SetCount(m_uiPieces + 1);
+    rope.m_fSegmentLength = fPieceLength;
+    rope.m_Nodes.SetCount(uiSimulatedPieces + 1);
     rope.m_vAcceleration.Set(0, 0, ezMath::Sign(m_fSlack) * -1);
 
-    for (ezUInt16 i = 0; i < m_uiPieces + 1; ++i)
+    for (ezUInt16 i = 0; i < uiSimulatedPieces + 1; ++i)
     {
-      rope.m_Nodes[i].m_vPosition = vAnchor1 + (vAnchor2 - vAnchor1) * ((float)i / (float)m_uiPieces);
+      rope.m_Nodes[i].m_vPosition = vAnchor1 + (vAnchor2 - vAnchor1) * ((float)i / (float)uiSimulatedPieces);
       rope.m_Nodes[i].m_vPreviousPosition = rope.m_Nodes[i].m_vPosition;
     }
 
@@ -558,12 +583,29 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
     transforms.SetCountUninitialized(m_uiPieces + 1);
 
+    ezUInt16 idx2 = 0;
+
     out_fPieceLength = 0.0f;
 
-    for (ezUInt16 idx = 0; idx < m_uiPieces; ++idx)
+    if (bAnchor1Fixed)
     {
-      const ezSimdVec4f p0 = rope.m_Nodes[idx].m_vPosition;
-      const ezSimdVec4f p1 = rope.m_Nodes[idx + 1].m_vPosition;
+      out_fPieceLength += fPieceLength;
+
+      transforms[idx2].m_vScale.Set(1);
+      transforms[idx2].m_vPosition = vOrgAnchor1;
+      transforms[idx2].m_qRotation = pAnchor1->GetGlobalRotation();
+
+      ++idx2;
+    }
+
+    const float fRopeLen = rope.GetTotalLength();
+    const float fRopePieceLen = fRopeLen / uiSimulatedPieces;
+
+    ezSimdVec4f p0 = rope.m_Nodes[0].m_vPosition;
+
+    for (ezUInt16 idx = 0; idx < uiSimulatedPieces; ++idx)
+    {
+      const ezSimdVec4f p1 = rope.GetPositionAtLength((idx + 1) * fRopePieceLen);
       ezSimdVec4f dir = p1 - p0;
 
       const ezSimdFloat len = dir.GetLength<3>();
@@ -574,19 +616,33 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
       else
         dir /= len;
 
-      transforms[idx].m_vScale.Set(1);
-      transforms[idx].m_vPosition = ezSimdConversion::ToVec3(p0);
-      transforms[idx].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
+      transforms[idx2].m_vScale.Set(1);
+      transforms[idx2].m_vPosition = ezSimdConversion::ToVec3(p0);
+      transforms[idx2].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
+
+      ++idx2;
+      p0 = p1;
+    }
+
+    {
+      transforms[idx2].m_vScale.Set(1);
+      transforms[idx2].m_vPosition = ezSimdConversion::ToVec3(rope.m_Nodes.PeekBack().m_vPosition);
+      transforms[idx2].m_qRotation = transforms[idx2 - 1].m_qRotation;
+
+      ++idx2;
+    }
+
+    if (bAnchor2Fixed)
+    {
+      out_fPieceLength += fPieceLength;
+
+      transforms[idx2].m_vScale.Set(1);
+      transforms[idx2].m_vPosition = vOrgAnchor2;
+      transforms[idx2].m_qRotation = -pAnchor2->GetGlobalRotation();
+      transforms[idx2 - 1].m_qRotation = transforms[idx2].m_qRotation;
     }
 
     out_fPieceLength /= m_uiPieces;
-
-    {
-      ezUInt32 idx = m_uiPieces;
-      transforms[idx].m_vScale.Set(1);
-      transforms[idx].m_vPosition = ezSimdConversion::ToVec3(rope.m_Nodes[idx].m_vPosition);
-      transforms[idx].m_qRotation = transforms[idx - 1].m_qRotation;
-    }
 
     return EZ_SUCCESS;
   }
