@@ -75,15 +75,60 @@ bool ezRopeSimulator::HasEquilibrium(ezSimdFloat fAllowedMovement) const
   return true;
 }
 
+float ezRopeSimulator::GetTotalLength() const
+{
+  if (m_Nodes.GetCount() <= 1)
+    return 0.0f;
+
+  float len = 0;
+
+  ezSimdVec4f prev = m_Nodes[0].m_vPosition;
+  for (ezUInt32 i = 1; i < m_Nodes.GetCount(); ++i)
+  {
+    const ezSimdVec4f cur = m_Nodes[i].m_vPosition;
+
+    len += (cur - prev).GetLength<3>();
+
+    prev = cur;
+  }
+
+  return len;
+}
+
+ezSimdVec4f ezRopeSimulator::GetPositionAtLength(float length) const
+{
+  if (m_Nodes.IsEmpty())
+    return ezSimdVec4f::ZeroVector();
+
+  ezSimdVec4f prev = m_Nodes[0].m_vPosition;
+  for (ezUInt32 i = 1; i < m_Nodes.GetCount(); ++i)
+  {
+    const ezSimdVec4f cur = m_Nodes[i].m_vPosition;
+
+    const ezSimdVec4f dir = cur - prev;
+    const float dist = dir.GetLength<3>();
+
+    if (length <= dist)
+    {
+      const float interpolate = length / dist;
+      return prev + dir * interpolate;
+    }
+
+    length -= dist;
+    prev = cur;
+  }
+
+  return m_Nodes.PeekBack().m_vPosition;
+}
+
 ezSimdVec4f ezRopeSimulator::MoveTowards(const ezSimdVec4f posThis, const ezSimdVec4f posNext, ezSimdFloat factor, const ezSimdVec4f fallbackDir, ezSimdFloat& inout_fError)
 {
   ezSimdVec4f vDir = (posNext - posThis);
   ezSimdFloat fLen = vDir.GetLength<3>();
 
-  if (fLen.IsEqual(ezSimdFloat::Zero(), ezSimdFloat(0.001f)))
+  if (fLen < m_fSegmentLength)
   {
-    vDir = fallbackDir;
-    fLen = 1;
+    return ezSimdVec4f::ZeroVector();
   }
 
   vDir /= fLen;

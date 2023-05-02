@@ -8,13 +8,14 @@
 #include <RendererCore/AnimationSystem/Declarations.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezFakeRopeComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezFakeRopeComponent, 3, ezComponentMode::Static)
   {
     EZ_BEGIN_PROPERTIES
     {
-      EZ_ACCESSOR_PROPERTY("Anchor", DummyGetter, SetAnchorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-      EZ_ACCESSOR_PROPERTY("AttachToOrigin", GetAttachToOrigin, SetAttachToOrigin)->AddAttributes(new ezDefaultValueAttribute(true)),
-      EZ_ACCESSOR_PROPERTY("AttachToAnchor", GetAttachToAnchor, SetAttachToAnchor)->AddAttributes(new ezDefaultValueAttribute(true)),
+      EZ_ACCESSOR_PROPERTY("Anchor1", DummyGetter, SetAnchor1Reference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+      EZ_ACCESSOR_PROPERTY("Anchor2", DummyGetter, SetAnchor2Reference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+      EZ_ACCESSOR_PROPERTY("AttachToAnchor1", GetAttachToAnchor1, SetAttachToAnchor1)->AddAttributes(new ezDefaultValueAttribute(true)),
+      EZ_ACCESSOR_PROPERTY("AttachToAnchor2", GetAttachToAnchor2, SetAttachToAnchor2)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(32), new ezClampValueAttribute(2, 200)),
       EZ_ACCESSOR_PROPERTY("Slack", GetSlack, SetSlack)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
       EZ_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
@@ -44,7 +45,8 @@ void ezFakeRopeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_RopeSim.m_bFirstNodeIsFixed;
   s << m_RopeSim.m_bLastNodeIsFixed;
 
-  inout_stream.WriteGameObjectHandle(m_hAnchor);
+  inout_stream.WriteGameObjectHandle(m_hAnchor1);
+  inout_stream.WriteGameObjectHandle(m_hAnchor2);
 
   s << m_fWindInfluence;
 }
@@ -61,7 +63,12 @@ void ezFakeRopeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_RopeSim.m_bFirstNodeIsFixed;
   s >> m_RopeSim.m_bLastNodeIsFixed;
 
-  m_hAnchor = inout_stream.ReadGameObjectHandle();
+  if (uiVersion >= 3)
+  {
+    m_hAnchor1 = inout_stream.ReadGameObjectHandle();
+  }
+
+  m_hAnchor2 = inout_stream.ReadGameObjectHandle();
 
   if (uiVersion >= 2)
   {
@@ -97,10 +104,42 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
   if (!IsActiveAndInitialized())
     return EZ_FAILURE;
 
-  ezSimdVec4f anchorB;
+  ezGameObjectHandle hAnchor1 = m_hAnchor1;
+  ezGameObjectHandle hAnchor2 = m_hAnchor2;
 
-  ezGameObject* pAnchor = nullptr;
-  if (!GetWorld()->TryGetObject(m_hAnchor, pAnchor))
+  if (hAnchor1.IsInvalidated())
+    hAnchor1 = GetOwner()->GetHandle();
+  if (hAnchor2.IsInvalidated())
+    hAnchor2 = GetOwner()->GetHandle();
+
+  if (hAnchor1 == hAnchor2)
+    return EZ_FAILURE;
+
+  ezSimdVec4f anchor1;
+  ezSimdVec4f anchor2;
+
+  ezGameObject* pAnchor1 = nullptr;
+  ezGameObject* pAnchor2 = nullptr;
+
+  if (!GetWorld()->TryGetObject(hAnchor1, pAnchor1))
+  {
+    // never set up so far
+    if (m_RopeSim.m_Nodes.IsEmpty())
+      return EZ_FAILURE;
+
+    if (m_RopeSim.m_bFirstNodeIsFixed)
+    {
+      anchor1 = m_RopeSim.m_Nodes[0].m_vPosition;
+      m_RopeSim.m_bFirstNodeIsFixed = false;
+      m_uiSleepCounter = 0;
+    }
+  }
+  else
+  {
+    anchor1 = ezSimdConversion::ToVec3(pAnchor1->GetGlobalPosition());
+  }
+
+  if (!GetWorld()->TryGetObject(hAnchor2, pAnchor2))
   {
     // never set up so far
     if (m_RopeSim.m_Nodes.IsEmpty())
@@ -108,26 +147,24 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
 
     if (m_RopeSim.m_bLastNodeIsFixed)
     {
-      anchorB = m_RopeSim.m_Nodes.PeekBack().m_vPosition;
+      anchor2 = m_RopeSim.m_Nodes.PeekBack().m_vPosition;
       m_RopeSim.m_bLastNodeIsFixed = false;
       m_uiSleepCounter = 0;
     }
   }
   else
   {
-    anchorB = ezSimdConversion::ToVec3(pAnchor->GetGlobalPosition());
+    anchor2 = ezSimdConversion::ToVec3(pAnchor2->GetGlobalPosition());
   }
 
   // only early out, if we are not in edit mode
-  m_bIsDynamic = !IsActiveAndSimulating() || GetOwner()->IsDynamic() || (pAnchor != nullptr && pAnchor->IsDynamic());
-
-  const ezSimdVec4f anchorA = ezSimdConversion::ToVec3(GetOwner()->GetGlobalPosition());
+  m_bIsDynamic = !IsActiveAndSimulating() || (pAnchor1 != nullptr && pAnchor1->IsDynamic()) || (pAnchor2 != nullptr && pAnchor2->IsDynamic());
 
   m_RopeSim.m_fDampingFactor = ezMath::Lerp(1.0f, 0.97f, m_fDamping);
 
   if (m_RopeSim.m_fSegmentLength < 0)
   {
-    const float len = (anchorA - anchorB).GetLength<3>();
+    const float len = (anchor1 - anchor2).GetLength<3>();
     m_RopeSim.m_fSegmentLength = (len + len * m_fSlack) / m_uiPieces;
   }
 
@@ -154,7 +191,7 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
 
     for (ezUInt32 i = uiOldNum; i < m_uiPieces; ++i)
     {
-      m_RopeSim.m_Nodes[i].m_vPosition = anchorA + ((anchorB - anchorA) * (float)i / (m_uiPieces - 1));
+      m_RopeSim.m_Nodes[i].m_vPosition = anchor1 + ((anchor2 - anchor1) * (float)i / (m_uiPieces - 1));
       m_RopeSim.m_Nodes[i].m_vPreviousPosition = m_RopeSim.m_Nodes[i].m_vPosition;
     }
   }
@@ -163,19 +200,19 @@ ezResult ezFakeRopeComponent::ConfigureRopeSimulator()
   {
     if (m_RopeSim.m_bFirstNodeIsFixed)
     {
-      if ((m_RopeSim.m_Nodes[0].m_vPosition != anchorA).AnySet<3>())
+      if ((m_RopeSim.m_Nodes[0].m_vPosition != anchor1).AnySet<3>())
       {
         m_uiSleepCounter = 0;
-        m_RopeSim.m_Nodes[0].m_vPosition = anchorA;
+        m_RopeSim.m_Nodes[0].m_vPosition = anchor1;
       }
     }
 
     if (m_RopeSim.m_bLastNodeIsFixed)
     {
-      if ((m_RopeSim.m_Nodes.PeekBack().m_vPosition != anchorB).AnySet<3>())
+      if ((m_RopeSim.m_Nodes.PeekBack().m_vPosition != anchor2).AnySet<3>())
       {
         m_uiSleepCounter = 0;
-        m_RopeSim.m_Nodes.PeekBack().m_vPosition = anchorB;
+        m_RopeSim.m_Nodes.PeekBack().m_vPosition = anchor2;
       }
     }
   }
@@ -188,16 +225,25 @@ void ezFakeRopeComponent::SendPreviewPose()
   if (!IsActiveAndInitialized() || IsActiveAndSimulating())
     return;
 
-  ezUInt32 uiHash = 0;
+  ezGameObject* pAnchor1 = nullptr;
+  ezGameObject* pAnchor2 = nullptr;
+  if (!GetWorld()->TryGetObject(m_hAnchor1, pAnchor1))
+    pAnchor1 = GetOwner();
+  if (!GetWorld()->TryGetObject(m_hAnchor2, pAnchor2))
+    pAnchor2 = GetOwner();
 
-  ezGameObject* pAnchor;
-  if (!GetWorld()->TryGetObject(m_hAnchor, pAnchor))
+  if (pAnchor1 == pAnchor2)
     return;
+
+  ezUInt32 uiHash = 0;
 
   ezVec3 pos = GetOwner()->GetGlobalPosition();
   uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
 
-  pos = pAnchor->GetGlobalPosition();
+  pos = pAnchor1->GetGlobalPosition();
+  uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
+
+  pos = pAnchor2->GetGlobalPosition();
   uiHash = ezHashingUtils::xxHash32(&pos, sizeof(ezVec3), uiHash);
 
   uiHash = ezHashingUtils::xxHash32(&m_fSlack, sizeof(float), uiHash);
@@ -321,26 +367,42 @@ void ezFakeRopeComponent::SendCurrentPose()
       pieces.PeekBack().SetLocalTransform(tRoot, tGlobal);
     }
 
-
     poseMsg.m_LinkTransforms = pieces;
   }
 
   GetOwner()->PostMessage(poseMsg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
 }
 
-void ezFakeRopeComponent::SetAnchorReference(const char* szReference)
+void ezFakeRopeComponent::SetAnchor1Reference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
   if (!resolver.IsValid())
     return;
 
-  SetAnchor(resolver(szReference, GetHandle(), "Anchor"));
+  SetAnchor1(resolver(szReference, GetHandle(), "Anchor1"));
 }
 
-void ezFakeRopeComponent::SetAnchor(ezGameObjectHandle hActor)
+void ezFakeRopeComponent::SetAnchor2Reference(const char* szReference)
 {
-  m_hAnchor = hActor;
+  auto resolver = GetWorld()->GetGameObjectReferenceResolver();
+
+  if (!resolver.IsValid())
+    return;
+
+  SetAnchor2(resolver(szReference, GetHandle(), "Anchor2"));
+}
+
+void ezFakeRopeComponent::SetAnchor1(ezGameObjectHandle hActor)
+{
+  m_hAnchor1 = hActor;
+  m_bIsDynamic = true;
+  m_uiSleepCounter = 0;
+}
+
+void ezFakeRopeComponent::SetAnchor2(ezGameObjectHandle hActor)
+{
+  m_hAnchor2 = hActor;
   m_bIsDynamic = true;
   m_uiSleepCounter = 0;
 }
@@ -353,26 +415,26 @@ void ezFakeRopeComponent::SetSlack(float fVal)
   m_uiSleepCounter = 0;
 }
 
-void ezFakeRopeComponent::SetAttachToOrigin(bool bVal)
+void ezFakeRopeComponent::SetAttachToAnchor1(bool bVal)
 {
   m_RopeSim.m_bFirstNodeIsFixed = bVal;
   m_bIsDynamic = true;
   m_uiSleepCounter = 0;
 }
 
-bool ezFakeRopeComponent::GetAttachToOrigin() const
-{
-  return m_RopeSim.m_bFirstNodeIsFixed;
-}
-
-void ezFakeRopeComponent::SetAttachToAnchor(bool bVal)
+void ezFakeRopeComponent::SetAttachToAnchor2(bool bVal)
 {
   m_RopeSim.m_bLastNodeIsFixed = bVal;
   m_bIsDynamic = true;
   m_uiSleepCounter = 0;
 }
 
-bool ezFakeRopeComponent::GetAttachToAnchor() const
+bool ezFakeRopeComponent::GetAttachToAnchor1() const
+{
+  return m_RopeSim.m_bFirstNodeIsFixed;
+}
+
+bool ezFakeRopeComponent::GetAttachToAnchor2() const
 {
   return m_RopeSim.m_bLastNodeIsFixed;
 }
