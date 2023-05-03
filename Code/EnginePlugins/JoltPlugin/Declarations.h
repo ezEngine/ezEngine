@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Communication/Message.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Enum.h>
