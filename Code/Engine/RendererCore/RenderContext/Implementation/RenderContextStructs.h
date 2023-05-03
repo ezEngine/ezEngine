@@ -9,7 +9,7 @@
 
 struct EZ_RENDERERCORE_DLL ezShaderBindFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {
@@ -44,7 +44,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezShaderBindFlags);
 
 struct EZ_RENDERERCORE_DLL ezRenderContextFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {
@@ -84,7 +84,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezRenderContextFlags);
 
 struct EZ_RENDERERCORE_DLL ezDefaultSamplerFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {

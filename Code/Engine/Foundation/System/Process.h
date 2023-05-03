@@ -66,7 +66,7 @@ struct EZ_FOUNDATION_DLL ezProcessOptions
 /// \brief Flags for ezProcess::Launch()
 struct ezProcessLaunchFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {

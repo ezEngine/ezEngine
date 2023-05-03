@@ -6,7 +6,7 @@
 
 struct ezMemoryTrackingFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {

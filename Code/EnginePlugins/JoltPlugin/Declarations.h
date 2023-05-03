@@ -5,9 +5,11 @@
 #include <Foundation/Types/Enum.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
-struct EZ_JOLTPLUGIN_DLL ezJoltSteppingMode
+class ezJoltActorComponent;
+
+struct ezJoltSteppingMode
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {
@@ -25,12 +27,12 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltSteppingMode);
 
 struct ezOnJoltContact
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {
     None = 0,
-    //SendReportMsg = EZ_BIT(0),
+    // SendReportMsg = EZ_BIT(0),
     ImpactReactions = EZ_BIT(1),
     SlideReactions = EZ_BIT(2),
     RollXReactions = EZ_BIT(3),
@@ -70,4 +72,17 @@ struct ezJoltSettings
   ezUInt32 m_uiMaxSubSteps = 4;
 
   ezUInt32 m_uiMaxBodies = 1000 * 10;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+struct EZ_JOLTPLUGIN_DLL ezJoltMsgDisconnectConstraints : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezJoltMsgDisconnectConstraints, ezMessage);
+
+  /// The actor that is being deleted. All constraints that are linked to it must be removed for Jolt not to crash.
+  ezJoltActorComponent* m_pActor = nullptr;
+
+  /// The ID of the Jolt body that is being removed. If an actor were to have multiple bodies, this message may be sent multiple times.
+  ezUInt32 m_uiJoltBodyID = 0;
 };

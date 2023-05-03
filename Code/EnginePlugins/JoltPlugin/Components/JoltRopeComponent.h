@@ -92,6 +92,9 @@ public:
   void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);
 
+  /// \brief Makes sure that the rope's connection to a removed body also gets removed.
+  void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& msg); // [ msg handler ]
+
 private:
   void CreateRope();
   ezResult CreateSegmentTransforms(ezDynamicArray<ezTransform>& transforms, float& out_fPieceLength, ezGameObjectHandle hAnchor1, ezGameObjectHandle hAnchor2);
@@ -99,7 +102,7 @@ private:
   void Update();
   void SendPreviewPose();
   const ezJoltMaterial* GetJoltMaterial();
-  JPH::Constraint* CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode);
+  JPH::Constraint* CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode, ezUInt32& out_uiConnectedToBodyID);
   void UpdatePreview();
 
   ezSurfaceResourceHandle m_hSurface;
@@ -119,6 +122,8 @@ private:
   JPH::Ragdoll* m_pRagdoll = nullptr;
   JPH::Constraint* m_pConstraintAnchor1 = nullptr;
   JPH::Constraint* m_pConstraintAnchor2 = nullptr;
+  ezUInt32 m_uiAnchor1BodyID = ezInvalidIndex;
+  ezUInt32 m_uiAnchor2BodyID = ezInvalidIndex;
 
 
 private:

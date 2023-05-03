@@ -55,6 +55,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 2, ezComponentMode::Dynamic)
     {
       EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, AddForceAtPos),
       EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
+      EZ_MESSAGE_HANDLER(ezJoltMsgDisconnectConstraints, OnJoltMsgDisconnectConstraints),
     }
     EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_ATTRIBUTES
@@ -319,18 +320,18 @@ void ezJoltRopeComponent::CreateRope()
 
   if (m_Anchor1ConstraintMode != ezJoltRopeAnchorConstraintMode::None)
   {
-    m_pConstraintAnchor1 = CreateConstraint(hAnchor1, nodes[0], m_pRagdoll->GetBodyID(0).GetIndexAndSequenceNumber(), m_Anchor1ConstraintMode);
+    m_pConstraintAnchor1 = CreateConstraint(hAnchor1, nodes[0], m_pRagdoll->GetBodyID(0).GetIndexAndSequenceNumber(), m_Anchor1ConstraintMode, m_uiAnchor1BodyID);
   }
 
   if (m_Anchor2ConstraintMode != ezJoltRopeAnchorConstraintMode::None)
   {
     ezTransform end = nodes.PeekBack();
     end.m_qRotation = -end.m_qRotation;
-    m_pConstraintAnchor2 = CreateConstraint(hAnchor2, end, m_pRagdoll->GetBodyIDs().back().GetIndexAndSequenceNumber(), m_Anchor2ConstraintMode);
+    m_pConstraintAnchor2 = CreateConstraint(hAnchor2, end, m_pRagdoll->GetBodyIDs().back().GetIndexAndSequenceNumber(), m_Anchor2ConstraintMode, m_uiAnchor2BodyID);
   }
 }
 
-JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& pieceLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode)
+JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& pieceLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode, ezUInt32& out_uiConnectedToBodyID)
 {
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
@@ -353,7 +354,8 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
   if (pActor)
   {
     pActor->EnsureSimulationStarted();
-    bodyIDs[0] = JPH::BodyID(pActor->GetJoltBodyID());
+    out_uiConnectedToBodyID = pActor->GetJoltBodyID();
+    bodyIDs[0] = JPH::BodyID(out_uiConnectedToBodyID);
   }
 
 
@@ -427,6 +429,11 @@ JPH::Constraint* ezJoltRopeComponent::CreateConstraint(const ezGameObjectHandle&
 
     pConstraint->AddRef();
     pModule->GetJoltSystem()->AddConstraint(pConstraint);
+
+    if (pActor)
+    {
+      pActor->AddConstraint(GetHandle());
+    }
 
     return pConstraint;
   }
@@ -671,6 +678,7 @@ void ezJoltRopeComponent::DestroyPhysicsShapes()
       pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor1);
       m_pConstraintAnchor1->Release();
       m_pConstraintAnchor1 = nullptr;
+      m_uiAnchor1BodyID = ezInvalidIndex;
     }
 
     if (m_pConstraintAnchor2)
@@ -678,6 +686,7 @@ void ezJoltRopeComponent::DestroyPhysicsShapes()
       pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor2);
       m_pConstraintAnchor2->Release();
       m_pConstraintAnchor2 = nullptr;
+      m_uiAnchor2BodyID = ezInvalidIndex;
     }
 
     pModule->DeallocateUserData(m_uiUserDataIndex);
@@ -709,6 +718,7 @@ void ezJoltRopeComponent::Update()
       pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor1);
       m_pConstraintAnchor1->Release();
       m_pConstraintAnchor1 = nullptr;
+      m_uiAnchor1BodyID = ezInvalidIndex;
       m_pRagdoll->Activate();
     }
 
@@ -717,6 +727,7 @@ void ezJoltRopeComponent::Update()
       pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor2);
       m_pConstraintAnchor2->Release();
       m_pConstraintAnchor2 = nullptr;
+      m_uiAnchor2BodyID = ezInvalidIndex;
       m_pRagdoll->Activate();
     }
   }
@@ -931,6 +942,31 @@ void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
   pModule->GetJoltSystem()->GetBodyInterface().AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
+}
+
+void ezJoltRopeComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& msg)
+{
+  ezGameObjectHandle hBody = msg.m_pActor->GetOwner()->GetHandle();
+  ezWorld* pWorld = GetWorld();
+
+  if (m_pConstraintAnchor1 && msg.m_uiJoltBodyID == m_uiAnchor1BodyID)
+  {
+    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+    pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor1);
+    m_pConstraintAnchor1->Release();
+    m_pConstraintAnchor1 = nullptr;
+    m_uiAnchor1BodyID = ezInvalidIndex;
+  }
+
+  if (m_pConstraintAnchor2 && msg.m_uiJoltBodyID == m_uiAnchor2BodyID)
+  {
+    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+
+    pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor2);
+    m_pConstraintAnchor2->Release();
+    m_pConstraintAnchor2 = nullptr;
+    m_uiAnchor2BodyID = ezInvalidIndex;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
