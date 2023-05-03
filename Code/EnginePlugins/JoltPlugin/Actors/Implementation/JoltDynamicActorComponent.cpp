@@ -21,7 +21,7 @@ ezJoltDynamicActorComponentManager::ezJoltDynamicActorComponentManager(ezWorld* 
 {
 }
 
-ezJoltDynamicActorComponentManager::~ezJoltDynamicActorComponentManager() {}
+ezJoltDynamicActorComponentManager::~ezJoltDynamicActorComponentManager() = default;
 
 void ezJoltDynamicActorComponentManager::UpdateDynamicActors()
 {

@@ -73,15 +73,13 @@ public:
   void SetSurfaceFile(const char* szFile); // [ property ]
   const char* GetSurfaceFile() const;      // [ property ]
 
-  ezUInt8 m_uiCollisionLayer = 0;                                 // [ property ]
-  ezUInt16 m_uiPieces = 16;                                       // [ property ]
-  float m_fThickness = 0.05f;                                     // [ property ]
-  float m_fSlack = 0.3f;                                          // [ property ]
-  ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor1ConstraintMode; // [ property ]
-  ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor2ConstraintMode; // [ property ]
-  bool m_bCCD = false;                                            // [ property ]
-  ezAngle m_MaxBend = ezAngle::Degree(30);                        // [ property ]
-  ezAngle m_MaxTwist = ezAngle::Degree(15);                       // [ property ]
+  ezUInt8 m_uiCollisionLayer = 0;           // [ property ]
+  ezUInt16 m_uiPieces = 16;                 // [ property ]
+  float m_fThickness = 0.05f;               // [ property ]
+  float m_fSlack = 0.3f;                    // [ property ]
+  bool m_bCCD = false;                      // [ property ]
+  ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
+  ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
 
   void SetAnchor1Reference(const char* szReference); // [ property ]
   void SetAnchor2Reference(const char* szReference); // [ property ]
@@ -91,6 +89,12 @@ public:
 
   void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);
+
+  void SetAnchor1ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode); // [ property ]
+  void SetAnchor2ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode); // [ property ]
+
+  ezEnum<ezJoltRopeAnchorConstraintMode> GetAnchor1ConstraintMode() const { return m_Anchor1ConstraintMode; } // [ property ]
+  ezEnum<ezJoltRopeAnchorConstraintMode> GetAnchor2ConstraintMode() const { return m_Anchor2ConstraintMode; } // [ property ]
 
   /// \brief Makes sure that the rope's connection to a removed body also gets removed.
   void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& msg); // [ msg handler ]
@@ -109,6 +113,9 @@ private:
 
   ezGameObjectHandle m_hAnchor1;
   ezGameObjectHandle m_hAnchor2;
+
+  ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor1ConstraintMode; // [ property ]
+  ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor2ConstraintMode; // [ property ]
 
   float m_fTotalMass = 1.0f;
   float m_fMaxForcePerFrame = 0.0f;

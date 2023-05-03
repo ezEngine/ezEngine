@@ -27,7 +27,20 @@ namespace JPH
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
-using ezJoltRagdollComponentManager = ezComponentManagerSimple<class ezJoltRagdollComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact>;
+class EZ_JOLTPLUGIN_DLL ezJoltRagdollComponentManager : public ezComponentManager<class ezJoltRagdollComponent, ezBlockStorageType::FreeList>
+{
+public:
+  ezJoltRagdollComponentManager(ezWorld* pWorld);
+  ~ezJoltRagdollComponentManager();
+
+  virtual void Initialize() override;
+
+private:
+  friend class ezJoltWorldModule;
+  friend class ezJoltRagdollComponent;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+};
 
 struct ezJoltRagdollStart
 {
@@ -155,5 +168,4 @@ protected:
   void ComputeLimbGlobalTransform(ezTransform& transform, const ezMsgAnimationPoseUpdated& pose, ezUInt32 uiIndex);
   void RetrievePhysicsPose();
   virtual void WakeUp();
-  virtual bool IsSleeping() const;
 };

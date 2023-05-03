@@ -51,6 +51,16 @@ public:
     {
       m_pActiveActors->Insert(pActor, bodyID.GetIndexAndSequenceNumber());
     }
+
+    if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
+    {
+      m_pActiveRagdolls->Insert(pActor, bodyID.GetIndexAndSequenceNumber());
+    }
+
+    if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
+    {
+      m_pActiveRopes->Insert(pActor, bodyID.GetIndexAndSequenceNumber());
+    }
   }
 
   virtual void OnBodyDeactivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
@@ -60,9 +70,21 @@ public:
     {
       m_pActiveActors->Remove(pActor);
     }
+
+    if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
+    {
+      m_pActiveRagdolls->Remove(pActor);
+    }
+
+    if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
+    {
+      m_pActiveRopes->Remove(pActor);
+    }
   }
 
   ezMap<ezJoltActorComponent*, ezUInt32>* m_pActiveActors = nullptr;
+  ezMap<ezJoltRagdollComponent*, ezUInt32>* m_pActiveRagdolls = nullptr;
+  ezMap<ezJoltRopeComponent*, ezUInt32>* m_pActiveRopes = nullptr;
 };
 
 class ezJoltGroupFilter : public JPH::GroupFilter
@@ -101,7 +123,10 @@ void ezJoltWorldModule::Deinitialize()
   m_pContactListener = nullptr;
 
   m_pGroupFilter->Release();
+  m_pGroupFilter = nullptr;
+
   m_pGroupFilterIgnoreSame->Release();
+  m_pGroupFilterIgnoreSame = nullptr;
 }
 
 class ezJoltTempAlloc : public JPH::TempAllocator
@@ -224,6 +249,8 @@ void ezJoltWorldModule::Initialize()
     ezJoltBodyActivationListener* pListener = EZ_DEFAULT_NEW(ezJoltBodyActivationListener);
     m_pActivationListener = pListener;
     pListener->m_pActiveActors = &m_ActiveActors;
+    pListener->m_pActiveRagdolls = &m_ActiveRagdolls;
+    pListener->m_pActiveRopes = &m_ActiveRopes;
     m_pSystem->SetBodyActivationListener(pListener);
   }
 

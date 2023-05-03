@@ -120,6 +120,28 @@ public:
     return nullptr;
   }
 
+  EZ_FORCE_INLINE static ezJoltRagdollComponent* GetRagdollComponent(const void* pUserData)
+  {
+    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::RagdollComponent)
+    {
+      return static_cast<ezJoltRagdollComponent*>(pJoltUserData->m_pObject);
+    }
+
+    return nullptr;
+  }
+
+  EZ_FORCE_INLINE static ezJoltRopeComponent* GetRopeComponent(const void* pUserData)
+  {
+    const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+    if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::RopeComponent)
+    {
+      return static_cast<ezJoltRopeComponent*>(pJoltUserData->m_pObject);
+    }
+
+    return nullptr;
+  }
+
   //EZ_FORCE_INLINE static ezJoltShapeComponent* GetShapeComponent(const void* pUserData)
   //{
   //  const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);

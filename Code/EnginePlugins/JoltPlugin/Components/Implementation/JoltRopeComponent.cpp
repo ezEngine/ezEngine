@@ -35,8 +35,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 2, ezComponentMode::Dynamic)
     {
       EZ_ACCESSOR_PROPERTY("Anchor1", DummyGetter, SetAnchor1Reference)->AddAttributes(new ezGameObjectReferenceAttribute()),
       EZ_ACCESSOR_PROPERTY("Anchor2", DummyGetter, SetAnchor2Reference)->AddAttributes(new ezGameObjectReferenceAttribute()),
-      EZ_ENUM_MEMBER_PROPERTY("Anchor1Constraint", ezJoltRopeAnchorConstraintMode, m_Anchor1ConstraintMode),
-      EZ_ENUM_MEMBER_PROPERTY("Anchor2Constraint", ezJoltRopeAnchorConstraintMode, m_Anchor2ConstraintMode),
+      EZ_ENUM_ACCESSOR_PROPERTY("Anchor1Constraint", ezJoltRopeAnchorConstraintMode, GetAnchor1ConstraintMode, SetAnchor1ConstraintMode),
+      EZ_ENUM_ACCESSOR_PROPERTY("Anchor2Constraint", ezJoltRopeAnchorConstraintMode, GetAnchor2ConstraintMode, SetAnchor2ConstraintMode),
       EZ_MEMBER_PROPERTY("Pieces", m_uiPieces)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(2, 64)),
       EZ_MEMBER_PROPERTY("Slack", m_fSlack)->AddAttributes(new ezDefaultValueAttribute(0.3f)),
       EZ_MEMBER_PROPERTY("Mass", m_fTotalMass)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 1000.0f)),
@@ -750,10 +750,6 @@ void ezJoltRopeComponent::Update()
   //  }
   //}
 
-  // if one is inactive, all the linked bodies are inactive
-  if (!pModule->GetJoltSystem()->GetBodyInterface().IsActive(m_pRagdoll->GetBodyID(0)))
-    return;
-
   ezHybridArray<ezTransform, 32> poses(ezFrameAllocator::GetCurrentAllocator());
   poses.SetCountUninitialized(static_cast<ezUInt32>(m_pRagdoll->GetBodyCount()) + 1);
 
@@ -944,6 +940,32 @@ void ezJoltRopeComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg)
   pModule->GetJoltSystem()->GetBodyInterface().AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(vImp), ezJoltConversionUtils::ToVec3(ref_msg.m_vGlobalPosition));
 }
 
+void ezJoltRopeComponent::SetAnchor1ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode)
+{
+  if (m_Anchor1ConstraintMode == mode)
+    return;
+
+  m_Anchor1ConstraintMode = mode;
+
+  if (mode == ezJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor1)
+  {
+    m_pRagdoll->Activate();
+  }
+}
+
+void ezJoltRopeComponent::SetAnchor2ConstraintMode(ezEnum<ezJoltRopeAnchorConstraintMode> mode)
+{
+  if (m_Anchor2ConstraintMode == mode)
+    return;
+
+  m_Anchor2ConstraintMode = mode;
+
+  if (mode == ezJoltRopeAnchorConstraintMode::None && m_pConstraintAnchor2)
+  {
+    m_pRagdoll->Activate();
+  }
+}
+
 void ezJoltRopeComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& msg)
 {
   ezGameObjectHandle hBody = msg.m_pActor->GetOwner()->GetHandle();
@@ -995,6 +1017,8 @@ void ezJoltRopeComponentManager::Initialize()
 
 void ezJoltRopeComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
+  EZ_PROFILE_SCOPE("UpdateRopes");
+
   if (!GetWorld()->GetWorldSimulationEnabled())
   {
     for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
@@ -1008,16 +1032,12 @@ void ezJoltRopeComponentManager::Update(const ezWorldModule::UpdateContext& cont
     return;
   }
 
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
-  if (pModule == nullptr)
-    return;
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  auto* pSystem = pModule->GetJoltSystem();
 
-  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  for (auto itActor : pModule->GetActiveRopes())
   {
-    if (it->IsActiveAndSimulating())
-    {
-      it->Update();
-    }
+    itActor.Key()->Update();
   }
 }
 

@@ -376,9 +376,6 @@ void ezJoltRagdollComponent::RetrievePhysicsPose()
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
-  if (IsSleeping())
-    return;
-
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 
   const ezTransform rootTransform = pSkeleton->GetDescriptor().m_RootTransform;
@@ -473,18 +470,6 @@ void ezJoltRagdollComponent::WakeUp()
   m_pRagdoll->Activate();
 }
 
-bool ezJoltRagdollComponent::IsSleeping() const
-{
-  const ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
-
-  JPH::BodyLockRead lock(pModule->GetJoltSystem()->GetBodyLockInterface(), m_pRagdoll->GetBodyID(0));
-
-  if (!lock.Succeeded())
-    return true;
-
-  return !lock.GetBody().IsActive();
-}
-
 void ezJoltRagdollComponent::SetupLimbsFromBindPose()
 {
   if (m_bLimbsSetup)
@@ -501,7 +486,8 @@ void ezJoltRagdollComponent::SetupLimbsFromBindPose()
 
   m_LimbPoses.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4 {
+  auto getBone = [&](ezUInt32 i, auto f) -> ezMat4
+  {
     const auto& j = desc.m_Skeleton.GetJointByIndex(i);
     const ezMat4 bm = j.GetBindPoseLocalTransform().GetAsMat4();
 
@@ -896,6 +882,39 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+ezJoltRagdollComponentManager::ezJoltRagdollComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ezJoltRagdollComponent, ezBlockStorageType::FreeList>(pWorld)
+{
+}
+
+ezJoltRagdollComponentManager::~ezJoltRagdollComponentManager() = default;
+
+void ezJoltRagdollComponentManager::Initialize()
+{
+  SUPER::Initialize();
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltRagdollComponentManager::Update, this);
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_bOnlyUpdateWhenSimulating = false;
+
+    this->RegisterUpdateFunction(desc);
+  }
+}
+
+void ezJoltRagdollComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  EZ_PROFILE_SCOPE("UpdateRagdolls");
+
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  auto* pSystem = pModule->GetJoltSystem();
+
+  for (auto itActor : pModule->GetActiveRagdolls())
+  {
+    itActor.Key()->Update();
+  }
+}
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltRagdollComponent);
-
