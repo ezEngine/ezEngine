@@ -7,7 +7,7 @@
 
 struct TestId
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   EZ_DECLARE_ID_TYPE(TestId, 20, 6);
 

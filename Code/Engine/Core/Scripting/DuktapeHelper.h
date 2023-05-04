@@ -12,7 +12,7 @@ typedef int (*duk_c_function)(duk_context* ctx);
 
 struct ezDuktapeTypeMask
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {

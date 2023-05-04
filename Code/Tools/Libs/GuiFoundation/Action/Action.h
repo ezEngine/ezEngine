@@ -26,7 +26,8 @@ typedef void (*DeleteActionFunc)(ezAction* pAction);
 class EZ_GUIFOUNDATION_DLL ezActionDescriptorHandle
 {
 public:
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
+
   EZ_DECLARE_HANDLE_TYPE(ezActionDescriptorHandle, ezActionId);
   friend class ezActionManager;
 

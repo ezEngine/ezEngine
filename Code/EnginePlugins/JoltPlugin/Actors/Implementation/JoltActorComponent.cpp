@@ -14,6 +14,12 @@
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
 
 // clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezJoltMsgDisconnectConstraints);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltMsgDisconnectConstraints, 1, ezRTTIDefaultAllocator<ezJoltMsgDisconnectConstraints>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltActorComponent, 2)
 {
   EZ_BEGIN_PROPERTIES

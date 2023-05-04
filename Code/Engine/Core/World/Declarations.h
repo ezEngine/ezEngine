@@ -167,7 +167,7 @@ EZ_DECLARE_CUSTOM_VARIANT_TYPE(ezComponentHandle);
 /// \brief Internal flags of game objects or components.
 struct ezObjectFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
 
   enum Enum
   {

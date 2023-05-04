@@ -28,6 +28,11 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltConstraintComponent, 1)
     new ezCategoryAttribute("Physics/Jolt/Constraints"),
   }
   EZ_END_ATTRIBUTES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezJoltMsgDisconnectConstraints, OnJoltMsgDisconnectConstraints),
+  }
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
 
@@ -42,6 +47,60 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 ezJoltConstraintComponent::ezJoltConstraintComponent() = default;
 ezJoltConstraintComponent::~ezJoltConstraintComponent() = default;
+
+void ezJoltConstraintComponent::BreakConstraint()
+{
+  if (m_pConstraint == nullptr)
+    return;
+
+  ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
+  pModule->GetJoltSystem()->RemoveConstraint(m_pConstraint);
+
+  pModule->m_BreakableConstraints.Remove(GetHandle());
+
+  // wake up the joined bodies, so that removing a constraint doesn't let them hang in the air
+  {
+    JPH::BodyID bodies[2] = {JPH::BodyID(JPH::BodyID::cInvalidBodyID), JPH::BodyID(JPH::BodyID::cInvalidBodyID)};
+    ezInt32 iBodies = 0;
+
+    if (!m_hActorA.IsInvalidated())
+    {
+      ezGameObject* pObject = nullptr;
+      ezJoltDynamicActorComponent* pRbComp = nullptr;
+
+      if (GetWorld()->TryGetObject(m_hActorA, pObject) && pObject->IsActive() && pObject->TryGetComponentOfBaseType(pRbComp))
+      {
+        bodies[iBodies] = JPH::BodyID(pRbComp->GetJoltBodyID());
+        ++iBodies;
+
+        pRbComp->RemoveConstraint(GetHandle());
+      }
+    }
+
+    if (!m_hActorB.IsInvalidated())
+    {
+      ezGameObject* pObject = nullptr;
+      ezJoltDynamicActorComponent* pRbComp = nullptr;
+
+      if (GetWorld()->TryGetObject(m_hActorB, pObject) && pObject->IsActive() && pObject->TryGetComponentOfBaseType(pRbComp))
+      {
+        bodies[iBodies] = JPH::BodyID(pRbComp->GetJoltBodyID());
+        ++iBodies;
+
+        pRbComp->RemoveConstraint(GetHandle());
+      }
+    }
+
+    if (iBodies > 0)
+    {
+      ezLog::Info("Waking up {} bodies", iBodies);
+      pModule->GetJoltSystem()->GetBodyInterface().ActivateBodies(bodies, iBodies);
+    }
+  }
+
+  m_pConstraint->Release();
+  m_pConstraint = nullptr;
+}
 
 void ezJoltConstraintComponent::SetBreakForce(float value)
 {
@@ -66,10 +125,13 @@ void ezJoltConstraintComponent::OnSimulationStarted()
   ezUInt32 uiBodyIdA = ezInvalidIndex;
   ezUInt32 uiBodyIdB = ezInvalidIndex;
 
-  if (FindParentBody(uiBodyIdA).Failed())
+  ezJoltDynamicActorComponent* pRbParent = nullptr;
+  ezJoltDynamicActorComponent* pRbChild = nullptr;
+
+  if (FindParentBody(uiBodyIdA, pRbParent).Failed())
     return;
 
-  if (FindChildBody(uiBodyIdB).Failed())
+  if (FindChildBody(uiBodyIdB, pRbChild).Failed())
     return;
 
   if (uiBodyIdB == ezInvalidIndex)
@@ -110,57 +172,22 @@ void ezJoltConstraintComponent::OnSimulationStarted()
     m_pConstraint->AddRef();
     pModule->GetJoltSystem()->AddConstraint(m_pConstraint);
     ApplySettings();
+
+    if (pRbParent)
+    {
+      pRbParent->AddConstraint(GetHandle());
+    }
+
+    if (pRbChild)
+    {
+      pRbChild->AddConstraint(GetHandle());
+    }
   }
 }
 
 void ezJoltConstraintComponent::OnDeactivated()
 {
-  if (m_pConstraint != nullptr)
-  {
-    ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
-    pModule->GetJoltSystem()->RemoveConstraint(m_pConstraint);
-
-    pModule->m_BreakableConstraints.Remove(GetHandle());
-
-    // wake up the joined bodies, so that removing a constraint doesn't let them hang in the air
-    {
-      JPH::BodyID bodies[2] = {JPH::BodyID(JPH::BodyID::cInvalidBodyID), JPH::BodyID(JPH::BodyID::cInvalidBodyID)};
-      ezInt32 iBodies = 0;
-
-      if (!m_hActorA.IsInvalidated())
-      {
-        ezGameObject* pObject = nullptr;
-        ezJoltDynamicActorComponent* pRbComp = nullptr;
-
-        if (GetWorld()->TryGetObject(m_hActorA, pObject) && pObject->IsActive() && pObject->TryGetComponentOfBaseType(pRbComp))
-        {
-          bodies[iBodies] = JPH::BodyID(pRbComp->GetJoltBodyID());
-          ++iBodies;
-        }
-      }
-
-      if (!m_hActorB.IsInvalidated())
-      {
-        ezGameObject* pObject = nullptr;
-        ezJoltDynamicActorComponent* pRbComp = nullptr;
-
-        if (GetWorld()->TryGetObject(m_hActorB, pObject) && pObject->IsActive() && pObject->TryGetComponentOfBaseType(pRbComp))
-        {
-          bodies[iBodies] = JPH::BodyID(pRbComp->GetJoltBodyID());
-          ++iBodies;
-        }
-      }
-
-      if (iBodies > 0)
-      {
-        ezLog::Info("Waking up {} bodies", iBodies);
-        pModule->GetJoltSystem()->GetBodyInterface().ActivateBodies(bodies, iBodies);
-      }
-    }
-
-    m_pConstraint->Release();
-    m_pConstraint = nullptr;
-  }
+  BreakConstraint();
 
   SUPER::OnDeactivated();
 }
@@ -284,10 +311,15 @@ void ezJoltConstraintComponent::ApplySettings()
   }
 }
 
-ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID)
+void ezJoltConstraintComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& msg)
+{
+  BreakConstraint();
+}
+
+ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID, ezJoltDynamicActorComponent*& pRbComp)
 {
   ezGameObject* pObject = nullptr;
-  ezJoltDynamicActorComponent* pRbComp = nullptr;
+  pRbComp = nullptr;
 
   if (!m_hActorA.IsInvalidated())
   {
@@ -365,10 +397,10 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID)
   return EZ_SUCCESS;
 }
 
-ezResult ezJoltConstraintComponent::FindChildBody(ezUInt32& out_uiJoltBodyID)
+ezResult ezJoltConstraintComponent::FindChildBody(ezUInt32& out_uiJoltBodyID, ezJoltDynamicActorComponent*& pRbComp)
 {
   ezGameObject* pObject = nullptr;
-  ezJoltDynamicActorComponent* pRbComp = nullptr;
+  pRbComp = nullptr;
 
   if (m_hActorB.IsInvalidated())
   {
