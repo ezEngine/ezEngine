@@ -263,16 +263,17 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     // replicate the same ID across all instantiated sub components to get correct picking behavior
     if (GetUniqueID() != ezInvalidIndex)
     {
-      ezHybridArray<ezGameObject*, 24> allCreatedObjects;
+      ezHybridArray<ezGameObject*, 8> createdRootObjects;
+      ezHybridArray<ezGameObject*, 16> createdChildObjects;
 
-      options.m_pCreatedRootObjectsOut = &allCreatedObjects;
-      options.m_pCreatedChildObjectsOut = &allCreatedObjects;
+      options.m_pCreatedRootObjectsOut = &createdRootObjects;
+      options.m_pCreatedChildObjectsOut = &createdChildObjects;
 
       ezUInt32 uiPrevCompCount = GetOwner()->GetComponents().GetCount();
 
       pResource->InstantiatePrefab(*GetWorld(), id, options, &m_Parameters);
 
-      for (ezGameObject* pChild : allCreatedObjects)
+      auto FixComponent = [](ezGameObject* pChild, ezUInt32 uiUniqueID)
       {
         // while exporting a scene all game objects with this flag are ignored and not exported
         // set this flag on all game objects that were created by instantiating this prefab
@@ -282,9 +283,21 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 
         for (auto pComponent : pChild->GetComponents())
         {
-          pComponent->SetUniqueID(GetUniqueID());
+          pComponent->SetUniqueID(uiUniqueID);
           pComponent->SetCreatedByPrefab();
         }
+      };
+
+      const ezUInt32 uiUniqueID = GetUniqueID();
+
+      for (ezGameObject* pChild : createdRootObjects)
+      {
+        FixComponent(pChild, uiUniqueID);
+      }
+
+      for (ezGameObject* pChild : createdChildObjects)
+      {
+        FixComponent(pChild, uiUniqueID);
       }
 
       for (; uiPrevCompCount < GetOwner()->GetComponents().GetCount(); ++uiPrevCompCount)
@@ -481,6 +494,7 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
     if (!pComponent->IsActive())
       continue;
 
+    pComponent->ClearPreviousInstances();
     pComponent->InstantiatePrefab();
   }
 

@@ -35,7 +35,7 @@ ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
 {
 }
 
-static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezString, ezCollectionEntry>& inout_found)
+static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezString, ezCollectionEntry>& inout_found)
 {
   auto it = inout_found.Find(sID);
 
@@ -46,7 +46,7 @@ static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
       it.Value().m_sOptionalNiceLookupName = sLookupName;
     }
 
-    return;
+    return true;
   }
 
   ezStringBuilder tmp;
@@ -54,8 +54,9 @@ static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
 
   if (pInfo == nullptr)
   {
-    ezLog::Warning("Asset in Collection is unknown: '{0}'", sID);
-    return;
+    // this happens for non-asset types (e.g. 'xyz.color' and other non-asset file types)
+    // these are benign and can just be skipped
+    return false;
   }
 
   // insert item itself
@@ -72,9 +73,12 @@ static void InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
 
     for (const ezString& doc : pDocInfo->m_PackageDependencies)
     {
+      // ignore return value, we are only interested in top-level information
       InsertEntry(doc, {}, inout_found);
     }
   }
+
+  return true;
 }
 
 ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
@@ -88,7 +92,11 @@ ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWrit
     if (e.m_sRedirectionAsset.IsEmpty())
       continue;
 
-    InsertEntry(e.m_sRedirectionAsset, e.m_sLookupName, entries);
+    if (!InsertEntry(e.m_sRedirectionAsset, e.m_sLookupName, entries))
+    {
+      // this should be treated as an error for top-level references, since they are manually added (in contrast to the transitive dependencies)
+      return ezStatus(ezFmt("Asset in Collection is unknown: '{0}'", e.m_sRedirectionAsset));
+    }
   }
 
   ezCollectionResourceDescriptor desc;
