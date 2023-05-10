@@ -123,7 +123,16 @@ public:
   const ezDocumentTypeDescriptor* GetDocumentTypeDescriptor() const { return m_pTypeDescriptor; }
 
   /// \brief Returns the document's type name. Same as GetDocumentTypeDescriptor()->m_sDocumentTypeName.
-  const char* GetDocumentTypeName() const { return m_pTypeDescriptor->m_sDocumentTypeName; }
+  ezStringView GetDocumentTypeName() const
+  {
+    if (m_pTypeDescriptor == nullptr)
+    {
+      // if this is a document without a type descriptor, use the RTTI type name as a fallback
+      return GetDynamicRTTI()->GetTypeName();
+    }
+
+    return m_pTypeDescriptor->m_sDocumentTypeName;
+  }
 
   const ezDocumentInfo* GetDocumentInfo() const { return m_pDocumentInfo; }
 

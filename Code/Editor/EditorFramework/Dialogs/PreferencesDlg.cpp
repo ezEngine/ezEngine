@@ -22,6 +22,9 @@ public:
 
 class ezPreferencesDocument : public ezDocument
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezPreferencesDocument, ezDocument);
+
+
 public:
   ezPreferencesDocument(const char* szDocumentPath)
     : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
@@ -32,7 +35,8 @@ public:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };
 
-
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferencesDocument, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* pParent)
   : QDialog(pParent)
@@ -106,7 +110,8 @@ void ezQtPreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPr
 
   // Write object to graph.
   ezAbstractObjectGraph graph;
-  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool {
+  auto filter = [](const ezDocumentObject*, const ezAbstractProperty* pProp) -> bool
+  {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       return false;
     return true;

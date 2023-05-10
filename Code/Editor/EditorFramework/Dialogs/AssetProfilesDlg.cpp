@@ -14,6 +14,8 @@ public:
 
 class ezAssetProfilesDocument : public ezDocument
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezAssetProfilesDocument, ezDocument);
+
 public:
   ezAssetProfilesDocument(const char* szDocumentPath)
     : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
@@ -23,6 +25,9 @@ public:
 public:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetProfilesDocument, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 class ezQtAssetConfigAdapter : public ezQtNameableAdapter
 {

@@ -5,10 +5,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-
-ezTestDocumentObjectManager::ezTestDocumentObjectManager() {}
-
-ezTestDocumentObjectManager::~ezTestDocumentObjectManager() {}
+ezTestDocumentObjectManager::ezTestDocumentObjectManager() = default;
+ezTestDocumentObjectManager::~ezTestDocumentObjectManager() = default;
 
 ezTestDocument::ezTestDocument(const char* szDocumentPath, bool bUseIPCObjectMirror /*= false*/)
   : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezTestDocumentObjectManager))
