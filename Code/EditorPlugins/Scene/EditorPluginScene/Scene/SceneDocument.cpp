@@ -570,10 +570,6 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 
 ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
-  EZ_ASSERT_DEV(!adjustGraphNodeCB.IsValid(), "Not allowed");
-  EZ_ASSERT_DEV(!adjustNewNodesCB.IsValid(), "Not allowed");
-  EZ_ASSERT_DEV(!finalizeGraphCB.IsValid(), "Not allowed");
-
   auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
 
   if (Selection.IsEmpty())
@@ -639,7 +635,14 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
     }
   };
 
-  return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, centerNodes, adjustResult, finalizeGraph);
+  if (!adjustGraphNodeCB.IsValid())
+    adjustGraphNodeCB = centerNodes;
+  if (!adjustNewNodesCB.IsValid())
+    adjustNewNodesCB = adjustResult;
+  if (!finalizeGraphCB.IsValid())
+    finalizeGraphCB = finalizeGraph;
+
+  return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, adjustGraphNodeCB, adjustNewNodesCB, finalizeGraphCB);
 }
 
 bool ezSceneDocument::CanEngineProcessBeRestarted() const
