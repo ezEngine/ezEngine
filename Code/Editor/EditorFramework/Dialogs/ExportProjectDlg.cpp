@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/Dialogs/ExportProjectDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
@@ -32,6 +33,17 @@ void ezQtExportProjectDlg::showEvent(QShowEvent* e)
   QDialog::showEvent(e);
 
   TransformAll->setChecked(s_bTransformAll);
+
+  if (!ezCppProject::ExistsProjectCMakeListsTxt())
+  {
+    CompileCpp->setEnabled(false);
+    CompileCpp->setToolTip("This project doesn't have a C++ plugin.");
+    CompileCpp->setChecked(false);
+  }
+  else
+  {
+    CompileCpp->setChecked(true);
+  }
 }
 
 void ezQtExportProjectDlg::on_BrowseDestination_clicked()
@@ -52,6 +64,12 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   // filter out unused runtime/game plugins
   // select asset profile for export
   // copy inputs into resource: RML files
+
+  if (CompileCpp->isChecked())
+  {
+    if (ezCppProject::EnsureCppPluginReady().Failed())
+      return;
+  }
 
   if (TransformAll->isChecked())
   {

@@ -271,7 +271,7 @@ public:
 #endif
 
   /// \brief Returns the path in which the applications binary file is located.
-  static const char* GetApplicationDirectory();
+  static ezStringView GetApplicationDirectory();
 
   /// \brief Returns the folder into which user data may be safely written.
   /// Append a sub-folder for your application.

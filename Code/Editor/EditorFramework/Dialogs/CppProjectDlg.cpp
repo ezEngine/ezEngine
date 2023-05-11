@@ -87,7 +87,14 @@ void ezQtCppProjectDlg::on_OpenSolution_clicked()
 
 void ezQtCppProjectDlg::on_PluginName_textEdited(const QString& text)
 {
-  m_CppSettings.m_sPluginName = PluginName->text().toUtf8().data();
+  ezStringBuilder name = PluginName->text().toUtf8().data();
+
+  if (name.EndsWith_NoCase("Plugin"))
+  {
+    name.Shrink(0, 6);
+  }
+
+  m_CppSettings.m_sPluginName = name;
 
   UpdateUI();
 }

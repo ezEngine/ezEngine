@@ -287,13 +287,8 @@ void ezSceneAction::Execute(const ezVariant& value)
       range.BeginNextStep("Build C++");
       if (dlg.s_bCompileCpp)
       {
-        if (ezCppProject::BuildCodeIfNecessary(dlg.m_CppSettings).Failed())
-        {
-          ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to build the C++ code. See log for details."));
+        if (ezCppProject::EnsureCppPluginReady().Failed())
           return;
-        }
-
-        ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
       }
 
       range.BeginNextStep("Transform Assets");

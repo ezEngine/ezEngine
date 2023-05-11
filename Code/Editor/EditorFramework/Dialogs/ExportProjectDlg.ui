@@ -52,6 +52,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="CompileCpp">
+     <property name="text">
+      <string>Compile C++ Plugin</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="TransformAll">
      <property name="text">
       <string>Transform all Assets</string>

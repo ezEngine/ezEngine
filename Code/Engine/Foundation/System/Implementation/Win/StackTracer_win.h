@@ -136,7 +136,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
   if (false) // e.m_EventType == ezPluginEvent::AfterLoading)
   {
     char buffer[1024];
-    strcpy_s(buffer, ezOSFile::GetApplicationDirectory());
+    strcpy_s(buffer, ezOSFile::GetApplicationDirectory().GetStartPointer());
     strcat_s(buffer, e.m_szPluginBinary);
     strcat_s(buffer, ".dll");
 

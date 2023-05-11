@@ -40,6 +40,10 @@ struct EZ_EDITORFRAMEWORK_DLL ezCppProject
 
   static void UpdatePluginConfig(const ezCppSettings& cfg);
 
+  static ezResult EnsureCppPluginReady();
+
+  static bool IsBuildRequired();
+
   /// \brief Fired when a notable change has been made.
   static ezEvent<const ezCppSettings&> s_ChangeEvents;
 };
