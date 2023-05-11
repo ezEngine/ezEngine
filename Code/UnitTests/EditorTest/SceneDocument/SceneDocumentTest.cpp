@@ -450,7 +450,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     ezStringBuilder sPrefabName;
     sPrefabName = m_sProjectPath;
     sPrefabName.AppendPath("Spheres.ezPrefab");
-    EZ_TEST_BOOL(m_pDoc->CreatePrefabDocumentFromSelection(sPrefabName, ezGetStaticRTTI<ezGameObject>()).Succeeded());
+    EZ_TEST_BOOL(m_pDoc->CreatePrefabDocumentFromSelection(sPrefabName, ezGetStaticRTTI<ezGameObject>(), {}, {}, [](ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>&) { /* do nothing */ }).Succeeded());
     m_pDoc->ScheduleSendObjectSelection();
     pPrefab3 = m_pDoc->GetSelectionManager()->GetCurrentObject();
     EZ_TEST_BOOL(!m_pDoc->IsObjectEditorPrefab(pPrefab3->GetGuid()));
