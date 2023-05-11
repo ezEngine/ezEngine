@@ -695,8 +695,7 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezStringBuilder sEngineProfilingFile;
       {
         // Wait for engine process response
-        auto callback = [&](ezProcessMessage* pMsg) -> bool
-        {
+        auto callback = [&](ezProcessMessage* pMsg) -> bool {
           auto pSimpleCfg = static_cast<ezSaveProfilingResponseToEditor*>(pMsg);
           sEngineProfilingFile = pSimpleCfg->m_sProfilingFile;
           return true;
