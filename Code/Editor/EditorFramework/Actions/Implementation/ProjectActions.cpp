@@ -549,7 +549,13 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::PluginSelection:
     {
-      ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles();
+      ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+
+      ezCppSettings cppSettings;
+      if (cppSettings.Load().Succeeded())
+      {
+        ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezCppProject::GetPluginSourceDir(cppSettings));
+      }
 
       ezQtPluginSelectionDlg dlg(&ezQtEditorApp::GetSingleton()->GetPluginBundles());
       dlg.exec();
@@ -689,7 +695,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezStringBuilder sEngineProfilingFile;
       {
         // Wait for engine process response
-        auto callback = [&](ezProcessMessage* pMsg) -> bool {
+        auto callback = [&](ezProcessMessage* pMsg) -> bool
+        {
           auto pSimpleCfg = static_cast<ezSaveProfilingResponseToEditor*>(pMsg);
           sEngineProfilingFile = pSimpleCfg->m_sProfilingFile;
           return true;

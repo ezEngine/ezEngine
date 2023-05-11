@@ -177,7 +177,7 @@ public:
   void WritePluginSelectionStateDDL(const char* szProjectDir = ":project");
   void CreatePluginSelectionDDL(const char* szProjectFile, const char* szTemplate);
   void LoadPluginBundleDlls(const char* szProjectFile);
-  void DetectAvailablePluginBundles();
+  void DetectAvailablePluginBundles(ezStringView sSearchDirectory);
 
   /// \brief Launches a new instance of the editor to open the given project.
   void LaunchEditor(const char* szProject, bool bCreate);

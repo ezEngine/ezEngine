@@ -3,6 +3,7 @@
 #include <Core/System/Window.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
@@ -135,8 +136,6 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
       // once we start loading any plugins, we can't reuse the same instance again for another project
       m_bAnyProjectOpened = true;
 
-      LoadPluginBundleDlls(sProjectFile);
-
       ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
       sTemp.AppendPath("ezEditorCrashIndicator");
       ezOSFile f;
@@ -145,6 +144,24 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
         f.Write(sTemp.GetData(), sTemp.GetElementCount()).IgnoreResult();
         f.Close();
         m_bWroteCrashIndicatorFile = true;
+      }
+
+      {
+        ezStringBuilder sProjectDir = sProjectFile;
+        sProjectDir.PathParentDirectory();
+
+        ezStringBuilder sSettingsFile = sProjectDir;
+        sSettingsFile.AppendPath("Editor/CppProject.ddl");
+
+        // first attempt to load project specific plugin bundles
+        ezCppSettings cppSettings;
+        if (cppSettings.Load(sSettingsFile).Succeeded())
+        {
+          ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezCppProject::GetPluginSourceDir(cppSettings, sProjectDir));
+        }
+
+        // now load the plugin DLLs
+        LoadPluginBundleDlls(sProjectFile);
       }
 
       res = ezToolsProject::OpenProject(sProjectFile);
@@ -270,7 +287,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
-          QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
+          QTimer::singleShot(1000, this, [this]()
+            { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
@@ -285,7 +303,8 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
           }
 
           // check whether the project needs to be transformed
-          QTimer::singleShot(1000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
+          QTimer::singleShot(1000, this, [this]()
+            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
         }
       }
 

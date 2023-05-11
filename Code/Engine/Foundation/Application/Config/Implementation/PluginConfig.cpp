@@ -1,6 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Application/Config/PluginConfig.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
@@ -51,7 +52,6 @@ bool ezApplicationPluginConfig::AddPlugin(const PluginConfig& cfg0)
   return true;
 }
 
-
 bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
 {
   PluginConfig cfg = cfg0;
@@ -74,9 +74,8 @@ ezResult ezApplicationPluginConfig::Save(ezStringView sPath) const
 {
   m_Plugins.Sort();
 
-  ezFileWriter file;
-  if (file.Open(sPath).Failed())
-    return EZ_FAILURE;
+  ezDeferredFileWriter file;
+  file.SetOutput(sPath, true);
 
   ezOpenDdlWriter writer;
   writer.SetOutputStream(&file);
@@ -93,7 +92,7 @@ ezResult ezApplicationPluginConfig::Save(ezStringView sPath) const
     writer.EndObject();
   }
 
-  return EZ_SUCCESS;
+  return file.Close();
 }
 
 void ezApplicationPluginConfig::Load(ezStringView sPath)
@@ -139,7 +138,9 @@ void ezApplicationPluginConfig::Load(ezStringView sPath)
     const ezOpenDdlReaderElement* pCopy = pPlugin->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "LoadCopy");
 
     if (pPath)
+    {
       cfg.m_sAppDirRelativePath = pPath->GetPrimitivesString()[0];
+    }
 
     if (pCopy)
     {

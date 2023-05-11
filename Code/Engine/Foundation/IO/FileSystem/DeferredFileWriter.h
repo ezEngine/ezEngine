@@ -22,7 +22,7 @@ public:
 
   /// \brief Upon calling this the content is written to the file specified with SetOutput().
   /// The return value is EZ_FAILURE if the file could not be opened or not completely written.
-  ezResult Close(); // [tested]
+  ezResult Close(bool* out_bWasWrittenTo = nullptr); // [tested]
 
   /// \brief Calling this abandons the content and a later Close or destruction of the instance
   /// will no longer write anything to file.
