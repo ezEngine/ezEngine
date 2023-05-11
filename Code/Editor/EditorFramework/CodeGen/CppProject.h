@@ -6,15 +6,19 @@
 
 struct EZ_EDITORFRAMEWORK_DLL ezCppProject
 {
-  static ezString GetTargetSourceDir();
+  static ezString GetTargetSourceDir(ezStringView sProjectDirectory = {});
 
   static ezString GetGeneratorFolderName(const ezCppSettings& cfg);
 
   static ezString GetCMakeGeneratorName(const ezCppSettings& cfg);
 
+  static ezString GetPluginSourceDir(const ezCppSettings& cfg, ezStringView sProjectDirectory = {});
+
   static ezString GetBuildDir(const ezCppSettings& cfg);
 
   static ezString GetSolutionPath(const ezCppSettings& cfg);
+
+  static ezResult CheckCMakeCache(const ezCppSettings& cfg);
 
   static bool ExistsSolution(const ezCppSettings& cfg);
 

@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -36,7 +37,14 @@ bool ezQtEditorApp::CheckForEnginePluginModifications()
 
     if (plugin.m_bMissing)
     {
-      DetectAvailablePluginBundles();
+      DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+
+      ezCppSettings cppSettings;
+      if (cppSettings.Load().Succeeded())
+      {
+        ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezCppProject::GetPluginSourceDir(cppSettings));
+      }
+
       break;
     }
   }

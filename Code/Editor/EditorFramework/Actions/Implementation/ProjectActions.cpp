@@ -549,7 +549,13 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::PluginSelection:
     {
-      ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles();
+      ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezOSFile::GetApplicationDirectory());
+
+      ezCppSettings cppSettings;
+      if (cppSettings.Load().Succeeded())
+      {
+        ezQtEditorApp::GetSingleton()->DetectAvailablePluginBundles(ezCppProject::GetPluginSourceDir(cppSettings));
+      }
 
       ezQtPluginSelectionDlg dlg(&ezQtEditorApp::GetSingleton()->GetPluginBundles());
       dlg.exec();
