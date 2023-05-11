@@ -345,9 +345,9 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
   ezProcessOptions po;
   po.m_sProcess = cfg.m_sMsBuildPath;
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView res) {
-    if (res.FindSubString_NoCase("error") != nullptr)
-      errors.PushBack(res);
+  po.m_onStdOut = [&](ezStringView sText) {
+    if (sText.FindSubString_NoCase("error") != nullptr)
+      errors.PushBack(sText);
   };
 
   po.AddArgument(ezCppProject::GetSolutionPath(cfg));
@@ -425,7 +425,7 @@ ezResult ezCppProject::FindMsBuild(const ezCppSettings& cfg)
   ezProcessOptions po;
   po.m_sProcess = sVsWhere;
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView res) { sStdOut.Append(res); };
+  po.m_onStdOut = [&](ezStringView sText) { sStdOut.Append(sText); };
 
   // TODO: search for VS2022 or VS2019 depending on cfg
   po.AddCommandLine("-latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe");
