@@ -365,7 +365,7 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-const char* ezOSFile::GetApplicationDirectory()
+ezStringView ezOSFile::GetApplicationDirectory()
 {
   static ezString256 s_Path;
 
@@ -414,7 +414,7 @@ const char* ezOSFile::GetApplicationDirectory()
 #  endif
   }
 
-  return s_Path.GetData();
+  return s_Path;
 }
 
 ezString ezOSFile::GetUserDataFolder(ezStringView sSubFolder)

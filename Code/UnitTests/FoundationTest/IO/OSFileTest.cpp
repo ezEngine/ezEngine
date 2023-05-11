@@ -288,8 +288,8 @@ Only concrete and clocks.\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetApplicationDirectory")
   {
-    const char* szAppDir = ezOSFile::GetApplicationDirectory();
-    EZ_IGNORE_UNUSED(szAppDir);
+    ezStringView sAppDir = ezOSFile::GetApplicationDirectory();
+    EZ_TEST_BOOL(!sAppDir.IsEmpty());
   }
 
 #if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))

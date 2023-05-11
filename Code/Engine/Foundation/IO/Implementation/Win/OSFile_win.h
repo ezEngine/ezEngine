@@ -519,7 +519,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
 
 #endif
 
-const char* ezOSFile::GetApplicationDirectory()
+ezStringView ezOSFile::GetApplicationDirectory()
 {
   if (s_sApplicationPath.IsEmpty())
   {
@@ -554,7 +554,7 @@ const char* ezOSFile::GetApplicationDirectory()
     s_sApplicationPath = ezPathUtils::GetFileDirectory(ezStringUtf8(tmp.GetData()));
   }
 
-  return s_sApplicationPath.GetData();
+  return s_sApplicationPath;
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)

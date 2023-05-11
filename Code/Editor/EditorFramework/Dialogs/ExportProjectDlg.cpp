@@ -32,6 +32,17 @@ void ezQtExportProjectDlg::showEvent(QShowEvent* e)
   QDialog::showEvent(e);
 
   TransformAll->setChecked(s_bTransformAll);
+
+  if (!ezCppProject::ExistsProjectCMakeListsTxt())
+  {
+    CompileCpp->setEnabled(false);
+    CompileCpp->setToolTip("This project doesn't have a C++ plugin.");
+    CompileCpp->setChecked(false);
+  }
+  else
+  {
+    CompileCpp->setChecked(true);
+  }
 }
 
 void ezQtExportProjectDlg::on_BrowseDestination_clicked()
@@ -53,6 +64,12 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   // select asset profile for export
   // copy inputs into resource: RML files
 
+  if (CompileCpp->isChecked())
+  {
+    if (ezCppProject::EnsureCppPluginReady().Failed())
+      return;
+  }
+
   if (TransformAll->isChecked())
   {
     ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually);
@@ -68,7 +85,8 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   ezLogSystemToBuffer logFile;
 
-  auto WriteLogFile = [&]() {
+  auto WriteLogFile = [&]()
+  {
     ezStringBuilder sTemp;
     sTemp.Set(szDstFolder, "/ExportLog.txt");
 
