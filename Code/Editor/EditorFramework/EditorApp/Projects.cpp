@@ -293,16 +293,14 @@ It is advised to compile the plugin now, but you can also do so later.</html>",
           if (clicked == QMessageBox::StandardButton::Ignore)
             break;
 
-          QTimer::singleShot(1000, this, [this]()
-            { ezCppProject::EnsureCppPluginReady().IgnoreResult(); });
+          QTimer::singleShot(1000, this, [this]() { ezCppProject::EnsureCppPluginReady().IgnoreResult(); });
         }
 
         ezTimestamp lastTransform = ezAssetCurator::GetSingleton()->GetLastFullTransformDate().GetTimestamp();
 
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
-          QTimer::singleShot(2000, this, [this]()
-            { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
+          QTimer::singleShot(2000, this, [this]() { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
@@ -317,8 +315,7 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
           }
 
           // check whether the project needs to be transformed
-          QTimer::singleShot(2000, this, [this]()
-            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
+          QTimer::singleShot(2000, this, [this]() { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default); });
         }
       }
 

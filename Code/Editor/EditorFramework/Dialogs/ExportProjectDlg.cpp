@@ -85,8 +85,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   ezLogSystemToBuffer logFile;
 
-  auto WriteLogFile = [&]()
-  {
+  auto WriteLogFile = [&]() {
     ezStringBuilder sTemp;
     sTemp.Set(szDstFolder, "/ExportLog.txt");
 
