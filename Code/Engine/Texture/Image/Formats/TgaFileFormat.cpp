@@ -284,19 +284,35 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
   return EZ_SUCCESS;
 }
 
+
+static ezResult ReadBytesChecked(ezStreamReader& inout_stream, void* pDest, ezUInt32 uiNumBytes)
+{
+  if (inout_stream.ReadBytes(pDest, uiNumBytes) == uiNumBytes)
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
+template <typename TYPE>
+static ezResult ReadBytesChecked(ezStreamReader& inout_stream, TYPE& dest)
+{
+  return ReadBytesChecked(inout_stream, &dest, sizeof(TYPE));
+}
+
 static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension, TgaHeader& ref_tgaHeader)
 {
-  inout_stream >> ref_tgaHeader.m_iImageIDLength;
-  inout_stream >> ref_tgaHeader.m_Ignored1;
-  inout_stream >> ref_tgaHeader.m_ImageType;
-  inout_stream.ReadBytes(&ref_tgaHeader.m_Ignored2, 9);
-  inout_stream >> ref_tgaHeader.m_iImageWidth;
-  inout_stream >> ref_tgaHeader.m_iImageHeight;
-  inout_stream >> ref_tgaHeader.m_iBitsPerPixel;
-  inout_stream >> reinterpret_cast<ezUInt8&>(ref_tgaHeader.m_ImageDescriptor);
+  EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_iImageIDLength));
+  EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_Ignored1));
+  EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_ImageType));
+  EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, &ref_tgaHeader.m_Ignored2, 9));
+  EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_iImageWidth));
+  EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_iImageHeight));
+  EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_iBitsPerPixel));
+  EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_ImageDescriptor));
 
   // ignore optional data
-  inout_stream.SkipBytes(ref_tgaHeader.m_iImageIDLength);
+  if (inout_stream.SkipBytes(ref_tgaHeader.m_iImageIDLength) != ref_tgaHeader.m_iImageIDLength)
+    return EZ_FAILURE;
 
   const ezUInt32 uiBytesPerPixel = ref_tgaHeader.m_iBitsPerPixel / 8;
 
@@ -414,7 +430,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
     {
       ezUInt8 uiChunkHeader = 0;
 
-      inout_stream >> uiChunkHeader;
+      EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, uiChunkHeader));
 
       const ezInt32 numToRead = (uiChunkHeader & 127) + 1;
 

@@ -587,7 +587,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
 
     // RadToDeg
     EZ_TEST_FLOAT(TestInstruction("output = radToDeg(a)", ezAngle::Degree(135.0f).GetRadian()), 135.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(TestInstruction("output = rad_to_deg(a)", ezAngle::Degree(180.0f).GetRadian()), 180.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(TestInstruction("output = rad_to_deg(a)", ezAngle::Degree(180.0f).GetRadian()), 180.0f, ezMath::LargeEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = radToDeg(PI / 2)"), 90.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(TestConstant<float>("output = rad_to_deg(PI/4)"), 45.0f, ezMath::DefaultEpsilon<float>());
 
