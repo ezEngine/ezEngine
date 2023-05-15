@@ -3,11 +3,10 @@
 #include <Foundation/Math/Transform.h>
 
 template <typename Type>
-inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale)
-{
-  m_vPosition = vPosition;
-  m_qRotation = qRotation;
-  m_vScale = vScale;
+inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>& vPosition,
+  const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale)
+  : m_vPosition(vPosition), m_qRotation(qRotation), m_vScale(vScale)
+{ 
 }
 
 template <typename Type>

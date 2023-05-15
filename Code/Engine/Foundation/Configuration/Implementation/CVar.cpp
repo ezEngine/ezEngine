@@ -105,13 +105,9 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
 }
 
 ezCVar::ezCVar(ezStringView sName, ezBitflags<ezCVarFlags> Flags, ezStringView sDescription)
+  : m_bHasNeverBeenLoaded(true), // next time 'LoadCVars' is called, its state will be changed
+    m_sName(sName), m_sDescription(sDescription), m_Flags(Flags)
 {
-  m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
-
-  m_sName = sName;
-  m_Flags = Flags;
-  m_sDescription = sDescription;
-
   // 'RequiresRestart' only works together with 'Save'
   if (m_Flags.IsAnySet(ezCVarFlags::RequiresRestart))
     m_Flags.Add(ezCVarFlags::Save);
