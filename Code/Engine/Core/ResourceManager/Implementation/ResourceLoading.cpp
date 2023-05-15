@@ -144,7 +144,7 @@ void ezResourceManager::ReverseBubbleSortStep(ezDeque<LoadingInfo>& data)
     const ezUInt32 idx2 = i - 1;
     const ezUInt32 idx1 = i - 2;
 
-    if (data[idx1].m_fPriority > data[idx1].m_fPriority)
+    if (data[idx1].m_fPriority > data[idx2].m_fPriority)
     {
       ezMath::Swap(data[idx1], data[idx2]);
     }
