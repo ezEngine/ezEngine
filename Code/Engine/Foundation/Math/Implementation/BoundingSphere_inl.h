@@ -15,7 +15,8 @@ EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate()
 
 template <typename Type>
 EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate(const ezVec3Template<Type>& vCenter, Type fRadius)
-  : m_vCenter(vCenter), m_fRadius(fRadius)
+  : m_vCenter(vCenter)
+  , m_fRadius(fRadius)
 {
 }
 

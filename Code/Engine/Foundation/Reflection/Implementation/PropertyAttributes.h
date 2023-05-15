@@ -38,7 +38,10 @@ class EZ_FOUNDATION_DLL ezCategoryAttribute : public ezPropertyAttribute
 
 public:
   ezCategoryAttribute() = default;
-  ezCategoryAttribute(const char* szCategory) : m_sCategory(szCategory) {}
+  ezCategoryAttribute(const char* szCategory)
+    : m_sCategory(szCategory)
+  {
+  }
 
   const char* GetCategory() const { return m_sCategory; }
 
@@ -76,7 +79,10 @@ class EZ_FOUNDATION_DLL ezTitleAttribute : public ezPropertyAttribute
 
 public:
   ezTitleAttribute() = default;
-  ezTitleAttribute(const char* szTitle) : m_sTitle(szTitle) {}
+  ezTitleAttribute(const char* szTitle)
+    : m_sTitle(szTitle)
+  {
+  }
 
   const char* GetTitle() const { return m_sTitle; }
 
@@ -91,7 +97,10 @@ class EZ_FOUNDATION_DLL ezColorAttribute : public ezPropertyAttribute
 
 public:
   ezColorAttribute() = default;
-  ezColorAttribute(const ezColor& color) : m_Color(color) {}
+  ezColorAttribute(const ezColor& color)
+    : m_Color(color)
+  {
+  }
 
   const ezColor& GetColor() const { return m_Color; }
 
@@ -112,7 +121,10 @@ class EZ_FOUNDATION_DLL ezSuffixAttribute : public ezPropertyAttribute
 
 public:
   ezSuffixAttribute() = default;
-  ezSuffixAttribute(const char* szSuffix) : m_sSuffix(szSuffix) {}
+  ezSuffixAttribute(const char* szSuffix)
+    : m_sSuffix(szSuffix)
+  {
+  }
 
   const char* GetSuffix() const { return m_sSuffix; }
 
@@ -127,7 +139,10 @@ class EZ_FOUNDATION_DLL ezMinValueTextAttribute : public ezPropertyAttribute
 
 public:
   ezMinValueTextAttribute() = default;
-  ezMinValueTextAttribute(const char* szText) : m_sText(szText) {}
+  ezMinValueTextAttribute(const char* szText)
+    : m_sText(szText)
+  {
+  }
 
   const char* GetText() const { return m_sText; }
 
@@ -142,7 +157,10 @@ class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
 
 public:
   ezDefaultValueAttribute() = default;
-  ezDefaultValueAttribute(const ezVariant& value) : m_Value(value) {}
+  ezDefaultValueAttribute(const ezVariant& value)
+    : m_Value(value)
+  {
+  }
 
   const ezVariant& GetValue() const { return m_Value; }
 
@@ -159,8 +177,9 @@ class EZ_FOUNDATION_DLL ezClampValueAttribute : public ezPropertyAttribute
 public:
   ezClampValueAttribute() = default;
   ezClampValueAttribute(const ezVariant& min, const ezVariant& max)
-    : m_MinValue(min), m_MaxValue(max) 
-  { 
+    : m_MinValue(min)
+    , m_MaxValue(max)
+  {
   }
 
   const ezVariant& GetMinValue() const { return m_MinValue; }
@@ -223,7 +242,10 @@ class EZ_FOUNDATION_DLL ezTagSetWidgetAttribute : public ezContainerWidgetAttrib
 
 public:
   ezTagSetWidgetAttribute() = default;
-  ezTagSetWidgetAttribute(const char* szTagFilter) : m_sTagFilter(szTagFilter) {}
+  ezTagSetWidgetAttribute(const char* szTagFilter)
+    : m_sTagFilter(szTagFilter)
+  {
+  }
 
   const char* GetTagFilter() const { return m_sTagFilter; }
 
@@ -244,7 +266,10 @@ class EZ_FOUNDATION_DLL ezExposedParametersAttribute : public ezContainerWidgetA
 
 public:
   ezExposedParametersAttribute() = default;
-  ezExposedParametersAttribute(const char* szParametersSource) : m_sParametersSource(szParametersSource) {}
+  ezExposedParametersAttribute(const char* szParametersSource)
+    : m_sParametersSource(szParametersSource)
+  {
+  }
 
   const char* GetParametersSource() const { return m_sParametersSource; }
 
@@ -272,7 +297,9 @@ public:
   ezDynamicDefaultValueAttribute() = default;
   ezDynamicDefaultValueAttribute(const char* szClassSource,
     const char* szClassType, const char* szClassProperty = nullptr)
-    : m_sClassSource(szClassSource), m_sClassType(szClassType), m_sClassProperty(szClassProperty)
+    : m_sClassSource(szClassSource)
+    , m_sClassType(szClassType)
+    , m_sClassProperty(szClassProperty)
   {
   }
 
@@ -321,7 +348,8 @@ class EZ_FOUNDATION_DLL ezConstrainPointerAttribute : public ezPropertyAttribute
 public:
   ezConstrainPointerAttribute() = default;
   ezConstrainPointerAttribute(const char* szConstantName, const char* szConstantValueProperty)
-    : m_sConstantName(szConstantName), m_sConstantValueProperty(szConstantValueProperty)
+    : m_sConstantName(szConstantName)
+    , m_sConstantValueProperty(szConstantValueProperty)
   {
   }
 
@@ -399,8 +427,10 @@ public:
   ezFileBrowserAttribute(const char* szDialogTitle,
     const char* szTypeFilter, const char* szCustomAction = nullptr,
     ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
-    : m_sDialogTitle(szDialogTitle), m_sTypeFilter(szTypeFilter),
-      m_sCustomAction(szCustomAction), m_DependencyFlags(depencyFlags)
+    : m_sDialogTitle(szDialogTitle)
+    , m_sTypeFilter(szTypeFilter)
+    , m_sCustomAction(szCustomAction)
+    , m_DependencyFlags(depencyFlags)
   {
   }
 
@@ -455,7 +485,10 @@ class EZ_FOUNDATION_DLL ezDynamicEnumAttribute : public ezTypeWidgetAttribute
 
 public:
   ezDynamicEnumAttribute() = default;
-  ezDynamicEnumAttribute(const char* szDynamicEnumName) : m_sDynamicEnumName(szDynamicEnumName) {}
+  ezDynamicEnumAttribute(const char* szDynamicEnumName)
+    : m_sDynamicEnumName(szDynamicEnumName)
+  {
+  }
 
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
 
@@ -472,7 +505,10 @@ class EZ_FOUNDATION_DLL ezDynamicStringEnumAttribute : public ezTypeWidgetAttrib
 
 public:
   ezDynamicStringEnumAttribute() = default;
-  ezDynamicStringEnumAttribute(const char* szDynamicEnumName) : m_sDynamicEnumName(szDynamicEnumName) {}
+  ezDynamicStringEnumAttribute(const char* szDynamicEnumName)
+    : m_sDynamicEnumName(szDynamicEnumName)
+  {
+  }
 
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
 
@@ -962,7 +998,10 @@ class EZ_FOUNDATION_DLL ezLongOpAttribute : public ezPropertyAttribute
 
 public:
   ezLongOpAttribute() = default;
-  ezLongOpAttribute(const char* szOpTypeName) : m_sOpTypeName(szOpTypeName) {}
+  ezLongOpAttribute(const char* szOpTypeName)
+    : m_sOpTypeName(szOpTypeName)
+  {
+  }
 
   ezUntrackedString m_sOpTypeName;
 };

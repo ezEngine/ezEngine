@@ -154,7 +154,7 @@ bool ezFileSystem::RemoveDataDirectory(ezStringView sRootName)
 
   for (ezUInt32 i = 0; i < s_pData->m_DataDirectories.GetCount();)
   {
-    auto& directory = s_pData->m_DataDirectories[i];
+    const auto& directory = s_pData->m_DataDirectories[i];
 
     if (directory.m_sRootName == sCleanRootName)
     {

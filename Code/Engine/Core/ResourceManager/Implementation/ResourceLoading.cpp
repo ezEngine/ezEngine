@@ -439,10 +439,9 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
     else
     {
       // do not use ezThreadUtils::YieldTimeSlice here, otherwise the thread is not tagged as 'blocked' in the TaskSystem
-      ezTaskSystem::WaitForCondition([=]() -> bool {
-        return (ezInt32)pResourceToLoad->GetLoadingState() >= (ezInt32)RequestedState ||
-               (pResourceToLoad->GetLoadingState() == ezResourceState::LoadedResourceMissing);
-      });
+      ezTaskSystem::WaitForCondition([=]() -> bool
+        { return (ezInt32)pResourceToLoad->GetLoadingState() >= (ezInt32)RequestedState ||
+                 (pResourceToLoad->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
     }
   }
 }

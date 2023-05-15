@@ -40,7 +40,8 @@ class EZ_CORE_DLL ezConsoleFunctionBase : public ezEnumerable<ezConsoleFunctionB
 public:
   /// \brief The constructor takes the function name and description as it should appear in the console.
   ezConsoleFunctionBase(ezStringView sFunctionName, ezStringView sDescription)
-    : m_sFunctionName(sFunctionName), m_sDescription(sDescription)
+    : m_sFunctionName(sFunctionName)
+    , m_sDescription(sDescription)
   {
   }
 
