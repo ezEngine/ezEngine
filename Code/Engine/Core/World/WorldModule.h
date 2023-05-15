@@ -58,8 +58,8 @@ protected:
     };
 
     UpdateFunctionDesc(const UpdateFunction& function, ezStringView sFunctionName)
+      : m_Function(function)
     {
-      m_Function = function;
       m_sFunctionName.Assign(sFunctionName);
     }
 

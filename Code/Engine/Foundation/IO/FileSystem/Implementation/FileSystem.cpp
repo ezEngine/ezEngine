@@ -154,19 +154,21 @@ bool ezFileSystem::RemoveDataDirectory(ezStringView sRootName)
 
   for (ezUInt32 i = 0; i < s_pData->m_DataDirectories.GetCount();)
   {
-    if (s_pData->m_DataDirectories[i].m_sRootName == sCleanRootName)
+    const auto& directory = s_pData->m_DataDirectories[i];
+
+    if (directory.m_sRootName == sCleanRootName)
     {
       {
         // Broadcast that a data directory is about to be removed
         FileEvent fe;
         fe.m_EventType = FileEventType::RemoveDataDirectory;
-        fe.m_sFileOrDirectory = s_pData->m_DataDirectories[i].m_pDataDirectory->GetDataDirectoryPath();
-        fe.m_sOther = s_pData->m_DataDirectories[i].m_sRootName;
-        fe.m_pDataDir = s_pData->m_DataDirectories[i].m_pDataDirectory;
+        fe.m_sFileOrDirectory = directory.m_pDataDirectory->GetDataDirectoryPath();
+        fe.m_sOther = directory.m_sRootName;
+        fe.m_pDataDir = directory.m_pDataDirectory;
         s_pData->m_Event.Broadcast(fe);
       }
 
-      s_pData->m_DataDirectories[i].m_pDataDirectory->RemoveDataDirectory();
+      directory.m_pDataDirectory->RemoveDataDirectory();
       s_pData->m_DataDirectories.RemoveAtAndCopy(i);
 
       return true;

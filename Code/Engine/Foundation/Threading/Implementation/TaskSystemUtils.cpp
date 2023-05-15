@@ -59,7 +59,7 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& ref_graph)
   szTaskPriorityNames[ezTaskPriority::NextFrame] = "NextFrame";
   szTaskPriorityNames[ezTaskPriority::LateNextFrame] = "LateNextFrame";
   szTaskPriorityNames[ezTaskPriority::In2Frames] = "In 2 Frames";
-  szTaskPriorityNames[ezTaskPriority::In2Frames] = "In 3 Frames";
+  szTaskPriorityNames[ezTaskPriority::In3Frames] = "In 3 Frames";
   szTaskPriorityNames[ezTaskPriority::In4Frames] = "In 4 Frames";
   szTaskPriorityNames[ezTaskPriority::In5Frames] = "In 5 Frames";
   szTaskPriorityNames[ezTaskPriority::In6Frames] = "In 6 Frames";

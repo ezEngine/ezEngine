@@ -288,7 +288,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 
   if (s_pImplementation->symbolFromAddress != nullptr && s_pImplementation->lineFromAdress != nullptr)
   {
-    char buffer[1024];
+    alignas(_SYMBOL_INFOW) char buffer[1024];
     HANDLE currentProcess = GetCurrentProcess();
 
     const ezUInt32 uiNumTraceEntries = trace.GetCount();

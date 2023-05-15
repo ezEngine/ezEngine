@@ -191,7 +191,7 @@ private:
   static void PluginEventHandler(const ezPluginEvent& EventData);
 
 
-  bool m_bHasNeverBeenLoaded;
+  bool m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
   ezStringView m_sName;
   ezStringView m_sDescription;
   ezStringView m_sPluginName;
