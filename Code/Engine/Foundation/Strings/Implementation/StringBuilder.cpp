@@ -798,6 +798,7 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
   const ezStringView pStrings[uiMaxParams] = {sOptional, sText1, sText2, sText3, sText4, sText5, sText6};
   ezUInt32 uiStrLen[uiMaxParams] = {0};
   ezUInt32 uiMoreBytes = 0;
+  ezUInt32 uiMoreChars = 0;
 
   // first figure out how much the string has to grow
   for (ezUInt32 i = 0; i < uiMaxParams; ++i)
@@ -811,9 +812,15 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
     ezUInt32 uiCharacters = 0;
     ezStringUtils::GetCharacterAndElementCount(pStrings[i].GetStartPointer(), uiCharacters, uiStrLen[i], pStrings[i].GetEndPointer());
     uiMoreBytes += uiStrLen[i];
-    m_uiCharacterCount += uiCharacters;
+    uiMoreChars += uiCharacters;
 
     EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i].GetStartPointer(), pStrings[i].GetEndPointer()), "Parameter {0} is not a valid Utf8 sequence.", i + 1);
+  }
+
+  if (uiMoreBytes == uiStrLen[0])
+  {
+    // if all other strings (than the separator) are empty, don't append anything
+    return;
   }
 
   ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
@@ -821,6 +828,7 @@ void ezStringBuilder::AppendWithSeparator(ezStringView sOptional, ezStringView s
 
   // now resize
   m_Data.SetCountUninitialized(uiPrevCount + uiMoreBytes);
+  m_uiCharacterCount += uiMoreChars;
 
   // and then append all the strings
   for (ezUInt32 i = 0; i < uiMaxParams; ++i)

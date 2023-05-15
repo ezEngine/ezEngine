@@ -29,8 +29,7 @@ namespace
 
   typedef BOOL(__stdcall* SymbolInitializeFunc)(HANDLE hProcess, PCWSTR UserSearchPath, BOOL fInvadeProcess);
 
-  typedef DWORD64(__stdcall* SymbolLoadModuleFunc)(
-    HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
+  typedef DWORD64(__stdcall* SymbolLoadModuleFunc)(HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
 
   typedef BOOL(__stdcall* SymbolGetModuleInfoFunc)(HANDLE hProcess, DWORD64 qwAddr, PIMAGEHLP_MODULEW64 ModuleInfo);
 
@@ -38,13 +37,13 @@ namespace
 
   typedef DWORD64(__stdcall* SymbolGetModuleBaseFunc)(HANDLE hProcess, DWORD64 qwAddr);
 
-  typedef BOOL(__stdcall* StackWalk)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
-    PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
-    PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
+  typedef BOOL(__stdcall* StackWalk)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
 
   typedef BOOL(__stdcall* SymbolFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
 
   typedef BOOL(__stdcall* LineFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PIMAGEHLP_LINEW64 Line);
+
+  typedef BOOL(__stdcall* SymSetSearchPathFunc)(HANDLE hProcess, PCWSTR SearchPath);
 
   struct StackTracerImplementation
   {
@@ -60,6 +59,7 @@ namespace
     StackWalk stackWalk;
     SymbolFromAddressFunc symbolFromAddress;
     LineFromAddressFunc lineFromAdress;
+    SymSetSearchPathFunc symSetSearchPath;
     bool m_bInitDbgHelp = false;
 
     StackTracerImplementation()
@@ -77,15 +77,24 @@ namespace
       EZ_ASSERT_DEV(dbgHelpDll != nullptr, "StackTracer could not load dbghelp.dll");
       if (dbgHelpDll != nullptr)
       {
+        symSetSearchPath = (SymSetSearchPathFunc)GetProcAddress(dbgHelpDll, "SymSetSearchPathW");
         symbolInitialize = (SymbolInitializeFunc)GetProcAddress(dbgHelpDll, "SymInitializeW");
         symbolLoadModule = (SymbolLoadModuleFunc)GetProcAddress(dbgHelpDll, "SymLoadModuleExW");
         getModuleInfo = (SymbolGetModuleInfoFunc)GetProcAddress(dbgHelpDll, "SymGetModuleInfoW64");
         getFunctionTableAccess = (SymbolFunctionTableAccess)GetProcAddress(dbgHelpDll, "SymFunctionTableAccess64");
         getModuleBase = (SymbolGetModuleBaseFunc)GetProcAddress(dbgHelpDll, "SymGetModuleBase64");
         stackWalk = (StackWalk)GetProcAddress(dbgHelpDll, "StackWalk64");
-        if (symbolInitialize == nullptr || symbolLoadModule == nullptr || getModuleInfo == nullptr || getFunctionTableAccess == nullptr ||
-            getModuleBase == nullptr || stackWalk == nullptr)
+
+        if (symbolInitialize == nullptr ||
+            symbolLoadModule == nullptr ||
+            getModuleInfo == nullptr ||
+            getFunctionTableAccess == nullptr ||
+            getModuleBase == nullptr ||
+            stackWalk == nullptr ||
+            symSetSearchPath == nullptr)
+        {
           return;
+        }
 
         symbolFromAddress = (SymbolFromAddressFunc)GetProcAddress(dbgHelpDll, "SymFromAddrW");
         lineFromAdress = (LineFromAddressFunc)GetProcAddress(dbgHelpDll, "SymGetLineFromAddrW64");
@@ -110,9 +119,18 @@ namespace
     if (!s_pImplementation->m_bInitDbgHelp)
     {
       s_pImplementation->m_bInitDbgHelp = true;
+
       if (!(*s_pImplementation->symbolInitialize)(GetCurrentProcess(), nullptr, TRUE))
       {
         ezLog::Error("StackTracer could not initialize symbols. Error-Code {0}", ezArgErrorCode(::GetLastError()));
+        return;
+      }
+
+      // we want to seach for the PDBs in the same directory where the EXE is located, no matter what the current working directory is
+      if (!(*s_pImplementation->symSetSearchPath)(GetCurrentProcess(), ezStringWChar(ezOSFile::GetApplicationDirectory())))
+      {
+        ezLog::Error("StackTracer could not set symbol search path. Error-Code {0}", ezArgErrorCode(::GetLastError()));
+        return;
       }
     }
   }
