@@ -70,7 +70,6 @@ void ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAx
   out_angle = 2 * ezMath::ACos(static_cast<float>(w));
 
   const float s = ezMath::Sqrt(1 - w * w);
-  const float ds = 1.0f / s;
 
   if (s < fEpsilon)
   {
@@ -78,6 +77,7 @@ void ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAx
   }
   else
   {
+    const float ds = 1.0f / s;
     out_vAxis.x = v.x * ds;
     out_vAxis.y = v.y * ds;
     out_vAxis.z = v.z * ds;
@@ -436,8 +436,6 @@ EZ_ALWAYS_INLINE bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTem
 template <typename Type>
 void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const
 {
-  /// \test This is new
-
   // Originally taken from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   // but that code is incorrect and easily produces NaNs.
   // Better code copied from OZZ animation library: "ToEuler()"
@@ -492,8 +490,6 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAn
 template <typename Type>
 void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z)
 {
-  /// \test This is new
-
   // Originally taken from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   // but since the ToEuler function was unreliable, this was also replaced with the OZZ function "Quaternion::FromEuler()"
 
