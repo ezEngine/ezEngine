@@ -27,7 +27,7 @@ BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPRECT pLprc
   DISPLAY_DEVICEW ddev;
   ddev.cb = sizeof(ddev);
 
-  if (EnumDisplayDevicesW(info.szDevice, 0, &ddev, 1) == TRUE)
+  if (EnumDisplayDevicesW(info.szDevice, 0, &ddev, 1) != FALSE)
   {
     mon.m_sDisplayName = ddev.DeviceString;
   }
