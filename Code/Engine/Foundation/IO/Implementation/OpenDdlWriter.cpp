@@ -203,6 +203,7 @@ ezOpenDdlWriter::ezOpenDdlWriter()
   m_bCompactMode = false;
   m_TypeStringMode = TypeStringMode::ShortenedUnsignedInt;
   m_FloatPrecisionMode = FloatPrecisionMode::Exact;
+  m_pOutput = nullptr;
   m_iIndentation = 0;
 
   m_StateStack.ExpandAndGetRef().m_State = State::Invalid;

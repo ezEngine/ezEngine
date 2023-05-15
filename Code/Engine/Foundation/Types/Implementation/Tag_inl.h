@@ -1,7 +1,8 @@
 #pragma once
 
 ezTag::ezTag()
-  : m_uiBlockIndex(0xFFFFFFFEu)
+  : m_uiBitIndex(0xFFFFFFFEu),
+    m_uiBlockIndex(0xFFFFFFFEu)
 {
 }
 
