@@ -3,30 +3,30 @@
 EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere() {}
 
 EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents, const ezSimdFloat& fSphereRadius)
+  : m_CenterAndRadius(vCenter)
+  , m_BoxHalfExtents(vBoxHalfExtents)
 {
-  m_CenterAndRadius = vCenter;
   m_CenterAndRadius.SetW(fSphereRadius);
-  m_BoxHalfExtents = vBoxHalfExtents;
 }
 
 inline ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdBBox& box, const ezSimdBSphere& sphere)
+  : m_CenterAndRadius(box.GetCenter())
+  , m_BoxHalfExtents(m_CenterAndRadius - box.m_Min)
 {
-  m_CenterAndRadius = box.GetCenter();
-  m_BoxHalfExtents = m_CenterAndRadius - box.m_Min;
   m_CenterAndRadius.SetW(m_BoxHalfExtents.GetLength<3>().Min((sphere.GetCenter() - m_CenterAndRadius).GetLength<3>() + sphere.GetRadius()));
 }
 
 inline ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdBBox& box)
+  : m_CenterAndRadius(box.GetCenter())
+  , m_BoxHalfExtents(m_CenterAndRadius - box.m_Min)
 {
-  m_CenterAndRadius = box.GetCenter();
-  m_BoxHalfExtents = m_CenterAndRadius - box.m_Min;
   m_CenterAndRadius.SetW(m_BoxHalfExtents.GetLength<3>());
 }
 
 EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdBSphere& sphere)
+  : m_CenterAndRadius(sphere.m_CenterAndRadius)
+  , m_BoxHalfExtents(ezSimdVec4f(sphere.GetRadius()))
 {
-  m_CenterAndRadius = sphere.m_CenterAndRadius;
-  m_BoxHalfExtents = ezSimdVec4f(sphere.GetRadius());
 }
 
 EZ_ALWAYS_INLINE void ezSimdBBoxSphere::SetInvalid()

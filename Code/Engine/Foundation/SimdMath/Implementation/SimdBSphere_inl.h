@@ -3,8 +3,8 @@
 EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere() {}
 
 EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere(const ezSimdVec4f& vCenter, const ezSimdFloat& fRadius)
+  : m_CenterAndRadius(vCenter)
 {
-  m_CenterAndRadius = vCenter;
   m_CenterAndRadius.SetW(fRadius);
 }
 

@@ -182,16 +182,16 @@ ezGroupAttribute::ezGroupAttribute()
 }
 
 ezGroupAttribute::ezGroupAttribute(const char* szGroup, float fOrder)
+  : m_sGroup(szGroup)
+  , m_fOrder(fOrder)
 {
-  m_sGroup = szGroup;
-  m_fOrder = fOrder;
 }
 
 ezGroupAttribute::ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder)
+  : m_sGroup(szGroup)
+  , m_sIconName(szIconName)
+  , m_fOrder(fOrder)
 {
-  m_sGroup = szGroup;
-  m_sIconName = szIconName;
-  m_fOrder = fOrder;
 }
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeWidgetAttribute, 1, ezRTTINoAllocator)
@@ -365,13 +365,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/,
   const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/, const char* szProperty6 /*= nullptr*/)
+  : m_sProperty1(szProperty1)
+  , m_sProperty2(szProperty2)
+  , m_sProperty3(szProperty3)
+  , m_sProperty4(szProperty4)
+  , m_sProperty5(szProperty5)
+  , m_sProperty6(szProperty6)
 {
-  m_sProperty1 = szProperty1;
-  m_sProperty2 = szProperty2;
-  m_sProperty3 = szProperty3;
-  m_sProperty4 = szProperty4;
-  m_sProperty5 = szProperty5;
-  m_sProperty6 = szProperty6;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -625,12 +625,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/,
   const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/)
+  : m_sProperty1(szProperty1)
+  , m_sProperty2(szProperty2)
+  , m_sProperty3(szProperty3)
+  , m_sProperty4(szProperty4)
+  , m_sProperty5(szProperty5)
 {
-  m_sProperty1 = szProperty1;
-  m_sProperty2 = szProperty2;
-  m_sProperty3 = szProperty3;
-  m_sProperty4 = szProperty4;
-  m_sProperty5 = szProperty5;
 }
 
 //////////////////////////////////////////////////////////////////////////
