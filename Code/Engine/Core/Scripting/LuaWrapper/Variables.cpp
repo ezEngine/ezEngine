@@ -14,7 +14,7 @@ bool ezLuaWrapper::IsVariableAvailable(const char* szName) const
     lua_gettable(m_pState, -2);
   }
 
-  bool bRet = (lua_isnil(m_pState, -1) == 0);
+  bool bRet = !lua_isnil(m_pState, -1);
 
   lua_pop(m_pState, 1);
   return (bRet);
@@ -71,7 +71,7 @@ bool ezLuaWrapper::GetBoolVariable(const char* szName, bool bDefault) const
 
   bool ret = bDefault;
 
-  if (lua_isboolean(m_pState, -1) != 0)
+  if (!!lua_isboolean(m_pState, -1))
     ret = (lua_toboolean(m_pState, -1) != 0);
 
   lua_pop(m_pState, 1);
