@@ -59,13 +59,13 @@ struct EZ_SHADER_STRUCT ezDirShadowData
 
 };
 
-#define GET_SHADOW_PARAMS_INDEX(baseOffset) (baseOffset + 0)
-#define GET_WORLD_TO_LIGHT_MATRIX_INDEX(baseOffset, index) (baseOffset + 1 + 4 * (index))
-#define GET_SHADOW_PARAMS2_INDEX(baseOffset) (baseOffset + 5)
-#define GET_FADE_OUT_PARAMS_INDEX(baseOffset) (baseOffset + 6)
-#define GET_CASCADE_SCALE_INDEX(baseOffset, index) (baseOffset + 7 + 2 * (index))
-#define GET_CASCADE_OFFSET_INDEX(baseOffset, index) (baseOffset + 8 + 2 * (index))
-#define GET_ATLAS_SCALE_OFFSET_INDEX(baseOffset, index) (baseOffset + 13 + (index))
+#define GET_SHADOW_PARAMS_INDEX(baseOffset) ((baseOffset) + 0)
+#define GET_WORLD_TO_LIGHT_MATRIX_INDEX(baseOffset, index) ((baseOffset) + 1 + 4 * (index))
+#define GET_SHADOW_PARAMS2_INDEX(baseOffset) ((baseOffset) + 5)
+#define GET_FADE_OUT_PARAMS_INDEX(baseOffset) ((baseOffset) + 6)
+#define GET_CASCADE_SCALE_INDEX(baseOffset, index) ((baseOffset) + 7 + 2 * (index))
+#define GET_CASCADE_OFFSET_INDEX(baseOffset, index) ((baseOffset) + 8 + 2 * (index))
+#define GET_ATLAS_SCALE_OFFSET_INDEX(baseOffset, index) ((baseOffset) + 13 + (index))
 
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<float4> shadowDataBuffer;
@@ -109,7 +109,7 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 #define REFLECTION_PROBE_IS_SPHERE (1 << 31)
 #define REFLECTION_PROBE_IS_PROJECTED (1 << 30)
 #define REFLECTION_PROBE_INDEX_BITMASK 0x3FFFFFFF
-#define GET_REFLECTION_PROBE_INDEX(index) (index & REFLECTION_PROBE_INDEX_BITMASK)
+#define GET_REFLECTION_PROBE_INDEX(index) ((index) & REFLECTION_PROBE_INDEX_BITMASK)
 
   struct EZ_SHADER_STRUCT ezPerReflectionProbeData
   {
@@ -164,7 +164,7 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 #define PROBE_SHIFT 20
 #define PROBE_BITMASK 0x3FF
 
-#define GET_LIGHT_INDEX(index) (index & LIGHT_BITMASK)
+#define GET_LIGHT_INDEX(index) ((index) & LIGHT_BITMASK)
 #define GET_DECAL_INDEX(index) ((index >> DECAL_SHIFT) & DECAL_BITMASK)
 #define GET_PROBE_INDEX(index) ((index >> PROBE_SHIFT) & PROBE_BITMASK)
 
