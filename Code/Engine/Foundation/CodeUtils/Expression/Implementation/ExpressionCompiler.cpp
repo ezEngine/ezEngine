@@ -479,7 +479,7 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
         m_FunctionToIndex.Insert(sMangledName, uiFunctionIndex);
 
         out_byteCode.m_Functions.PushBack(*pDesc);
-        out_byteCode.m_Functions.PeekBack().m_sName = sMangledName;
+        out_byteCode.m_Functions.PeekBack().m_sName = std::move(sMangledName);
       }
 
       byteCode.PushBack(opCode);
