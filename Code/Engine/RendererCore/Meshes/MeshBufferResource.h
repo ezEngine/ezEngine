@@ -137,7 +137,12 @@ class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource
   EZ_RESOURCE_DECLARE_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescriptor);
 
 public:
-  ezMeshBufferResource();
+  ezMeshBufferResource()
+    : ezResource(DoUpdate::OnAnyThread, 1)
+    , m_uiPrimitiveCount(0)
+    , m_Topology(ezGALPrimitiveTopology::Enum::Default)
+  {
+  }
   ~ezMeshBufferResource();
 
   EZ_ALWAYS_INLINE ezUInt32 GetPrimitiveCount() const { return m_uiPrimitiveCount; }
