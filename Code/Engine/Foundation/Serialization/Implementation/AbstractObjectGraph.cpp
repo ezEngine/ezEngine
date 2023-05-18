@@ -747,9 +747,9 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
   {
     Prop() {}
     Prop(ezUuid node, ezStringView sProperty)
+      : m_Node(node)
+      , m_sProperty(sProperty)
     {
-      m_Node = node;
-      m_sProperty = sProperty;
     }
     ezUuid m_Node;
     ezStringView m_sProperty;
