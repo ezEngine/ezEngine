@@ -53,21 +53,19 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractProperty*> functions,
   ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
   const ezRTTI* (*fnVerifyParent)())
+  : m_szPluginName(nullptr)
+  , m_szTypeName(szName)
+  , m_Properties(properties)
+  , m_Functions(ezMakeArrayPtr<ezAbstractFunctionProperty*>(reinterpret_cast<ezAbstractFunctionProperty**>(functions.GetPtr()), functions.GetCount()))
+  , m_Attributes(attributes)
+  , m_pAllocator(pAllocator)
+  , m_uiMsgIdOffset(0)
+  , m_bGatheredDynamicMessageHandlers(false)
+  , m_VerifyParent(fnVerifyParent)
+  , m_MessageHandlers(messageHandlers)
+  , m_MessageSenders(messageSenders)
 {
   UpdateType(pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags);
-
-  m_bGatheredDynamicMessageHandlers = false;
-  m_szPluginName = nullptr;
-  m_szTypeName = szName;
-  m_pAllocator = pAllocator;
-  m_Properties = properties;
-  m_Functions = ezMakeArrayPtr<ezAbstractFunctionProperty*>(reinterpret_cast<ezAbstractFunctionProperty**>(functions.GetPtr()), functions.GetCount());
-  m_Attributes = attributes;
-  m_MessageHandlers = messageHandlers;
-  m_uiMsgIdOffset = 0;
-  m_MessageSenders = messageSenders;
-
-  m_VerifyParent = fnVerifyParent;
 
   // This part is not guaranteed to always work here!
   // pParentType is (apparently) always the correct pointer to the base class BUT it is not guaranteed to have been constructed at this
@@ -381,7 +379,8 @@ const ezDynamicArray<const ezRTTI*>& ezRTTI::GetAllTypesDerivedFrom(
   if (bSortByName)
   {
     out_derivedTypes.Sort(
-      [](const ezRTTI* p1, const ezRTTI* p2) -> bool { return ezStringUtils::Compare(p1->GetTypeName(), p2->GetTypeName()) < 0; });
+      [](const ezRTTI* p1, const ezRTTI* p2) -> bool
+      { return ezStringUtils::Compare(p1->GetTypeName(), p2->GetTypeName()) < 0; });
   }
 
   return out_derivedTypes;

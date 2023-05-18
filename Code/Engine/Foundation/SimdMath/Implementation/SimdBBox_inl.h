@@ -3,9 +3,9 @@
 EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox() {}
 
 EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox(const ezSimdVec4f& vMin, const ezSimdVec4f& vMax)
+  : m_Min(vMin)
+  , m_Max(vMax)
 {
-  m_Min = vMin;
-  m_Max = vMax;
 }
 
 EZ_ALWAYS_INLINE void ezSimdBBox::SetInvalid()

@@ -164,11 +164,11 @@ ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRt
 }
 
 ezRttiConverterWriter::ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, FilterFunction filter)
+  : m_pContext(pContext)
+  , m_pGraph(pGraph)
+  , m_Filter(filter)
 {
   EZ_ASSERT_DEBUG(filter.IsValid(), "Either filter function must be valid or a different ctor must be chosen.");
-  m_pGraph = pGraph;
-  m_pContext = pContext;
-  m_Filter = filter;
 }
 
 ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName)

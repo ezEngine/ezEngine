@@ -3,8 +3,8 @@
 EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat() {}
 
 EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat(const ezSimdVec4f& v)
+  : m_v(v)
 {
-  m_v = v;
 }
 
 // static

@@ -3,16 +3,16 @@
 EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform() {}
 
 EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation, const ezSimdVec4f& vScale)
+  : m_Position(vPosition)
+  , m_Rotation(qRotation)
+  , m_Scale(vScale)
 {
-  m_Position = vPosition;
-  m_Rotation = qRotation;
-  m_Scale = vScale;
 }
 
 EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform(const ezSimdQuat& qRotation)
+  : m_Rotation(qRotation)
 {
   m_Position.SetZero();
-  m_Rotation = qRotation;
   m_Scale.Set(1.0f);
 }
 

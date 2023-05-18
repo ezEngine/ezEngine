@@ -14,33 +14,33 @@ EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate()
 template <typename Type>
 ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(
   const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius)
+  : m_vCenter(vCenter)
+  , m_fSphereRadius(fSphereRadius)
+  , m_vBoxHalfExtends(vBoxHalfExtents)
 {
-  m_vCenter = vCenter;
-  m_fSphereRadius = fSphereRadius;
-  m_vBoxHalfExtends = vBoxHalfExtents;
 }
 
 template <typename Type>
 ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box, const ezBoundingSphereTemplate<Type>& sphere)
+  : m_vCenter(box.GetCenter())
+  , m_vBoxHalfExtends(box.GetHalfExtents())
 {
-  m_vCenter = box.GetCenter();
-  m_vBoxHalfExtends = box.GetHalfExtents();
   m_fSphereRadius = ezMath::Min(m_vBoxHalfExtends.GetLength(), (sphere.m_vCenter - m_vCenter).GetLength() + sphere.m_fRadius);
 }
 
 template <typename Type>
 ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box)
+  : m_vCenter(box.GetCenter())
 {
-  m_vCenter = box.GetCenter();
   m_vBoxHalfExtends = box.GetHalfExtents();
   m_fSphereRadius = m_vBoxHalfExtends.GetLength();
 }
 
 template <typename Type>
 ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezBoundingSphereTemplate<Type>& sphere)
+  : m_vCenter(sphere.m_vCenter)
+  , m_fSphereRadius(sphere.m_fRadius)
 {
-  m_vCenter = sphere.m_vCenter;
-  m_fSphereRadius = sphere.m_fRadius;
   m_vBoxHalfExtends.Set(m_fSphereRadius);
 }
 
