@@ -84,6 +84,9 @@ public:
   /// \brief Returns the resource descriptor for this resource.
   const ezCollectionResourceDescriptor& GetDescriptor() const;
 
+  /// \brief Returns the current list of resources that have already been added to the preload list. See PreloadResources().
+  ezArrayPtr<const ezTypelessResourceHandle> GetPreloadedResources() const { return m_PreloadedResources; }
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;

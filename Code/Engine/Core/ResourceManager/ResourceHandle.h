@@ -97,6 +97,9 @@ public:
   /// \brief Checks whether the handle points to the given resource.
   EZ_ALWAYS_INLINE bool operator!=(const ezResource* rhs) const { return m_pResource != rhs; }
 
+  /// \brief Returns the type information of the resource or nullptr if the handle is invalid.
+  const ezRTTI* GetResourceType() const;
+
 protected:
   ezResource* m_pResource = nullptr;
 
@@ -207,6 +210,19 @@ public:
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
   EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_hTypeless.GetResourceID(); }
+
+  /// \brief Attempts to copy the given typeless handle to this handle.
+  ///
+  /// It is an error to assign a typeless handle that references a resource with a mismatching type.
+  void AssignFromTypelessHandle(const ezTypelessResourceHandle& handle)
+  {
+    if (!handle.IsValid())
+      return;
+
+    EZ_ASSERT_DEV(handle.GetResourceType()->IsDerivedFrom<RESOURCE_TYPE>(), "Type '{}' does not match resource type '{}' in typeless handle.", ezGetStaticRTTI<RESOURCE_TYPE>()->GetTypeName(), handle.GetResourceType()->GetTypeName());
+
+    m_hTypeless = handle;
+  }
 
 private:
   template <typename T>
