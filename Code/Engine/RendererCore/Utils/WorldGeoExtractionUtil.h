@@ -60,7 +60,7 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractGeometry : public ezMessage
   ezWorldGeoExtractionUtil::ExtractionMode m_Mode = ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh;
 
   /// \brief Append mesh objects to this to describe the requested world geometry
-  ezWorldGeoExtractionUtil::MeshObjectList* m_pMeshObjects;
+  ezWorldGeoExtractionUtil::MeshObjectList* m_pMeshObjects = nullptr;
 
   void AddMeshObject(const ezTransform& transform, ezCpuMeshResourceHandle hMeshResource);
   void AddBox(const ezTransform& transform, ezVec3 vExtents);

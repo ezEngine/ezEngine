@@ -57,7 +57,7 @@ void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraph& ref_graph, bool bTri
   const auto& map = ref_graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::Trigger][m_iPinIndex];
 
 
-  const ezInt8 offset = bTriggered ? +1 : -1;
+  const ezInt8 offset = +1; // bTriggered ? +1 : -1;
 
   // trigger or reset all input pins that are connected to this output pin
   for (ezUInt16 idx : map)

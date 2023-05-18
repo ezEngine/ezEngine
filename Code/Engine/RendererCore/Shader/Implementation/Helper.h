@@ -20,10 +20,10 @@ namespace ezShaderHelper
     struct ezTextSection
     {
       ezTextSection(const char* szName)
+        : m_sName(szName)
+        , m_szSectionStart(nullptr)
+        , m_uiFirstLine(0)
       {
-        m_sName = szName;
-        m_szSectionStart = nullptr;
-        m_uiFirstLine = 0;
       }
 
       void Reset()
