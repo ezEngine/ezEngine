@@ -75,11 +75,11 @@ EZ_END_COMPONENT_TYPE
 ezPathComponent::ezPathComponent() = default;
 ezPathComponent::~ezPathComponent() = default;
 
-void ezPathComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPathComponent::SerializeComponent(ezWorldWriter& ref_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(ref_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = ref_stream.GetStream();
   s << m_PathFlags;
   s << m_bClosed;
   s << m_fLinearizationError;
@@ -88,24 +88,24 @@ void ezPathComponent::SerializeComponent(ezWorldWriter& stream) const
   {
     ezDynamicArray<ControlPoint> controlPoints;
     FindControlPoints(controlPoints);
-    stream.GetStream().WriteArray(controlPoints).AssertSuccess();
+    ref_stream.GetStream().WriteArray(controlPoints).AssertSuccess();
   }
   else
   {
-    stream.GetStream().WriteArray(m_ControlPointRepresentation).AssertSuccess();
+    ref_stream.GetStream().WriteArray(m_ControlPointRepresentation).AssertSuccess();
   }
 }
 
-void ezPathComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPathComponent::DeserializeComponent(ezWorldReader& ref_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(ref_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = ref_stream.GetStream();
   s >> m_PathFlags;
   s >> m_bClosed;
   s >> m_fLinearizationError;
 
-  stream.GetStream().ReadArray(m_ControlPointRepresentation).AssertSuccess();
+  ref_stream.GetStream().ReadArray(m_ControlPointRepresentation).AssertSuccess();
 
   m_bDisableControlPointUpdates = true;
   m_bControlPointsChanged = false;
@@ -293,7 +293,7 @@ void ezPathComponent::EnsureLinearizedRepresentationIsUpToDate()
   m_bLinearizedRepresentationChanged = false;
 }
 
-void ezPathComponent::OnEventMsgPathChanged(ezEventMsgPathChanged& msg)
+void ezPathComponent::OnEventMsgPathChanged(ezEventMsgPathChanged& ref_msg)
 {
   m_bControlPointsChanged = true;
   m_bLinearizedRepresentationChanged = true;
@@ -373,23 +373,23 @@ void ezPathComponent::LinearSampler::SetToStart()
   m_uiSegmentNode = 0;
 }
 
-void ezPathComponent::SetLinearSamplerTo(LinearSampler& sampler, float fDistance) const
+void ezPathComponent::SetLinearSamplerTo(LinearSampler& ref_sampler, float fDistance) const
 {
   if (fDistance < 0.0f && m_LinearizedRepresentation.GetCount() >= 2)
   {
-    sampler.m_uiSegmentNode = m_LinearizedRepresentation.GetCount() - 1;
-    sampler.m_fSegmentFraction = 1.0f;
+    ref_sampler.m_uiSegmentNode = m_LinearizedRepresentation.GetCount() - 1;
+    ref_sampler.m_fSegmentFraction = 1.0f;
   }
   else
   {
-    sampler.m_uiSegmentNode = 0;
-    sampler.m_fSegmentFraction = 0.0f;
+    ref_sampler.m_uiSegmentNode = 0;
+    ref_sampler.m_fSegmentFraction = 0.0f;
   }
 
-  AdvanceLinearSamplerBy(sampler, fDistance);
+  AdvanceLinearSamplerBy(ref_sampler, fDistance);
 }
 
-bool ezPathComponent::AdvanceLinearSamplerBy(LinearSampler& sampler, float& inout_fAddDistance) const
+bool ezPathComponent::AdvanceLinearSamplerBy(LinearSampler& ref_sampler, float& inout_fAddDistance) const
 {
   if (inout_fAddDistance == 0.0f || m_LinearizedRepresentation.IsEmpty())
   {
@@ -399,70 +399,70 @@ bool ezPathComponent::AdvanceLinearSamplerBy(LinearSampler& sampler, float& inou
 
   if (m_LinearizedRepresentation.GetCount() == 1)
   {
-    sampler.SetToStart();
+    ref_sampler.SetToStart();
     inout_fAddDistance = 0.0f;
     return false;
   }
 
   if (inout_fAddDistance >= 0)
   {
-    for (ezUInt32 i = sampler.m_uiSegmentNode + 1; i < m_LinearizedRepresentation.GetCount(); ++i)
+    for (ezUInt32 i = ref_sampler.m_uiSegmentNode + 1; i < m_LinearizedRepresentation.GetCount(); ++i)
     {
       const auto& nd0 = m_LinearizedRepresentation[i - 1];
       const auto& nd1 = m_LinearizedRepresentation[i];
 
       const float fSegmentLength = (nd1.m_vPosition - nd0.m_vPosition).GetLength();
-      const float fSegmentDistance = sampler.m_fSegmentFraction * fSegmentLength;
+      const float fSegmentDistance = ref_sampler.m_fSegmentFraction * fSegmentLength;
       const float fRemainingSegmentDistance = fSegmentLength - fSegmentDistance;
 
       if (inout_fAddDistance >= fRemainingSegmentDistance)
       {
         inout_fAddDistance -= fRemainingSegmentDistance;
-        sampler.m_uiSegmentNode = i;
-        sampler.m_fSegmentFraction = 0.0f;
+        ref_sampler.m_uiSegmentNode = i;
+        ref_sampler.m_fSegmentFraction = 0.0f;
       }
       else
       {
-        sampler.m_fSegmentFraction = (fSegmentDistance + inout_fAddDistance) / fSegmentLength;
+        ref_sampler.m_fSegmentFraction = (fSegmentDistance + inout_fAddDistance) / fSegmentLength;
         return true;
       }
     }
 
-    sampler.m_uiSegmentNode = m_LinearizedRepresentation.GetCount() - 1;
-    sampler.m_fSegmentFraction = 1.0f;
+    ref_sampler.m_uiSegmentNode = m_LinearizedRepresentation.GetCount() - 1;
+    ref_sampler.m_fSegmentFraction = 1.0f;
     return false;
   }
   else
   {
     while (true)
     {
-      ezUInt32 ic = sampler.m_uiSegmentNode;
-      ezUInt32 in = ezMath::Min(sampler.m_uiSegmentNode + 1, m_LinearizedRepresentation.GetCount() - 1);
+      ezUInt32 ic = ref_sampler.m_uiSegmentNode;
+      ezUInt32 in = ezMath::Min(ref_sampler.m_uiSegmentNode + 1, m_LinearizedRepresentation.GetCount() - 1);
 
       const auto& nd0 = m_LinearizedRepresentation[ic];
       const auto& nd1 = m_LinearizedRepresentation[in];
 
       const float fSegmentLength = (nd1.m_vPosition - nd0.m_vPosition).GetLength();
-      const float fSegmentDistance = sampler.m_fSegmentFraction * fSegmentLength;
+      const float fSegmentDistance = ref_sampler.m_fSegmentFraction * fSegmentLength;
       const float fRemainingSegmentDistance = -fSegmentDistance;
 
       if (inout_fAddDistance <= fRemainingSegmentDistance)
       {
         inout_fAddDistance -= fRemainingSegmentDistance;
 
-        if (sampler.m_uiSegmentNode == 0)
+        if (ref_sampler.m_uiSegmentNode == 0)
         {
-          sampler.m_uiSegmentNode = 0;
-          sampler.m_fSegmentFraction = 0.0f;
+          ref_sampler.m_uiSegmentNode = 0;
+          ref_sampler.m_fSegmentFraction = 0.0f;
           return false;
         }
 
-        sampler.m_uiSegmentNode--;
-        sampler.m_fSegmentFraction = 1.0f;
+        ref_sampler.m_uiSegmentNode--;
+        ref_sampler.m_fSegmentFraction = 1.0f;
       }
       else
       {
-        sampler.m_fSegmentFraction = (fSegmentDistance + inout_fAddDistance) / fSegmentLength;
+        ref_sampler.m_fSegmentFraction = (fSegmentDistance + inout_fAddDistance) / fSegmentLength;
         return true;
       }
     }
@@ -574,7 +574,7 @@ static ezVec3 ComputeTangentAt(float fT, const ezPathComponent::ControlPoint& cp
   return (posNext - posPrev).GetNormalized();
 }
 
-static void InsertHalfPoint(ezDynamicArray<ezPathComponent::LinearizedElement>& result, ezDynamicArray<ezVec3>& tangents, const ezPathComponent::ControlPoint& cp0, const ezPathComponent::ControlPoint& cp1, float fLowerT, float fUpperT, const ezVec3& vLowerPos, const ezVec3& vUpperPos, float fDistSqr, ezInt32 iMinSteps, ezInt32 iMaxSteps)
+static void InsertHalfPoint(ezDynamicArray<ezPathComponent::LinearizedElement>& ref_result, ezDynamicArray<ezVec3>& ref_tangents, const ezPathComponent::ControlPoint& cp0, const ezPathComponent::ControlPoint& cp1, float fLowerT, float fUpperT, const ezVec3& vLowerPos, const ezVec3& vUpperPos, float fDistSqr, ezInt32 iMinSteps, ezInt32 iMaxSteps)
 {
   const float fHalfT = ezMath::Lerp(fLowerT, fUpperT, 0.5f);
 
@@ -592,21 +592,21 @@ static void InsertHalfPoint(ezDynamicArray<ezPathComponent::LinearizedElement>& 
 
   if (iMaxSteps > 0)
   {
-    InsertHalfPoint(result, tangents, cp0, cp1, fLowerT, fHalfT, vLowerPos, vHalfPos, fDistSqr, iMinSteps - 1, iMaxSteps - 1);
+    InsertHalfPoint(ref_result, ref_tangents, cp0, cp1, fLowerT, fHalfT, vLowerPos, vHalfPos, fDistSqr, iMinSteps - 1, iMaxSteps - 1);
   }
 
-  result.ExpandAndGetRef().m_vPosition = vHalfPos;
-  tangents.ExpandAndGetRef() = ComputeTangentAt(fHalfT, cp0, cp1);
+  ref_result.ExpandAndGetRef().m_vPosition = vHalfPos;
+  ref_tangents.ExpandAndGetRef() = ComputeTangentAt(fHalfT, cp0, cp1);
 
   if (iMaxSteps > 0)
   {
-    InsertHalfPoint(result, tangents, cp0, cp1, fHalfT, fUpperT, vHalfPos, vUpperPos, fDistSqr, iMinSteps - 1, iMaxSteps - 1);
+    InsertHalfPoint(ref_result, ref_tangents, cp0, cp1, fHalfT, fUpperT, vHalfPos, vUpperPos, fDistSqr, iMinSteps - 1, iMaxSteps - 1);
   }
 }
 
-static void GeneratePathSegment(ezUInt32 uiCp0, ezUInt32 uiCp1, ezArrayPtr<const ezPathComponent::ControlPoint> points, ezArrayPtr<ezVec3> cpUp, ezArrayPtr<ezVec3> cpFwd, ezDynamicArray<ezPathComponent::LinearizedElement>& result, ezDynamicArray<ezVec3>& tangents, float fDistSqr)
+static void GeneratePathSegment(ezUInt32 uiCp0, ezUInt32 uiCp1, ezArrayPtr<const ezPathComponent::ControlPoint> points, ezArrayPtr<ezVec3> cpUp, ezArrayPtr<ezVec3> cpFwd, ezDynamicArray<ezPathComponent::LinearizedElement>& ref_result, ezDynamicArray<ezVec3>& ref_tangents, float fDistSqr)
 {
-  tangents.Clear();
+  ref_tangents.Clear();
 
   const auto& cp0 = points[uiCp0];
   const auto& cp1 = points[uiCp1];
@@ -619,13 +619,13 @@ static void GeneratePathSegment(ezUInt32 uiCp0, ezUInt32 uiCp1, ezArrayPtr<const
     iRollDiv++;
   }
 
-  result.ExpandAndGetRef().m_vPosition = cp0.m_vPosition;
-  tangents.ExpandAndGetRef() = -cpFwd[uiCp0];
+  ref_result.ExpandAndGetRef().m_vPosition = cp0.m_vPosition;
+  ref_tangents.ExpandAndGetRef() = -cpFwd[uiCp0];
 
-  InsertHalfPoint(result, tangents, cp0, cp1, 0.0f, 1.0f, cp0.m_vPosition, cp1.m_vPosition, fDistSqr, ezMath::Max(1, iRollDiv), 7);
+  InsertHalfPoint(ref_result, ref_tangents, cp0, cp1, 0.0f, 1.0f, cp0.m_vPosition, cp1.m_vPosition, fDistSqr, ezMath::Max(1, iRollDiv), 7);
 
-  result.ExpandAndGetRef().m_vPosition = cp1.m_vPosition;
-  tangents.ExpandAndGetRef() = -cpFwd[uiCp1];
+  ref_result.ExpandAndGetRef().m_vPosition = cp1.m_vPosition;
+  ref_tangents.ExpandAndGetRef() = -cpFwd[uiCp1];
 }
 
 static void ComputeSegmentUpVector(ezArrayPtr<ezPathComponent::LinearizedElement> segmentElements, ezUInt32 uiCp0, ezUInt32 uiCp1, const ezArrayPtr<const ezPathComponent::ControlPoint> points, const ezArrayPtr<const ezVec3> cpUp, const ezArrayPtr<const ezVec3> tangents, const ezVec3& vWorldUp)

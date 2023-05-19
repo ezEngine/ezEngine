@@ -22,7 +22,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  ID3D11UnorderedAccessView* m_pDXUnorderedAccessView;
+  ID3D11UnorderedAccessView* m_pDXUnorderedAccessView = nullptr;
 };
 
 #include <RendererDX11/Resources/Implementation/UnorderedAccessViewDX11_inl.h>

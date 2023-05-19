@@ -51,7 +51,7 @@ public:
   void SimulateTillEquilibrium(ezSimdFloat fAllowedMovement = 0.005f, ezUInt32 uiMaxIterations = 1000);
   bool HasEquilibrium(ezSimdFloat fAllowedMovement) const;
   float GetTotalLength() const;
-  ezSimdVec4f GetPositionAtLength(float length) const;
+  ezSimdVec4f GetPositionAtLength(float fLength) const;
 
 private:
   ezSimdFloat EnforceDistanceConstraint();

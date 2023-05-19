@@ -38,7 +38,7 @@ private:
   ezGALUnorderedAccessViewHandle m_hHistogramUAV;
   ezGALResourceViewHandle m_hHistogramSRV;
 
-  ezWindowBase* m_pWindow;
+  ezWindowBase* m_pWindow = nullptr;
   ezGALSwapChainHandle m_hSwapChain;
 
   ezShaderResourceHandle m_hScreenShader;
@@ -49,5 +49,5 @@ private:
 
   ezUniquePtr<ezDirectoryWatcher> m_pDirectoryWatcher;
 
-  bool m_bStuffChanged;
+  bool m_bStuffChanged = false;
 };

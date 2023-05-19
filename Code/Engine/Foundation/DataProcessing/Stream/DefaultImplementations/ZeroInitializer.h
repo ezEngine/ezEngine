@@ -27,5 +27,5 @@ protected:
 
   ezHashedString m_sStreamName;
 
-  ezProcessingStream* m_pStream;
+  ezProcessingStream* m_pStream = nullptr;
 };

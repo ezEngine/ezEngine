@@ -78,9 +78,9 @@ private:
   ezUInt64 m_uiThumbHash = 0;
   ezStringBuilder m_sAssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
-  bool m_bProcessShouldBeRunning;
-  bool m_bProcessCrashed;
-  bool m_bWaiting;
+  bool m_bProcessShouldBeRunning = false;
+  bool m_bProcessCrashed = false;
+  bool m_bWaiting = false;
   ezTransformStatus m_Status;
   ezDynamicArray<ezLogEntry> m_LogEntries;
   ezDynamicArray<ezString> m_TransitiveHull;

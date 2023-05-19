@@ -26,9 +26,9 @@ protected:
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
-  ID3D11Buffer* m_pDXBuffer;
+  ID3D11Buffer* m_pDXBuffer = nullptr;
 
-  DXGI_FORMAT m_IndexFormat; // Only applicable for index buffers
+  DXGI_FORMAT m_IndexFormat = DXGI_FORMAT_UNKNOWN; // Only applicable for index buffers
 };
 
 #include <RendererDX11/Resources/Implementation/BufferDX11_inl.h>

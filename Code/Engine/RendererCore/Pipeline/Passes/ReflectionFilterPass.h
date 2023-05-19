@@ -28,10 +28,10 @@ protected:
   ezRenderPipelineNodeOutputPin m_PinAvgLuminance;
   ezRenderPipelineNodeOutputPin m_PinIrradianceData;
 
-  float m_fIntensity;
-  float m_fSaturation;
-  ezUInt32 m_uiSpecularOutputIndex;
-  ezUInt32 m_uiIrradianceOutputIndex;
+  float m_fIntensity = 1.0f;
+  float m_fSaturation = 1.0f;
+  ezUInt32 m_uiSpecularOutputIndex = 0;
+  ezUInt32 m_uiIrradianceOutputIndex = 0;
 
   ezGALTextureHandle m_hInputCubemap;
 

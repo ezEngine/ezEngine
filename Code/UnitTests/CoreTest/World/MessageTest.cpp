@@ -52,8 +52,7 @@ namespace
 
   public:
     TestComponentMsg()
-      : m_iSomeData(1)
-      , m_iSomeData2(2)
+       
     {
     }
     ~TestComponentMsg() {}
@@ -65,8 +64,8 @@ namespace
 
     void OnTestMessage2(TestMessage2& ref_msg) { m_iSomeData2 += 2 * ref_msg.m_iValue; }
 
-    ezInt32 m_iSomeData;
-    ezInt32 m_iSomeData2;
+    ezInt32 m_iSomeData = 1;
+    ezInt32 m_iSomeData2 = 2;
   };
 
   // clang-format off

@@ -8,7 +8,7 @@
 
 ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent)
   : ezQtGroupBoxBase(pParent, true)
-  , m_bCollapsed(false)
+   
 {
   setupUi(this);
 

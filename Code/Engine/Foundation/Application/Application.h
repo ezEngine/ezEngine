@@ -190,13 +190,13 @@ protected:
   bool m_bWasQuitRequested = false;
 
 private:
-  ezInt32 m_iReturnCode;
+  ezInt32 m_iReturnCode = 0;
 
-  ezUInt32 m_uiArgumentCount;
+  ezUInt32 m_uiArgumentCount = 0;
 
-  const char** m_pArguments;
+  const char** m_pArguments = nullptr;
 
-  bool m_bReportMemoryLeaks;
+  bool m_bReportMemoryLeaks = true;
 
   ezString m_sAppName;
 

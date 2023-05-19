@@ -51,11 +51,11 @@ struct ezPipeWin
     }
   }
 
-  static void ReportString(ezDelegate<void(ezStringView)> func, ezHybridArray<char, 256>& temp)
+  static void ReportString(ezDelegate<void(ezStringView)> func, ezHybridArray<char, 256>& ref_temp)
   {
     ezStringBuilder result;
 
-    ezUnicodeUtils::RepairNonUtf8Text(temp.GetData(), temp.GetData() + temp.GetCount(), result);
+    ezUnicodeUtils::RepairNonUtf8Text(ref_temp.GetData(), ref_temp.GetData() + ref_temp.GetCount(), result);
     func(result);
   }
 

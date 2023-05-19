@@ -11,9 +11,9 @@
 
 namespace ezMeshImportUtils
 {
-  void FillFileFilter(ezDynamicArray<ezString>& out_List, ezStringView sSeparated)
+  void FillFileFilter(ezDynamicArray<ezString>& out_list, ezStringView sSeparated)
   {
-    sSeparated.Split(false, out_List, ";", "*", ".");
+    sSeparated.Split(false, out_list, ";", "*", ".");
   }
 
   ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, ezStringView sTexturePath, ezModelImporter2::TextureSemantic hint, bool bTextureClamp, const ezModelImporter2::Importer* pImporter)

@@ -24,9 +24,9 @@ protected:
   ezRenderPipelineNodeInputPin m_PinInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  float m_fRadius;
-  float m_fThreshold;
-  float m_fIntensity;
+  float m_fRadius = 0.2f;
+  float m_fThreshold = 1.0f;
+  float m_fIntensity = 0.3f;
   ezColorGammaUB m_InnerTintColor;
   ezColorGammaUB m_MidTintColor;
   ezColorGammaUB m_OuterTintColor;

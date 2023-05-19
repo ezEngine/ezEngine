@@ -52,7 +52,7 @@ namespace
 
   public:
     TestComponent()
-      : m_iSomeData(1)
+       
     {
     }
     ~TestComponent() {}
@@ -78,7 +78,7 @@ namespace
 
     void SpawnOther();
 
-    ezInt32 m_iSomeData;
+    ezInt32 m_iSomeData = 1;
 
     static ezInt32 s_iInitCounter;
     static ezInt32 s_iActivateCounter;

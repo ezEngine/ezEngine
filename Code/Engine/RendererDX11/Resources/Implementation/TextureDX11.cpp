@@ -7,9 +7,8 @@
 
 ezGALTextureDX11::ezGALTextureDX11(const ezGALTextureCreationDescription& Description)
   : ezGALTexture(Description)
-  , m_pDXTexture(nullptr)
-  , m_pDXStagingTexture(nullptr)
-  , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
+  , 
+   m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
 {
 }
 

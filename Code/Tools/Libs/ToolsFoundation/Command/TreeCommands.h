@@ -19,7 +19,7 @@ public: // Properties
   void SetType(const char* szType);
   const char* GetType() const;
 
-  const ezRTTI* m_pType;
+  const ezRTTI* m_pType = nullptr;
   ezUuid m_Parent;
   ezString m_sParentProperty;
   ezVariant m_Index;
@@ -32,7 +32,7 @@ private:
   virtual void CleanupInternal(CommandState state) override;
 
 private:
-  ezDocumentObject* m_pObject;
+  ezDocumentObject* m_pObject = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -155,10 +155,10 @@ private:
   virtual void CleanupInternal(CommandState state) override;
 
 private:
-  ezDocumentObject* m_pParent;
+  ezDocumentObject* m_pParent = nullptr;
   ezString m_sParentProperty;
   ezVariant m_Index;
-  ezDocumentObject* m_pObject;
+  ezDocumentObject* m_pObject = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////

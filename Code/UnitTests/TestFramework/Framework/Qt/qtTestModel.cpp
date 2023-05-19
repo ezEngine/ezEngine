@@ -14,8 +14,7 @@ ezQtTestModelEntry::ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezI
   : m_pResult(pResult)
   , m_iTestIndex(iTestIndex)
   , m_iSubTestIndex(iSubTestIndex)
-  , m_pParentEntry(nullptr)
-  , m_uiIndexInParent(0)
+   
 {
 }
 

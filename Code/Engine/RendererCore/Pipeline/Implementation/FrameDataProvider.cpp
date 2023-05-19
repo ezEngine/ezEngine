@@ -8,9 +8,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFrameDataProviderBase, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezFrameDataProviderBase::ezFrameDataProviderBase()
-  : m_pOwnerPipeline(nullptr)
-  , m_pData(nullptr)
-  , m_uiLastUpdateFrame(0)
+   
 {
 }
 

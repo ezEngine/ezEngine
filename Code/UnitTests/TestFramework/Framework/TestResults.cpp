@@ -59,13 +59,7 @@ void ezTestResultData::AddOutput(ezInt32 iOutputIndex)
 ////////////////////////////////////////////////////////////////////////
 
 ezTestConfiguration::ezTestConfiguration()
-  : m_uiInstalledMainMemory(0)
-  , m_uiMemoryPageSize(0)
-  , m_uiCPUCoreCount(0)
-  , m_b64BitOS(false)
-  , m_b64BitApplication(false)
-  , m_iDateTime(0)
-  , m_iRCSRevision(-1)
+   
 {
 }
 

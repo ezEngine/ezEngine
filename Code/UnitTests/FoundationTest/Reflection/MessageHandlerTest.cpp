@@ -66,7 +66,7 @@ class BaseHandler : public ezReflectedClass
 
 public:
   BaseHandler()
-    : m_iValue(0)
+     
   {
   }
 
@@ -76,7 +76,7 @@ public:
 
   void OnGetMessage(GetMessage& ref_msg) const { ref_msg.m_iValue = m_iValue; }
 
-  ezInt32 m_iValue;
+  ezInt32 m_iValue = 0;
 };
 
 // clang-format off

@@ -37,7 +37,7 @@ ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.Bounds
 ezCVarFloat cvar_SpatialCullingOcclusionFarPlane("Spatial.Occlusion.FarPlane", 50.0f, ezCVarFlags::Default, "Far plane distance for finding occluders.");
 
 ezRenderPipeline::ezRenderPipeline()
-  : m_PipelineState(PipelineState::Uninitialized)
+   
 {
   m_CurrentExtractThread = (ezThreadID)0;
   m_CurrentRenderThread = (ezThreadID)0;

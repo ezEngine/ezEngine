@@ -242,12 +242,12 @@ private:
   {
     IfDefState(IfDefActivity activeState = IfDefActivity::IsActive)
       : m_ActiveState(activeState)
-      , m_bIsInElseClause(false)
+       
     {
     }
 
     IfDefActivity m_ActiveState;
-    bool m_bIsInElseClause;
+    bool m_bIsInElseClause = false;
   };
 
   ezDeque<IfDefState> m_IfdefActiveStack;

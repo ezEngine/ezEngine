@@ -299,14 +299,13 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEngine : public e
 
 public:
   ezExportDocumentMsgToEngine()
-    : m_uiAssetHash(0)
-    , m_uiVersion(0)
+     
   {
   }
 
   ezString m_sOutputFile;
-  ezUInt64 m_uiAssetHash;
-  ezUInt16 m_uiVersion;
+  ezUInt64 m_uiAssetHash = 0;
+  ezUInt16 m_uiVersion = 0;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEditor : public ezEditorEngineDocumentMsg

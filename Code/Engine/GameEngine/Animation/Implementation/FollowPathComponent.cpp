@@ -201,13 +201,13 @@ float ezFollowPathComponent::GetDistanceAlongPath() const
   return m_fStartDistance;
 }
 
-void ezFollowPathComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezFollowPathComponent::SerializeComponent(ezWorldWriter& ref_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(ref_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = ref_stream.GetStream();
 
-  stream.WriteGameObjectHandle(m_hPathObject);
+  ref_stream.WriteGameObjectHandle(m_hPathObject);
 
   s << m_fStartDistance;
   s << m_fSpeed;
@@ -218,13 +218,13 @@ void ezFollowPathComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bIsRunningForwards;
 }
 
-void ezFollowPathComponent::DeserializeComponent(ezWorldReader& stream)
+void ezFollowPathComponent::DeserializeComponent(ezWorldReader& ref_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(ref_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = ref_stream.GetStream();
 
-  m_hPathObject = stream.ReadGameObjectHandle();
+  m_hPathObject = ref_stream.ReadGameObjectHandle();
 
   s >> m_fStartDistance;
   s >> m_fSpeed;

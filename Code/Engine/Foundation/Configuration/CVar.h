@@ -56,8 +56,8 @@ EZ_DECLARE_FLAGS_OPERATORS(ezCVarFlags);
 struct ezCVarEvent
 {
   ezCVarEvent(ezCVar* pCVar)
-    : m_EventType(ValueChanged)
-    , m_pCVar(pCVar)
+    : 
+     m_pCVar(pCVar)
   {
   }
 
@@ -69,7 +69,7 @@ struct ezCVarEvent
   };
 
   /// \brief The type of this event.
-  Type m_EventType;
+  Type m_EventType = ValueChanged;
 
   /// \brief Which CVar is involved. This is only for convenience, it is always the CVar on which the event is triggered.
   ezCVar* m_pCVar;

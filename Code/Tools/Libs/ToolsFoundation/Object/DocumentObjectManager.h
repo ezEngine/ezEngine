@@ -44,9 +44,7 @@ public:
 struct ezDocumentObjectStructureEvent
 {
   ezDocumentObjectStructureEvent()
-    : m_pObject(nullptr)
-    , m_pPreviousParent(nullptr)
-    , m_pNewParent(nullptr)
+     
   {
   }
 

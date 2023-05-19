@@ -126,10 +126,10 @@ private:
     float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const;
 
   /// \brief The tree depth, used for finding a nodes unique ID
-  ezUInt32 m_uiMaxTreeDepth;
+  ezUInt32 m_uiMaxTreeDepth = 0;
 
   // \brief Also used for finding a nodes unique ID
-  ezUInt32 m_uiAddIDTopLevel;
+  ezUInt32 m_uiAddIDTopLevel = 0;
 
   /// \brief The square bounding Box (to prevent long thin nodes)
   ezBoundingBox m_BBox;

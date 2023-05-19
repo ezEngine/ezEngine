@@ -26,14 +26,14 @@ private:
   struct ShaderData
   {
     ShaderData()
-      : m_pType(nullptr)
+       
     {
     }
 
     ezString m_sShaderPath;
     ezString m_sAbsShaderPath;
     ezTimestamp m_fileModifiedTime;
-    const ezRTTI* m_pType;
+    const ezRTTI* m_pType = nullptr;
   };
   void UpdateShaderType(ShaderData& data);
   void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);

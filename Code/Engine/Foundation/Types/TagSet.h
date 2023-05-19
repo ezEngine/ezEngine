@@ -81,7 +81,7 @@ public:
     bool IsBitSet() const;
 
     const ezTagSetTemplate<BlockStorageAllocator>* m_pTagSet;
-    ezUInt32 m_uiIndex;
+    ezUInt32 m_uiIndex = 0;
   };
 
   /// \brief Returns an iterator to list all tags in this set

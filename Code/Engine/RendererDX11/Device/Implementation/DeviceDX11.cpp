@@ -51,14 +51,8 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
-  , m_pDevice(nullptr)
-  , m_pDevice3(nullptr)
-  , m_pDebug(nullptr)
-  , m_pDXGIFactory(nullptr)
-  , m_pDXGIAdapter(nullptr)
-  , m_pDXGIDevice(nullptr)
+  // NOLINTNEXTLINE
   , m_uiFeatureLevel(D3D_FEATURE_LEVEL_9_1)
-  , m_uiFrameCounter(0)
 {
 }
 

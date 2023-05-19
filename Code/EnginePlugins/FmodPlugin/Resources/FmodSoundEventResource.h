@@ -49,14 +49,14 @@ public:
   {
     LoadedData()
       : m_Reader(&m_Storage)
-      , m_pEventDescription(nullptr)
+       
     {
     }
 
     ezDefaultMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
     ezFmodSoundBankResourceHandle m_hSoundBank;
-    FMOD::Studio::EventDescription* m_pEventDescription;
+    FMOD::Studio::EventDescription* m_pEventDescription = nullptr;
   };
 
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;

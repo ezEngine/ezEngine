@@ -73,7 +73,7 @@ private:
   virtual ezUInt32 Run() = 0;
 
 
-  volatile ezThreadStatus m_ThreadStatus;
+  volatile ezThreadStatus m_ThreadStatus = Created;
 
   ezString m_sName;
 

@@ -25,7 +25,7 @@ protected:
   ezRenderPipelineNodeInputPin m_PinInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezInt32 m_iRadius;
+  ezInt32 m_iRadius = 15;
   ezConstantBufferStorageHandle m_hBlurCB;
   ezShaderResourceHandle m_hShader;
 };

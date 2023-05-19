@@ -59,8 +59,8 @@ class EZ_GAMEENGINE_DLL ezPathComponent : public ezComponent
   // ezComponent
 
 public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void SerializeComponent(ezWorldWriter& ref_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& ref_stream) override;
 
 protected:
   virtual void OnActivated() override;
@@ -74,7 +74,7 @@ public:
   ~ezPathComponent();
 
   /// \brief Informs the path component, that its shape has changed. Sent by path nodes when they are modified.
-  void OnEventMsgPathChanged(ezEventMsgPathChanged& msg); // [ message handler ]
+  void OnEventMsgPathChanged(ezEventMsgPathChanged& ref_msg); // [ message handler ]
 
   /// \brief Whether the path end connects to the beginning.
   void SetClosed(bool bClosed);                // [ property ]
@@ -92,8 +92,8 @@ public:
     ezVec3 m_vTangentOut = ezVec3::ZeroVector();
     ezAngle m_Roll;
 
-    ezResult Serialize(ezStreamWriter& writer) const;
-    ezResult Deserialize(ezStreamReader& reader);
+    ezResult Serialize(ezStreamWriter& ref_writer) const;
+    ezResult Deserialize(ezStreamReader& ref_reader);
   };
 
   /// \brief If the control points changed recently, this makes sure the local representation is synchronized. Call this before GetControlPointRepresentation(), if necessary.
@@ -142,12 +142,12 @@ public:
   ///
   /// For a long distance, this is a slow operation, because it has to follow the path
   /// from the beginning.
-  void SetLinearSamplerTo(LinearSampler& sampler, float fDistance) const;
+  void SetLinearSamplerTo(LinearSampler& ref_sampler, float fDistance) const;
 
   /// \brief Moves the sampler along the path by the desired distance.
   ///
   /// Prefer this over SetLinearSamplerTo().
-  bool AdvanceLinearSamplerBy(LinearSampler& sampler, float& inout_fAddDistance) const;
+  bool AdvanceLinearSamplerBy(LinearSampler& ref_sampler, float& inout_fAddDistance) const;
 
   /// \brief Samples the linearized path representation at the desired location and returns the interpolated values.
   ezPathComponent::LinearizedElement SampleLinearizedRepresentation(const LinearSampler& sampler) const;

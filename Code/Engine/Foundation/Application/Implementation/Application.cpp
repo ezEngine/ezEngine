@@ -9,11 +9,8 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 
 ezApplication::ezApplication(const char* szAppName)
-  : m_iReturnCode(0)
-  , m_uiArgumentCount(0)
-  , m_pArguments(nullptr)
-  , m_bReportMemoryLeaks(true)
-  , m_sAppName(szAppName)
+  : 
+   m_sAppName(szAppName)
 {
 }
 

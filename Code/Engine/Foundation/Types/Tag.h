@@ -34,8 +34,8 @@ private:
 
   ezHashedString m_sTagString;
 
-  ezUInt32 m_uiBitIndex;
-  ezUInt32 m_uiBlockIndex;
+  ezUInt32 m_uiBitIndex = 0xFFFFFFFEu;
+  ezUInt32 m_uiBlockIndex = 0xFFFFFFFEu;
 };
 
 #include <Foundation/Types/TagSet.h>

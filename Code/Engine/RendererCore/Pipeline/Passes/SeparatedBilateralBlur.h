@@ -35,9 +35,9 @@ protected:
   ezRenderPipelineNodeInputPin m_PinDepthInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezUInt32 m_uiRadius;
-  float m_fGaussianSigma;
-  float m_fSharpness;
+  ezUInt32 m_uiRadius = 7;
+  float m_fGaussianSigma = 3.5f;
+  float m_fSharpness = 120.0f;
   ezConstantBufferStorageHandle m_hBilateralBlurCB;
   ezShaderResourceHandle m_hShader;
 };

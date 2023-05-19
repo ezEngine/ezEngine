@@ -14,9 +14,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldRttiConverterContext : public e
 {
 public:
   ezWorldRttiConverterContext()
-    : m_pWorld(nullptr)
-    , m_uiNextComponentPickingID(1)
-    , m_uiHighlightID(1)
+     
   {
   }
 
@@ -34,14 +32,14 @@ public:
 
   virtual void OnUnknownTypeError(ezStringView sTypeName) override;
 
-  ezWorld* m_pWorld;
+  ezWorld* m_pWorld = nullptr;
   ezEditorGuidEngineHandleMap<ezGameObjectHandle> m_GameObjectMap;
   ezEditorGuidEngineHandleMap<ezComponentHandle> m_ComponentMap;
 
   ezEditorGuidEngineHandleMap<ezUInt32> m_OtherPickingMap;
   ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
-  ezUInt32 m_uiNextComponentPickingID;
-  ezUInt32 m_uiHighlightID;
+  ezUInt32 m_uiNextComponentPickingID = 1;
+  ezUInt32 m_uiHighlightID = 1;
 
   struct Event
   {

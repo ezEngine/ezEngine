@@ -156,8 +156,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ////////////////////////////////////////////////////////////////////////
 
 ezAddObjectCommand::ezAddObjectCommand()
-  : m_pType(nullptr)
-  , m_pObject(nullptr)
+   
 {
 }
 
@@ -567,8 +566,7 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
 ////////////////////////////////////////////////////////////////////////
 
 ezRemoveObjectCommand::ezRemoveObjectCommand()
-  : m_pParent(nullptr)
-  , m_pObject(nullptr)
+   
 {
 }
 

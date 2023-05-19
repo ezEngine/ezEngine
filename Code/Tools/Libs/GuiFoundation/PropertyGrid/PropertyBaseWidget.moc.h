@@ -156,8 +156,8 @@ private:
   void FlushQueuedChanges();
 
 protected:
-  bool m_bTemporaryCommand;
-  const ezRTTI* m_pResolvedType;
+  bool m_bTemporaryCommand = false;
+  const ezRTTI* m_pResolvedType = nullptr;
   ezHybridArray<ezPropertySelection, 8> m_ResolvedObjects;
 
   ezHybridArray<ezString, 1> m_QueuedChanges;
@@ -287,7 +287,7 @@ protected:
   QHBoxLayout* m_pLayout;
   ezQtGroupBoxBase* m_pGroup;
   QVBoxLayout* m_pGroupLayout;
-  ezQtAddSubElementButton* m_pAddButton;
+  ezQtAddSubElementButton* m_pAddButton = nullptr;
   QPalette m_Pal;
 
   mutable ezHybridArray<ezVariant, 16> m_Keys;
@@ -329,7 +329,7 @@ protected:
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
 
 private:
-  bool m_bNeedsUpdate;
+  bool m_bNeedsUpdate = false;
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtVariantPropertyWidget : public ezQtStandardPropertyWidget
