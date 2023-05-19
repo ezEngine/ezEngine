@@ -19,7 +19,7 @@ protected:
   ezRenderPipelineNodeInputPin m_PinInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  bool m_bIsDepth;
-  ezGALMSAASampleCount::Enum m_MsaaSampleCount;
+  bool m_bIsDepth = false;
+  ezGALMSAASampleCount::Enum m_MsaaSampleCount = ezGALMSAASampleCount::None;
   ezShaderResourceHandle m_hDepthResolveShader;
 };

@@ -19,7 +19,7 @@ private:
   {
     NilNode();
 
-    ezUInt16 m_uiLevel;
+    ezUInt16 m_uiLevel = 0;
     Node* m_pParent;
     Node* m_pLink[2];
   };

@@ -24,12 +24,12 @@ protected:
   ezRenderPipelineNodeInputPin m_PinInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  float m_fRadius;
-  float m_fThreshold;
-  float m_fIntensity;
-  ezColorGammaUB m_InnerTintColor;
-  ezColorGammaUB m_MidTintColor;
-  ezColorGammaUB m_OuterTintColor;
+  float m_fRadius = 0.2f;
+  float m_fThreshold = 1.0f;
+  float m_fIntensity = 0.3f;
+  ezColorGammaUB m_InnerTintColor = ezColor::White;
+  ezColorGammaUB m_MidTintColor = ezColor::White;
+  ezColorGammaUB m_OuterTintColor = ezColor::White;
   ezConstantBufferStorageHandle m_hConstantBuffer;
   ezShaderResourceHandle m_hShader;
 };

@@ -28,7 +28,7 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
 
-  IDXGISwapChain* m_pDXSwapChain;
+  IDXGISwapChain* m_pDXSwapChain = nullptr;
 
   ezGALTextureHandle m_hBackBufferTexture;
 

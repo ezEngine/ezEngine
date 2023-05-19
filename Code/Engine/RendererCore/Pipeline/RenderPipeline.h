@@ -115,7 +115,7 @@ private: // Member data
   ezUInt64 m_uiLastRenderFrame;
 
   // Render pass graph data
-  PipelineState m_PipelineState;
+  PipelineState m_PipelineState = PipelineState::Uninitialized;
 
   struct ConnectionData
   {

@@ -99,7 +99,7 @@ public:
   virtual bool ExceededBreakingPoint() = 0;
 
   /// \brief Forwards to BreakConstraint().
-  void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& msg); // [ msg handler ]
+  void OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg); // [ msg handler ]
 
 protected:
   ezResult FindParentBody(ezUInt32& out_uiJoltBodyID, ezJoltDynamicActorComponent*& pRbComp);

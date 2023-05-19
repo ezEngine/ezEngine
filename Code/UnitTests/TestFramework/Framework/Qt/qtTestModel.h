@@ -45,8 +45,8 @@ private:
   ezInt32 m_iTestIndex;
   ezInt32 m_iSubTestIndex;
 
-  ezQtTestModelEntry* m_pParentEntry;
-  ezUInt32 m_uiIndexInParent;
+  ezQtTestModelEntry* m_pParentEntry = nullptr;
+  ezUInt32 m_uiIndexInParent = 0;
   std::deque<ezQtTestModelEntry*> m_SubEntries;
 };
 

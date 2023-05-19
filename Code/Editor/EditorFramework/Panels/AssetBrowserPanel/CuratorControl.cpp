@@ -7,8 +7,7 @@
 
 ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
   : QWidget(pParent)
-  , m_bScheduled(false)
-  , m_pBackgroundProcess(nullptr)
+
 {
   QHBoxLayout* pLayout = new QHBoxLayout();
   setLayout(pLayout);

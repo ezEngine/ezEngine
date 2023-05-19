@@ -27,9 +27,9 @@ protected:
 
   ezResult CreateStagingTexture(ezGALDeviceDX11* pDevice);
 
-  ID3D11Resource* m_pDXTexture;
+  ID3D11Resource* m_pDXTexture = nullptr;
 
-  ID3D11Resource* m_pDXStagingTexture;
+  ID3D11Resource* m_pDXStagingTexture = nullptr;
 
   void* m_pExisitingNativeObject = nullptr;
 };

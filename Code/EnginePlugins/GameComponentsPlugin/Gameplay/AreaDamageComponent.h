@@ -18,7 +18,7 @@ public:
 
 private:
   friend class ezAreaDamageComponent;
-  ezPhysicsWorldModuleInterface* m_pPhysicsInterface;
+  ezPhysicsWorldModuleInterface* m_pPhysicsInterface = nullptr;
 };
 
 class EZ_GAMECOMPONENTS_DLL ezAreaDamageComponent : public ezComponent

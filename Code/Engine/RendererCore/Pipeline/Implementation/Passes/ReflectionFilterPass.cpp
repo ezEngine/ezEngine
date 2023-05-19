@@ -31,10 +31,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezReflectionFilterPass::ezReflectionFilterPass()
   : ezRenderPipelinePass("ReflectionFilterPass")
-  , m_fIntensity(1.0f)
-  , m_fSaturation(1.0f)
-  , m_uiSpecularOutputIndex(0)
-  , m_uiIrradianceOutputIndex(0)
+
 {
   {
     m_hFilteredSpecularConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezReflectionFilteredSpecularConstants>();

@@ -67,10 +67,10 @@ public:
 private:
   friend class ezRenderPipeline;
 
-  bool m_bActive;
+  bool m_bActive = true;
 
   const bool m_bIsStereoAware;
   ezHashedString m_sName;
 
-  ezRenderPipeline* m_pPipeline;
+  ezRenderPipeline* m_pPipeline = nullptr;
 };

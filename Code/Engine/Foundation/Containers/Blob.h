@@ -23,7 +23,7 @@ public:
   /// \brief Initializes the ezBlobPtr to be empty.
   EZ_ALWAYS_INLINE ezBlobPtr()
     : m_pPtr(nullptr)
-    , m_uiCount(0u)
+
   {
   }
 
@@ -191,7 +191,7 @@ public:
 
 private:
   PointerType m_pPtr;
-  ezUInt64 m_uiCount;
+  ezUInt64 m_uiCount = 0u;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@
 
 ezGALVertexDeclarationDX11::ezGALVertexDeclarationDX11(const ezGALVertexDeclarationCreationDescription& Description)
   : ezGALVertexDeclaration(Description)
-  , m_pDXInputLayout(nullptr)
+
 {
 }
 

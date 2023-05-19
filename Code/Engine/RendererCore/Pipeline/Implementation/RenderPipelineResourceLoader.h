@@ -16,7 +16,7 @@ class EZ_RENDERERCORE_DLL ezRenderPipelineRttiConverterContext : public ezRttiCo
 {
 public:
   ezRenderPipelineRttiConverterContext()
-    : m_pRenderPipeline(nullptr)
+
   {
   }
 
@@ -25,5 +25,5 @@ public:
   virtual ezInternal::NewInstance<void> CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
   virtual void DeleteObject(const ezUuid& guid) override;
 
-  ezRenderPipeline* m_pRenderPipeline;
+  ezRenderPipeline* m_pRenderPipeline = nullptr;
 };

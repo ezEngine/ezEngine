@@ -34,15 +34,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAOPass::ezAOPass()
   : ezRenderPipelinePass("AOPass", true)
-  , m_fRadius(1.0f)
-  , m_fMaxScreenSpaceRadius(1.0f)
-  , m_fContrast(2.0f)
-  , m_fIntensity(0.7f)
-  , m_fFadeOutStart(80.0f)
-  , m_fFadeOutEnd(100.0f)
-  , m_fPositionBias(5.0f)
-  , m_fMipLevelScale(10.0f)
-  , m_fDepthBlurThreshold(2.0f)
+
 {
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/SSAONoise.dds");
 

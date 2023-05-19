@@ -5,8 +5,7 @@
 const float ezDynamicOctree::s_fLooseOctreeFactor = 1.1f;
 
 ezDynamicOctree::ezDynamicOctree()
-  : m_uiMaxTreeDepth(0)
-  , m_uiAddIDTopLevel(0)
+
 {
 }
 

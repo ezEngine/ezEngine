@@ -8,8 +8,7 @@
 
 ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Description)
   : ezGALBuffer(Description)
-  , m_pDXBuffer(nullptr)
-  , m_IndexFormat(DXGI_FORMAT_UNKNOWN)
+
 {
 }
 

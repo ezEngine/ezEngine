@@ -46,12 +46,10 @@ namespace ezInternal
     , m_MaxInitializationTimePerFrame(desc.m_MaxComponentInitializationTimePerFrame)
     , m_Clock(desc.m_sName)
     , m_WriteThreadID((ezThreadID)0)
-    , m_iWriteCounter(0)
-    , m_bSimulateWorld(true)
     , m_bReportErrorWhenStaticObjectMoves(desc.m_bReportErrorWhenStaticObjectMoves)
     , m_ReadMarker(*this)
     , m_WriteMarker(*this)
-    , m_pUserData(nullptr)
+
   {
     m_AllocatorWrapper.Reset();
 

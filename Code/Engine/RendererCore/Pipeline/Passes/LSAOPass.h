@@ -76,7 +76,7 @@ protected:
 
   ezConstantBufferStorageHandle m_hLineSweepCB;
 
-  bool m_bSweepDataDirty;
+  bool m_bSweepDataDirty = true;
 
   /// Output of the line sweep pass.
   ezGALBufferHandle m_hLineSweepOutputBuffer;
@@ -88,12 +88,12 @@ protected:
   ezGALResourceViewHandle m_hLineSweepInfoSRV;
 
   /// Total number of lines to be traced.
-  ezUInt32 m_uiNumSweepLines;
+  ezUInt32 m_uiNumSweepLines = 0;
 
-  ezInt32 m_iLineToLinePixelOffset;
-  ezInt32 m_iLineSamplePixelOffsetFactor;
+  ezInt32 m_iLineToLinePixelOffset = 2;
+  ezInt32 m_iLineSamplePixelOffsetFactor = 1;
   ezEnum<ezLSAODepthCompareFunction> m_DepthCompareFunction;
-  bool m_bDistributedGathering;
+  bool m_bDistributedGathering = true;
 
   ezShaderResourceHandle m_hShaderLineSweep;
   ezShaderResourceHandle m_hShaderGather;

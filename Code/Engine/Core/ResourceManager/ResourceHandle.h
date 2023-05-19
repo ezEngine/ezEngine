@@ -214,14 +214,14 @@ public:
   /// \brief Attempts to copy the given typeless handle to this handle.
   ///
   /// It is an error to assign a typeless handle that references a resource with a mismatching type.
-  void AssignFromTypelessHandle(const ezTypelessResourceHandle& handle)
+  void AssignFromTypelessHandle(const ezTypelessResourceHandle& hHandle)
   {
-    if (!handle.IsValid())
+    if (!hHandle.IsValid())
       return;
 
-    EZ_ASSERT_DEV(handle.GetResourceType()->IsDerivedFrom<RESOURCE_TYPE>(), "Type '{}' does not match resource type '{}' in typeless handle.", ezGetStaticRTTI<RESOURCE_TYPE>()->GetTypeName(), handle.GetResourceType()->GetTypeName());
+    EZ_ASSERT_DEV(hHandle.GetResourceType()->IsDerivedFrom<RESOURCE_TYPE>(), "Type '{}' does not match resource type '{}' in typeless handle.", ezGetStaticRTTI<RESOURCE_TYPE>()->GetTypeName(), hHandle.GetResourceType()->GetTypeName());
 
-    m_hTypeless = handle;
+    m_hTypeless = hHandle;
   }
 
 private:

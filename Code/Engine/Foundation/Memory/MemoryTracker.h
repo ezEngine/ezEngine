@@ -48,17 +48,14 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     EZ_FORCE_INLINE AllocationInfo()
-      : m_pStackTrace(nullptr)
-      , m_uiSize(0)
-      , m_uiAlignment(0)
-      , m_uiStackTraceLength(0)
+
     {
     }
 
-    void** m_pStackTrace;
-    size_t m_uiSize;
-    ezUInt16 m_uiAlignment;
-    ezUInt16 m_uiStackTraceLength;
+    void** m_pStackTrace = nullptr;
+    size_t m_uiSize = 0;
+    ezUInt16 m_uiAlignment = 0;
+    ezUInt16 m_uiStackTraceLength = 0;
 
     EZ_ALWAYS_INLINE const ezArrayPtr<void*> GetStackTrace() const { return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength); }
 

@@ -31,7 +31,7 @@ class ezQtItemView : public Base
 public:
   ezQtItemView(QWidget* pParent)
     : Base(pParent)
-    , m_pFocusedDelegate(nullptr)
+
   {
     this->setAttribute(Qt::WA_Hover, true);
   }
@@ -180,7 +180,7 @@ private:
   }
 
 private:
-  ezQtItemDelegate* m_pFocusedDelegate;
+  ezQtItemDelegate* m_pFocusedDelegate = nullptr;
   QPersistentModelIndex m_Hovered;
   QPersistentModelIndex m_Focused;
 };

@@ -8,9 +8,9 @@
 class EZ_TEXTURE_DLL ezExrFileFormat : public ezImageFileFormat
 {
 public:
-  ezResult ReadImageHeader(ezStreamReader& stream, ezImageHeader& header, const char* szFileExtension) const override;
-  ezResult ReadImage(ezStreamReader& stream, ezImage& image, const char* szFileExtension) const override;
-  ezResult WriteImage(ezStreamWriter& stream, const ezImageView& image, const char* szFileExtension) const override;
+  ezResult ReadImageHeader(ezStreamReader& ref_stream, ezImageHeader& ref_header, const char* szFileExtension) const override;
+  ezResult ReadImage(ezStreamReader& ref_stream, ezImage& ref_image, const char* szFileExtension) const override;
+  ezResult WriteImage(ezStreamWriter& ref_stream, const ezImageView& image, const char* szFileExtension) const override;
 
   bool CanReadFileType(const char* szExtension) const override;
   bool CanWriteFileType(const char* szExtension) const override;

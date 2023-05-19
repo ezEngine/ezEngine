@@ -32,8 +32,8 @@ private:
   void CreateBuffer(ezUInt32 uiSize);
   void Reset();
 
-  ezUInt32 m_uiBufferSize;
-  ezUInt32 m_uiBufferOffset;
+  ezUInt32 m_uiBufferSize = 0;
+  ezUInt32 m_uiBufferOffset = 0;
   ezDynamicArray<ezPerInstanceData, ezAlignedAllocatorWrapper> m_PerInstanceData;
 };
 

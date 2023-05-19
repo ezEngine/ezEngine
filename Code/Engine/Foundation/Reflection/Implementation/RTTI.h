@@ -152,7 +152,7 @@ public:
     const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_derivedTypes, bool bSortByName);
 
 protected:
-  const char* m_szPluginName;
+  const char* m_szPluginName = nullptr;
   const char* m_szTypeName;
   ezArrayPtr<ezAbstractProperty*> m_Properties;
   ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
@@ -172,9 +172,9 @@ protected:
   ezUInt32 m_uiTypeVersion = 0;
   ezUInt64 m_uiTypeNameHash = 0;
   ezBitflags<ezTypeFlags> m_TypeFlags;
-  ezUInt32 m_uiMsgIdOffset;
+  ezUInt32 m_uiMsgIdOffset = 0;
 
-  bool m_bGatheredDynamicMessageHandlers;
+  bool m_bGatheredDynamicMessageHandlers = false;
   const ezRTTI* (*m_VerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;

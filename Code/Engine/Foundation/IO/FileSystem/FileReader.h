@@ -15,9 +15,7 @@ class EZ_FOUNDATION_DLL ezFileReader : public ezFileReaderBase
 public:
   /// \brief Constructor, does nothing.
   ezFileReader()
-    : m_uiBytesCached(0)
-    , m_uiCacheReadPosition(0)
-    , m_bEOF(true)
+
   {
   }
 
@@ -38,8 +36,8 @@ public:
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override;
 
 private:
-  ezUInt64 m_uiBytesCached;
-  ezUInt64 m_uiCacheReadPosition;
+  ezUInt64 m_uiBytesCached = 0;
+  ezUInt64 m_uiCacheReadPosition = 0;
   ezDynamicArray<ezUInt8> m_Cache;
-  bool m_bEOF;
+  bool m_bEOF = true;
 };

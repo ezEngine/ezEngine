@@ -311,7 +311,7 @@ void ezJoltConstraintComponent::ApplySettings()
   }
 }
 
-void ezJoltConstraintComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& msg)
+void ezJoltConstraintComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg)
 {
   BreakConstraint();
 }

@@ -294,9 +294,9 @@ static ezResult ReadBytesChecked(ezStreamReader& inout_stream, void* pDest, ezUI
 }
 
 template <typename TYPE>
-static ezResult ReadBytesChecked(ezStreamReader& inout_stream, TYPE& dest)
+static ezResult ReadBytesChecked(ezStreamReader& inout_stream, TYPE& ref_dest)
 {
-  return ReadBytesChecked(inout_stream, &dest, sizeof(TYPE));
+  return ReadBytesChecked(inout_stream, &ref_dest, sizeof(TYPE));
 }
 
 static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension, TgaHeader& ref_tgaHeader)

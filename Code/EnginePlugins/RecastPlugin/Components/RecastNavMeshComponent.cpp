@@ -270,7 +270,7 @@ void ezRcNavMeshComponent::VisualizePointsOfInterest()
 
 ezRcNavMeshComponentManager::ezRcNavMeshComponentManager(ezWorld* pWorld)
   : SUPER(pWorld)
-  , m_pWorldModule(nullptr)
+
 {
 }
 

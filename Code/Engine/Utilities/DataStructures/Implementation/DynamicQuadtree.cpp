@@ -5,8 +5,7 @@
 const float ezDynamicQuadtree::s_fLooseOctreeFactor = 1.1f;
 
 ezDynamicQuadtree::ezDynamicQuadtree()
-  : m_uiMaxTreeDepth(0)
-  , m_uiAddIDTopLevel(0)
+
 {
 }
 

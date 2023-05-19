@@ -233,10 +233,10 @@ namespace ezInternal
     mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
 
     ezThreadID m_WriteThreadID;
-    ezInt32 m_iWriteCounter;
+    ezInt32 m_iWriteCounter = 0;
     mutable ezAtomicInteger32 m_iReadCounter;
 
-    bool m_bSimulateWorld;
+    bool m_bSimulateWorld = true;
     bool m_bReportErrorWhenStaticObjectMoves;
 
     /// \brief Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
@@ -273,7 +273,7 @@ namespace ezInternal
     mutable ReadMarker m_ReadMarker;
     WriteMarker m_WriteMarker;
 
-    void* m_pUserData;
+    void* m_pUserData = nullptr;
   };
 } // namespace ezInternal
 

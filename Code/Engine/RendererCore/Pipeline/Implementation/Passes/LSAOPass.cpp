@@ -59,11 +59,7 @@ namespace
 
 ezLSAOPass::ezLSAOPass()
   : ezRenderPipelinePass("LSAOPass", true)
-  , m_uiNumSweepLines(0)
-  , m_iLineToLinePixelOffset(2)
-  , m_iLineSamplePixelOffsetFactor(1)
-  , m_bSweepDataDirty(true)
-  , m_bDistributedGathering(true)
+
 {
   {
     // Load shader.

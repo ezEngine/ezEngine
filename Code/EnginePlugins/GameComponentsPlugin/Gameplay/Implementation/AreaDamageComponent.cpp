@@ -161,7 +161,7 @@ void ezAreaDamageComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 ezAreaDamageComponentManager::ezAreaDamageComponentManager(ezWorld* pWorld)
   : SUPER(pWorld)
-  , m_pPhysicsInterface(nullptr)
+
 {
 }
 

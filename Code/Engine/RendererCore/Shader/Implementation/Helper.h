@@ -21,8 +21,7 @@ namespace ezShaderHelper
     {
       ezTextSection(const char* szName)
         : m_sName(szName)
-        , m_szSectionStart(nullptr)
-        , m_uiFirstLine(0)
+
       {
       }
 
@@ -34,9 +33,9 @@ namespace ezShaderHelper
       }
 
       ezString m_sName;
-      const char* m_szSectionStart;
+      const char* m_szSectionStart = nullptr;
       ezStringView m_Content;
-      ezUInt32 m_uiFirstLine;
+      ezUInt32 m_uiFirstLine = 0;
     };
 
     ezStringBuilder m_sText;

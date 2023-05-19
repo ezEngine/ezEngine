@@ -42,8 +42,7 @@ EZ_END_STATIC_REFLECTED_TYPE;
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget()
   : QWidget(nullptr)
-  , m_pGrid(nullptr)
-  , m_pProp(nullptr)
+
 {
   m_bUndead = false;
   m_bIsDefault = true;
@@ -755,8 +754,7 @@ void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStru
 
 ezQtEmbeddedClassPropertyWidget::ezQtEmbeddedClassPropertyWidget()
   : ezQtPropertyWidget()
-  , m_bTemporaryCommand(false)
-  , m_pResolvedType(nullptr)
+
 {
 }
 
@@ -966,7 +964,7 @@ void ezQtPropertyTypeWidget::DoPrepareToDie()
 
 ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   : ezQtPropertyWidget()
-  , m_pAddButton(nullptr)
+
 {
   m_Pal = palette();
   setAutoFillBackground(true);
@@ -1578,7 +1576,7 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 /// *** ezQtPropertyTypeContainerWidget ***
 
 ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget()
-  : m_bNeedsUpdate(false)
+
 {
 }
 

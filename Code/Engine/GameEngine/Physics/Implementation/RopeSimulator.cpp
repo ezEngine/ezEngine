@@ -95,7 +95,7 @@ float ezRopeSimulator::GetTotalLength() const
   return len;
 }
 
-ezSimdVec4f ezRopeSimulator::GetPositionAtLength(float length) const
+ezSimdVec4f ezRopeSimulator::GetPositionAtLength(float fLength) const
 {
   if (m_Nodes.IsEmpty())
     return ezSimdVec4f::ZeroVector();
@@ -108,13 +108,13 @@ ezSimdVec4f ezRopeSimulator::GetPositionAtLength(float length) const
     const ezSimdVec4f dir = cur - prev;
     const float dist = dir.GetLength<3>();
 
-    if (length <= dist)
+    if (fLength <= dist)
     {
-      const float interpolate = length / dist;
+      const float interpolate = fLength / dist;
       return prev + dir * interpolate;
     }
 
-    length -= dist;
+    fLength -= dist;
     prev = cur;
   }
 

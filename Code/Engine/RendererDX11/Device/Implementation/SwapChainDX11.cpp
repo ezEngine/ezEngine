@@ -89,7 +89,7 @@ ezResult ezGALSwapChainDX11::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALP
 
 ezGALSwapChainDX11::ezGALSwapChainDX11(const ezGALWindowSwapChainCreationDescription& Description)
   : ezGALWindowSwapChain(Description)
-  , m_pDXSwapChain(nullptr)
+
 {
 }
 

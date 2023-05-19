@@ -53,14 +53,11 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractProperty*> functions,
   ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
   const ezRTTI* (*fnVerifyParent)())
-  : m_szPluginName(nullptr)
-  , m_szTypeName(szName)
+  : m_szTypeName(szName)
   , m_Properties(properties)
   , m_Functions(ezMakeArrayPtr<ezAbstractFunctionProperty*>(reinterpret_cast<ezAbstractFunctionProperty**>(functions.GetPtr()), functions.GetCount()))
   , m_Attributes(attributes)
   , m_pAllocator(pAllocator)
-  , m_uiMsgIdOffset(0)
-  , m_bGatheredDynamicMessageHandlers(false)
   , m_VerifyParent(fnVerifyParent)
   , m_MessageHandlers(messageHandlers)
   , m_MessageSenders(messageSenders)

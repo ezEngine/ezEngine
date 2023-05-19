@@ -19,6 +19,6 @@ protected:
   ezRenderPipelineNodeInputPin m_PinInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezGALMSAASampleCount::Enum m_MsaaMode;
+  ezGALMSAASampleCount::Enum m_MsaaMode = ezGALMSAASampleCount::None;
   ezShaderResourceHandle m_hShader;
 };

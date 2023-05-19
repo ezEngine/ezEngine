@@ -23,10 +23,7 @@ public:
   };
 
   ezAbstractObjectNode()
-    : m_pOwner(nullptr)
-    , m_uiTypeVersion(0)
-    , m_szType(nullptr)
-    , m_szNodeName(nullptr)
+
   {
   }
 
@@ -61,12 +58,12 @@ public:
 private:
   friend class ezAbstractObjectGraph;
 
-  ezAbstractObjectGraph* m_pOwner;
+  ezAbstractObjectGraph* m_pOwner = nullptr;
 
   ezUuid m_Guid;
-  ezUInt32 m_uiTypeVersion;
-  const char* m_szType;
-  const char* m_szNodeName;
+  ezUInt32 m_uiTypeVersion = 0;
+  const char* m_szType = nullptr;
+  const char* m_szNodeName = nullptr;
 
   ezHybridArray<Property, 16> m_Properties;
 };

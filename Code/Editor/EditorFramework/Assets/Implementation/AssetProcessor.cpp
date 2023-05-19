@@ -219,10 +219,7 @@ void ezAssetProcessor::Run()
 ////////////////////////////////////////////////////////////////////////
 
 ezProcessTask::ezProcessTask()
-  : m_bProcessShouldBeRunning(false)
-  , m_bProcessCrashed(false)
-  , m_bWaiting(false)
-  , m_Status(EZ_SUCCESS)
+  : m_Status(EZ_SUCCESS)
 {
   m_pIPC = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
   m_pIPC->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessTask::EventHandlerIPC, this));

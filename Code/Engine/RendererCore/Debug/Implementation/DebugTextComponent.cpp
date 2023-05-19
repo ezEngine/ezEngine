@@ -36,10 +36,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDebugTextComponent::ezDebugTextComponent()
   : m_sText("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")
-  , m_fValue0(0.0f)
-  , m_fValue1(0.0f)
-  , m_fValue2(0.0f)
-  , m_fValue3(0.0f)
   , m_Color(ezColor::White)
 {
 }

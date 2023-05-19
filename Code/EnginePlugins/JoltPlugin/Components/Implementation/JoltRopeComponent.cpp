@@ -966,12 +966,12 @@ void ezJoltRopeComponent::SetAnchor2ConstraintMode(ezEnum<ezJoltRopeAnchorConstr
   }
 }
 
-void ezJoltRopeComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& msg)
+void ezJoltRopeComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectConstraints& ref_msg)
 {
-  ezGameObjectHandle hBody = msg.m_pActor->GetOwner()->GetHandle();
+  ezGameObjectHandle hBody = ref_msg.m_pActor->GetOwner()->GetHandle();
   ezWorld* pWorld = GetWorld();
 
-  if (m_pConstraintAnchor1 && msg.m_uiJoltBodyID == m_uiAnchor1BodyID)
+  if (m_pConstraintAnchor1 && ref_msg.m_uiJoltBodyID == m_uiAnchor1BodyID)
   {
     ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
     pModule->GetJoltSystem()->RemoveConstraint(m_pConstraintAnchor1);
@@ -980,7 +980,7 @@ void ezJoltRopeComponent::OnJoltMsgDisconnectConstraints(ezJoltMsgDisconnectCons
     m_uiAnchor1BodyID = ezInvalidIndex;
   }
 
-  if (m_pConstraintAnchor2 && msg.m_uiJoltBodyID == m_uiAnchor2BodyID)
+  if (m_pConstraintAnchor2 && ref_msg.m_uiJoltBodyID == m_uiAnchor2BodyID)
   {
     ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 

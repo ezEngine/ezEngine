@@ -40,7 +40,7 @@ public:
   void Update(const ezWorldModule::UpdateContext& context);
 
 private:
-  ezRecastWorldModule* m_pWorldModule;
+  ezRecastWorldModule* m_pWorldModule = nullptr;
 };
 
 //////////////////////////////////////////////////////////////////////////

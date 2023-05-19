@@ -23,7 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezMsaaUpscalePass::ezMsaaUpscalePass()
   : ezRenderPipelinePass("MsaaUpscalePass")
-  , m_MsaaMode(ezGALMSAASampleCount::None)
+
 {
   {
     // Load shader.

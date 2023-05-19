@@ -29,7 +29,7 @@ namespace
   public:
     OnlyMovable(ezUInt32 uiHash)
       : hash(uiHash)
-      , m_NumTimesMoved(0)
+
     {
     }
     OnlyMovable(OnlyMovable&& other) { *this = std::move(other); }
@@ -43,7 +43,7 @@ namespace
 
     bool operator==(const OnlyMovable& other) const { return hash == other.hash; }
 
-    int m_NumTimesMoved;
+    int m_NumTimesMoved = 0;
     ezUInt32 hash;
 
   private:

@@ -11,8 +11,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentObject
 {
 public:
   ezDocumentObject()
-    : m_pDocumentObjectManager(nullptr)
-    , m_pParent(nullptr)
+
   {
   }
   virtual ~ezDocumentObject() {}
@@ -50,9 +49,9 @@ private:
 
 protected:
   ezUuid m_Guid;
-  ezDocumentObjectManager* m_pDocumentObjectManager;
+  ezDocumentObjectManager* m_pDocumentObjectManager = nullptr;
 
-  ezDocumentObject* m_pParent;
+  ezDocumentObject* m_pParent = nullptr;
   ezHybridArray<ezDocumentObject*, 8> m_Children;
 
   // Sub object data

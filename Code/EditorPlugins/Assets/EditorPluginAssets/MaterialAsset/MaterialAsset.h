@@ -58,7 +58,7 @@ class ezMaterialAssetProperties : public ezReflectedClass
 
 public:
   ezMaterialAssetProperties()
-    : m_pDocument(nullptr)
+
   {
   }
 
@@ -95,7 +95,7 @@ public:
   ezString m_sShader;
 
   ezMap<ezString, ezVariant> m_CachedProperties;
-  ezMaterialAssetDocument* m_pDocument;
+  ezMaterialAssetDocument* m_pDocument = nullptr;
   ezEnum<ezMaterialShaderMode> m_ShaderMode;
 };
 

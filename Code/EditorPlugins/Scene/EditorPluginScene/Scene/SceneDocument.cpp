@@ -616,22 +616,21 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
     GetCommandHistory()->AddCommand(cmd);
   };
 
-  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)
-  {
-    if (graphRootNodes.GetCount() == 1)
+  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& ref_graphRootNodes) {
+    if (ref_graphRootNodes.GetCount() == 1)
     {
-      graphRootNodes[0]->ChangeProperty("Name", "<Prefab-Root>");
+      ref_graphRootNodes[0]->ChangeProperty("Name", "<Prefab-Root>");
     }
     else
     {
       const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
 
-      ezAbstractObjectNode* pRoot = graph.AddNode(ezUuid::CreateUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
+      ezAbstractObjectNode* pRoot = ref_graph.AddNode(ezUuid::CreateUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
       pRoot->AddProperty("Name", "<Prefab-Root>");
       pRoot->AddProperty("Children", varChildren);
 
-      graphRootNodes.Clear();
-      graphRootNodes.PushBack(pRoot);
+      ref_graphRootNodes.Clear();
+      ref_graphRootNodes.PushBack(pRoot);
     }
   };
 

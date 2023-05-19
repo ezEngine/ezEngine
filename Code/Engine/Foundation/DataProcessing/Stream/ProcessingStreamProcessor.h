@@ -37,5 +37,5 @@ protected:
 
   /// \brief Back pointer to the stream group - will be set to the owner stream group when adding the stream processor to the group.
   /// Can be used to get stream pointers in UpdateStreamBindings();
-  ezProcessingStreamGroup* m_pStreamGroup;
+  ezProcessingStreamGroup* m_pStreamGroup = nullptr;
 };
