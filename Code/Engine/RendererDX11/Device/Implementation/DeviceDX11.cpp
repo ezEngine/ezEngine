@@ -1215,7 +1215,7 @@ bool ezGALDeviceDX11::IsFenceReachedPlatform(ID3D11DeviceContext* pContext, ID3D
   BOOL data = FALSE;
   if (pContext->GetData(pFence, &data, sizeof(data), 0) == S_OK)
   {
-    EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+    EZ_ASSERT_DEV(data != FALSE, "Implementation error");
     return true;
   }
 
@@ -1230,7 +1230,7 @@ void ezGALDeviceDX11::WaitForFencePlatform(ID3D11DeviceContext* pContext, ID3D11
     ezThreadUtils::YieldTimeSlice();
   }
 
-  EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+  EZ_ASSERT_DEV(data != FALSE, "Implementation error");
 }
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_DeviceDX11);
