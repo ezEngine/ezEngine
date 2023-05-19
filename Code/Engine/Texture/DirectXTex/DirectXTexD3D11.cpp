@@ -763,7 +763,7 @@ HRESULT DirectX::CaptureTexture(
         if ((desc.Usage == D3D11_USAGE_STAGING) && (desc.CPUAccessFlags & D3D11_CPU_ACCESS_READ))
         {
             // Handle case where the source is already a staging texture we can use directly
-            pStaging = pTexture;
+            pStaging = std::move(pTexture);
         }
         else
         {
@@ -868,7 +868,7 @@ HRESULT DirectX::CaptureTexture(
         else if ((desc.Usage == D3D11_USAGE_STAGING) && (desc.CPUAccessFlags & D3D11_CPU_ACCESS_READ))
         {
             // Handle case where the source is already a staging texture we can use directly
-            pStaging = pTexture;
+            pStaging = std::move(pTexture);
         }
         else
         {
@@ -921,7 +921,7 @@ HRESULT DirectX::CaptureTexture(
         if ((desc.Usage == D3D11_USAGE_STAGING) && (desc.CPUAccessFlags & D3D11_CPU_ACCESS_READ))
         {
             // Handle case where the source is already a staging texture we can use directly
-            pStaging = pTexture;
+            pStaging = std::move(pTexture);
         }
         else
         {

@@ -264,7 +264,7 @@ namespace
                 }
             }
 
-            copySource = pTemp;
+            copySource = std::move(pTemp);
         }
 
         // Create a staging texture
