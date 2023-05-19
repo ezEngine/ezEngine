@@ -232,7 +232,7 @@ ezTextureCubeAssetDocumentGenerator::ezTextureCubeAssetDocumentGenerator()
   // AddSupportedFileType("png");
 }
 
-ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() {}
+ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() = default;
 
 void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {

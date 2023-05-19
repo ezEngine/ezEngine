@@ -40,7 +40,7 @@ ezQtCVarWidget::ezQtCVarWidget(QWidget* pParent)
   ConsoleInput->setPlaceholderText("> TAB to auto-complete");
 }
 
-ezQtCVarWidget::~ezQtCVarWidget() {}
+ezQtCVarWidget::~ezQtCVarWidget() = default;
 
 void ezQtCVarWidget::Clear()
 {

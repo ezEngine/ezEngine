@@ -261,7 +261,7 @@ void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget() {}
+ezQtExposedParametersPropertyWidget::ezQtExposedParametersPropertyWidget() = default;
 
 ezQtExposedParametersPropertyWidget::~ezQtExposedParametersPropertyWidget()
 {

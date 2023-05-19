@@ -21,7 +21,7 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
   SetTransformation(ezTransform::IdentityTransform());
 }
 
-ezDrawBoxGizmo::~ezDrawBoxGizmo() {}
+ezDrawBoxGizmo::~ezDrawBoxGizmo() = default;
 
 void ezDrawBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {

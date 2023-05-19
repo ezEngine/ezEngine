@@ -42,7 +42,7 @@ ezSpriteRenderer::ezSpriteRenderer()
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Materials/SpriteMaterial.ezShader");
 }
 
-ezSpriteRenderer::~ezSpriteRenderer() {}
+ezSpriteRenderer::~ezSpriteRenderer() = default;
 
 void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {

@@ -53,9 +53,8 @@ namespace
   public:
     TestComponentMsg()
 
-    {
-    }
-    ~TestComponentMsg() {}
+      = default;
+    ~TestComponentMsg() = default;
 
     virtual void SerializeComponent(ezWorldWriter& inout_stream) const override {}
     virtual void DeserializeComponent(ezWorldReader& inout_stream) override {}

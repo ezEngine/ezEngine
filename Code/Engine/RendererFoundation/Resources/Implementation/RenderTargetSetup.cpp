@@ -21,9 +21,7 @@ bool ezGALRenderTargets::operator!=(const ezGALRenderTargets& other) const
   return !(*this == other);
 }
 
-ezGALRenderTargetSetup::ezGALRenderTargetSetup()
-{
-}
+ezGALRenderTargetSetup::ezGALRenderTargetSetup() = default;
 
 ezGALRenderTargetSetup& ezGALRenderTargetSetup::SetRenderTarget(ezUInt8 uiIndex, ezGALRenderTargetViewHandle hRenderTarget)
 {

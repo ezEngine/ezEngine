@@ -9,7 +9,7 @@ ezQtJointAdapter::ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument)
 {
 }
 
-ezQtJointAdapter::~ezQtJointAdapter() {}
+ezQtJointAdapter::~ezQtJointAdapter() = default;
 
 QVariant ezQtJointAdapter::data(const ezDocumentObject* pObject, int iRow, int iColumn, int iRole) const
 {

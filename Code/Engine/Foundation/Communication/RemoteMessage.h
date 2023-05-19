@@ -65,5 +65,5 @@ class EZ_FOUNDATION_DLL ezProcessMessage : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezProcessMessage, ezReflectedClass);
 
 public:
-  ezProcessMessage() {}
+  ezProcessMessage() = default;
 };

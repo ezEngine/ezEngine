@@ -6,8 +6,7 @@ const float ezDynamicQuadtree::s_fLooseOctreeFactor = 1.1f;
 
 ezDynamicQuadtree::ezDynamicQuadtree()
 
-{
-}
+  = default;
 
 void ezDynamicQuadtree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fMinNodeSize)
 {

@@ -7,7 +7,7 @@ class ezSoundEventAssetProperties : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezSoundEventAssetProperties, ezReflectedClass);
 
 public:
-  ezSoundEventAssetProperties() {}
+  ezSoundEventAssetProperties() = default;
 };
 
 

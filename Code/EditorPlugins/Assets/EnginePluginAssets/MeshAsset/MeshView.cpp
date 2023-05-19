@@ -16,7 +16,7 @@ ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
   m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezMeshViewContext::~ezMeshViewContext() {}
+ezMeshViewContext::~ezMeshViewContext() = default;
 
 bool ezMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {

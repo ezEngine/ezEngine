@@ -17,7 +17,7 @@ ezQtNodeView::ezQtNodeView(QWidget* pParent)
   m_ViewScale = QPointF(1, 1);
 }
 
-ezQtNodeView::~ezQtNodeView() {}
+ezQtNodeView::~ezQtNodeView() = default;
 
 void ezQtNodeView::SetScene(ezQtNodeScene* pScene)
 {

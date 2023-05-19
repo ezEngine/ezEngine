@@ -4,9 +4,9 @@
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezDirectionVisualizerAdapter::ezDirectionVisualizerAdapter() {}
+ezDirectionVisualizerAdapter::ezDirectionVisualizerAdapter() = default;
 
-ezDirectionVisualizerAdapter::~ezDirectionVisualizerAdapter() {}
+ezDirectionVisualizerAdapter::~ezDirectionVisualizerAdapter() = default;
 
 void ezDirectionVisualizerAdapter::Finalize()
 {

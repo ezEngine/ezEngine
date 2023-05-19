@@ -31,7 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Bounds, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Bounds::ezParticleBehaviorFactory_Bounds() {}
+ezParticleBehaviorFactory_Bounds::ezParticleBehaviorFactory_Bounds() = default;
 
 const ezRTTI* ezParticleBehaviorFactory_Bounds::GetBehaviorType() const
 {

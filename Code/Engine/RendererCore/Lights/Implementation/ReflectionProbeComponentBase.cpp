@@ -48,9 +48,7 @@ ezReflectionProbeComponentBase::ezReflectionProbeComponentBase()
   m_Desc.m_uniqueID.CreateNewUuid();
 }
 
-ezReflectionProbeComponentBase::~ezReflectionProbeComponentBase()
-{
-}
+ezReflectionProbeComponentBase::~ezReflectionProbeComponentBase() = default;
 
 void ezReflectionProbeComponentBase::SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode)
 {

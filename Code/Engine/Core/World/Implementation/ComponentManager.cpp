@@ -13,7 +13,7 @@ ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)
 {
 }
 
-ezComponentManagerBase::~ezComponentManagerBase() {}
+ezComponentManagerBase::~ezComponentManagerBase() = default;
 
 ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerObject)
 {

@@ -32,7 +32,7 @@ ezMsaaUpscalePass::ezMsaaUpscalePass()
   }
 }
 
-ezMsaaUpscalePass::~ezMsaaUpscalePass() {}
+ezMsaaUpscalePass::~ezMsaaUpscalePass() = default;
 
 bool ezMsaaUpscalePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {

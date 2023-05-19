@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere() {}
+EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere() = default;
 
 EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents, const ezSimdFloat& fSphereRadius)
   : m_CenterAndRadius(vCenter)

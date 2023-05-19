@@ -55,7 +55,7 @@ namespace
   class ezPxCpuDispatcher : public PxCpuDispatcher
   {
   public:
-    ezPxCpuDispatcher() {}
+    ezPxCpuDispatcher() = default;
 
     virtual void submitTask(PxBaseTask& ref_task) override
     {

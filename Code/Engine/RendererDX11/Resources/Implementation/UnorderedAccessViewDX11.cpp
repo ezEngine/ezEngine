@@ -19,7 +19,7 @@ ezGALUnorderedAccessViewDX11::ezGALUnorderedAccessViewDX11(
 {
 }
 
-ezGALUnorderedAccessViewDX11::~ezGALUnorderedAccessViewDX11() {}
+ezGALUnorderedAccessViewDX11::~ezGALUnorderedAccessViewDX11() = default;
 
 ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
 {

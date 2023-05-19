@@ -1,7 +1,7 @@
 
 EZ_ALWAYS_INLINE ezRational::ezRational()
 
-{}
+  = default;
 
 EZ_ALWAYS_INLINE ezRational::ezRational(ezUInt32 uiNumerator, ezUInt32 uiDenominator)
   : m_uiNumerator(uiNumerator)

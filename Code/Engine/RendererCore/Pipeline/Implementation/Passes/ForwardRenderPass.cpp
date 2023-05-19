@@ -35,7 +35,7 @@ ezForwardRenderPass::ezForwardRenderPass(const char* szName)
 {
 }
 
-ezForwardRenderPass::~ezForwardRenderPass() {}
+ezForwardRenderPass::~ezForwardRenderPass() = default;
 
 bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {

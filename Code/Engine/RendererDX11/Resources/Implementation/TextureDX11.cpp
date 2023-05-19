@@ -11,7 +11,7 @@ ezGALTextureDX11::ezGALTextureDX11(const ezGALTextureCreationDescription& Descri
 {
 }
 
-ezGALTextureDX11::~ezGALTextureDX11() {}
+ezGALTextureDX11::~ezGALTextureDX11() = default;
 
 EZ_DEFINE_AS_POD_TYPE(D3D11_SUBRESOURCE_DATA);
 

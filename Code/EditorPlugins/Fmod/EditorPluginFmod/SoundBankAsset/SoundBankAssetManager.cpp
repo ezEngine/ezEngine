@@ -14,7 +14,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 class ezSimpleFmod
 {
 public:
-  ezSimpleFmod() {}
+  ezSimpleFmod() = default;
   ~ezSimpleFmod() { EZ_ASSERT_DEV(m_pSystem == nullptr, "FMod is not shut down"); }
 
   void Startup()

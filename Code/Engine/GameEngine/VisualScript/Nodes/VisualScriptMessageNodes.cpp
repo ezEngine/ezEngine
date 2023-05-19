@@ -31,7 +31,7 @@ ezVisualScriptNode_ScriptStartEvent::ezVisualScriptNode_ScriptStartEvent()
   m_bStepNode = true;
 }
 
-ezVisualScriptNode_ScriptStartEvent::~ezVisualScriptNode_ScriptStartEvent() {}
+ezVisualScriptNode_ScriptStartEvent::~ezVisualScriptNode_ScriptStartEvent() = default;
 
 void ezVisualScriptNode_ScriptStartEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -63,7 +63,7 @@ ezVisualScriptNode_ScriptUpdateEvent::ezVisualScriptNode_ScriptUpdateEvent()
   m_bStepNode = true;
 }
 
-ezVisualScriptNode_ScriptUpdateEvent::~ezVisualScriptNode_ScriptUpdateEvent() {}
+ezVisualScriptNode_ScriptUpdateEvent::~ezVisualScriptNode_ScriptUpdateEvent() = default;
 
 void ezVisualScriptNode_ScriptUpdateEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -145,8 +145,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_PhysicsTriggerEvent, 1, ezRTT
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_PhysicsTriggerEvent::ezVisualScriptNode_PhysicsTriggerEvent() {}
-ezVisualScriptNode_PhysicsTriggerEvent::~ezVisualScriptNode_PhysicsTriggerEvent() {}
+ezVisualScriptNode_PhysicsTriggerEvent::ezVisualScriptNode_PhysicsTriggerEvent() = default;
+ezVisualScriptNode_PhysicsTriggerEvent::~ezVisualScriptNode_PhysicsTriggerEvent() = default;
 
 void ezVisualScriptNode_PhysicsTriggerEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -204,8 +204,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputState, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_InputState::ezVisualScriptNode_InputState() {}
-ezVisualScriptNode_InputState::~ezVisualScriptNode_InputState() {}
+ezVisualScriptNode_InputState::ezVisualScriptNode_InputState() = default;
+ezVisualScriptNode_InputState::~ezVisualScriptNode_InputState() = default;
 
 void ezVisualScriptNode_InputState::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -260,8 +260,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_InputEvent::ezVisualScriptNode_InputEvent() {}
-ezVisualScriptNode_InputEvent::~ezVisualScriptNode_InputEvent() {}
+ezVisualScriptNode_InputEvent::ezVisualScriptNode_InputEvent() = default;
+ezVisualScriptNode_InputEvent::~ezVisualScriptNode_InputEvent() = default;
 
 void ezVisualScriptNode_InputEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {

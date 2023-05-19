@@ -21,7 +21,7 @@ class ezGraphVersioning;
 /// \brief Tuple used for identifying patches and tracking patch progression.
 struct ezVersionKey
 {
-  ezVersionKey() {}
+  ezVersionKey() = default;
   ezVersionKey(ezStringView sType, ezUInt32 uiTypeVersion)
   {
     m_sType.Assign(sType);

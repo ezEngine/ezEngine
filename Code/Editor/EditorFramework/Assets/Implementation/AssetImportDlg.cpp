@@ -52,7 +52,7 @@ ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* pParent, ezDynamicArray<ezAssetD
   table->setColumnWidth(Columns::GeneratedDoc, table->columnWidth(Columns::GeneratedDoc) + 30);
 }
 
-ezQtAssetImportDlg::~ezQtAssetImportDlg() {}
+ezQtAssetImportDlg::~ezQtAssetImportDlg() = default;
 
 void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
 {

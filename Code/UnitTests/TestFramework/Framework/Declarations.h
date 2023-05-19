@@ -13,8 +13,7 @@ struct ezSubTestEntry
 {
   ezSubTestEntry()
 
-  {
-  }
+    = default;
 
   ezInt32 m_iSubTestIdentifier = -1;
   const char* m_szSubTestName = "";
@@ -26,8 +25,7 @@ struct ezTestEntry
 {
   ezTestEntry()
 
-  {
-  }
+    = default;
 
   ezTestBaseClass* m_pTest = nullptr;
   const char* m_szTestName = "";

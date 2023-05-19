@@ -10,7 +10,7 @@ ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext
   m_pParticleContext = pParticleContext;
 }
 
-ezParticleViewContext::~ezParticleViewContext() {}
+ezParticleViewContext::~ezParticleViewContext() = default;
 
 void ezParticleViewContext::PositionThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {

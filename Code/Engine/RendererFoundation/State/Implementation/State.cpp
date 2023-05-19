@@ -8,7 +8,7 @@ ezGALBlendState::ezGALBlendState(const ezGALBlendStateCreationDescription& Descr
 {
 }
 
-ezGALBlendState::~ezGALBlendState() {}
+ezGALBlendState::~ezGALBlendState() = default;
 
 
 
@@ -17,7 +17,7 @@ ezGALDepthStencilState::ezGALDepthStencilState(const ezGALDepthStencilStateCreat
 {
 }
 
-ezGALDepthStencilState::~ezGALDepthStencilState() {}
+ezGALDepthStencilState::~ezGALDepthStencilState() = default;
 
 
 
@@ -26,7 +26,7 @@ ezGALRasterizerState::ezGALRasterizerState(const ezGALRasterizerStateCreationDes
 {
 }
 
-ezGALRasterizerState::~ezGALRasterizerState() {}
+ezGALRasterizerState::~ezGALRasterizerState() = default;
 
 
 ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription& Description)
@@ -34,7 +34,7 @@ ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription&
 {
 }
 
-ezGALSamplerState::~ezGALSamplerState() {}
+ezGALSamplerState::~ezGALSamplerState() = default;
 
 
 

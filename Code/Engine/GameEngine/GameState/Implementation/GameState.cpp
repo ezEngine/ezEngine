@@ -32,9 +32,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 // clang-format on
 
-ezGameState::ezGameState() {}
+ezGameState::ezGameState() = default;
 
-ezGameState::~ezGameState() {}
+ezGameState::~ezGameState() = default;
 
 void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {

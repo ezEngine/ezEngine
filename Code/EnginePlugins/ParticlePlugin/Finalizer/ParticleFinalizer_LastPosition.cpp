@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_LastPosition, 1, ezRTTIDefau
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizerFactory_LastPosition::ezParticleFinalizerFactory_LastPosition() {}
+ezParticleFinalizerFactory_LastPosition::ezParticleFinalizerFactory_LastPosition() = default;
 
 const ezRTTI* ezParticleFinalizerFactory_LastPosition::GetFinalizerType() const
 {

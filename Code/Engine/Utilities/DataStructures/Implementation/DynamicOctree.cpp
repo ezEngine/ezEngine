@@ -6,8 +6,7 @@ const float ezDynamicOctree::s_fLooseOctreeFactor = 1.1f;
 
 ezDynamicOctree::ezDynamicOctree()
 
-{
-}
+  = default;
 
 void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fMinNodeSize)
 {

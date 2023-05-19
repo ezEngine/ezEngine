@@ -60,7 +60,7 @@ ezQtRemoteConnectionDlg::ezQtRemoteConnectionDlg(QWidget* pParent)
   m_UsedFsAddress = m_RecentFsAddresses[0];
 }
 
-ezQtRemoteConnectionDlg::~ezQtRemoteConnectionDlg() {}
+ezQtRemoteConnectionDlg::~ezQtRemoteConnectionDlg() = default;
 
 void ezQtRemoteConnectionDlg::SetCurrentIP(const Address& addr)
 {

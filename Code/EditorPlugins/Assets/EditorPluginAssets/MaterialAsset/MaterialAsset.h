@@ -59,8 +59,7 @@ class ezMaterialAssetProperties : public ezReflectedClass
 public:
   ezMaterialAssetProperties()
 
-  {
-  }
+    = default;
 
   void SetBaseMaterial(const char* szBaseMaterial);
   const char* GetBaseMaterial() const;

@@ -9,7 +9,7 @@ ezQtLaunchFileserveDlg::ezQtLaunchFileserveDlg(QWidget* pParent)
   setupUi(this);
 }
 
-ezQtLaunchFileserveDlg::~ezQtLaunchFileserveDlg() {}
+ezQtLaunchFileserveDlg::~ezQtLaunchFileserveDlg() = default;
 
 void ezQtLaunchFileserveDlg::showEvent(QShowEvent* event)
 {

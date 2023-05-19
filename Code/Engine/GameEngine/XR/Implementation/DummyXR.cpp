@@ -19,9 +19,7 @@ ezDummyXR::ezDummyXR()
 {
 }
 
-ezDummyXR::~ezDummyXR()
-{
-}
+ezDummyXR::~ezDummyXR() = default;
 
 bool ezDummyXR::IsHmdPresent() const
 {

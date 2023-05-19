@@ -4,9 +4,9 @@
 #include <EditorFramework/Visualizers/CylinderVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezCylinderVisualizerAdapter::ezCylinderVisualizerAdapter() {}
+ezCylinderVisualizerAdapter::ezCylinderVisualizerAdapter() = default;
 
-ezCylinderVisualizerAdapter::~ezCylinderVisualizerAdapter() {}
+ezCylinderVisualizerAdapter::~ezCylinderVisualizerAdapter() = default;
 
 void ezCylinderVisualizerAdapter::Finalize()
 {

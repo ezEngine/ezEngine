@@ -147,7 +147,7 @@ ezObjectAccessorBase::ezObjectAccessorBase(const ezDocumentObjectManager* pManag
 {
 }
 
-ezObjectAccessorBase::~ezObjectAccessorBase() {}
+ezObjectAccessorBase::~ezObjectAccessorBase() = default;
 
 const ezDocumentObjectManager* ezObjectAccessorBase::GetObjectManager() const
 {

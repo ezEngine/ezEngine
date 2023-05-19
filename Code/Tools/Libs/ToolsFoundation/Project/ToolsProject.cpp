@@ -26,7 +26,7 @@ ezToolsProject::ezToolsProject(const char* szProjectPath)
   EZ_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
 }
 
-ezToolsProject::~ezToolsProject() {}
+ezToolsProject::~ezToolsProject() = default;
 
 ezStatus ezToolsProject::Create()
 {

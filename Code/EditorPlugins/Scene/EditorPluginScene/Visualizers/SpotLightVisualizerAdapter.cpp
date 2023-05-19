@@ -5,9 +5,9 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSpotLightVisualizerAdapter::ezSpotLightVisualizerAdapter() {}
+ezSpotLightVisualizerAdapter::ezSpotLightVisualizerAdapter() = default;
 
-ezSpotLightVisualizerAdapter::~ezSpotLightVisualizerAdapter() {}
+ezSpotLightVisualizerAdapter::~ezSpotLightVisualizerAdapter() = default;
 
 void ezSpotLightVisualizerAdapter::Finalize()
 {

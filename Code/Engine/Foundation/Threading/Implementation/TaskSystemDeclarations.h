@@ -165,7 +165,7 @@ enum class ezTaskNesting
 /// \brief Settings for ezTaskSystem::ParallelFor invocations.
 struct EZ_FOUNDATION_DLL ezParallelForParams
 {
-  ezParallelForParams() {} // do not remove, needed for Clang
+  ezParallelForParams() = default; // do not remove, needed for Clang
 
   /// The minimum number of items that must be processed by a task instance.
   /// If the overall number of tasks lies below this value, all work will be executed purely serially

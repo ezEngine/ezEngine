@@ -4,9 +4,9 @@
 #include <EditorFramework/Manipulators/TransformManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezTransformManipulatorAdapter::ezTransformManipulatorAdapter() {}
+ezTransformManipulatorAdapter::ezTransformManipulatorAdapter() = default;
 
-ezTransformManipulatorAdapter::~ezTransformManipulatorAdapter() {}
+ezTransformManipulatorAdapter::~ezTransformManipulatorAdapter() = default;
 
 void ezTransformManipulatorAdapter::Finalize()
 {

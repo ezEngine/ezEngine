@@ -12,7 +12,7 @@ ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Descripti
 {
 }
 
-ezGALBufferDX11::~ezGALBufferDX11() {}
+ezGALBufferDX11::~ezGALBufferDX11() = default;
 
 ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {

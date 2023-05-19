@@ -16,7 +16,7 @@ namespace ezExpression
   {
     EZ_DECLARE_POD_TYPE();
 
-    Register() {}
+    Register(){}; // NOLINT: using = default doesn't work here.
 
     union
     {

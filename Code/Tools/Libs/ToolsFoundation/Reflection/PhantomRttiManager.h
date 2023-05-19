@@ -17,8 +17,7 @@ struct ezPhantomRttiManagerEvent
 
   ezPhantomRttiManagerEvent()
 
-  {
-  }
+    = default;
 
   Type m_Type = Type::TypeAdded;
   const ezRTTI* m_pChangedType = nullptr;

@@ -48,9 +48,7 @@ ezComponentManager<T, StorageType>::ezComponentManager(ezWorld* pWorld)
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-ezComponentManager<T, StorageType>::~ezComponentManager()
-{
-}
+ezComponentManager<T, StorageType>::~ezComponentManager() = default;
 
 template <typename T, ezBlockStorageType::Enum StorageType>
 EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& hComponent, ComponentType*& out_pComponent)

@@ -77,9 +77,7 @@ void ezVariantTypeRegistry::UpdateTypes()
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezVariantTypeInfo);
 
-ezVariantTypeInfo::ezVariantTypeInfo()
-{
-}
+ezVariantTypeInfo::ezVariantTypeInfo() = default;
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VariantTypeRegistry);

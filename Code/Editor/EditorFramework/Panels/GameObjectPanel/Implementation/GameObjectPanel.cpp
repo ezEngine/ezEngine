@@ -94,6 +94,4 @@ ezQtGameObjectPanel::ezQtGameObjectPanel(
   setWidget(m_pMainWidget);
 }
 
-ezQtGameObjectPanel::~ezQtGameObjectPanel()
-{
-}
+ezQtGameObjectPanel::~ezQtGameObjectPanel() = default;

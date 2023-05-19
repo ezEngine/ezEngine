@@ -87,7 +87,7 @@ namespace ezInternal
 
     struct PerObjectCache
     {
-      PerObjectCache() {}
+      PerObjectCache() = default;
 
       PerObjectCache(ezAllocatorBase* pAllocator)
         : m_Entries(pAllocator)

@@ -40,7 +40,7 @@ EZ_END_STATIC_REFLECTED_TYPE;
 class ezRcBuildContext : public rcContext
 {
 public:
-  ezRcBuildContext() {}
+  ezRcBuildContext() = default;
 
 protected:
   virtual void doLog(const rcLogCategory category, const char* msg, const int len)

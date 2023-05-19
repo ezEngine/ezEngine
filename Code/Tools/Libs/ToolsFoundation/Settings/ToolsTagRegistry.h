@@ -7,7 +7,7 @@
 
 struct EZ_TOOLSFOUNDATION_DLL ezToolsTag
 {
-  ezToolsTag() {}
+  ezToolsTag() = default;
   ezToolsTag(const char* szCategory, const char* szName, bool bBuiltIn = false)
     : m_sCategory(szCategory)
     , m_sName(szName)

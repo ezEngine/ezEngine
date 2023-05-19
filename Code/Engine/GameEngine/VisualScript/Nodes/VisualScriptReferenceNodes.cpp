@@ -26,8 +26,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetScriptOwner, 2, ezRTTIDefa
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_GetScriptOwner::ezVisualScriptNode_GetScriptOwner() {}
-ezVisualScriptNode_GetScriptOwner::~ezVisualScriptNode_GetScriptOwner() {}
+ezVisualScriptNode_GetScriptOwner::ezVisualScriptNode_GetScriptOwner() = default;
+ezVisualScriptNode_GetScriptOwner::~ezVisualScriptNode_GetScriptOwner() = default;
 
 void ezVisualScriptNode_GetScriptOwner::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -65,8 +65,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetComponentOwner, 1, ezRTTID
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_GetComponentOwner::ezVisualScriptNode_GetComponentOwner() {}
-ezVisualScriptNode_GetComponentOwner::~ezVisualScriptNode_GetComponentOwner() {}
+ezVisualScriptNode_GetComponentOwner::ezVisualScriptNode_GetComponentOwner() = default;
+ezVisualScriptNode_GetComponentOwner::~ezVisualScriptNode_GetComponentOwner() = default;
 
 void ezVisualScriptNode_GetComponentOwner::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -120,8 +120,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_FindChildObject::ezVisualScriptNode_FindChildObject() {}
-ezVisualScriptNode_FindChildObject::~ezVisualScriptNode_FindChildObject() {}
+ezVisualScriptNode_FindChildObject::ezVisualScriptNode_FindChildObject() = default;
+ezVisualScriptNode_FindChildObject::~ezVisualScriptNode_FindChildObject() = default;
 
 void ezVisualScriptNode_FindChildObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -189,8 +189,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_FindComponent::ezVisualScriptNode_FindComponent() {}
-ezVisualScriptNode_FindComponent::~ezVisualScriptNode_FindComponent() {}
+ezVisualScriptNode_FindComponent::ezVisualScriptNode_FindComponent() = default;
+ezVisualScriptNode_FindComponent::~ezVisualScriptNode_FindComponent() = default;
 
 void ezVisualScriptNode_FindComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -261,8 +261,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTID
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_QueryGlobalObject::ezVisualScriptNode_QueryGlobalObject() {}
-ezVisualScriptNode_QueryGlobalObject::~ezVisualScriptNode_QueryGlobalObject() {}
+ezVisualScriptNode_QueryGlobalObject::ezVisualScriptNode_QueryGlobalObject() = default;
+ezVisualScriptNode_QueryGlobalObject::~ezVisualScriptNode_QueryGlobalObject() = default;
 
 void ezVisualScriptNode_QueryGlobalObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -318,8 +318,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindParent, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_FindParent::ezVisualScriptNode_FindParent() {}
-ezVisualScriptNode_FindParent::~ezVisualScriptNode_FindParent() {}
+ezVisualScriptNode_FindParent::ezVisualScriptNode_FindParent() = default;
+ezVisualScriptNode_FindParent::~ezVisualScriptNode_FindParent() = default;
 
 void ezVisualScriptNode_FindParent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {

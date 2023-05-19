@@ -29,7 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_DeleteObject, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_DeleteObject::ezVisualScriptNode_DeleteObject() {}
+ezVisualScriptNode_DeleteObject::ezVisualScriptNode_DeleteObject() = default;
 
 void ezVisualScriptNode_DeleteObject::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -131,7 +131,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ActivateComponent, 1, ezRTTID
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_ActivateComponent::ezVisualScriptNode_ActivateComponent() {}
+ezVisualScriptNode_ActivateComponent::ezVisualScriptNode_ActivateComponent() = default;
 
 void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -185,7 +185,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_HasName, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_HasName::ezVisualScriptNode_HasName() {}
+ezVisualScriptNode_HasName::ezVisualScriptNode_HasName() = default;
 
 void ezVisualScriptNode_HasName::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {

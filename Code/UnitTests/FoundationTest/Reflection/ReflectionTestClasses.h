@@ -275,7 +275,7 @@ class ezTestArrays : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestArrays, ezReflectedClass);
 
 public:
-  ezTestArrays() {}
+  ezTestArrays() = default;
 
   bool operator==(const ezTestArrays& rhs) const
   {
@@ -327,7 +327,7 @@ class ezTestSets : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestSets, ezReflectedClass);
 
 public:
-  ezTestSets() {}
+  ezTestSets() = default;
 
   bool operator==(const ezTestSets& rhs) const
   {
@@ -376,7 +376,7 @@ class ezTestMaps : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezTestMaps, ezReflectedClass);
 
 public:
-  ezTestMaps() {}
+  ezTestMaps() = default;
 
   bool operator==(const ezTestMaps& rhs) const;
 

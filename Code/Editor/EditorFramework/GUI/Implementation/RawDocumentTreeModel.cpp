@@ -119,7 +119,7 @@ ezQtNameableAdapter::ezQtNameableAdapter(
 {
 }
 
-ezQtNameableAdapter::~ezQtNameableAdapter() {}
+ezQtNameableAdapter::~ezQtNameableAdapter() = default;
 
 bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int iRow, int iColumn, const QVariant& value, int iRole) const
 {

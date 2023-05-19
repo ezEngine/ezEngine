@@ -17,7 +17,7 @@ ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALTexture* pTexture, con
 {
 }
 
-ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11() {}
+ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11() = default;
 
 ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 {

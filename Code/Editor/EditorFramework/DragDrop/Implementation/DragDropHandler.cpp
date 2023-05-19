@@ -7,7 +7,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragDropHandler* ezDragDropHandler::s_pActiveDnD = nullptr;
 
-ezDragDropHandler::ezDragDropHandler() {}
+ezDragDropHandler::ezDragDropHandler() = default;
 
 
 ezDragDropHandler* ezDragDropHandler::FindDragDropHandler(const ezDragDropInfo* pInfo)

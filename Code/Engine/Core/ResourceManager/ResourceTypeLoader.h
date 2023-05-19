@@ -28,8 +28,8 @@ struct EZ_CORE_DLL ezResourceLoadData
 class EZ_CORE_DLL ezResourceTypeLoader
 {
 public:
-  ezResourceTypeLoader() {}
-  virtual ~ezResourceTypeLoader() {}
+  ezResourceTypeLoader() = default;
+  virtual ~ezResourceTypeLoader() = default;
 
   /// \brief Override this function to implement the resource loading.
   ///

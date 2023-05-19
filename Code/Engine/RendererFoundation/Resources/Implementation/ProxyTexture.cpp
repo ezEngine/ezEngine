@@ -18,7 +18,7 @@ ezGALProxyTexture::ezGALProxyTexture(const ezGALTexture& parentTexture)
 {
 }
 
-ezGALProxyTexture::~ezGALProxyTexture() {}
+ezGALProxyTexture::~ezGALProxyTexture() = default;
 
 
 const ezGALResourceBase* ezGALProxyTexture::GetParentResource() const

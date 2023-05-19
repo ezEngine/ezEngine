@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform() {}
+EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform() = default;
 
 EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation, const ezSimdVec4f& vScale)
   : m_Position(vPosition)

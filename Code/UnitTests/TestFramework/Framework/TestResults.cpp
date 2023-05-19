@@ -60,8 +60,7 @@ void ezTestResultData::AddOutput(ezInt32 iOutputIndex)
 
 ezTestConfiguration::ezTestConfiguration()
 
-{
-}
+  = default;
 
 
 ////////////////////////////////////////////////////////////////////////

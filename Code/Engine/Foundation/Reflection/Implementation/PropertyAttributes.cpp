@@ -177,9 +177,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGroupAttribute, 1, ezRTTIDefaultAllocator<ezGr
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGroupAttribute::ezGroupAttribute()
-{
-
-}
+= default;
 
 ezGroupAttribute::ezGroupAttribute(const char* szGroup, float fOrder)
   : m_sGroup(szGroup)

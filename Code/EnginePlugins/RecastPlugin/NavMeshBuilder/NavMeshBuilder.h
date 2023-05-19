@@ -60,7 +60,9 @@ private:
 
   struct Triangle
   {
-    Triangle() {}
+    EZ_DECLARE_POD_TYPE();
+
+    Triangle() = default;
     Triangle(ezInt32 a, ezInt32 b, ezInt32 c)
     {
       m_VertexIdx[0] = a;

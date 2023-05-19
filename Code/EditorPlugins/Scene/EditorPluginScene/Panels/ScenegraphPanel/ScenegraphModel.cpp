@@ -7,4 +7,4 @@ ezQtScenegraphModel::ezQtScenegraphModel(const ezDocumentObjectManager* pObjectM
 {
 }
 
-ezQtScenegraphModel::~ezQtScenegraphModel() {}
+ezQtScenegraphModel::~ezQtScenegraphModel() = default;

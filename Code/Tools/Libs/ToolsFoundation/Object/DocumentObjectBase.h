@@ -12,9 +12,8 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentObject
 public:
   ezDocumentObject()
 
-  {
-  }
-  virtual ~ezDocumentObject() {}
+    = default;
+  virtual ~ezDocumentObject() = default;
 
   // Accessors
   const ezUuid& GetGuid() const { return m_Guid; }
@@ -67,7 +66,7 @@ public:
   {
   }
 
-  virtual ~ezDocumentStorageObject() {}
+  virtual ~ezDocumentStorageObject() = default;
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_ObjectPropertiesAccessor; }
 

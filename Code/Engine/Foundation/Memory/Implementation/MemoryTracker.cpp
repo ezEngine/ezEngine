@@ -29,7 +29,7 @@ namespace
 
   struct AllocatorData
   {
-    EZ_ALWAYS_INLINE AllocatorData() {}
+    EZ_ALWAYS_INLINE AllocatorData() = default;
 
     ezHybridString<32, TrackerDataAllocatorWrapper> m_sName;
     ezBitflags<ezMemoryTrackingFlags> m_Flags;

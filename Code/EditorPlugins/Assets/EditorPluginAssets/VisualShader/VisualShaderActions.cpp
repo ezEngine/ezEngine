@@ -34,7 +34,7 @@ ezVisualShaderAction::ezVisualShaderAction(const ezActionContext& context, const
   SetIconPath(":/EditorPluginAssets/VSE_CleanGraph16.png");
 }
 
-ezVisualShaderAction::~ezVisualShaderAction() {}
+ezVisualShaderAction::~ezVisualShaderAction() = default;
 
 void ezVisualShaderAction::Execute(const ezVariant& value)
 {

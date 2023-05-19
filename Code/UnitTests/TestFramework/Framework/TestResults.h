@@ -37,8 +37,7 @@ struct ezTestErrorMessage
 {
   ezTestErrorMessage()
 
-  {
-  }
+    = default;
 
   std::string m_sError;
   std::string m_sBlock;
@@ -53,8 +52,7 @@ struct ezTestOutputMessage
 {
   ezTestOutputMessage()
 
-  {
-  }
+    = default;
 
   ezTestOutput::Enum m_Type = ezTestOutput::ImportantInfo;
   std::string m_sMessage;
@@ -78,8 +76,7 @@ struct ezTestResultData
 {
   ezTestResultData()
 
-  {
-  }
+    = default;
   void Reset();
   void AddOutput(ezInt32 iOutputIndex);
 
@@ -112,7 +109,7 @@ struct ezTestConfiguration
 class ezTestFrameworkResult
 {
 public:
-  ezTestFrameworkResult() {}
+  ezTestFrameworkResult() = default;
 
   // Manage tests
   void Clear();
@@ -145,7 +142,7 @@ public:
 private:
   struct ezSubTestResult
   {
-    ezSubTestResult() {}
+    ezSubTestResult() = default;
     ezSubTestResult(const char* szName) { m_Result.m_sName = szName; }
 
     ezTestResultData m_Result;
@@ -153,7 +150,7 @@ private:
 
   struct ezTestResult
   {
-    ezTestResult() {}
+    ezTestResult() = default;
     ezTestResult(const char* szName) { m_Result.m_sName = szName; }
 
     void Reset();

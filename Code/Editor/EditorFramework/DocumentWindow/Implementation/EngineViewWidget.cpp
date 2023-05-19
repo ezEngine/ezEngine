@@ -718,4 +718,4 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
   m_pLayout->addWidget(m_pViewWidget, 1);
 }
 
-ezQtViewWidgetContainer::~ezQtViewWidgetContainer() {}
+ezQtViewWidgetContainer::~ezQtViewWidgetContainer() = default;

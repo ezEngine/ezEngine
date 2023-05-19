@@ -12,7 +12,7 @@ ezTextureViewContext::ezTextureViewContext(ezTextureContext* pContext)
   m_pTextureContext = pContext;
 }
 
-ezTextureViewContext::~ezTextureViewContext() {}
+ezTextureViewContext::~ezTextureViewContext() = default;
 
 ezViewHandle ezTextureViewContext::CreateView()
 {

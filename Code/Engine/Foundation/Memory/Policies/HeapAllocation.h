@@ -11,7 +11,7 @@ namespace ezMemoryPolicies
   {
   public:
     EZ_ALWAYS_INLINE ezHeapAllocation(ezAllocatorBase* pParent) {}
-    EZ_ALWAYS_INLINE ~ezHeapAllocation() {}
+    EZ_ALWAYS_INLINE ~ezHeapAllocation() = default;
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
     {

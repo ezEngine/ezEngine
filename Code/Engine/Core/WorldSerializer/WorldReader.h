@@ -61,7 +61,7 @@ public:
       Finished,          ///< The instantiation is finished and you can delete the context. Don't call 'Step()' on it again.
     };
 
-    virtual ~InstantiationContextBase() {}
+    virtual ~InstantiationContextBase() = default;
 
     /// \Brief Advance the instantiation by one step
     /// \return Whether the operation is finished or needs to be repeated.

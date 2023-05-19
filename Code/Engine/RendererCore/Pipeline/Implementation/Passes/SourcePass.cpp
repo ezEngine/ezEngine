@@ -30,7 +30,7 @@ ezSourcePass::ezSourcePass(const char* szName)
   m_ClearColor = ezColor::Black;
 }
 
-ezSourcePass::~ezSourcePass() {}
+ezSourcePass::~ezSourcePass() = default;
 
 bool ezSourcePass::GetRenderTargetDescriptions(
   const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

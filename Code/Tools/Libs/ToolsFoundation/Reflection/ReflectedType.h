@@ -41,7 +41,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezAttributeHolder);
 /// \brief Stores the description of a reflected property in a serializable form, used by ezReflectedTypeDescriptor.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor : public ezAttributeHolder
 {
-  ezReflectedPropertyDescriptor() {}
+  ezReflectedPropertyDescriptor() = default;
   ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags);
   ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags,
     const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]

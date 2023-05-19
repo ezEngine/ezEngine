@@ -1,8 +1,6 @@
 
 template <typename T>
-EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr()
-{
-}
+EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr() = default;
 
 template <typename T>
 template <typename U>

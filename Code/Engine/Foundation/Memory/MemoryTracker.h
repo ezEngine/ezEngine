@@ -49,8 +49,7 @@ public:
 
     EZ_FORCE_INLINE AllocationInfo()
 
-    {
-    }
+      = default;
 
     void** m_pStackTrace = nullptr;
     size_t m_uiSize = 0;

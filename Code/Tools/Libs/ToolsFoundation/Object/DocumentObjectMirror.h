@@ -14,7 +14,7 @@
 class EZ_TOOLSFOUNDATION_DLL ezObjectChange
 {
 public:
-  ezObjectChange() {}
+  ezObjectChange() = default;
   ezObjectChange(const ezObjectChange&);
   ezObjectChange(ezObjectChange&& rhs);
   void operator=(ezObjectChange&& rhs);

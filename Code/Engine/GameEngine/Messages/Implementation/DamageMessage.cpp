@@ -46,8 +46,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnDamage, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_OnDamage::ezVisualScriptNode_OnDamage() {}
-ezVisualScriptNode_OnDamage::~ezVisualScriptNode_OnDamage() {}
+ezVisualScriptNode_OnDamage::ezVisualScriptNode_OnDamage() = default;
+ezVisualScriptNode_OnDamage::~ezVisualScriptNode_OnDamage() = default;
 
 void ezVisualScriptNode_OnDamage::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {

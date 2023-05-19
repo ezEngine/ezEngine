@@ -9,8 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezFrameDataProviderBase::ezFrameDataProviderBase()
 
-{
-}
+  = default;
 
 void* ezFrameDataProviderBase::GetData(const ezRenderViewContext& renderViewContext)
 {

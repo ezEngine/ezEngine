@@ -5,9 +5,9 @@
 #include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezCameraVisualizerAdapter::ezCameraVisualizerAdapter() {}
+ezCameraVisualizerAdapter::ezCameraVisualizerAdapter() = default;
 
-ezCameraVisualizerAdapter::~ezCameraVisualizerAdapter() {}
+ezCameraVisualizerAdapter::~ezCameraVisualizerAdapter() = default;
 
 void ezCameraVisualizerAdapter::Finalize()
 {

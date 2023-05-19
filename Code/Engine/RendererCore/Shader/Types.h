@@ -11,7 +11,7 @@ class ezShaderMat3
 public:
   EZ_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezShaderMat3() {}
+  EZ_ALWAYS_INLINE ezShaderMat3() = default;
 
   EZ_ALWAYS_INLINE ezShaderMat3(const ezMat3& m) { *this = m; }
 
@@ -36,7 +36,7 @@ class ezShaderTransform
 public:
   EZ_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezShaderTransform() {}
+  EZ_ALWAYS_INLINE ezShaderTransform() = default;
 
   inline void operator=(const ezTransform& t) { *this = t.GetAsMat4(); }
 
@@ -98,7 +98,7 @@ class ezShaderBool
 public:
   EZ_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezShaderBool() {}
+  EZ_ALWAYS_INLINE ezShaderBool() = default;
 
   EZ_ALWAYS_INLINE ezShaderBool(bool b) { m_uiData = b ? 0xFFFFFFFF : 0; }
 

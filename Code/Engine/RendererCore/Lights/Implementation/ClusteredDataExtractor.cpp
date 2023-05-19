@@ -170,7 +170,7 @@ ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
   m_ClusterBoundingSpheres.SetCountUninitialized(NUM_CLUSTERS);
 }
 
-ezClusteredDataExtractor::~ezClusteredDataExtractor() {}
+ezClusteredDataExtractor::~ezClusteredDataExtractor() = default;
 
 void ezClusteredDataExtractor::PostSortAndBatch(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)

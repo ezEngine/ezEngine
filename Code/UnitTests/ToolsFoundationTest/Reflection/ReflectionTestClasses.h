@@ -250,7 +250,7 @@ class ezObjectTest : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezObjectTest, ezReflectedClass);
 
 public:
-  ezObjectTest() {}
+  ezObjectTest() = default;
   ~ezObjectTest()
   {
     for (OuterClass* pTest : m_ClassPtrArray)
@@ -291,7 +291,7 @@ class ezMirrorTest : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezMirrorTest, ezReflectedClass);
 
 public:
-  ezMirrorTest() {}
+  ezMirrorTest() = default;
 
   ezMathClass m_math;
   ezObjectTest m_object;

@@ -11,8 +11,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcessingStreamProcessor::ezProcessingStreamProcessor()
 
-{
-}
+  = default;
 
 ezProcessingStreamProcessor::~ezProcessingStreamProcessor()
 {

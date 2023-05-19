@@ -15,7 +15,7 @@ public:
   /// \brief Constructor.
   ezJSONParser();
 
-  virtual ~ezJSONParser() {}
+  virtual ~ezJSONParser() = default;
 
   /// \brief Allows to specify an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }

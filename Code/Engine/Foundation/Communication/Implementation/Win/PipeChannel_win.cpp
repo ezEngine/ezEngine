@@ -17,7 +17,7 @@ ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)
   IsPending = false;
 }
 
-ezPipeChannel_win::State::~State() {}
+ezPipeChannel_win::State::~State() = default;
 
 ezPipeChannel_win::ezPipeChannel_win(const char* szAddress, Mode::Enum mode)
   : ezIpcChannel(szAddress, mode)

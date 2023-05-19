@@ -32,7 +32,7 @@ ezStereoTestPass::ezStereoTestPass()
   }
 }
 
-ezStereoTestPass::~ezStereoTestPass() {}
+ezStereoTestPass::~ezStereoTestPass() = default;
 
 bool ezStereoTestPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {

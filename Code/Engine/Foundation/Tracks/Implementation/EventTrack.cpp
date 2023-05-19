@@ -2,9 +2,9 @@
 
 #include <Foundation/Tracks/EventTrack.h>
 
-ezEventTrack::ezEventTrack() {}
+ezEventTrack::ezEventTrack() = default;
 
-ezEventTrack::~ezEventTrack() {}
+ezEventTrack::~ezEventTrack() = default;
 
 void ezEventTrack::Clear()
 {

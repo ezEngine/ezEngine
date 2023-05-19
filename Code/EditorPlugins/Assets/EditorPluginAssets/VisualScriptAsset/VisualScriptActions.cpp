@@ -48,7 +48,7 @@ ezVisualScriptAction::ezVisualScriptAction(const ezActionContext& context, const
   }
 }
 
-ezVisualScriptAction::~ezVisualScriptAction() {}
+ezVisualScriptAction::~ezVisualScriptAction() = default;
 
 void ezVisualScriptAction::Execute(const ezVariant& value)
 {

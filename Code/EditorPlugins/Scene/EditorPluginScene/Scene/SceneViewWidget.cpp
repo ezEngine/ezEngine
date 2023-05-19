@@ -33,7 +33,7 @@ ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumen
   }
 }
 
-ezQtSceneViewWidget::~ezQtSceneViewWidget() {}
+ezQtSceneViewWidget::~ezQtSceneViewWidget() = default;
 
 bool ezQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
 {

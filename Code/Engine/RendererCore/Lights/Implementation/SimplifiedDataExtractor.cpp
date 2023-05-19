@@ -23,7 +23,7 @@ ezSimplifiedDataExtractor::ezSimplifiedDataExtractor(const char* szName)
   m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
 }
 
-ezSimplifiedDataExtractor::~ezSimplifiedDataExtractor() {}
+ezSimplifiedDataExtractor::~ezSimplifiedDataExtractor() = default;
 
 void ezSimplifiedDataExtractor::PostSortAndBatch(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)

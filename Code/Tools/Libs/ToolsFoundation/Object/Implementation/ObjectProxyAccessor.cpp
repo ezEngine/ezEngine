@@ -8,7 +8,7 @@ ezObjectProxyAccessor::ezObjectProxyAccessor(ezObjectAccessorBase* pSource)
 {
 }
 
-ezObjectProxyAccessor::~ezObjectProxyAccessor() {}
+ezObjectProxyAccessor::~ezObjectProxyAccessor() = default;
 
 void ezObjectProxyAccessor::StartTransaction(const char* szDisplayString)
 {

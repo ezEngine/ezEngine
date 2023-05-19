@@ -2,9 +2,9 @@
 
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
 
-ezPropertyAnimObjectManager::ezPropertyAnimObjectManager() {}
+ezPropertyAnimObjectManager::ezPropertyAnimObjectManager() = default;
 
-ezPropertyAnimObjectManager::~ezPropertyAnimObjectManager() {}
+ezPropertyAnimObjectManager::~ezPropertyAnimObjectManager() = default;
 
 ezStatus ezPropertyAnimObjectManager::InternalCanAdd(
   const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const

@@ -4,9 +4,9 @@
 #include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezSphereManipulatorAdapter::ezSphereManipulatorAdapter() {}
+ezSphereManipulatorAdapter::ezSphereManipulatorAdapter() = default;
 
-ezSphereManipulatorAdapter::~ezSphereManipulatorAdapter() {}
+ezSphereManipulatorAdapter::~ezSphereManipulatorAdapter() = default;
 
 void ezSphereManipulatorAdapter::Finalize()
 {

@@ -16,7 +16,7 @@ ezQtTestDelegate::ezQtTestDelegate(QObject* pParent)
 {
 }
 
-ezQtTestDelegate::~ezQtTestDelegate() {}
+ezQtTestDelegate::~ezQtTestDelegate() = default;
 
 void ezQtTestDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {

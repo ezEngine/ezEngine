@@ -7,7 +7,7 @@ ezGALVertexDeclaration::ezGALVertexDeclaration(const ezGALVertexDeclarationCreat
 {
 }
 
-ezGALVertexDeclaration::~ezGALVertexDeclaration() {}
+ezGALVertexDeclaration::~ezGALVertexDeclaration() = default;
 
 
 

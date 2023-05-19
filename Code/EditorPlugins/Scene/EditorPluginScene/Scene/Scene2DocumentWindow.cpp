@@ -78,9 +78,7 @@ ezQtScene2DocumentWindow::ezQtScene2DocumentWindow(ezScene2Document* pDocument)
   FinishWindowCreation();
 }
 
-ezQtScene2DocumentWindow::~ezQtScene2DocumentWindow()
-{
-}
+ezQtScene2DocumentWindow::~ezQtScene2DocumentWindow() = default;
 
 bool ezQtScene2DocumentWindow::InternalCanCloseWindow()
 {

@@ -26,8 +26,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 2, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezRcAgentComponent::ezRcAgentComponent() {}
-ezRcAgentComponent::~ezRcAgentComponent() {}
+ezRcAgentComponent::ezRcAgentComponent() = default;
+ezRcAgentComponent::~ezRcAgentComponent() = default;
 
 void ezRcAgentComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -565,7 +565,7 @@ ezRcAgentComponentManager::ezRcAgentComponentManager(ezWorld* pWorld)
   : SUPER(pWorld)
 {
 }
-ezRcAgentComponentManager::~ezRcAgentComponentManager() {}
+ezRcAgentComponentManager::~ezRcAgentComponentManager() = default;
 
 void ezRcAgentComponentManager::Initialize()
 {

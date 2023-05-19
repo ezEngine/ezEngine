@@ -15,9 +15,7 @@ ezLayerDocument::ezLayerDocument(const char* szDocumentPath, ezScene2Document* p
   m_pHostDocument = pParentScene;
 }
 
-ezLayerDocument::~ezLayerDocument()
-{
-}
+ezLayerDocument::~ezLayerDocument() = default;
 
 void ezLayerDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {

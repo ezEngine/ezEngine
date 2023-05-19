@@ -18,7 +18,7 @@ ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)
   setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
 }
 
-ezQtTimeScrubberWidget::~ezQtTimeScrubberWidget() {}
+ezQtTimeScrubberWidget::~ezQtTimeScrubberWidget() = default;
 
 void ezQtTimeScrubberWidget::SetDuration(ezUInt64 uiNumTicks)
 {

@@ -16,7 +16,7 @@ ezPxTriggerComponentManager::ezPxTriggerComponentManager(ezWorld* pWorld)
 {
 }
 
-ezPxTriggerComponentManager::~ezPxTriggerComponentManager() {}
+ezPxTriggerComponentManager::~ezPxTriggerComponentManager() = default;
 
 void ezPxTriggerComponentManager::UpdateKinematicActors()
 {

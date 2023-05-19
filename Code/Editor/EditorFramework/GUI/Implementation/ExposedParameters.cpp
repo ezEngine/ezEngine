@@ -17,8 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezExposedParameter, ezNoBase, 2, ezRTTIDefaultAll
 EZ_END_STATIC_REFLECTED_TYPE;
 
 ezExposedParameter::ezExposedParameter()
-{
-}
+= default;
 
 ezExposedParameter::~ezExposedParameter()
 {
@@ -39,7 +38,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParameters, 3, ezRTTIDefaultAllocator<e
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExposedParameters::ezExposedParameters() {}
+ezExposedParameters::ezExposedParameters() = default;
 
 ezExposedParameters::~ezExposedParameters()
 {

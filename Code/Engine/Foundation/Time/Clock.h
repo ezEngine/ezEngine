@@ -174,7 +174,7 @@ private:
 class EZ_FOUNDATION_DLL ezTimeStepSmoothing
 {
 public:
-  virtual ~ezTimeStepSmoothing() {}
+  virtual ~ezTimeStepSmoothing() = default;
 
   /// \brief The function to override to implement time step smoothing.
   ///

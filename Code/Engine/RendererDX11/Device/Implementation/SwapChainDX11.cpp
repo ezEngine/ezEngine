@@ -93,7 +93,7 @@ ezGALSwapChainDX11::ezGALSwapChainDX11(const ezGALWindowSwapChainCreationDescrip
 {
 }
 
-ezGALSwapChainDX11::~ezGALSwapChainDX11() {}
+ezGALSwapChainDX11::~ezGALSwapChainDX11() = default;
 
 
 ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)

@@ -8,7 +8,7 @@ ezIPCObjectMirrorEditor::ezIPCObjectMirrorEditor()
   m_pIPC = nullptr;
 }
 
-ezIPCObjectMirrorEditor::~ezIPCObjectMirrorEditor() {}
+ezIPCObjectMirrorEditor::~ezIPCObjectMirrorEditor() = default;
 
 void ezIPCObjectMirrorEditor::SetIPC(ezEditorEngineConnection* pIPC)
 {
