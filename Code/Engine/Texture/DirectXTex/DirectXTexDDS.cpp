@@ -503,14 +503,17 @@ namespace
         // Special flag for handling 16bpp formats
         if (flags & DDS_FLAGS_NO_16BPP)
         {
+            bool hasAlpha = true;
             switch (metadata.format)
             {
             case DXGI_FORMAT_B5G6R5_UNORM:
+                hasAlpha = false;
+                [[fallthrough]];
             case DXGI_FORMAT_B5G5R5A1_UNORM:
             case DXGI_FORMAT_B4G4R4A4_UNORM:
                 metadata.format = DXGI_FORMAT_R8G8B8A8_UNORM;
                 convFlags |= CONV_FLAGS_EXPAND;
-                if (metadata.format == DXGI_FORMAT_B5G6R5_UNORM)
+                if (!hasAlpha)
                     convFlags |= CONV_FLAGS_NOALPHA;
                 break;
 
