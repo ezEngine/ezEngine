@@ -3,7 +3,7 @@ param
     [string]
     $Workspace,
     [string]
-    $Checks = "-*,ez-name-check",
+    $Checks = "-*,ez-name-check,modernize-use-default-member-init",
     [string]
     $ExcludeRootFiles = "DirectXTex|ThirdParty|\.rc$|qrc_resources.cpp$",
     [string]
