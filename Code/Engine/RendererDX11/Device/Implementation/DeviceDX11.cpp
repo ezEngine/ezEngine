@@ -829,6 +829,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     case D3D_FEATURE_LEVEL_11_1:
       m_Capabilities.m_bB5G6R5Textures = true;
       m_Capabilities.m_bNoOverwriteBufferUpdate = true;
+      [[fallthrough]];
 
     case D3D_FEATURE_LEVEL_11_0:
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
