@@ -59,7 +59,7 @@ struct AoPositionResult
 
 static void GenerateAmbientOcclusionSpheres(ezDynamicOctree& ref_octree, const ezBoundingBox& bbox, ezDynamicArray<ezDynamicArray<ezBoundingSphere>>& ref_occlusionSpheres, const Kraut::TreeStructure& treeStructure)
 {
-  occlusionSpheres.Clear();
+  ref_occlusionSpheres.Clear();
 
 
   if (!bbox.IsValid())
@@ -311,7 +311,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(const ezSharedPtr<ezKrautG
 
   ezVec3 vLeafCenter(0);
 
-  for (ezUInt32 lodIdx = 0; lodIdx < ref_dstDesc.m_Lods.GetCapacity(); ++lodIdx)
+  for (ezUInt32 lodIdx = 0; lodIdx < dstDesc.m_Lods.GetCapacity(); ++lodIdx)
   {
     const auto& lodDesc = descriptor->m_LodDesc[lodIdx];
 
@@ -342,7 +342,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(const ezSharedPtr<ezKrautG
 
     meshGen.GenerateTreeMesh();
 
-    auto& dstMesh = ref_dstDesc.m_Lods.ExpandAndGetRef();
+    auto& dstMesh = dstDesc.m_Lods.ExpandAndGetRef();
     dstMesh.m_LodType = ezKrautLodType::Mesh;
 
     dstMesh.m_fMinLodDistance = fPrevMaxLodDistance;
@@ -515,9 +515,9 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(const ezSharedPtr<ezKrautG
           {
             if (srcMat.m_hMaterial.IsValid())
             {
-              subMesh.m_uiMaterialIndex = static_cast<ezUInt8>(ref_dstDesc.m_Materials.GetCount());
+              subMesh.m_uiMaterialIndex = static_cast<ezUInt8>(dstDesc.m_Materials.GetCount());
 
-              auto& mat = ref_dstDesc.m_Materials.ExpandAndGetRef();
+              auto& mat = dstDesc.m_Materials.ExpandAndGetRef();
               mat.m_MaterialType = static_cast<ezKrautMaterialType>(geometryType);
               // mat.m_VariationColor = srcMat.m_VariationColor;// currently done through the material
               mat.m_sMaterial = srcMat.m_hMaterial.GetResourceID(); // TODO: could just pass on the material handle
@@ -568,7 +568,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(const ezSharedPtr<ezKrautG
 
   if (!vLeafCenter.IsZero())
   {
-    ref_dstDesc.m_Details.m_vLeafCenter = vLeafCenter;
+    dstDesc.m_Details.m_vLeafCenter = vLeafCenter;
   }
 }
 
