@@ -58,7 +58,7 @@ class ezMaterialAssetProperties : public ezReflectedClass
 
 public:
   ezMaterialAssetProperties()
-     
+
   {
   }
 

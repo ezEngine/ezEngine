@@ -11,7 +11,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentObject
 {
 public:
   ezDocumentObject()
-     
+
   {
   }
   virtual ~ezDocumentObject() {}

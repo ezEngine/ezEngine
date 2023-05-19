@@ -29,8 +29,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezBloomPass::ezBloomPass()
   : ezRenderPipelinePass("BloomPass", true)
-  , 
-   m_InnerTintColor(ezColor::White)
+  , m_InnerTintColor(ezColor::White)
   , m_MidTintColor(ezColor::White)
   , m_OuterTintColor(ezColor::White)
 {

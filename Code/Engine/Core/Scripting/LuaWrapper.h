@@ -318,7 +318,7 @@ private:
   struct ezScriptStates
   {
     ezScriptStates()
-       
+
     {
     }
 

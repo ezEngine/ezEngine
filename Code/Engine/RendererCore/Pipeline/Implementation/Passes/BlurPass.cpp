@@ -23,7 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezBlurPass::ezBlurPass()
   : ezRenderPipelinePass("BlurPass")
-   
+
 {
   {
     // Load shader.

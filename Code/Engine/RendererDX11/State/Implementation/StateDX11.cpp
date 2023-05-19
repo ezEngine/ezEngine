@@ -15,7 +15,7 @@
 
 ezGALBlendStateDX11::ezGALBlendStateDX11(const ezGALBlendStateCreationDescription& Description)
   : ezGALBlendState(Description)
-   
+
 {
 }
 
@@ -121,7 +121,7 @@ ezResult ezGALBlendStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALDepthStencilStateDX11::ezGALDepthStencilStateDX11(const ezGALDepthStencilStateCreationDescription& Description)
   : ezGALDepthStencilState(Description)
-   
+
 {
 }
 
@@ -171,7 +171,7 @@ ezResult ezGALDepthStencilStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALRasterizerStateDX11::ezGALRasterizerStateDX11(const ezGALRasterizerStateCreationDescription& Description)
   : ezGALRasterizerState(Description)
-   
+
 {
 }
 
@@ -255,7 +255,7 @@ ezResult ezGALRasterizerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALSamplerStateDX11::ezGALSamplerStateDX11(const ezGALSamplerStateCreationDescription& Description)
   : ezGALSamplerState(Description)
-   
+
 {
 }
 

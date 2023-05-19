@@ -15,7 +15,7 @@ class EZ_FOUNDATION_DLL ezFileReader : public ezFileReaderBase
 public:
   /// \brief Constructor, does nothing.
   ezFileReader()
-     
+
   {
   }
 

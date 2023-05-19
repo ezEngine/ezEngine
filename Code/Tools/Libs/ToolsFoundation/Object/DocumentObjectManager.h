@@ -44,7 +44,7 @@ public:
 struct ezDocumentObjectStructureEvent
 {
   ezDocumentObjectStructureEvent()
-     
+
   {
   }
 

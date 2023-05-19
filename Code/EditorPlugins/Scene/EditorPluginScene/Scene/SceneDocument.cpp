@@ -616,8 +616,7 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
     GetCommandHistory()->AddCommand(cmd);
   };
 
-  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& ref_graphRootNodes)
-  {
+  auto finalizeGraph = [this, &varChildren](ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& ref_graphRootNodes) {
     if (ref_graphRootNodes.GetCount() == 1)
     {
       ref_graphRootNodes[0]->ChangeProperty("Name", "<Prefab-Root>");

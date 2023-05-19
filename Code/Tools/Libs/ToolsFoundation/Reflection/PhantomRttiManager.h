@@ -16,7 +16,7 @@ struct ezPhantomRttiManagerEvent
   };
 
   ezPhantomRttiManagerEvent()
-     
+
   {
   }
 

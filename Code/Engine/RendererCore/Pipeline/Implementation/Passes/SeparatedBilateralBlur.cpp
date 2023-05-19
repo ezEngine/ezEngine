@@ -29,7 +29,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSeparatedBilateralBlurPass::ezSeparatedBilateralBlurPass()
   : ezRenderPipelinePass("SeparatedBilateral")
-   
+
 {
   {
     // Load shader.

@@ -139,7 +139,7 @@ class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource
 public:
   ezMeshBufferResource()
     : ezResource(DoUpdate::OnAnyThread, 1)
-     
+
   {
   }
   ~ezMeshBufferResource();

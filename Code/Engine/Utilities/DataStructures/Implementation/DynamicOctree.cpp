@@ -5,7 +5,7 @@
 const float ezDynamicOctree::s_fLooseOctreeFactor = 1.1f;
 
 ezDynamicOctree::ezDynamicOctree()
-   
+
 {
 }
 

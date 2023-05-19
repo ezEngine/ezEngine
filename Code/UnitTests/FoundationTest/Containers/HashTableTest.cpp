@@ -30,7 +30,7 @@ namespace HashTableTestDetail
   public:
     OnlyMovable(ezUInt32 uiHash)
       : hash(uiHash)
-       
+
     {
     }
     OnlyMovable(OnlyMovable&& other) { *this = std::move(other); }

@@ -52,7 +52,7 @@ namespace
 
   public:
     TestComponent()
-       
+
     {
     }
     ~TestComponent() {}

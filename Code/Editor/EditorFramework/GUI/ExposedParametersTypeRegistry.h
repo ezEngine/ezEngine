@@ -32,7 +32,7 @@ private:
   struct ParamData
   {
     ParamData()
-       
+
     {
     }
 

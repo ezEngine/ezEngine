@@ -1,6 +1,6 @@
 
 EZ_ALWAYS_INLINE ezRational::ezRational()
-   
+
 {}
 
 EZ_ALWAYS_INLINE ezRational::ezRational(ezUInt32 uiNumerator, ezUInt32 uiDenominator)

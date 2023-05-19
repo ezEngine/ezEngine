@@ -242,7 +242,7 @@ private:
   {
     IfDefState(IfDefActivity activeState = IfDefActivity::IsActive)
       : m_ActiveState(activeState)
-       
+
     {
     }
 

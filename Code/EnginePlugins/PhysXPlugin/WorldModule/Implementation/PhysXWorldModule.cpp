@@ -231,8 +231,7 @@ EZ_DEFINE_AS_POD_TYPE(PxRaycastHit);
 
 ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
-  , 
-   m_FreeShapeIds(ezPhysX::GetSingleton()->GetAllocator())
+  , m_FreeShapeIds(ezPhysX::GetSingleton()->GetAllocator())
   , m_ScratchMemory(ezPhysX::GetSingleton()->GetAllocator())
   , m_Settings()
 {

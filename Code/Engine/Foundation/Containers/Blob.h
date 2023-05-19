@@ -23,7 +23,7 @@ public:
   /// \brief Initializes the ezBlobPtr to be empty.
   EZ_ALWAYS_INLINE ezBlobPtr()
     : m_pPtr(nullptr)
-     
+
   {
   }
 

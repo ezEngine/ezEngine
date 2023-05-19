@@ -5,7 +5,7 @@
 const float ezDynamicQuadtree::s_fLooseOctreeFactor = 1.1f;
 
 ezDynamicQuadtree::ezDynamicQuadtree()
-   
+
 {
 }
 

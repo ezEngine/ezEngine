@@ -56,8 +56,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezCVarFlags);
 struct ezCVarEvent
 {
   ezCVarEvent(ezCVar* pCVar)
-    : 
-     m_pCVar(pCVar)
+    : m_pCVar(pCVar)
   {
   }
 

@@ -34,7 +34,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAOPass::ezAOPass()
   : ezRenderPipelinePass("AOPass", true)
-   
+
 {
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/SSAONoise.dds");
 

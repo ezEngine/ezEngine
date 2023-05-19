@@ -17,7 +17,7 @@ class AddOneStreamProcessor : public ezProcessingStreamProcessor
 
 public:
   AddOneStreamProcessor()
-     
+
   {
   }
 

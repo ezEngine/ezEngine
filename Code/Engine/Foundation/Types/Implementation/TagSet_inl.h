@@ -158,7 +158,7 @@ private:
 template <typename BlockStorageAllocator>
 ezTagSetTemplate<BlockStorageAllocator>::Iterator::Iterator(const ezTagSetTemplate<BlockStorageAllocator>* pSet, bool bEnd)
   : m_pTagSet(pSet)
-   
+
 {
   if (!bEnd)
   {

@@ -299,7 +299,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEngine : public e
 
 public:
   ezExportDocumentMsgToEngine()
-     
+
   {
   }
 

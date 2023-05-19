@@ -11,7 +11,7 @@ using namespace ezProcGenInternal;
 
 PlacementTile::PlacementTile()
   : m_pOutput(nullptr)
-   
+
 {
 }
 

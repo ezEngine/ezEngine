@@ -66,7 +66,7 @@ class BaseHandler : public ezReflectedClass
 
 public:
   BaseHandler()
-     
+
   {
   }
 

@@ -31,7 +31,7 @@ class ezQtItemView : public Base
 public:
   ezQtItemView(QWidget* pParent)
     : Base(pParent)
-     
+
   {
     this->setAttribute(Qt::WA_Hover, true);
   }

@@ -7,7 +7,7 @@
 
 ezGALShaderDX11::ezGALShaderDX11(const ezGALShaderCreationDescription& Description)
   : ezGALShader(Description)
-   
+
 {
 }
 

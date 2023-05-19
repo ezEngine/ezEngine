@@ -1,8 +1,8 @@
 #pragma once
 
 ezTag::ezTag()
-  
-    
+
+
 {
 }
 

@@ -26,7 +26,7 @@ private:
   struct ShaderData
   {
     ShaderData()
-       
+
     {
     }
 

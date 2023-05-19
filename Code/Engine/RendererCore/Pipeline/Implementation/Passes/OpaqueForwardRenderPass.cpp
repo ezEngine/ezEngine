@@ -22,7 +22,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezOpaqueForwardRenderPass::ezOpaqueForwardRenderPass(const char* szName)
   : ezForwardRenderPass(szName)
-   
+
 {
   m_hWhiteTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 }

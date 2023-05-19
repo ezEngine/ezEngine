@@ -42,7 +42,7 @@ EZ_END_STATIC_REFLECTED_TYPE;
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget()
   : QWidget(nullptr)
-   
+
 {
   m_bUndead = false;
   m_bIsDefault = true;
@@ -754,7 +754,7 @@ void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStru
 
 ezQtEmbeddedClassPropertyWidget::ezQtEmbeddedClassPropertyWidget()
   : ezQtPropertyWidget()
-   
+
 {
 }
 
@@ -964,7 +964,7 @@ void ezQtPropertyTypeWidget::DoPrepareToDie()
 
 ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   : ezQtPropertyWidget()
-   
+
 {
   m_Pal = palette();
   setAutoFillBackground(true);
@@ -1576,7 +1576,7 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 /// *** ezQtPropertyTypeContainerWidget ***
 
 ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget()
-   
+
 {
 }
 

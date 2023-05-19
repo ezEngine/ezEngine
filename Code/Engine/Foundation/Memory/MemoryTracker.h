@@ -48,7 +48,7 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     EZ_FORCE_INLINE AllocationInfo()
-       
+
     {
     }
 

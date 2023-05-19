@@ -52,7 +52,7 @@ namespace
 
   public:
     TestComponentMsg()
-       
+
     {
     }
     ~TestComponentMsg() {}

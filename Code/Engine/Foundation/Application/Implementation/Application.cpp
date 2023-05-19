@@ -9,8 +9,7 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 
 ezApplication::ezApplication(const char* szAppName)
-  : 
-   m_sAppName(szAppName)
+  : m_sAppName(szAppName)
 {
 }
 

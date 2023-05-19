@@ -49,7 +49,7 @@ public:
   {
     LoadedData()
       : m_Reader(&m_Storage)
-       
+
     {
     }
 

@@ -8,7 +8,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
 ezInstanceData::ezInstanceData(ezUInt32 uiMaxInstanceCount /*= 1024*/)
-   
+
 {
   CreateBuffer(uiMaxInstanceCount);
 

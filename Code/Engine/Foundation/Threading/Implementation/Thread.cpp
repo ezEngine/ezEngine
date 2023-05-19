@@ -7,8 +7,7 @@ ezEvent<const ezThreadEvent&, ezMutex> ezThread::s_ThreadEvents;
 
 ezThread::ezThread(const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
   : ezOSThread(ezThreadClassEntryPoint, this, szName, uiStackSize)
-  , 
-   m_sName(szName)
+  , m_sName(szName)
 {
   ezThreadEvent e;
   e.m_pThread = this;

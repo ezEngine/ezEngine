@@ -15,7 +15,7 @@ bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALUnor
 ezGALUnorderedAccessViewDX11::ezGALUnorderedAccessViewDX11(
   ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description)
   : ezGALUnorderedAccessView(pResource, Description)
-   
+
 {
 }
 

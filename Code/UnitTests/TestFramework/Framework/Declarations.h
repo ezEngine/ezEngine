@@ -12,7 +12,7 @@ class ezTestBaseClass;
 struct ezSubTestEntry
 {
   ezSubTestEntry()
-     
+
   {
   }
 
@@ -25,7 +25,7 @@ struct ezSubTestEntry
 struct ezTestEntry
 {
   ezTestEntry()
-     
+
   {
   }
 

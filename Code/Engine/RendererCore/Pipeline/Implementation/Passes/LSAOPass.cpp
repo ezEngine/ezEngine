@@ -59,7 +59,7 @@ namespace
 
 ezLSAOPass::ezLSAOPass()
   : ezRenderPipelinePass("LSAOPass", true)
-   
+
 {
   {
     // Load shader.

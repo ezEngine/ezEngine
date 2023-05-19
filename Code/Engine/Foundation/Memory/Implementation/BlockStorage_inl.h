@@ -104,7 +104,7 @@ EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ezBlockStorage(
   ezLargeBlockAllocator<BlockSize>* pBlockAllocator, ezAllocatorBase* pAllocator)
   : m_pBlockAllocator(pBlockAllocator)
   , m_Blocks(pAllocator)
-   
+
 {
 }
 

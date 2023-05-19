@@ -26,9 +26,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezRenderPipelinePass::ezRenderPipelinePass(const char* szName, bool bIsStereoAware)
-  : 
-   m_bIsStereoAware(bIsStereoAware)
-   
+  : m_bIsStereoAware(bIsStereoAware)
+
 {
   m_sName.Assign(szName);
 }

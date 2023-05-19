@@ -1,7 +1,7 @@
 
 template <typename Type>
 ezProcessingStreamIterator<Type>::ezProcessingStreamIterator(const ezProcessingStream* pStream, ezUInt64 uiNumElements, ezUInt64 uiStartIndex)
-   
+
 {
   EZ_ASSERT_DEV(pStream != nullptr, "Stream pointer may not be null!");
   EZ_ASSERT_DEV(pStream->GetElementSize() == sizeof(Type), "Data size missmatch");

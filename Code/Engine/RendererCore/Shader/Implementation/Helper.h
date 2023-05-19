@@ -21,7 +21,7 @@ namespace ezShaderHelper
     {
       ezTextSection(const char* szName)
         : m_sName(szName)
-         
+
       {
       }
 

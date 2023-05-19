@@ -22,7 +22,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezMsaaResolvePass::ezMsaaResolvePass()
   : ezRenderPipelinePass("MsaaResolvePass", true)
-   
+
 {
   {
     // Load shader.

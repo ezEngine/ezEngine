@@ -14,7 +14,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldRttiConverterContext : public e
 {
 public:
   ezWorldRttiConverterContext()
-     
+
   {
   }
 

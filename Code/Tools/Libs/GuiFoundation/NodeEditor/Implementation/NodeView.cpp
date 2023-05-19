@@ -6,7 +6,7 @@
 
 ezQtNodeView::ezQtNodeView(QWidget* pParent)
   : QGraphicsView(pParent)
-   
+
 {
   setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
   setDragMode(QGraphicsView::DragMode::RubberBandDrag);

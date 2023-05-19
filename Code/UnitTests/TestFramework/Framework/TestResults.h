@@ -36,7 +36,7 @@ struct ezTestOutput
 struct ezTestErrorMessage
 {
   ezTestErrorMessage()
-     
+
   {
   }
 
@@ -52,7 +52,7 @@ struct ezTestErrorMessage
 struct ezTestOutputMessage
 {
   ezTestOutputMessage()
-     
+
   {
   }
 
@@ -77,20 +77,20 @@ struct ezTestResultQuery
 struct ezTestResultData
 {
   ezTestResultData()
-     
+
   {
   }
   void Reset();
   void AddOutput(ezInt32 iOutputIndex);
 
   std::string m_sName;
-  bool m_bExecuted = false;       ///< Whether the test was executed. If false, the test was either deactivated or the test process crashed before
-                          ///< executing it.
-  bool m_bSuccess = false;        ///< Whether the test succeeded or not.
-  int m_iTestAsserts = 0;     ///< Asserts that were checked. For tests this includes the count of all of their sub-tests as well.
+  bool m_bExecuted = false;     ///< Whether the test was executed. If false, the test was either deactivated or the test process crashed before
+                                ///< executing it.
+  bool m_bSuccess = false;      ///< Whether the test succeeded or not.
+  int m_iTestAsserts = 0;       ///< Asserts that were checked. For tests this includes the count of all of their sub-tests as well.
   double m_fTestDuration = 0.0; ///< Duration of the test/sub-test. For tests, this includes the duration of all their sub-tests as well.
-  ezInt32 m_iFirstOutput = -1; ///< First output message. For tests, this range includes all messages of their sub-tests as well.
-  ezInt32 m_iLastOutput = -1;  ///< Last output message. For tests, this range includes all messages of their sub-tests as well.
+  ezInt32 m_iFirstOutput = -1;  ///< First output message. For tests, this range includes all messages of their sub-tests as well.
+  ezInt32 m_iLastOutput = -1;   ///< Last output message. For tests, this range includes all messages of their sub-tests as well.
 };
 
 struct ezTestConfiguration
@@ -104,7 +104,7 @@ struct ezTestConfiguration
   bool m_b64BitApplication = false;
   std::string m_sPlatformName;
   std::string m_sBuildConfiguration; ///< Debug, Release, etc
-  ezInt64 m_iDateTime = 0;               ///< in seconds since Linux epoch
+  ezInt64 m_iDateTime = 0;           ///< in seconds since Linux epoch
   ezInt32 m_iRCSRevision = -1;
   std::string m_sHostName;
 };

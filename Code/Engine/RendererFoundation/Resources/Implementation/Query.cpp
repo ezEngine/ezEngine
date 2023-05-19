@@ -4,7 +4,7 @@
 
 ezGALQuery::ezGALQuery(const ezGALQueryCreationDescription& Description)
   : ezGALResource<ezGALQueryCreationDescription>(Description)
-   
+
 {
 }
 
