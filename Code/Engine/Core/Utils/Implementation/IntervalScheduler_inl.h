@@ -122,7 +122,10 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
       for (ezUInt32 i = 0; i < uiScheduleCount; ++i, ++it)
       {
         auto& data = it.Value();
-        runWorkCallback(data.m_Work, m_CurrentTime - data.m_LastScheduledTime);
+        if (runWorkCallback.IsValid())
+        {
+          runWorkCallback(data.m_Work, m_CurrentTime - data.m_LastScheduledTime);
+        }
 
         // add a little bit of random jitter so we don't end up with perfect timings that might collide with other work
         data.m_DueTime = m_CurrentTime + ezMath::Max(data.m_Interval, deltaTime) + GetRandomTimeJitter(i, m_uiSeed);

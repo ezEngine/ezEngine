@@ -1,5 +1,7 @@
 #include <ToolsFoundation/ToolsFoundationPCH.h>
 
+#include <ToolsFoundation/Command/NodeCommands.h>
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <ToolsFoundation/NodeObject/NodeCommandAccessor.h>
 
 ezNodeCommandAccessor::ezNodeCommandAccessor(ezCommandHistory* pHistory)
@@ -92,7 +94,8 @@ ezStatus ezNodeCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObjec
 {
   auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
 
-  auto Disconnect = [&](ezArrayPtr<const ezConnection* const> connections) -> ezStatus {
+  auto Disconnect = [&](ezArrayPtr<const ezConnection* const> connections) -> ezStatus
+  {
     for (const ezConnection* pConnection : connections)
     {
       auto& connectionInfo = out_oldConnections.ExpandAndGetRef();

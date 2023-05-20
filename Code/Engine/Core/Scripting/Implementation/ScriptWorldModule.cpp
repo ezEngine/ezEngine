@@ -1,21 +1,7 @@
 #include <Core/CorePCH.h>
 
+#include <Core/Scripting/ScriptClassResource.h>
 #include <Core/Scripting/ScriptWorldModule.h>
-
-template <>
-struct ezHashHelper<ezScriptWorldModule::FunctionContext>
-{
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezScriptWorldModule::FunctionContext& value)
-  {
-    ezUInt32 hash = ezHashHelper<const void*>::Hash(value.m_pFunction);
-    hash = ezHashingUtils::CombineHashValues32(hash, ezHashHelper<void*>::Hash(value.m_pInstance));
-    return hash;
-  }
-
-  EZ_ALWAYS_INLINE static bool Equal(const ezScriptWorldModule::FunctionContext& a, const ezScriptWorldModule::FunctionContext& b) { return a == b; }
-};
-
-//////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezScriptWorldModule);
@@ -100,7 +86,8 @@ void ezScriptWorldModule::RemoveScriptReloadFunction(ezScriptClassResourceHandle
 void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext& context)
 {
   const ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
-  m_Scheduler.Update(deltaTime, [this](const FunctionContext& context, ezTime deltaTime) {
+  m_Scheduler.Update(deltaTime, [this](const FunctionContext& context, ezTime deltaTime)
+    {
     ezVariant returnValue;
     context.m_pFunction->Execute(context.m_pInstance, ezArrayPtr<ezVariant>(), returnValue); });
 }
