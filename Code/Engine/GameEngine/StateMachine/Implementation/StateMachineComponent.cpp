@@ -368,7 +368,7 @@ void ezStateMachineComponent::SetInitialState(const char* szName)
   if (m_sInitialState == sInitialState)
     return;
 
-  m_sInitialState = sInitialState;
+  m_sInitialState = std::move(sInitialState);
 
   if (IsActiveAndInitialized())
   {
@@ -384,7 +384,7 @@ void ezStateMachineComponent::SetBlackboardName(const char* szName)
   if (m_sBlackboardName == sBlackboardName)
     return;
 
-  m_sBlackboardName = sBlackboardName;
+  m_sBlackboardName = std::move(sBlackboardName);
 
   if (IsActiveAndInitialized())
   {

@@ -41,7 +41,7 @@ bool ezVisualScriptAssignNumberVariant(const void* pSrc, void* pDst)
 {
   ezVariant newValue = *reinterpret_cast<const double*>(pSrc);
   const bool res = *reinterpret_cast<ezVariant*>(pDst) != newValue;
-  *reinterpret_cast<ezVariant*>(pDst) = newValue;
+  *reinterpret_cast<ezVariant*>(pDst) = std::move(newValue);
   return res;
 }
 
@@ -76,7 +76,7 @@ bool ezVisualScriptAssignBoolVariant(const void* pSrc, void* pDst)
 {
   ezVariant newValue = *reinterpret_cast<const bool*>(pSrc);
   const bool res = *reinterpret_cast<ezVariant*>(pDst) != newValue;
-  *reinterpret_cast<ezVariant*>(pDst) = newValue;
+  *reinterpret_cast<ezVariant*>(pDst) = std::move(newValue);
   return res;
 }
 
@@ -92,7 +92,7 @@ bool ezVisualScriptAssignVec3Variant(const void* pSrc, void* pDst)
 {
   ezVariant newValue = *reinterpret_cast<const ezVec3*>(pSrc);
   const bool res = *reinterpret_cast<ezVariant*>(pDst) != newValue;
-  *reinterpret_cast<ezVariant*>(pDst) = newValue;
+  *reinterpret_cast<ezVariant*>(pDst) = std::move(newValue);
   return res;
 }
 
@@ -108,7 +108,7 @@ bool ezVisualScriptAssignStringVariant(const void* pSrc, void* pDst)
 {
   ezVariant newValue = *reinterpret_cast<const ezString*>(pSrc);
   const bool res = *reinterpret_cast<ezVariant*>(pDst) != newValue;
-  *reinterpret_cast<ezVariant*>(pDst) = newValue;
+  *reinterpret_cast<ezVariant*>(pDst) = std::move(newValue);
   return res;
 }
 
