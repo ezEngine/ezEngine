@@ -967,20 +967,20 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
   const char* szArg4 /*= nullptr*/, ArgType argType5 /*= In*/, const char* szArg5 /*= nullptr*/, ArgType argType6 /*= In*/,
   const char* szArg6 /*= nullptr*/)
 {
-{
-  if (ezStringUtils::IsNullOrEmpty(szArg1))
-    return;
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg1))
+      return;
 
-  m_ArgNames.PushBack(szArg1);
-  m_ArgTypes.PushBack(argType1);
-}
-{
-  if (ezStringUtils::IsNullOrEmpty(szArg2))
-    return;
+    m_ArgNames.PushBack(szArg1);
+    m_ArgTypes.PushBack(argType1);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg2))
+      return;
 
-  m_ArgNames.PushBack(szArg2);
-  m_ArgTypes.PushBack(argType2);
-}
+    m_ArgNames.PushBack(szArg2);
+    m_ArgTypes.PushBack(argType2);
+  }
 {
   if (ezStringUtils::IsNullOrEmpty(szArg3))
     return;
@@ -989,19 +989,19 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
   m_ArgTypes.PushBack(argType3);
 }
   {
-  if (ezStringUtils::IsNullOrEmpty(szArg4))
-    return;
+    if (ezStringUtils::IsNullOrEmpty(szArg4))
+      return;
 
-  m_ArgNames.PushBack(szArg4);
-  m_ArgTypes.PushBack(argType4);
+    m_ArgNames.PushBack(szArg4);
+    m_ArgTypes.PushBack(argType4);
   }
-{
-  if (ezStringUtils::IsNullOrEmpty(szArg5))
-    return;
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg5))
+      return;
 
-  m_ArgNames.PushBack(szArg5);
-  m_ArgTypes.PushBack(argType5);
-}
+    m_ArgNames.PushBack(szArg5);
+    m_ArgTypes.PushBack(argType5);
+  }
 {
   if (ezStringUtils::IsNullOrEmpty(szArg6))
     return;

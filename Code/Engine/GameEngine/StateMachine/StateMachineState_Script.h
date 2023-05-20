@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Core/Scripting/ScriptClassResource.h>
-#include <GameEngine/StateMachine/StateMachine.h>
 #include <Foundation/Types/RangeView.h>
+#include <GameEngine/StateMachine/StateMachine.h>
 
 /// \brief A state machine state implementation that can be scripted using e.g. visual scripting.
 class EZ_GAMEENGINE_DLL ezStateMachineState_Script : public ezStateMachineState

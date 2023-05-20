@@ -92,8 +92,7 @@ ezStatus ezNodeCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObjec
 {
   auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
 
-  auto Disconnect = [&](ezArrayPtr<const ezConnection* const> connections) -> ezStatus
-  {
+  auto Disconnect = [&](ezArrayPtr<const ezConnection* const> connections) -> ezStatus {
     for (const ezConnection* pConnection : connections)
     {
       auto& connectionInfo = out_oldConnections.ExpandAndGetRef();

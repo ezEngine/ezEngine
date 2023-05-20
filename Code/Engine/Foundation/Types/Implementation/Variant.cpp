@@ -178,7 +178,7 @@ ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, co
   hashes.Reserve(pVariantDictionary->GetCount() * 2);
 
   for (auto& it : *pVariantDictionary)
-{
+  {
     hashes.PushBack(ezHashingUtils::xxHash64String(it.Key(), uiSeed));
     hashes.PushBack(it.Value().ComputeHash(uiSeed));
   }

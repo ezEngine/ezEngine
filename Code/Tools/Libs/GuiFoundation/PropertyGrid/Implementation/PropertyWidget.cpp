@@ -1339,8 +1339,7 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
 
   if (!points.IsEmpty())
   {
-    points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool
-      { return lhs.x < rhs.x; });
+    points.Sort([](const ezVec2d& lhs, const ezVec2d& rhs) -> bool { return lhs.x < rhs.x; });
 
     const double normX = 1.0 / (maxX - minX);
     const double normY = 1.0 / (maxY - minY);

@@ -24,7 +24,7 @@ public:
   static void RemoveEnum(ezStringView sEnumName);
 
   /// \brief Returns all enum values and current names.
-  const ezHybridArray<ezString, 16>& GetAllValidValues() const { return m_ValidValues; }  
+  const ezHybridArray<ezString, 16>& GetAllValidValues() const { return m_ValidValues; }
 
   /// \brief Resets the internal data.
   void Clear();
