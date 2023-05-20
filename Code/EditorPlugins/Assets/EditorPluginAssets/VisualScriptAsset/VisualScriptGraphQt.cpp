@@ -306,5 +306,5 @@ void ezQtVisualScriptNode::UpdateState()
       sTitle.Shrink(19, 0);
   }
 
-  m_pLabel->setPlainText(sTitle.GetData());
+  m_pTitleLabel->setPlainText(sTitle.GetData());
 }
