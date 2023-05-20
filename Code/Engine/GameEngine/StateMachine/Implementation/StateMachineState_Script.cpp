@@ -128,11 +128,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_Script, 1, ezRTTIDefaultAllo
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("ScriptClass")),
   }
   EZ_END_PROPERTIES;
-  /*EZ_BEGIN_ATTRIBUTES
-  {
-    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Alpha),
-  }
-  EZ_END_ATTRIBUTES;*/
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

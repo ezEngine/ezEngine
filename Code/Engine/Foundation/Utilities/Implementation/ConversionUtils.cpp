@@ -707,6 +707,19 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
+  const ezStringBuilder& ToString(const ezHashTable<ezString, ezVariant>& value, ezStringBuilder& out_sResult)
+  {
+    out_sResult.Append("{");
+    for (auto it : value)
+    {
+      out_sResult.Append(it.Key(), "=", it.Value().ConvertTo<ezString>(), ", ");
+    }
+    if (!value.IsEmpty())
+      out_sResult.Shrink(0, 2);
+    out_sResult.Append("}");
+    return out_sResult;
+  }
+
   ezUuid ConvertStringToUuid(ezStringView sText);
 
   const ezStringBuilder& ToString(const ezUuid& value, ezStringBuilder& out_sResult)

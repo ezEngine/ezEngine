@@ -176,7 +176,7 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "3");
 }
 
-inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum type, bool bAndString = false)
+inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum type)
 {
   for (int iType = ezVariant::Type::FirstStandardType; iType < ezVariant::Type::LastExtendedType; ++iType)
   {
@@ -184,10 +184,6 @@ inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum typ
       iType = ezVariant::Type::FirstExtendedType;
 
     if (iType == type)
-    {
-      EZ_TEST_BOOL(v.CanConvertTo(type));
-    }
-    else if (bAndString && iType == ezVariant::Type::String)
     {
       EZ_TEST_BOOL(v.CanConvertTo(type));
     }
@@ -1698,23 +1694,35 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (VariantArray)")
   {
     ezVariantArray va;
+    va.PushBack(2.5);
+    va.PushBack("ABC");
+    va.PushBack(ezVariant());
     ezVariant v(va);
 
-    TestCanOnlyConvertToID(v, ezVariant::Type::VariantArray, true);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::VariantArray);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVariantArray>() == va);
+    EZ_TEST_STRING(v.ConvertTo<ezString>(), "[2.5, ABC, <Invalid>]");
+
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::VariantArray).Get<ezVariantArray>() == va);
+    EZ_TEST_STRING(v.ConvertTo(ezVariant::Type::String).Get<ezString>(), "[2.5, ABC, <Invalid>]");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVariantDictionary)")
   {
     ezVariantDictionary va;
+    va.Insert("A", 2.5);
+    va.Insert("B", "ABC");
+    va.Insert("C", ezVariant());
     ezVariant v(va);
 
-    TestCanOnlyConvertToID(v, ezVariant::Type::VariantDictionary);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::VariantDictionary);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVariantDictionary>() == va);
+    EZ_TEST_STRING(v.ConvertTo<ezString>(), "{A=2.5, C=<Invalid>, B=ABC}");
+
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::VariantDictionary).Get<ezVariantDictionary>() == va);
+    EZ_TEST_STRING(v.ConvertTo(ezVariant::Type::String).Get<ezString>(), "{A=2.5, C=<Invalid>, B=ABC}");
   }
 }
 
