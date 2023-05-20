@@ -18,7 +18,7 @@ public:
   /// Calls s_RequestUnknownCallback, if the requested enum is not known yet, which will try to load the data.
   static ezDynamicStringEnum& GetDynamicEnum(ezStringView sEnumName);
 
-  static ezDynamicStringEnum& CreateDynamicEnum(ezStringView szEnumName);
+  static ezDynamicStringEnum& CreateDynamicEnum(ezStringView sEnumName);
 
   /// \brief Removes the entire enum with the given name.
   static void RemoveEnum(ezStringView sEnumName);

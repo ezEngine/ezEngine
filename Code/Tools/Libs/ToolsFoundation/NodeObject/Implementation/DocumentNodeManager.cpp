@@ -180,14 +180,6 @@ bool ezDocumentNodeManager::IsDynamicPinProperty(const ezDocumentObject* pObject
   if (pProp == nullptr)
     return false;
 
-  /*if (pEventType != nullptr && *pEventType == ezDocumentObjectPropertyEvent::Type::PropertySet && pProp->GetCategory() == ezPropertyCategory::Array)
-  {
-    // Only string arrays are relevant for property set events
-    auto pArrayProp = static_cast<const ezAbstractArrayProperty*>(pProp);
-    if (pArrayProp->GetSpecificType() != ezGetStaticRTTI<ezString>())
-      return false;
-  }*/
-
   return InternalIsDynamicPinProperty(pObject, pProp);
 }
 

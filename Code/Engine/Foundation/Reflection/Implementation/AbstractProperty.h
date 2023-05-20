@@ -563,7 +563,7 @@ public:
   /// returnValue must be a ptr to a valid class instance of the returned type.
   /// An invalid variant is equal to a nullptr, except for if the argument is of type ezVariant, in which case
   /// it is impossible to pass along a nullptr.
-  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& ref_returnValue) const = 0;
+  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const = 0;
 
   virtual const ezRTTI* GetSpecificType() const override { return GetReturnType(); }
 
