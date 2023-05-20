@@ -981,13 +981,13 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
     m_ArgNames.PushBack(szArg2);
     m_ArgTypes.PushBack(argType2);
   }
-{
-  if (ezStringUtils::IsNullOrEmpty(szArg3))
-    return;
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg3))
+      return;
 
-  m_ArgNames.PushBack(szArg3);
-  m_ArgTypes.PushBack(argType3);
-}
+    m_ArgNames.PushBack(szArg3);
+    m_ArgTypes.PushBack(argType3);
+  }
   {
     if (ezStringUtils::IsNullOrEmpty(szArg4))
       return;
@@ -1002,13 +1002,13 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
     m_ArgNames.PushBack(szArg5);
     m_ArgTypes.PushBack(argType5);
   }
-{
-  if (ezStringUtils::IsNullOrEmpty(szArg6))
-    return;
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg6))
+      return;
 
-  m_ArgNames.PushBack(szArg6);
-  m_ArgTypes.PushBack(argType6);
-}
+    m_ArgNames.PushBack(szArg6);
+    m_ArgTypes.PushBack(argType6);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

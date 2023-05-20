@@ -86,8 +86,7 @@ void ezScriptWorldModule::RemoveScriptReloadFunction(ezScriptClassResourceHandle
 void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext& context)
 {
   const ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
-  m_Scheduler.Update(deltaTime, [this](const FunctionContext& context, ezTime deltaTime)
-    {
+  m_Scheduler.Update(deltaTime, [this](const FunctionContext& context, ezTime deltaTime) {
     ezVariant returnValue;
     context.m_pFunction->Execute(context.m_pInstance, ezArrayPtr<ezVariant>(), returnValue); });
 }
