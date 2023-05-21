@@ -9,7 +9,7 @@ struct ezPropertyMetaStateEvent;
 
 struct ezTexture2DChannelMappingEnum
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {
@@ -34,7 +34,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DChannelMappingEnum);
 
 struct ezTexture2DResolution
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {
@@ -55,7 +55,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DResolution);
 
 struct ezRenderTargetFormat
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {

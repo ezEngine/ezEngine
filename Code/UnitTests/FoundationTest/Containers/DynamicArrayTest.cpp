@@ -7,7 +7,7 @@
 
 namespace DynamicArrayTestDetail
 {
-  typedef ezConstructionCounter st;
+  using st = ezConstructionCounter;
 
   static int g_iDummyCounter = 0;
 

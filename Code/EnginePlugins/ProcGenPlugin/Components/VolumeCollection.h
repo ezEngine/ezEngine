@@ -14,7 +14,7 @@ class EZ_PROCGENPLUGIN_DLL ezVolumeCollection : public ezReflectedClass
 public:
   struct ShapeType
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
 
     enum Enum
     {

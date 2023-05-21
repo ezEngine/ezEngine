@@ -49,7 +49,7 @@ ezVariant::ezVariant(const ezDataBuffer& value)
 
 ezVariant::ezVariant(const ezVariantArray& value)
 {
-  typedef typename TypeDeduction<ezVariantArray>::StorageType StorageType;
+  using StorageType = typename TypeDeduction<ezVariantArray>::StorageType;
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, nullptr);
   m_uiType = TypeDeduction<ezVariantArray>::value;
   m_bIsShared = true;
@@ -57,7 +57,7 @@ ezVariant::ezVariant(const ezVariantArray& value)
 
 ezVariant::ezVariant(const ezVariantDictionary& value)
 {
-  typedef typename TypeDeduction<ezVariantDictionary>::StorageType StorageType;
+  using StorageType = typename TypeDeduction<ezVariantDictionary>::StorageType;
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value, nullptr);
   m_uiType = TypeDeduction<ezVariantDictionary>::value;
   m_bIsShared = true;
@@ -96,7 +96,7 @@ void ezVariant::MoveTypedObject(void* value, const ezRTTI* pType)
 template <typename T>
 EZ_ALWAYS_INLINE void ezVariant::InitShared(const T& value)
 {
-  typedef typename TypeDeduction<T>::StorageType StorageType;
+  using StorageType = typename TypeDeduction<T>::StorageType;
 
   EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing, "value of this type should be stored inplace");
   EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");

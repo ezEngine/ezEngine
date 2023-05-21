@@ -4,7 +4,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-typedef ezComponentManager<class ezSpotLightComponent, ezBlockStorageType::Compact> ezSpotLightComponentManager;
+using ezSpotLightComponentManager = ezComponentManager<class ezSpotLightComponent, ezBlockStorageType::Compact>;
 
 /// \brief The render data object for spot lights.
 class EZ_RENDERERCORE_DLL ezSpotLightRenderData : public ezLightRenderData

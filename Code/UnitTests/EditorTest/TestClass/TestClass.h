@@ -18,7 +18,7 @@ class ezScene2Document;
 class ezEditorTestApplication : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezEditorTestApplication();
   virtual ezResult BeforeCoreSystemsStartup() override;
@@ -37,7 +37,7 @@ public:
 
 class ezEditorTest : public ezTestBaseClass
 {
-  typedef ezTestBaseClass SUPER;
+  using SUPER = ezTestBaseClass;
 
 public:
   ezEditorTest();

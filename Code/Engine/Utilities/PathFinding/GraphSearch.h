@@ -16,7 +16,7 @@ class ezPathSearch
 {
 public:
   /// \brief Used by FindClosest() to query whether the currently visited node fulfills the termination criteria.
-  typedef bool (*IsSearchedObjectCallback)(ezInt64 iStartNodeIndex, const PathStateType& StartState);
+  using IsSearchedObjectCallback = bool (*)(ezInt64 iStartNodeIndex, const PathStateType& StartState);
 
   /// \brief FindPath() and FindClosest() return an array of these objects as the path result.
   struct PathResultData

@@ -2,7 +2,7 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
-typedef ezGenericId<32, 16> ezXRSpatialAnchorID;
+using ezXRSpatialAnchorID = ezGenericId<32, 16>;
 
 /// \brief XR spatial anchors interface.
 ///

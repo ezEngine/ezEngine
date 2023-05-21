@@ -6,7 +6,7 @@
 #include <Foundation/Types/TagRegistry.h>
 
 class ezTag;
-typedef ezUInt64 ezTagSetBlockStorage;
+using ezTagSetBlockStorage = ezUInt64;
 
 /// \brief A dynamic collection of tags featuring fast lookups.
 ///
@@ -119,7 +119,7 @@ private:
 };
 
 /// Default tag set, uses ezDefaultAllocatorWrapper for allocations.
-typedef ezTagSetTemplate<> ezTagSet;
+using ezTagSet = ezTagSetTemplate<>;
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTagSet);
 

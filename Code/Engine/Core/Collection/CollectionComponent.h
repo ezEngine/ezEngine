@@ -5,7 +5,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 
-typedef ezComponentManager<class ezCollectionComponent, ezBlockStorageType::Compact> ezCollectionComponentManager;
+using ezCollectionComponentManager = ezComponentManager<class ezCollectionComponent, ezBlockStorageType::Compact>;
 
 /// \brief An ezCollectionComponent references an ezCollectionResource and triggers resource preloading when needed
 ///

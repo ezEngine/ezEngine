@@ -2,7 +2,7 @@
 
 #include <RendererCore/Components/RenderComponent.h>
 
-typedef ezComponentManager<class ezAlwaysVisibleComponent, ezBlockStorageType::Compact> ezAlwaysVisibleComponentManager;
+using ezAlwaysVisibleComponentManager = ezComponentManager<class ezAlwaysVisibleComponent, ezBlockStorageType::Compact>;
 
 /// \brief Attaching this component to a game object makes the renderer consider it always visible, ie. disables culling
 class EZ_RENDERERCORE_DLL ezAlwaysVisibleComponent : public ezRenderComponent

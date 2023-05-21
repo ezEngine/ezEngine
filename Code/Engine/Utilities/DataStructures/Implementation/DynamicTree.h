@@ -37,11 +37,11 @@ struct ezDynamicTree
   };
 };
 
-typedef ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData>::Iterator ezDynamicTreeObject;
-typedef ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData>::ConstIterator ezDynamicTreeObjectConst;
+using ezDynamicTreeObject = ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData>::Iterator;
+using ezDynamicTreeObjectConst = ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData>::ConstIterator;
 
 /// \brief Callback type for object queries. Return "false" to abort a search (e.g. when the desired element has been found).
-typedef bool (*EZ_VISIBLE_OBJ_CALLBACK)(void* pPassThrough, ezDynamicTreeObjectConst Object);
+using EZ_VISIBLE_OBJ_CALLBACK = bool (*)(void *, ezDynamicTreeObjectConst);
 
 class ezDynamicOctree;
 class ezDynamicQuadtree;

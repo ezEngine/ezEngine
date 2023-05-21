@@ -32,7 +32,7 @@ class ezParticleFinalizerFactory;
 
 using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
-typedef ezGenericId<22, 10> ezParticleEffectId;
+using ezParticleEffectId = ezGenericId<22, 10>;
 
 /// \brief A handle to a particle effect
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectHandle
@@ -74,7 +74,7 @@ private:
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -96,7 +96,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTypeRenderMode);
 /// \brief What to do when an effect is not visible.
 struct EZ_PARTICLEPLUGIN_DLL ezEffectInvisibleUpdateRate
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -117,7 +117,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezEffectInvisibleUpdateRate);
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -137,7 +137,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTextureAtlasType);
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleColorGradientMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -155,7 +155,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleColorGradientMode);
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleOutOfBoundsMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

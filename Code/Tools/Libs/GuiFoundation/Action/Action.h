@@ -16,9 +16,9 @@ struct ezActionDescriptor;
 class ezAction;
 struct ezActionContext;
 
-typedef ezGenericId<24, 8> ezActionId;
-typedef ezAction* (*CreateActionFunc)(const ezActionContext& context);
-typedef void (*DeleteActionFunc)(ezAction* pAction);
+using ezActionId = ezGenericId<24, 8>;
+using CreateActionFunc = ezAction *(*)(const ezActionContext &);
+using DeleteActionFunc = void (*)(ezAction *);
 
 /// \brief Handle for a ezAction.
 ///
@@ -45,7 +45,7 @@ struct ezActionScope
     Window,
     Default = Global
   };
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 };
 
 ///
@@ -59,7 +59,7 @@ struct ezActionType
     ActionAndMenu,
     Default = Action
   };
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 };
 
 ///

@@ -14,7 +14,7 @@ struct ezRenderWorldRenderEvent;
 struct ezMsgExtractRenderData;
 struct ezReflectionProbeDesc;
 class ezReflectionProbeRenderData;
-typedef ezGenericId<24, 8> ezReflectionProbeId;
+using ezReflectionProbeId = ezGenericId<24, 8>;
 class ezReflectionProbeComponentBase;
 class ezSkyLightComponent;
 

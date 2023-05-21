@@ -125,7 +125,7 @@ namespace
     }
   }
 
-  typedef ezComponentManager<class TestComponent2, ezBlockStorageType::FreeList> TestComponent2Manager;
+  using TestComponent2Manager = ezComponentManager<class TestComponent2, ezBlockStorageType::FreeList>;
 
   class TestComponent2 : public ezComponent
   {

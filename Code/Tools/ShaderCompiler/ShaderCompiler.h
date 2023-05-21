@@ -6,7 +6,7 @@
 class ezShaderCompilerApplication : public ezGameApplication
 {
 public:
-  typedef ezGameApplication SUPER;
+  using SUPER = ezGameApplication;
 
   ezShaderCompilerApplication();
 

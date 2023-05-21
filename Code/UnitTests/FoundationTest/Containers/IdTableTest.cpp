@@ -6,8 +6,8 @@
 
 namespace
 {
-  typedef ezGenericId<32, 16> Id;
-  typedef ezConstructionCounter st;
+  using Id = ezGenericId<32, 16>;
+  using st = ezConstructionCounter;
 
   struct TestObject
   {

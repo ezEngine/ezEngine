@@ -23,14 +23,14 @@
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
 
-typedef float ezMathTestType;
+using ezMathTestType = float;
 
-typedef ezVec2Template<ezMathTestType> ezVec2T;                     ///< This is only for testing purposes
-typedef ezVec3Template<ezMathTestType> ezVec3T;                     ///< This is only for testing purposes
-typedef ezVec4Template<ezMathTestType> ezVec4T;                     ///< This is only for testing purposes
-typedef ezMat3Template<ezMathTestType> ezMat3T;                     ///< This is only for testing purposes
-typedef ezMat4Template<ezMathTestType> ezMat4T;                     ///< This is only for testing purposes
-typedef ezQuatTemplate<ezMathTestType> ezQuatT;                     ///< This is only for testing purposes
-typedef ezPlaneTemplate<ezMathTestType> ezPlaneT;                   ///< This is only for testing purposes
-typedef ezBoundingBoxTemplate<ezMathTestType> ezBoundingBoxT;       ///< This is only for testing purposes
-typedef ezBoundingSphereTemplate<ezMathTestType> ezBoundingSphereT; ///< This is only for testing purposes
+using ezVec2T = ezVec2Template<ezMathTestType>;                     ///< This is only for testing purposes
+using ezVec3T = ezVec3Template<ezMathTestType>;                     ///< This is only for testing purposes
+using ezVec4T = ezVec4Template<ezMathTestType>;                     ///< This is only for testing purposes
+using ezMat3T = ezMat3Template<ezMathTestType>;                     ///< This is only for testing purposes
+using ezMat4T = ezMat4Template<ezMathTestType>;                     ///< This is only for testing purposes
+using ezQuatT = ezQuatTemplate<ezMathTestType>;                     ///< This is only for testing purposes
+using ezPlaneT = ezPlaneTemplate<ezMathTestType>;                   ///< This is only for testing purposes
+using ezBoundingBoxT = ezBoundingBoxTemplate<ezMathTestType>;       ///< This is only for testing purposes
+using ezBoundingSphereT = ezBoundingSphereTemplate<ezMathTestType>; ///< This is only for testing purposes

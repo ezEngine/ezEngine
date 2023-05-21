@@ -6,12 +6,12 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-typedef ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating> ezInputComponentManager;
+using ezInputComponentManager = ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Which types of input events are broadcast
 struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   /// \brief Which types of input events are broadcast
   enum Enum

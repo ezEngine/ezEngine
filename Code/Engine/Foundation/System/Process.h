@@ -8,8 +8,8 @@
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
 
-typedef void* ezOsProcessHandle;
-typedef ezUInt32 ezOsProcessID;
+using ezOsProcessHandle = void *;
+using ezOsProcessID = ezUInt32;
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
 enum class ezProcessState

@@ -18,7 +18,7 @@ class ezAbstractMessageHandler;
 struct ezMessageSenderInfo;
 class ezPropertyAttribute;
 class ezMessage;
-typedef ezUInt16 ezMessageId;
+using ezMessageId = ezUInt16;
 
 /// \brief This enumerable class holds information about reflected types. Each instance represents one type that is known to the reflection
 /// system.

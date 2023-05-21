@@ -42,7 +42,7 @@ namespace
 
     *pFactory = nullptr;
 
-    typedef HRESULT(WINAPI * pfn_CreateDXGIFactory1)(REFIID riid, _Out_ void** ppFactory);
+    using pfn_CreateDXGIFactory1 = HRESULT(WINAPI*)(REFIID riid, _Out_ void** ppFactory);
 
     static pfn_CreateDXGIFactory1 s_CreateDXGIFactory1 = nullptr;
 

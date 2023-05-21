@@ -144,7 +144,7 @@ public:
   /// In that case it might also make sense to use GetTelemetryMutex() to lock the entire section while waiting for the message.
   static void UpdateNetwork();
 
-  typedef void (*ProcessMessagesCallback)(void* pPassThrough);
+  using ProcessMessagesCallback = void (*)(void *);
 
   static void AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback callback = nullptr, void* pPassThrough = nullptr);
 
@@ -179,7 +179,7 @@ public:
     EventType m_EventType;
   };
 
-  typedef ezEvent<const TelemetryEventData&, ezMutex> ezEventTelemetry;
+  using ezEventTelemetry = ezEvent<const TelemetryEventData &, ezMutex>;
 
   /// \brief Adds an event handler that is called for every ezTelemetry event.
   static void AddEventHandler(ezEventTelemetry::Handler handler) { s_TelemetryEvents.AddEventHandler(handler); }
@@ -224,7 +224,7 @@ private:
 
   static ezTime s_PingToServer;
 
-  typedef ezDeque<ezTelemetryMessage> MessageDeque;
+  using MessageDeque = ezDeque<ezTelemetryMessage>;
 
   struct MessageQueue
   {

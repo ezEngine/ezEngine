@@ -9,7 +9,7 @@ struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
 struct ezMsgTransformChanged;
 
-typedef ezSettingsComponentManager<class ezSkyLightComponent> ezSkyLightComponentManager;
+using ezSkyLightComponentManager = ezSettingsComponentManager<class ezSkyLightComponent>;
 
 class EZ_RENDERERCORE_DLL ezSkyLightComponent : public ezSettingsComponent
 {

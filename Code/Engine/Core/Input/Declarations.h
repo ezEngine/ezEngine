@@ -31,7 +31,7 @@ struct EZ_CORE_DLL ezKeyState
 /// You an additionally also use the prefix of the input slot name, to filter out all touch input slots etc. if necessary.
 struct ezInputSlotFlags
 {
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 
   enum Enum
   {

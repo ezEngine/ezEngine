@@ -58,7 +58,7 @@ class ezFunctionProperty
   class ezFunctionProperty<R (CLASS::*)(Args...) CONSTNESS> : public ezTypedFunctionProperty<R, Args...>                                       \
   {                                                                                                                                            \
   public:                                                                                                                                      \
-    typedef R (CLASS::*TargetFunction)(Args...) CONSTNESS;                                                                                     \
+    using TargetFunction = R (CLASS::*)(Args...) CONSTNESS;                                                                                     \
                                                                                                                                                \
     ezFunctionProperty(const char* szPropertyName, TargetFunction func)                                                                        \
       : ezTypedFunctionProperty<R, Args...>(szPropertyName)                                                                                    \
@@ -106,7 +106,7 @@ template <class R, class... Args>
 class ezFunctionProperty<R (*)(Args...)> : public ezTypedFunctionProperty<R, Args...>
 {
 public:
-  typedef R (*TargetFunction)(Args...);
+  using TargetFunction = R (*)(Args...);
 
   ezFunctionProperty(const char* szPropertyName, TargetFunction func)
     : ezTypedFunctionProperty<R, Args...>(szPropertyName)

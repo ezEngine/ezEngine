@@ -142,5 +142,5 @@ public:                                                     \
 template <typename T>
 struct ezMessageSenderBase
 {
-  typedef T MessageType;
+  using MessageType = T;
 };

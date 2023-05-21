@@ -16,8 +16,8 @@ public:
     ezInt32 m_Priority = 0;
   };
 
-  ezTexturePacker() = default;
-  ~ezTexturePacker() = default;
+  ezTexturePacker();
+  ~ezTexturePacker();
 
   void SetTextureSize(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiReserveTextures = 0);
 

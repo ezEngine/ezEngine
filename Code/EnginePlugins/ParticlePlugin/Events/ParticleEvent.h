@@ -15,4 +15,4 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleEvent
   ezVec3 m_vNormal;
 };
 
-typedef ezArrayPtr<ezParticleEvent> ezParticleEventQueue;
+using ezParticleEventQueue = ezArrayPtr<ezParticleEvent>;

@@ -36,7 +36,7 @@ public:
   /// \brief What to watch out for.
   struct Watch
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
     constexpr static ezUInt8 Default = 0;
 
     /// \brief Enum values

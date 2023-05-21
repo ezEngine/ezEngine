@@ -2,7 +2,7 @@
 
 #include <RtsGamePlugin/RtsGamePluginDLL.h>
 
-typedef ezComponentManager<class RtsSelectableComponent, ezBlockStorageType::Compact> RtsSelectableComponentManager;
+using RtsSelectableComponentManager = ezComponentManager<class RtsSelectableComponent, ezBlockStorageType::Compact>;
 
 struct ezMsgUpdateLocalBounds;
 

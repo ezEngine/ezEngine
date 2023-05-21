@@ -15,13 +15,13 @@ const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 // This structure describes a thread name set exception
 #pragma pack(push, 8)
-typedef struct tagTHREADNAME_INFO
+using THREADNAME_INFO = struct tagTHREADNAME_INFO
 {
   DWORD dwType;     // Must be 0x1000.
   LPCSTR szName;    // Pointer to name (in user addr space).
   DWORD dwThreadID; // Thread ID (-1=caller thread).
   DWORD dwFlags;    // Reserved for future use, must be zero.
-} THREADNAME_INFO;
+};
 #pragma pack(pop)
 
 #define EZ_MSVC_WARNING_NUMBER 6312
@@ -32,7 +32,7 @@ typedef struct tagTHREADNAME_INFO
 // See https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-setthreaddescription
 // this is the new way to set thread names which are also stored with crash dumps and work in more tools (like Pix etc.)
 // however it needs to be loaded dynamically from the kernel DLL.
-typedef HRESULT(WINAPI* pfnSetThreadDescription)(HANDLE, PCWSTR);
+using pfnSetThreadDescription = HRESULT(WINAPI*)(HANDLE, PCWSTR);
 
 
 // According to the docs the thread description function lives in kernel32.dll,

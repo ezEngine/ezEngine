@@ -25,7 +25,7 @@ namespace
       }
     }
 
-    typedef ezEvent<ezUInt32> Event;
+    using Event = ezEvent<ezUInt32>;
     Event m_Event;
     ezUInt32 m_uiRecursionCount;
   };
@@ -35,7 +35,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
-    typedef ezEvent<ezInt32*> TestEvent;
+    using TestEvent = ezEvent<ezInt32*>;
     TestEvent e;
 
     Test test1;
@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unsubscribing via ID")
   {
-    typedef ezEvent<ezInt32*> TestEvent;
+    using TestEvent = ezEvent<ezInt32*>;
     TestEvent e;
 
     Test test1;
@@ -102,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Unsubscribing via Unsubscriber")
   {
-    typedef ezEvent<ezInt32*> TestEvent;
+    using TestEvent = ezEvent<ezInt32*>;
     TestEvent e;
 
     Test test1;
@@ -141,7 +141,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove while iterate")
   {
-    typedef ezEvent<int, ezMutex, ezDefaultAllocatorWrapper, ezEventType::CopyOnBroadcast> TestEvent;
+    using TestEvent = ezEvent<int, ezMutex, ezDefaultAllocatorWrapper, ezEventType::CopyOnBroadcast>;
     TestEvent e;
 
     ezUInt32 callMap = 0;

@@ -48,7 +48,7 @@ public:
   }
 };
 
-typedef ezGenericId<24, 8> ezConstantBufferStorageId;
+using ezConstantBufferStorageId = ezGenericId<24, 8>;
 
 class ezConstantBufferStorageHandle
 {

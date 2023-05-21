@@ -104,7 +104,7 @@ public:
   /// \brief Saves the document, if it is modified.
   /// If bForce is true, the document will be written, even if it is not considered modified.
   ezStatus SaveDocument(bool bForce = false);
-  typedef ezDelegate<void(ezDocument* doc, ezStatus res)> AfterSaveCallback;
+  using AfterSaveCallback = ezDelegate<void (ezDocument *, ezStatus)>;
   ezTaskGroupID SaveDocumentAsync(AfterSaveCallback callback, bool bForce = false);
 
   static ezStatus ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,

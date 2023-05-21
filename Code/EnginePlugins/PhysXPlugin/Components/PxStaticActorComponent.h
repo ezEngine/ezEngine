@@ -5,7 +5,7 @@
 #include <PhysXPlugin/Utilities/PxUserData.h>
 
 struct ezMsgExtractGeometry;
-typedef ezComponentManager<class ezPxStaticActorComponent, ezBlockStorageType::FreeList> ezPxStaticActorComponentManager;
+using ezPxStaticActorComponentManager = ezComponentManager<class ezPxStaticActorComponent, ezBlockStorageType::FreeList>;
 
 class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
 {

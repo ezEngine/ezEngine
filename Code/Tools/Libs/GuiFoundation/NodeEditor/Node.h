@@ -20,7 +20,7 @@ class QGraphicsDropShadowEffect;
 
 struct ezNodeFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

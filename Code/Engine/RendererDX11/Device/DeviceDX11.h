@@ -21,8 +21,8 @@ struct ID3D11Resource;
 struct ID3D11Query;
 struct IDXGIAdapter;
 
-typedef ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0> ezGALFormatLookupEntryDX11;
-typedef ezGALFormatLookupTable<ezGALFormatLookupEntryDX11> ezGALFormatLookupTableDX11;
+using ezGALFormatLookupEntryDX11 = ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0>;
+using ezGALFormatLookupTableDX11 = ezGALFormatLookupTable<ezGALFormatLookupEntryDX11>;
 
 class ezGALPassDX11;
 

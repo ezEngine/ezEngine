@@ -69,7 +69,7 @@ public:                                                                         
   EZ_ALWAYS_INLINE void Invalidate() { m_InternalId.Invalidate(); }                                       \
   EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_InternalId.IsInvalidated(); }                    \
   EZ_ALWAYS_INLINE idType GetInternalID() const { return m_InternalId; }                                  \
-  typedef idType IdType;                                                                                  \
+  using IdType = idType;                                                                                  \
                                                                                                           \
 protected:                                                                                                \
   idType m_InternalId;                                                                                    \

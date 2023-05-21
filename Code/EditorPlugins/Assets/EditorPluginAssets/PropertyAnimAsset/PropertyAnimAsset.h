@@ -60,7 +60,7 @@ struct ezPropertyAnimAssetDocumentEvent
 
 class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>
 {
-  typedef ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument> BaseClass;
+  using BaseClass = ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>;
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimAssetDocument, BaseClass);
 
 public:

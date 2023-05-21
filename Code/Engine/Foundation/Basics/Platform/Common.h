@@ -118,7 +118,7 @@
 
 struct ezStaticLinkHelper
 {
-  typedef void (*Func)(bool);
+  using Func = void (*)(bool);
   ezStaticLinkHelper(Func f) { f(true); }
 };
 

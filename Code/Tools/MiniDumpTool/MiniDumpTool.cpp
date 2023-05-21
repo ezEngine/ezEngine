@@ -19,7 +19,7 @@ class ezMiniDumpTool : public ezApplication
   ezStringBuilder m_sDumpFile;
 
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezMiniDumpTool()
     : ezApplication("MiniDumpTool")

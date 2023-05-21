@@ -4,7 +4,7 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
-typedef ezComponentManagerSimple<class ezVisualizeHandComponent, ezComponentUpdateType::WhenSimulating> ezVisualizeHandComponentManager;
+using ezVisualizeHandComponentManager = ezComponentManagerSimple<class ezVisualizeHandComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_GAMEENGINE_DLL ezVisualizeHandComponent : public ezComponent
 {

@@ -4,7 +4,7 @@
 
 struct EZ_PHYSXPLUGIN_DLL ezPxAxis
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

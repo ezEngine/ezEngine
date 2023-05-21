@@ -13,8 +13,8 @@ namespace
 {
   static ezSpatialData::Category s_SpecialTestCategory = ezSpatialData::RegisterCategory("SpecialTestCategory", ezSpatialData::Flags::None);
 
-  typedef ezComponentManager<class TestBoundsComponent, ezBlockStorageType::Compact> TestBoundsComponentManager;
-
+  using TestBoundsComponentManager = ezComponentManager<class TestBoundsComponent, ezBlockStorageType::Compact>;
+ 
   class TestBoundsComponent : public ezComponent
   {
     EZ_DECLARE_COMPONENT_TYPE(TestBoundsComponent, ezComponent, TestBoundsComponentManager);

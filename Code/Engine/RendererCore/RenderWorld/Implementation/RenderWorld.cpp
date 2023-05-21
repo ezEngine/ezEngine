@@ -59,7 +59,7 @@ namespace
   static ezProxyAllocator* s_pCacheAllocator;
 
   static ezMutex s_CachedRenderDataMutex;
-  typedef ezHybridArray<const ezRenderData*, 4> CachedRenderDataPerComponent;
+  using CachedRenderDataPerComponent = ezHybridArray<const ezRenderData *, 4>;
   static ezHashTable<ezComponentHandle, CachedRenderDataPerComponent> s_CachedRenderData;
   static ezDynamicArray<const ezRenderData*> s_DeletedRenderData;
 

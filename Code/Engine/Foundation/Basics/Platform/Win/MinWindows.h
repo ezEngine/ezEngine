@@ -18,8 +18,8 @@ namespace ezMinWindows
   using WPARAM = ezUInt64;
   using LPARAM = ezUInt64;
 #else
-  typedef ezUInt32 WPARAM;
-  typedef ezUInt32 LPARAM;
+  using WPARAM = ezUInt32;
+  using LPARAM = ezUInt32;
 #endif
 
   template <typename T>

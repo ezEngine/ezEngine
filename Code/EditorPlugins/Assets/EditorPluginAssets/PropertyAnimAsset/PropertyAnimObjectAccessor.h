@@ -29,7 +29,7 @@ public:
 private:
   bool IsTemporary(const ezDocumentObject* pObject) const;
   bool IsTemporary(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp) const;
-  typedef ezDelegate<void(const ezUuid&)> OnAddTrack;
+  using OnAddTrack = ezDelegate<void (const ezUuid &)>;
   ezUuid FindOrAddTrack(
     const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, OnAddTrack onAddTrack);
 

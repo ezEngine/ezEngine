@@ -228,7 +228,7 @@ struct FunctionTest
   ezDynamicArray<ezVariant> m_values;
 };
 
-typedef std::tuple<const ezRTTI*, ezBitflags<ezPropertyFlags>> ParamSig;
+using ParamSig = std::tuple<const ezRTTI *, ezBitflags<ezPropertyFlags>>;
 
 void VerifyFunctionSignature(const ezAbstractFunctionProperty* pFunc, ezArrayPtr<ParamSig> params, ParamSig ret)
 {

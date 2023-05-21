@@ -4,7 +4,7 @@ template <typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename P, ARG_COUNT)>
 class ezConsoleFunction<R(EZ_LIST(P, ARG_COUNT))> : public ezConsoleFunctionBase
 {
 public:
-  typedef ezDelegate<R(EZ_LIST(P, ARG_COUNT))> FUNC;
+  using FUNC = ezDelegate<R(EZ_LIST(P, ARG_COUNT))>;
 
   FUNC m_Func;
 

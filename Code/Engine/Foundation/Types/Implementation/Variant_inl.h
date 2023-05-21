@@ -281,7 +281,7 @@ EZ_ALWAYS_INLINE bool ezVariant::IsA() const
     }
     else if (ptr.m_pType)
     {
-      typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
+      using NonPointerT = typename ezTypeTraits<T>::NonConstReferencePointerType;
       const ezRTTI* pType = ezGetStaticRTTI<NonPointerT>();
       return IsDerivedFrom(ptr.m_pType, pType);
     }
@@ -303,7 +303,7 @@ EZ_ALWAYS_INLINE bool ezVariant::IsA() const
 template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
 EZ_ALWAYS_INLINE bool ezVariant::IsA() const
 {
-  typedef typename ezTypeTraits<T>::NonConstReferenceType NonRefT;
+  using NonRefT = typename ezTypeTraits<T>::NonConstReferenceType;
   if (m_uiType == TypeDeduction<T>::value)
   {
     if (const ezRTTI* pType = GetReflectedType())
@@ -429,7 +429,7 @@ EZ_FORCE_INLINE void ezVariant::InitInplace(const T& value)
 template <typename T>
 EZ_FORCE_INLINE void ezVariant::InitTypedObject(const T& value, ezTraitInt<0>)
 {
-  typedef typename TypeDeduction<T>::StorageType StorageType;
+  using StorageType = typename TypeDeduction<T>::StorageType;
 
   EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) > sizeof(InlinedStruct::DataSize)) || TypeDeduction<T>::forceSharing, "Value should be inplace instead.");
   EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value == Type::TypedObject, "value of this type cannot be stored in a Variant");
@@ -442,7 +442,7 @@ EZ_FORCE_INLINE void ezVariant::InitTypedObject(const T& value, ezTraitInt<0>)
 template <typename T>
 EZ_FORCE_INLINE void ezVariant::InitTypedObject(const T& value, ezTraitInt<1>)
 {
-  typedef typename TypeDeduction<T>::StorageType StorageType;
+  using StorageType = typename TypeDeduction<T>::StorageType;
   EZ_CHECK_AT_COMPILETIME_MSG((sizeof(StorageType) <= InlinedStruct::DataSize) && !TypeDeduction<T>::forceSharing, "Value can't be stored inplace.");
   EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value == Type::TypedObject, "value of this type cannot be stored in a Variant");
   EZ_CHECK_AT_COMPILETIME_MSG(ezIsPodType<T>::value, "in place data needs to be POD");
@@ -505,7 +505,7 @@ T ezVariant::Cast() const
   const ezTypedPointer& ptr = *reinterpret_cast<const ezTypedPointer*>(&m_Data);
 
   const ezRTTI* pType = GetReflectedType();
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonRefPtrT;
+  using NonRefPtrT = typename ezTypeTraits<T>::NonConstReferencePointerType;
   if constexpr (!std::is_same<T, void*>::value && !std::is_same<T, const void*>::value)
   {
     EZ_ASSERT_DEV(pType == nullptr || IsDerivedFrom(pType, ezGetStaticRTTI<NonRefPtrT>()), "Object of type '{0}' does not derive from '{}'", GetTypeName(pType), GetTypeName(ezGetStaticRTTI<NonRefPtrT>()));
@@ -526,7 +526,7 @@ template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::class
 const T& ezVariant::Cast() const
 {
   const ezRTTI* pType = GetReflectedType();
-  typedef typename ezTypeTraits<T>::NonConstReferenceType NonRefT;
+  using NonRefT = typename ezTypeTraits<T>::NonConstReferenceType;
   EZ_ASSERT_DEV(IsDerivedFrom(pType, ezGetStaticRTTI<NonRefT>()), "Object of type '{0}' does not derive from '{}'", GetTypeName(pType), GetTypeName(ezGetStaticRTTI<NonRefT>()));
 
   return m_bIsShared ? *static_cast<const T*>(m_Data.shared->m_Ptr) : *reinterpret_cast<const T*>(&m_Data);

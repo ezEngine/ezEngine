@@ -15,7 +15,7 @@ using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
 struct ezProcGenBinaryOperator
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -34,7 +34,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBinaryOperator);
 
 struct ezProcGenBlendMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -54,7 +54,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBlendMode);
 
 struct ezProcVertexColorChannelMapping
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

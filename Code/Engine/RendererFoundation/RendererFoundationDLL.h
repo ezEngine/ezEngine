@@ -64,7 +64,7 @@ class ezGALComputeCommandEncoder;
 // Basic enums
 struct ezGALPrimitiveTopology
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum
   {
     // keep this order, it is used to allocate the desired number of indices in ezMeshBufferResourceDescriptor::AllocateStreams
@@ -118,7 +118,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -137,7 +137,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALMSAASampleCount);
 
 struct ezGALTextureType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -191,7 +191,7 @@ struct ezGALBlendOp
 
 struct ezGALStencilOp
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -212,7 +212,7 @@ struct ezGALStencilOp
 
 struct ezGALCompareFunc
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -234,7 +234,7 @@ struct ezGALCompareFunc
 /// \brief Defines which sides of a polygon gets culled by the graphics card
 struct ezGALCullMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   /// \brief Defines which sides of a polygon gets culled by the graphics card
   enum Enum
@@ -253,7 +253,7 @@ struct ezGALCullMode
 
 struct ezGALTextureFilterMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -308,9 +308,9 @@ protected:
 // Handles
 namespace ezGAL
 {
-  typedef ezGenericId<16, 16> ez16_16Id;
-  typedef ezGenericId<18, 14> ez18_14Id;
-  typedef ezGenericId<20, 12> ez20_12Id;
+  using ez16_16Id = ezGenericId<16, 16>;
+  using ez18_14Id = ezGenericId<18, 14>;
+  using ez20_12Id = ezGenericId<20, 12>;
 } // namespace ezGAL
 
 class ezGALSwapChainHandle

@@ -9,7 +9,7 @@
 
 struct ezMoveToComponentFlags
 {
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 
   enum Enum
   {
@@ -24,7 +24,7 @@ struct ezMoveToComponentFlags
   };
 };
 
-typedef ezComponentManagerSimple<class ezMoveToComponent, ezComponentUpdateType::WhenSimulating> ezMoveToComponentManager;
+using ezMoveToComponentManager = ezComponentManagerSimple<class ezMoveToComponent, ezComponentUpdateType::WhenSimulating>;
 
 EZ_DECLARE_FLAGS_OPERATORS(ezMoveToComponentFlags);
 

@@ -10,7 +10,7 @@ struct ezMsgComponentInternalTrigger;
 
 struct ezSpawnComponentFlags
 {
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 
   enum Enum
   {
@@ -34,7 +34,7 @@ struct ezSpawnComponentFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
 
-typedef ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact> ezSpawnComponentManager;
+using ezSpawnComponentManager = ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact>;
 
 class EZ_GAMEENGINE_DLL ezSpawnComponent : public ezComponent
 {

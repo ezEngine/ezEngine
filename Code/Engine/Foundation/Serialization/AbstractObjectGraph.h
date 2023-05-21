@@ -86,7 +86,7 @@ struct EZ_FOUNDATION_DLL ezAbstractGraphDiffOperation
 
 struct EZ_FOUNDATION_DLL ezObjectChangeType
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum : ezInt8
   {

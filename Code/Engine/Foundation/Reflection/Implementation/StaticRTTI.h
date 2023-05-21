@@ -14,7 +14,7 @@ class ezVariant;
 /// \brief Flags that describe a reflected type.
 struct ezTypeFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -572,7 +572,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_BEGIN_STATIC_REFLECTED_ENUM(Type, Version)                          \
   EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezEnumBase, Version, ezRTTINoAllocator) \
     ;                                                                          \
-    typedef Type::StorageType Storage;                                         \
+    using Storage = Type::StorageType;                                         \
     EZ_BEGIN_PROPERTIES                                                        \
       {                                                                        \
         EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),
@@ -595,7 +595,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(Type, Version)                          \
   EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezBitflagsBase, Version, ezRTTINoAllocator) \
     ;                                                                              \
-    typedef Type::StorageType Storage;                                             \
+    using Storage = Type::StorageType;                                             \
     EZ_BEGIN_PROPERTIES                                                            \
       {                                                                            \
         EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),

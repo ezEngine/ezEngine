@@ -49,7 +49,7 @@ public:
 class EZ_RENDERERCORE_DLL ezInstancedMeshComponentManager : public ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact>
 {
 public:
-  typedef ezComponentManager<ezInstancedMeshComponent, ezBlockStorageType::Compact> SUPER;
+  using SUPER = ezComponentManager<ezInstancedMeshComponent, ezBlockStorageType::Compact>;
 
   ezInstancedMeshComponentManager(ezWorld* pWorld);
 

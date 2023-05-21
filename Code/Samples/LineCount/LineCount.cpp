@@ -180,7 +180,7 @@ private:
   ezString m_sSearchDir;
 
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezLineCountApp()
     : ezApplication("LineCountApp")

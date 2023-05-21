@@ -89,7 +89,7 @@ public:
   /// \brief Defines a visitor function that is called for every game-object when using the traverse method.
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort
   /// (false) traversal.
-  typedef ezInternal::WorldData::VisitorFunc VisitorFunc;
+  using VisitorFunc = ezInternal::WorldData::VisitorFunc;
 
   enum TraversalMethod
   {
@@ -402,7 +402,7 @@ private:
 
   ezInternal::WorldData m_Data;
 
-  typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
+  using QueuedMsgMetaData = ezInternal::WorldData::QueuedMsgMetaData;
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, EZ_MAX_WORLDS> s_Worlds;

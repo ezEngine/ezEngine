@@ -7,7 +7,7 @@ template <typename T>
 class ezDelegateTask final : public ezTask
 {
 public:
-  typedef ezDelegate<void(const T&)> FunctionType;
+  using FunctionType = ezDelegate<void (const T &)>;
 
   ezDelegateTask(const char* szTaskName, FunctionType func, const T& param)
   {
@@ -27,7 +27,7 @@ template <>
 class ezDelegateTask<void> final : public ezTask
 {
 public:
-  typedef ezDelegate<void()> FunctionType;
+  using FunctionType = ezDelegate<void ()>;
 
   ezDelegateTask(const char* szTaskName, FunctionType func)
   {

@@ -9,7 +9,7 @@
 template <typename T>
 struct ezContainerSubTypeResolver<ezTagSetTemplate<T>>
 {
-  typedef const char* Type;
+  using Type = const char*;
 };
 
 // Template specialization to be able to use ezTagSet properties as EZ_SET_MEMBER_PROPERTY.
@@ -17,11 +17,11 @@ template <typename Class>
 class ezMemberSetProperty<Class, ezTagSet, const char*> : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
 {
 public:
-  typedef ezTagSet Container;
-  typedef ezConstCharPtr Type;
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef const Container& (*GetConstContainerFunc)(const Class* pInstance);
-  typedef Container& (*GetContainerFunc)(Class* pInstance);
+  using Container = ezTagSet;
+  using Type = ezConstCharPtr;
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetConstContainerFunc = const Container& (*)(const Class*);
+  using GetContainerFunc = Container& (*)(Class*);
 
   ezMemberSetProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
     : ezTypedSetProperty<RealType>(szPropertyName)
@@ -79,8 +79,8 @@ template <typename Class>
 class ezAccessorSetProperty<Class, const char*, const ezTagSet&> : public ezTypedSetProperty<const char*>
 {
 public:
-  typedef const ezTagSet& Container;
-  typedef ezConstCharPtr Type;
+  using Container = const ezTagSet&;
+  using Type = ezConstCharPtr;
 
   using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
   using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;

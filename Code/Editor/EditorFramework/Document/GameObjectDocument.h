@@ -273,7 +273,7 @@ private:
 
   float m_fSimulationSpeed = 1.0f;
 
-  typedef ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper> TransformTable;
+  using TransformTable = ezHashTable<const ezDocumentObject *, ezSimdTransform, ezHashHelper<const ezDocumentObject *>, ezAlignedAllocatorWrapper>;
   mutable TransformTable m_GlobalTransforms;
 
   // when new objects are created the engine sometimes needs to catch up creating sub-objects (e.g. for reference prefabs)

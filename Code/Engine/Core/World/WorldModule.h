@@ -36,14 +36,14 @@ protected:
   };
 
   /// \brief Update function delegate.
-  typedef ezDelegate<void(const UpdateContext&)> UpdateFunction;
+  using UpdateFunction = ezDelegate<void (const UpdateContext &)>;
 
   /// \brief Description of an update function that can be registered at the world.
   struct UpdateFunctionDesc
   {
     struct Phase
     {
-      typedef ezUInt8 StorageType;
+      using StorageType = ezUInt8;
 
       enum Enum
       {
@@ -136,7 +136,7 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, WorldModuleFactory);
 
-  typedef ezWorldModule* (*CreatorFunc)(ezAllocatorBase*, ezWorld*);
+  using CreatorFunc = ezWorldModule *(*)(ezAllocatorBase *, ezWorld *);
 
   ezWorldModuleFactory();
   ezWorldModuleTypeId RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);

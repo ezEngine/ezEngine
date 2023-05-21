@@ -2,7 +2,7 @@
 
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
-typedef ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating> ezHeadBoneComponentManager;
+using ezHeadBoneComponentManager = ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_GAMECOMPONENTS_DLL ezHeadBoneComponent : public ezComponent
 {

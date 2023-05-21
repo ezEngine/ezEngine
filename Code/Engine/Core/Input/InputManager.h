@@ -266,7 +266,7 @@ public:
     }
   };
 
-  typedef ezEvent<const InputEventData&> ezEventInput;
+  using ezEventInput = ezEvent<const InputEventData &>;
 
   /// \brief Adds an event handler that is called for input events.
   static ezEventSubscriptionID AddEventHandler(ezEventInput::Handler handler) { return s_InputEvents.AddEventHandler(handler); }
@@ -310,9 +310,9 @@ private:
     ezInt8 m_iTriggeredViaAlternative;
   };
 
-  typedef ezMap<ezString, ezActionData> ezActionMap;    ///< Maps input action names to their data.
-  typedef ezMap<ezString, ezActionMap> ezInputSetMap;   ///< Maps input set names to their data.
-  typedef ezMap<ezString, ezInputSlot> ezInputSlotsMap; ///< Maps input slot names to their data.
+  using ezActionMap = ezMap<ezString, ezActionData>;    ///< Maps input action names to their data.
+  using ezInputSetMap = ezMap<ezString, ezActionMap>;   ///< Maps input set names to their data.
+  using ezInputSlotsMap = ezMap<ezString, ezInputSlot>; ///< Maps input slot names to their data.
 
   /// \brief The internal data of the ezInputManager. Not allocated until it is actually required.
   struct InternalData

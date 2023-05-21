@@ -4,7 +4,7 @@
 #include <Core/World/SettingsComponentManager.h>
 #include <PhysXPlugin/PhysXInterface.h>
 
-typedef ezSettingsComponentManager<class ezPxSettingsComponent> ezPxSettingsComponentManager;
+using ezPxSettingsComponentManager = ezSettingsComponentManager<class ezPxSettingsComponent>;
 
 class EZ_PHYSXPLUGIN_DLL ezPxSettingsComponent : public ezSettingsComponent
 {

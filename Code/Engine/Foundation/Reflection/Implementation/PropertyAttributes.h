@@ -384,7 +384,7 @@ private:
 /// * ezAssetBrowserAttribute are mostly Thumbnail and Package.
 struct ezDependencyFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

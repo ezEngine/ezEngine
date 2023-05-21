@@ -9,7 +9,7 @@ struct ezEditorAppEvent;
 
 struct ezMaterialShaderMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -38,7 +38,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialShaderMode);
 
 struct ezMaterialAssetPreview
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

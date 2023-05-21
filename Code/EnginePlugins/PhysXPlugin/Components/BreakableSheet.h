@@ -8,8 +8,7 @@
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 
-typedef ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpdateType::Always /* TODO: When simulating */>
-  ezBreakableSheetComponentManager;
+using ezBreakableSheetComponentManager = ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpdateType::Always>;
 
 struct ezMsgExtractRenderData;
 struct ezMsgCollision;

@@ -13,7 +13,7 @@ struct ezSurfaceResourceSlot
 
 struct ezCollisionMeshType
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {
@@ -29,7 +29,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezCollisionMeshType);
 
 struct ezConvexCollisionMeshType
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {

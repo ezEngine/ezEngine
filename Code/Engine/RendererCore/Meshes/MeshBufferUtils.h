@@ -8,7 +8,7 @@ struct ezMeshBufferResourceDescriptor;
 
 struct ezMeshNormalPrecision
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -30,7 +30,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshNormalPrecision);
 
 struct ezMeshTexCoordPrecision
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

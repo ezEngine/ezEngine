@@ -66,7 +66,7 @@ private:
 
   struct UpdateStep
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
 
     enum Enum
     {

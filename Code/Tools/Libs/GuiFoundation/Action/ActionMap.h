@@ -86,7 +86,7 @@ private:
 class EZ_GUIFOUNDATION_DLL ezActionMap
 {
 public:
-  typedef ezTreeNode<ezActionMapDescriptor> TreeNode;
+  using TreeNode = ezTreeNode<ezActionMapDescriptor>;
   ezActionMap();
   ~ezActionMap();
 

@@ -50,7 +50,7 @@ struct ezGameApplicationExecutionEvent
 class EZ_CORE_DLL ezGameApplicationBase : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezGameApplicationBase(const char* szAppName);
   ~ezGameApplicationBase();

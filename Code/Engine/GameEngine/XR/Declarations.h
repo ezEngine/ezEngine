@@ -69,7 +69,7 @@ struct ezXRDeviceType
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRDeviceType);
 
-typedef ezInt8 ezXRDeviceID;
+using ezXRDeviceID = ezInt8;
 
 /// \brief A device's pose state.
 ///
@@ -145,4 +145,4 @@ struct ezXRDeviceEventData
   ezXRDeviceID uiDeviceID = 0;
 };
 
-typedef ezEvent<const ezXRDeviceEventData&> ezXRDeviceEvent;
+using ezXRDeviceEvent = ezEvent<const ezXRDeviceEventData &>;

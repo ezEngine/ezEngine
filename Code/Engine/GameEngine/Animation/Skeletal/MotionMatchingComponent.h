@@ -8,7 +8,7 @@
 //using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
 //using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 //
-//typedef ezComponentManagerSimple<class ezMotionMatchingComponent, ezComponentUpdateType::WhenSimulating> ezMotionMatchingComponentManager;
+//using ezMotionMatchingComponentManager = ezComponentManagerSimple<class ezMotionMatchingComponent, ezComponentUpdateType::WhenSimulating> ;
 //
 //class EZ_GAMEENGINE_DLL ezMotionMatchingComponent : public ezSkinnedMeshComponent
 //{

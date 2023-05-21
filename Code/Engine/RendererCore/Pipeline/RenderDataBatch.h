@@ -17,7 +17,7 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief This function should return true if the given render data should be filtered and not rendered.
-  typedef ezDelegate<bool(const ezRenderData*)> Filter;
+  using Filter = ezDelegate<bool (const ezRenderData *)>;
 
   template <typename T>
   class Iterator

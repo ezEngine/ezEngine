@@ -20,7 +20,8 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRPoseLocation);
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ezComponentManagerSimple<class ezDeviceTrackingComponent, ezComponentUpdateType::WhenSimulating> ezDeviceTrackingComponentManager;
+
+using ezDeviceTrackingComponentManager = ezComponentManagerSimple<class ezDeviceTrackingComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Tracks the position of a XR device and applies it to the owner.
 class EZ_GAMEENGINE_DLL ezDeviceTrackingComponent : public ezComponent

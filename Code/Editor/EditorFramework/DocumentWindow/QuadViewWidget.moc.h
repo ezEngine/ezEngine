@@ -18,7 +18,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtQuadViewWidget : public QWidget
 {
   Q_OBJECT
 public:
-  typedef ezDelegate<ezQtEngineViewWidget*(ezQtEngineDocumentWindow*, ezEngineViewConfig*)> ViewFactory;
+  using ViewFactory = ezDelegate<ezQtEngineViewWidget *(ezQtEngineDocumentWindow *, ezEngineViewConfig *)>;
   ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping);
   ~ezQtQuadViewWidget();
 
