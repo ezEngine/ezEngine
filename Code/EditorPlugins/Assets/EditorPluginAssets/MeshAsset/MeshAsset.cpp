@@ -283,7 +283,7 @@ ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
   AddSupportedFileType("vox");
 }
 
-ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() {}
+ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() = default;
 
 void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {

@@ -157,8 +157,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAddObjectCommand::ezAddObjectCommand()
 
-{
-}
+  = default;
 
 const char* ezAddObjectCommand::GetType() const
 {
@@ -227,7 +226,7 @@ void ezAddObjectCommand::CleanupInternal(CommandState state)
 // ezPasteObjectsCommand
 ////////////////////////////////////////////////////////////////////////
 
-ezPasteObjectsCommand::ezPasteObjectsCommand() {}
+ezPasteObjectsCommand::ezPasteObjectsCommand() = default;
 
 ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
 {
@@ -567,8 +566,7 @@ ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
 
 ezRemoveObjectCommand::ezRemoveObjectCommand()
 
-{
-}
+  = default;
 
 ezStatus ezRemoveObjectCommand::DoInternal(bool bRedo)
 {

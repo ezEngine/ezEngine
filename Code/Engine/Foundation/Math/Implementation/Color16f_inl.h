@@ -1,5 +1,5 @@
 
-inline ezColorLinear16f::ezColorLinear16f() {}
+inline ezColorLinear16f::ezColorLinear16f() = default;
 
 inline ezColorLinear16f::ezColorLinear16f(ezFloat16 r, ezFloat16 g, ezFloat16 b, ezFloat16 a)
   : r(r)

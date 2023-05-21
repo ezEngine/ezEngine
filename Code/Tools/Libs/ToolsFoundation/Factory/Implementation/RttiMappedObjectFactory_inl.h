@@ -1,14 +1,10 @@
 
 
 template <typename Object>
-ezRttiMappedObjectFactory<Object>::ezRttiMappedObjectFactory()
-{
-}
+ezRttiMappedObjectFactory<Object>::ezRttiMappedObjectFactory() = default;
 
 template <typename Object>
-ezRttiMappedObjectFactory<Object>::~ezRttiMappedObjectFactory()
-{
-}
+ezRttiMappedObjectFactory<Object>::~ezRttiMappedObjectFactory() = default;
 
 template <typename Object>
 void ezRttiMappedObjectFactory<Object>::RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator)

@@ -161,8 +161,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Log, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Log::ezVisualScriptNode_Log() {}
-ezVisualScriptNode_Log::~ezVisualScriptNode_Log() {}
+ezVisualScriptNode_Log::ezVisualScriptNode_Log() = default;
+ezVisualScriptNode_Log::~ezVisualScriptNode_Log() = default;
 
 void ezVisualScriptNode_Log::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -467,8 +467,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MessageHandler, 1, ezRTTIDefa
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_MessageHandler::ezVisualScriptNode_MessageHandler() {}
-ezVisualScriptNode_MessageHandler::~ezVisualScriptNode_MessageHandler() {}
+ezVisualScriptNode_MessageHandler::ezVisualScriptNode_MessageHandler() = default;
+ezVisualScriptNode_MessageHandler::~ezVisualScriptNode_MessageHandler() = default;
 
 void ezVisualScriptNode_MessageHandler::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -542,9 +542,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FunctionCall, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_FunctionCall::ezVisualScriptNode_FunctionCall() {}
+ezVisualScriptNode_FunctionCall::ezVisualScriptNode_FunctionCall() = default;
 
-ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall() {}
+ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall() = default;
 
 void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {

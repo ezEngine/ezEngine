@@ -55,7 +55,7 @@ ezQuadViewAction::ezQuadViewAction(const ezActionContext& context, const char* s
   }
 }
 
-ezQuadViewAction::~ezQuadViewAction() {}
+ezQuadViewAction::~ezQuadViewAction() = default;
 
 void ezQuadViewAction::Execute(const ezVariant& value)
 {

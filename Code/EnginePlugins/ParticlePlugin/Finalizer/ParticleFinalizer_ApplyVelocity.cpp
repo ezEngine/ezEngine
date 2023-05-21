@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_ApplyVelocity, 1, ezRTTIDefa
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizerFactory_ApplyVelocity::ezParticleFinalizerFactory_ApplyVelocity() {}
+ezParticleFinalizerFactory_ApplyVelocity::ezParticleFinalizerFactory_ApplyVelocity() = default;
 
 const ezRTTI* ezParticleFinalizerFactory_ApplyVelocity::GetFinalizerType() const
 {
@@ -32,7 +32,7 @@ ezParticleFinalizer_ApplyVelocity::ezParticleFinalizer_ApplyVelocity()
   m_fPriority = 525.0f;
 }
 
-ezParticleFinalizer_ApplyVelocity::~ezParticleFinalizer_ApplyVelocity() {}
+ezParticleFinalizer_ApplyVelocity::~ezParticleFinalizer_ApplyVelocity() = default;
 
 void ezParticleFinalizer_ApplyVelocity::CreateRequiredStreams()
 {

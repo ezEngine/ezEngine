@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f() {}
+EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f() = default;
 
 EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const float* const pData, ezMatrixLayout::Enum layout)
 {

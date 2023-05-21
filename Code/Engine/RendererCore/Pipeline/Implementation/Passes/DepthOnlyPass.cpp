@@ -25,7 +25,7 @@ ezDepthOnlyPass::ezDepthOnlyPass(const char* szName)
 {
 }
 
-ezDepthOnlyPass::~ezDepthOnlyPass() {}
+ezDepthOnlyPass::~ezDepthOnlyPass() = default;
 
 bool ezDepthOnlyPass::GetRenderTargetDescriptions(
   const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

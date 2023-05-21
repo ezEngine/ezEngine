@@ -24,8 +24,7 @@ public:
 
   ezAbstractObjectNode()
 
-  {
-  }
+    = default;
 
   const ezHybridArray<Property, 16>& GetProperties() const { return m_Properties; }
 
@@ -117,7 +116,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDiffOperation);
 class EZ_FOUNDATION_DLL ezAbstractObjectGraph
 {
 public:
-  ezAbstractObjectGraph() {}
+  ezAbstractObjectGraph() = default;
   ~ezAbstractObjectGraph();
 
   void Clear();

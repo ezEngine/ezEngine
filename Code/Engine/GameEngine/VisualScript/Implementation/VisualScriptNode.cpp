@@ -8,8 +8,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode::ezVisualScriptNode() {}
-ezVisualScriptNode::~ezVisualScriptNode() {}
+ezVisualScriptNode::ezVisualScriptNode() = default;
+ezVisualScriptNode::~ezVisualScriptNode() = default;
 
 
 ezInt32 ezVisualScriptNode::HandlesMessagesWithID() const

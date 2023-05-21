@@ -49,7 +49,7 @@ ezQtPropertyWidget::ezQtPropertyWidget()
   setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 }
 
-ezQtPropertyWidget::~ezQtPropertyWidget() {}
+ezQtPropertyWidget::~ezQtPropertyWidget() = default;
 
 void ezQtPropertyWidget::Init(
   ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp)
@@ -889,7 +889,7 @@ ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
   m_pTypeWidget = nullptr;
 }
 
-ezQtPropertyTypeWidget::~ezQtPropertyTypeWidget() {}
+ezQtPropertyTypeWidget::~ezQtPropertyTypeWidget() = default;
 
 void ezQtPropertyTypeWidget::OnInit()
 {
@@ -1521,7 +1521,7 @@ ezQtPropertyStandardTypeContainerWidget::ezQtPropertyStandardTypeContainerWidget
 {
 }
 
-ezQtPropertyStandardTypeContainerWidget::~ezQtPropertyStandardTypeContainerWidget() {}
+ezQtPropertyStandardTypeContainerWidget::~ezQtPropertyStandardTypeContainerWidget() = default;
 
 ezQtGroupBoxBase* ezQtPropertyStandardTypeContainerWidget::CreateElement(QWidget* pParent)
 {
@@ -1577,8 +1577,7 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 
 ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget()
 
-{
-}
+  = default;
 
 ezQtPropertyTypeContainerWidget::~ezQtPropertyTypeContainerWidget()
 {
@@ -1730,7 +1729,7 @@ ezQtVariantPropertyWidget::ezQtVariantPropertyWidget()
 }
 
 
-ezQtVariantPropertyWidget::~ezQtVariantPropertyWidget() {}
+ezQtVariantPropertyWidget::~ezQtVariantPropertyWidget() = default;
 
 void ezQtVariantPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
 {

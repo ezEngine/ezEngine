@@ -7,7 +7,7 @@ class ezSoundBankAssetProperties : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezSoundBankAssetProperties, ezReflectedClass);
 
 public:
-  ezSoundBankAssetProperties() {}
+  ezSoundBankAssetProperties() = default;
 
   ezString m_sSoundBank;
 };

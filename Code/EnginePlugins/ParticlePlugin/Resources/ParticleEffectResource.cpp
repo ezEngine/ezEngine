@@ -15,7 +15,7 @@ ezParticleEffectResource::ezParticleEffectResource()
 {
 }
 
-ezParticleEffectResource::~ezParticleEffectResource() {}
+ezParticleEffectResource::~ezParticleEffectResource() = default;
 
 ezResourceLoadDesc ezParticleEffectResource::UnloadData(Unload WhatToUnload)
 {

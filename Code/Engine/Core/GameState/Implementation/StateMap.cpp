@@ -2,8 +2,8 @@
 
 #include <Core/GameState/StateMap.h>
 
-ezStateMap::ezStateMap() {}
-ezStateMap::~ezStateMap() {}
+ezStateMap::ezStateMap() = default;
+ezStateMap::~ezStateMap() = default;
 
 
 void ezStateMap::Clear()

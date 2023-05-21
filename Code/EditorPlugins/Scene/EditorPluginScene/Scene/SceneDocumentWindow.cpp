@@ -92,9 +92,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   FinishWindowCreation();
 }
 
-ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
-{
-}
+ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow() = default;
 
 ezQtSceneDocumentWindowBase::ezQtSceneDocumentWindowBase(ezSceneDocument* pDocument)
   : ezQtGameObjectDocumentWindow(pDocument)

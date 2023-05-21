@@ -67,8 +67,7 @@ class BaseHandler : public ezReflectedClass
 public:
   BaseHandler()
 
-  {
-  }
+    = default;
 
   void OnAddMessage(AddMessage& ref_msg) { m_iValue += ref_msg.m_iValue; }
 

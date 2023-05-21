@@ -98,8 +98,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Switch, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Switch::ezVisualScriptNode_Switch() {}
-ezVisualScriptNode_Switch::~ezVisualScriptNode_Switch() {}
+ezVisualScriptNode_Switch::ezVisualScriptNode_Switch() = default;
+ezVisualScriptNode_Switch::~ezVisualScriptNode_Switch() = default;
 
 void ezVisualScriptNode_Switch::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -200,8 +200,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Format, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Format::ezVisualScriptNode_Format() {}
-ezVisualScriptNode_Format::~ezVisualScriptNode_Format() {}
+ezVisualScriptNode_Format::ezVisualScriptNode_Format() = default;
+ezVisualScriptNode_Format::~ezVisualScriptNode_Format() = default;
 
 void ezVisualScriptNode_Format::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {

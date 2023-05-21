@@ -27,7 +27,7 @@ ezGALSwapChain::ezGALSwapChain(const ezRTTI* pSwapChainType)
 {
 }
 
-ezGALSwapChain::~ezGALSwapChain() {}
+ezGALSwapChain::~ezGALSwapChain() = default;
 
 //////////////////////////////////////////////////////////////////////////
 

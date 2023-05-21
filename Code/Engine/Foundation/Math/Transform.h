@@ -40,7 +40,8 @@ public:
   // *** Constructors ***
 public:
   /// \brief Default constructor: Does not do any initialization.
-  ezTransformTemplate(){}; // [tested]
+  ezTransformTemplate() = default;
+  ; // [tested]
 
   /// \brief Sets position and rotation.
   explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition,

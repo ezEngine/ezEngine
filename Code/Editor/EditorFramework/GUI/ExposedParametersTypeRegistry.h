@@ -33,8 +33,7 @@ private:
   {
     ParamData()
 
-    {
-    }
+      = default;
 
     ezUuid m_SubAssetGuid;
     bool m_bUpToDate = true;

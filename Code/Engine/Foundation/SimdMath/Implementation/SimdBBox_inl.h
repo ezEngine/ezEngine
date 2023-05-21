@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox() {}
+EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox() = default;
 
 EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox(const ezSimdVec4f& vMin, const ezSimdVec4f& vMax)
   : m_Min(vMin)

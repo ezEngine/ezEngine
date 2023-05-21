@@ -18,7 +18,7 @@ ezGALResourceViewDX11::ezGALResourceViewDX11(ezGALResourceBase* pResource, const
 {
 }
 
-ezGALResourceViewDX11::~ezGALResourceViewDX11() {}
+ezGALResourceViewDX11::~ezGALResourceViewDX11() = default;
 
 ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 {

@@ -58,8 +58,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 2, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezRcNavMeshComponent::ezRcNavMeshComponent() {}
-ezRcNavMeshComponent::~ezRcNavMeshComponent() {}
+ezRcNavMeshComponent::ezRcNavMeshComponent() = default;
+ezRcNavMeshComponent::~ezRcNavMeshComponent() = default;
 
 void ezRcNavMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {

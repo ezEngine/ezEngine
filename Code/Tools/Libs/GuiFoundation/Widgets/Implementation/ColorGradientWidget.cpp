@@ -58,7 +58,7 @@ ezQtColorGradientWidget::ezQtColorGradientWidget(QWidget* pParent)
 }
 
 
-ezQtColorGradientWidget::~ezQtColorGradientWidget() {}
+ezQtColorGradientWidget::~ezQtColorGradientWidget() = default;
 
 void ezQtColorGradientWidget::SetScrubberPosition(double fPosition)
 {

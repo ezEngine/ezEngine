@@ -28,7 +28,7 @@ ezSimpleRenderPass::ezSimpleRenderPass(const char* szName)
 {
 }
 
-ezSimpleRenderPass::~ezSimpleRenderPass() {}
+ezSimpleRenderPass::~ezSimpleRenderPass() = default;
 
 bool ezSimpleRenderPass::GetRenderTargetDescriptions(
   const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

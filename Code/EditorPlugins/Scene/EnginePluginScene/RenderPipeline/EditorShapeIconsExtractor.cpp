@@ -29,7 +29,7 @@ ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
   FillShapeIconInfo();
 }
 
-ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() {}
+ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() = default;
 
 void ezEditorShapeIconsExtractor::Extract(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)

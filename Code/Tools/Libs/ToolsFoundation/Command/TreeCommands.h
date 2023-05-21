@@ -119,7 +119,7 @@ class EZ_TOOLSFOUNDATION_DLL ezUnlinkPrefabCommand : public ezCommand
   EZ_ADD_DYNAMIC_REFLECTION(ezUnlinkPrefabCommand, ezCommand);
 
 public:
-  ezUnlinkPrefabCommand() {}
+  ezUnlinkPrefabCommand() = default;
 
   ezUuid m_Object;
 

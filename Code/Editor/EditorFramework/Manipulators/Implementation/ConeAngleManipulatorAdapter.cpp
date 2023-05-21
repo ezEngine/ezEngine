@@ -4,9 +4,9 @@
 #include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeAngleManipulatorAdapter::ezConeAngleManipulatorAdapter() {}
+ezConeAngleManipulatorAdapter::ezConeAngleManipulatorAdapter() = default;
 
-ezConeAngleManipulatorAdapter::~ezConeAngleManipulatorAdapter() {}
+ezConeAngleManipulatorAdapter::~ezConeAngleManipulatorAdapter() = default;
 
 void ezConeAngleManipulatorAdapter::Finalize()
 {

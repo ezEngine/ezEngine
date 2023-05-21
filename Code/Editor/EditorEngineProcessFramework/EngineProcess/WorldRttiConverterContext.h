@@ -15,8 +15,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldRttiConverterContext : public e
 public:
   ezWorldRttiConverterContext()
 
-  {
-  }
+    = default;
 
   virtual void Clear() override;
   void DeleteExistingObjects();

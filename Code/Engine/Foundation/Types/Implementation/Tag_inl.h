@@ -3,8 +3,7 @@
 ezTag::ezTag()
 
 
-{
-}
+  = default;
 
 bool ezTag::operator==(const ezTag& rhs) const
 {

@@ -57,7 +57,7 @@ class EZ_RENDERERCORE_DLL ezRenderPipelineNode : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelineNode, ezReflectedClass);
 
 public:
-  virtual ~ezRenderPipelineNode() {}
+  virtual ~ezRenderPipelineNode() = default;
 
   void InitializePins();
 

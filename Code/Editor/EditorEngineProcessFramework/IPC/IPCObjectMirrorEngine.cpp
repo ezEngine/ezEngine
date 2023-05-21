@@ -7,7 +7,7 @@ ezIPCObjectMirrorEngine::ezIPCObjectMirrorEngine()
 {
 }
 
-ezIPCObjectMirrorEngine::~ezIPCObjectMirrorEngine() {}
+ezIPCObjectMirrorEngine::~ezIPCObjectMirrorEngine() = default;
 
 void ezIPCObjectMirrorEngine::ApplyOp(ezObjectChange& inout_change)
 {

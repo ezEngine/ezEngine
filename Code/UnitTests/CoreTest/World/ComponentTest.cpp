@@ -53,9 +53,8 @@ namespace
   public:
     TestComponent()
 
-    {
-    }
-    ~TestComponent() {}
+      = default;
+    ~TestComponent() = default;
 
     virtual void Initialize() override { ++s_iInitCounter; }
 

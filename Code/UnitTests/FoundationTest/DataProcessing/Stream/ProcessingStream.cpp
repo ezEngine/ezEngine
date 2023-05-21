@@ -18,8 +18,7 @@ class AddOneStreamProcessor : public ezProcessingStreamProcessor
 public:
   AddOneStreamProcessor()
 
-  {
-  }
+    = default;
 
   void SetStreamName(ezHashedString sStreamName) { m_sStreamName = sStreamName; }
 

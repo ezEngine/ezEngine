@@ -2,7 +2,7 @@
 
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 
-ezGALShaderByteCode::ezGALShaderByteCode() {}
+ezGALShaderByteCode::ezGALShaderByteCode() = default;
 
 ezGALShaderByteCode::ezGALShaderByteCode(const ezArrayPtr<const ezUInt8>& byteCode)
 {

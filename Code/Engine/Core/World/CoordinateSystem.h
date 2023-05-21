@@ -22,7 +22,7 @@ public:
   {
   }
 
-  virtual ~ezCoordinateSystemProvider() {}
+  virtual ~ezCoordinateSystemProvider() = default;
 
   virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const = 0;
 

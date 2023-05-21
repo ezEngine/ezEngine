@@ -8,7 +8,7 @@ namespace
 {
   struct TestType
   {
-    TestType() {}
+    TestType(){}; // NOLINT: Allow default construction
 
     ezInt32 MethodWithManyParams(ezInt32 a, ezInt32 b, ezInt32 c, ezInt32 d, ezInt32 e, ezInt32 f) { return m_iA + a + b + c + d + e + f; }
 
@@ -30,7 +30,7 @@ namespace
 
   struct BaseA
   {
-    virtual ~BaseA() {}
+    virtual ~BaseA() = default;
     virtual void bar() {}
 
     int m_i1;
@@ -38,7 +38,7 @@ namespace
 
   struct BaseB
   {
-    virtual ~BaseB() {}
+    virtual ~BaseB() = default;
     virtual void foo() {}
     int m_i2;
   };

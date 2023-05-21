@@ -57,4 +57,4 @@ ezQtAnimationControllerAssetDocumentWindow::ezQtAnimationControllerAssetDocument
   FinishWindowCreation();
 }
 
-ezQtAnimationControllerAssetDocumentWindow::~ezQtAnimationControllerAssetDocumentWindow() {}
+ezQtAnimationControllerAssetDocumentWindow::~ezQtAnimationControllerAssetDocumentWindow() = default;

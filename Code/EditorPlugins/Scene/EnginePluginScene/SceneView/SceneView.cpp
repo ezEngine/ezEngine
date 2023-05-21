@@ -21,7 +21,7 @@ ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
   m_CullingCamera = m_Camera;
 }
 
-ezSceneViewContext::~ezSceneViewContext() {}
+ezSceneViewContext::~ezSceneViewContext() = default;
 
 void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {

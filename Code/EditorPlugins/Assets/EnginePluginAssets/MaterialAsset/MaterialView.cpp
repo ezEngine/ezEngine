@@ -10,7 +10,7 @@ ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext
   m_pMaterialContext = pMaterialContext;
 }
 
-ezMaterialViewContext::~ezMaterialViewContext() {}
+ezMaterialViewContext::~ezMaterialViewContext() = default;
 
 void ezMaterialViewContext::PositionThumbnailCamera()
 {

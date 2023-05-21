@@ -25,7 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 2, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEffectDescriptor::ezParticleEffectDescriptor() {}
+ezParticleEffectDescriptor::ezParticleEffectDescriptor() = default;
 
 ezParticleEffectDescriptor::~ezParticleEffectDescriptor()
 {

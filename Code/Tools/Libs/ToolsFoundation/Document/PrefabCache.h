@@ -25,7 +25,7 @@ private:
 
   struct PrefabData
   {
-    PrefabData() {}
+    PrefabData() = default;
 
     ezUuid m_documentGuid;
     ezString m_sAbsPath;

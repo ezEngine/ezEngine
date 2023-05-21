@@ -19,7 +19,7 @@ ezGALBlendStateDX11::ezGALBlendStateDX11(const ezGALBlendStateCreationDescriptio
 {
 }
 
-ezGALBlendStateDX11::~ezGALBlendStateDX11() {}
+ezGALBlendStateDX11::~ezGALBlendStateDX11() = default;
 
 static D3D11_BLEND_OP ToD3DBlendOp(ezGALBlendOp::Enum e)
 {
@@ -125,7 +125,7 @@ ezGALDepthStencilStateDX11::ezGALDepthStencilStateDX11(const ezGALDepthStencilSt
 {
 }
 
-ezGALDepthStencilStateDX11::~ezGALDepthStencilStateDX11() {}
+ezGALDepthStencilStateDX11::~ezGALDepthStencilStateDX11() = default;
 
 ezResult ezGALDepthStencilStateDX11::InitPlatform(ezGALDevice* pDevice)
 {
@@ -175,7 +175,7 @@ ezGALRasterizerStateDX11::ezGALRasterizerStateDX11(const ezGALRasterizerStateCre
 {
 }
 
-ezGALRasterizerStateDX11::~ezGALRasterizerStateDX11() {}
+ezGALRasterizerStateDX11::~ezGALRasterizerStateDX11() = default;
 
 
 
@@ -259,7 +259,7 @@ ezGALSamplerStateDX11::ezGALSamplerStateDX11(const ezGALSamplerStateCreationDesc
 {
 }
 
-ezGALSamplerStateDX11::~ezGALSamplerStateDX11() {}
+ezGALSamplerStateDX11::~ezGALSamplerStateDX11() = default;
 
 /*
  */

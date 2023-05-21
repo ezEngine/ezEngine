@@ -31,7 +31,7 @@ ezMsaaResolvePass::ezMsaaResolvePass()
   }
 }
 
-ezMsaaResolvePass::~ezMsaaResolvePass() {}
+ezMsaaResolvePass::~ezMsaaResolvePass() = default;
 
 bool ezMsaaResolvePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {

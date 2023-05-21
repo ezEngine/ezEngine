@@ -125,7 +125,7 @@ using ezWindowInternalHandle = ezWindowHandle;
 class EZ_CORE_DLL ezWindowBase
 {
 public:
-  virtual ~ezWindowBase() {}
+  virtual ~ezWindowBase() = default;
 
   virtual ezSizeU32 GetClientAreaSize() const = 0;
   virtual ezWindowHandle GetNativeWindowHandle() const = 0;

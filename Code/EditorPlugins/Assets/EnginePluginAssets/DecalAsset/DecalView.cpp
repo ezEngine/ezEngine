@@ -10,7 +10,7 @@ ezDecalViewContext::ezDecalViewContext(ezDecalContext* pDecalContext)
   m_pDecalContext = pDecalContext;
 }
 
-ezDecalViewContext::~ezDecalViewContext() {}
+ezDecalViewContext::~ezDecalViewContext() = default;
 
 ezViewHandle ezDecalViewContext::CreateView()
 {

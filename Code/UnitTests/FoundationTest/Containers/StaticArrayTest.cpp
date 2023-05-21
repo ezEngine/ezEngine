@@ -21,18 +21,11 @@ namespace StaticArrayTestDetail
     {
     }
     Dummy(const Dummy& other)
-      : a(other.a)
-      , s(other.s)
-    {
-    }
-    ~Dummy() {}
 
-    Dummy& operator=(const Dummy& other)
-    {
-      a = other.a;
-      s = other.s;
-      return *this;
-    }
+      = default;
+    ~Dummy() = default;
+
+    Dummy& operator=(const Dummy& other) = default;
 
     bool operator<=(const Dummy& dummy) const { return a <= dummy.a; }
     bool operator>=(const Dummy& dummy) const { return a >= dummy.a; }

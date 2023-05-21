@@ -48,4 +48,4 @@ ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument*
   FinishWindowCreation();
 }
 
-ezQtCollectionAssetDocumentWindow::~ezQtCollectionAssetDocumentWindow() {}
+ezQtCollectionAssetDocumentWindow::~ezQtCollectionAssetDocumentWindow() = default;

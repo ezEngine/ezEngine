@@ -7,7 +7,7 @@ ezGALTexture::ezGALTexture(const ezGALTextureCreationDescription& Description)
 {
 }
 
-ezGALTexture::~ezGALTexture() {}
+ezGALTexture::~ezGALTexture() = default;
 
 
 

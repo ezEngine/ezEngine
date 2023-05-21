@@ -74,7 +74,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezDecalComponent::ezDecalComponent() {}
+ezDecalComponent::ezDecalComponent() = default;
 
 ezDecalComponent::~ezDecalComponent() = default;
 

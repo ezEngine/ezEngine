@@ -19,7 +19,7 @@ ezPxDynamicActorComponentManager::ezPxDynamicActorComponentManager(ezWorld* pWor
 {
 }
 
-ezPxDynamicActorComponentManager::~ezPxDynamicActorComponentManager() {}
+ezPxDynamicActorComponentManager::~ezPxDynamicActorComponentManager() = default;
 
 void ezPxDynamicActorComponentManager::UpdateKinematicActors()
 {

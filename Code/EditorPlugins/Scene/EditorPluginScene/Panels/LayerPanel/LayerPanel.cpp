@@ -33,7 +33,7 @@ ezQtLayerPanel::ezQtLayerPanel(QWidget* pParent, ezScene2Document* pDocument)
   setWidget(m_pTreeWidget);
 }
 
-ezQtLayerPanel::~ezQtLayerPanel() {}
+ezQtLayerPanel::~ezQtLayerPanel() = default;
 
 void ezQtLayerPanel::OnRequestContextMenu(QPoint pos)
 {

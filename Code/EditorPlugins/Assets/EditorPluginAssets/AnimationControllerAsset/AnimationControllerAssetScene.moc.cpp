@@ -8,4 +8,4 @@ ezQtAnimationControllerAssetScene::ezQtAnimationControllerAssetScene(QObject* pP
 {
 }
 
-ezQtAnimationControllerAssetScene::~ezQtAnimationControllerAssetScene() {}
+ezQtAnimationControllerAssetScene::~ezQtAnimationControllerAssetScene() = default;

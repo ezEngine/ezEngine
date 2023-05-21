@@ -172,7 +172,7 @@ ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
   AddSupportedFileType("png");
 }
 
-ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() {}
+ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator() = default;
 
 void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const
 {

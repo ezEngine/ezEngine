@@ -22,7 +22,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMe
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg, ezProcessMessage);
 
 public:
-  ezEditorEngineMsg() {}
+  ezEditorEngineMsg() = default;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezUpdateReflectionTypeMsgToEditor : public ezEditorEngineMsg
@@ -222,7 +222,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentClearMsgToEngine : public ez
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentClearMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
-  ezDocumentClearMsgToEngine() {}
+  ezDocumentClearMsgToEngine() = default;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : public ezEditorEngineDocumentMsg
@@ -230,7 +230,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : pu
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenResponseMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-  ezDocumentOpenResponseMsgToEditor() {}
+  ezDocumentOpenResponseMsgToEditor() = default;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewDestroyedMsgToEngine : public ezEditorEngineViewMsg
@@ -300,8 +300,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezExportDocumentMsgToEngine : public e
 public:
   ezExportDocumentMsgToEngine()
 
-  {
-  }
+    = default;
 
   ezString m_sOutputFile;
   ezUInt64 m_uiAssetHash = 0;
@@ -332,7 +331,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCreateThumbnailMsgToEditor : public 
   EZ_ADD_DYNAMIC_REFLECTION(ezCreateThumbnailMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-  ezCreateThumbnailMsgToEditor() {}
+  ezCreateThumbnailMsgToEditor() = default;
   ezDataBuffer m_ThumbnailData; ///< Raw 8-bit RGBA data (256x256x4 bytes)
 };
 

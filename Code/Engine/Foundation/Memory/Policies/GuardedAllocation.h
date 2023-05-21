@@ -11,7 +11,7 @@ namespace ezMemoryPolicies
   {
   public:
     ezGuardedAllocation(ezAllocatorBase* pParent);
-    EZ_ALWAYS_INLINE ~ezGuardedAllocation() {}
+    EZ_ALWAYS_INLINE ~ezGuardedAllocation() = default;
 
     void* Allocate(size_t uiSize, size_t uiAlign);
     void Deallocate(void* pPtr);

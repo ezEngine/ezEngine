@@ -93,9 +93,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceDataProvider, 1, ezRTTIDefaultAllocato
   }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezInstanceDataProvider::ezInstanceDataProvider() {}
+ezInstanceDataProvider::ezInstanceDataProvider() = default;
 
-ezInstanceDataProvider::~ezInstanceDataProvider() {}
+ezInstanceDataProvider::~ezInstanceDataProvider() = default;
 
 void* ezInstanceDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {

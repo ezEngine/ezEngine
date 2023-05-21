@@ -21,7 +21,7 @@ ezQtFileWidget::ezQtFileWidget(QWidget* pParent)
 }
 
 
-ezQtFileWidget::~ezQtFileWidget() {}
+ezQtFileWidget::~ezQtFileWidget() = default;
 
 void ezQtFileWidget::ResetStats()
 {

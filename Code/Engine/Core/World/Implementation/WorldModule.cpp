@@ -12,7 +12,7 @@ ezWorldModule::ezWorldModule(ezWorld* pWorld)
 {
 }
 
-ezWorldModule::~ezWorldModule() {}
+ezWorldModule::~ezWorldModule() = default;
 
 ezUInt32 ezWorldModule::GetWorldIndex() const
 {

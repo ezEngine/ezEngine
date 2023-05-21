@@ -38,7 +38,7 @@ ezQtImageWidget::ezQtImageWidget(QWidget* pParent, bool bShowButtons)
     ButtonBar->setVisible(false);
 }
 
-ezQtImageWidget::~ezQtImageWidget() {}
+ezQtImageWidget::~ezQtImageWidget() = default;
 
 void ezQtImageWidget::SetImageSize(float fScale)
 {

@@ -12,7 +12,7 @@ ezTextureCubeViewContext::ezTextureCubeViewContext(ezTextureCubeContext* pContex
   m_pTextureContext = pContext;
 }
 
-ezTextureCubeViewContext::~ezTextureCubeViewContext() {}
+ezTextureCubeViewContext::~ezTextureCubeViewContext() = default;
 
 ezViewHandle ezTextureCubeViewContext::CreateView()
 {

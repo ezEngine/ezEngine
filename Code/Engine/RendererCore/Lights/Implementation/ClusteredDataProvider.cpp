@@ -147,9 +147,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataProvider, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezClusteredDataProvider::ezClusteredDataProvider() {}
+ezClusteredDataProvider::ezClusteredDataProvider() = default;
 
-ezClusteredDataProvider::~ezClusteredDataProvider() {}
+ezClusteredDataProvider::~ezClusteredDataProvider() = default;
 
 void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {

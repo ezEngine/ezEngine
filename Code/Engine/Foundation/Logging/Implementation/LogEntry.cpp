@@ -23,7 +23,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLogEntry, ezNoBase, 1, ezRTTIDefaultAllocator<e
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLogEntry::ezLogEntry() {}
+ezLogEntry::ezLogEntry() = default;
 
 ezLogEntry::ezLogEntry(const ezLoggingEventData& le)
 {

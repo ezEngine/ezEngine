@@ -1,9 +1,7 @@
 #pragma once
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezSizeTemplate<Type>::ezSizeTemplate()
-{
-}
+EZ_ALWAYS_INLINE ezSizeTemplate<Type>::ezSizeTemplate() = default;
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezSizeTemplate<Type>::ezSizeTemplate(Type width, Type height)

@@ -174,7 +174,7 @@ ezPhysX::ezPhysX()
   m_pPvdConnection = nullptr;
 }
 
-ezPhysX::~ezPhysX() {}
+ezPhysX::~ezPhysX() = default;
 
 void ezPhysX::Startup()
 {

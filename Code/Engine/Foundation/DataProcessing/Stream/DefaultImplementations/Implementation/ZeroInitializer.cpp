@@ -15,8 +15,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized()
 
-{
-}
+  = default;
 
 void ezProcessingStreamSpawnerZeroInitialized::SetStreamName(ezStringView sStreamName)
 {

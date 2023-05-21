@@ -3,9 +3,7 @@
 #include <Foundation/Math/Mat4.h>
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezBoundingBoxTemplate<Type>::ezBoundingBoxTemplate()
-{
-}
+EZ_ALWAYS_INLINE ezBoundingBoxTemplate<Type>::ezBoundingBoxTemplate() = default;
 
 template <typename Type>
 EZ_FORCE_INLINE ezBoundingBoxTemplate<Type>::ezBoundingBoxTemplate(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax)

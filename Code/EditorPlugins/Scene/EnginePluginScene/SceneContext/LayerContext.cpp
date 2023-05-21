@@ -39,9 +39,7 @@ ezLayerContext::ezLayerContext()
 {
 }
 
-ezLayerContext::~ezLayerContext()
-{
-}
+ezLayerContext::~ezLayerContext() = default;
 
 void ezLayerContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {

@@ -9,7 +9,7 @@ ezMemoryStreamReader::ezMemoryStreamReader(const ezMemoryStreamStorageInterface*
 {
 }
 
-ezMemoryStreamReader::~ezMemoryStreamReader() {}
+ezMemoryStreamReader::~ezMemoryStreamReader() = default;
 
 ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {

@@ -193,7 +193,7 @@ void ezReflectedPropertyDescriptor::operator=(const ezReflectedPropertyDescripto
   ezAttributeHolder::operator=(rhs);
 }
 
-ezReflectedPropertyDescriptor::~ezReflectedPropertyDescriptor() {}
+ezReflectedPropertyDescriptor::~ezReflectedPropertyDescriptor() = default;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFunctionArgumentDescriptor, ezNoBase, 1, ezRTTI
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor() {}
+ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor() = default;
 
 ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor(const char* szType, ezBitflags<ezPropertyFlags> flags)
   : m_sType(szType)
@@ -242,7 +242,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedFunctionDescriptor, ezAttributeHolder,
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor() {}
+ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor() = default;
 
 ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor(
   const char* szName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, const ezArrayPtr<ezPropertyAttribute* const> attributes)
@@ -258,7 +258,7 @@ ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor(const ezReflectedFu
   operator=(rhs);
 }
 
-ezReflectedFunctionDescriptor::~ezReflectedFunctionDescriptor() {}
+ezReflectedFunctionDescriptor::~ezReflectedFunctionDescriptor() = default;
 
 void ezReflectedFunctionDescriptor::operator=(const ezReflectedFunctionDescriptor& rhs)
 {
@@ -291,4 +291,4 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezAttributeHolder, 1, 
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezReflectedTypeDescriptor::~ezReflectedTypeDescriptor() {}
+ezReflectedTypeDescriptor::~ezReflectedTypeDescriptor() = default;

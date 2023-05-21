@@ -70,9 +70,7 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::~ProbeUpdateInfo()
 //////////////////////////////////////////////////////////////////////////
 /// ezReflectionProbeUpdater
 
-ezReflectionProbeUpdater::ezReflectionProbeUpdater()
-{
-}
+ezReflectionProbeUpdater::ezReflectionProbeUpdater() = default;
 
 ezReflectionProbeUpdater::~ezReflectionProbeUpdater()
 {

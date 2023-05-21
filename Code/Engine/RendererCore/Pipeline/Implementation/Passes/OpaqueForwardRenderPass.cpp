@@ -27,7 +27,7 @@ ezOpaqueForwardRenderPass::ezOpaqueForwardRenderPass(const char* szName)
   m_hWhiteTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 }
 
-ezOpaqueForwardRenderPass::~ezOpaqueForwardRenderPass() {}
+ezOpaqueForwardRenderPass::~ezOpaqueForwardRenderPass() = default;
 
 bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {

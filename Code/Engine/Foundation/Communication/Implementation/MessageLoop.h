@@ -22,7 +22,8 @@ class EZ_FOUNDATION_DLL ezMessageLoop
 
 public:
   ezMessageLoop();
-  virtual ~ezMessageLoop(){};
+  virtual ~ezMessageLoop() = default;
+  ;
 
   /// \brief Needs to be called by newly created channels' constructors.
   void AddChannel(ezIpcChannel* pChannel);

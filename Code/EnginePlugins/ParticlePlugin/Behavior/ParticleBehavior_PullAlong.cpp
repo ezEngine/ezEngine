@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_PullAlong, 1, ezRTTIDefaultAl
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_PullAlong::ezParticleBehaviorFactory_PullAlong() {}
+ezParticleBehaviorFactory_PullAlong::ezParticleBehaviorFactory_PullAlong() = default;
 
 const ezRTTI* ezParticleBehaviorFactory_PullAlong::GetBehaviorType() const
 {

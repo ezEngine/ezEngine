@@ -34,8 +34,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Compare::ezVisualScriptNode_Compare() {}
-ezVisualScriptNode_Compare::~ezVisualScriptNode_Compare() {}
+ezVisualScriptNode_Compare::ezVisualScriptNode_Compare() = default;
+ezVisualScriptNode_Compare::~ezVisualScriptNode_Compare() = default;
 
 void ezVisualScriptNode_Compare::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -116,8 +116,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_CompareExec, 1, ezRTTIDefault
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_CompareExec::ezVisualScriptNode_CompareExec() {}
-ezVisualScriptNode_CompareExec::~ezVisualScriptNode_CompareExec() {}
+ezVisualScriptNode_CompareExec::ezVisualScriptNode_CompareExec() = default;
+ezVisualScriptNode_CompareExec::~ezVisualScriptNode_CompareExec() = default;
 
 void ezVisualScriptNode_CompareExec::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -190,8 +190,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_If::ezVisualScriptNode_If() {}
-ezVisualScriptNode_If::~ezVisualScriptNode_If() {}
+ezVisualScriptNode_If::ezVisualScriptNode_If() = default;
+ezVisualScriptNode_If::~ezVisualScriptNode_If() = default;
 
 void ezVisualScriptNode_If::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -235,8 +235,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Logic, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Logic::ezVisualScriptNode_Logic() {}
-ezVisualScriptNode_Logic::~ezVisualScriptNode_Logic() {}
+ezVisualScriptNode_Logic::ezVisualScriptNode_Logic() = default;
+ezVisualScriptNode_Logic::~ezVisualScriptNode_Logic() = default;
 
 void ezVisualScriptNode_Logic::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {

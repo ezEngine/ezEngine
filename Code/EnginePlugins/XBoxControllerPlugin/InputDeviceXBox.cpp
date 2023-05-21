@@ -14,7 +14,7 @@ ezInputDeviceXBox360::ezInputDeviceXBox360()
     m_bControllerConnected[i] = false;
 }
 
-ezInputDeviceXBox360::~ezInputDeviceXBox360() {}
+ezInputDeviceXBox360::~ezInputDeviceXBox360() = default;
 
 void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags)
 {

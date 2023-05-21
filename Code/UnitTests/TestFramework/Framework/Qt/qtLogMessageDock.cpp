@@ -52,7 +52,7 @@ ezQtLogMessageModel::ezQtLogMessageModel(QObject* pParent, const ezTestFramework
 {
 }
 
-ezQtLogMessageModel::~ezQtLogMessageModel() {}
+ezQtLogMessageModel::~ezQtLogMessageModel() = default;
 
 void ezQtLogMessageModel::resetModel()
 {

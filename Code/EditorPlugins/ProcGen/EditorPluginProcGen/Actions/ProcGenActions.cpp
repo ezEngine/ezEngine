@@ -52,7 +52,7 @@ ezProcGenAction::ezProcGenAction(const ezActionContext& context, const char* szN
 {
 }
 
-ezProcGenAction::~ezProcGenAction() {}
+ezProcGenAction::~ezProcGenAction() = default;
 
 void ezProcGenAction::Execute(const ezVariant& value)
 {

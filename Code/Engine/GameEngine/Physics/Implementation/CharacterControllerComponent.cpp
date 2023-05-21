@@ -58,7 +58,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezCharacterControllerComponent::ezCharacterControllerComponent() {}
+ezCharacterControllerComponent::ezCharacterControllerComponent() = default;
 
 void ezCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {

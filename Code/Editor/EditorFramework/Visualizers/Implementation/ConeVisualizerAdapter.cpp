@@ -4,9 +4,9 @@
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeVisualizerAdapter::ezConeVisualizerAdapter() {}
+ezConeVisualizerAdapter::ezConeVisualizerAdapter() = default;
 
-ezConeVisualizerAdapter::~ezConeVisualizerAdapter() {}
+ezConeVisualizerAdapter::~ezConeVisualizerAdapter() = default;
 
 void ezConeVisualizerAdapter::Finalize()
 {

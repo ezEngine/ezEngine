@@ -30,7 +30,7 @@ ezAntialiasingPass::ezAntialiasingPass()
   }
 }
 
-ezAntialiasingPass::~ezAntialiasingPass() {}
+ezAntialiasingPass::~ezAntialiasingPass() = default;
 
 bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {

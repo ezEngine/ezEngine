@@ -217,4 +217,4 @@ ezQtGameObjectModel::ezQtGameObjectModel(const ezDocumentObjectManager* pObjectM
 {
 }
 
-ezQtGameObjectModel::~ezQtGameObjectModel() {}
+ezQtGameObjectModel::~ezQtGameObjectModel() = default;

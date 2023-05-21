@@ -343,7 +343,7 @@ ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& inout_stream
 class HeaderReader : public ezOpenDdlReader
 {
 public:
-  HeaderReader() {}
+  HeaderReader() = default;
 
   bool m_bHasHeader = false;
   ezInt32 m_iDepth = 0;

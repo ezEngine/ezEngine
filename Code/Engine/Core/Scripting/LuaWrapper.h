@@ -319,8 +319,7 @@ private:
   {
     ezScriptStates()
 
-    {
-    }
+      = default;
 
     /// How many Parameters were pushed for the next function-call.
     ezInt32 m_iParametersPushed = 0;

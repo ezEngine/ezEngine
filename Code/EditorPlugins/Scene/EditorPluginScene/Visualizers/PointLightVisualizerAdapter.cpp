@@ -5,9 +5,9 @@
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezPointLightVisualizerAdapter::ezPointLightVisualizerAdapter() {}
+ezPointLightVisualizerAdapter::ezPointLightVisualizerAdapter() = default;
 
-ezPointLightVisualizerAdapter::~ezPointLightVisualizerAdapter() {}
+ezPointLightVisualizerAdapter::~ezPointLightVisualizerAdapter() = default;
 
 void ezPointLightVisualizerAdapter::Finalize()
 {

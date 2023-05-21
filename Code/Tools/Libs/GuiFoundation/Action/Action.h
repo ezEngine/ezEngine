@@ -77,7 +77,8 @@ struct EZ_GUIFOUNDATION_DLL ezActionContext
 ///
 struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 {
-  ezActionDescriptor(){};
+  ezActionDescriptor() = default;
+  ;
   ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath, const char* szShortcut,
     CreateActionFunc createAction, DeleteActionFunc deleteAction = nullptr);
 

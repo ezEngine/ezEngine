@@ -11,7 +11,7 @@ ezGALShaderDX11::ezGALShaderDX11(const ezGALShaderCreationDescription& Descripti
 {
 }
 
-ezGALShaderDX11::~ezGALShaderDX11() {}
+ezGALShaderDX11::~ezGALShaderDX11() = default;
 
 void ezGALShaderDX11::SetDebugName(const char* szName) const
 {

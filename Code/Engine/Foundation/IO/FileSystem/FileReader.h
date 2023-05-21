@@ -16,8 +16,7 @@ public:
   /// \brief Constructor, does nothing.
   ezFileReader()
 
-  {
-  }
+    = default;
 
   /// \brief Destructor, closes the file, if it is still open (RAII).
   ~ezFileReader() { Close(); }

@@ -45,8 +45,7 @@ struct ezDocumentObjectStructureEvent
 {
   ezDocumentObjectStructureEvent()
 
-  {
-  }
+    = default;
 
   const ezAbstractProperty* GetProperty() const;
   ezVariant getInsertIndex() const;

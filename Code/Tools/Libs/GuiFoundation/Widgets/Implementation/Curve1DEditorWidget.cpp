@@ -43,7 +43,7 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   }
 }
 
-ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget() {}
+ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget() = default;
 
 void ezQtCurve1DEditorWidget::SetCurveExtents(double fLowerBound, double fUpperBound, bool bLowerIsFixed, bool bUpperIsFixed)
 {

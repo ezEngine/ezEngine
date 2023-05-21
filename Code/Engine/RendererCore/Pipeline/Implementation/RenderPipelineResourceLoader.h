@@ -17,8 +17,7 @@ class EZ_RENDERERCORE_DLL ezRenderPipelineRttiConverterContext : public ezRttiCo
 public:
   ezRenderPipelineRttiConverterContext()
 
-  {
-  }
+    = default;
 
   virtual void Clear() override;
 

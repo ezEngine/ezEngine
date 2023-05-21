@@ -28,8 +28,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MathExpression, 1, ezRTTIDefa
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_MathExpression::ezVisualScriptNode_MathExpression() {}
-ezVisualScriptNode_MathExpression::~ezVisualScriptNode_MathExpression() {}
+ezVisualScriptNode_MathExpression::ezVisualScriptNode_MathExpression() = default;
+ezVisualScriptNode_MathExpression::~ezVisualScriptNode_MathExpression() = default;
 
 static ezHashedString s_sA = ezMakeHashedString("a");
 static ezHashedString s_sB = ezMakeHashedString("b");

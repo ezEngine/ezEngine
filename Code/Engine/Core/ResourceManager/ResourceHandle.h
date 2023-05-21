@@ -130,7 +130,7 @@ public:
   typedef RESOURCE_TYPE ResourceType;
 
   /// \brief A default constructed handle is invalid and does not reference any resource.
-  ezTypedResourceHandle() {}
+  ezTypedResourceHandle() = default;
 
   /// \brief Increases the refcount of the given resource.
   explicit ezTypedResourceHandle(ResourceType* pResource)

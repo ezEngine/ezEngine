@@ -29,8 +29,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MultiplyAdd, 1, ezRTTIDefault
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_MultiplyAdd::ezVisualScriptNode_MultiplyAdd() {}
-ezVisualScriptNode_MultiplyAdd::~ezVisualScriptNode_MultiplyAdd() {}
+ezVisualScriptNode_MultiplyAdd::ezVisualScriptNode_MultiplyAdd() = default;
+ezVisualScriptNode_MultiplyAdd::~ezVisualScriptNode_MultiplyAdd() = default;
 
 void ezVisualScriptNode_MultiplyAdd::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -82,8 +82,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Div, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Div::ezVisualScriptNode_Div() {}
-ezVisualScriptNode_Div::~ezVisualScriptNode_Div() {}
+ezVisualScriptNode_Div::ezVisualScriptNode_Div() = default;
+ezVisualScriptNode_Div::~ezVisualScriptNode_Div() = default;
 
 void ezVisualScriptNode_Div::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -131,8 +131,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Min, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Min::ezVisualScriptNode_Min() {}
-ezVisualScriptNode_Min::~ezVisualScriptNode_Min() {}
+ezVisualScriptNode_Min::ezVisualScriptNode_Min() = default;
+ezVisualScriptNode_Min::~ezVisualScriptNode_Min() = default;
 
 void ezVisualScriptNode_Min::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -180,8 +180,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Max, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Max::ezVisualScriptNode_Max() {}
-ezVisualScriptNode_Max::~ezVisualScriptNode_Max() {}
+ezVisualScriptNode_Max::ezVisualScriptNode_Max() = default;
+ezVisualScriptNode_Max::~ezVisualScriptNode_Max() = default;
 
 void ezVisualScriptNode_Max::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -230,8 +230,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Clamp, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Clamp::ezVisualScriptNode_Clamp() {}
-ezVisualScriptNode_Clamp::~ezVisualScriptNode_Clamp() {}
+ezVisualScriptNode_Clamp::ezVisualScriptNode_Clamp() = default;
+ezVisualScriptNode_Clamp::~ezVisualScriptNode_Clamp() = default;
 
 void ezVisualScriptNode_Clamp::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -279,8 +279,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Abs, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Abs::ezVisualScriptNode_Abs() {}
-ezVisualScriptNode_Abs::~ezVisualScriptNode_Abs() {}
+ezVisualScriptNode_Abs::ezVisualScriptNode_Abs() = default;
+ezVisualScriptNode_Abs::~ezVisualScriptNode_Abs() = default;
 
 void ezVisualScriptNode_Abs::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -324,8 +324,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sign, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_Sign::ezVisualScriptNode_Sign() {}
-ezVisualScriptNode_Sign::~ezVisualScriptNode_Sign() {}
+ezVisualScriptNode_Sign::ezVisualScriptNode_Sign() = default;
+ezVisualScriptNode_Sign::~ezVisualScriptNode_Sign() = default;
 
 void ezVisualScriptNode_Sign::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {

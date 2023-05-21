@@ -42,9 +42,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimplifiedDataProvider, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSimplifiedDataProvider::ezSimplifiedDataProvider() {}
+ezSimplifiedDataProvider::ezSimplifiedDataProvider() = default;
 
-ezSimplifiedDataProvider::~ezSimplifiedDataProvider() {}
+ezSimplifiedDataProvider::~ezSimplifiedDataProvider() = default;
 
 void* ezSimplifiedDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {

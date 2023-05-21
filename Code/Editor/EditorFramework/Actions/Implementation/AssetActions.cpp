@@ -100,7 +100,7 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
   }
 }
 
-ezAssetAction::~ezAssetAction() {}
+ezAssetAction::~ezAssetAction() = default;
 
 void ezAssetAction::Execute(const ezVariant& value)
 {

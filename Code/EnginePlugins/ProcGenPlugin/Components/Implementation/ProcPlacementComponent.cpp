@@ -28,7 +28,7 @@ ezProcPlacementComponentManager::ezProcPlacementComponentManager(ezWorld* pWorld
 {
 }
 
-ezProcPlacementComponentManager::~ezProcPlacementComponentManager() {}
+ezProcPlacementComponentManager::~ezProcPlacementComponentManager() = default;
 
 void ezProcPlacementComponentManager::Initialize()
 {

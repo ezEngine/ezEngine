@@ -85,7 +85,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* pParent, ezInt32 iWindowNumber)
 }
 
 
-ezQtStatVisWidget::~ezQtStatVisWidget() {}
+ezQtStatVisWidget::~ezQtStatVisWidget() = default;
 
 void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {

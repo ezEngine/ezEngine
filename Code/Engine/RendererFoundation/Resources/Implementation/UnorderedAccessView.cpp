@@ -9,6 +9,6 @@ ezGALUnorderedAccessView::ezGALUnorderedAccessView(ezGALResourceBase* pResource,
   EZ_ASSERT_DEV(m_pResource != nullptr, "Resource must not be null");
 }
 
-ezGALUnorderedAccessView::~ezGALUnorderedAccessView() {}
+ezGALUnorderedAccessView::~ezGALUnorderedAccessView() = default;
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_UnorderedAccessView);

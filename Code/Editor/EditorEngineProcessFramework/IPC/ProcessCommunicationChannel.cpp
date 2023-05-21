@@ -3,7 +3,7 @@
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <Foundation/Communication/IpcChannel.h>
 
-ezProcessCommunicationChannel::ezProcessCommunicationChannel() {}
+ezProcessCommunicationChannel::ezProcessCommunicationChannel() = default;
 
 ezProcessCommunicationChannel::~ezProcessCommunicationChannel()
 {

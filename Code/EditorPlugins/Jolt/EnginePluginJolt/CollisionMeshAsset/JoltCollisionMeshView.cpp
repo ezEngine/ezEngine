@@ -15,7 +15,7 @@ ezJoltCollisionMeshViewContext::ezJoltCollisionMeshViewContext(ezJoltCollisionMe
   m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
-ezJoltCollisionMeshViewContext::~ezJoltCollisionMeshViewContext() {}
+ezJoltCollisionMeshViewContext::~ezJoltCollisionMeshViewContext() = default;
 
 bool ezJoltCollisionMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {

@@ -45,7 +45,7 @@ ezPhysXAction::ezPhysXAction(const ezActionContext& context, const char* szName,
   }
 }
 
-ezPhysXAction::~ezPhysXAction() {}
+ezPhysXAction::~ezPhysXAction() = default;
 
 void ezPhysXAction::Execute(const ezVariant& value)
 {

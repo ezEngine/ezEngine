@@ -123,7 +123,7 @@ public:
 private:
   friend class ezEditorEngineProcessConnection;
   ezEditorEngineConnection(ezDocument* pDocument) { m_pDocument = pDocument; }
-  ~ezEditorEngineConnection() {}
+  ~ezEditorEngineConnection() = default;
 
   ezDocument* m_pDocument;
 };

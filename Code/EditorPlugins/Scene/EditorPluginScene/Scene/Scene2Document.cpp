@@ -48,29 +48,19 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 
-ezSceneLayerBase::ezSceneLayerBase()
-{
-}
+ezSceneLayerBase::ezSceneLayerBase() = default;
 
-ezSceneLayerBase::~ezSceneLayerBase()
-{
-}
+ezSceneLayerBase::~ezSceneLayerBase() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSceneLayer::ezSceneLayer()
-{
-}
+ezSceneLayer::ezSceneLayer() = default;
 
-ezSceneLayer::~ezSceneLayer()
-{
-}
+ezSceneLayer::~ezSceneLayer() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezSceneDocumentSettings::ezSceneDocumentSettings()
-{
-}
+ezSceneDocumentSettings::ezSceneDocumentSettings() = default;
 
 ezSceneDocumentSettings::~ezSceneDocumentSettings()
 {

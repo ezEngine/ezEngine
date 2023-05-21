@@ -1,9 +1,7 @@
 #pragma once
 
 template <typename Type>
-EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate()
-{
-}
+EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate() = default;
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type x, Type y, Type width, Type height)

@@ -134,7 +134,7 @@ ezViewAction::ezViewAction(const ezActionContext& context, const char* szName, B
   }
 }
 
-ezViewAction::~ezViewAction() {}
+ezViewAction::~ezViewAction() = default;
 
 void ezViewAction::Execute(const ezVariant& value)
 {

@@ -8,9 +8,9 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentGenerator, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAssetDocumentGenerator::ezAssetDocumentGenerator() {}
+ezAssetDocumentGenerator::ezAssetDocumentGenerator() = default;
 
-ezAssetDocumentGenerator::~ezAssetDocumentGenerator() {}
+ezAssetDocumentGenerator::~ezAssetDocumentGenerator() = default;
 
 void ezAssetDocumentGenerator::AddSupportedFileType(ezStringView sExtension)
 {

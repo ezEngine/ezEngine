@@ -57,4 +57,4 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
   FinishWindowCreation();
 }
 
-ezQtStateMachineAssetDocumentWindow::~ezQtStateMachineAssetDocumentWindow() {}
+ezQtStateMachineAssetDocumentWindow::~ezQtStateMachineAssetDocumentWindow() = default;

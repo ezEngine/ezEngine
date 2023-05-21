@@ -249,7 +249,7 @@ ezDirectoryUpdateTask::ezDirectoryUpdateTask(ezAssetWatcher* pWatcher, const cha
   ConfigureTask("ezDirectoryUpdateTask", ezTaskNesting::Never);
 }
 
-ezDirectoryUpdateTask::~ezDirectoryUpdateTask() {}
+ezDirectoryUpdateTask::~ezDirectoryUpdateTask() = default;
 
 void ezDirectoryUpdateTask::Execute()
 {

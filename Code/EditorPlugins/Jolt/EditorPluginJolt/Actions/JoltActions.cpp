@@ -46,7 +46,7 @@ ezJoltAction::ezJoltAction(const ezActionContext& context, const char* szName, A
   }
 }
 
-ezJoltAction::~ezJoltAction() {}
+ezJoltAction::~ezJoltAction() = default;
 
 void ezJoltAction::Execute(const ezVariant& value)
 {

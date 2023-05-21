@@ -14,7 +14,7 @@ ezQtTestFramework::ezQtTestFramework(const char* szTestName, const char* szAbsTe
   Initialize();
 }
 
-ezQtTestFramework::~ezQtTestFramework() {}
+ezQtTestFramework::~ezQtTestFramework() = default;
 
 
 ////////////////////////////////////////////////////////////////////////

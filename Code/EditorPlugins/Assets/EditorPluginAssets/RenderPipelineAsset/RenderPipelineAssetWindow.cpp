@@ -57,4 +57,4 @@ ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezD
   FinishWindowCreation();
 }
 
-ezQtRenderPipelineAssetDocumentWindow::~ezQtRenderPipelineAssetDocumentWindow() {}
+ezQtRenderPipelineAssetDocumentWindow::~ezQtRenderPipelineAssetDocumentWindow() = default;
