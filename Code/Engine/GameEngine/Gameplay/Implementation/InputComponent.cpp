@@ -123,11 +123,6 @@ float ezInputComponent::GetCurrentInputState(const char* szInputAction, bool bOn
   if (bOnlyKeyPressed && state != ezKeyState::Pressed)
     return 0;
 
-  if (state != ezKeyState::Up)
-  {
-    return fValue;
-  }
-
   return fValue;
 }
 

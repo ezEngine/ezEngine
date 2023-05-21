@@ -188,10 +188,6 @@ void ezFollowPathComponent::SetDistanceAlongPath(float fDistance)
 
     pPathComponent->SetLinearSamplerTo(m_PathSampler, m_fStartDistance);
 
-    ezVec3 m_vLastPosition;
-    ezVec3 m_vLastTargetPosition;
-    ezVec3 m_vLastUpDir;
-
     Update(true);
   }
 }

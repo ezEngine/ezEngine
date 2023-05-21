@@ -117,14 +117,13 @@ class EZ_GAMEENGINE_DLL ezVisScriptDataPinInAttribute : public ezPropertyAttribu
 
 public:
   ezVisScriptDataPinInAttribute()
+    : ezVisScriptDataPinInAttribute(0xff, ezVisualScriptDataPinType::None)
   {
-    m_uiPinSlot = 0xff;
-    m_DataType = ezVisualScriptDataPinType::None;
   }
   ezVisScriptDataPinInAttribute(ezUInt8 uiSlot, ezVisualScriptDataPinType::Enum dataType)
+    : m_uiPinSlot(uiSlot)
+    , m_DataType(dataType)
   {
-    m_uiPinSlot = uiSlot;
-    m_DataType = dataType;
   }
 
   ezUInt8 m_uiPinSlot;
@@ -137,14 +136,13 @@ class EZ_GAMEENGINE_DLL ezVisScriptDataPinOutAttribute : public ezPropertyAttrib
 
 public:
   ezVisScriptDataPinOutAttribute()
+    : ezVisScriptDataPinOutAttribute(0xff, ezVisualScriptDataPinType::None)
   {
-    m_uiPinSlot = 0xff;
-    m_DataType = ezVisualScriptDataPinType::None;
   }
   ezVisScriptDataPinOutAttribute(ezUInt8 uiSlot, ezVisualScriptDataPinType::Enum dataType)
+    : m_uiPinSlot(uiSlot)
+    , m_DataType(dataType)
   {
-    m_uiPinSlot = uiSlot;
-    m_DataType = dataType;
   }
 
   ezUInt8 m_uiPinSlot;
