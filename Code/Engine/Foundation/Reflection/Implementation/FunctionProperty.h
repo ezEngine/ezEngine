@@ -58,7 +58,7 @@ class ezFunctionProperty
   class ezFunctionProperty<R (CLASS::*)(Args...) CONSTNESS> : public ezTypedFunctionProperty<R, Args...>                                       \
   {                                                                                                                                            \
   public:                                                                                                                                      \
-    using TargetFunction = R (CLASS::*)(Args...) CONSTNESS;                                                                                     \
+    using TargetFunction = R (CLASS::*)(Args...) CONSTNESS;                                                                                    \
                                                                                                                                                \
     ezFunctionProperty(const char* szPropertyName, TargetFunction func)                                                                        \
       : ezTypedFunctionProperty<R, Args...>(szPropertyName)                                                                                    \

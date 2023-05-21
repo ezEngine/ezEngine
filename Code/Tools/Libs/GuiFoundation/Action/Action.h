@@ -17,8 +17,8 @@ class ezAction;
 struct ezActionContext;
 
 using ezActionId = ezGenericId<24, 8>;
-using CreateActionFunc = ezAction *(*)(const ezActionContext &);
-using DeleteActionFunc = void (*)(ezAction *);
+using CreateActionFunc = ezAction* (*)(const ezActionContext&);
+using DeleteActionFunc = void (*)(ezAction*);
 
 /// \brief Handle for a ezAction.
 ///

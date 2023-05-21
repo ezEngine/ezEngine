@@ -145,4 +145,4 @@ struct ezXRDeviceEventData
   ezXRDeviceID uiDeviceID = 0;
 };
 
-using ezXRDeviceEvent = ezEvent<const ezXRDeviceEventData &>;
+using ezXRDeviceEvent = ezEvent<const ezXRDeviceEventData&>;

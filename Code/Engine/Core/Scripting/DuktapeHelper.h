@@ -8,7 +8,7 @@
 
 struct duk_hthread;
 using duk_context = duk_hthread;
-using duk_c_function = int (*)(duk_context *);
+using duk_c_function = int (*)(duk_context*);
 
 struct ezDuktapeTypeMask
 {

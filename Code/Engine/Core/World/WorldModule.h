@@ -36,7 +36,7 @@ protected:
   };
 
   /// \brief Update function delegate.
-  using UpdateFunction = ezDelegate<void (const UpdateContext &)>;
+  using UpdateFunction = ezDelegate<void(const UpdateContext&)>;
 
   /// \brief Description of an update function that can be registered at the world.
   struct UpdateFunctionDesc
@@ -136,7 +136,7 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, WorldModuleFactory);
 
-  using CreatorFunc = ezWorldModule *(*)(ezAllocatorBase *, ezWorld *);
+  using CreatorFunc = ezWorldModule* (*)(ezAllocatorBase*, ezWorld*);
 
   ezWorldModuleFactory();
   ezWorldModuleTypeId RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);

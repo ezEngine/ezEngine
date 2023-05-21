@@ -43,7 +43,7 @@ struct EZ_FOUNDATION_DLL ezRemoteEvent
   ezUInt32 m_uiOtherAppID;
 };
 
-using ezRemoteMessageHandler = ezDelegate<void (ezRemoteMessage &)>;
+using ezRemoteMessageHandler = ezDelegate<void(ezRemoteMessage&)>;
 
 struct EZ_FOUNDATION_DLL ezRemoteMessageQueue
 {

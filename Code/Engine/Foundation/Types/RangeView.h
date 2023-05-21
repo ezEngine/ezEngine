@@ -23,10 +23,10 @@ template <typename ValueType, typename IteratorType>
 class ezRangeView
 {
 public:
-  using BeginCallback = ezDelegate<IteratorType ()>;
-  using EndCallback = ezDelegate<IteratorType ()>;
-  using NextCallback = ezDelegate<void (IteratorType &)>;
-  using ValueCallback = ezDelegate<ValueType (const IteratorType &)>;
+  using BeginCallback = ezDelegate<IteratorType()>;
+  using EndCallback = ezDelegate<IteratorType()>;
+  using NextCallback = ezDelegate<void(IteratorType&)>;
+  using ValueCallback = ezDelegate<ValueType(const IteratorType&)>;
 
   /// \brief Initializes the ezRangeView with the delegates used to enumerate the range.
   EZ_ALWAYS_INLINE ezRangeView(BeginCallback begin, EndCallback end, NextCallback next, ValueCallback value);
@@ -38,8 +38,8 @@ public:
 
     using iterator_category = std::forward_iterator_tag;
     using value_type = ConstIterator;
-    using pointer = ConstIterator *;
-    using reference = ConstIterator &;
+    using pointer = ConstIterator*;
+    using reference = ConstIterator&;
 
     EZ_ALWAYS_INLINE ConstIterator(const ConstIterator& rhs) = default;
     EZ_FORCE_INLINE void Next();
@@ -64,8 +64,8 @@ public:
 
     using iterator_category = std::forward_iterator_tag;
     using value_type = Iterator;
-    using pointer = Iterator *;
-    using reference = Iterator &;
+    using pointer = Iterator*;
+    using reference = Iterator&;
 
     using ConstIterator::Value;
     EZ_ALWAYS_INLINE Iterator(const Iterator& rhs) = default;

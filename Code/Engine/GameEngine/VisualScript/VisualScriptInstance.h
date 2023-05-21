@@ -23,7 +23,7 @@ using ezVisualScriptNodeConnectionID = ezUInt32;
 using ezVisualScriptPinConnectionID = ezUInt32;
 using ezVisualScriptResourceHandle = ezTypedResourceHandle<class ezVisualScriptResource>;
 
-using ezVisualScriptDataPinAssignFunc = bool (*)(const void *, void *);
+using ezVisualScriptDataPinAssignFunc = bool (*)(const void*, void*);
 
 /// \brief An instance of a visual script resource. Stores the current script state and executes nodes.
 class EZ_GAMEENGINE_DLL ezVisualScriptInstance

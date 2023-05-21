@@ -128,7 +128,7 @@ namespace ezInternal
     template <typename VISITOR>
     ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
-    using VisitorFunc = ezDelegate<ezVisitorExecution::Enum (ezGameObject *)>;
+    using VisitorFunc = ezDelegate<ezVisitorExecution::Enum(ezGameObject*)>;
     void TraverseBreadthFirst(VisitorFunc& func);
     void TraverseDepthFirst(VisitorFunc& func);
     static ezVisitorExecution::Enum TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);

@@ -16,8 +16,8 @@ using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResourc
 
 struct ImGuiContext;
 
-using ezImguiConfigFontCallback = ezDelegate<void (ImFontAtlas &)>;
-using ezImguiConfigStyleCallback = ezDelegate<void (ImGuiStyle &)>;
+using ezImguiConfigFontCallback = ezDelegate<void(ImFontAtlas&)>;
+using ezImguiConfigStyleCallback = ezDelegate<void(ImGuiStyle&)>;
 
 /// \brief Singleton class through which one can control the third-party library 'Dear Imgui'
 ///

@@ -41,7 +41,7 @@ using ezDynamicTreeObject = ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::e
 using ezDynamicTreeObjectConst = ezMap<ezDynamicTree::ezMultiMapKey, ezDynamicTree::ezObjectData>::ConstIterator;
 
 /// \brief Callback type for object queries. Return "false" to abort a search (e.g. when the desired element has been found).
-using EZ_VISIBLE_OBJ_CALLBACK = bool (*)(void *, ezDynamicTreeObjectConst);
+using EZ_VISIBLE_OBJ_CALLBACK = bool (*)(void*, ezDynamicTreeObjectConst);
 
 class ezDynamicOctree;
 class ezDynamicQuadtree;

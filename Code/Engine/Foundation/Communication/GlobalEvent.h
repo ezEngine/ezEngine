@@ -49,7 +49,7 @@ public:
 
 public:
   /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
-  using EZ_GLOBAL_EVENT_HANDLER = void (*)(const ezVariant &, const ezVariant &, const ezVariant &, const ezVariant &);
+  using EZ_GLOBAL_EVENT_HANDLER = void (*)(const ezVariant&, const ezVariant&, const ezVariant&, const ezVariant&);
 
   /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
   ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER eventHandler, bool bOnlyOnce); // [tested]

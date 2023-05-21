@@ -40,7 +40,7 @@ public:
   void InitReceiver(ezRttiConverterContext* pContext);
   void DeInit();
 
-  using FilterFunction = ezDelegate<bool (const ezDocumentObject *, const char *)>;
+  using FilterFunction = ezDelegate<bool(const ezDocumentObject*, const char*)>;
   /// \brief
   ///
   /// \param filter

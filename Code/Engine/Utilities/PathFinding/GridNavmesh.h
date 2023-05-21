@@ -36,11 +36,11 @@ public:
 
   /// \brief Callback that determines whether the cell with index \a uiCell1 and the cell with index \a uiCell2 represent the same type of
   /// terrain.
-  using CellComparator = bool (*)(ezUInt32, ezUInt32, void *);
+  using CellComparator = bool (*)(ezUInt32, ezUInt32, void*);
 
   /// \brief Callback that determines whether the cell with index \a uiCell is blocked entirely (for every type of unit) and therefore can
   /// be optimized away.
-  using CellBlocked = bool (*)(ezUInt32, void *);
+  using CellBlocked = bool (*)(ezUInt32, void*);
 
   /// \brief Creates the navmesh from the given ezGameGrid.
   template <class CellData>

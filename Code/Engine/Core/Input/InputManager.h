@@ -266,7 +266,7 @@ public:
     }
   };
 
-  using ezEventInput = ezEvent<const InputEventData &>;
+  using ezEventInput = ezEvent<const InputEventData&>;
 
   /// \brief Adds an event handler that is called for input events.
   static ezEventSubscriptionID AddEventHandler(ezEventInput::Handler handler) { return s_InputEvents.AddEventHandler(handler); }

@@ -17,7 +17,7 @@ public:
   ezRttiMappedObjectFactory();
   ~ezRttiMappedObjectFactory();
 
-  using CreateObjectFunc = Object *(*)(const ezRTTI *);
+  using CreateObjectFunc = Object* (*)(const ezRTTI*);
 
   void RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator);
   void UnregisterCreator(const ezRTTI* pType);

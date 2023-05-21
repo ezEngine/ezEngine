@@ -4,8 +4,7 @@
 
 #define MAKE_FOURCC(a, b, c, d) (a) | ((b) << 8) | ((c) << 16) | ((d) << 24)
 
-using DXGI_FORMAT = enum DXGI_FORMAT
-{
+using DXGI_FORMAT = enum DXGI_FORMAT {
   DXGI_FORMAT_UNKNOWN = 0,
   DXGI_FORMAT_R32G32B32A32_TYPELESS = 1,
   DXGI_FORMAT_R32G32B32A32_FLOAT = 2,

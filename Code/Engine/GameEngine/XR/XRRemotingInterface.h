@@ -62,7 +62,7 @@ struct ezXRRemotingConnectionEventData
   ezEnum<ezXRRemotingDisconnectReason> m_disconnectReason;
 };
 
-using ezXRRemotingConnectionEvent = ezEvent<const ezXRRemotingConnectionEventData &>;
+using ezXRRemotingConnectionEvent = ezEvent<const ezXRRemotingConnectionEventData&>;
 
 /// \brief XR Remoting singleton interface. Allows for streaming the XR application to a remote device.
 ///

@@ -51,7 +51,7 @@ public:
     ezVariant m_NewStatValue;
   };
 
-  using ezEventStats = ezEvent<const StatsEventData &, ezMutex>;
+  using ezEventStats = ezEvent<const StatsEventData&, ezMutex>;
 
   /// \brief Adds an event handler that is called every time a stat is changed.
   static void AddEventHandler(ezEventStats::Handler handler) { s_StatsEvents.AddEventHandler(handler); }

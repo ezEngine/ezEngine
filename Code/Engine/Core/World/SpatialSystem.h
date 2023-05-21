@@ -31,7 +31,7 @@ public:
   /// \name Simple Queries
   ///@{
 
-  using QueryCallback = ezDelegate<ezVisitorExecution::Enum (ezGameObject *)>;
+  using QueryCallback = ezDelegate<ezVisitorExecution::Enum(ezGameObject*)>;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   struct QueryStats

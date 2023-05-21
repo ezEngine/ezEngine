@@ -8,7 +8,7 @@
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
 
-using ezOsProcessHandle = void *;
+using ezOsProcessHandle = void*;
 using ezOsProcessID = ezUInt32;
 
 #if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)

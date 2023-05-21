@@ -22,7 +22,7 @@ public:
   ezDocumentObjectVisitor(
     const ezDocumentObjectManager* pManager, const char* szChildrenProperty = "Children", const char* szRootProperty = "Children");
 
-  using VisitorFunction = ezDelegate<bool (const ezDocumentObject *)>;
+  using VisitorFunction = ezDelegate<bool(const ezDocumentObject*)>;
   /// \brief Executes depth first traversal starting at the given node.
   ///
   /// \param pObject

@@ -29,7 +29,7 @@ public:
   ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int iArgc, const char** pArgv);
   virtual ~ezTestFramework();
 
-  using OutputHandler = void (*)(ezTestOutput::Enum, const char *);
+  using OutputHandler = void (*)(ezTestOutput::Enum, const char*);
 
   // Test management
   void CreateOutputFolder();
@@ -113,10 +113,10 @@ public:
 
   /// \brief A function to be called to add extra info to image diff output, that is not available from here.
   /// E.g. device specific info like driver version.
-  using ImageDiffExtraInfoCallback = std::function<ezDynamicArray<std::pair<ezString, ezString>> ()>;
+  using ImageDiffExtraInfoCallback = std::function<ezDynamicArray<std::pair<ezString, ezString>>()>;
   void SetImageDiffExtraInfoCallback(ImageDiffExtraInfoCallback provider);
 
-  using ImageComparisonCallback = std::function<void (bool)>; /// \brief A function to be called after every image comparison with a bool
+  using ImageComparisonCallback = std::function<void(bool)>; /// \brief A function to be called after every image comparison with a bool
                                                              /// indicating if the images matched or not.
   void SetImageComparisonCallback(const ImageComparisonCallback& callback);
 
