@@ -93,7 +93,7 @@ struct ezBmpBgrxQuad
 {
   EZ_DECLARE_POD_TYPE();
 
-  ezBmpBgrxQuad() {}
+  ezBmpBgrxQuad() = default;
 
   ezBmpBgrxQuad(ezUInt8 uiRed, ezUInt8 uiGreen, ezUInt8 uiBlue)
     : m_blue(uiBlue)

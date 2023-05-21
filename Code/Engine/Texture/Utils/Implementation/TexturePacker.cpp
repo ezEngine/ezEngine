@@ -2,10 +2,6 @@
 
 #include <Texture/Utils/TexturePacker.h>
 
-ezTexturePacker::ezTexturePacker() {}
-
-ezTexturePacker::~ezTexturePacker() {}
-
 void ezTexturePacker::SetTextureSize(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiReserveTextures /*= 0*/)
 {
   m_uiWidth = uiWidth;

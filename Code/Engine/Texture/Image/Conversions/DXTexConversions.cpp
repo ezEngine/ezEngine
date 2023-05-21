@@ -111,12 +111,12 @@ namespace
     TypeOfDeviceCreated deviceType = TypeOfDeviceCreated::None;
     if (pHardwareAdapter1 != nullptr)
     {
-      pAdapter1 = pHardwareAdapter1;
+      pAdapter1 = std::move(pHardwareAdapter1);
       deviceType = TypeOfDeviceCreated::Hardware;
     }
     else if (pFallbackAdapter1 != nullptr)
     {
-      pAdapter1 = pFallbackAdapter1;
+      pAdapter1 = std::move(pFallbackAdapter1);
       deviceType = TypeOfDeviceCreated::Software;
     }
 
