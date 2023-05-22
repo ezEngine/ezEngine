@@ -42,10 +42,10 @@
 
 namespace ezInternal
 {
-  typedef __m128 QuadFloat;
-  typedef __m128 QuadBool;
-  typedef __m128i QuadInt;
-  typedef __m128i QuadUInt;
+  using QuadFloat = __m128;
+  using QuadBool = __m128;
+  using QuadInt = __m128i;
+  using QuadUInt = __m128i;
 } // namespace ezInternal
 
 #include <Foundation/SimdMath/SimdSwizzle.h>

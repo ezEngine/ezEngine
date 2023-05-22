@@ -7,7 +7,7 @@
 class ezEditorTestProject : public ezEditorTest
 {
 public:
-  typedef ezEditorTest SUPER;
+  using SUPER = ezEditorTest;
 
   virtual const char* GetTestName() const override;
 

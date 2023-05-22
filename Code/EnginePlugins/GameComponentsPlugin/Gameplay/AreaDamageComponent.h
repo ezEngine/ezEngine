@@ -9,7 +9,7 @@ struct ezPhysicsOverlapResult;
 
 class EZ_GAMECOMPONENTS_DLL ezAreaDamageComponentManager : public ezComponentManager<class ezAreaDamageComponent, ezBlockStorageType::FreeList>
 {
-  typedef ezComponentManager<ezAreaDamageComponent, ezBlockStorageType::FreeList> SUPER;
+  using SUPER = ezComponentManager<ezAreaDamageComponent, ezBlockStorageType::FreeList>;
 
 public:
   ezAreaDamageComponentManager(ezWorld* pWorld);

@@ -10,7 +10,7 @@
 struct ezGameApplicationExecutionEvent;
 class ezOpenDdlWriter;
 class ezOpenDdlReaderElement;
-typedef ezDynamicArray<ezUInt8> ezDataBuffer;
+using ezDataBuffer = ezDynamicArray<ezUInt8>;
 
 using ezFmodSoundBankResourceHandle = ezTypedResourceHandle<class ezFmodSoundBankResource>;
 

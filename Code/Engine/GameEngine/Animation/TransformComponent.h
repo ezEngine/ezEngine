@@ -8,7 +8,7 @@
 
 struct ezTransformComponentFlags
 {
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 
   enum Enum
   {

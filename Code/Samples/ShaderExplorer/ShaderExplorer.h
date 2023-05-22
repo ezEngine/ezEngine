@@ -17,7 +17,7 @@ class ezDirectoryWatcher;
 class ezShaderExplorerApp : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezShaderExplorerApp();
 

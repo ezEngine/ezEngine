@@ -8,7 +8,7 @@
 
 struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneViewPerspective
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

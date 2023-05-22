@@ -53,7 +53,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject
 public:
   struct StartupFlags
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
     enum Enum
     {
       Headless = EZ_BIT(0),   ///< The app does not do any rendering.

@@ -45,11 +45,11 @@ public:
     ezUInt16 m_uiNumEventHandlersOnce;
   };
 
-  typedef ezMap<ezString, EventData> EventMap;
+  using EventMap = ezMap<ezString, EventData>;
 
 public:
   /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
-  typedef void (*EZ_GLOBAL_EVENT_HANDLER)(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);
+  using EZ_GLOBAL_EVENT_HANDLER = void (*)(const ezVariant&, const ezVariant&, const ezVariant&, const ezVariant&);
 
   /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
   ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER eventHandler, bool bOnlyOnce); // [tested]

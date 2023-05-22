@@ -7,7 +7,7 @@ class ezRecastWorldModule;
 class ezPhysicsWorldModuleInterface;
 struct ezAgentSteeringEvent;
 
-typedef ezComponentManagerSimple<class ezSoldierComponent, ezComponentUpdateType::WhenSimulating> ezSoldierComponentManager;
+using ezSoldierComponentManager = ezComponentManagerSimple<class ezSoldierComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_RECASTPLUGIN_DLL ezSoldierComponent : public ezNpcComponent
 {

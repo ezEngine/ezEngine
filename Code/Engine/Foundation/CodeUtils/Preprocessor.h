@@ -72,23 +72,23 @@ public:
 
   /// \brief This type of callback is used to read an #include file. \a szAbsoluteFile is the path that the FileLocatorCB reported, the result needs
   /// to be stored in \a FileContent.
-  typedef ezDelegate<ezResult(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)> FileOpenCB;
+  using FileOpenCB = ezDelegate<ezResult(const char*, ezDynamicArray<ezUInt8>&, ezTimestamp&)>;
 
   /// \brief This type of callback is used to retrieve the absolute path of the \a szIncludeFile when #included inside \a szCurAbsoluteFile.
   ///
   /// Note that you should ensure that \a out_sAbsoluteFilePath is always identical (including casing and path slashes) when it is supposed to point
   /// to the same file, as this exact name is used for file lookup (and therefore also file caching).
   /// If it is not identical, file caching will not work, and on different OSes the file may be found or not.
-  typedef ezDelegate<ezResult(const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)> FileLocatorCB;
+  using FileLocatorCB = ezDelegate<ezResult(const char*, const char*, IncludeType, ezStringBuilder&)>;
 
   /// \brief Every time an unknown command (e.g. '#version') is encountered, this callback is used to determine whether the command shall be passed
   /// through.
   ///
   /// If the callback returns false, an error is generated and parsing fails. The callback thus acts as a whitelist for all commands that shall be
   /// passed through.
-  typedef ezDelegate<bool(const char* szUnknownCommand)> PassThroughUnknownCmdCB;
+  using PassThroughUnknownCmdCB = ezDelegate<bool(const char*)>;
 
-  typedef ezDeque<ezTokenParseUtils::TokenStream> MacroParameters;
+  using MacroParameters = ezDeque<ezTokenParseUtils::TokenStream>;
 
   /// \brief The event data that the processor broadcasts
   ///

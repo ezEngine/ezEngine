@@ -10,7 +10,7 @@
 /// \brief Specifies in which mode this camera is configured.
 struct EZ_CORE_DLL ezCameraMode
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {

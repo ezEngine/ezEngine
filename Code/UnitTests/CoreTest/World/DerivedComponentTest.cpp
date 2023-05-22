@@ -5,7 +5,7 @@
 
 namespace
 {
-  typedef ezComponentManagerSimple<class TestComponentBase, ezComponentUpdateType::Always> TestComponentBaseManager;
+  using TestComponentBaseManager = ezComponentManagerSimple<class TestComponentBase, ezComponentUpdateType::Always>;
 
   class TestComponentBase : public ezComponent
   {
@@ -24,7 +24,7 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////
 
-  typedef ezComponentManagerSimple<class TestComponentDerived1, ezComponentUpdateType::Always> TestComponentDerived1Manager;
+  using TestComponentDerived1Manager = ezComponentManagerSimple<class TestComponentDerived1, ezComponentUpdateType::Always>;
 
   class TestComponentDerived1 : public TestComponentBase
   {

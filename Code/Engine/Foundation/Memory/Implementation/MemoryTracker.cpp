@@ -17,7 +17,7 @@
 namespace
 {
   // no tracking for the tracker data itself
-  typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, 0> TrackerDataAllocator;
+  using TrackerDataAllocator = ezAllocator<ezMemoryPolicies::ezHeapAllocation, 0>;
 
   static TrackerDataAllocator* s_pTrackerDataAllocator;
 
@@ -48,7 +48,7 @@ namespace
 
     ezMutex m_Mutex;
 
-    typedef ezIdTable<ezAllocatorId, AllocatorData, TrackerDataAllocatorWrapper> AllocatorTable;
+    using AllocatorTable = ezIdTable<ezAllocatorId, AllocatorData, TrackerDataAllocatorWrapper>;
     AllocatorTable m_AllocatorData;
 
     ezAllocatorId m_StaticAllocatorId;

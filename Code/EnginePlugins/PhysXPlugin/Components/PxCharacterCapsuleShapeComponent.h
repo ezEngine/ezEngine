@@ -4,7 +4,7 @@
 
 struct ezPxCharacterCapsuleShapeData;
 
-typedef ezComponentManager<class ezPxCharacterCapsuleShapeComponent, ezBlockStorageType::FreeList> ezPxCharacterCapsuleShapeComponentManager;
+using ezPxCharacterCapsuleShapeComponentManager = ezComponentManager<class ezPxCharacterCapsuleShapeComponent, ezBlockStorageType::FreeList>;
 
 class EZ_PHYSXPLUGIN_DLL ezPxCharacterCapsuleShapeComponent : public ezPxCharacterShapeComponent
 {

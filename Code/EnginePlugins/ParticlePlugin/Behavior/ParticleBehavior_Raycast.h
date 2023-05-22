@@ -7,7 +7,7 @@ class ezPhysicsWorldModuleInterface;
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleRaycastHitReaction
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

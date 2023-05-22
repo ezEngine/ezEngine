@@ -8,7 +8,7 @@ class ezEditorEngineProcessAppUWP;
 
 class ezEngineProcessGameApplicationUWP : public ezEngineProcessGameApplication
 {
-  typedef ezEngineProcessGameApplication SUPER;
+  using SUPER = ezEngineProcessGameApplication;
 
 public:
   ezEngineProcessGameApplicationUWP();

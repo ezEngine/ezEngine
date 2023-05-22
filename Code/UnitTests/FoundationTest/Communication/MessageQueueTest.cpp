@@ -26,7 +26,7 @@ namespace
     int receiver;
   };
 
-  typedef ezMessageQueue<MetaData> TestMessageQueue;
+  using TestMessageQueue = ezMessageQueue<MetaData>;
 
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage, 1, ezRTTIDefaultAllocator<TestMessage>)

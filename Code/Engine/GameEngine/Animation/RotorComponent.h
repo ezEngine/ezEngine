@@ -4,7 +4,7 @@
 
 #include <GameEngine/Animation/TransformComponent.h>
 
-typedef ezComponentManagerSimple<class ezRotorComponent, ezComponentUpdateType::WhenSimulating> ezRotorComponentManager;
+using ezRotorComponentManager = ezComponentManagerSimple<class ezRotorComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_GAMEENGINE_DLL ezRotorComponent : public ezTransformComponent
 {

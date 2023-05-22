@@ -10,7 +10,7 @@
 /// \brief Defines the depth compare function to be used to decide sample weights.
 struct EZ_RENDERERCORE_DLL ezLSAODepthCompareFunction
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

@@ -18,7 +18,7 @@
 ///
 /// struct ezExampleEnumBase
 /// {
-///   typedef ezUInt8 StorageType;
+///   using StorageType = ezUInt8;
 ///
 ///   enum Enum
 ///   {
@@ -28,7 +28,7 @@
 ///     Default = Value1 // Default initialization value (required)
 ///   };
 /// };
-/// typedef ezEnum<ezExampleEnumBase> ezExampleEnum;
+/// using ezExampleEnum = ezEnum<ezExampleEnumBase>;
 ///
 /// This defines an "ezExampleEnum" which is stored in an ezUInt8 and is default initialized with Value1
 /// For more examples see the enum test.

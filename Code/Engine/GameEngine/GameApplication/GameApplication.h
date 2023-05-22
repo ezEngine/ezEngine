@@ -39,7 +39,7 @@ public:
   static ezCVarBool cvar_AppShowFPS;
 
 public:
-  typedef ezGameApplicationBase SUPER;
+  using SUPER = ezGameApplicationBase;
 
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
   ezGameApplication(const char* szAppName, const char* szProjectPath);

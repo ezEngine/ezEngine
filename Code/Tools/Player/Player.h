@@ -5,7 +5,7 @@
 class ezPlayerApplication : public ezGameApplication
 {
 public:
-  typedef ezGameApplication SUPER;
+  using SUPER = ezGameApplication;
 
   ezPlayerApplication();
 

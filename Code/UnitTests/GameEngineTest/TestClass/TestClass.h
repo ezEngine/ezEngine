@@ -18,7 +18,7 @@ public:
 class ezGameEngineTestApplication : public ezGameApplication
 {
 public:
-  typedef ezGameApplication SUPER;
+  using SUPER = ezGameApplication;
 
   ezGameEngineTestApplication(const char* szProjectDirName);
 

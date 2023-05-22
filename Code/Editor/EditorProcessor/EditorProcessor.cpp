@@ -27,7 +27,7 @@ Example:\n\
 class ezEditorApplication : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezEditorApplication()
     : ezApplication("ezEditor")

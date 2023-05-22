@@ -69,7 +69,7 @@ class TextureSample : public ezApplication
   ezConstantBufferStorage<ezTextureSampleConstants>* m_pSampleConstantBuffer;
 
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   TextureSample()
     : ezApplication("Texture Sample")

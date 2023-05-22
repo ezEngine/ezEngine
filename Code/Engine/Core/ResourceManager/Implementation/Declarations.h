@@ -52,7 +52,7 @@ struct ezResourceManagerEvent
 /// \brief The flags of an ezResource instance.
 struct ezResourceFlags
 {
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 
   /// \brief The flags of an ezResource instance.
   enum Enum

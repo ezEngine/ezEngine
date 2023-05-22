@@ -46,7 +46,7 @@ struct ezIsEnum<ezEnum<T>>
 /// \brief Flags used to describe a property and its type.
 struct ezPropertyFlags
 {
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 
   enum Enum : ezUInt16
   {

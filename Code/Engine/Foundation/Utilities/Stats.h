@@ -14,7 +14,7 @@
 class EZ_FOUNDATION_DLL ezStats
 {
 public:
-  typedef ezMap<ezString, ezVariant> MapType;
+  using MapType = ezMap<ezString, ezVariant>;
 
   /// \brief Removes the stat with the given name.
   ///
@@ -51,7 +51,7 @@ public:
     ezVariant m_NewStatValue;
   };
 
-  typedef ezEvent<const StatsEventData&, ezMutex> ezEventStats;
+  using ezEventStats = ezEvent<const StatsEventData&, ezMutex>;
 
   /// \brief Adds an event handler that is called every time a stat is changed.
   static void AddEventHandler(ezEventStats::Handler handler) { s_StatsEvents.AddEventHandler(handler); }

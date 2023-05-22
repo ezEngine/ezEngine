@@ -5,7 +5,7 @@
 
 namespace DequeTestDetail
 {
-  typedef ezConstructionCounter st;
+  using st = ezConstructionCounter;
 
   static ezDeque<st> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
   {

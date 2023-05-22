@@ -7,7 +7,7 @@
 
 namespace HashTableTestDetail
 {
-  typedef ezConstructionCounter st;
+  using st = ezConstructionCounter;
 
   struct Collision
   {

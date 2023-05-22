@@ -15,7 +15,7 @@ class ezDirectoryWatcher;
 class ezComputeShaderHistogramApp : public ezGameApplication
 {
 public:
-  typedef ezGameApplication SUPER;
+  using SUPER = ezGameApplication;
 
   ezComputeShaderHistogramApp();
   ~ezComputeShaderHistogramApp();

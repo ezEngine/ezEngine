@@ -36,7 +36,7 @@ namespace ezMinWindows
   template <>
   struct ToNativeImpl<HINSTANCE>
   {
-    typedef ::HINSTANCE type;
+    using type = ::HINSTANCE;
     static EZ_ALWAYS_INLINE ::HINSTANCE ToNative(HINSTANCE hInstance) { return reinterpret_cast<::HINSTANCE>(hInstance); }
   };
 

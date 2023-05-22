@@ -4,7 +4,7 @@
 
 #include <GameEngine/Animation/TransformComponent.h>
 
-typedef ezComponentManagerSimple<class ezSliderComponent, ezComponentUpdateType::WhenSimulating> ezSliderComponentManager;
+using ezSliderComponentManager = ezComponentManagerSimple<class ezSliderComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_GAMEENGINE_DLL ezSliderComponent : public ezTransformComponent
 {

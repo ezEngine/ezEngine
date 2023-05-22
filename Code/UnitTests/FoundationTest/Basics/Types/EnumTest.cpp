@@ -6,7 +6,7 @@
 // but it could be encapsulated into an preprocessor macro if wanted
 struct ezTestEnumBase
 {
-  typedef ezUInt8 StorageType; // The storage type for the enum
+  using StorageType = ezUInt8; // The storage type for the enum
 
   enum Enum
   {
@@ -16,15 +16,13 @@ struct ezTestEnumBase
   };
 };
 
-typedef ezEnum<ezTestEnumBase // The base for the enum
-  >
-  ezTestEnum; // The name of the final enum
+using ezTestEnum = ezEnum<ezTestEnumBase>; // The name of the final enum
 // End of the definition of a example enum
 ///////////////////////////////////////////////////////////////////////
 
 struct ezTestEnum2Base
 {
-  typedef ezUInt16 StorageType;
+  using StorageType = ezUInt16;
 
   enum Enum
   {
@@ -34,7 +32,7 @@ struct ezTestEnum2Base
   };
 };
 
-typedef ezEnum<ezTestEnum2Base> ezTestEnum2;
+using ezTestEnum2 = ezEnum<ezTestEnum2Base>;
 
 // Test if the type actually has the requested size
 EZ_CHECK_AT_COMPILETIME(sizeof(ezTestEnum) == sizeof(ezUInt8));

@@ -5,7 +5,7 @@
 
 struct EZ_GAMEENGINE_DLL ezLogicOperator
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

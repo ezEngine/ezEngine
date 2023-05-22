@@ -6,7 +6,7 @@
 
 struct ezMsgUpdateLocalBounds;
 
-typedef ezSettingsComponentManager<class ezAmbientLightComponent> ezAmbientLightComponentManager;
+using ezAmbientLightComponentManager = ezSettingsComponentManager<class ezAmbientLightComponent>;
 
 class EZ_RENDERERCORE_DLL ezAmbientLightComponent : public ezSettingsComponent
 {

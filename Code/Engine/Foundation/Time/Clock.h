@@ -136,7 +136,7 @@ public:
     ezTime m_SmoothedTimeStep;
   };
 
-  typedef ezEvent<const EventData&, ezMutex> Event;
+  using Event = ezEvent<const EventData&, ezMutex>;
 
   /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
   static void AddEventHandler(Event::Handler handler) { s_TimeEvents.AddEventHandler(handler); }

@@ -24,7 +24,7 @@ struct ezCVarType
 /// \brief The flags that can be used on an ezCVar.
 struct ezCVarFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -242,16 +242,16 @@ private:
 };
 
 /// \brief A CVar that stores a float value.
-typedef ezTypedCVar<float, ezCVarType::Float> ezCVarFloat;
+using ezCVarFloat = ezTypedCVar<float, ezCVarType::Float>;
 
 /// \brief A CVar that stores a bool value.
-typedef ezTypedCVar<bool, ezCVarType::Bool> ezCVarBool;
+using ezCVarBool = ezTypedCVar<bool, ezCVarType::Bool>;
 
 /// \brief A CVar that stores an int value.
-typedef ezTypedCVar<int, ezCVarType::Int> ezCVarInt;
+using ezCVarInt = ezTypedCVar<int, ezCVarType::Int>;
 
 /// \brief A CVar that stores a string.
-typedef ezTypedCVar<ezHybridString<32>, ezCVarType::String> ezCVarString;
+using ezCVarString = ezTypedCVar<ezHybridString<32>, ezCVarType::String>;
 
 
 

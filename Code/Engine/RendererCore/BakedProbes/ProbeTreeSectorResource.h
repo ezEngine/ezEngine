@@ -4,7 +4,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <RendererCore/BakedProbes/BakingUtils.h>
 
-typedef ezTypedResourceHandle<class ezProbeTreeSectorResource> ezProbeTreeSectorResourceHandle;
+using ezProbeTreeSectorResourceHandle = ezTypedResourceHandle<class ezProbeTreeSectorResource>;
 
 struct EZ_RENDERERCORE_DLL ezProbeTreeSectorResourceDescriptor
 {

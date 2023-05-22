@@ -10,7 +10,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Strings/StringBuilder.h>
 
-typedef HMODULE ezPluginModule;
+using ezPluginModule = HMODULE;
 
 void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber)
 {

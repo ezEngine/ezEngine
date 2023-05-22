@@ -17,7 +17,7 @@ public:
 class ezStereoTestApplication : public ezGameEngineTestApplication
 {
 public:
-  typedef ezGameEngineTestApplication SUPER;
+  using SUPER = ezGameEngineTestApplication;
 
   ezStereoTestApplication(const char* szProjectDirName);
   ezPlatformProfile& GetPlatformProfile() { return m_PlatformProfile; }

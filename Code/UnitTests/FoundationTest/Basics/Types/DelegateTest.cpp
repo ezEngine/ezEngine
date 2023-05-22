@@ -75,7 +75,7 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 {
-  typedef ezDelegate<ezInt32(ezInt32)> TestDelegate;
+  using TestDelegate = ezDelegate<ezInt32(ezInt32)>;
   TestDelegate d;
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
@@ -100,7 +100,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Method With Many Params")
   {
-    typedef ezDelegate<ezInt32(ezInt32, ezInt32, ezInt32, ezInt32, ezInt32, ezInt32)> TestDelegateMany;
+    using TestDelegateMany = ezDelegate<ezInt32(ezInt32, ezInt32, ezInt32, ezInt32, ezInt32, ezInt32)>;
     TestDelegateMany many;
 
     TestType test;

@@ -3,7 +3,7 @@
 #include <RendererCore/Lights/LightComponent.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
-typedef ezComponentManager<class ezDirectionalLightComponent, ezBlockStorageType::Compact> ezDirectionalLightComponentManager;
+using ezDirectionalLightComponentManager = ezComponentManager<class ezDirectionalLightComponent, ezBlockStorageType::Compact>;
 
 /// \brief The render data object for directional lights.
 class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderData

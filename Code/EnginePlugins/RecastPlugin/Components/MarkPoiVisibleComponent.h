@@ -10,7 +10,7 @@ class ezPhysicsWorldModuleInterface;
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ezComponentManagerSimple<class ezRcMarkPoiVisibleComponent, ezComponentUpdateType::WhenSimulating> ezRcMarkPoiVisibleComponentManager;
+using ezRcMarkPoiVisibleComponentManager = ezComponentManagerSimple<class ezRcMarkPoiVisibleComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_RECASTPLUGIN_DLL ezRcMarkPoiVisibleComponent : public ezRcComponent
 {

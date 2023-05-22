@@ -244,7 +244,7 @@ public:
   ///@}
   /// \name Asset Access
   ///@{
-  typedef ezLockedObject<ezMutex, const ezSubAsset> ezLockedSubAsset;
+  using ezLockedSubAsset = ezLockedObject<ezMutex, const ezSubAsset>;
 
   /// \brief Tries to find the asset information for an asset identified through a string.
   ///

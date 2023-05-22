@@ -3,7 +3,7 @@
 #include <Core/World/World.h>
 
 class ProjectileComponent;
-typedef ezComponentManagerSimple<ProjectileComponent, ezComponentUpdateType::WhenSimulating> ProjectileComponentManager;
+using ProjectileComponentManager = ezComponentManagerSimple<ProjectileComponent, ezComponentUpdateType::WhenSimulating>;
 
 class ProjectileComponent : public ezComponent
 {

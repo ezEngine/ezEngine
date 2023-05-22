@@ -10,7 +10,7 @@
 
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
-typedef ezComponentManager<class ezPlayerStartPointComponent, ezBlockStorageType::Compact> ezPlayerStartPointComponentManager;
+using ezPlayerStartPointComponentManager = ezComponentManager<class ezPlayerStartPointComponent, ezBlockStorageType::Compact>;
 
 class EZ_GAMEENGINE_DLL ezPlayerStartPointComponent : public ezComponent
 {

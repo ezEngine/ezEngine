@@ -16,7 +16,7 @@
 #  undef delete
 #endif
 
-typedef ezGenericId<24, 8> ezAllocatorId;
+using ezAllocatorId = ezGenericId<24, 8>;
 
 /// \brief Base class for all memory allocators.
 class EZ_FOUNDATION_DLL ezAllocatorBase

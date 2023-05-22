@@ -6,7 +6,7 @@
 
 namespace
 {
-  typedef ezConstructionCounter st;
+  using st = ezConstructionCounter;
 
   struct Collision
   {

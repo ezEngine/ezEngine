@@ -7,7 +7,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-typedef ezComponentManagerSimple<class ezSpatialAnchorComponent, ezComponentUpdateType::WhenSimulating> ezSpatialAnchorComponentManager;
+using ezSpatialAnchorComponentManager = ezComponentManagerSimple<class ezSpatialAnchorComponent, ezComponentUpdateType::WhenSimulating>;
 
 class EZ_GAMEENGINE_DLL ezSpatialAnchorComponent : public ezComponent
 {

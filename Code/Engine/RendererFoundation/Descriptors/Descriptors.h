@@ -15,7 +15,7 @@ class ezWindowBase;
 
 struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum : ezUInt8
   {
     Unknown = 0,
@@ -46,7 +46,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceType
 /// \sa ezGALWindowSwapChainCreationDescription
 struct EZ_RENDERERFOUNDATION_DLL ezGALPresentMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -242,7 +242,7 @@ struct ezGALResourceAccess
 
 struct ezGALBufferType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -360,7 +360,7 @@ struct ezGALUnorderedAccessViewCreationDescription : public ezHashableStruct<ezG
 
 struct ezGALQueryType
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

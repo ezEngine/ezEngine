@@ -15,7 +15,7 @@
 // \brief Flags that affect the compilation process of a shader
 struct ezShaderCompilerFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum
   {
     Debug = EZ_BIT(0),

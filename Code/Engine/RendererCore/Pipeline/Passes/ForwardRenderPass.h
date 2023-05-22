@@ -5,7 +5,7 @@
 
 struct ezForwardRenderShadingQuality
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum
   {

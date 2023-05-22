@@ -141,7 +141,7 @@ protected:
 class ezArchiveTool : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   enum class ArchiveMode
   {

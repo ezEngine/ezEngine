@@ -11,7 +11,7 @@ class ezStreamReader;
 
 struct EZ_FOUNDATION_DLL ezCurveTangentMode
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

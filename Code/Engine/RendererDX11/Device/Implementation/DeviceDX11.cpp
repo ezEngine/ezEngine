@@ -254,7 +254,7 @@ void ezGALDeviceDX11::ReportLiveGpuObjects()
   if (hDxgiDebugDLL == nullptr)
     return;
 
-  typedef HRESULT(WINAPI * FnGetDebugInterfacePtr)(REFIID, void**);
+  using FnGetDebugInterfacePtr = HRESULT(WINAPI*)(REFIID, void**);
   FnGetDebugInterfacePtr GetDebugInterfacePtr = (FnGetDebugInterfacePtr)GetProcAddress(hDxgiDebugDLL, "DXGIGetDebugInterface");
 
   if (GetDebugInterfacePtr == nullptr)

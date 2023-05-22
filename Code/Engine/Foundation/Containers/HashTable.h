@@ -21,7 +21,7 @@ public:
   /// \brief Const iterator.
   struct ConstIterator
   {
-    typedef std::forward_iterator_tag iterator_category;
+    using iterator_category = std::forward_iterator_tag;
     using value_type = ConstIterator;
     using difference_type = ptrdiff_t;
     using pointer = ConstIterator*;

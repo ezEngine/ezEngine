@@ -20,7 +20,7 @@ using ezKrautGeneratorResourceHandle = ezTypedResourceHandle<class ezKrautGenera
 class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponentManager : public ezComponentManager<class ezKrautTreeComponent, ezBlockStorageType::Compact>
 {
 public:
-  typedef ezComponentManager<ezKrautTreeComponent, ezBlockStorageType::Compact> SUPER;
+  using SUPER = ezComponentManager<ezKrautTreeComponent, ezBlockStorageType::Compact>;
 
   ezKrautTreeComponentManager(ezWorld* pWorld)
     : SUPER(pWorld)

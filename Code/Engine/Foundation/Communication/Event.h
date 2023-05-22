@@ -7,7 +7,7 @@
 #include <Foundation/Types/Delegate.h>
 
 /// \brief Identifies an event subscription. Zero is always an invalid subscription ID.
-typedef ezUInt32 ezEventSubscriptionID;
+using ezEventSubscriptionID = ezUInt32;
 
 /// \brief Specifies the type of ezEvent implementation to use
 enum class ezEventType

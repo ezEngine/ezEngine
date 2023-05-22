@@ -7,7 +7,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-typedef ezComponentManagerSimple<class ezBeamComponent, ezComponentUpdateType::Always> ezBeamComponentManager;
+using ezBeamComponentManager = ezComponentManagerSimple<class ezBeamComponent, ezComponentUpdateType::Always>;
 
 struct ezMsgExtractRenderData;
 class ezGeometry;

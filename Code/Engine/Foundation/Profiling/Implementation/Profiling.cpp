@@ -62,7 +62,7 @@ namespace
     BUFFER_SIZE_FRAMES = 120 * 60,
   };
 
-  typedef ezStaticRingBuffer<ezProfilingSystem::GPUScope, BUFFER_SIZE_OTHER_THREAD / sizeof(ezProfilingSystem::GPUScope)> GPUScopesBuffer;
+  using GPUScopesBuffer = ezStaticRingBuffer<ezProfilingSystem::GPUScope, BUFFER_SIZE_OTHER_THREAD / sizeof(ezProfilingSystem::GPUScope)>;
 
   static ezUInt64 s_MainThreadId = 0;
 

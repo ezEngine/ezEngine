@@ -14,7 +14,7 @@ class ezRawMemoryStreamReader;
 /// \brief Utilities for working with ezArchive files
 namespace ezArchiveUtils
 {
-  typedef ezDelegate<bool(ezUInt64, ezUInt64)> FileWriteProgressCallback;
+  using FileWriteProgressCallback = ezDelegate<bool(ezUInt64, ezUInt64)>;
 
   /// \brief Returns a modifiable array of file extensions that the engine considers to be valid ezArchive file extensions.
   ///

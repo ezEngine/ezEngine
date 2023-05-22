@@ -79,7 +79,7 @@ protected:
 /// See class ezEnumerable for more details.
 #define EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base)                      \
 private:                                                                       \
-  typedef base ezEnumerableBase;                                               \
+  using ezEnumerableBase = base;                                               \
   friend class ezEnumerable<self, base>;                                       \
   static ezEnumerable<self, base>* s_pFirstInstance;                           \
   static ezEnumerable<self, base>* s_pLastInstance;                            \

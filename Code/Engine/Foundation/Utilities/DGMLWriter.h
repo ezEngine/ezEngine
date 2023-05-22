@@ -39,9 +39,9 @@ public:
     Collapsed,
   };
 
-  typedef ezUInt32 NodeId;
-  typedef ezUInt32 PropertyId;
-  typedef ezUInt32 ConnectionId;
+  using NodeId = ezUInt32;
+  using PropertyId = ezUInt32;
+  using ConnectionId = ezUInt32;
 
   struct NodeDesc
   {

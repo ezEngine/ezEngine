@@ -44,7 +44,7 @@ namespace
   // clang-format on
 
   class TestComponentMsg;
-  typedef ezComponentManager<TestComponentMsg, ezBlockStorageType::FreeList> TestComponentMsgManager;
+  using TestComponentMsgManager = ezComponentManager<TestComponentMsg, ezBlockStorageType::FreeList>;
 
   class TestComponentMsg : public ezComponent
   {

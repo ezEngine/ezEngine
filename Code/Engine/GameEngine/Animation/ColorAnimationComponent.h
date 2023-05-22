@@ -8,7 +8,7 @@
 #include <Core/World/World.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 
-typedef ezComponentManagerSimple<class ezColorAnimationComponent, ezComponentUpdateType::WhenSimulating> ezColorAnimationComponentManager;
+using ezColorAnimationComponentManager = ezComponentManagerSimple<class ezColorAnimationComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Samples a color gradient and sends an ezMsgSetColor to the object it is attached to
 ///

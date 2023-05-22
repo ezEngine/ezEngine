@@ -37,7 +37,7 @@ namespace ezInternal
     };
 
     // object storage
-    typedef ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::Compact> ObjectStorage;
+    using ObjectStorage = ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, ezBlockStorageType::Compact>;
     ezIdTable<ezGameObjectId, ezGameObject*, ezLocalAllocatorWrapper> m_Objects;
     ObjectStorage m_ObjectStorage;
 
@@ -99,8 +99,8 @@ namespace ezInternal
     // hierarchy structures
     struct Hierarchy
     {
-      typedef ezDataBlock<ezGameObject::TransformationData, ezInternal::DEFAULT_BLOCK_SIZE> DataBlock;
-      typedef ezDynamicArray<DataBlock> DataBlockArray;
+      using DataBlock = ezDataBlock<ezGameObject::TransformationData, ezInternal::DEFAULT_BLOCK_SIZE>;
+      using DataBlockArray = ezDynamicArray<DataBlock>;
 
       ezHybridArray<DataBlockArray*, 8, ezLocalAllocatorWrapper> m_Data;
     };
@@ -128,7 +128,7 @@ namespace ezInternal
     template <typename VISITOR>
     ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
-    typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> VisitorFunc;
+    using VisitorFunc = ezDelegate<ezVisitorExecution::Enum(ezGameObject*)>;
     void TraverseBreadthFirst(VisitorFunc& func);
     void TraverseDepthFirst(VisitorFunc& func);
     static ezVisitorExecution::Enum TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
@@ -228,7 +228,7 @@ namespace ezInternal
       ezTime m_Due;
     };
 
-    typedef ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper> MessageQueue;
+    using MessageQueue = ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper>;
     mutable MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
     mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
 

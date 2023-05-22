@@ -8,7 +8,7 @@
 class EZ_TEST_DLL ezSimpleTestGroup : public ezTestBaseClass
 {
 public:
-  typedef void (*SimpleTestFunc)();
+  using SimpleTestFunc = void (*)();
 
   ezSimpleTestGroup(const char* szName)
     : m_szTestName(szName)

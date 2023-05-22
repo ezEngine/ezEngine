@@ -127,7 +127,7 @@ template <typename RESOURCE_TYPE>
 class ezTypedResourceHandle
 {
 public:
-  typedef RESOURCE_TYPE ResourceType;
+  using ResourceType = RESOURCE_TYPE;
 
   /// \brief A default constructed handle is invalid and does not reference any resource.
   ezTypedResourceHandle() = default;

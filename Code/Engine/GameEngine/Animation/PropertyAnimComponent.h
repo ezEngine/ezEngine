@@ -9,7 +9,7 @@
 #include <GameEngine/GameEngineDLL.h>
 struct ezMsgSetPlaying;
 
-typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating> ezPropertyAnimComponentManager;
+using ezPropertyAnimComponentManager = ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Animates properties on other objects and components according to the property animation resource
 ///

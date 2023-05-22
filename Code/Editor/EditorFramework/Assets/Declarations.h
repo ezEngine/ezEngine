@@ -24,7 +24,7 @@ struct ezAssetExistanceState
 
 struct ezAssetDocumentFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {
@@ -51,7 +51,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezAssetDocumentFlags);
 
 struct ezTransformFlags
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
 
   enum Enum
   {

@@ -31,7 +31,7 @@ struct TestId
   };
 };
 
-typedef ezGenericId<32, 10> LargeTestId;
+using LargeTestId = ezGenericId<32, 10>;
 
 EZ_CREATE_SIMPLE_TEST(Basics, Id)
 {

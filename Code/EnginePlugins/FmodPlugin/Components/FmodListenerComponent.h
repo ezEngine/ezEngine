@@ -2,7 +2,7 @@
 
 #include <FmodPlugin/Components/FmodComponent.h>
 
-typedef ezComponentManagerSimple<class ezFmodListenerComponent, ezComponentUpdateType::WhenSimulating> ezFmodListenerComponentManager;
+using ezFmodListenerComponentManager = ezComponentManagerSimple<class ezFmodListenerComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Represents the position of the sound listener
 class EZ_FMODPLUGIN_DLL ezFmodListenerComponent : public ezFmodComponent

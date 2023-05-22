@@ -57,7 +57,7 @@ private:
   IgnoreInfo m_IgnoreSource;
 
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   ezHeaderCheckApp()
     : ezApplication("HeaderCheck")

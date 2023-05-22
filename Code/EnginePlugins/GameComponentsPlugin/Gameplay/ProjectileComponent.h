@@ -7,7 +7,7 @@
 
 struct ezMsgComponentInternalTrigger;
 
-typedef ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating> ezProjectileComponentManager;
+using ezProjectileComponentManager = ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Defines what a projectile will do when it hits a surface
 struct EZ_GAMECOMPONENTS_DLL ezProjectileReaction

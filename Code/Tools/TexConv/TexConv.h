@@ -7,7 +7,7 @@ class ezStreamWriter;
 class ezTexConv : public ezApplication
 {
 public:
-  typedef ezApplication SUPER;
+  using SUPER = ezApplication;
 
   struct KeyEnumValuePair
   {

@@ -87,8 +87,8 @@ template <typename T, ezBlockStorageType::Enum StorageType>
 class ezComponentManager : public ezComponentManagerBase
 {
 public:
-  typedef T ComponentType;
-  typedef ezComponentManagerBase SUPER;
+  using ComponentType = T;
+  using SUPER = ezComponentManagerBase;
 
   /// \brief Although the constructor is public always use ezWorld::CreateComponentManager to create an instance.
   ezComponentManager(ezWorld* pWorld);
@@ -156,7 +156,7 @@ private:
 
 #define EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType)                        \
 public:                                                                                             \
-  typedef managerType ComponentManagerType;                                                         \
+  using ComponentManagerType = managerType;                                                         \
   virtual ezWorldModuleTypeId GetTypeId() const override { return s_TypeId; }                       \
   static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return s_TypeId; }                         \
   virtual ezComponentMode::Enum GetMode() const override;                                           \

@@ -6,7 +6,7 @@
 
 struct ezExampleEnum
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
   enum Enum
   {
     Value1 = 1,      // normal value
@@ -21,7 +21,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
 
 struct ezExampleBitflags
 {
-  typedef ezUInt64 StorageType;
+  using StorageType = ezUInt64;
   enum Enum : ezUInt64
   {
     Value1 = EZ_BIT(0),  // normal value

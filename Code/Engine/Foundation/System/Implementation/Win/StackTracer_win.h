@@ -25,25 +25,25 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 namespace
 {
-  typedef WORD(__stdcall* CaptureStackBackTraceFunc)(DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash);
+  using CaptureStackBackTraceFunc = WORD(__stdcall*)(DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash);
 
-  typedef BOOL(__stdcall* SymbolInitializeFunc)(HANDLE hProcess, PCWSTR UserSearchPath, BOOL fInvadeProcess);
+  using SymbolInitializeFunc = BOOL(__stdcall*)(HANDLE hProcess, PCWSTR UserSearchPath, BOOL fInvadeProcess);
 
-  typedef DWORD64(__stdcall* SymbolLoadModuleFunc)(HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
+  using SymbolLoadModuleFunc = DWORD64(__stdcall*)(HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
 
-  typedef BOOL(__stdcall* SymbolGetModuleInfoFunc)(HANDLE hProcess, DWORD64 qwAddr, PIMAGEHLP_MODULEW64 ModuleInfo);
+  using SymbolGetModuleInfoFunc = BOOL(__stdcall*)(HANDLE hProcess, DWORD64 qwAddr, PIMAGEHLP_MODULEW64 ModuleInfo);
 
-  typedef PVOID(__stdcall* SymbolFunctionTableAccess)(HANDLE hProcess, DWORD64 AddrBase);
+  using SymbolFunctionTableAccess = PVOID(__stdcall*)(HANDLE hProcess, DWORD64 AddrBase);
 
-  typedef DWORD64(__stdcall* SymbolGetModuleBaseFunc)(HANDLE hProcess, DWORD64 qwAddr);
+  using SymbolGetModuleBaseFunc = DWORD64(__stdcall*)(HANDLE hProcess, DWORD64 qwAddr);
 
-  typedef BOOL(__stdcall* StackWalk)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
+  using StackWalk = BOOL(__stdcall*)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
 
-  typedef BOOL(__stdcall* SymbolFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
+  using SymbolFromAddressFunc = BOOL(__stdcall*)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
 
-  typedef BOOL(__stdcall* LineFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PIMAGEHLP_LINEW64 Line);
+  using LineFromAddressFunc = BOOL(__stdcall*)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PIMAGEHLP_LINEW64 Line);
 
-  typedef BOOL(__stdcall* SymSetSearchPathFunc)(HANDLE hProcess, PCWSTR SearchPath);
+  using SymSetSearchPathFunc = BOOL(__stdcall*)(HANDLE hProcess, PCWSTR SearchPath);
 
   struct StackTracerImplementation
   {

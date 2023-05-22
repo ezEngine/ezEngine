@@ -6,9 +6,9 @@
 
 struct android_app;
 struct _JavaVM;
-typedef _JavaVM JavaVM;
+using JavaVM = _JavaVM;
 struct _JNIEnv;
-typedef _JNIEnv JNIEnv;
+using JNIEnv = _JNIEnv;
 
 class EZ_FOUNDATION_DLL ezAndroidUtils
 {
