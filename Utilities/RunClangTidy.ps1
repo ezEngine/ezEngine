@@ -26,7 +26,7 @@ param
 	$FilterPattern
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Break"
 
 $Workspace = (Resolve-Path $Workspace).Path
 
@@ -260,6 +260,7 @@ if($files.Length -eq 0)
 
 $syncStore = [hashtable]::Synchronized(@{})
 $syncStore.NumErrors = 0
+$syncStore.NumMessages = 0
 
 if($FilterPattern)
 {
@@ -273,6 +274,8 @@ if($FileLimit -gt 0)
 
 Write-Host "Running clang-tidy on" $files.Length "files"
 
+$warningSeen = [System.Collections.Concurrent.ConcurrentDictionary[string, object]]::new()
+
 $job = $files | Foreach-Object -Parallel `
 {
    $ClangTidy = $using:ClangTidy
@@ -282,6 +285,7 @@ $job = $files | Foreach-Object -Parallel `
    $HeaderPattern = $using:HeaderPattern
    $syncStore = $using:syncStore
    $ClangLibPath = $using:ClangLibPath
+   $warningSeen = $using:warningSeen
    
    $fixesFile = Join-Path $TempDir "$(New-Guid).yaml"
    
@@ -289,12 +293,49 @@ $job = $files | Foreach-Object -Parallel `
    $output += "// $_`r`n"
    $output += "// $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile `"--extra-arg=-isystem$ClangLibPath`" $_ `r`n"
    $output += "////////////////////////////////////////////////////////////////////////////////////////////////////////////`r`n"
-   $output += (& $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile "--extra-arg=-isystem$ClangLibPath" $_ *>&1) | Out-String
+   $tidyOutput = (& $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile "--extra-arg=-isystem$ClangLibPath" $_ *>&1) | Out-String -Stream
+   
+   $filteredTidyOutput = @($tidyOutput | ? {!$_.StartsWith("Suppressed") -and !$_.StartsWith("Use -header-filter") -and !($_ -match "warnings generated.") -and $_.trim() -ne "" })
+   $filteredTidyOutputWithIndex = @($filteredTidyOutput | % {$i=0} {$value = @{msg = $_; index = $i}; $i++; return $value})
+   $finalTidyOutput = @($filteredTidyOutputWithIndex | % {if($_.msg -match "^(.*(h|cpp|hpp)):[0-9]+:[0-9]+: (warning|error):") { @{msg = $_.msg; index = $_.index; filename = $matches[1]}}})
+   
+   $numMessages = 0
+   # Go through all warnings in the clang-tidy output and filter them for relevant warnings.
+   if($finalTidyOutput.length -gt 0)
+   {
+       0..($finalTidyOutput.length-1) | % {
+         $curWarning = $finalTidyOutput[$_]
+         # We don't care about warnins in moc files
+         if($curWarning.filename.EndsWith(".moc.cpp") -or $curWarning.filename -match "moc_.*cpp")
+         {
+             return
+         }
+         # Have we printed this warning before?
+         if(!$warningSeen.TryAdd($curWarning.msg, $true))
+         {
+             return
+         }
+         $syncStore.NumMessages++
+         $numMessages++
+         $endIndex = if($_ + 1 -lt $finalTidyOutput.length) { $finalTidyOutput[$_ + 1].index } else { $filteredTidyOutput.length}
+         
+         ($curWarning.index)..($endIndex-1) | % { $output += $filteredTidyOutput[$_] + "`r`n" }
+       }
+   }
+   
    if($lastexitcode -ne 0)
    {
        $syncStore.NumErrors++
    }
-   $output
+   
+   if($numMessages -gt 0)
+   {
+     return $output
+   }
+   else 
+   {
+     return
+   }
 } -AsJob -ThrottleLimit $env:NUMBER_OF_PROCESSORS
 
 try
@@ -322,7 +363,7 @@ try
    {
        throw "$($syncStore.NumErrors) compilation units failed to compile. Please fix the compile errors."
    }
-   
+
    if((Get-ChildItem $TempDir).Length -gt 0)
    {
 	   Write-Host "Applying clang-tidy suggested fixes..."
@@ -331,6 +372,12 @@ try
 	   {
 		   throw "clang-apply-replacements failed with error code $lastexitcode"
 	   }
+   }
+  
+   if($syncStore.NumMessages -gt 0)
+   {
+       Write-Host "##vso[task.logissue type=error]clang-tidy issued $($syncStore.NumMessages) warnings / errors. Please fix these."
+       Write-Host "##vso[task.complete result=Failed;]"
    }
 }
 finally
