@@ -64,17 +64,6 @@ jobs:
           path: repo\Output\Bin\WinVs2022Dev64
           retention-days: 3
 
-      - name: Remove Unwanted Files
-        run: |
-          Get-ChildItem * -Include *.pdb -Recurse | Remove-Item
-          Get-ChildItem repo\Data\Samples\* -Include Build -Recurse | Remove-Item -Recurse -Force
-
-          rm -r -fo repo\Data\Platform
-          rm -r -fo repo\Data\UnitTests
-      
-        #rm -r -fo repo\Output\lib
-        #rm -r -fo repo\Data\Tools\Precompiled
-
       - name: Compile Shaders
         if: github.event.inputs.compile-shaders == 'true'
         run: |
@@ -85,6 +74,14 @@ jobs:
         shell: pwsh
         run: repo\Utilities\Scripts\transform-all-projects.ps1
 
+      - name: Remove Unwanted Files
+        run: |
+          Get-ChildItem * -Include *.pdb -Recurse | Remove-Item
+          Get-ChildItem repo\Data\Samples\* -Include Build -Recurse | Remove-Item -Recurse -Force
+
+          rm -r -fo repo\Data\Platform
+          rm -r -fo repo\Data\UnitTests
+      
       - name: Generate Package
         run: |
           mkdir _package
