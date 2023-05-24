@@ -11,8 +11,6 @@ class ezMessage;
 class EZ_FOUNDATION_DLL ezAbstractMessageHandler
 {
 public:
-  EZ_DECLARE_POD_TYPE();
-
   EZ_ALWAYS_INLINE void operator()(void* pInstance, ezMessage& ref_msg) { (*m_DispatchFunc)(pInstance, ref_msg); }
 
   EZ_FORCE_INLINE void operator()(const void* pInstance, ezMessage& ref_msg)

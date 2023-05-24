@@ -9,7 +9,7 @@ using ezScriptClassResourceHandle = ezTypedResourceHandle<class ezScriptClassRes
 class EZ_CORE_DLL ezScriptInstance
 {
 public:
-  virtual ~ezScriptInstance() {}
+  virtual ~ezScriptInstance() = default;
   virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) = 0;
 };
 
@@ -50,7 +50,7 @@ public:
 
   const ezSharedPtr<ezScriptRTTI>& GetType() const { return m_pType; }
 
-  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& owner, ezWorld* pWorld) const = 0;
+  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const = 0;
 
 protected:
   void CreateScriptType(ezStringView sName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers);

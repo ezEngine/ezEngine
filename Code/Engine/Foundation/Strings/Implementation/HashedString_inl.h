@@ -19,17 +19,19 @@ EZ_FORCE_INLINE ezHashedString::ezHashedString(ezHashedString&& rhs)
   rhs.m_Data = HashedType(); // This leaves the string in an invalid state, all operations will fail except the destructor
 }
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
 inline ezHashedString::~ezHashedString()
 {
-#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // Explicit check if data is still valid. It can be invalid if this string has been moved.
   if (m_Data.IsValid())
   {
     // just decrease the refcount of the object that we are set to, it might reach refcount zero, but we don't care about that here
     m_Data.Value().m_iRefCount.Decrement();
   }
-#endif
 }
+#else
+EZ_FORCE_INLINE ezHashedString::~ezHashedString() = default;
+#endif
 
 inline void ezHashedString::operator=(const ezHashedString& rhs)
 {

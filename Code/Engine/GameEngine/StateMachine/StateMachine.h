@@ -154,13 +154,13 @@ public:
   /// \brief Returns how long the state machine is in its current state
   ezTime GetTimeInCurrentState() const { return m_TimeInCurrentState; }
 
-public:
-  // The following functions are for scripting reflection and shouldn't be called manually
+private:
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezStateMachineInstance);
+
   bool Reflection_SetState(ezStringView sStateName);
   ezComponent* Reflection_GetOwnerComponent() const;
   ezBlackboard* Reflection_GetBlackboard() const { return m_pBlackboard.Borrow(); }
 
-private:
   void SetStateInternal(ezUInt32 uiStateIndex);
   void EnterCurrentState(const ezStateMachineState* pFromState);
   void ExitCurrentState(const ezStateMachineState* pToState);

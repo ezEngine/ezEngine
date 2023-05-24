@@ -21,8 +21,8 @@ private:
 
   struct ConnectionInfo
   {
-    const ezDocumentObject* m_pSource;
-    const ezDocumentObject* m_pTarget;
+    const ezDocumentObject* m_pSource = nullptr;
+    const ezDocumentObject* m_pTarget = nullptr;
     ezString m_sSourcePin;
     ezString m_sTargetPin;
   };

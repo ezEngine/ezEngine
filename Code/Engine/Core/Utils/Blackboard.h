@@ -175,6 +175,14 @@ public:
   ezResult Deserialize(ezStreamReader& inout_stream);
 
 private:
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezBlackboard);
+
+  static ezBlackboard* Reflection_GetOrCreateGlobal(ezStringView sName);
+  static ezBlackboard* Reflection_FindGlobal(ezStringView sName);
+  void Reflection_RegisterEntry(ezStringView sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent);
+  bool Reflection_SetEntryValue(ezStringView sName, const ezVariant& value);
+  ezVariant Reflection_GetEntryValue(ezStringView sName, const ezVariant& fallback) const;
+
   ezHashedString m_sName;
   ezEvent<EntryEvent> m_EntryEvents;
   ezUInt32 m_uiBlackboardChangeCounter = 0;

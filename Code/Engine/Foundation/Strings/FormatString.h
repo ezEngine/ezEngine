@@ -78,7 +78,7 @@ public:
   const char* BuildFormattedText(ezStringBuilder& ref_sStorage, ezStringView* pArgs, ezUInt32 uiNumArgs) const;
 
 protected:
-  const char* m_szString;
+  const char* m_szString = nullptr;
 };
 
 #include <Foundation/Strings/Implementation/FormatStringImpl.h>
