@@ -3,9 +3,9 @@
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/Scripting/ScriptClassResource.h>
 
-ezScriptRTTI::ezScriptRTTI(const char* szName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers)
+ezScriptRTTI::ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers)
   : ezRTTI(nullptr, pParentType, 0, 1, ezVariantType::Invalid, ezTypeFlags::Class, nullptr, ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezAbstractFunctionProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
-  , m_sTypeNameStorage(szName)
+  , m_sTypeNameStorage(sName)
   , m_FunctionStorage(std::move(functions))
   , m_MessageHandlerStorage(std::move(messageHandlers))
 {
@@ -67,7 +67,7 @@ ezScriptClassResource::ezScriptClassResource()
 
 ezScriptClassResource::~ezScriptClassResource() = default;
 
-void ezScriptClassResource::CreateScriptType(const char* szName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers)
+void ezScriptClassResource::CreateScriptType(ezStringView sName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers)
 {
   ezScriptRTTI::FunctionList sortedFunctions;
   for (auto pFuncProp : pBaseType->GetFunctions())
@@ -77,8 +77,7 @@ void ezScriptClassResource::CreateScriptType(const char* szName, const ezRTTI* p
       continue;
 
     ezStringView sBaseClassFuncName = pFuncProp->GetPropertyName();
-    if (sBaseClassFuncName.StartsWith("Reflection_"))
-      sBaseClassFuncName.Shrink(11, 0);
+    sBaseClassFuncName.TrimWordStart("Reflection_");
 
     ezUInt16 uiIndex = pBaseClassFuncAttr->GetIndex();
     sortedFunctions.EnsureCount(uiIndex + 1);
@@ -96,7 +95,7 @@ void ezScriptClassResource::CreateScriptType(const char* szName, const ezRTTI* p
     }
   }
 
-  m_pType = EZ_DEFAULT_NEW(ezScriptRTTI, szName, pBaseType, std::move(sortedFunctions), std::move(messageHandlers));
+  m_pType = EZ_DEFAULT_NEW(ezScriptRTTI, sName, pBaseType, std::move(sortedFunctions), std::move(messageHandlers));
 }
 
 void ezScriptClassResource::DeleteScriptType()

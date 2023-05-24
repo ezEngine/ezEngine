@@ -26,7 +26,7 @@ public:
   using FunctionList = ezSmallArray<ezUniquePtr<ezAbstractFunctionProperty>, NumInplaceFunctions>;
   using MessageHandlerList = ezSmallArray<ezUniquePtr<ezAbstractMessageHandler>, NumInplaceFunctions>;
 
-  ezScriptRTTI(const char* szName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers);
+  ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers);
   ~ezScriptRTTI();
 
   const ezAbstractFunctionProperty* GetFunctionByIndex(ezUInt32 uiIndex) const;
@@ -53,7 +53,7 @@ public:
   virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& owner, ezWorld* pWorld) const = 0;
 
 protected:
-  void CreateScriptType(const char* szName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers);
+  void CreateScriptType(ezStringView sName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers);
   void DeleteScriptType();
 
   ezSharedPtr<ezScriptRTTI> m_pType;

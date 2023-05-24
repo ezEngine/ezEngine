@@ -20,13 +20,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboard, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOrCreateGlobal, In, "Name"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindGlobal, In, "Name"),
-
     EZ_SCRIPT_FUNCTION_PROPERTY(GetName),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_RegisterEntry, In, "Name", In, "InitialValue", In, "Save", In, "OnChangeEvent"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetEntryValue, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetEntryValue, In, "Name", In, "Fallback"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardChangeCounter),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardEntryChangeCounter)
   }
@@ -248,43 +242,6 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& inout_stream)
   }
 
   return EZ_SUCCESS;
-}
-
-// static
-ezBlackboard* ezBlackboard::Reflection_GetOrCreateGlobal(ezStringView sName)
-{
-  ezHashedString sNameHashed;
-  sNameHashed.Assign(sName);
-
-  return GetOrCreateGlobal(sNameHashed).Borrow();
-}
-
-// static
-ezBlackboard* ezBlackboard::Reflection_FindGlobal(ezStringView sName)
-{
-  return FindGlobal(ezTempHashedString(sName));
-}
-
-void ezBlackboard::Reflection_RegisterEntry(ezStringView sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent)
-{
-  ezHashedString sNameHashed;
-  sNameHashed.Assign(sName);
-
-  ezBitflags<ezBlackboardEntryFlags> flags;
-  flags.AddOrRemove(ezBlackboardEntryFlags::Save, bSave);
-  flags.AddOrRemove(ezBlackboardEntryFlags::OnChangeEvent, bOnChangeEvent);
-
-  RegisterEntry(sNameHashed, initialValue, flags);
-}
-
-bool ezBlackboard::Reflection_SetEntryValue(ezStringView sName, const ezVariant& value)
-{
-  return SetEntryValue(ezTempHashedString(sName), value).Succeeded();
-}
-
-ezVariant ezBlackboard::Reflection_GetEntryValue(ezStringView sName, const ezVariant& fallback) const
-{
-  return GetEntryValue(ezTempHashedString(sName), fallback);
 }
 
 //////////////////////////////////////////////////////////////////////////

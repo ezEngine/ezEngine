@@ -221,11 +221,11 @@ protected:
   /// Messages will be dispatched to this type. Default is what GetDynamicRTTI() returns, can be redirected if necessary.
   const ezRTTI* m_pMessageDispatchType = nullptr;
 
-private:
   bool IsInitialized() const;
   bool IsInitializing() const;
   bool IsSimulationStarted() const;
 
+private:
   // updates the component's active state depending on the owner object's active state
   void UpdateActiveState(bool bOwnerActive);
 

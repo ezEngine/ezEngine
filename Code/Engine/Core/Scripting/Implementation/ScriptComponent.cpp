@@ -130,13 +130,16 @@ void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScrip
   if (m_hScriptClass == hScript)
     return;
 
-  ClearInstance(true);
+  if (IsInitialized())
+  {
+    ClearInstance(IsActiveAndInitialized());
+  }
 
   m_hScriptClass = hScript;
 
-  if (IsActiveAndInitialized() && m_hScriptClass.IsValid())
+  if (IsInitialized() && m_hScriptClass.IsValid())
   {
-    InstantiateScript(true);
+    InstantiateScript(IsActiveAndInitialized());
   }
 }
 
@@ -212,7 +215,7 @@ bool ezScriptComponent::GetParameter(const char* szKey, ezVariant& out_value) co
 
 void ezScriptComponent::InstantiateScript(bool bActivate)
 {
-  ClearInstance(true);
+  ClearInstance(IsActiveAndInitialized());
 
   ezResourceLock<ezScriptClassResource> pScript(m_hScriptClass, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pScript.GetAcquireResult() != ezResourceAcquireResult::Final)
@@ -278,7 +281,7 @@ void ezScriptComponent::UpdateScheduling()
 
   pModule->AddScriptReloadFunction(m_hScriptClass,
     [this]() {
-      InstantiateScript(true);
+      InstantiateScript(IsActiveAndInitialized());
     });
 }
 
