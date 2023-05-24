@@ -264,6 +264,7 @@ struct EZ_FOUNDATION_DLL ezComparisonOperator
     Default = Equal
   };
 
+  /// \brief Compares a to b with the given operator. This function only needs the == and < operator for T.
   template <typename T>
-  static bool Compare(ezComparisonOperator::Enum cmp, const T& a, const T& b);
+  static bool Compare(ezComparisonOperator::Enum cmp, const T& a, const T& b); // [tested]
 };

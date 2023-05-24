@@ -898,4 +898,58 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(res == y);
 #endif
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComparisonOperator")
+  {
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, 1.0, 1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, 1.0, 2.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::NotEqual, 1.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::NotEqual, 1.0, 1.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, 1.0, 1.0) == false);
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, 1.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, -2.0, -1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, 3.0, 2.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, 1.0, 1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, 1.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, -2.0, -1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, 3.0, 2.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, 1.0, 1.0) == false);
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, 3.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, -1.0, -2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, 2.0, 3.0) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, 1.0, 1.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, 3.0, 2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, -1.0, -2.0));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, 2.0, 3.0) == false);
+
+    ezStringView a = "a";
+    ezStringView b = "b";
+    ezStringView c = "c";
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, a, a));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, a, b) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::NotEqual, a, c));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::NotEqual, a, a) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, a, a) == false);
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, a, b));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Less, c, b) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, a, a));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, a, b));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::LessEqual, c, b) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, a, a) == false);
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, c, b));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Greater, a, b) == false);
+
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, a, a));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, c, b));
+    EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::GreaterEqual, a, b) == false);
+  }
 }
