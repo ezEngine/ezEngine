@@ -97,7 +97,7 @@ struct ezPropertyFlags
     constexpr ezVariantType::Enum type = static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<CleanType>::value);
     if constexpr (std::is_same<CleanType, ezVariant>::value ||
                   std::is_same<Type, const char*>::value || // We treat const char* as a basic type and not a pointer.
-                  type >= ezVariantType::FirstStandardType && type <= ezVariantType::LastStandardType)
+                  (type >= ezVariantType::FirstStandardType && type <= ezVariantType::LastStandardType))
       flags.Add(ezPropertyFlags::StandardType);
     else if constexpr (ezIsEnum<CleanType>::value)
       flags.Add(ezPropertyFlags::IsEnum);
