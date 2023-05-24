@@ -1723,37 +1723,34 @@ void ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler(const ezCommand
 
 ezQtVariantPropertyWidget::ezQtVariantPropertyWidget()
 {
-  m_pLayout = new QHBoxLayout(this);
-  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  m_pLayout = new QVBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 4);
+  m_pLayout->setSpacing(1);
   setLayout(m_pLayout);
-}
 
+  m_pTypeList = new QComboBox(this);
+  m_pTypeList->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+  m_pLayout->addWidget(m_pTypeList);
+}
 
 ezQtVariantPropertyWidget::~ezQtVariantPropertyWidget() = default;
 
-void ezQtVariantPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtVariantPropertyWidget::OnInit()
 {
-  ezQtStandardPropertyWidget::SetSelection(items);
-}
-
-void ezQtVariantPropertyWidget::ExtendContextMenu(QMenu& ref_menu)
-{
-  ezQtStandardPropertyWidget::ExtendContextMenu(ref_menu);
-
-  QMenu* ctm = ref_menu.addMenu(QStringLiteral("Change Type"));
-  for (int i = ezVariantType::FirstStandardType + 1; i < ezVariantType::LastStandardType; ++i)
+  ezStringBuilder sName;
+  for (int i = ezVariantType::Invalid; i < ezVariantType::LastExtendedType; ++i)
   {
-    if (i == ezVariantType::StringView || i == ezVariantType::DataBuffer)
-      continue;
     auto type = static_cast<ezVariantType::Enum>(i);
-    const ezRTTI* pVariantEnum = ezRTTI::FindTypeByName("ezVariantType");
-    ezStringBuilder sName;
-    bool res = ezReflectionUtils::EnumerationToString(pVariantEnum, type, sName);
-    QAction* action = ctm->addAction(sName.GetData(), [this, type]()
-      { ChangeVariantType(type); });
-    if (m_OldValue.GetType() == type)
-      action->setChecked(true);
+    if (GetVariantTypeDisplayName(type, sName).Succeeded())
+    {
+      m_pTypeList->addItem(ezTranslate(sName), i);
+    }
   }
+
+  connect(m_pTypeList, &QComboBox::currentIndexChanged,
+    [this](int index) {
+      ChangeVariantType(static_cast<ezVariantType::Enum>(m_pTypeList->itemData(index).toInt()));
+    });
 }
 
 void ezQtVariantPropertyWidget::InternalSetValue(const ezVariant& value)
@@ -1778,23 +1775,43 @@ void ezQtVariantPropertyWidget::InternalSetValue(const ezVariant& value)
     }
     else if (!sameType)
     {
-      m_pWidget = new ezQtUnsupportedPropertyWidget("Multi-selection has varying types, RMB to change.");
+      m_pWidget = new ezQtUnsupportedPropertyWidget("Multi-selection has varying types");
     }
     else
     {
-      m_pWidget = new ezQtUnsupportedPropertyWidget("Variant set to invalid, RMB to change.");
+      m_pWidget = new ezQtUnsupportedPropertyWidget("<Invalid>");
     }
     m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     m_pWidget->setParent(this);
     m_pLayout->addWidget(m_pWidget);
     m_pWidget->Init(m_pGrid, m_pObjectAccessor, m_pType, m_pProp);
+
+    UpdateTypeListSelection(commonType);
   }
   m_pWidget->SetSelection(m_Items);
 }
 
+void ezQtVariantPropertyWidget::DoPrepareToDie()
+{
+  if (m_pWidget)
+    m_pWidget->PrepareToDie();
+}
+
+void ezQtVariantPropertyWidget::UpdateTypeListSelection(ezVariantType::Enum type)
+{
+  ezQtScopedBlockSignals bs(m_pTypeList);
+  for (int i = 0; i < m_pTypeList->count(); ++i)
+  {
+    if (m_pTypeList->itemData(i).toInt() == type)
+    {
+      m_pTypeList->setCurrentIndex(i);
+      break;
+    }
+  }
+}
+
 void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
 {
-
   m_pObjectAccessor->StartTransaction("Change variant type");
   // check if we have multiple values
   for (const auto& item : m_Items)
@@ -1814,8 +1831,14 @@ void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
   m_pObjectAccessor->FinishTransaction();
 }
 
-void ezQtVariantPropertyWidget::DoPrepareToDie()
+ezResult ezQtVariantPropertyWidget::GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const
 {
-  if (m_pWidget)
-    m_pWidget->PrepareToDie();
+  if (type == ezVariantType::FirstStandardType || type == ezVariantType::StringView || type == ezVariantType::DataBuffer || type >= ezVariantType::LastStandardType)
+    return EZ_FAILURE;
+
+  const ezRTTI* pVariantEnum = ezGetStaticRTTI<ezVariantType>();
+  if (ezReflectionUtils::EnumerationToString(pVariantEnum, type, out_sName) == false)
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
 }

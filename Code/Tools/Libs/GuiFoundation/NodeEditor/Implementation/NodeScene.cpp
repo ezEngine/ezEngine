@@ -44,9 +44,9 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
 
   m_pManager = pManager;
 
-  if (pManager != nullptr)
+  if (m_pManager != nullptr)
   {
-    pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
+    m_pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
     m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
     m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
 
@@ -240,8 +240,8 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     if (it.Value()->GetFlags().IsSet(ezNodeFlags::Moved))
     {
       moved.Insert(it.Key());
+      it.Value()->ResetFlags();
     }
-    it.Value()->ResetFlags();
   }
 
   if (!moved.IsEmpty())
@@ -417,6 +417,10 @@ void ezQtNodeScene::CreateQtConnection(const ezDocumentObject* pObject)
   pOutput->AddConnection(pQtConnection);
   pInput->AddConnection(pQtConnection);
   m_Connections[pObject] = pQtConnection;
+
+  // reset flags to update the node's title to reflect connection changes
+  pSource->ResetFlags();
+  pTarget->ResetFlags();
 }
 
 void ezQtNodeScene::DeleteQtConnection(const ezDocumentObject* pObject)
@@ -441,6 +445,18 @@ void ezQtNodeScene::DeleteQtConnection(const ezDocumentObject* pObject)
 
   removeItem(pQtConnection);
   delete pQtConnection;
+
+  // reset flags to update the node's title to reflect connection changes
+  pSource->ResetFlags();
+  pTarget->ResetFlags();
+}
+
+void ezQtNodeScene::RecreateQtPins(const ezDocumentObject* pObject)
+{
+  ezQtNode* pNode = m_Nodes[pObject];
+  pNode->CreatePins();
+  pNode->UpdateState();
+  pNode->UpdateGeometry();
 }
 
 void ezQtNodeScene::CreateNodeObject(const ezRTTI* pRtti)
@@ -492,6 +508,13 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
       DeleteQtConnection(e.m_pObject);
       break;
 
+    case ezDocumentNodeManagerEvent::Type::BeforePinsChanged:
+      break;
+
+    case ezDocumentNodeManagerEvent::Type::AfterPinsChanged:
+      RecreateQtPins(e.m_pObject);
+      break;
+
     case ezDocumentNodeManagerEvent::Type::AfterNodeAdded:
       CreateQtNode(e.m_pObject);
       break;
@@ -508,11 +531,11 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
 void ezQtNodeScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
   auto it = m_Nodes.Find(e.m_pObject);
-
-  if (!it.IsValid())
-    return;
-
-  it.Value()->UpdateState();
+  if (it.IsValid())
+  {
+    it.Value()->ResetFlags();
+    it.Value()->update();
+  }
 }
 
 void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)

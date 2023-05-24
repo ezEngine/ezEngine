@@ -16,7 +16,7 @@ class ezReflectedTypeStorageManager;
 /// \brief Event message used by the ezPhantomRttiManager.
 struct EZ_TOOLSFOUNDATION_DLL ezPhantomTypeChange
 {
-  const ezRTTI* m_pChangedType;
+  const ezRTTI* m_pChangedType = nullptr;
 };
 
 struct EZ_TOOLSFOUNDATION_DLL ezAttributeHolder

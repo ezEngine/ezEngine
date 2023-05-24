@@ -109,6 +109,6 @@ void ezQtAnimationControllerNode::UpdateState()
 
   if (!sTitle.IsEmpty())
   {
-    m_pLabel->setPlainText(sTitle.GetData());
+    m_pTitleLabel->setPlainText(sTitle.GetData());
   }
 }

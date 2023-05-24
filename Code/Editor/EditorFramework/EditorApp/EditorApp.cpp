@@ -167,16 +167,16 @@ bool ezQtEditorApp::IsProgressBarProcessingEvents() const
   return m_pQtProgressbar != nullptr && m_pQtProgressbar->IsProcessingEvents();
 }
 
-void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDynamicStringEnum& e)
+void ezQtEditorApp::OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDynamicStringEnum& e)
 {
   ezStringBuilder sFile;
-  sFile.Format(":project/Editor/{}.txt", szEnumName);
+  sFile.Format(":project/Editor/{}.txt", sEnumName);
 
   // enums loaded this way are user editable
   e.SetStorageFile(sFile);
   e.ReadFromStorage();
 
-  m_DynamicEnumStringsToClear.Insert(szEnumName);
+  m_DynamicEnumStringsToClear.Insert(sEnumName);
 }
 
 bool ContainsPlugin(const ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& all, const char* szPlugin)

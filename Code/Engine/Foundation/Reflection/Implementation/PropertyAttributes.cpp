@@ -213,6 +213,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTagSetWidgetAttribute, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNoTemporaryTransactionsAttribute, 1, ezRTTIDefaultAllocator<ezNoTemporaryTransactionsAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParametersAttribute, 1, ezRTTIDefaultAllocator<ezExposedParametersAttribute>)
 {
   EZ_BEGIN_PROPERTIES
@@ -256,22 +259,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerAttribute, 1, ezRTTIDefaultAllocator<
   EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(bool, bool, bool),
-  }
-  EZ_END_FUNCTIONS;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConstrainPointerAttribute, 1, ezRTTIDefaultAllocator<ezConstrainPointerAttribute>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("ConstantName", m_sConstantName),
-    EZ_MEMBER_PROPERTY("ConstantValue", m_sConstantValueProperty),
-  }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
   EZ_END_FUNCTIONS;
 }
@@ -967,18 +954,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptableFunctionAttribute, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Arg1", m_sArg1),
-    EZ_MEMBER_PROPERTY("Arg2", m_sArg2),
-    EZ_MEMBER_PROPERTY("Arg3", m_sArg3),
-    EZ_MEMBER_PROPERTY("Arg4", m_sArg4),
-    EZ_MEMBER_PROPERTY("Arg5", m_sArg5),
-    EZ_MEMBER_PROPERTY("Arg6", m_sArg6),
-    EZ_MEMBER_PROPERTY("ArgType1", m_ArgType1),
-    EZ_MEMBER_PROPERTY("ArgType2", m_ArgType2),
-    EZ_MEMBER_PROPERTY("ArgType3", m_ArgType3),
-    EZ_MEMBER_PROPERTY("ArgType4", m_ArgType4),
-    EZ_MEMBER_PROPERTY("ArgType5", m_ArgType5),
-    EZ_MEMBER_PROPERTY("ArgType6", m_ArgType6),
+    EZ_ARRAY_MEMBER_PROPERTY("ArgNames", m_ArgNames),
+    EZ_ARRAY_MEMBER_PROPERTY("ArgTypes", m_ArgTypes),
   }
   EZ_END_PROPERTIES;
 }
@@ -989,63 +966,49 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
   const char* szArg2 /*= nullptr*/, ArgType argType3 /*= In*/, const char* szArg3 /*= nullptr*/, ArgType argType4 /*= In*/,
   const char* szArg4 /*= nullptr*/, ArgType argType5 /*= In*/, const char* szArg5 /*= nullptr*/, ArgType argType6 /*= In*/,
   const char* szArg6 /*= nullptr*/)
-  : m_sArg1(szArg1)
-  , m_sArg2(szArg2)
-  , m_sArg3(szArg3)
-  , m_sArg4(szArg4)
-  , m_sArg5(szArg5)
-  , m_sArg6(szArg6)
-  , m_ArgType1(argType1)
-  , m_ArgType2(argType2)
-  , m_ArgType3(argType3)
-  , m_ArgType4(argType4)
-  , m_ArgType5(argType5)
-  , m_ArgType6(argType6)
 {
-}
-
-const char* ezScriptableFunctionAttribute::GetArgumentName(ezUInt32 uiIndex) const
-{
-  switch (uiIndex)
   {
-    case 0:
-      return m_sArg1;
-    case 1:
-      return m_sArg2;
-    case 2:
-      return m_sArg3;
-    case 3:
-      return m_sArg4;
-    case 4:
-      return m_sArg5;
-    case 5:
-      return m_sArg6;
+    if (ezStringUtils::IsNullOrEmpty(szArg1))
+      return;
+
+    m_ArgNames.PushBack(szArg1);
+    m_ArgTypes.PushBack(argType1);
   }
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return nullptr;
-}
-
-ezScriptableFunctionAttribute::ArgType ezScriptableFunctionAttribute::GetArgumentType(ezUInt32 uiIndex) const
-{
-  switch (uiIndex)
   {
-    case 0:
-      return (ArgType)m_ArgType1;
-    case 1:
-      return (ArgType)m_ArgType2;
-    case 2:
-      return (ArgType)m_ArgType3;
-    case 3:
-      return (ArgType)m_ArgType4;
-    case 4:
-      return (ArgType)m_ArgType5;
-    case 5:
-      return (ArgType)m_ArgType6;
-  }
+    if (ezStringUtils::IsNullOrEmpty(szArg2))
+      return;
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ArgType::In;
+    m_ArgNames.PushBack(szArg2);
+    m_ArgTypes.PushBack(argType2);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg3))
+      return;
+
+    m_ArgNames.PushBack(szArg3);
+    m_ArgTypes.PushBack(argType3);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg4))
+      return;
+
+    m_ArgNames.PushBack(szArg4);
+    m_ArgTypes.PushBack(argType4);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg5))
+      return;
+
+    m_ArgNames.PushBack(szArg5);
+    m_ArgTypes.PushBack(argType5);
+  }
+  {
+    if (ezStringUtils::IsNullOrEmpty(szArg6))
+      return;
+
+    m_ArgNames.PushBack(szArg6);
+    m_ArgTypes.PushBack(argType6);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1061,6 +1024,25 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptMappingAttribute, 1, ezRTTIDefaultAll
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicPinAttribute, 1, ezRTTIDefaultAllocator<ezDynamicPinAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Property", m_sProperty)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezDynamicPinAttribute::ezDynamicPinAttribute(const char* szProperty)
+  : m_sProperty(szProperty)
+{
+}
 
 //////////////////////////////////////////////////////////////////////////
 

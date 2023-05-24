@@ -216,6 +216,70 @@ struct FunctionTest
     return 5;
   }
 
+  ezVariantArray VariantArrayFunction(ezVariantArray a, const ezVariantArray ca, ezVariantArray& ref_a, const ezVariantArray& cra, ezVariantArray* pA, const ezVariantArray* pCa)
+  {
+    EZ_TEST_BOOL(m_values[0].Get<ezVariantArray>() == a);
+    EZ_TEST_BOOL(m_values[1].Get<ezVariantArray>() == ca);
+    EZ_TEST_BOOL(m_values[2].Get<ezVariantArray>() == ref_a);
+    EZ_TEST_BOOL(m_values[3].Get<ezVariantArray>() == cra);
+    if (m_bPtrAreNull)
+    {
+      EZ_TEST_BOOL(!pA);
+      EZ_TEST_BOOL(!pCa);
+    }
+    else
+    {
+      EZ_TEST_BOOL(m_values[4] == *pA);
+      EZ_TEST_BOOL(m_values[5] == *pCa);
+    }
+    ref_a.Clear();
+    ref_a.PushBack(1.0f);
+    ref_a.PushBack("Test");
+    if (pA)
+    {
+      pA->Clear();
+      pA->PushBack(2.0f);
+      pA->PushBack("Test2");
+    }
+
+    ezVariantArray ret;
+    ret.PushBack(3.0f);
+    ret.PushBack("RetTest");
+    return ret;
+  }
+
+  ezVariantDictionary VariantDictionaryFunction(ezVariantDictionary a, const ezVariantDictionary ca, ezVariantDictionary& ref_a, const ezVariantDictionary& cra, ezVariantDictionary* pA, const ezVariantDictionary* pCa)
+  {
+    EZ_TEST_BOOL(m_values[0].Get<ezVariantDictionary>() == a);
+    EZ_TEST_BOOL(m_values[1].Get<ezVariantDictionary>() == ca);
+    EZ_TEST_BOOL(m_values[2].Get<ezVariantDictionary>() == ref_a);
+    EZ_TEST_BOOL(m_values[3].Get<ezVariantDictionary>() == cra);
+    if (m_bPtrAreNull)
+    {
+      EZ_TEST_BOOL(!pA);
+      EZ_TEST_BOOL(!pCa);
+    }
+    else
+    {
+      EZ_TEST_BOOL(m_values[4] == *pA);
+      EZ_TEST_BOOL(m_values[5] == *pCa);
+    }
+    ref_a.Clear();
+    ref_a.Insert("f", 1.0f);
+    ref_a.Insert("s", "Test");
+    if (pA)
+    {
+      pA->Clear();
+      pA->Insert("f", 2.0f);
+      pA->Insert("s", "Test2");
+    }
+
+    ezVariantDictionary ret;
+    ret.Insert("f", 3.0f);
+    ret.Insert("s", "RetTest");
+    return ret;
+  }
+
   static void StaticFunction(bool b, ezVariant v)
   {
     EZ_TEST_BOOL(b == true);
@@ -487,7 +551,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     test.m_values.PushBack(ezVariant(&value));
 
     // ezVariantAdapter<ezTestStruct3 const*> aa(ezVariant(&value));
-    //auto bla = ezIsStandardType<ezTestStruct3 const*>::value;
+    // auto bla = ezIsStandardType<ezTestStruct3 const*>::value;
 
     ezVariant ret(&retS);
     funccall.Execute(&test, test.m_values, ret);
@@ -594,6 +658,115 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     funccall.Execute(&test, test.m_values, ret);
     EZ_TEST_BOOL(ret.GetType() == ezVariantType::Int32);
     EZ_TEST_BOOL(ret == 5);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Member Functions - VariantArray")
+  {
+    ezFunctionProperty<decltype(&FunctionTest::VariantArrayFunction)> funccall("", &FunctionTest::VariantArrayFunction);
+    ParamSig testSet[] = {
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class | ezPropertyFlags::Reference),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer),
+      ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
+    };
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezVariantArray>(), ezPropertyFlags::Class));
+    EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
+
+    ezVariantArray testA;
+    testA.PushBack(ezVec3(3));
+    testA.PushBack(ezTime::Hours(22));
+    testA.PushBack("Hello");
+
+    FunctionTest test;
+    for (ezUInt32 i = 0; i < 6; ++i)
+    {
+      test.m_values.PushBack(testA);
+      testA.PushBack(i);
+    }
+
+    ezVariantArray expectedOutRef;
+    expectedOutRef.PushBack(1.0f);
+    expectedOutRef.PushBack("Test");
+
+    ezVariantArray expectedOutPtr;
+    expectedOutPtr.PushBack(2.0f);
+    expectedOutPtr.PushBack("Test2");
+
+    ezVariantArray expectedRet;
+    expectedRet.PushBack(3.0f);
+    expectedRet.PushBack("RetTest");
+
+    ezVariant ret;
+    funccall.Execute(&test, test.m_values, ret);
+    EZ_TEST_BOOL(ret.GetType() == ezVariantType::VariantArray);
+    EZ_TEST_BOOL(ret.Get<ezVariantArray>() == expectedRet);
+    EZ_TEST_BOOL(test.m_values[2] == expectedOutRef);
+    EZ_TEST_BOOL(test.m_values[4] == expectedOutPtr);
+
+    test.m_bPtrAreNull = true;
+    test.m_values[4] = ezVariant();
+    test.m_values[5] = ezVariant();
+    ret = ezVariant();
+    funccall.Execute(&test, test.m_values, ret);
+    EZ_TEST_BOOL(ret.GetType() == ezVariantType::VariantArray);
+    EZ_TEST_BOOL(ret.Get<ezVariantArray>() == expectedRet);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Member Functions - VariantDictionary")
+  {
+    ezFunctionProperty<decltype(&FunctionTest::VariantDictionaryFunction)> funccall("", &FunctionTest::VariantDictionaryFunction);
+    ParamSig testSet[] = {
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class | ezPropertyFlags::Reference),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Reference),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class | ezPropertyFlags::Pointer),
+      ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class | ezPropertyFlags::Const | ezPropertyFlags::Pointer),
+    };
+    VerifyFunctionSignature(&funccall, ezArrayPtr<ParamSig>(testSet), ParamSig(ezGetStaticRTTI<ezVariantDictionary>(), ezPropertyFlags::Class));
+    EZ_TEST_BOOL(funccall.GetFunctionType() == ezFunctionType::Member);
+
+    ezVariantDictionary testA;
+    testA.Insert("v", ezVec3(3));
+    testA.Insert("t", ezTime::Hours(22));
+    testA.Insert("s", "Hello");
+
+    ezStringBuilder tmp;
+    FunctionTest test;
+    for (ezUInt32 i = 0; i < 6; ++i)
+    {
+      test.m_values.PushBack(testA);
+      testA.Insert(ezConversionUtils::ToString(i, tmp), i);
+    }
+
+    ezVariantDictionary expectedOutRef;
+    expectedOutRef.Insert("f", 1.0f);
+    expectedOutRef.Insert("s", "Test");
+
+    ezVariantDictionary expectedOutPtr;
+    expectedOutPtr.Insert("f", 2.0f);
+    expectedOutPtr.Insert("s", "Test2");
+
+    ezVariantDictionary expectedRet;
+    expectedRet.Insert("f", 3.0f);
+    expectedRet.Insert("s", "RetTest");
+
+    ezVariant ret;
+    funccall.Execute(&test, test.m_values, ret);
+    EZ_TEST_BOOL(ret.GetType() == ezVariantType::VariantDictionary);
+    EZ_TEST_BOOL(ret.Get<ezVariantDictionary>() == expectedRet);
+    EZ_TEST_BOOL(test.m_values[2] == expectedOutRef);
+    EZ_TEST_BOOL(test.m_values[4] == expectedOutPtr);
+
+    test.m_bPtrAreNull = true;
+    test.m_values[4] = ezVariant();
+    test.m_values[5] = ezVariant();
+    ret = ezVariant();
+    funccall.Execute(&test, test.m_values, ret);
+    EZ_TEST_BOOL(ret.GetType() == ezVariantType::VariantDictionary);
+    EZ_TEST_BOOL(ret.Get<ezVariantDictionary>() == expectedRet);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Static Functions")

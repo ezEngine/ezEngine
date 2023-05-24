@@ -178,6 +178,8 @@ public:
 
   bool IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pObject) const;
   bool IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pParent, const char* szParentProperty) const;
+  bool IsTemporary(const ezDocumentObject* pObject) const;
+  bool IsTemporary(const ezDocumentObject* pParent, const char* szParentProperty) const;
 
   ezSharedPtr<ezDocumentObjectManager::Storage> SwapStorage(ezSharedPtr<ezDocumentObjectManager::Storage> pNewStorage);
   ezSharedPtr<ezDocumentObjectManager::Storage> GetStorage() { return m_pObjectStorage; }

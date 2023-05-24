@@ -359,12 +359,17 @@ class ezVariantHelper
   {
     bSuccessful = true;
 
+    if (value.IsValid() == false)
+    {
+      result = "<Invalid>";
+      return;
+    }
+
     ToStringFunc toStringFunc;
     toStringFunc.m_pThis = &value;
     toStringFunc.m_pResult = &result;
 
     ezVariant::DispatchTo(toStringFunc, value.GetType());
-    bSuccessful = true;
   }
 
   static void To(const ezVariant& value, ezTypedPointer& result, bool& bSuccessful)

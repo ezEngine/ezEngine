@@ -63,8 +63,6 @@ void ezQtAddSubElementButton::OnInit()
     m_bPreventDuplicates = true;
   }
 
-  m_pConstraint = m_pProp->GetAttributeByType<ezConstrainPointerAttribute>();
-
   QMetaObject::connectSlotsByName(this);
 }
 
@@ -141,32 +139,6 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
     }
     m_SupportedTypes.Insert(pProp->GetSpecificType());
 
-    ezVariant constraintValue;
-    if (m_pConstraint)
-    {
-      const ezRTTI* pType = GetCommonBaseType(m_Items);
-      if (const ezAbstractProperty* pConstraintValueProp = pType->FindPropertyByName(m_pConstraint->GetConstantValueProperty()))
-      {
-        if (pConstraintValueProp->GetCategory() == ezPropertyCategory::Constant)
-        {
-          constraintValue = static_cast<const ezAbstractConstantProperty*>(pConstraintValueProp)->GetConstant();
-        }
-        else if (pConstraintValueProp->GetCategory() == ezPropertyCategory::Member)
-        {
-          constraintValue = GetCommonValue(m_Items, pConstraintValueProp);
-        }
-        else
-        {
-          ezLog::Error("ezConstrainPointerAttribute set for '{0}' but the constant value property '{1}' has an unsupported type.",
-            pType->GetTypeName(), m_pConstraint->GetConstantValueProperty().GetData());
-        }
-      }
-      else
-      {
-        ezLog::Error("ezConstrainPointerAttribute set for '{0}' but the constant value property '{1}' does not exist.", pType->GetTypeName(),
-          m_pConstraint->GetConstantValueProperty().GetData());
-      }
-    }
     // remove all types that are marked as hidden
     for (auto it = m_SupportedTypes.GetIterator(); it.IsValid();)
     {
@@ -179,17 +151,6 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
       if (!s_bShowInDevelopmentFeatures)
       {
         if (auto pInDev = it.Key()->GetAttributeByType<ezInDevelopmentAttribute>())
-        {
-          it = m_SupportedTypes.Remove(it);
-          continue;
-        }
-      }
-
-      if (m_pConstraint)
-      {
-        const ezAbstractProperty* pConstraintProp = it.Key()->FindPropertyByName(m_pConstraint->GetConstantName());
-        if (!constraintValue.IsValid() || !pConstraintProp || pConstraintProp->GetCategory() != ezPropertyCategory::Constant ||
-            static_cast<const ezAbstractConstantProperty*>(pConstraintProp)->GetConstant() != constraintValue)
         {
           it = m_SupportedTypes.Remove(it);
           continue;

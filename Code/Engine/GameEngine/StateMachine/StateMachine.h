@@ -6,6 +6,8 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 
+class ezComponent;
+class ezWorld;
 class ezBlackboard;
 class ezStateMachineInstance;
 
@@ -38,7 +40,24 @@ public:
   virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc);
 
 private:
+  // These are dummy functions for the scripting reflection
+  void Reflection_OnEnter(ezStateMachineInstance* pStateMachineInstance, const ezStateMachineState* pFromState);
+  void Reflection_OnExit(ezStateMachineInstance* pStateMachineInstance, const ezStateMachineState* pToState);
+  void Reflection_Update(ezStateMachineInstance* pStateMachineInstance, ezTime deltaTime);
+
   ezHashedString m_sName;
+};
+
+struct ezStateMachineState_ScriptBaseClassFunctions
+{
+  enum Enum
+  {
+    OnEnter,
+    OnExit,
+    Update,
+
+    Count
+  };
 };
 
 /// \brief Base class for a transition in a state machine. The target state of a transition is automatically set
@@ -127,6 +146,7 @@ public:
   void Update(ezTime deltaTime);
 
   ezReflectedClass& GetOwner() { return m_Owner; }
+  ezWorld* GetOwnerWorld();
 
   void SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard);
   const ezSharedPtr<ezBlackboard>& GetBlackboard() const { return m_pBlackboard; }
@@ -135,6 +155,12 @@ public:
   ezTime GetTimeInCurrentState() const { return m_TimeInCurrentState; }
 
 private:
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezStateMachineInstance);
+
+  bool Reflection_SetState(ezStringView sStateName);
+  ezComponent* Reflection_GetOwnerComponent() const;
+  ezBlackboard* Reflection_GetBlackboard() const { return m_pBlackboard.Borrow(); }
+
   void SetStateInternal(ezUInt32 uiStateIndex);
   void EnterCurrentState(const ezStateMachineState* pFromState);
   void ExitCurrentState(const ezStateMachineState* pToState);
@@ -166,3 +192,5 @@ private:
 
   ezBlob m_InstanceData;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezStateMachineInstance);

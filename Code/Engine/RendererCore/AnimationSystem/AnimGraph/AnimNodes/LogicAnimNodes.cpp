@@ -246,7 +246,7 @@ ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezCompareNumberAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  if (ezComparisonOperator::Compare(m_Comparison, m_NumberPin.GetNumber(graph), m_fReferenceValue))
+  if (ezComparisonOperator::Compare<double>(m_Comparison, m_NumberPin.GetNumber(graph), m_fReferenceValue))
   {
     m_ActivePin.SetTriggered(graph, true);
   }

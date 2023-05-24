@@ -595,7 +595,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
   {
     if (pFunction->GetArgumentFlags(argIdx).IsAnySet(ezPropertyFlags::StandardType) == false)
     {
-      ezLog::Error("Script function '{}' uses non-standard type for argument {}", nd.m_sTypeName, argIdx + 1);
+      ezLog::Warning("Script function '{}' uses non-standard type for argument {}", nd.m_sTypeName, argIdx + 1);
       return;
     }
 

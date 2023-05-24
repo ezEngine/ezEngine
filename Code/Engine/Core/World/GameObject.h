@@ -508,6 +508,8 @@ private:
   ezObjectMode::Enum Reflection_GetMode() const;
   void Reflection_SetMode(ezObjectMode::Enum mode);
 
+  ezGameObject* Reflection_FindChildByName(ezStringView sName, bool bRecursive);
+
   bool DetermineDynamicMode(ezComponent* pComponentToIgnore = nullptr) const;
   void ConditionalMakeStatic(ezComponent* pComponentToIgnore = nullptr);
   void MakeStaticInternal();

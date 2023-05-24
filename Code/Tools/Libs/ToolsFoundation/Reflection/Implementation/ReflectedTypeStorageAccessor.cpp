@@ -224,11 +224,11 @@ ezInt32 ezReflectedTypeStorageAccessor::GetCount(const char* szProperty) const
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
-      return false;
+      return -1;
 
     const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
     if (pProp == nullptr)
-      return false;
+      return -1;
 
     switch (pProp->GetCategory())
     {

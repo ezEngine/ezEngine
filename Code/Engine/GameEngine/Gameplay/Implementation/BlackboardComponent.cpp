@@ -93,6 +93,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBlackboardComponent, 1, ezComponentMode::Static)
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(SetEntryValue, In, "Name", In, "Value"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindBlackboard, In, "SearchObject", In, "BlackboardName"),
   }
   EZ_END_FUNCTIONS;
 
@@ -264,7 +265,7 @@ void ezBlackboardComponent::SetEntryValue(const char* szName, const ezVariant& v
   }
 }
 
-ezVariant ezBlackboardComponent::GetEntryValue(const char* szName)
+ezVariant ezBlackboardComponent::GetEntryValue(const char* szName) const
 {
   return m_pBoard->GetEntryValue(ezTempHashedString(szName));
 }
@@ -303,6 +304,12 @@ void ezBlackboardComponent::Entries_Remove(ezUInt32 uiIndex)
   m_pBoard->UnregisterEntry(entry.m_sName);
 
   m_InitialEntries.RemoveAtAndCopy(uiIndex);
+}
+
+// static
+ezBlackboard* ezBlackboardComponent::Reflection_FindBlackboard(ezGameObject* pSearchObject, ezStringView sBlackboardName)
+{
+  return FindBlackboard(pSearchObject, sBlackboardName).Borrow();
 }
 
 void ezBlackboardComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const

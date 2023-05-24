@@ -26,7 +26,7 @@ public:
   explicit ezQtNodeScene(QObject* pParent = nullptr);
   ~ezQtNodeScene();
 
-  void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);
+  virtual void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);
   const ezDocumentNodeManager* GetDocumentNodeManager() const;
   const ezDocument* GetDocument() const;
 
@@ -84,6 +84,7 @@ private:
   void DeleteQtNode(const ezDocumentObject* pObject);
   void CreateQtConnection(const ezDocumentObject* pObject);
   void DeleteQtConnection(const ezDocumentObject* pObject);
+  void RecreateQtPins(const ezDocumentObject* pObject);
   void CreateNodeObject(const ezRTTI* pRtti);
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);

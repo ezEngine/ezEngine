@@ -41,7 +41,6 @@ private:
   ezQtSearchableMenu* m_pSearchableMenu = nullptr;
   ezUInt32 m_uiMaxElements = 0; // 0 means unlimited
   bool m_bPreventDuplicates = false;
-  const ezConstrainPointerAttribute* m_pConstraint = nullptr;
 
   // used to remember the last search term entered into the searchable menu
   // this should probably be per 'distinguishable menu', but currently it is just global

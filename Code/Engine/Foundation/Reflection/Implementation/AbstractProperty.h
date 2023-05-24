@@ -94,28 +94,25 @@ struct ezPropertyFlags
   {
     using CleanType = typename ezTypeTraits<Type>::NonConstReferencePointerType;
     ezBitflags<ezPropertyFlags> flags;
-    ezVariantType::Enum type = static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<CleanType>::value);
-    if (std::is_same<CleanType, ezVariant>::value)
+    constexpr ezVariantType::Enum type = static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<CleanType>::value);
+    if constexpr (std::is_same<CleanType, ezVariant>::value ||
+                  std::is_same<Type, const char*>::value || // We treat const char* as a basic type and not a pointer.
+                  (type >= ezVariantType::FirstStandardType && type <= ezVariantType::LastStandardType))
       flags.Add(ezPropertyFlags::StandardType);
-    else if (std::is_same<Type, const char*>::value)
-      // We treat const char* as a basic type and not a pointer.
-      flags.Add(ezPropertyFlags::StandardType);
-    else if ((type >= ezVariantType::FirstStandardType && type <= ezVariantType::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
-      flags.Add(ezPropertyFlags::StandardType);
-    else if (ezIsEnum<CleanType>::value)
+    else if constexpr (ezIsEnum<CleanType>::value)
       flags.Add(ezPropertyFlags::IsEnum);
-    else if (ezIsBitflags<CleanType>::value)
+    else if constexpr (ezIsBitflags<CleanType>::value)
       flags.Add(ezPropertyFlags::Bitflags);
     else
       flags.Add(ezPropertyFlags::Class);
 
-    if (std::is_const<typename ezTypeTraits<Type>::NonReferencePointerType>::value)
+    if constexpr (std::is_const<typename ezTypeTraits<Type>::NonReferencePointerType>::value)
       flags.Add(ezPropertyFlags::Const);
 
-    if (std::is_pointer<Type>::value && !std::is_same<Type, const char*>::value)
+    if constexpr (std::is_pointer<Type>::value && !std::is_same<Type, const char*>::value)
       flags.Add(ezPropertyFlags::Pointer);
 
-    if (std::is_reference<Type>::value)
+    if constexpr (std::is_reference<Type>::value)
       flags.Add(ezPropertyFlags::Reference);
 
     return flags;
@@ -566,7 +563,21 @@ public:
   /// returnValue must be a ptr to a valid class instance of the returned type.
   /// An invalid variant is equal to a nullptr, except for if the argument is of type ezVariant, in which case
   /// it is impossible to pass along a nullptr.
-  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& ref_returnValue) const = 0;
+  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const = 0;
 
   virtual const ezRTTI* GetSpecificType() const override { return GetReturnType(); }
+
+  /// \brief Adds flags to the property. Returns itself to allow to be called during initialization.
+  ezAbstractFunctionProperty* AddFlags(ezBitflags<ezPropertyFlags> flags)
+  {
+    return static_cast<ezAbstractFunctionProperty*>(ezAbstractProperty::AddFlags(flags));
+  }
+
+  /// \brief Adds attributes to the property. Returns itself to allow to be called during initialization. Allocate an attribute using
+  /// standard 'new'.
+  ezAbstractFunctionProperty* AddAttributes(ezPropertyAttribute* pAttrib1, ezPropertyAttribute* pAttrib2 = nullptr, ezPropertyAttribute* pAttrib3 = nullptr,
+    ezPropertyAttribute* pAttrib4 = nullptr, ezPropertyAttribute* pAttrib5 = nullptr, ezPropertyAttribute* pAttrib6 = nullptr)
+  {
+    return static_cast<ezAbstractFunctionProperty*>(ezAbstractProperty::AddAttributes(pAttrib1, pAttrib2, pAttrib3, pAttrib4, pAttrib5, pAttrib6));
+  }
 };

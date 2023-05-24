@@ -253,6 +253,12 @@ private:
   ezUntrackedString m_sTagFilter;
 };
 
+/// \brief This attribute indicates that a widget should not use temporary transactions when changing the value.
+class EZ_FOUNDATION_DLL ezNoTemporaryTransactionsAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezNoTemporaryTransactionsAttribute, ezPropertyAttribute);
+};
+
 /// \brief Add this attribute to a variant map property to make it map to the exposed parameters
 /// of an asset. For this, the member property name of the asset reference needs to be passed in.
 /// The exposed parameters of the currently set asset on that property will be used as the source.
@@ -336,29 +342,6 @@ private:
   bool m_bCanAdd = false;
   bool m_bCanDelete = false;
   bool m_bCanMove = false;
-};
-
-/// \brief Limits setting of pointer properties to derived types that have the given constant property and value
-///
-/// The szConstantValueProperty is a sibling property of the property this attribute is assigned to,
-class EZ_FOUNDATION_DLL ezConstrainPointerAttribute : public ezPropertyAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezConstrainPointerAttribute, ezPropertyAttribute);
-
-public:
-  ezConstrainPointerAttribute() = default;
-  ezConstrainPointerAttribute(const char* szConstantName, const char* szConstantValueProperty)
-    : m_sConstantName(szConstantName)
-    , m_sConstantValueProperty(szConstantValueProperty)
-  {
-  }
-
-  const ezUntrackedString& GetConstantName() const { return m_sConstantName; }
-  const ezUntrackedString& GetConstantValueProperty() const { return m_sConstantValueProperty; }
-
-private:
-  ezUntrackedString m_sConstantName;
-  ezUntrackedString m_sConstantValueProperty;
 };
 
 /// \brief Defines how a reference set by ezFileBrowserAttribute and ezAssetBrowserAttribute is treated.
@@ -951,23 +934,13 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
     ArgType argType3 = In, const char* szArg3 = nullptr, ArgType argType4 = In, const char* szArg4 = nullptr, ArgType argType5 = In,
     const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr);
 
-  const char* GetArgumentName(ezUInt32 uiIndex) const;
+  const char* GetArgumentName(ezUInt32 uiIndex) const { return m_ArgNames[uiIndex]; }
 
-  ArgType GetArgumentType(ezUInt32 uiIndex) const;
+  ArgType GetArgumentType(ezUInt32 uiIndex) const { return static_cast<ArgType>(m_ArgTypes[uiIndex]); }
 
-  ezUntrackedString m_sArg1;
-  ezUntrackedString m_sArg2;
-  ezUntrackedString m_sArg3;
-  ezUntrackedString m_sArg4;
-  ezUntrackedString m_sArg5;
-  ezUntrackedString m_sArg6;
-
-  ezUInt8 m_ArgType1;
-  ezUInt8 m_ArgType2;
-  ezUInt8 m_ArgType3;
-  ezUInt8 m_ArgType4;
-  ezUInt8 m_ArgType5;
-  ezUInt8 m_ArgType6;
+private:
+  ezHybridArray<ezUntrackedString, 6> m_ArgNames;
+  ezHybridArray<ezUInt8, 6> m_ArgTypes;
 };
 
 /// \brief Used to annotate properties to which pin or function parameter they belong (if necessary)
@@ -982,6 +955,21 @@ class EZ_FOUNDATION_DLL ezVisScriptMappingAttribute : public ezPropertyAttribute
   }
 
   ezInt32 m_iMapping = 0;
+};
+
+/// \brief Used to mark an array or (unsigned)int property as source for dynamic pin generation on nodes
+class EZ_FOUNDATION_DLL ezDynamicPinAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicPinAttribute, ezPropertyAttribute);
+
+public:
+  ezDynamicPinAttribute() = default;
+  ezDynamicPinAttribute(const char* szProperty);
+
+  const ezUntrackedString& GetProperty() const { return m_sProperty; }
+
+private:
+  ezUntrackedString m_sProperty;
 };
 
 //////////////////////////////////////////////////////////////////////////

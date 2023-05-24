@@ -147,7 +147,7 @@ public:
   ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& sName) const;
 
   /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
-  ezVariant GetEntryValue(const ezTempHashedString& sName, ezVariant fallback = {}) const;
+  ezVariant GetEntryValue(const ezTempHashedString& sName, const ezVariant& fallback = ezVariant()) const;
 
   /// \brief Grants read access to the entire map of entries.
   const ezHashTable<ezHashedString, Entry>& GetAllEntries() const { return m_Entries; }
@@ -175,6 +175,14 @@ public:
   ezResult Deserialize(ezStreamReader& inout_stream);
 
 private:
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezBlackboard);
+
+  static ezBlackboard* Reflection_GetOrCreateGlobal(ezStringView sName);
+  static ezBlackboard* Reflection_FindGlobal(ezStringView sName);
+  void Reflection_RegisterEntry(ezStringView sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent);
+  bool Reflection_SetEntryValue(ezStringView sName, const ezVariant& value);
+  ezVariant Reflection_GetEntryValue(ezStringView sName, const ezVariant& fallback) const;
+
   ezHashedString m_sName;
   ezEvent<EntryEvent> m_EntryEvents;
   ezUInt32 m_uiBlackboardChangeCounter = 0;
@@ -185,6 +193,8 @@ private:
   static ezMutex s_GlobalBlackboardsMutex;
   static ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> s_GlobalBlackboards;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboard);
 
 //////////////////////////////////////////////////////////////////////////
 

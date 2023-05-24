@@ -67,8 +67,6 @@ public:
   ezPropertyAnimAssetDocument(const char* szDocumentPath);
   ~ezPropertyAnimAssetDocument();
 
-  virtual ezObjectAccessorBase* GetObjectAccessor() const override;
-
   void SetAnimationDurationTicks(ezUInt64 uiNumTicks);
   ezUInt64 GetAnimationDurationTicks() const;
   ezTime GetAnimationDurationTime() const;
@@ -153,8 +151,6 @@ private:
 
   ezHashTable<ezPropertyReference, PropertyValue, PropertyKeyHash> m_PropertyTable;
   ezHashTable<ezUuid, ezHybridArray<ezPropertyReference, 1>> m_TrackTable;
-
-  ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
 
   bool m_bPlayAnimation = false;
   bool m_bRepeatAnimation = false;

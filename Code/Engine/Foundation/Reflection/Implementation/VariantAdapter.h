@@ -173,6 +173,32 @@ struct ezVariantAssignmentAdapter<T, C, 1>
   ezVariant& m_value;
 };
 
+template <class T>
+struct ezVariantAssignmentAdapter<T, ezVariantArray, 0>
+{
+  ezVariantAssignmentAdapter(ezVariant& value)
+    : m_value(value)
+  {
+  }
+
+  void operator=(T&& rhs) { m_value = rhs; }
+
+  ezVariant& m_value;
+};
+
+template <class T>
+struct ezVariantAssignmentAdapter<T, ezVariantDictionary, 0>
+{
+  ezVariantAssignmentAdapter(ezVariant& value)
+    : m_value(value)
+  {
+  }
+
+  void operator=(T&& rhs) { m_value = rhs; }
+
+  ezVariant& m_value;
+};
+
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Used to implicitly retrieve any value from an ezVariant to be used as a function argument
@@ -364,6 +390,62 @@ struct ezVariantAdapter<T, ezVariant, 1, 1>
 
   operator ezVariant&() { return m_value; }
   operator ezVariant*() { return &m_value; }
+
+  ezVariant& m_value;
+};
+
+template <class T>
+struct ezVariantAdapter<T, ezVariantArray, 0, 0>
+{
+  ezVariantAdapter(ezVariant& value)
+    : m_value(value)
+  {
+  }
+
+  operator const ezVariantArray&() { return m_value.Get<ezVariantArray>(); }
+  operator const ezVariantArray*() { return m_value.IsValid() ? &m_value.Get<ezVariantArray>() : nullptr; }
+
+  ezVariant& m_value;
+};
+
+template <class T>
+struct ezVariantAdapter<T, ezVariantArray, 0, 1>
+{
+  ezVariantAdapter(ezVariant& value)
+    : m_value(value)
+  {
+  }
+
+  operator ezVariantArray&() { return m_value.GetWritable<ezVariantArray>(); }
+  operator ezVariantArray*() { return m_value.IsValid() ? &m_value.GetWritable<ezVariantArray>() : nullptr; }
+
+  ezVariant& m_value;
+};
+
+template <class T>
+struct ezVariantAdapter<T, ezVariantDictionary, 0, 0>
+{
+  ezVariantAdapter(ezVariant& value)
+    : m_value(value)
+  {
+  }
+
+  operator const ezVariantDictionary&() { return m_value.Get<ezVariantDictionary>(); }
+  operator const ezVariantDictionary*() { return m_value.IsValid() ? &m_value.Get<ezVariantDictionary>() : nullptr; }
+
+  ezVariant& m_value;
+};
+
+template <class T>
+struct ezVariantAdapter<T, ezVariantDictionary, 0, 1>
+{
+  ezVariantAdapter(ezVariant& value)
+    : m_value(value)
+  {
+  }
+
+  operator ezVariantDictionary&() { return m_value.GetWritable<ezVariantDictionary>(); }
+  operator ezVariantDictionary*() { return m_value.IsValid() ? &m_value.GetWritable<ezVariantDictionary>() : nullptr; }
 
   ezVariant& m_value;
 };

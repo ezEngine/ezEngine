@@ -704,7 +704,7 @@ EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::PushBack(const T&
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::PushBack(T&& value)
 {
-  SUPER::PushBack(value, AllocatorWrapper::GetAllocator());
+  SUPER::PushBack(std::move(value), AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>

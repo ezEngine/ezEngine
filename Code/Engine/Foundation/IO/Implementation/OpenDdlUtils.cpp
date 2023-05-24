@@ -870,6 +870,12 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
+    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Invalid"))
+    {
+      out_result = ezVariant();
+      return EZ_SUCCESS;
+    }
+
     if (const ezRTTI* pRTTI = ezRTTI::FindTypeByName(pElement->GetCustomType()))
     {
       if (ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(pRTTI))
@@ -1210,86 +1216,59 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
   switch (value.GetType())
   {
     case ezVariant::Type::Invalid:
-      return; // store anything ?
+      StoreInvalid(ref_writer, szName, bGlobalName);
+      return;
 
     case ezVariant::Type::Bool:
-    {
       StoreBool(ref_writer, value.Get<bool>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::Int8:
-    {
       StoreInt8(ref_writer, value.Get<ezInt8>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::UInt8:
-    {
       StoreUInt8(ref_writer, value.Get<ezUInt8>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::Int16:
-    {
       StoreInt16(ref_writer, value.Get<ezInt16>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::UInt16:
-    {
       StoreUInt16(ref_writer, value.Get<ezUInt16>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::Int32:
-    {
       StoreInt32(ref_writer, value.Get<ezInt32>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::UInt32:
-    {
       StoreUInt32(ref_writer, value.Get<ezUInt32>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::Int64:
-    {
       StoreInt64(ref_writer, value.Get<ezInt64>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::UInt64:
-    {
       StoreUInt64(ref_writer, value.Get<ezUInt64>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::Float:
-    {
       StoreFloat(ref_writer, value.Get<float>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::Double:
-    {
       StoreDouble(ref_writer, value.Get<double>(), szName, bGlobalName);
-    }
       return;
 
     case ezVariant::Type::String:
-    {
-      const ezString& var = value.Get<ezString>();
-      ezOpenDdlUtils::StoreString(ref_writer, var, szName, bGlobalName);
-    }
+      ezOpenDdlUtils::StoreString(ref_writer, value.Get<ezString>(), szName, bGlobalName);
       return;
 
     case ezVariant::Type::StringView:
-    {
-      const ezStringView& var = value.Get<ezStringView>();
-      ezOpenDdlUtils::StoreString(ref_writer, var, szName, bGlobalName);
-    }
+      ezOpenDdlUtils::StoreString(ref_writer, value.Get<ezStringView>(), szName, bGlobalName);
       return;
 
     case ezVariant::Type::Color:
@@ -1539,6 +1518,10 @@ void ezOpenDdlUtils::StoreUInt64(ezOpenDdlWriter& ref_writer, ezUInt64 value, co
   ref_writer.EndPrimitiveList();
 }
 
-
+EZ_FOUNDATION_DLL void ezOpenDdlUtils::StoreInvalid(ezOpenDdlWriter& ref_writer, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+{
+  ref_writer.BeginObject("Invalid", szName, bGlobalName, true);
+  ref_writer.EndObject();
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlUtils);

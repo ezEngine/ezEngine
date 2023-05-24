@@ -35,6 +35,14 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsActive),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FindChildByPath, In, "Path")->AddFlags(ezPropertyFlags::Const),
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
@@ -135,6 +143,11 @@ void ezGameObject::Reflection_SetMode(ezObjectMode::Enum mode)
     m_Flags.Remove(ezObjectFlags::ForceDynamic);
     ConditionalMakeStatic();
   }
+}
+
+ezGameObject* ezGameObject::Reflection_FindChildByName(ezStringView sName, bool bRecursive)
+{
+  return FindChildByName(ezTempHashedString(sName), bRecursive);
 }
 
 bool ezGameObject::DetermineDynamicMode(ezComponent* pComponentToIgnore /*= nullptr*/) const

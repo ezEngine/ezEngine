@@ -393,29 +393,4 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComparisonOperator, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-// static
-bool ezComparisonOperator::Compare(ezComparisonOperator::Enum cmp, double f1, double f2)
-{
-  switch (cmp)
-  {
-    case ezComparisonOperator::Equal:
-      return f1 == f2;
-    case ezComparisonOperator::NotEqual:
-      return f1 != f2;
-    case ezComparisonOperator::Less:
-      return f1 < f2;
-    case ezComparisonOperator::LessEqual:
-      return f1 <= f2;
-    case ezComparisonOperator::Greater:
-      return f1 > f2;
-    case ezComparisonOperator::GreaterEqual:
-      return f1 >= f2;
-
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
-  return false;
-}
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);

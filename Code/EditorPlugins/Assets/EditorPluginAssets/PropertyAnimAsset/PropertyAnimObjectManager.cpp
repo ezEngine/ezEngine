@@ -37,21 +37,3 @@ ezStatus ezPropertyAnimObjectManager::InternalCanMove(
     return ezStatus("The structure of the context cannot be animated.");
   return ezStatus(EZ_SUCCESS);
 }
-
-bool ezPropertyAnimObjectManager::IsTemporary(const ezDocumentObject* pObject) const
-{
-  while (pObject->GetParent() != GetRootObject())
-  {
-    pObject = pObject->GetParent();
-  }
-  return ezStringUtils::IsEqual(pObject->GetParentProperty(), "TempObjects");
-}
-
-bool ezPropertyAnimObjectManager::IsTemporary(const ezDocumentObject* pParent, const char* szParentProperty) const
-{
-  if (pParent == nullptr || pParent == GetRootObject())
-  {
-    return ezStringUtils::IsEqual(szParentProperty, "TempObjects");
-  }
-  return IsTemporary(pParent);
-}

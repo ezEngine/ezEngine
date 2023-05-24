@@ -221,25 +221,44 @@ protected:
   /// Messages will be dispatched to this type. Default is what GetDynamicRTTI() returns, can be redirected if necessary.
   const ezRTTI* m_pMessageDispatchType = nullptr;
 
-private:
   bool IsInitialized() const;
   bool IsInitializing() const;
   bool IsSimulationStarted() const;
 
+private:
   // updates the component's active state depending on the owner object's active state
   void UpdateActiveState(bool bOwnerActive);
+
+  ezGameObject* Reflection_GetOwner() const;
+  ezWorld* Reflection_GetWorld() const;
+  void Reflection_Update();
 
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
 
   ezComponentId m_InternalId;
-  ezBitflags<ezObjectFlags> m_ComponentFlags;
-  ezUInt32 m_uiUniqueID;
+  ezBitflags<ezObjectFlags> m_ComponentFlags = ezObjectFlags::ActiveFlag;
+  ezUInt32 m_uiUniqueID = ezInvalidIndex;
 
   ezComponentManagerBase* m_pManager = nullptr;
   ezGameObject* m_pOwner = nullptr;
 
   static ezWorldModuleTypeId s_TypeId;
+};
+
+struct ezComponent_ScriptBaseClassFunctions
+{
+  enum Enum
+  {
+    Initialize,
+    Deinitialize,
+    OnActivated,
+    OnDeactivated,
+    OnSimulationStarted,
+    Update,
+
+    Count
+  };
 };
 
 #include <Core/World/Implementation/Component_inl.h>

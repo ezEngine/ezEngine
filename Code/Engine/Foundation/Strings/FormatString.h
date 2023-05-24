@@ -72,14 +72,13 @@ public:
 
   bool IsEmpty() const { return ezStringUtils::IsNullOrEmpty(m_szString); }
 
-protected:
-  // out of line function so that we don't need to include ezStringBuilder here, to break include dependency cycle
-  static void SBAppendView(ezStringBuilder& sb, const ezStringView& sub);
-  static void SBClear(ezStringBuilder& sb);
-  static void SBAppendChar(ezStringBuilder& sb, ezUInt32 uiChar);
-  static const char* SBReturn(ezStringBuilder& sb);
+  /// \brief Helper function to build the formatted text with the given arguments.
+  ///
+  /// \note We can't use ezArrayPtr here because of include order.
+  const char* BuildFormattedText(ezStringBuilder& ref_sStorage, ezStringView* pArgs, ezUInt32 uiNumArgs) const;
 
-  const char* m_szString;
+protected:
+  const char* m_szString = nullptr;
 };
 
 #include <Foundation/Strings/Implementation/FormatStringImpl.h>

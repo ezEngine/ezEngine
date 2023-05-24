@@ -14,6 +14,7 @@ class QHBoxLayout;
 class QVBoxLayout;
 class QLabel;
 class QMenu;
+class QComboBox;
 class ezQtGroupBoxBase;
 class ezQtAddSubElementButton;
 class ezQtPropertyGridWidget;
@@ -340,18 +341,18 @@ public:
   ezQtVariantPropertyWidget();
   virtual ~ezQtVariantPropertyWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
-  virtual void ExtendContextMenu(QMenu& ref_menu) override;
-
 protected:
-  virtual void OnInit() override{};
+  virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
   virtual void DoPrepareToDie() override;
+  void UpdateTypeListSelection(ezVariantType::Enum type);
   void ChangeVariantType(ezVariantType::Enum type);
 
+  virtual ezResult GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const;
+
 protected:
-  QHBoxLayout* m_pLayout = nullptr;
-  QWidget* m_pSelectType = nullptr;
+  QVBoxLayout* m_pLayout = nullptr;
+  QComboBox* m_pTypeList = nullptr;
   ezQtPropertyWidget* m_pWidget = nullptr;
   const ezRTTI* m_pCurrentSubType = nullptr;
 };

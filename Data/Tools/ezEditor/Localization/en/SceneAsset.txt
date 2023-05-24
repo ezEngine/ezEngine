@@ -61,6 +61,9 @@ ezTriggerDelayModifierComponent;Trigger Delay Modifier
 ezWindVolumeConeComponent;Cone Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
 ezWindVolumeCylinderComponent;Cylinder Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
 ezWindVolumeSphereComponent;Sphere Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
+ezBakedProbesComponent;Baked Probes
+ezBakedProbesVolumeComponent;Baked Probes Volume
+ezScriptComponent;Script Component
 ezPathComponent;Path Shape;;https://ezengine.net/pages/docs/animation/paths/path-component.html
 ezPathNodeComponent;Path Node;;https://ezengine.net/pages/docs/animation/paths/path-node-component.html
 ezFollowPathComponent;Follow Path;;https://ezengine.net/pages/docs/animation/paths/follow-path-component.html

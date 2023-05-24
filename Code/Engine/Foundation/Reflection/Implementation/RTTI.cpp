@@ -50,12 +50,12 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
-  ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractProperty*> functions,
+  ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions,
   ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
   const ezRTTI* (*fnVerifyParent)())
   : m_szTypeName(szName)
   , m_Properties(properties)
-  , m_Functions(ezMakeArrayPtr<ezAbstractFunctionProperty*>(reinterpret_cast<ezAbstractFunctionProperty**>(functions.GetPtr()), functions.GetCount()))
+  , m_Functions(functions)
   , m_Attributes(attributes)
   , m_pAllocator(pAllocator)
   , m_VerifyParent(fnVerifyParent)
@@ -329,7 +329,7 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& ref_msg) const
   // m_DynamicMessageHandlers contains all message handlers of this type and all base types
   if (uiIndex < m_DynamicMessageHandlers.GetCount())
   {
-    ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers[uiIndex];
+    ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers.GetData()[uiIndex];
     if (pHandler != nullptr)
     {
       (*pHandler)(pInstance, ref_msg);
@@ -351,7 +351,7 @@ bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& ref_msg) const
   // m_DynamicMessageHandlers contains all message handlers of this type and all base types
   if (uiIndex < m_DynamicMessageHandlers.GetCount())
   {
-    ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers[uiIndex];
+    ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers.GetData()[uiIndex];
     if (pHandler != nullptr && pHandler->IsConst())
     {
       (*pHandler)(pInstance, ref_msg);

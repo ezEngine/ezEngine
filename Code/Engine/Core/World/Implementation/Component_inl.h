@@ -1,11 +1,6 @@
 #include <Foundation/Logging/Log.h>
 
-EZ_ALWAYS_INLINE ezComponent::ezComponent()
-  : m_ComponentFlags(ezObjectFlags::ActiveFlag)
-
-{
-  m_uiUniqueID = ezInvalidIndex;
-}
+EZ_ALWAYS_INLINE ezComponent::ezComponent() = default;
 
 EZ_ALWAYS_INLINE ezComponent::~ezComponent()
 {
