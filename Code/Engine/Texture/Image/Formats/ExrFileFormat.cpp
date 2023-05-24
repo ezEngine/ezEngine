@@ -137,7 +137,7 @@ ezResult ReadImageData(ezStreamReader& ref_stream, ezDynamicArray<ezUInt8>& ref_
           break;
 
         case TINYEXR_PIXELTYPE_UINT:
-          ezImageFormat::R32G32B32A32_UINT;
+          imageFormat = ezImageFormat::R32G32B32A32_UINT;
           break;
       }
 
