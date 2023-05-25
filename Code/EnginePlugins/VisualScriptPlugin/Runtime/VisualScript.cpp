@@ -1,9 +1,10 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
-#include <Foundation/IO/StringDeduplicationContext.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeFunctions.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>
+
+#include <Foundation/IO/StringDeduplicationContext.h>
 
 namespace
 {

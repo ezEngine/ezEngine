@@ -2,6 +2,8 @@
 
 #include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
 
+#include <Core/World/World.h>
+
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptDataType, 1)
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Invalid),
