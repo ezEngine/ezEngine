@@ -16,7 +16,7 @@ class ezVisualScriptClassAssetDocument : public ezSimpleAssetDocument<ezVisualSc
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptClassAssetDocument, ezAssetDocument);
 
 public:
-  ezVisualScriptClassAssetDocument(const char* szDocumentPath);  
+  ezVisualScriptClassAssetDocument(const char* szDocumentPath);
 
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,

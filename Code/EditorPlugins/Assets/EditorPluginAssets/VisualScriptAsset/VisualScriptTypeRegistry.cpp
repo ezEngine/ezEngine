@@ -95,7 +95,7 @@ const ezVisualScriptNodeDescriptor* ezVisualScriptTypeRegistry::GetDescriptorFor
 void ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
 {
   if ((e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded && m_NodeDescriptors.Contains(e.m_pChangedType) == false) ||
-    e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
+      e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
   {
     UpdateNodeType(e.m_pChangedType);
   }

@@ -171,7 +171,7 @@ ezStringView ezVisualScriptNodeManager::GetNiceTypeName(const ezDocumentObject* 
 {
   ezStringView sTypeName = pObject->GetType()->GetTypeName();
   sTypeName.TrimWordStart(ezVisualScriptNodeRegistry::s_szTypeNamePrefix, "Builtin_");
-  
+
   if (const char* szAngleBracket = sTypeName.FindSubString("<"))
     sTypeName = ezStringView(sTypeName.GetStartPointer(), szAngleBracket);
 
@@ -352,8 +352,7 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
     return;
 
   ezHybridArray<ezString, 16> dynamicPinNames;
-  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins)
-  {
+  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins) {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
     {
       GetDynamicPinNames(pObject, pinDesc.m_sDynamicPinProperty, pinDesc.m_sName, dynamicPinNames);

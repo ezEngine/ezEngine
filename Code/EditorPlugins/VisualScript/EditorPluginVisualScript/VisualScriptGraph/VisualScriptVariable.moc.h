@@ -1,7 +1,7 @@
 #pragma once
 
-#include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
+#include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
 
 class ezVisualScriptVariableAttribute : public ezTypeWidgetAttribute
 {

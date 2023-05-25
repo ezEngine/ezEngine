@@ -145,7 +145,7 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromVariantType(ezVariantTy
     case ezVariantType::Bool:
       return Bool;
     case ezVariantType::Int8:
-    case ezVariantType::UInt8:    
+    case ezVariantType::UInt8:
       return Byte;
     case ezVariantType::Int16:
     case ezVariantType::UInt16:

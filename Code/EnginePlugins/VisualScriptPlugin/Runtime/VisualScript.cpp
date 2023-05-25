@@ -561,7 +561,7 @@ void ezVisualScriptDataStorage::SetDataFromVariant(DataOffset dataOffset, const 
       else
       {
         SetData(dataOffset, value.Get<ezUInt8>());
-      }      
+      }
       break;
     case ezVisualScriptDataType::Int:
       if (value.IsA<ezInt16>())

@@ -187,7 +187,7 @@ namespace
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<true>,
       &NodeUserData_TypeAndProperty::ToString}, // ReflectedFunction,
-    {},                                          // GetOwner,
+    {},                                         // GetOwner,
 
     {}, // FirstBuiltin,
 
@@ -198,7 +198,7 @@ namespace
     {&NodeUserData_Comparison::Serialize,
       &NodeUserData_Comparison::Deserialize,
       &NodeUserData_Comparison::ToString}, // Builtin_Compare,
-    {},                                     // Builtin_IsValid,
+    {},                                    // Builtin_IsValid,
 
     {}, // Builtin_Add,
     {}, // Builtin_Subtract,

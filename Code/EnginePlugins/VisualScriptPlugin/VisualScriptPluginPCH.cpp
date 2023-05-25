@@ -3,4 +3,3 @@
 #include <VisualScriptPlugin/VisualScriptPluginDLL.h>
 
 #include <Foundation/Configuration/Plugin.h>
-
