@@ -289,9 +289,15 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
       continue;
     }
 
-    if (!IsNumber(uiPrev) && IsNumber(uiCur))
+    if (IsNumber(uiPrev) != IsNumber(uiCur))
     {
       result.Append(" ");
+      result.Append(uiCur);
+      continue;
+    }
+
+    if (IsNumber(uiPrev) && IsNumber(uiCur))
+    {
       result.Append(uiCur);
       continue;
     }

@@ -154,7 +154,7 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
   {
     JPH::StaticCompoundShapeSettings opt;
 
-    for (auto shape : shapes)
+    for (const auto& shape : shapes)
     {
       auto pShape = shape.m_pShape;
 

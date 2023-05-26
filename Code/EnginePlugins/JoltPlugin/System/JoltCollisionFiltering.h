@@ -13,7 +13,7 @@ namespace JPH
   using ObjectLayer = ezUInt16;
 } // namespace JPH
 
-enum ezJoltBroadphaseLayer : ezUInt8
+enum class ezJoltBroadphaseLayer : ezUInt8
 {
   Static,
   Dynamic,

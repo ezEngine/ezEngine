@@ -47,19 +47,19 @@ public:
   virtual void OnBodyActivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
   {
     const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
-    if (ezJoltActorComponent* pActor = ezJoltUserData::GetActorComponent(pUserData))
+    if (ezJoltDynamicActorComponent* pActor = ezJoltUserData::GetDynamicActorComponent(pUserData))
     {
-      m_pActiveActors->Insert(pActor, bodyID.GetIndexAndSequenceNumber());
+      m_pActiveActors->Insert(pActor);
     }
 
     if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
     {
-      m_pActiveRagdolls->Insert(pActor, bodyID.GetIndexAndSequenceNumber());
+      (*m_pActiveRagdolls)[pActor]++;
     }
 
     if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
     {
-      m_pActiveRopes->Insert(pActor, bodyID.GetIndexAndSequenceNumber());
+      (*m_pActiveRopes)[pActor]++;
     }
   }
 
@@ -73,18 +73,26 @@ public:
 
     if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
     {
-      m_pActiveRagdolls->Remove(pActor);
+      if (--(*m_pActiveRagdolls)[pActor] == 0)
+      {
+        m_pActiveRagdolls->Remove(pActor);
+        m_pRagdollsPutToSleep->PushBack(pActor);
+      }
     }
 
     if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
     {
-      m_pActiveRopes->Remove(pActor);
+      if (--(*m_pActiveRopes)[pActor] == 0)
+      {
+        m_pActiveRopes->Remove(pActor);
+      }
     }
   }
 
-  ezMap<ezJoltActorComponent*, ezUInt32>* m_pActiveActors = nullptr;
-  ezMap<ezJoltRagdollComponent*, ezUInt32>* m_pActiveRagdolls = nullptr;
-  ezMap<ezJoltRopeComponent*, ezUInt32>* m_pActiveRopes = nullptr;
+  ezSet<ezJoltDynamicActorComponent*>* m_pActiveActors = nullptr;
+  ezMap<ezJoltRagdollComponent*, ezInt32>* m_pActiveRagdolls = nullptr; // value is a ref-count
+  ezMap<ezJoltRopeComponent*, ezInt32>* m_pActiveRopes = nullptr;       // value is a ref-count
+  ezDynamicArray<ezJoltRagdollComponent*>* m_pRagdollsPutToSleep = nullptr;
 };
 
 class ezJoltGroupFilter : public JPH::GroupFilter
@@ -251,6 +259,7 @@ void ezJoltWorldModule::Initialize()
     pListener->m_pActiveActors = &m_ActiveActors;
     pListener->m_pActiveRagdolls = &m_ActiveRagdolls;
     pListener->m_pActiveRopes = &m_ActiveRopes;
+    pListener->m_pRagdollsPutToSleep = &m_RagdollsPutToSleep;
     m_pSystem->SetBodyActivationListener(pListener);
   }
 
@@ -613,33 +622,6 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
   FreeUserDataAfterSimulationStep();
 }
 
-// void ezJoltWorldModule::HandleBrokenConstraints()
-//{
-//   EZ_PROFILE_SCOPE("HandleBrokenConstraints");
-//
-//   for (auto pConstraint : m_pSimulationEventCallback->m_BrokenConstraints)
-//   {
-//     auto it = m_BreakableJoints.Find(pConstraint);
-//     if (it.IsValid())
-//     {
-//       ezJoltConstraintComponent* pJoint = nullptr;
-//
-//       if (m_pWorld->TryGetComponent(it.Value(), pJoint))
-//       {
-//         ezMsgPhysicsJointBroke msg;
-//         msg.m_hJointObject = pJoint->GetOwner()->GetHandle();
-//
-//         pJoint->GetOwner()->PostEventMessage(msg, pJoint, ezTime::Zero());
-//       }
-//
-//       // it can't break twice
-//       m_BreakableJoints.Remove(it);
-//     }
-//   }
-//
-//   m_pSimulationEventCallback->m_BrokenConstraints.Clear();
-// }
-
 ezTime ezJoltWorldModule::CalculateUpdateSteps()
 {
   ezTime tSimulatedTimeStep = ezTime::Zero();
@@ -705,6 +687,8 @@ void ezJoltWorldModule::Simulate()
 
   ezTime tDelta = m_UpdateSteps[0];
   ezUInt32 uiSteps = 1;
+
+  m_RagdollsPutToSleep.Clear();
 
   for (ezUInt32 i = 1; i < m_UpdateSteps.GetCount(); ++i)
   {

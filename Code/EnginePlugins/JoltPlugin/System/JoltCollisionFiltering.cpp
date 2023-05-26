@@ -41,29 +41,29 @@ namespace ezJoltCollisionFiltering
 
     switch (broadphase)
     {
-      case Static:
-        return EZ_BIT(ezJoltBroadphaseLayer::Dynamic) | EZ_BIT(ezJoltBroadphaseLayer::Character) | EZ_BIT(ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT(ezJoltBroadphaseLayer::Rope);
+      case ezJoltBroadphaseLayer::Static:
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
 
-      case Dynamic:
-        return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic) | EZ_BIT(ezJoltBroadphaseLayer::Trigger) | EZ_BIT(ezJoltBroadphaseLayer::Character) | EZ_BIT(ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT(ezJoltBroadphaseLayer::Rope);
+      case ezJoltBroadphaseLayer::Dynamic:
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Trigger) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
 
-      case Query:
+      case ezJoltBroadphaseLayer::Query:
         // query shapes never interact with anything in the simulation
         return 0;
 
-      case Trigger:
+      case ezJoltBroadphaseLayer::Trigger:
         // triggers specifically exclude detail objects such as ropes, ragdolls and queries (also used for hitboxes) for performance reasons
         // if necessary, these shapes can still be found with overlap queries
-        return EZ_BIT(ezJoltBroadphaseLayer::Dynamic) | EZ_BIT(ezJoltBroadphaseLayer::Character);
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character);
 
-      case Character:
-        return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic) | EZ_BIT(ezJoltBroadphaseLayer::Trigger) | EZ_BIT(ezJoltBroadphaseLayer::Character);
+      case ezJoltBroadphaseLayer::Character:
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Trigger) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character);
 
-      case Ragdoll:
-        return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic) | EZ_BIT(ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT(ezJoltBroadphaseLayer::Rope);
+      case ezJoltBroadphaseLayer::Ragdoll:
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
 
-      case Rope:
-        return EZ_BIT(ezJoltBroadphaseLayer::Static) | EZ_BIT(ezJoltBroadphaseLayer::Dynamic) | EZ_BIT(ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT(ezJoltBroadphaseLayer::Rope);
+      case ezJoltBroadphaseLayer::Rope:
+        return EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll) | EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope);
 
         EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
@@ -75,7 +75,7 @@ namespace ezJoltCollisionFiltering
 
 ezUInt32 ezJoltObjectToBroadphaseLayer::GetNumBroadPhaseLayers() const
 {
-  return ezJoltBroadphaseLayer::ENUM_COUNT;
+  return (ezUInt32)ezJoltBroadphaseLayer::ENUM_COUNT;
 }
 
 JPH::BroadPhaseLayer ezJoltObjectToBroadphaseLayer::GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const
@@ -115,14 +115,14 @@ const char* ezJoltObjectToBroadphaseLayer::GetBroadPhaseLayerName(JPH::BroadPhas
 #endif
 
 // if any of these asserts fails, ezPhysicsShapeType and ezJoltBroadphaseLayer are out of sync
-static_assert(ezPhysicsShapeType::Static == EZ_BIT(ezJoltBroadphaseLayer::Static));
-static_assert(ezPhysicsShapeType::Dynamic == EZ_BIT(ezJoltBroadphaseLayer::Dynamic));
-static_assert(ezPhysicsShapeType::Query == EZ_BIT(ezJoltBroadphaseLayer::Query));
-static_assert(ezPhysicsShapeType::Trigger == EZ_BIT(ezJoltBroadphaseLayer::Trigger));
-static_assert(ezPhysicsShapeType::Character == EZ_BIT(ezJoltBroadphaseLayer::Character));
-static_assert(ezPhysicsShapeType::Ragdoll == EZ_BIT(ezJoltBroadphaseLayer::Ragdoll));
-static_assert(ezPhysicsShapeType::Rope == EZ_BIT(ezJoltBroadphaseLayer::Rope));
-static_assert(ezPhysicsShapeType::Count == ezJoltBroadphaseLayer::ENUM_COUNT);
+static_assert(ezPhysicsShapeType::Static == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Static));
+static_assert(ezPhysicsShapeType::Dynamic == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Dynamic));
+static_assert(ezPhysicsShapeType::Query == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Query));
+static_assert(ezPhysicsShapeType::Trigger == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Trigger));
+static_assert(ezPhysicsShapeType::Character == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Character));
+static_assert(ezPhysicsShapeType::Ragdoll == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Ragdoll));
+static_assert(ezPhysicsShapeType::Rope == EZ_BIT((ezUInt32)ezJoltBroadphaseLayer::Rope));
+static_assert(ezPhysicsShapeType::Count == (ezUInt32)ezJoltBroadphaseLayer::ENUM_COUNT);
 
 bool ezJoltObjectLayerFilter::ShouldCollide(JPH::ObjectLayer inLayer) const
 {
@@ -144,4 +144,3 @@ bool ezJoltObjectLayerPairFilter::ShouldCollide(JPH::ObjectLayer inObject1, JPH:
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltCollisionFiltering);
-
