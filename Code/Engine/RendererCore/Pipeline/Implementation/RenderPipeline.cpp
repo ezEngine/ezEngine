@@ -663,7 +663,7 @@ void ezRenderPipeline::SortExtractors()
   ezUInt32 uiIndex = 0;
   while (!m_Extractors.IsEmpty())
   {
-    ezUniquePtr<ezExtractor> &extractor = m_Extractors[uiIndex];
+    ezUniquePtr<ezExtractor>& extractor = m_Extractors[uiIndex];
 
     bool allDependenciesFound = true;
     for (auto& sDependency : extractor->m_DependsOn)
@@ -992,6 +992,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   ezRasterizerView* pRasterizer = PrepareOcclusionCulling(limitedFrustum, view);
   EZ_SCOPE_EXIT(g_pRasterizerViewPool->ReturnRasterizerView(pRasterizer));
 
+  const ezVisibilityState visType = bIsMainView ? ezVisibilityState::Direct : ezVisibilityState::Indirect;
+
   if (pRasterizer != nullptr && pRasterizer->HasRasterizedAnyOccluders())
   {
     EZ_PROFILE_SCOPE("Occlusion::FindVisibleObjects");
@@ -1008,12 +1010,12 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
     };
 
     m_VisibleObjects.Clear();
-    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, IsOccluded);
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, IsOccluded, visType);
   }
   else
   {
     m_VisibleObjects.Clear();
-    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {}, visType);
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -1349,7 +1351,7 @@ ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& fru
     queryParams.m_ExcludeTags = view.m_ExcludeTags;
 
     m_VisibleObjects.Clear();
-    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {});
+    view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, queryParams, m_VisibleObjects, {}, ezVisibilityState::Indirect);
   }
 
   pRasterizer->BeginScene();

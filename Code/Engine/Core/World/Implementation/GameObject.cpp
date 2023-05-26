@@ -732,15 +732,15 @@ void ezGameObject::SetTeamID(ezUInt16 uiId)
   }
 }
 
-ezUInt64 ezGameObject::GetNumFramesSinceVisible() const
+ezVisibilityState ezGameObject::GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible) const
 {
   if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
     const ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
-    return pSpatialSystem->GetNumFramesSinceVisible(m_pTransformationData->m_hSpatialData);
+    return pSpatialSystem->GetVisibilityState(m_pTransformationData->m_hSpatialData, uiNumFramesBeforeInvisible);
   }
 
-  return 0;
+  return ezVisibilityState::Direct;
 }
 
 void ezGameObject::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)

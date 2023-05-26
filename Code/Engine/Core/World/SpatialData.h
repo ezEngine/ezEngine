@@ -73,4 +73,16 @@ struct EZ_CORE_DLL ezDefaultSpatialDataCategories
   static ezSpatialData::Category OcclusionDynamic;
 };
 
+/// \brief When an object is 'seen' by a view and thus tagged as 'visible', this enum describes what kind of observer triggered this.
+///
+/// This is used to determine how important certain updates, such as animations, are to execute.
+/// E.g. when a 'shadow view' or 'reflection view' is the only thing that observes an object, animations / particle effects and so on,
+/// can be updated less frequently.
+enum class ezVisibilityState : ezUInt8
+{
+  Invisible = 0, ///< The object isn't visible to any view.
+  Indirect = 1,  ///< The object is seen by a view that only indirectly makes the object visible (shadow / reflection / render target).
+  Direct = 2,    ///< The object is seen directly by a main view and therefore it needs to be updated at maximum frequency.
+};
+
 #define ezInvalidSpatialDataCategory ezSpatialData::Category()

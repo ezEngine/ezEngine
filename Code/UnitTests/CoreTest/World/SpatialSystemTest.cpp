@@ -131,8 +131,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
-      return ezVisitorExecution::Continue;
-    });
+      return ezVisitorExecution::Continue; });
 
     for (auto pObject : objectsInSphere)
     {
@@ -188,8 +187,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
-      return ezVisitorExecution::Continue;
-    });
+      return ezVisitorExecution::Continue; });
 
     for (auto pObject : objectsInBox)
     {
@@ -230,7 +228,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<const ezGameObject*> visibleObjects;
     ezHashSet<const ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects, {});
+    world.GetSpatialSystem()->FindVisibleObjects(testFrustum, queryParams, visibleObjects, {}, ezVisibilityState::Direct);
 
     EZ_TEST_BOOL(!visibleObjects.IsEmpty());
 
@@ -239,7 +237,9 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       EZ_TEST_BOOL(testFrustum.Overlaps(pObject->GetGlobalBoundsSimd().GetSphere()));
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
       EZ_TEST_BOOL(pObject->IsDynamic());
-      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() == 0);
+
+      ezVisibilityState visType = pObject->GetVisibilityState();
+      EZ_TEST_BOOL(visType == ezVisibilityState::Direct);
     }
 
     // Check for missing objects
@@ -249,7 +249,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       if (testFrustum.GetObjectPosition(pObject->GetGlobalBounds().GetSphere()) == ezVolumePosition::Outside)
       {
-        EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() >= numUpdates);
+        ezVisibilityState visType = pObject->GetVisibilityState();
+        EZ_TEST_BOOL(visType == ezVisibilityState::Invisible);
       }
     }
 
@@ -275,7 +276,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     // Check that last frame visible doesn't reset entirely after moving
     for (const ezGameObject* pObject : visibleObjects)
     {
-      EZ_TEST_BOOL(pObject->GetNumFramesSinceVisible() == 1);
+      ezVisibilityState visType = pObject->GetVisibilityState();
+      EZ_TEST_BOOL(visType == ezVisibilityState::Direct);
     }
   }
 

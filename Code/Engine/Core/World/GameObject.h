@@ -16,6 +16,8 @@
 #  undef SendMessage
 #endif
 
+enum class ezVisibilityState : ezUInt8;
+
 /// \brief This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.
@@ -474,10 +476,14 @@ public:
   /// It should not be necessary to manually change this value, unless you want to make the seed deterministic according to a custom rule.
   void SetStableRandomSeed(ezUInt32 uiSeed);
 
-  /// \brief Returns the number of frames since this object was last visible in any view.
+  /// \brief Retrieves a state describing how visible the object is.
   ///
-  /// This value can be used to skip update logic of invisible objects.
-  ezUInt64 GetNumFramesSinceVisible() const;
+  /// An object may be invisible, fully visible, or indirectly visible (through shadows or reflections).
+  /// This can be used to adjust the update logic of objects.
+  /// An invisible object may stop updating entirely. An indirectly visible object may reduce its update rate.
+  ///
+  /// \param uiNumFramesBeforeInvisible Used to treat an object that was visible and just became invisible as visible for a few more frames.
+  ezVisibilityState GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible = 5) const;
 
 private:
   friend class ezComponentManagerBase;
