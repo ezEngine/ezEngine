@@ -49,6 +49,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
@@ -260,6 +261,14 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   // prevent restoration of window layouts when in safe mode
   ezQtDocumentWindow::s_bAllowRestoreWindowLayout = !IsInSafeMode();
+
+  {
+    // Make sure that we have at least 4 worker threads for short running and 4 worker threads for long running tasks.
+    // Otherwise the Editor might deadlock during asset transform.
+    ezInt32 iLongThreads = ezMath::Max(4, (ezInt32)ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::LongTasks));
+    ezInt32 iShortThreads = ezMath::Max(4, (ezInt32)ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
+    ezTaskSystem::SetWorkerThreadCount(iShortThreads, iLongThreads);
+  }
 
   {
     EZ_PROFILE_SCOPE("Filesystem");
