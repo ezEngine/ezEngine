@@ -8,10 +8,10 @@
 // ezVisualScriptPin
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPin, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPin_Legacy, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezVisualScriptPin::ezVisualScriptPin(Type type, const ezVisualScriptPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
+ezVisualScriptPin_Legacy::ezVisualScriptPin_Legacy(Type type, const ezVisualScriptPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
   : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
 {
   m_pDescriptor = pDescriptor;
@@ -21,7 +21,7 @@ ezVisualScriptPin::ezVisualScriptPin(Type type, const ezVisualScriptPinDescripto
   }
 }
 
-const ezString& ezVisualScriptPin::GetTooltip() const
+const ezString& ezVisualScriptPin_Legacy::GetTooltip() const
 {
   return m_pDescriptor->m_sTooltip;
 }
@@ -30,19 +30,19 @@ const ezString& ezVisualScriptPin::GetTooltip() const
 // ezVisualScriptConnection
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptConnection, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptConnection_Legacy, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptNodeManager
 //////////////////////////////////////////////////////////////////////////
 
-bool ezVisualScriptNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
+bool ezVisualScriptNodeManager_Legacy::InternalIsNode(const ezDocumentObject* pObject) const
 {
   return pObject->GetType()->IsDerivedFrom(ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType());
 }
 
-void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
+void ezVisualScriptNodeManager_Legacy::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node)
 {
   const auto* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());
 
@@ -54,18 +54,18 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
 
   for (const auto& pinDesc : pDesc->m_InputPins)
   {
-    auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin, ezPin::Type::Input, &pinDesc, pObject);
+    auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin_Legacy, ezPin::Type::Input, &pinDesc, pObject);
     ref_node.m_Inputs.PushBack(pPin);
   }
 
   for (const auto& pinDesc : pDesc->m_OutputPins)
   {
-    auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin, ezPin::Type::Output, &pinDesc, pObject);
+    auto pPin = EZ_DEFAULT_NEW(ezVisualScriptPin_Legacy, ezPin::Type::Output, &pinDesc, pObject);
     ref_node.m_Outputs.PushBack(pPin);
   }
 }
 
-void ezVisualScriptNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
+void ezVisualScriptNodeManager_Legacy::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
   const ezRTTI* pNodeBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
 
@@ -76,15 +76,15 @@ void ezVisualScriptNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 
   }
 }
 
-const ezRTTI* ezVisualScriptNodeManager::GetConnectionType() const
+const ezRTTI* ezVisualScriptNodeManager_Legacy::GetConnectionType() const
 {
-  return ezGetStaticRTTI<ezVisualScriptConnection>();
+  return ezGetStaticRTTI<ezVisualScriptConnection_Legacy>();
 }
 
-ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
+ezStatus ezVisualScriptNodeManager_Legacy::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
 {
-  const ezVisualScriptPin& pinSource = ezStaticCast<const ezVisualScriptPin&>(source);
-  const ezVisualScriptPin& pinTarget = ezStaticCast<const ezVisualScriptPin&>(target);
+  const ezVisualScriptPin_Legacy& pinSource = ezStaticCast<const ezVisualScriptPin_Legacy&>(source);
+  const ezVisualScriptPin_Legacy& pinTarget = ezStaticCast<const ezVisualScriptPin_Legacy&>(target);
 
   if (pinSource.GetDescriptor()->m_PinType != pinTarget.GetDescriptor()->m_PinType)
   {
@@ -129,7 +129,7 @@ ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin& source, cons
   return ezStatus(EZ_SUCCESS);
 }
 
-const char* ezVisualScriptNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
+const char* ezVisualScriptNodeManager_Legacy::GetTypeCategory(const ezRTTI* pRtti) const
 {
   const ezVisualScriptNodeDescriptor* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
 
@@ -138,3 +138,23 @@ const char* ezVisualScriptNodeManager::GetTypeCategory(const ezRTTI* pRtti) cons
 
   return pDesc->m_sCategory;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezVisualScriptConnectionPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezVisualScriptConnectionPatch_1_2()
+    : ezGraphPatch("ezVisualScriptConnection", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezVisualScriptConnection_Legacy");
+  }
+};
+
+ezVisualScriptConnectionPatch_1_2 g_ezVisualScriptConnectionPatch_1_2;

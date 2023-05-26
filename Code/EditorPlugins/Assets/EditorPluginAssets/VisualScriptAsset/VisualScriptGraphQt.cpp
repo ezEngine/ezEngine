@@ -68,7 +68,7 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
 
       for (auto& pSearchPin : outputPins)
       {
-        if (static_cast<const ezVisualScriptPin&>(*pSearchPin).GetDescriptor()->m_uiPinIndex == uiPin)
+        if (static_cast<const ezVisualScriptPin_Legacy&>(*pSearchPin).GetDescriptor()->m_uiPinIndex == uiPin)
         {
           pFoundPin = pSearchPin.Borrow();
           break;
@@ -85,7 +85,7 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
 
     for (auto pQtCon : connectionsOut)
     {
-      ezQtVisualScriptConnection* pVsCon = static_cast<ezQtVisualScriptConnection*>(pQtCon);
+      ezQtVisualScriptConnection_Legacy* pVsCon = static_cast<ezQtVisualScriptConnection_Legacy*>(pQtCon);
 
       pVsCon->m_HighlightUntil = tHighlight;
 
@@ -144,7 +144,7 @@ void ezQtVisualScriptAssetScene::ResetActiveConnections(ezDynamicArray<const ezD
 
       for (auto pQtCon : connectionsOut)
       {
-        ezQtVisualScriptConnection* pVsCon = static_cast<ezQtVisualScriptConnection*>(pQtCon);
+        ezQtVisualScriptConnection_Legacy* pVsCon = static_cast<ezQtVisualScriptConnection_Legacy*>(pQtCon);
 
         if (pVsCon->m_bExecutionHighlight)
         {
@@ -178,13 +178,13 @@ void ezQtVisualScriptAssetScene::OnUpdateDisplay()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptPin::ezQtVisualScriptPin() = default;
+ezQtVisualScriptPin_Legacy::ezQtVisualScriptPin_Legacy() = default;
 
-void ezQtVisualScriptPin::SetPin(const ezPin& pin)
+void ezQtVisualScriptPin_Legacy::SetPin(const ezPin& pin)
 {
   ezQtPin::SetPin(pin);
 
-  const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(pin);
+  const ezVisualScriptPin_Legacy& vsPin = ezStaticCast<const ezVisualScriptPin_Legacy&>(pin);
 
   ezStringBuilder sTooltip;
   if (!vsPin.GetTooltip().IsEmpty())
@@ -212,10 +212,10 @@ void ezQtVisualScriptPin::SetPin(const ezPin& pin)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptConnection::ezQtVisualScriptConnection(QGraphicsItem* pParent /*= 0*/) {}
+ezQtVisualScriptConnection_Legacy::ezQtVisualScriptConnection_Legacy(QGraphicsItem* parent /*= 0*/) {}
 
 
-QPen ezQtVisualScriptConnection::DeterminePen() const
+QPen ezQtVisualScriptConnection_Legacy::DeterminePen() const
 {
   if (m_bExecutionHighlight)
   {
@@ -230,9 +230,9 @@ QPen ezQtVisualScriptConnection::DeterminePen() const
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptNode::ezQtVisualScriptNode() = default;
+ezQtVisualScriptNode_Legacy::ezQtVisualScriptNode_Legacy() = default;
 
-void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
+void ezQtVisualScriptNode_Legacy::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
 {
   ezQtNode::InitNode(pManager, pObject);
 
@@ -249,7 +249,7 @@ void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const
   }
 }
 
-void ezQtVisualScriptNode::UpdateState()
+void ezQtVisualScriptNode_Legacy::UpdateState()
 {
   ezStringBuilder sTitle;
 

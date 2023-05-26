@@ -8,12 +8,12 @@
 
 struct ezVisualScriptPinDescriptor;
 
-class ezVisualScriptPin : public ezPin
+class ezVisualScriptPin_Legacy : public ezPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin, ezPin);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin_Legacy, ezPin);
 
 public:
-  ezVisualScriptPin(Type type, const ezVisualScriptPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
+  ezVisualScriptPin_Legacy(Type type, const ezVisualScriptPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
 
   const ezString& GetTooltip() const;
   const ezVisualScriptPinDescriptor* GetDescriptor() const { return m_pDescriptor; }
@@ -22,12 +22,12 @@ private:
   const ezVisualScriptPinDescriptor* m_pDescriptor;
 };
 
-class ezVisualScriptConnection : public ezReflectedClass
+class ezVisualScriptConnection_Legacy : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptConnection, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptConnection_Legacy, ezReflectedClass);
 };
 
-class ezVisualScriptNodeManager : public ezDocumentNodeManager
+class ezVisualScriptNodeManager_Legacy : public ezDocumentNodeManager
 {
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;

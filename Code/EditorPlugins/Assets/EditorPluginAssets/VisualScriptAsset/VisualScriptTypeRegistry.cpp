@@ -41,9 +41,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, VisualScript)
     ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
     const ezRTTI* pBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
-    ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection(); });
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualScriptNode(); });
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin_Legacy>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin_Legacy(); });
+    ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection_Legacy>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection_Legacy(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualScriptNode_Legacy(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
@@ -51,8 +51,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, VisualScript)
     const ezRTTI* pBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
     ezQtNodeScene::GetNodeFactory().UnregisterCreator(pBaseType);
 
-    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptPin>());
-    ezQtNodeScene::GetConnectionFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>());
+    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptPin_Legacy>());
+    ezQtNodeScene::GetConnectionFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualScriptConnection_Legacy>());
 
     ezVisualScriptTypeRegistry* pDummy = ezVisualScriptTypeRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);
@@ -94,7 +94,8 @@ const ezVisualScriptNodeDescriptor* ezVisualScriptTypeRegistry::GetDescriptorFor
 
 void ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
 {
-  if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded || e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
+  if ((e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded && m_NodeDescriptors.Contains(e.m_pChangedType) == false) ||
+      e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
   {
     UpdateNodeType(e.m_pChangedType);
   }
@@ -108,7 +109,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
   if (m_pBaseType == nullptr)
   {
     ezReflectedTypeDescriptor desc;
-    desc.m_sTypeName = "ezVisualScriptNodeBase";
+    desc.m_sTypeName = "ezVisualScriptNodeBase_Legacy";
     desc.m_sPluginName = "VisualScriptTypes";
     desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
     desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;

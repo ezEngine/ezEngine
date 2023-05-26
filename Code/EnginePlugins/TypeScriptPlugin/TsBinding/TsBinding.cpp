@@ -74,6 +74,9 @@ ezTypeScriptBinding* ezTypeScriptBinding::RetrieveBinding(duk_context* pDuk)
 
 ezResult ezTypeScriptBinding::Initialize(ezWorld& ref_world)
 {
+  if (m_bInitialized)
+    return EZ_SUCCESS;
+
   EZ_LOG_BLOCK("Initialize TypeScript Binding");
   EZ_PROFILE_SCOPE("Initialize TypeScript Binding");
 

@@ -39,7 +39,10 @@ void ezTypeScriptBinding::SetupRttiFunctionBindings()
         continue;
 
       const ezUInt32 uiHash = ComputeFunctionBindingHash(pRtti, pFunc);
-      EZ_ASSERT_DEV(!s_BoundFunctions.Contains(uiHash), "Hash collision for bound function name!");
+      if (auto pExistingBinding = s_BoundFunctions.GetValue(uiHash))
+      {
+        EZ_ASSERT_DEV(ezStringUtils::IsEqual(pExistingBinding->m_pFunc->GetPropertyName(), pFunc->GetPropertyName()), "Hash collision for bound function name!");
+      }
 
       s_BoundFunctions[uiHash].m_pFunc = pFunc;
     }

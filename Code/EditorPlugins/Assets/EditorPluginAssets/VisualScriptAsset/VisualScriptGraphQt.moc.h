@@ -33,18 +33,18 @@ private:
   ezUuid m_DebugObject;
 };
 
-class ezQtVisualScriptPin : public ezQtPin
+class ezQtVisualScriptPin_Legacy : public ezQtPin
 {
 public:
-  ezQtVisualScriptPin();
+  ezQtVisualScriptPin_Legacy();
 
   virtual void SetPin(const ezPin& pin) override;
 };
 
-class ezQtVisualScriptConnection : public ezQtConnection
+class ezQtVisualScriptConnection_Legacy : public ezQtConnection
 {
 public:
-  ezQtVisualScriptConnection(QGraphicsItem* pParent = 0);
+  ezQtVisualScriptConnection_Legacy(QGraphicsItem* parent = 0);
 
   virtual QPen DeterminePen() const override;
 
@@ -52,10 +52,10 @@ public:
   ezTime m_HighlightUntil;
 };
 
-class ezQtVisualScriptNode : public ezQtNode
+class ezQtVisualScriptNode_Legacy : public ezQtNode
 {
 public:
-  ezQtVisualScriptNode();
+  ezQtVisualScriptNode_Legacy();
 
   virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
 

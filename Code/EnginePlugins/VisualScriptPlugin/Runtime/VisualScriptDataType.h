@@ -1,0 +1,102 @@
+#pragma once
+
+#include <Core/World/GameObject.h>
+#include <VisualScriptPlugin/VisualScriptPluginDLL.h>
+
+struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : ezUInt8
+  {
+    Invalid = 0,
+
+    Bool,
+    Byte,
+    Int,
+    Int64,
+    Float,
+    Double,
+    Color,
+    Vector3,
+    Quaternion,
+    Transform,
+    Time,
+    Angle,
+    String,
+    GameObject,
+    Component,
+    TypedPointer,
+    Variant,
+    Array,
+    Map,
+
+    Count,
+    Default = Invalid,
+
+    Any = 0xFF,
+  };
+
+  EZ_ALWAYS_INLINE static bool IsNumber(Enum dataType) { return dataType >= Bool && dataType <= Double; }
+
+  static ezVariantType::Enum GetVariantType(Enum dataType);
+  static Enum FromVariantType(ezVariantType::Enum variantType);
+
+  static const ezRTTI* GetRtti(Enum dataType);
+  static Enum FromRtti(const ezRTTI* pRtti);
+
+  static ezUInt32 GetStorageSize(Enum dataType);
+  static ezUInt32 GetStorageAlignment(Enum dataType);
+
+  static const char* GetName(Enum dataType);
+
+  static bool CanConvertTo(Enum sourceDataType, Enum targetDataType);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_VISUALSCRIPTPLUGIN_DLL, ezVisualScriptDataType);
+
+struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptGameObjectHandle
+{
+  ezGameObjectHandle m_Handle;
+  mutable ezGameObject* m_Ptr;
+  mutable ezUInt32 m_uiExecutionCounter;
+
+  void AssignHandle(const ezGameObjectHandle& hObject)
+  {
+    m_Handle = hObject;
+    m_Ptr = nullptr;
+    m_uiExecutionCounter = 0;
+  }
+
+  void AssignPtr(ezGameObject* pObject, ezUInt32 uiExecutionCounter)
+  {
+    m_Handle = pObject != nullptr ? pObject->GetHandle() : ezGameObjectHandle();
+    m_Ptr = pObject;
+    m_uiExecutionCounter = uiExecutionCounter;
+  }
+
+  ezGameObject* GetPtr(ezUInt32 uiExecutionCounter) const;
+};
+
+struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptComponentHandle
+{
+  ezComponentHandle m_Handle;
+  mutable ezComponent* m_Ptr;
+  mutable ezUInt32 m_uiExecutionCounter;
+
+  void AssignHandle(const ezComponentHandle& hComponent)
+  {
+    m_Handle = hComponent;
+    m_Ptr = nullptr;
+    m_uiExecutionCounter = 0;
+  }
+
+  void AssignPtr(ezComponent* pComponent, ezUInt32 uiExecutionCounter)
+  {
+    m_Handle = pComponent != nullptr ? pComponent->GetHandle() : ezComponentHandle();
+    m_Ptr = pComponent;
+    m_uiExecutionCounter = uiExecutionCounter;
+  }
+
+  ezComponent* GetPtr(ezUInt32 uiExecutionCounter) const;
+};
