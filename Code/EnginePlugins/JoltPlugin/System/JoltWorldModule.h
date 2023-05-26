@@ -74,9 +74,10 @@ public:
 
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
-  const ezMap<ezJoltActorComponent*, ezUInt32>& GetActiveActors() const { return m_ActiveActors; }
-  const ezMap<ezJoltRagdollComponent*, ezUInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
-  const ezMap<ezJoltRopeComponent*, ezUInt32>& GetActiveRopes() const { return m_ActiveRopes; }
+  const ezSet<ezJoltDynamicActorComponent*>& GetActiveActors() const { return m_ActiveActors; }
+  const ezMap<ezJoltRagdollComponent*, ezInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
+  const ezMap<ezJoltRopeComponent*, ezInt32>& GetActiveRopes() const { return m_ActiveRopes; }
+  ezArrayPtr<ezJoltRagdollComponent*> GetRagdollsPutToSleep() { return m_RagdollsPutToSleep.GetArrayPtr(); }
 
   void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
 
@@ -140,9 +141,10 @@ private:
 
   void* m_pContactListener = nullptr;
   void* m_pActivationListener = nullptr;
-  ezMap<ezJoltActorComponent*, ezUInt32> m_ActiveActors;
-  ezMap<ezJoltRagdollComponent*, ezUInt32> m_ActiveRagdolls;
-  ezMap<ezJoltRopeComponent*, ezUInt32> m_ActiveRopes;
+  ezSet<ezJoltDynamicActorComponent*> m_ActiveActors;
+  ezMap<ezJoltRagdollComponent*, ezInt32> m_ActiveRagdolls;
+  ezMap<ezJoltRopeComponent*, ezInt32> m_ActiveRopes;
+  ezDynamicArray<ezJoltRagdollComponent*> m_RagdollsPutToSleep;
 
   JPH::GroupFilter* m_pGroupFilter = nullptr;
   JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;
