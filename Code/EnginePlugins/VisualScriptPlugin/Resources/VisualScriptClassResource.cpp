@@ -5,6 +5,8 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <VisualScriptPlugin/Resources/VisualScriptClassResource.h>
+#include <VisualScriptPlugin/Runtime/VisualScriptCoroutine.h>
+#include <VisualScriptPlugin/Runtime/VisualScriptFunctionProperty.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
 // clang-format off
@@ -40,6 +42,7 @@ ezVisualScriptClassResource::~ezVisualScriptClassResource() = default;
 ezResourceLoadDesc ezVisualScriptClassResource::UnloadData(Unload WhatToUnload)
 {
   DeleteScriptType();
+  DeleteAllScriptCoroutineTypes();
 
   ezResourceLoadDesc ld;
   ld.m_State = ezResourceState::Unloaded;
@@ -107,8 +110,10 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
         {
           ezString sFunctionName;
           ezEnum<ezVisualScriptNodeDescription::Type> functionType;
+          ezEnum<ezScriptCoroutineCreationMode> coroutineCreationMode;
           chunk >> sFunctionName;
           chunk >> functionType;
+          chunk >> coroutineCreationMode;
 
           ezUniquePtr<ezVisualScriptGraphDescription> pDesc = EZ_DEFAULT_NEW(ezVisualScriptGraphDescription);
           if (pDesc->Deserialize(chunk).Failed())
@@ -122,12 +127,20 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
             ezUniquePtr<ezVisualScriptFunctionProperty> pFunctionProperty = EZ_DEFAULT_NEW(ezVisualScriptFunctionProperty, sFunctionName, std::move(pDesc));
             functions.PushBack(std::move(pFunctionProperty));
           }
+          else if (functionType == ezVisualScriptNodeDescription::Type::EntryCall_Coroutine)
+          {
+            ezUniquePtr<ezVisualScriptCoroutineAllocator> pCoroutineAllocator = EZ_DEFAULT_NEW(ezVisualScriptCoroutineAllocator, std::move(pDesc));
+            auto pCoroutineType = CreateScriptCoroutineType(sScriptClassName, sFunctionName, std::move(pCoroutineAllocator));
+            ezUniquePtr<ezScriptCoroutineFunctionProperty> pFunctionProperty = EZ_DEFAULT_NEW(ezScriptCoroutineFunctionProperty, sFunctionName, pCoroutineType, coroutineCreationMode);
+            functions.PushBack(std::move(pFunctionProperty));
+          }
           else if (functionType == ezVisualScriptNodeDescription::Type::MessageHandler)
           {
+            EZ_ASSERT_NOT_IMPLEMENTED;
           }
           else
           {
-            ezLog::Error("Invalid event handler type {} for event handler '{}'", functionType, sFunctionName);
+            ezLog::Error("Invalid event handler type '{}' for event handler '{}'", ezVisualScriptNodeDescription::Type::GetName(functionType), sFunctionName);
             return ld;
           }
         }
@@ -146,12 +159,12 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
           m_pConstantDataStorage = pConstantDataStorage;
         }
       }
-      else if (chunk.GetCurrentChunk().m_sChunkName == "VariableDataDesc")
+      else if (chunk.GetCurrentChunk().m_sChunkName == "InstanceDataDesc")
       {
-        ezSharedPtr<ezVisualScriptDataDescription> pVariableDataDesc = EZ_DEFAULT_NEW(ezVisualScriptDataDescription);
-        if (pVariableDataDesc->Deserialize(chunk).Succeeded())
+        ezSharedPtr<ezVisualScriptDataDescription> pInstanceDataDesc = EZ_DEFAULT_NEW(ezVisualScriptDataDescription);
+        if (pInstanceDataDesc->Deserialize(chunk).Succeeded())
         {
-          m_pVariableDataDesc = pVariableDataDesc;
+          m_pInstanceDataDesc = pInstanceDataDesc;
         }
       }
 
@@ -173,5 +186,5 @@ void ezVisualScriptClassResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
 
 ezUniquePtr<ezScriptInstance> ezVisualScriptClassResource::Instantiate(ezReflectedClass& owner, ezWorld* pWorld) const
 {
-  return EZ_DEFAULT_NEW(ezVisualScriptInstance, owner, pWorld, m_pConstantDataStorage, m_pVariableDataDesc);
+  return EZ_DEFAULT_NEW(ezVisualScriptInstance, owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc);
 }

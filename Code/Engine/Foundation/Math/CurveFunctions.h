@@ -1,19 +1,21 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/Reflection/Reflection.h>
 
-namespace ezMath
+/// \brief Available procedural curve generators.
+///
+/// The easing function types are adapted from https://easings.net. Visit that page for a preview.
+///
+/// Types:
+/// - EaseIn: Indicates a slow transition from the zero strength to full strength.
+/// - EaseOut: Indicates a fast transition from the zero strength to full strength.
+/// - EaseInOut: A transition from zero to one that starts out slow, continues fast in the middle and finishes slow again.
+struct ezCurveFunction
 {
-  /// \brief Available procedural curve generators.
-  ///
-  /// The easing function types are adapted from https://easings.net. Visit that page for a preview.
-  ///
-  /// Types:
-  /// - EaseIn: Indicates a slow transition from the zero strength to full strength.
-  /// - EaseOut: Indicates a fast transition from the zero strength to full strength.
-  /// - EaseInOut: A transition from zero to one that starts out slow, continues fast in the middle and finishes slow again.
-  enum ezCurveFunction
+  using StorageType = ezUInt8;
+
+  enum Enum
   {
     Linear,
 
@@ -66,16 +68,23 @@ namespace ezMath
     Bell,
 
     ENUM_COUNT, // All easing function types must be stated before this.
+
+    Default = Linear
   };
 
   /// \brief Helper function that returns the function value at the given x coordinate.
-  double GetCurveValue(ezCurveFunction function, double x);
+  static double GetValue(Enum function, double x);
 
   /// \brief Helper function that returns the function value at the given x coordinate.
   ///
   /// If \a inverse is true, the value (1-Y) is returned.
-  double GetCurveValue(ezCurveFunction function, double x, bool bInverse);
+  static double GetValue(Enum function, double x, bool bInverse);
+};
 
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezCurveFunction);
+
+namespace ezMath
+{
   double GetCurveValue_Linear(double t);
   double GetCurveValue_ConstantZero(double t);
   double GetCurveValue_ConstantOne(double t);

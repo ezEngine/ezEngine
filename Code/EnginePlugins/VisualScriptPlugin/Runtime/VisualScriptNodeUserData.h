@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <VisualScriptPlugin/Runtime/VisualScript.h>
+
 using SerializeFunction = ezResult (*)(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_Size, ezUInt32& out_alignment);
 using DeserializeFunction = ezResult (*)(ezVisualScriptGraphDescription::Node& node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData);
 using ToStringFunction = void (*)(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult);
@@ -16,7 +19,7 @@ namespace
 
     static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
     {
-      inout_stream << nodeDesc.m_UserData.m_pTargetType->GetTypeName();
+      inout_stream << nodeDesc.m_sTargetTypeName;
 
       out_uiSize = sizeof(NodeUserData_Type);
       out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Type);
@@ -48,9 +51,9 @@ namespace
 
     static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
     {
-      if (nodeDesc.m_UserData.m_pTargetType != nullptr)
+      if (nodeDesc.m_sTargetTypeName.IsEmpty() == false)
       {
-        out_sResult.Append(nodeDesc.m_UserData.m_pTargetType->GetTypeName());
+        out_sResult.Append(nodeDesc.m_sTargetTypeName);
       }
     }
   };
@@ -71,7 +74,7 @@ namespace
     {
       EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
-      inout_stream << nodeDesc.m_UserData.m_pTargetProperty->GetPropertyName();
+      inout_stream << nodeDesc.m_sTargetPropertyName;
 
       out_uiSize = sizeof(NodeUserData_TypeAndProperty);
       out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_TypeAndProperty);
@@ -128,9 +131,9 @@ namespace
     {
       NodeUserData_Type::ToString(nodeDesc, out_sResult);
 
-      if (nodeDesc.m_UserData.m_pTargetProperty != nullptr)
+      if (nodeDesc.m_sTargetPropertyName.IsEmpty() == false)
       {
-        out_sResult.Append(".", nodeDesc.m_UserData.m_pTargetProperty->GetPropertyName());
+        out_sResult.Append(".", nodeDesc.m_sTargetPropertyName);
       }
     }
   };
@@ -145,7 +148,7 @@ namespace
 
     static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
     {
-      ezEnum<ezComparisonOperator> compOp = nodeDesc.m_UserData.m_ComparisonOperator;
+      ezEnum<ezComparisonOperator> compOp = nodeDesc.m_ComparisonOperator;
       inout_stream << compOp;
 
       out_uiSize = sizeof(NodeUserData_Comparison);
@@ -165,11 +168,52 @@ namespace
     static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
     {
       ezStringBuilder sCompOp;
-      ezReflectionUtils::EnumerationToString<ezComparisonOperator>(nodeDesc.m_UserData.m_ComparisonOperator, sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      ezReflectionUtils::EnumerationToString<ezComparisonOperator>(nodeDesc.m_ComparisonOperator, sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
 
-      out_sResult.Append(sCompOp);
+      out_sResult.Append(" ", sCompOp);
     }
   };
+
+  //////////////////////////////////////////////////////////////////////////
+
+  struct NodeUserData_StartCoroutine : public NodeUserData_Type
+  {
+    ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
+
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    {
+      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
+
+      inout_stream << nodeDesc.m_CoroutineCreationMode;
+
+      out_uiSize = sizeof(NodeUserData_StartCoroutine);
+      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_StartCoroutine);
+      return EZ_SUCCESS;
+    }
+
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    {
+      NodeUserData_StartCoroutine userData;
+      EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
+
+      inout_stream >> userData.m_CreationMode;
+
+      ref_node.SetUserData(userData, inout_pAdditionalData);
+      return EZ_SUCCESS;
+    }
+
+    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    {
+      NodeUserData_Type::ToString(nodeDesc, out_sResult);
+
+      ezStringBuilder sCreationMode;
+      ezReflectionUtils::EnumerationToString<ezScriptCoroutineCreationMode>(nodeDesc.m_CoroutineCreationMode, sCreationMode, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+
+      out_sResult.Append(" ", sCreationMode);
+    }
+  };
+
+  static_assert(sizeof(NodeUserData_StartCoroutine) == 16);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -180,13 +224,18 @@ namespace
     ToStringFunction m_ToStringFunc = nullptr;
   };
 
-  static UserDataContext s_TypeToUserDataContexts[] = {
+  inline UserDataContext s_TypeToUserDataContexts[] = {
     {}, // Invalid,
     {}, // EntryCall,
+    {}, // EntryCall_Coroutine,
     {}, // MessageHandler,
+    {}, // MessageHandler_Coroutine,
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<true>,
       &NodeUserData_TypeAndProperty::ToString}, // ReflectedFunction,
+    {&NodeUserData_TypeAndProperty::Serialize,
+      &NodeUserData_TypeAndProperty::Deserialize<true>,
+      &NodeUserData_TypeAndProperty::ToString}, // InplaceCoroutine,
     {},                                         // GetOwner,
 
     {}, // FirstBuiltin,
@@ -220,6 +269,15 @@ namespace
     {&NodeUserData_Type::Serialize,
       &NodeUserData_Type::Deserialize,
       &NodeUserData_Type::ToString}, // Builtin_TryGetComponentOfBaseType
+
+    {&NodeUserData_StartCoroutine::Serialize,
+      &NodeUserData_StartCoroutine::Deserialize,
+      &NodeUserData_StartCoroutine::ToString}, // Builtin_StartCoroutine,
+    {},                                        // Builtin_StopCoroutine,
+    {},                                        // Builtin_StopAllCoroutines,
+    {},                                        // Builtin_WaitForAll,
+    {},                                        // Builtin_WaitForAny,
+    {},                                        // Builtin_Yield,
 
     {}, // LastBuiltin,
   };

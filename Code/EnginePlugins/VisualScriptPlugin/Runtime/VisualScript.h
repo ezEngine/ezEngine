@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/Containers/Blob.h>
-#include <Foundation/Types/SharedPtr.h>
-#include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
+#include <Core/Scripting/ScriptCoroutine.h>
+#include <VisualScriptPlugin/Runtime/VisualScriptData.h>
 
 class ezVisualScriptInstance;
+class ezVisualScriptExecutionContext;
 
 struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
 {
@@ -16,8 +16,11 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
     {
       Invalid,
       EntryCall,
+      EntryCall_Coroutine,
       MessageHandler,
+      MessageHandler_Coroutine,
       ReflectedFunction,
+      InplaceCoroutine,
       GetScriptOwner,
 
       FirstBuiltin,
@@ -48,11 +51,22 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
 
       Builtin_TryGetComponentOfBaseType,
 
+      Builtin_StartCoroutine,
+      Builtin_StopCoroutine,
+      Builtin_StopAllCoroutines,
+      Builtin_WaitForAll,
+      Builtin_WaitForAny,
+      Builtin_Yield,
+
       LastBuiltin,
 
       Count,
       Default = Invalid
     };
+
+    EZ_ALWAYS_INLINE static bool IsEntry(Enum type) { return type >= EntryCall && type <= MessageHandler_Coroutine; }
+
+    EZ_ALWAYS_INLINE static bool MakesOuterCoroutine(Enum type) { return type == InplaceCoroutine || (type >= Builtin_WaitForAll && type <= Builtin_Yield); }
 
     EZ_ALWAYS_INLINE static bool IsBuiltin(Enum type) { return type > FirstBuiltin && type < LastBuiltin; }
 
@@ -61,34 +75,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
     static const char* GetName(Enum type);
   };
 
-  struct DataOffset
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    EZ_ALWAYS_INLINE DataOffset()
-    {
-      m_uiByteOffset = ezInvalidIndex;
-      m_uiDataType = ezVisualScriptDataType::Invalid;
-      m_uiIsConstant = 0;
-    }
-
-    EZ_ALWAYS_INLINE DataOffset(ezUInt32 uiOffset, ezVisualScriptDataType::Enum dataType, bool bIsConstant)
-    {
-      m_uiByteOffset = uiOffset;
-      m_uiDataType = dataType;
-      m_uiIsConstant = bIsConstant ? 1 : 0;
-    }
-
-    EZ_ALWAYS_INLINE bool IsValid() const
-    {
-      return m_uiByteOffset != (EZ_BIT(24) - 1) &&
-             m_uiDataType != ezVisualScriptDataType::Invalid;
-    }
-
-    ezUInt32 m_uiByteOffset : 24;
-    ezUInt32 m_uiDataType : 7;
-    ezUInt32 m_uiIsConstant : 1;
-  };
+  using DataOffset = ezVisualScriptDataDescription::DataOffset;
 
   ezEnum<Type> m_Type;
   ezEnum<ezVisualScriptDataType> m_DeductedDataType;
@@ -96,23 +83,16 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
   ezSmallArray<DataOffset, 4> m_InputDataOffsets;
   ezSmallArray<DataOffset, 2> m_OutputDataOffsets;
 
-  union
-  {
-    struct
-    {
-      const ezRTTI* m_pTargetType;
-      const ezAbstractProperty* m_pTargetProperty;
-    };
+  ezHashedString m_sTargetTypeName;
+  ezHashedString m_sTargetPropertyName;
 
-    ezComparisonOperator::Enum m_ComparisonOperator;
-
-    ezUInt32 m_RawData[4] = {};
-  } m_UserData;
+  ezEnum<ezComparisonOperator> m_ComparisonOperator;
+  ezEnum<ezScriptCoroutineCreationMode> m_CoroutineCreationMode;
 
   void AppendUserDataName(ezStringBuilder& out_sResult) const;
 };
 
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptGraphDescription
+class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptGraphDescription : public ezRefCounted
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezVisualScriptGraphDescription);
 
@@ -120,7 +100,7 @@ public:
   ezVisualScriptGraphDescription();
   ~ezVisualScriptGraphDescription();
 
-  static ezResult Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, ezStreamWriter& inout_stream);
+  static ezResult Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream);
   ezResult Deserialize(ezStreamReader& inout_stream);
 
   template <typename T, ezUInt32 Size>
@@ -139,20 +119,31 @@ public:
     ezResult ReadFromStream(ezUInt8& out_uiCount, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData);
   };
 
-  struct ReturnValue
+  struct ExecResult
   {
-    enum Enum
+    struct State
     {
-      Completed = 0,
-      ContinueNextFrame = -1,
+      enum Enum
+      {
+        Completed = 0,
+        ContinueLater = -1,
 
-      Error = -100,
+        Error = -100,
+      };
     };
+
+    static EZ_ALWAYS_INLINE ExecResult Completed() { return {0}; }
+    static EZ_ALWAYS_INLINE ExecResult RunNext(int iExecSlot) { return {iExecSlot}; }
+    static EZ_ALWAYS_INLINE ExecResult ContinueLater(ezTime maxDelay) { return {State::ContinueLater, maxDelay}; }
+    static EZ_ALWAYS_INLINE ExecResult Error() { return {State::Error}; }
+
+    int m_NextExecAndState = 0;
+    ezTime m_MaxDelay = ezTime::Zero();
   };
 
   struct Node;
-  using ExecuteFunction = int (*)(ezVisualScriptInstance& ref_instance, const Node& node);
-  using DataOffset = ezVisualScriptNodeDescription::DataOffset;
+  using ExecuteFunction = ExecResult (*)(ezVisualScriptExecutionContext& inout_context, const Node& node);
+  using DataOffset = ezVisualScriptDataDescription::DataOffset;
   using ExecutionIndicesArray = EmbeddedArrayOrPointer<ezUInt16, 4>;
   using InputDataOffsetsArray = EmbeddedArrayOrPointer<DataOffset, 4>;
   using OutputDataOffsetsArray = EmbeddedArrayOrPointer<DataOffset, 2>;
@@ -190,51 +181,36 @@ public:
     void SetUserData(const T& data, ezUInt8*& inout_pAdditionalData);
   };
 
-  const Node* GetNode(ezUInt32 uiIndex);
+  const Node* GetNode(ezUInt32 uiIndex) const;
+
+  bool IsCoroutine() const;
+
+  const ezSharedPtr<const ezVisualScriptDataDescription>& GetLocalDataDesc() const;
 
 private:
   ezArrayPtr<const Node> m_Nodes;
   ezBlob m_Storage;
+
+  ezSharedPtr<const ezVisualScriptDataDescription> m_pLocalDataDesc;
 };
 
-struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataDescription : public ezRefCounted
-{
-  using DataOffset = ezVisualScriptNodeDescription::DataOffset;
 
-  struct OffsetAndCount
-  {
-    EZ_DECLARE_POD_TYPE();
 
-    ezUInt32 m_uiStartOffset = 0;
-    ezUInt32 m_uiCount = 0;
-  };
-
-  OffsetAndCount m_PerTypeInfo[ezVisualScriptDataType::Count];
-  ezUInt32 m_uiStorageSizeNeeded = 0;
-
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
-
-  void Clear();
-  void CalculatePerTypeStartOffsets();
-  void CheckOffset(DataOffset dataOffset, const ezRTTI* pType) const;
-
-  DataOffset GetOffset(ezVisualScriptDataType::Enum dataType, ezUInt32 uiIndex, bool bIsConstant) const;
-};
-
-class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataStorage : public ezRefCounted
+class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptExecutionContext
 {
 public:
-  using DataOffset = ezVisualScriptNodeDescription::DataOffset;
+  ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
+  ~ezVisualScriptExecutionContext();
 
-  ezVisualScriptDataStorage(const ezSharedPtr<const ezVisualScriptDataDescription>& pDesc);
-  ~ezVisualScriptDataStorage();
+  void Initialize(ezVisualScriptInstance& inout_instance, ezVisualScriptDataStorage& localDataStorage, ezArrayPtr<ezVariant> arguments);
+  void Deinitialize();
 
-  void AllocateStorage();
-  void DeallocateStorage();
+  using ExecResult = ezVisualScriptGraphDescription::ExecResult;
+  ExecResult Execute(ezTime deltaTimeSinceLastExecution);
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  ezVisualScriptInstance& GetInstance() { return *m_pInstance; }
+
+  using DataOffset = ezVisualScriptDataDescription::DataOffset;
 
   template <typename T>
   const T& GetData(DataOffset dataOffset) const;
@@ -245,17 +221,29 @@ public:
   template <typename T>
   void SetData(DataOffset dataOffset, const T& value);
 
-  ezTypedPointer GetPointerData(DataOffset dataOffset, ezUInt32 uiExecutionCounter);
+  ezTypedPointer GetPointerData(DataOffset dataOffset);
 
   template <typename T>
-  void SetPointerData(DataOffset dataOffset, T ptr, const ezRTTI* pType, ezUInt32 uiExecutionCounter);
+  void SetPointerData(DataOffset dataOffset, T ptr, const ezRTTI* pType = nullptr);
 
-  ezVariant GetDataAsVariant(DataOffset dataOffset, ezVariantType::Enum expectedType, ezUInt32 uiExecutionCounter) const;
-  void SetDataFromVariant(DataOffset dataOffset, const ezVariant& value, ezUInt32 uiExecutionCounter);
+  ezVariant GetDataAsVariant(DataOffset dataOffset, const ezRTTI* pExpectedType) const;
+  void SetDataFromVariant(DataOffset dataOffset, const ezVariant& value);
+
+  ezScriptCoroutine* GetCurrentCoroutine() { return m_pCurrentCoroutine; }
+  void SetCurrentCoroutine(ezScriptCoroutine* pCoroutine);
+
+  ezTime GetDeltaTimeSinceLastExecution();
 
 private:
-  ezSharedPtr<const ezVisualScriptDataDescription> m_pDesc;
-  ezBlob m_Storage;
+  ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
+  ezVisualScriptInstance* m_pInstance = nullptr;
+  ezUInt32 m_uiCurrentNode = 0;
+  ezUInt32 m_uiExecutionCounter = 0;
+  ezTime m_deltaTimeSinceLastExecution;
+
+  ezVisualScriptDataStorage* m_DataStorage[DataOffset::Source::Count] = {};
+
+  ezScriptCoroutine* m_pCurrentCoroutine = nullptr;
 };
 
 #include <VisualScriptPlugin/Runtime/VisualScript_inl.h>

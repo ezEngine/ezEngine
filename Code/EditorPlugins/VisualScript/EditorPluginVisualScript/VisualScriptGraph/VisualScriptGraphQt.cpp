@@ -112,7 +112,9 @@ void ezQtVisualScriptNode::UpdateState()
 {
   ezStringBuilder sTitle;
 
+  auto pManager = static_cast<const ezVisualScriptNodeManager*>(GetObject()->GetDocumentObjectManager());
   auto pType = GetObject()->GetType();
+
   if (auto pTitleAttribute = pType->GetAttributeByType<ezTitleAttribute>())
   {
     sTitle = pTitleAttribute->GetTitle();
@@ -189,13 +191,24 @@ void ezQtVisualScriptNode::UpdateState()
     m_pTitleLabel->setPlainText(sTitle.GetData());
 
     auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pType);
-    if (pNodeDesc->m_bNeedsDataTypeDeduction)
+    if (pNodeDesc != nullptr && pNodeDesc->m_bNeedsDataTypeDeduction)
     {
-      auto pManager = static_cast<const ezVisualScriptNodeManager*>(GetObject()->GetDocumentObjectManager());
       ezVisualScriptDataType::Enum deductedType = pManager->GetDeductedType(GetObject());
       const char* sSubTitle = deductedType != ezVisualScriptDataType::Invalid ? ezVisualScriptDataType::GetName(deductedType) : "Unknown";
       m_pSubtitleLabel->setPlainText(sSubTitle);
     }
+  }
+
+  if (pManager->IsCoroutine(GetObject()))
+  {
+    auto pScene = static_cast<ezQtVisualScriptNodeScene*>(scene());
+
+    m_pIcon->setPixmap(pScene->GetCoroutineIcon());
+    m_pIcon->setScale(0.5);
+  }
+  else
+  {
+    m_pIcon->setPixmap(QPixmap());
   }
 }
 
@@ -204,6 +217,8 @@ void ezQtVisualScriptNode::UpdateState()
 ezQtVisualScriptNodeScene::ezQtVisualScriptNodeScene(QObject* pParent /*= nullptr*/)
   : ezQtNodeScene(pParent)
 {
+  constexpr int iconSize = 32;
+  m_coroutineIcon = QIcon(":/EditorPluginVisualScript/Coroutine.svg").pixmap(QSize(iconSize, iconSize));
 }
 
 ezQtVisualScriptNodeScene::~ezQtVisualScriptNodeScene() = default;
@@ -212,10 +227,10 @@ void ezQtVisualScriptNodeScene::SetDocumentNodeManager(const ezDocumentNodeManag
 {
   ezQtNodeScene::SetDocumentNodeManager(pManager);
 
-  static_cast<const ezVisualScriptNodeManager*>(pManager)->m_DeductedTypeChangedEvent.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptNodeScene::DeductedTypeChangedHandler, this));
+  static_cast<const ezVisualScriptNodeManager*>(pManager)->m_NodeChangedEvent.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptNodeScene::NodeChangedHandler, this));
 }
 
-void ezQtVisualScriptNodeScene::DeductedTypeChangedHandler(const ezDocumentObject* pObject)
+void ezQtVisualScriptNodeScene::NodeChangedHandler(const ezDocumentObject* pObject)
 {
   auto it = m_Nodes.Find(pObject);
   if (it.IsValid() == false)

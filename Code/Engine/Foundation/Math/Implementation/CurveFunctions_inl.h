@@ -319,97 +319,98 @@ namespace ezMath
       return (ezMath::Pow(1.0 - ((t - 0.75) * 4.0), 3.0)) * 0.5;
     }
   }
-
-  inline double GetCurveValue(ezCurveFunction function, double x)
-  {
-    switch (function)
-    {
-      case Linear:
-        return GetCurveValue_Linear(x);
-      case ConstantZero:
-        return GetCurveValue_ConstantZero(x);
-      case ConstantOne:
-        return GetCurveValue_ConstantOne(x);
-      case EaseInSine:
-        return GetCurveValue_EaseInSine(x);
-      case EaseOutSine:
-        return GetCurveValue_EaseOutSine(x);
-      case EaseInOutSine:
-        return GetCurveValue_EaseInOutSine(x);
-      case EaseInQuad:
-        return GetCurveValue_EaseInQuad(x);
-      case EaseOutQuad:
-        return GetCurveValue_EaseOutQuad(x);
-      case EaseInOutQuad:
-        return GetCurveValue_EaseInOutQuad(x);
-      case EaseInCubic:
-        return GetCurveValue_EaseInCubic(x);
-      case EaseOutCubic:
-        return GetCurveValue_EaseOutCubic(x);
-      case EaseInOutCubic:
-        return GetCurveValue_EaseInOutCubic(x);
-      case EaseInQuartic:
-        return GetCurveValue_EaseInQuartic(x);
-      case EaseOutQuartic:
-        return GetCurveValue_EaseOutQuartic(x);
-      case EaseInOutQuartic:
-        return GetCurveValue_EaseInOutQuartic(x);
-      case EaseInQuintic:
-        return GetCurveValue_EaseInQuintic(x);
-      case EaseOutQuintic:
-        return GetCurveValue_EaseOutQuintic(x);
-      case EaseInOutQuintic:
-        return GetCurveValue_EaseInOutQuintic(x);
-      case EaseInExpo:
-        return GetCurveValue_EaseInExpo(x);
-      case EaseOutExpo:
-        return GetCurveValue_EaseOutExpo(x);
-      case EaseInOutExpo:
-        return GetCurveValue_EaseInOutExpo(x);
-      case EaseInCirc:
-        return GetCurveValue_EaseInCirc(x);
-      case EaseOutCirc:
-        return GetCurveValue_EaseOutCirc(x);
-      case EaseInOutCirc:
-        return GetCurveValue_EaseInOutCirc(x);
-      case EaseInBack:
-        return GetCurveValue_EaseInBack(x);
-      case EaseOutBack:
-        return GetCurveValue_EaseOutBack(x);
-      case EaseInOutBack:
-        return GetCurveValue_EaseInOutBack(x);
-      case EaseInElastic:
-        return GetCurveValue_EaseInElastic(x);
-      case EaseOutElastic:
-        return GetCurveValue_EaseOutElastic(x);
-      case EaseInOutElastic:
-        return GetCurveValue_EaseInOutElastic(x);
-      case EaseInBounce:
-        return GetCurveValue_EaseInBounce(x);
-      case EaseOutBounce:
-        return GetCurveValue_EaseOutBounce(x);
-      case EaseInOutBounce:
-        return GetCurveValue_EaseInOutBounce(x);
-      case Conical:
-        return GetCurveValue_Conical(x);
-      case FadeInHoldFadeOut:
-        return GetCurveValue_FadeInHoldFadeOut(x);
-      case FadeInFadeOut:
-        return GetCurveValue_FadeInFadeOut(x);
-      case Bell:
-        return GetCurveValue_Bell(x);
-
-        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-    }
-
-    return 0.0;
-  }
-
-  inline double GetCurveValue(ezCurveFunction function, double x, bool bInverse)
-  {
-    double value = GetCurveValue(function, x);
-
-    return bInverse ? (1.0 - value) : value;
-  }
-
 } // namespace ezMath
+
+// static
+inline double ezCurveFunction::GetValue(Enum function, double x)
+{
+  switch (function)
+  {
+    case Linear:
+      return ezMath::GetCurveValue_Linear(x);
+    case ConstantZero:
+      return ezMath::GetCurveValue_ConstantZero(x);
+    case ConstantOne:
+      return ezMath::GetCurveValue_ConstantOne(x);
+    case EaseInSine:
+      return ezMath::GetCurveValue_EaseInSine(x);
+    case EaseOutSine:
+      return ezMath::GetCurveValue_EaseOutSine(x);
+    case EaseInOutSine:
+      return ezMath::GetCurveValue_EaseInOutSine(x);
+    case EaseInQuad:
+      return ezMath::GetCurveValue_EaseInQuad(x);
+    case EaseOutQuad:
+      return ezMath::GetCurveValue_EaseOutQuad(x);
+    case EaseInOutQuad:
+      return ezMath::GetCurveValue_EaseInOutQuad(x);
+    case EaseInCubic:
+      return ezMath::GetCurveValue_EaseInCubic(x);
+    case EaseOutCubic:
+      return ezMath::GetCurveValue_EaseOutCubic(x);
+    case EaseInOutCubic:
+      return ezMath::GetCurveValue_EaseInOutCubic(x);
+    case EaseInQuartic:
+      return ezMath::GetCurveValue_EaseInQuartic(x);
+    case EaseOutQuartic:
+      return ezMath::GetCurveValue_EaseOutQuartic(x);
+    case EaseInOutQuartic:
+      return ezMath::GetCurveValue_EaseInOutQuartic(x);
+    case EaseInQuintic:
+      return ezMath::GetCurveValue_EaseInQuintic(x);
+    case EaseOutQuintic:
+      return ezMath::GetCurveValue_EaseOutQuintic(x);
+    case EaseInOutQuintic:
+      return ezMath::GetCurveValue_EaseInOutQuintic(x);
+    case EaseInExpo:
+      return ezMath::GetCurveValue_EaseInExpo(x);
+    case EaseOutExpo:
+      return ezMath::GetCurveValue_EaseOutExpo(x);
+    case EaseInOutExpo:
+      return ezMath::GetCurveValue_EaseInOutExpo(x);
+    case EaseInCirc:
+      return ezMath::GetCurveValue_EaseInCirc(x);
+    case EaseOutCirc:
+      return ezMath::GetCurveValue_EaseOutCirc(x);
+    case EaseInOutCirc:
+      return ezMath::GetCurveValue_EaseInOutCirc(x);
+    case EaseInBack:
+      return ezMath::GetCurveValue_EaseInBack(x);
+    case EaseOutBack:
+      return ezMath::GetCurveValue_EaseOutBack(x);
+    case EaseInOutBack:
+      return ezMath::GetCurveValue_EaseInOutBack(x);
+    case EaseInElastic:
+      return ezMath::GetCurveValue_EaseInElastic(x);
+    case EaseOutElastic:
+      return ezMath::GetCurveValue_EaseOutElastic(x);
+    case EaseInOutElastic:
+      return ezMath::GetCurveValue_EaseInOutElastic(x);
+    case EaseInBounce:
+      return ezMath::GetCurveValue_EaseInBounce(x);
+    case EaseOutBounce:
+      return ezMath::GetCurveValue_EaseOutBounce(x);
+    case EaseInOutBounce:
+      return ezMath::GetCurveValue_EaseInOutBounce(x);
+    case Conical:
+      return ezMath::GetCurveValue_Conical(x);
+    case FadeInHoldFadeOut:
+      return ezMath::GetCurveValue_FadeInHoldFadeOut(x);
+    case FadeInFadeOut:
+      return ezMath::GetCurveValue_FadeInFadeOut(x);
+    case Bell:
+      return ezMath::GetCurveValue_Bell(x);
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return 0.0;
+}
+
+// static
+inline double ezCurveFunction::GetValue(Enum function, double x, bool bInverse)
+{
+  double value = GetValue(function, x);
+
+  return bInverse ? (1.0 - value) : value;
+}

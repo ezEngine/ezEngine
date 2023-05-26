@@ -90,6 +90,9 @@ private:
     ezTime m_Interval;
     ezTime m_DueTime;
     ezTime m_LastScheduledTime;
+
+    bool IsValid() const;
+    void MarkAsInvalid();
   };
 
   using DataMap = ezMap<ezTime, Data>;

@@ -17,6 +17,7 @@ public:
     const ezRTTI* m_pDataType = nullptr;
     ezEnum<ezVisualScriptDataType> m_ScriptDataType;
     bool m_bRequired = false;
+    bool m_bSplitExecution = false;
 
     EZ_ALWAYS_INLINE bool IsExecutionPin() const { return m_ScriptDataType == ezVisualScriptDataType::Invalid; }
     EZ_ALWAYS_INLINE bool IsDataPin() const { return m_ScriptDataType != ezVisualScriptDataType::Invalid; }
@@ -38,7 +39,7 @@ public:
     bool m_bHasDynamicPins = false;
 
     void AddInputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString());
-    void AddOutputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString());
+    void AddOutputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString(), bool bSplitExecution = false);
 
     void AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty = ezHashedString());
     void AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty = ezHashedString());
@@ -63,8 +64,9 @@ private:
   void CreateBuiltinTypes();
   void CreateGetOwnerNodeType(const ezRTTI* pRtti);
   void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction, bool bIsEntryFunction);
+  void CreateCoroutineNodeType(const ezRTTI* pRtti);
 
-  void FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, ezStringView sCategoryOverride = ezStringView(), ezColorGammaUB* pColorOverride = nullptr);
+  void FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, ezStringView sCategoryOverride = ezStringView(), const ezColorGammaUB* pColorOverride = nullptr);
   void FillDesc(ezReflectedTypeDescriptor& desc, ezStringView sTypeName, ezStringView sCategory, const ezColorGammaUB& color);
 
   const ezRTTI* m_pBaseType = nullptr;

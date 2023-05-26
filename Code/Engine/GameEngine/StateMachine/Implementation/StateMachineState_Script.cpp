@@ -51,10 +51,7 @@ namespace
       if (ezWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
       {
         auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
-        pModule->AddScriptReloadFunction(m_hScriptClass,
-          [this]() {
-            InstantiateScript();
-          });
+        pModule->AddScriptReloadFunction(m_hScriptClass, ezMakeDelegate(&ScriptInstanceData::ReloadScript, this));
       }
 
       CallOnEnter(pFromState);
@@ -69,9 +66,18 @@ namespace
         if (ezWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
         {
           auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
-          pModule->RemoveScriptReloadFunction(m_hScriptClass, this);
+          pModule->StopAndDeleteAllCoroutines(m_pInstance.Borrow());
+          pModule->RemoveScriptReloadFunction(m_hScriptClass, ezMakeDelegate(&ScriptInstanceData::ReloadScript, this));
         }
       }
+
+      m_pInstance = nullptr;
+      m_pScriptType = nullptr;
+    }
+
+    void ReloadScript()
+    {
+      InstantiateScript();
     }
 
     const ezAbstractFunctionProperty* GetScriptFunction(ezUInt32 uiFunctionIndex)

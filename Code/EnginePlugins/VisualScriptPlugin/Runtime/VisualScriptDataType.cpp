@@ -53,6 +53,7 @@ namespace
     ezVariantType::Invalid,           // Variant,
     ezVariantType::VariantArray,      // Array,
     ezVariantType::VariantDictionary, // Map,
+    ezVariantType::TypedObject,       // Coroutine,
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeVariantTypes) == (size_t)ezVisualScriptDataType::Count);
 
@@ -78,6 +79,7 @@ namespace
     sizeof(ezVariant),                      // Variant,
     sizeof(ezVariantArray),                 // Array,
     sizeof(ezVariantDictionary),            // Map,
+    sizeof(ezScriptCoroutineHandle),        // Coroutine,
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeSizes) == (size_t)ezVisualScriptDataType::Count);
 
@@ -103,6 +105,7 @@ namespace
     EZ_ALIGNMENT_OF(ezVariant),                      // Variant,
     EZ_ALIGNMENT_OF(ezVariantArray),                 // Array,
     EZ_ALIGNMENT_OF(ezVariantDictionary),            // Map,
+    EZ_ALIGNMENT_OF(ezScriptCoroutineHandle),        // Coroutine,
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeAlignments) == (size_t)ezVisualScriptDataType::Count);
 
@@ -128,6 +131,7 @@ namespace
     "Variant",
     "Array",
     "Map",
+    "Coroutine",
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeNames) == (size_t)ezVisualScriptDataType::Count);
 } // namespace
@@ -192,25 +196,26 @@ const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
   static const ezRTTI* s_Rttis[] = {
     nullptr, // Invalid,
 
-    ezGetStaticRTTI<bool>(),                // Bool,
-    ezGetStaticRTTI<ezUInt8>(),             // Byte,
-    ezGetStaticRTTI<ezInt32>(),             // Int,
-    ezGetStaticRTTI<ezInt64>(),             // Int64,
-    ezGetStaticRTTI<float>(),               // Float,
-    ezGetStaticRTTI<double>(),              // Double,
-    ezGetStaticRTTI<ezColor>(),             // Color,
-    ezGetStaticRTTI<ezVec3>(),              // Vector3,
-    ezGetStaticRTTI<ezQuat>(),              // Quaternion,
-    ezGetStaticRTTI<ezTransform>(),         // Transform,
-    ezGetStaticRTTI<ezTime>(),              // Time,
-    ezGetStaticRTTI<ezAngle>(),             // Angle,
-    ezGetStaticRTTI<ezString>(),            // String,
-    ezGetStaticRTTI<ezGameObjectHandle>(),  // GameObject,
-    ezGetStaticRTTI<ezComponentHandle>(),   // Component,
-    nullptr,                                // TypedPointer,
-    ezGetStaticRTTI<ezVariant>(),           // Variant,
-    ezGetStaticRTTI<ezVariantArray>(),      // Array,
-    ezGetStaticRTTI<ezVariantDictionary>(), // Map,
+    ezGetStaticRTTI<bool>(),                    // Bool,
+    ezGetStaticRTTI<ezUInt8>(),                 // Byte,
+    ezGetStaticRTTI<ezInt32>(),                 // Int,
+    ezGetStaticRTTI<ezInt64>(),                 // Int64,
+    ezGetStaticRTTI<float>(),                   // Float,
+    ezGetStaticRTTI<double>(),                  // Double,
+    ezGetStaticRTTI<ezColor>(),                 // Color,
+    ezGetStaticRTTI<ezVec3>(),                  // Vector3,
+    ezGetStaticRTTI<ezQuat>(),                  // Quaternion,
+    ezGetStaticRTTI<ezTransform>(),             // Transform,
+    ezGetStaticRTTI<ezTime>(),                  // Time,
+    ezGetStaticRTTI<ezAngle>(),                 // Angle,
+    ezGetStaticRTTI<ezString>(),                // String,
+    ezGetStaticRTTI<ezGameObjectHandle>(),      // GameObject,
+    ezGetStaticRTTI<ezComponentHandle>(),       // Component,
+    nullptr,                                    // TypedPointer,
+    ezGetStaticRTTI<ezVariant>(),               // Variant,
+    ezGetStaticRTTI<ezVariantArray>(),          // Array,
+    ezGetStaticRTTI<ezVariantDictionary>(),     // Map,
+    ezGetStaticRTTI<ezScriptCoroutineHandle>(), // Coroutine,
   };
   static_assert(EZ_ARRAY_SIZE(s_Rttis) == (size_t)ezVisualScriptDataType::Count);
 
@@ -230,6 +235,9 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromRtti(const ezRTTI* pRtt
 
   if (pRtti->IsDerivedFrom<ezComponent>() || pRtti == ezGetStaticRTTI<ezComponentHandle>())
     return Component;
+
+  if (pRtti == ezGetStaticRTTI<ezScriptCoroutineHandle>())
+    return Coroutine;
 
   if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Class))
     return TypedPointer;

@@ -46,9 +46,10 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
 
   ezStringView sScriptClassName = ezPathUtils::GetFileName(GetDocumentPath());
 
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
   ezVisualScriptCompiler compiler;
+  compiler.InitModule(sBaseClassName, sScriptClassName);
 
+  ezHybridArray<const ezVisualScriptPin*, 16> pins;
   for (const ezDocumentObject* pObject : children)
   {
     if (pManager->IsNode(pObject) == false)
@@ -61,24 +62,7 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
     if (pManager->IsFilteredByBaseClass(pObject->GetType(), *pNodeDesc, sBaseClass, true))
       continue;
 
-    const char* szFunctionNameStart = pObject->GetType()->GetTypeName().FindLastSubString("::");
-    if (szFunctionNameStart != nullptr)
-    {
-      szFunctionNameStart += 2;
-    }
-
-    const ezStringView sFunctionName(szFunctionNameStart, pObject->GetType()->GetTypeName().GetEndPointer());
-
-    for (auto& eventHandler : compiler.GetCompiledModule().m_Functions)
-    {
-      if (eventHandler.m_sName == sFunctionName)
-      {
-        return ezStatus(ezFmt("A event handler for '{}' already exists. Can't have multiple event handler for the same event.", sFunctionName));
-      }
-    }
-
-    if (pNodeDesc->m_Type == ezVisualScriptNodeDescription::Type::EntryCall ||
-        pNodeDesc->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler)
+    if (ezVisualScriptNodeDescription::Type::IsEntry(pNodeDesc->m_Type))
     {
       pManager->GetOutputExecutionPins(pObject, pins);
       if (pins.IsEmpty())
@@ -87,7 +71,8 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
       if (pManager->GetConnections(*pins[0]).IsEmpty())
         continue;
 
-      EZ_SUCCEED_OR_RETURN(compiler.AddFunction(sFunctionName, pNodeDesc->m_Type, pObject));
+      ezStringView sFunctionName = ezVisualScriptNodeManager::GetNiceFunctionName(pObject);
+      EZ_SUCCEED_OR_RETURN(compiler.AddFunction(sFunctionName, pObject));
     }
   }
 
@@ -99,7 +84,7 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
   EZ_SUCCEED_OR_RETURN(compiler.Compile(sDumpPath));
 
   auto& compiledModule = compiler.GetCompiledModule();
-  EZ_SUCCEED_OR_RETURN(compiledModule.Serialize(stream, sBaseClassName, sScriptClassName));
+  EZ_SUCCEED_OR_RETURN(compiledModule.Serialize(stream));
 
   return ezStatus(EZ_SUCCESS);
 }

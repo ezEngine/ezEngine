@@ -5,6 +5,7 @@
 
 #include <Core/Messages/EventMessage.h>
 #include <Core/Scripting/ScriptAttributes.h>
+#include <Core/Scripting/ScriptCoroutine.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
@@ -13,6 +14,7 @@ namespace
 {
   constexpr const char* szPluginName = "EditorPluginVisualScript";
   constexpr const char* szEventHandlerCategory = "Add Event Handler/";
+  constexpr const char* szCoroutinesCategory = "Coroutines";
 
   const ezRTTI* FindTopMostBaseClass(const ezRTTI* pRtti)
   {
@@ -26,6 +28,12 @@ namespace
 
   ezResult GetScriptDataType(const ezRTTI* pRtti, ezVisualScriptDataType::Enum& out_scriptDataType, ezStringView sFunctionName, ezStringView sArgName)
   {
+    if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::IsEnum))
+    {
+      out_scriptDataType = ezVisualScriptDataType::Int64;
+      return EZ_SUCCESS;
+    }
+
     ezVisualScriptDataType::Enum scriptDataType = ezVisualScriptDataType::FromRtti(pRtti);
     if (scriptDataType == ezVisualScriptDataType::Invalid)
     {
@@ -37,34 +45,43 @@ namespace
     return EZ_SUCCESS;
   }
 
-  void AddInputProperty(ezReflectedTypeDescriptor& ref_typeDesc, ezStringView sName, ezVisualScriptDataType::Enum scriptDataType)
+  void AddInputProperty(ezReflectedTypeDescriptor& ref_typeDesc, ezStringView sName, const ezRTTI* pRtti, ezVisualScriptDataType::Enum scriptDataType)
   {
     auto& propDesc = ref_typeDesc.m_Properties.ExpandAndGetRef();
     propDesc.m_sName = sName;
     propDesc.m_Flags = ezPropertyFlags::StandardType;
 
-    if (scriptDataType == ezVisualScriptDataType::Variant)
+    if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::IsEnum))
     {
       propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sType = ezGetStaticRTTI<ezVariant>()->GetTypeName();
-      propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezVisualScriptVariableAttribute));
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
-    {
-      propDesc.m_Category = ezPropertyCategory::Array;
-      propDesc.m_sType = ezGetStaticRTTI<ezVariant>()->GetTypeName();
-      propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezVisualScriptVariableAttribute));
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
-    {
-      propDesc.m_Category = ezPropertyCategory::Map;
-      propDesc.m_sType = ezGetStaticRTTI<ezVariant>()->GetTypeName();
-      propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezVisualScriptVariableAttribute));
+      propDesc.m_sType = pRtti->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::IsEnum;
     }
     else
     {
-      propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sType = ezVisualScriptDataType::GetRtti(scriptDataType)->GetTypeName();
+      if (scriptDataType == ezVisualScriptDataType::Variant)
+      {
+        propDesc.m_Category = ezPropertyCategory::Member;
+        propDesc.m_sType = ezGetStaticRTTI<ezVariant>()->GetTypeName();
+        propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezVisualScriptVariableAttribute));
+      }
+      else if (scriptDataType == ezVisualScriptDataType::Array)
+      {
+        propDesc.m_Category = ezPropertyCategory::Array;
+        propDesc.m_sType = ezGetStaticRTTI<ezVariant>()->GetTypeName();
+        propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezVisualScriptVariableAttribute));
+      }
+      else if (scriptDataType == ezVisualScriptDataType::Map)
+      {
+        propDesc.m_Category = ezPropertyCategory::Map;
+        propDesc.m_sType = ezGetStaticRTTI<ezVariant>()->GetTypeName();
+        propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezVisualScriptVariableAttribute));
+      }
+      else
+      {
+        propDesc.m_Category = ezPropertyCategory::Member;
+        propDesc.m_sType = ezVisualScriptDataType::GetRtti(scriptDataType)->GetTypeName();
+      }
     }
   }
 
@@ -76,7 +93,7 @@ namespace
     ezVisualScriptDataType::Enum scriptDataType;
     EZ_VERIFY(GetScriptDataType(pDataType, scriptDataType, "", sName).Succeeded(), "Invalid script data type");
 
-    AddInputProperty(ref_typeDesc, sName, scriptDataType);
+    AddInputProperty(ref_typeDesc, sName, pDataType, scriptDataType);
 
     ref_nodeDesc.AddInputDataPin(sName, pDataType, scriptDataType, false);
   };
@@ -85,7 +102,7 @@ namespace
   {
     if (bAddVariantProperty)
     {
-      AddInputProperty(ref_typeDesc, sName, ezVisualScriptDataType::Variant);
+      AddInputProperty(ref_typeDesc, sName, ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant);
     }
 
     ref_nodeDesc.AddInputDataPin(sName, nullptr, ezVisualScriptDataType::Any, bRequired);
@@ -157,6 +174,7 @@ static ezColorScheme::Enum s_scriptDataTypeToPinColor[] = {
   ezColorScheme::Pink,   // Variant,
   ezColorScheme::Pink,   // VariantArray,
   ezColorScheme::Pink,   // VariantDictionary,
+  ezColorScheme::Cyan,   // Coroutine,
 };
 
 static_assert(EZ_ARRAY_SIZE(s_scriptDataTypeToPinColor) == ezVisualScriptDataType::Count);
@@ -190,37 +208,38 @@ ezColor ezVisualScriptNodeRegistry::PinDesc::GetColor() const
 
 //////////////////////////////////////////////////////////////////////////
 
-void AddExecutionPin(ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName, ezHashedString sDynamicPinProperty, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& ref_pins)
+void AddExecutionPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringView sName, ezHashedString sDynamicPinProperty, bool bSplitExecution, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& inout_pins)
 {
-  auto& pin = ref_pins.ExpandAndGetRef();
+  auto& pin = inout_pins.ExpandAndGetRef();
   pin.m_sName.Assign(sName);
   pin.m_sDynamicPinProperty = sDynamicPinProperty;
   pin.m_pDataType = nullptr;
   pin.m_ScriptDataType = ezVisualScriptDataType::Invalid;
+  pin.m_bSplitExecution = bSplitExecution;
 
-  ref_nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
+  inout_nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
 }
 
 void ezVisualScriptNodeRegistry::NodeDesc::AddInputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/)
 {
-  AddExecutionPin(*this, sName, sDynamicPinProperty, m_InputPins);
+  AddExecutionPin(*this, sName, sDynamicPinProperty, false, m_InputPins);
 }
 
-void ezVisualScriptNodeRegistry::NodeDesc::AddOutputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/)
+void ezVisualScriptNodeRegistry::NodeDesc::AddOutputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/, bool bSplitExecution /*= false*/)
 {
-  AddExecutionPin(*this, sName, sDynamicPinProperty, m_OutputPins);
+  AddExecutionPin(*this, sName, sDynamicPinProperty, bSplitExecution, m_OutputPins);
 }
 
-void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& ref_pins)
+void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& inout_pins)
 {
-  auto& pin = ref_pins.ExpandAndGetRef();
+  auto& pin = inout_pins.ExpandAndGetRef();
   pin.m_sName.Assign(sName);
   pin.m_sDynamicPinProperty = sDynamicPinProperty;
   pin.m_pDataType = pDataType;
   pin.m_ScriptDataType = scriptDataType;
   pin.m_bRequired = bRequired;
 
-  ref_nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
+  inout_nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
 }
 
 void ezVisualScriptNodeRegistry::NodeDesc::AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/)
@@ -301,38 +320,46 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
     componentTypesDynEnum.AddValidValue(pRtti->GetTypeName(), true);
   }
 
-  // expose reflected functions and properties to visual scripts
+  if (pRtti->IsDerivedFrom<ezScriptCoroutine>())
   {
-    bool bHasBaseClassFunctions = false;
-
-    for (const ezAbstractFunctionProperty* pFuncProp : pRtti->GetFunctions())
+    CreateCoroutineNodeType(pRtti);
+  }
+  else
+  {
+    // expose reflected functions and properties to visual scripts
     {
-      bool bIsBaseClassFunction = pFuncProp->GetAttributeByType<ezScriptBaseClassFunctionAttribute>() != nullptr;
-      if (bIsBaseClassFunction)
+      bool bHasBaseClassFunctions = false;
+
+      for (const ezAbstractFunctionProperty* pFuncProp : pRtti->GetFunctions())
       {
-        bHasBaseClassFunctions = true;
+        bool bIsBaseClassFunction = pFuncProp->GetAttributeByType<ezScriptBaseClassFunctionAttribute>() != nullptr;
+        if (bIsBaseClassFunction)
+        {
+          bHasBaseClassFunctions = true;
+        }
+
+        CreateFunctionCallNodeType(pRtti, pFuncProp, bIsBaseClassFunction);
       }
 
-      CreateFunctionCallNodeType(pRtti, pFuncProp, bIsBaseClassFunction);
-    }
+      if (bHasBaseClassFunctions)
+      {
+        auto& scriptBaseClassesDynEnum = ezDynamicStringEnum::GetDynamicEnum("ScriptBaseClasses");
+        scriptBaseClassesDynEnum.AddValidValue(StripTypeName(pRtti->GetTypeName()));
 
-    if (bHasBaseClassFunctions)
-    {
-      auto& scriptBaseClassesDynEnum = ezDynamicStringEnum::GetDynamicEnum("ScriptBaseClasses");
-      scriptBaseClassesDynEnum.AddValidValue(StripTypeName(pRtti->GetTypeName()));
-
-      CreateGetOwnerNodeType(pRtti);
+        CreateGetOwnerNodeType(pRtti);
+      }
     }
   }
 }
 
 void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 {
-  ezColorGammaUB logicColor = ezColorScheme::DarkUI(ezColorScheme::Gray);
-  ezColorGammaUB mathColor = ezColorScheme::DarkUI(ezColorScheme::Teal);
-  ezColorGammaUB stringColor = ezColorScheme::DarkUI(ezColorScheme::Grape);
-  ezColorGammaUB gameObjectColor = ezColorScheme::DarkUI(ezColorScheme::Blue);
-  ezColorGammaUB variantColor = ezColorScheme::DarkUI(ezColorScheme::Pink);
+  const ezColorGammaUB logicColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Invalid);
+  const ezColorGammaUB mathColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Int);
+  const ezColorGammaUB stringColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::String);
+  const ezColorGammaUB gameObjectColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::GameObject);
+  const ezColorGammaUB variantColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Variant);
+  const ezColorGammaUB coroutineColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Coroutine);
 
   // Builtin_Branch
   {
@@ -548,7 +575,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.m_bNeedsDataTypeDeduction = true;
 
     nodeDesc.AddInputExecutionPin("");
-    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("Succeeded");
     nodeDesc.AddOutputExecutionPin("Failed");
     nodeDesc.AddInputDataPin("Variant", ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant, true);
     nodeDesc.AddOutputDataPin("Result", nullptr, ezVisualScriptDataType::Any);
@@ -611,6 +638,122 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     nodeDesc.AddInputDataPin("GameObject", ezGetStaticRTTI<ezGameObject>(), ezVisualScriptDataType::GameObject, true);
     AddOutputDataPin<ezComponent>(nodeDesc, "Component");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_StartCoroutine
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_StartCoroutine", szCoroutinesCategory, coroutineColor);
+
+    {
+      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
+      propDesc.m_Category = ezPropertyCategory::Member;
+      propDesc.m_sName = "CoroutineMode";
+      propDesc.m_sType = ezGetStaticRTTI<ezScriptCoroutineCreationMode>()->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::IsEnum;
+    }
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "StartCoroutine {Name}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_StartCoroutine;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("CoroutineBody", ezHashedString(), true);
+    AddInputDataPin<ezString>(typeDesc, nodeDesc, "Name");
+    nodeDesc.AddOutputDataPin("CoroutineID", ezGetStaticRTTI<ezScriptCoroutineHandle>(), ezVisualScriptDataType::Coroutine);
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_StopCoroutine
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_StopCoroutine", szCoroutinesCategory, coroutineColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "StopCoroutine {Name}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_StopCoroutine;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("CoroutineID", ezGetStaticRTTI<ezScriptCoroutineHandle>(), ezVisualScriptDataType::Coroutine, false);
+    AddInputDataPin<ezString>(typeDesc, nodeDesc, "Name");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_StopAllCoroutines
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_StopAllCoroutines", szCoroutinesCategory, coroutineColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_StopAllCoroutines;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_WaitForAll
+  {
+    ezVisualScriptNodeDescription::Type::Enum waitTypes[] = {
+      ezVisualScriptNodeDescription::Type::Builtin_WaitForAll,
+      ezVisualScriptNodeDescription::Type::Builtin_WaitForAny,
+    };
+
+    for (auto waitType : waitTypes)
+    {
+      ezReflectedTypeDescriptor typeDesc;
+      FillDesc(typeDesc, ezVisualScriptNodeDescription::Type::GetName(waitType), szCoroutinesCategory, coroutineColor);
+
+      ezHashedString sCount = ezMakeHashedString("Count");
+      {
+        auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
+        propDesc.m_Category = ezPropertyCategory::Member;
+        propDesc.m_sName = sCount.GetView();
+        propDesc.m_sType = ezGetStaticRTTI<ezUInt32>()->GetTypeName();
+        propDesc.m_Flags = ezPropertyFlags::StandardType;
+
+        auto pNoTempAttr = EZ_DEFAULT_NEW(ezNoTemporaryTransactionsAttribute);
+        propDesc.m_Attributes.PushBack(pNoTempAttr);
+
+        auto pDefaultAttr = EZ_DEFAULT_NEW(ezDefaultValueAttribute, 1);
+        propDesc.m_Attributes.PushBack(pDefaultAttr);
+
+        auto pClampAttr = EZ_DEFAULT_NEW(ezClampValueAttribute, 1, 16);
+        propDesc.m_Attributes.PushBack(pClampAttr);
+      }
+
+      NodeDesc nodeDesc;
+      nodeDesc.m_Type = waitType;
+
+      nodeDesc.AddInputExecutionPin("");
+      nodeDesc.AddOutputExecutionPin("");
+      nodeDesc.AddInputDataPin("", ezGetStaticRTTI<ezScriptCoroutineHandle>(), ezVisualScriptDataType::Coroutine, false, sCount);
+
+      m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+    }
+  }
+
+  // Builtin_Yield
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_Yield", szCoroutinesCategory, coroutineColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Yield;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }
@@ -698,6 +841,15 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     ezStringBuilder temp;
     temp.Set(typeDesc.m_sTypeName, "::", sFunctionName);
     typeDesc.m_sTypeName = temp;
+
+    if (bIsEntryFunction)
+    {
+      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
+      propDesc.m_Category = ezPropertyCategory::Member;
+      propDesc.m_sName = "CoroutineMode";
+      propDesc.m_sType = ezGetStaticRTTI<ezScriptCoroutineCreationMode>()->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::IsEnum;
+    }
 
     if (auto pTitleAttribute = pFunction->GetAttributeByType<ezTitleAttribute>())
     {
@@ -805,11 +957,9 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       {
         if (argType == ezScriptableFunctionAttribute::In || argType == ezScriptableFunctionAttribute::Inout)
         {
-          if (scriptDataType != ezVisualScriptDataType::GameObject &&
-              scriptDataType != ezVisualScriptDataType::Component &&
-              scriptDataType != ezVisualScriptDataType::TypedPointer)
+          if (ezVisualScriptDataType::IsPointer(scriptDataType) == false)
           {
-            AddInputProperty(typeDesc, sArgName, scriptDataType);
+            AddInputProperty(typeDesc, sArgName, pArgRtti, scriptDataType);
           }
 
           nodeDesc.AddInputDataPin(sArgName, pArgRtti, pinScriptDataType, false, sDynamicPinProperty);
@@ -839,6 +989,11 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       }
     }
 
+    if (bIsEntryFunction)
+    {
+      nodeDesc.AddOutputDataPin("CoroutineID", ezGetStaticRTTI<ezScriptCoroutineHandle>(), ezVisualScriptDataType::Coroutine);
+    }
+
     if (bHasTitle == false && titleArgIdx != ezInvalidIndex)
     {
       ezStringBuilder sTitle;
@@ -852,7 +1007,91 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
   m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
 }
 
-void ezVisualScriptNodeRegistry::FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, ezStringView sCategoryOverride /*= ezStringView()*/, ezColorGammaUB* pColorOverride /*= nullptr */)
+void ezVisualScriptNodeRegistry::CreateCoroutineNodeType(const ezRTTI* pRtti)
+{
+  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+    return;
+
+
+  const ezAbstractFunctionProperty* pStartFunc = nullptr;
+  const ezScriptableFunctionAttribute* pScriptableFuncAttribute = nullptr;
+  for (auto pFunc : pRtti->GetFunctions())
+  {
+    if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "Start"))
+    {
+      if (auto pAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>())
+      {
+        pStartFunc = pFunc;
+        pScriptableFuncAttribute = pAttr;
+        break;
+      }
+    }
+  }
+
+  if (pStartFunc == nullptr || pScriptableFuncAttribute == nullptr)
+  {
+    ezLog::Warning("The script coroutine '{}' has no reflected script function called 'Start'.", pRtti->GetTypeName());
+    return;
+  }
+
+  ezReflectedTypeDescriptor typeDesc;
+  {
+    const ezColorGammaUB coroutineColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Coroutine);
+    FillDesc(typeDesc, pRtti, szCoroutinesCategory, &coroutineColor);
+
+    ezStringBuilder temp;
+    temp.Set("Coroutine::", typeDesc.m_sTypeName);
+    typeDesc.m_sTypeName = temp;
+
+    if (auto pTitleAttribute = pRtti->GetAttributeByType<ezTitleAttribute>())
+    {
+      auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, pTitleAttribute->GetTitle());
+      typeDesc.m_Attributes.PushBack(pAttr);
+    }
+  }
+
+  NodeDesc nodeDesc;
+  nodeDesc.m_pTargetType = pRtti;
+  nodeDesc.m_pTargetProperty = pStartFunc;
+  nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::InplaceCoroutine;
+
+  nodeDesc.AddInputExecutionPin("");
+  nodeDesc.AddOutputExecutionPin("Succeeded");
+  nodeDesc.AddOutputExecutionPin("Failed");
+
+  ezStringBuilder sArgName;
+  for (ezUInt32 argIdx = 0; argIdx < pStartFunc->GetArgumentCount(); ++argIdx)
+  {
+    sArgName = pScriptableFuncAttribute->GetArgumentName(argIdx);
+    if (sArgName.IsEmpty())
+      sArgName.Format("Arg{}", argIdx);
+
+    auto pArgRtti = pStartFunc->GetArgumentType(argIdx);
+    auto argType = pScriptableFuncAttribute->GetArgumentType(argIdx);
+    if (argType != ezScriptableFunctionAttribute::In)
+    {
+      ezLog::Error("Script function out parameter are not yet supported");
+      return;
+    }
+
+    ezVisualScriptDataType::Enum scriptDataType = ezVisualScriptDataType::Invalid;
+    if (GetScriptDataType(pArgRtti, scriptDataType, pStartFunc->GetPropertyName(), sArgName).Failed())
+    {
+      return;
+    }
+
+    if (ezVisualScriptDataType::IsPointer(scriptDataType) == false)
+    {
+      AddInputProperty(typeDesc, sArgName, pArgRtti, scriptDataType);
+    }
+
+    nodeDesc.AddInputDataPin(sArgName, pArgRtti, scriptDataType, false);
+  }
+
+  m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+}
+
+void ezVisualScriptNodeRegistry::FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, ezStringView sCategoryOverride /*= ezStringView()*/, const ezColorGammaUB* pColorOverride /*= nullptr */)
 {
   ezStringBuilder sTypeName = GetTypeName(pRtti);
   const ezRTTI* pBaseClass = FindTopMostBaseClass(pRtti);

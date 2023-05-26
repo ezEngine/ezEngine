@@ -1,4 +1,3 @@
-#include "VisualScript.h"
 
 // static
 template <typename T, ezUInt32 Size>
@@ -107,127 +106,75 @@ void ezVisualScriptGraphDescription::Node::SetUserData(const T& data, ezUInt8*& 
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE const ezVisualScriptGraphDescription::Node* ezVisualScriptGraphDescription::GetNode(ezUInt32 uiIndex)
+EZ_ALWAYS_INLINE const ezVisualScriptGraphDescription::Node* ezVisualScriptGraphDescription::GetNode(ezUInt32 uiIndex) const
 {
   return uiIndex < m_Nodes.GetCount() ? &m_Nodes.GetPtr()[uiIndex] : nullptr;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-EZ_FORCE_INLINE void ezVisualScriptDataDescription::CheckOffset(DataOffset dataOffset, const ezRTTI* pType) const
+EZ_ALWAYS_INLINE bool ezVisualScriptGraphDescription::IsCoroutine() const
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  auto expectedDataType = static_cast<ezVisualScriptDataType::Enum>(dataOffset.m_uiDataType);
-  auto& offsetAndCount = m_PerTypeInfo[expectedDataType];
-  const ezUInt32 uiLastOffset = offsetAndCount.m_uiStartOffset + (offsetAndCount.m_uiCount - 1) * ezVisualScriptDataType::GetStorageSize(expectedDataType);
-  EZ_ASSERT_DEBUG(dataOffset.m_uiByteOffset >= offsetAndCount.m_uiStartOffset && dataOffset.m_uiByteOffset <= uiLastOffset, "Invalid data offset");
-
-  if (pType != nullptr)
-  {
-    auto givenDataType = ezVisualScriptDataType::FromRtti(pType);
-    EZ_ASSERT_DEBUG(expectedDataType == givenDataType, "Data type mismatch, expected '{}' but got '{}'({})", ezVisualScriptDataType::GetName(expectedDataType), ezVisualScriptDataType::GetName(givenDataType), pType->GetTypeName());
-  }
-#endif
+  auto entryNodeType = GetNode(0)->m_Type;
+  return entryNodeType == ezVisualScriptNodeDescription::Type::EntryCall_Coroutine || entryNodeType == ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine;
 }
 
-EZ_FORCE_INLINE ezVisualScriptDataDescription::DataOffset ezVisualScriptDataDescription::GetOffset(ezVisualScriptDataType::Enum dataType, ezUInt32 uiIndex, bool bIsConstant) const
+EZ_ALWAYS_INLINE const ezSharedPtr<const ezVisualScriptDataDescription>& ezVisualScriptGraphDescription::GetLocalDataDesc() const
 {
-  auto& offsetAndCount = m_PerTypeInfo[dataType];
-  ezUInt32 uiByteOffset = ezInvalidIndex;
-  if (uiIndex < offsetAndCount.m_uiCount)
-  {
-    uiByteOffset = offsetAndCount.m_uiStartOffset + uiIndex * ezVisualScriptDataType::GetStorageSize(dataType);
-  }
-
-  return DataOffset(uiByteOffset, dataType, bIsConstant);
+  return m_pLocalDataDesc;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-const T& ezVisualScriptDataStorage::GetData(DataOffset dataOffset) const
+EZ_FORCE_INLINE const T& ezVisualScriptExecutionContext::GetData(DataOffset dataOffset) const
 {
-  static_assert(!std::is_pointer<T>::value && !std::is_same<T, ezTypedPointer>::value, "Use GetPointerData instead");
-
-  m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
-
-  return *reinterpret_cast<const T*>(m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset);
+  return m_DataStorage[dataOffset.m_uiSource]->GetData<T>(dataOffset);
 }
 
 template <typename T>
-T& ezVisualScriptDataStorage::GetWritableData(DataOffset dataOffset)
+EZ_FORCE_INLINE T& ezVisualScriptExecutionContext::GetWritableData(DataOffset dataOffset)
 {
-  static_assert(!std::is_pointer<T>::value && !std::is_same<T, ezTypedPointer>::value, "Use GetPointerData instead");
-
-  m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
-
-  return *reinterpret_cast<T*>(m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset);
+  EZ_ASSERT_DEBUG(dataOffset.IsConstant() == false, "Can't write to constant data");
+  return m_DataStorage[dataOffset.m_uiSource]->GetWritableData<T>(dataOffset);
 }
 
 template <typename T>
-void ezVisualScriptDataStorage::SetData(DataOffset dataOffset, const T& value)
+EZ_FORCE_INLINE void ezVisualScriptExecutionContext::SetData(DataOffset dataOffset, const T& value)
 {
-  static_assert(!std::is_pointer<T>::value, "Use SetPointerData instead");
+  EZ_ASSERT_DEBUG(dataOffset.IsConstant() == false, "Outputs can't set constant data");
+  return m_DataStorage[dataOffset.m_uiSource]->SetData<T>(dataOffset, value);
+}
 
-  if (dataOffset.m_uiByteOffset < m_Storage.GetByteBlobPtr().GetCount())
-  {
-    m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
-
-    auto pData = m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset;
-
-    if constexpr (std::is_same<T, ezGameObjectHandle>::value)
-    {
-      auto& storedHandle = *reinterpret_cast<ezVisualScriptGameObjectHandle*>(pData);
-      storedHandle.AssignHandle(value);
-    }
-    else if constexpr (std::is_same<T, ezComponentHandle>::value)
-    {
-      auto& storedHandle = *reinterpret_cast<ezVisualScriptComponentHandle*>(pData);
-      storedHandle.AssignHandle(value);
-    }
-    else if constexpr (std::is_same<T, ezStringView>::value)
-    {
-      *reinterpret_cast<ezString*>(pData) = value;
-    }
-    else
-    {
-      *reinterpret_cast<T*>(pData) = value;
-    }
-  }
+EZ_FORCE_INLINE ezTypedPointer ezVisualScriptExecutionContext::GetPointerData(DataOffset dataOffset)
+{
+  EZ_ASSERT_DEBUG(dataOffset.IsConstant() == false, "Pointers can't be constant data");
+  return m_DataStorage[dataOffset.m_uiSource]->GetPointerData(dataOffset, m_uiExecutionCounter);
 }
 
 template <typename T>
-void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, const ezRTTI* pType, ezUInt32 uiExecutionCounter)
+EZ_FORCE_INLINE void ezVisualScriptExecutionContext::SetPointerData(DataOffset dataOffset, T ptr, const ezRTTI* pType)
 {
-  static_assert(std::is_pointer<T>::value);
+  EZ_ASSERT_DEBUG(dataOffset.IsConstant() == false, "Pointers can't be constant data");
+  m_DataStorage[dataOffset.m_uiSource]->SetPointerData(dataOffset, ptr, pType, m_uiExecutionCounter);
+}
 
-  if (dataOffset.m_uiByteOffset < m_Storage.GetByteBlobPtr().GetCount())
-  {
-    auto pData = m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset;
+EZ_FORCE_INLINE ezVariant ezVisualScriptExecutionContext::GetDataAsVariant(DataOffset dataOffset, const ezRTTI* pExpectedType) const
+{
+  return m_DataStorage[dataOffset.m_uiSource]->GetDataAsVariant(dataOffset, pExpectedType, m_uiExecutionCounter);
+}
 
-    if constexpr (std::is_same<T, ezGameObject*>::value)
-    {
-      m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<ezGameObject>());
+EZ_FORCE_INLINE void ezVisualScriptExecutionContext::SetDataFromVariant(DataOffset dataOffset, const ezVariant& value)
+{
+  EZ_ASSERT_DEBUG(dataOffset.IsConstant() == false, "Outputs can't set constant data");
+  return m_DataStorage[dataOffset.m_uiSource]->SetDataFromVariant(dataOffset, value, m_uiExecutionCounter);
+}
 
-      auto& storedHandle = *reinterpret_cast<ezVisualScriptGameObjectHandle*>(pData);
-      storedHandle.AssignPtr(ptr, uiExecutionCounter);
-    }
-    else if constexpr (std::is_same<T, ezComponent*>::value)
-    {
-      m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<ezComponent>());
+EZ_ALWAYS_INLINE void ezVisualScriptExecutionContext::SetCurrentCoroutine(ezScriptCoroutine* pCoroutine)
+{
+  m_pCurrentCoroutine = pCoroutine;
+}
 
-      auto& storedHandle = *reinterpret_cast<ezVisualScriptComponentHandle*>(pData);
-      storedHandle.AssignPtr(ptr, uiExecutionCounter);
-    }
-    else
-    {
-      EZ_ASSERT_DEBUG(pType->IsDerivedFrom<ezComponent>() == false, "Component type '{}' is stored as typed pointer, cast to ezComponent first to ensure correct storage", pType->GetTypeName());
-
-      m_pDesc->CheckOffset(dataOffset, pType);
-
-      auto& typedPointer = *reinterpret_cast<ezTypedPointer*>(pData);
-      typedPointer.m_pObject = ptr;
-      typedPointer.m_pType = pType;
-    }
-  }
+inline ezTime ezVisualScriptExecutionContext::GetDeltaTimeSinceLastExecution()
+{
+  EZ_ASSERT_DEBUG(m_pDesc->IsCoroutine(), "Delta time is only valid for coroutines");
+  return m_deltaTimeSinceLastExecution;
 }

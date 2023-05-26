@@ -14,8 +14,8 @@ class ezQtPin;
 class ezDocumentNodeManager;
 class QLabel;
 class ezDocumentObject;
-class QGraphicsGridLayout;
 class QGraphicsTextItem;
+class QGraphicsPixmapItem;
 class QGraphicsDropShadowEffect;
 
 struct ezNodeFlags
@@ -75,6 +75,7 @@ protected:
   QRectF m_HeaderRect;
   QGraphicsTextItem* m_pTitleLabel = nullptr;
   QGraphicsTextItem* m_pSubtitleLabel = nullptr;
+  QGraphicsPixmapItem* m_pIcon = nullptr;
 
 private:
   const ezDocumentNodeManager* m_pManager = nullptr;

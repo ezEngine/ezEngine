@@ -53,9 +53,9 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezTypeScriptInstance::ezTypeScriptInstance(ezComponent& in_owner, ezTypeScriptBinding& ref_binding)
-  : m_Binding(ref_binding)
-  , m_Component(in_owner)
+ezTypeScriptInstance::ezTypeScriptInstance(ezComponent& owner, ezWorld* pWorld, ezTypeScriptBinding& binding)
+  : ezScriptInstance(owner, pWorld)
+  , m_Binding(binding)
 {
 }
 
@@ -63,7 +63,7 @@ void ezTypeScriptInstance::ApplyParameters(const ezArrayMap<ezHashedString, ezVa
 {
   ezDuktapeHelper duk(m_Binding.GetDukTapeContext());
 
-  m_Binding.DukPutComponentObject(&m_Component); // [ comp ]
+  m_Binding.DukPutComponentObject(&GetComponent()); // [ comp ]
 
   for (ezUInt32 p = 0; p < parameters.GetCount(); ++p)
   {
@@ -193,5 +193,5 @@ ezUniquePtr<ezScriptInstance> ezTypeScriptClassResource::Instantiate(ezReflected
     return nullptr;
   }
 
-  return EZ_DEFAULT_NEW(ezTypeScriptInstance, *pComponent, binding);
+  return EZ_DEFAULT_NEW(ezTypeScriptInstance, *pComponent, pWorld, binding);
 }

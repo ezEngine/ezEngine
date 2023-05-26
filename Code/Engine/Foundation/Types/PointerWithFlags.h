@@ -88,17 +88,17 @@ public:
   /// \brief Changes the pointer value only. Flags stay unchanged.
   void operator=(PtrType* pPtr) { SetPtr(pPtr); }
 
+  /// \brief Compares both the pointer part and the flags part for equality
+  bool operator==(const ezPointerWithFlags<PtrType, NumFlagBits>& other) const { return m_pPtr == other.m_pPtr; }
+
+  /// \brief Compares both the pointer part and the flags part for inequality
+  bool operator!=(const ezPointerWithFlags<PtrType, NumFlagBits>& other) const { return m_pPtr != other.m_pPtr; }
+
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(const PtrType* pPtr) const { return GetPtr() == pPtr; }
 
   /// \brief Compares the pointer part for inequality (flags are ignored)
   bool operator!=(const PtrType* pPtr) const { return !(*this == pPtr); }
-
-  /// \brief Compares the pointer part for equality (flags are ignored)
-  bool operator==(PtrType* pPtr) const { return GetPtr() == pPtr; }
-
-  /// \brief Compares the pointer part for inequality (flags are ignored)
-  bool operator!=(PtrType* pPtr) const { return !(*this == pPtr); }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(std::nullptr_t) const { return GetPtr() == nullptr; }

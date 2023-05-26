@@ -19,6 +19,7 @@ public:
   EZ_ALWAYS_INLINE ezUInt32 GetPinIndex() const { return m_uiPinIndex; }
   EZ_ALWAYS_INLINE bool IsRequired() const { return m_bRequired; }
   EZ_ALWAYS_INLINE bool HasDynamicPinProperty() const { return m_bHasDynamicPinProperty; }
+  EZ_ALWAYS_INLINE bool SplitExecution() const { return m_bSplitExecution; }
 
   bool CanConvertTo(const ezVisualScriptPin& targetPin, ezVisualScriptDataType::Enum deductedSourceDataType = ezVisualScriptDataType::Invalid, ezVisualScriptDataType::Enum deductedTargetDataType = ezVisualScriptDataType::Invalid) const;
 
@@ -28,6 +29,7 @@ private:
   ezEnum<ezVisualScriptDataType> m_ScriptDataType;
   bool m_bRequired = false;
   bool m_bHasDynamicPinProperty = false;
+  bool m_bSplitExecution = false;
 };
 
 class ezVisualScriptNodeManager : public ezDocumentNodeManager
@@ -45,13 +47,17 @@ public:
   void GetInputDataPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
   void GetOutputDataPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
 
-  static ezStringView GetNiceTypeName(const ezDocumentObject* pObject);
+  void GetEntryNodes(const ezDocumentObject* pObject, ezDynamicArray<const ezDocumentObject*>& out_entryNodes) const;
 
-  void DeductType(const ezDocumentObject* pObject, const ezPin* pChangedPin = nullptr, bool bConnected = true);
+  static ezStringView GetNiceTypeName(const ezDocumentObject* pObject);
+  static ezStringView GetNiceFunctionName(const ezDocumentObject* pObject);
+
   ezVisualScriptDataType::Enum GetDeductedType(const ezVisualScriptPin& pin) const;
   ezVisualScriptDataType::Enum GetDeductedType(const ezDocumentObject* pObject) const;
 
-  ezEvent<const ezDocumentObject*> m_DeductedTypeChangedEvent;
+  bool IsCoroutine(const ezDocumentObject* pObject) const;
+
+  ezEvent<const ezDocumentObject*> m_NodeChangedEvent;
 
 private:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
@@ -65,5 +71,10 @@ private:
   void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
 
+  void DeductType(const ezDocumentObject* pObject, const ezPin* pChangedPin = nullptr, bool bConnected = true);
+  void UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezConnection& changedConnection, bool bConnected);
+  bool IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezConnection& changedConnection, bool bConnected) const;
+
   ezHashTable<const ezDocumentObject*, ezEnum<ezVisualScriptDataType>> m_ObjectToDeductedType;
+  ezHashSet<const ezDocumentObject*> m_CoroutineObjects;
 };

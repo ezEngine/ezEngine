@@ -8,7 +8,9 @@ public:
   ezVisualScriptCompiler();
   ~ezVisualScriptCompiler();
 
-  ezResult AddFunction(ezStringView sName, ezVisualScriptNodeDescription::Type::Enum type, const ezDocumentObject* pEntryObject);
+  void InitModule(ezStringView sBaseClassName, ezStringView sScriptClassName);
+
+  ezResult AddFunction(ezStringView sName, const ezDocumentObject* pEntryObject, const ezDocumentObject* pParentObject = nullptr);
 
   ezResult Compile(ezStringView sDebugAstOutputPath = ezStringView());
 
@@ -16,18 +18,22 @@ public:
   {
     ezString m_sName;
     ezEnum<ezVisualScriptNodeDescription::Type> m_Type;
+    ezEnum<ezScriptCoroutineCreationMode> m_CoroutineCreationMode;
     ezDynamicArray<ezVisualScriptNodeDescription> m_NodeDescriptions;
+    ezVisualScriptDataDescription m_LocalDataDesc;
   };
 
   struct CompiledModule
   {
     CompiledModule();
 
-    ezResult Serialize(ezStreamWriter& inout_stream, ezStringView sBaseClassName, ezStringView sScriptClassName) const;
+    ezResult Serialize(ezStreamWriter& inout_stream) const;
 
+    ezString m_sBaseClassName;
+    ezString m_sScriptClassName;
     ezHybridArray<CompiledFunction, 16> m_Functions;
 
-    ezVisualScriptDataDescription m_VariableDataDesc;
+    ezVisualScriptDataDescription m_InstanceDataDesc;
     ezVisualScriptDataDescription m_ConstantDataDesc;
     ezVisualScriptDataStorage m_ConstantDataStorage;
   };
@@ -81,13 +87,14 @@ private:
   ezUInt32 GetPinId(const ezVisualScriptPin* pPin);
   DataOutput& GetDataOutput(const DataInput& dataInput);
 
-  AstNode* BuildAST(const ezDocumentObject* pEntryNode);
+  AstNode* BuildAST(const ezDocumentObject* pEntryNode, const ezDocumentObject* pParentNode);
+  void MarkAsCoroutine(AstNode* pEntryAstNode);
   ezResult InsertMakeArrayForDynamicPin(AstNode* pNode, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type pinType);
   ezResult InsertTypeConversions(AstNode* pEntryAstNode);
   ezResult BuildDataStack(AstNode* pEntryAstNode, ezDynamicArray<AstNode*>& out_Stack);
   ezResult BuildDataExecutions(AstNode* pEntryAstNode);
   ezResult FillDataOutputConnections(AstNode* pEntryAstNode);
-  ezResult CollectData(AstNode* pEntryAstNode);
+  ezResult CollectData(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc);
   ezResult BuildNodeDescriptions(AstNode* pEntryAstNode, ezDynamicArray<ezVisualScriptNodeDescription>& out_NodeDescriptions);
 
   struct ConnectionType
@@ -142,7 +149,7 @@ private:
   ezHashTable<const ezVisualScriptPin*, ezUInt32> m_PinToId;
   ezUInt32 m_uiNextPinId = 0;
 
-  using DataOffset = ezVisualScriptNodeDescription::DataOffset;
+  using DataOffset = ezVisualScriptDataDescription::DataOffset;
 
   struct DataDesc
   {
