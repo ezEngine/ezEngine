@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Asset Hashing and Status Updates
