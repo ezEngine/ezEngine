@@ -48,22 +48,19 @@ void ezFileSystemWatcher::Initialize()
     m_Watchers.PushBack(pWatcher);
   }
 
-  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Changes", [this]()
+  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Changes", [this]() {
+    ezHybridArray<WatcherResult, 16> watcherResults;
+    for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
-      ezHybridArray<WatcherResult, 16> watcherResults;
-      for (ezDirectoryWatcher* pWatcher : m_Watchers)
-      {
-        pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
-          { watcherResults.PushBack({szFilename, action, type}); });
-      }
-      for (const WatcherResult& res : watcherResults)
-      {
-        HandleWatcherChange(res);
-      } //
-    });
+      pWatcher->EnumerateChanges([pWatcher, &watcherResults](const char* szFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) { watcherResults.PushBack({szFilename, action, type}); });
+    }
+    for (const WatcherResult& res : watcherResults)
+    {
+      HandleWatcherChange(res);
+    } //
+  });
   // This is a separate task as these trigger callbacks which can potentially take a long time and we can't have the watcher changes task be blocked for so long or notifications might get lost.
-  m_pNotifyTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Notify", [this]()
-    { NotifyChanges(); });
+  m_pNotifyTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Notify", [this]() { NotifyChanges(); });
 }
 
 void ezFileSystemWatcher::Deinitialize()
@@ -107,8 +104,7 @@ void ezFileSystemWatcher::MainThreadTick()
 
 void ezFileSystemWatcher::NotifyChanges()
 {
-  auto NotifyChange = [this](const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type)
-  {
+  auto NotifyChange = [this](const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type) {
     ezFileSystemWatcherEvent e;
     e.m_sPath = sAbsPath;
     e.m_Type = type;

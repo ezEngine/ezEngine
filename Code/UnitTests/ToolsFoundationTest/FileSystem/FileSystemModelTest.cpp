@@ -42,8 +42,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezHybridArray<ezFileChangedEvent, 2> fileEvents;
   ezHybridArray<ezTime, 2> fileEventTimestamps;
   ezMutex fileEventLock;
-  auto fileEvent = [&](const ezFileChangedEvent& e)
-  {
+  auto fileEvent = [&](const ezFileChangedEvent& e) {
     EZ_LOCK(fileEventLock);
     fileEvents.PushBack(e);
     fileEventTimestamps.PushBack(ezTime::Now());
@@ -75,8 +74,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezHybridArray<ezFolderChangedEvent, 2> folderEvents;
   ezHybridArray<ezTime, 2> folderEventTimestamps;
   ezMutex folderEventLock;
-  auto folderEvent = [&](const ezFolderChangedEvent& e)
-  {
+  auto folderEvent = [&](const ezFolderChangedEvent& e) {
     EZ_LOCK(folderEventLock);
     folderEvents.PushBack(e);
     folderEventTimestamps.PushBack(ezTime::Now());
@@ -97,8 +95,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezEventSubscriptionID folderId = ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler(folderEvent);
 
   // Helper functions
-  auto CompareFiles = [&](ezArrayPtr<ezFileChangedEvent> expected)
-  {
+  auto CompareFiles = [&](ezArrayPtr<ezFileChangedEvent> expected) {
     EZ_LOCK(fileEventLock);
     if (EZ_TEST_INT(expected.GetCount(), fileEvents.GetCount()))
     {
@@ -111,15 +108,13 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     }
   };
 
-  auto ClearFiles = [&]()
-  {
+  auto ClearFiles = [&]() {
     EZ_LOCK(fileEventLock);
     fileEvents.Clear();
     fileEventTimestamps.Clear();
   };
 
-  auto CompareFolders = [&](ezArrayPtr<ezFolderChangedEvent> expected)
-  {
+  auto CompareFolders = [&](ezArrayPtr<ezFolderChangedEvent> expected) {
     EZ_LOCK(folderEventLock);
     if (EZ_TEST_INT(expected.GetCount(), folderEvents.GetCount()))
     {
@@ -132,8 +127,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     }
   };
 
-  auto ClearFolders = [&]()
-  {
+  auto ClearFolders = [&]() {
     EZ_LOCK(folderEventLock);
     folderEvents.Clear();
     folderEventTimestamps.Clear();
@@ -600,8 +594,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ezStringBuilder sFilePathNew(sOutputFolder);
     sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
 
-    auto callback = [](const ezFileStatus& status, ezStreamReader& reader) -> ezUuid
-    {
+    auto callback = [](const ezFileStatus& status, ezStreamReader& reader) -> ezUuid {
       EZ_TEST_INT((ezInt64)status.m_uiHash, (ezInt64)10983861097202158394u);
       ezUuid guid;
       guid.CreateNewUuid();

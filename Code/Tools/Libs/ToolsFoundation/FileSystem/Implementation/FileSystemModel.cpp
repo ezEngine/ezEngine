@@ -3,15 +3,15 @@
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 #include <ToolsFoundation/FileSystem/FileSystemWatcher.h>
 
+#include <Foundation/Algorithm/HashStream.h>
+#include <Foundation/Configuration/SubSystem.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Algorithm/HashStream.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Configuration/SubSystem.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFileSystemModel);
 
@@ -615,7 +615,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
 
   {
     EZ_LOCK(m_FilesMutex);
-   
+
     for (auto it = m_ReferencedFiles.LowerBound(sAbsolutePath2); it.IsValid() && it.Key().StartsWith(sAbsolutePath2); ++it)
     {
       if (!visitedFiles.Contains(it.Key()))
@@ -635,8 +635,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
   }
 
   // Delete sub-folders before parent folders.
-  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool
-    { return ezStringUtils::Compare(lhs, rhs) > 0; });
+  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool { return ezStringUtils::Compare(lhs, rhs) > 0; });
   for (const ezString& sFolder : missingFolders)
   {
     HandleSingleFile(sFolder, false);

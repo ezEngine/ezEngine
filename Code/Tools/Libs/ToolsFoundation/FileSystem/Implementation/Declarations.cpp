@@ -14,4 +14,3 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFileStatus, ezNoBase, 3, ezRTTIDefaultAllocator
   }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
-

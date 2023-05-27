@@ -2,10 +2,10 @@
 
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
+#include <Foundation/IO/Stream.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Types/Uuid.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/IO/Stream.h>
 
 #if 0 // Define to enable extensive file system profile scopes
 #  define FILESYSTEM_PROFILE(szName) EZ_PROFILE_SCOPE(szName)

@@ -2,11 +2,11 @@
 
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
-#include <ToolsFoundation/FileSystem/Declarations.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Threading/LockedObject.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <ToolsFoundation/FileSystem/Declarations.h>
 
 #include <atomic>
 
@@ -176,7 +176,7 @@ private:
   void FireFileChangedEvent(ezStringView sFile, ezFileStatus fileStatus, ezFileChangedEvent::Type type);
   void FireFolderChangedEvent(ezStringView sFile, ezFolderChangedEvent::Type type);
 
-	int FindDataDir(const ezStringView path);
+  int FindDataDir(const ezStringView path);
 
 private:
   // Immutable data after Initialize

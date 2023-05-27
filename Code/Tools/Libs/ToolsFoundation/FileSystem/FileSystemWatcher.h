@@ -3,8 +3,8 @@
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
 #include <Foundation/Application/Config/FileSystemConfig.h>
-#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/IO/DirectoryWatcher.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 class ezTask;
 
@@ -89,4 +89,3 @@ private:
   ezHybridArray<PendingUpdate, 4> m_DirectoryAdded;
   ezHybridArray<PendingUpdate, 4> m_DirectoryRemoved;
 };
-
