@@ -79,7 +79,7 @@ public:
 private:
   ezHashedString m_sTriggerMessage;
   ezGameObjectHandle m_hObject;
-  ezTriggerState::Enum m_State;
+  ezTriggerState::Enum m_State = ezTriggerState::Enum::Default;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ private:
   ezHashedString m_sInputAction;
   ezGameObjectHandle m_hSenderObject;
   ezComponentHandle m_hSenderComponent;
-  ezTriggerState::Enum m_State;
+  ezTriggerState::Enum m_State = ezTriggerState::Default;
 };
 
 //////////////////////////////////////////////////////////////////////////

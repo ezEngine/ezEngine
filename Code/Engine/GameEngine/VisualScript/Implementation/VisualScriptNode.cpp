@@ -8,7 +8,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode::ezVisualScriptNode() : m_uiNodeID(0) {}
+ezVisualScriptNode::ezVisualScriptNode() = default;
 ezVisualScriptNode::~ezVisualScriptNode() = default;
 
 

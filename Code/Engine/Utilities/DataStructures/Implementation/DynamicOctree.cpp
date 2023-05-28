@@ -4,16 +4,7 @@
 
 const float ezDynamicOctree::s_fLooseOctreeFactor = 1.1f;
 
-ezDynamicOctree::ezDynamicOctree()
-  : m_fRealMinX(0)
-  , m_fRealMaxX(0)
-  , m_fRealMinY(0)
-  , m_fRealMaxY(0)
-  , m_fRealMinZ(0)
-  , m_fRealMaxZ(0)
-  , m_uiMultiMapCounter(0)
-{
-}
+ezDynamicOctree::ezDynamicOctree() = default;
 
 void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fMinNodeSize)
 {

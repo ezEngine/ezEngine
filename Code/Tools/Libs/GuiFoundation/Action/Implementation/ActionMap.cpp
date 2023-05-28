@@ -16,17 +16,9 @@ EZ_END_STATIC_REFLECTED_TYPE;
 // ezActionMap public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezActionMap::ezActionMap()
-{
-  // ezReflectedTypeDescriptor desc;
-  // ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(ezGetStaticRTTI<ezActionMapDescriptor>(), desc);
-  // m_pRtti = ezPhantomRttiManager::RegisterType(desc);
-}
+ezActionMap::ezActionMap() = default;
 
-ezActionMap::~ezActionMap()
-{
-  // DestroyAllObjects();
-}
+ezActionMap::~ezActionMap() = default;
 
 void ezActionMap::MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fOrder)
 {
