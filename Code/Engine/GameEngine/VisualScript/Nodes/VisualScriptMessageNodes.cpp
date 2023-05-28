@@ -145,7 +145,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_PhysicsTriggerEvent, 1, ezRTT
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_PhysicsTriggerEvent::ezVisualScriptNode_PhysicsTriggerEvent() : m_State(ezTriggerState::Enum::Default) {}
+ezVisualScriptNode_PhysicsTriggerEvent::ezVisualScriptNode_PhysicsTriggerEvent() = default;
 ezVisualScriptNode_PhysicsTriggerEvent::~ezVisualScriptNode_PhysicsTriggerEvent() = default;
 
 void ezVisualScriptNode_PhysicsTriggerEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
@@ -260,7 +260,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_InputEvent::ezVisualScriptNode_InputEvent() : m_State(ezTriggerState::Default) {}
+ezVisualScriptNode_InputEvent::ezVisualScriptNode_InputEvent() = default;
 ezVisualScriptNode_InputEvent::~ezVisualScriptNode_InputEvent() = default;
 
 void ezVisualScriptNode_InputEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)

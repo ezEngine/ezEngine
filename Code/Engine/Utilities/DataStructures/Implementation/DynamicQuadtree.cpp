@@ -4,14 +4,7 @@
 
 const float ezDynamicQuadtree::s_fLooseOctreeFactor = 1.1f;
 
-ezDynamicQuadtree::ezDynamicQuadtree()
-  : m_fRealMinX(0)
-  , m_fRealMaxX(0)
-  , m_fRealMinZ(0)
-  , m_fRealMaxZ(0)
-  , m_uiMultiMapCounter(0)
-{
-}
+ezDynamicQuadtree::ezDynamicQuadtree() = default;
 
 void ezDynamicQuadtree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExtents, float fMinNodeSize)
 {

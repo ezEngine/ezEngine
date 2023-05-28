@@ -43,7 +43,7 @@ protected:
 private:
   friend class ezVisualScriptInstance;
 
-  ezUInt16 m_uiNodeID;
+  ezUInt16 m_uiNodeID = 0;
 };
 
 
