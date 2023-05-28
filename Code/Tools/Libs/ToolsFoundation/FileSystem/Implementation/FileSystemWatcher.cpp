@@ -17,10 +17,7 @@ ezFileSystemWatcher::ezFileSystemWatcher(const ezApplicationFileSystemConfig& fi
 }
 
 
-ezFileSystemWatcher::~ezFileSystemWatcher()
-{
-}
-
+ezFileSystemWatcher::~ezFileSystemWatcher() = default;
 
 void ezFileSystemWatcher::Initialize()
 {
@@ -123,7 +120,7 @@ void ezFileSystemWatcher::NotifyChanges()
 
 void ezFileSystemWatcher::HandleWatcherChange(const WatcherResult& res)
 {
-  switch (res.action)
+  switch (res.m_Action)
   {
     case ezDirectoryWatcherAction::None:
       EZ_ASSERT_DEV(false, "None event should never happen");
@@ -131,51 +128,51 @@ void ezFileSystemWatcher::HandleWatcherChange(const WatcherResult& res)
     case ezDirectoryWatcherAction::RenamedNewName:
     case ezDirectoryWatcherAction::Added:
     {
-      if (res.type == ezDirectoryWatcherType::Directory)
+      if (res.m_Type == ezDirectoryWatcherType::Directory)
       {
-        AddEntry(m_DirectoryAdded, res.sFile, s_AddedFrameDelay);
+        AddEntry(m_DirectoryAdded, res.m_sFile, s_AddedFrameDelay);
       }
       else
       {
-        AddEntry(m_FileAdded, res.sFile, s_AddedFrameDelay);
+        AddEntry(m_FileAdded, res.m_sFile, s_AddedFrameDelay);
       }
     }
     break;
     case ezDirectoryWatcherAction::RenamedOldName:
     case ezDirectoryWatcherAction::Removed:
     {
-      if (res.type == ezDirectoryWatcherType::Directory)
+      if (res.m_Type == ezDirectoryWatcherType::Directory)
       {
-        AddEntry(m_DirectoryRemoved, res.sFile, s_RemovedFrameDelay);
+        AddEntry(m_DirectoryRemoved, res.m_sFile, s_RemovedFrameDelay);
       }
       else
       {
-        AddEntry(m_FileRemoved, res.sFile, s_RemovedFrameDelay);
+        AddEntry(m_FileRemoved, res.m_sFile, s_RemovedFrameDelay);
       }
     }
     break;
     case ezDirectoryWatcherAction::Modified:
     {
-      if (res.type == ezDirectoryWatcherType::Directory)
+      if (res.m_Type == ezDirectoryWatcherType::Directory)
       {
         // Can a directory even be modified? In any case, we ignore this change.
         // UpdateEntry(m_DirectoryRemoved, res.sFile, s_RemovedFrameDelay);
       }
       else
       {
-        AddEntry(m_FileChanged, res.sFile, s_AddedFrameDelay);
+        AddEntry(m_FileChanged, res.m_sFile, s_AddedFrameDelay);
       }
     }
     break;
   }
 }
 
-void ezFileSystemWatcher::AddEntry(ezDynamicArray<PendingUpdate>& container, const char* szAbsPath, ezUInt32 uiFrameDelay)
+void ezFileSystemWatcher::AddEntry(ezDynamicArray<PendingUpdate>& container, const ezStringView sAbsPath, ezUInt32 uiFrameDelay)
 {
   EZ_LOCK(m_WatcherMutex);
   for (PendingUpdate& update : container)
   {
-    if (update.sAbsPath == szAbsPath)
+    if (update.m_sAbsPath == sAbsPath)
     {
       update.m_uiFrameDelay = uiFrameDelay;
       return;
@@ -183,7 +180,7 @@ void ezFileSystemWatcher::AddEntry(ezDynamicArray<PendingUpdate>& container, con
   }
   PendingUpdate& update = container.ExpandAndGetRef();
   update.m_uiFrameDelay = uiFrameDelay;
-  update.sAbsPath = szAbsPath;
+  update.m_sAbsPath = sAbsPath;
 }
 
 void ezFileSystemWatcher::ConsumeEntry(ezDynamicArray<PendingUpdate>& container, ezFileSystemWatcherEvent::Type type, const ezDelegate<void(const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type)>& consume)
@@ -204,6 +201,6 @@ void ezFileSystemWatcher::ConsumeEntry(ezDynamicArray<PendingUpdate>& container,
   }
   for (const PendingUpdate& update : updates)
   {
-    consume(update.sAbsPath, type);
+    consume(update.m_sAbsPath, type);
   }
 }

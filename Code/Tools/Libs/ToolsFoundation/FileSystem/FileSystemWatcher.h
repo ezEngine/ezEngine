@@ -49,14 +49,14 @@ private:
 
   struct WatcherResult
   {
-    ezString sFile;
-    ezDirectoryWatcherAction action;
-    ezDirectoryWatcherType type;
+    ezString m_sFile;
+    ezDirectoryWatcherAction m_Action;
+    ezDirectoryWatcherType m_Type;
   };
 
   struct PendingUpdate
   {
-    ezString sAbsPath;
+    ezString m_sAbsPath;
     ezUInt32 m_uiFrameDelay = 0;
   };
 
@@ -65,7 +65,7 @@ private:
   /// \brief Handles update delays to allow compacting multiple changes.
   void NotifyChanges();
   /// \brief Adds a change with the given delay to the container. If the entry is already present, only its delay is increased.
-  void AddEntry(ezDynamicArray<PendingUpdate>& container, const char* szAbsPath, ezUInt32 uiFrameDelay);
+  void AddEntry(ezDynamicArray<PendingUpdate>& container, const ezStringView sAbsPath, ezUInt32 uiFrameDelay);
   /// \brief Reduces the delay counter of every item in the container. If a delay reaches zero, it is removed and the callback is fired.
   void ConsumeEntry(ezDynamicArray<PendingUpdate>& container, ezFileSystemWatcherEvent::Type type, const ezDelegate<void(const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type)>& consume);
 

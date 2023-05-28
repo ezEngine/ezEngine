@@ -17,7 +17,6 @@ namespace
     ezFileWriter FileOut;
     EZ_SUCCEED_OR_RETURN(FileOut.Open(path));
     EZ_SUCCEED_OR_RETURN(FileOut.WriteString("Test"));
-    EZ_SUCCEED_OR_RETURN(FileOut.Flush());
     FileOut.Close();
     return EZ_SUCCESS;
   }
@@ -54,11 +53,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
         EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->FindFile(e.m_sPath, stat).Failed());
         break;
       case ezFileChangedEvent::Type::FileAdded:
-        EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->FindFile(e.m_sPath, stat).Succeeded());
-        break;
       case ezFileChangedEvent::Type::FileChanged:
-        EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->FindFile(e.m_sPath, stat).Succeeded());
-        break;
       case ezFileChangedEvent::Type::DocumentLinked:
         EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->FindFile(e.m_sPath, stat).Succeeded());
         break;
@@ -415,7 +410,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_TEST_INT(files->GetCount(), 1);
     auto it = files->GetIterator();
     EZ_TEST_STRING(it.Key(), sFilePathNew);
-    EZ_TEST_BOOL(it.Value().m_Timestamp.IsValid());
+    EZ_TEST_BOOL(it.Value().m_LastModified.IsValid());
     EZ_TEST_INT((ezInt64)it.Value().m_uiHash, (ezInt64)10983861097202158394u);
     EZ_TEST_BOOL(it.Value().m_Status == ezFileStatus::Status::Valid);
   }
@@ -617,6 +612,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       ezUuid guid;
       guid.CreateNewUuid();
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
+      EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
 
       ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::DocumentLinked)};
       CompareFiles(ezMakeArrayPtr(expected));
@@ -624,8 +620,9 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     }
     {
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->UnlinkDocument(sFilePathNew));
+      EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->UnlinkDocument(sFilePathNew));
 
-      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::DocumentLinked)};
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::DocumentUnlinked)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
     }

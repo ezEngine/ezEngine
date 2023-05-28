@@ -25,16 +25,12 @@ struct EZ_TOOLSFOUNDATION_DLL ezFileStatus
     Valid       ///< The file exists on disk.
   };
 
-  ezFileStatus()
-  {
-    m_uiHash = 0;
-    m_Status = Status::Unknown;
-  }
+  ezFileStatus() = default;
 
-  ezTimestamp m_Timestamp;
-  ezUInt64 m_uiHash;
+  ezTimestamp m_LastModified;
+  ezUInt64 m_uiHash = 0;
   ezUuid m_DocumentID; ///< If the file is linked to a document, the GUID is valid, otherwise not.
-  Status m_Status;
+  Status m_Status = Status::Unknown;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezFileStatus);
 

@@ -427,7 +427,7 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(ezStringView sAbsFilePath, const 
       }
     }
 
-    if (docInfo && cacheStat.m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
+    if (docInfo && cacheStat.m_LastModified.Compare(stat.m_LastModified, ezTimestamp::CompareMode::Identical))
     {
       out_assetInfo->m_Info = std::move(docInfo);
       if (pFiles->LinkDocument(sAbsFilePath, out_assetInfo->m_Info->m_DocumentID).Failed())

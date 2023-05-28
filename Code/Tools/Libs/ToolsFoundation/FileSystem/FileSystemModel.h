@@ -39,6 +39,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezFileChangedEvent
     FileAdded,
     FileChanged,
     DocumentLinked,
+    DocumentUnlinked,
     FileRemoved,
     ModelReset ///< Model was initialized or deinitialized.
   };
@@ -48,7 +49,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezFileChangedEvent
 
   ezString m_sPath;
   ezFileStatus m_Status;
-  Type m_Type;
+  Type m_Type = Type::ModelReset;
 };
 
 /// \brief A subsystem for tracking all files in a ezApplicationFileSystemConfig.
@@ -65,7 +66,7 @@ public:
   using LockedFolders = ezLockedObject<ezMutex, const ezMap<ezString, ezFileStatus::Status>>;
 
 public:
-  /// \brief Return true if the two paths point to the same file on disk. On different platforms the same strings can produce different results.
+  /// \brief Return true if the two paths point to the same file on disk. On different platforms the same strings can produce different results. This function assumes both paths are absolute and cleaned via ezStringBuilder::MakeCleanPath.
   static bool IsSameFile(ezStringView sAbsolutePathA, ezStringView sAbsolutePathB);
 
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
@@ -137,7 +138,7 @@ public:
 
   /// \brief Links a document Id to the given file. This allows for fast lookups whether a file is also a document.
   /// \param sAbsolutePath Path to the document. Must be in the model.
-  /// \param documentId The Id of the document that should be linked to th file.
+  /// \param documentId The Id of the document that should be linked to the file.
   /// \return Returns EZ_SUCCESS if the file existed in the model and could be linked.
   ezResult LinkDocument(ezStringView sAbsolutePath, const ezUuid& documentId);
 
@@ -148,7 +149,7 @@ public:
 
   /// \brief Creates a file reader to the given file. Will also link the document and hash it in a file-system-atomic operation.
   /// \param sAbsolutePath Path to the document. Must be in the model.
-  /// \param callback Called once the file was opened and hashed. The ezFileStatus contains the up to date info for the file, including hash. This function should return th document Id as it will automatically call LinkDocument.
+  /// \param callback Called once the file was opened and hashed. The ezFileStatus contains the up to date info for the file, including hash. This function should return the document Id as it will automatically call LinkDocument.
   /// \return Returns EZ_SUCCESS if the file existed and could be opened. Returns EZ_FAILURE if the file is not in the model or the file can't be opened for read access. On read failure, the file will be marked as locked.
   ezResult ReadDocument(ezStringView sAbsolutePath, const ezDelegate<ezUuid(const ezFileStatus&, ezStreamReader&)>& callback);
 
