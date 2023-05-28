@@ -105,8 +105,13 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& differenceImage
 
   EZ_ASSERT_DEV(uiBlockSize > 1, "Blocksize must be at least 2");
 
+  ezUInt32 uiNumComponents = ezImageFormat::GetNumChannels(differenceImage.GetImageFormat());
+
   ezUInt32 uiWidth = ezMath::Min(differenceImage.GetWidth(), uiOffsetx + uiBlockSize) - uiOffsetx;
   ezUInt32 uiHeight = ezMath::Min(differenceImage.GetHeight(), uiOffsety + uiBlockSize) - uiOffsety;
+
+  // Treat image as single-component format and scale the width instead
+  uiWidth *= uiNumComponents;
 
   if (uiWidth == 0 || uiHeight == 0)
     return 0;
@@ -134,10 +139,6 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImageView& differenceImage
 
   ezUInt64 uiRowPitch = differenceImage.GetRowPitch();
   ezUInt64 uiDepthPitch = differenceImage.GetDepthPitch();
-  ezUInt32 uiNumComponents = ezImageFormat::GetNumChannels(differenceImage.GetImageFormat());
-
-  // Treat image as single-component format and scale the width instead
-  uiWidth *= uiNumComponents;
 
   const ezUInt32 uiSize2D = uiWidth * uiHeight;
   const ezUInt8* pSlicePointer = differenceImage.GetPixelPointer<ezUInt8>(0, 0, 0, uiOffsetx, uiOffsety);
@@ -657,6 +658,7 @@ inline static void FilterLine(
 static void DownScaleFastLine(ezUInt32 uiPixelStride, const ezUInt8* pSrc, ezUInt8* pDest, ezUInt32 uiLengthIn, ezUInt32 uiStrideIn, ezUInt32 uiLengthOut, ezUInt32 uiStrideOut)
 {
   const ezUInt32 downScaleFactor = uiLengthIn / uiLengthOut;
+  EZ_ASSERT_DEBUG(downScaleFactor >= 1, "Can't upscale");
 
   const ezUInt32 downScaleFactorLog2 = ezMath::Log2i(static_cast<ezUInt32>(downScaleFactor));
   const ezUInt32 roundOffset = downScaleFactor / 2;

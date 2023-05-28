@@ -104,7 +104,7 @@ ezResult ezMixClips2DAnimNode::SerializeNode(ezStreamWriter& stream) const
 
 ezResult ezMixClips2DAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  const auto version = stream.ReadVersion(1);
+  const auto version = stream.ReadVersion(1); // NOLINT: ignore dead store warning
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 

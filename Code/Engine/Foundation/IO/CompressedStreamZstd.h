@@ -58,7 +58,7 @@ private:
 /// compression ratio and it should only be used to reduce output lag. However, there is absolutely no guarantee that all the data that was
 /// put into the stream will be readable from the output stream, after calling Flush(). In fact, it is quite likely that a large amount of
 /// data has still not been written to it, because it is still inside the compressor.
-class EZ_FOUNDATION_DLL ezCompressedStreamWriterZstd : public ezStreamWriter
+class EZ_FOUNDATION_DLL ezCompressedStreamWriterZstd final : public ezStreamWriter
 {
 public:
   /// \brief Specifies the compression level of the stream.

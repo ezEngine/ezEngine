@@ -121,6 +121,7 @@ static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
     ezUInt32 uiExtremeNormals = 0;
 
     ezUInt32 uiNumPixels = header.GetWidth() * header.GetHeight();
+    EZ_ASSERT_DEBUG(uiNumPixels > 0, "Unexpected empty image");
 
     // Sample no more than 10000 pixels
     ezUInt32 uiStride = ezMath::Max(1U, uiNumPixels / 10000);
@@ -141,9 +142,9 @@ static ezTexConvUsage::Enum DetectUsageFromImage(const ezImage& image)
     }
 
     // the average color in the image
-    sr /= uiNumPixels;
-    sg /= uiNumPixels;
-    sb /= uiNumPixels;
+    sr /= uiNumPixels; // NOLINT: not a division by zero
+    sg /= uiNumPixels; // NOLINT: not a division by zero
+    sb /= uiNumPixels; // NOLINT: not a division by zero
 
     if (sb < 230 || sr < 128 - 60 || sr > 128 + 60 || sg < 128 - 60 || sg > 128 + 60)
     {

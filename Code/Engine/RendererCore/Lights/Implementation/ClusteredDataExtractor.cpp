@@ -30,7 +30,7 @@ namespace
     float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
 
     ezMat4 mProj;
-    pCamera->GetProjectionMatrix(view.GetViewport().width / (float)view.GetViewport().height, mProj);
+    pCamera->GetProjectionMatrix(fAspectRatio, mProj);
 
     ezAngle fFovLeft;
     ezAngle fFovRight;

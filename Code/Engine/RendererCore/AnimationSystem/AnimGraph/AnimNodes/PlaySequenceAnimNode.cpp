@@ -331,8 +331,6 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
     return;
   }
 
-  ezAnimGraphPinDataLocalTransforms* pOutputTransform = graph.AddPinDataLocalTransforms();
-
   void* pThis = this;
   auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
   cmd.m_hAnimationClip = hCurrentClip;

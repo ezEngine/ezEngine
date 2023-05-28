@@ -202,7 +202,6 @@ void ezGameState::SetupMainView(ezGALSwapChainHandle hSwapChain, ezSizeU32 viewp
   if (m_bXREnabled)
   {
     const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
-    ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
 
     auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sXRRenderPipeline);
     pView->SetRenderPipelineResource(renderPipeline);

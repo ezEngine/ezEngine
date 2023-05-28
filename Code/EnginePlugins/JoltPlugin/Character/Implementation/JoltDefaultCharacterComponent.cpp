@@ -113,7 +113,7 @@ void ezJoltDefaultCharacterComponent::SerializeComponent(ezWorldWriter& inout_st
 void ezJoltDefaultCharacterComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_RotateSpeed;
@@ -405,13 +405,10 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
         break;
     }
 
-    const ezTransform newTransform = GetOwner()->GetGlobalTransform();
-    const float fDistTraveled = (m_PreviousTransform.m_vPosition - newTransform.m_vPosition).GetLength();
-    const float fSpeedTraveled = fDistTraveled * GetInverseUpdateTimeDelta();
-
-    const float fDistTraveledLateral = (m_PreviousTransform.m_vPosition.GetAsVec2() - newTransform.m_vPosition.GetAsVec2()).GetLength();
-    const float fSpeedTraveledLateral = fDistTraveled * GetInverseUpdateTimeDelta();
-
+    // const ezTransform newTransform = GetOwner()->GetGlobalTransform();
+    // const float fDistTraveled = (m_PreviousTransform.m_vPosition - newTransform.m_vPosition).GetLength();
+    // const float fSpeedTraveled = fDistTraveled * GetInverseUpdateTimeDelta();
+    // const float fSpeedTraveledLateral = fDistTraveled * GetInverseUpdateTimeDelta();
     // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", ezFmt("Speed 1: {} m/s", fSpeedTraveled), ezColor::WhiteSmoke);
     // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", ezFmt("Speed 2: {} m/s", fSpeedTraveledLateral), ezColor::WhiteSmoke);
   }

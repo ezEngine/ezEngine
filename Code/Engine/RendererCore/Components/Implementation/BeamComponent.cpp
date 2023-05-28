@@ -149,9 +149,6 @@ void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (!m_hMesh.IsValid() || !m_hMaterial.IsValid())
     return;
 
-  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
-  const ezUInt32 uiUniformScale = GetOwner()->GetGlobalTransformSimd().ContainsUniformScale() ? 1 : 0;
-
   ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
   {
     pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();

@@ -291,9 +291,9 @@ $job = $files | Foreach-Object -Parallel `
    
    $output += "////////////////////////////////////////////////////////////////////////////////////////////////////////////`r`n"
    $output += "// $_`r`n"
-   $output += "// $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile `"--extra-arg=-isystem$ClangLibPath`" $_ `r`n"
+   $output += "// $ClangTidy -p $Workspace --checks=$Checks `"--header-filter=$HeaderPattern`" --extra-arg=-DBUILDSYSTEM_CLANG_TIDY=1 `"--extra-arg=-isystem$ClangLibPath`" $_ `r`n"
    $output += "////////////////////////////////////////////////////////////////////////////////////////////////////////////`r`n"
-   $tidyOutput = (& $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile "--extra-arg=-isystem$ClangLibPath" $_ *>&1) | Out-String -Stream
+   $tidyOutput = (& $ClangTidy -p $Workspace --checks=$Checks --header-filter=$HeaderPattern --export-fixes=$fixesFile --extra-arg=-DBUILDSYSTEM_CLANG_TIDY=1 "--extra-arg=-isystem$ClangLibPath" $_ *>&1) | Out-String -Stream
    
    $filteredTidyOutput = @($tidyOutput | ? {!$_.StartsWith("Suppressed") -and !$_.StartsWith("Use -header-filter") -and !($_ -match "warnings generated.") -and $_.trim() -ne "" })
    $filteredTidyOutputWithIndex = @($filteredTidyOutput | % {$i=0} {$value = @{msg = $_; index = $i}; $i++; return $value})

@@ -329,7 +329,7 @@ ezResult ezBlackboardCondition::Serialize(ezStreamWriter& inout_stream) const
 
 ezResult ezBlackboardCondition::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion uiVersion = inout_stream.ReadVersion(s_BlackboardConditionVersion);
+  const ezTypeVersion uiVersion = inout_stream.ReadVersion(s_BlackboardConditionVersion); // NOLINT: Ignore the dead store warning
 
   inout_stream >> m_sEntryName;
   inout_stream >> m_Operator;

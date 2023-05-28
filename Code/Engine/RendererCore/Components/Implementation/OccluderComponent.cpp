@@ -86,7 +86,7 @@ void ezOccluderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 void ezOccluderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI()); // NOLINT: ignore dead store warning
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;

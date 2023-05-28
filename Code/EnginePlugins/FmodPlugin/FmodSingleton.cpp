@@ -99,10 +99,10 @@ void ezFmod::Startup()
   {
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // mutex handle will be closed automatically on process termination
-    DWORD err = GetLastError();
+    GetLastError(); // clear any pending error codes
     g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"ezFmodLiveUpdate");
 
-    err = GetLastError();
+    DWORD err = GetLastError();
     if (g_hLiveUpdateMutex != NULL && err != ERROR_ALREADY_EXISTS)
     {
       studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;

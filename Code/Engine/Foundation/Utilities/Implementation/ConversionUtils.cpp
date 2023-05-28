@@ -852,6 +852,17 @@ namespace ezConversionUtils
 
     const ezUInt32 uiLen = sColorName.GetElementCount();
 
+    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult {
+      ezInt8 firstChar = HexCharacterToIntValue(szColorChars[0]);
+      ezInt8 secondChar = HexCharacterToIntValue(szColorChars[1]);
+      if (firstChar < 0 || secondChar < 0)
+      {
+        return EZ_FAILURE;
+      }
+      out_uiByte = (static_cast<ezUInt8>(firstChar) << 4) | static_cast<ezUInt8>(secondChar);
+      return EZ_SUCCESS;
+    };
+
     if (sColorName.StartsWith("#"))
     {
       if (uiLen == 7 || uiLen == 9) // #RRGGBB or #RRGGBBAA
@@ -860,12 +871,18 @@ namespace ezConversionUtils
 
         const char* szColorName = sColorName.GetStartPointer();
 
-        cv[0] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 1)) << 4) | HexCharacterToIntValue(*(szColorName + 2)));
-        cv[1] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 3)) << 4) | HexCharacterToIntValue(*(szColorName + 4)));
-        cv[2] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 5)) << 4) | HexCharacterToIntValue(*(szColorName + 6)));
+        if (twoCharsToByte(szColorName + 1, cv[0]).Failed())
+          return ezColor::Black;
+        if (twoCharsToByte(szColorName + 3, cv[1]).Failed())
+          return ezColor::Black;
+        if (twoCharsToByte(szColorName + 5, cv[2]).Failed())
+          return ezColor::Black;
 
         if (uiLen == 9)
-          cv[3] = static_cast<ezUInt8>((HexCharacterToIntValue(*(szColorName + 7)) << 4) | HexCharacterToIntValue(*(szColorName + 8)));
+        {
+          if (twoCharsToByte(szColorName + 7, cv[3]).Failed())
+            return ezColor::Black;
+        }
 
         if (out_pValidColorName)
           *out_pValidColorName = true;

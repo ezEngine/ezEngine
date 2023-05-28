@@ -359,7 +359,7 @@ void ezGameObject::SetParent(const ezGameObjectHandle& hParent, ezGameObject::Tr
   ezWorld* pWorld = GetWorld();
 
   ezGameObject* pParent = nullptr;
-  bool _ = pWorld->TryGetObject(hParent, pParent);
+  bool _ = pWorld->TryGetObject(hParent, pParent); // NOLINT: Ignore dead store warning.
   pWorld->SetParent(this, pParent, preserve);
 }
 

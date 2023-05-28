@@ -173,7 +173,6 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
 
       for (auto itType = s_pState->m_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
       {
-        const ezRTTI* pRtti = itType.Key();
         LoadedResources& lr = itType.Value();
 
         for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); /* empty */)

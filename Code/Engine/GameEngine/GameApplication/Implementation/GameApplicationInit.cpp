@@ -78,7 +78,9 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezShaderResourceDescriptor desc;
     ezShaderResourceHandle hFallbackShader = ezResourceManager::CreateResource<ezShaderResource>("FallbackShaderResource", std::move(desc), "FallbackShaderResource");
-    ezShaderResourceHandle hMissingShader = ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", std::move(desc), "MissingShaderResource");
+
+    ezShaderResourceDescriptor desc2;
+    ezShaderResourceHandle hMissingShader = ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", std::move(desc2), "MissingShaderResource");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezShaderResource>(hFallbackShader);
     ezResourceManager::SetResourceTypeMissingFallback<ezShaderResource>(hMissingShader);

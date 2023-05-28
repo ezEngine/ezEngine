@@ -54,8 +54,6 @@ ezRenderPipeline::~ezRenderPipeline()
   if (!m_hOcclusionDebugViewTexture.IsInvalidated())
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    const ezGALTexture* pTexture = pDevice->GetTexture(m_hOcclusionDebugViewTexture);
-
     pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
     m_hOcclusionDebugViewTexture.Invalidate();
   }
@@ -564,9 +562,17 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
           const ezGALTextureHandle* hTexture = pTargetPass->GetTextureHandle(renderTargets, pPass->GetInputPins()[j]);
           EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pConn), "");
 
-          if (!hTexture || !hTexture->IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
+          ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
+          if (!hTexture)
           {
-            ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
+            m_TextureUsage[uiDataIdx].m_iTargetTextureIndex = -1;
+            for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
+            {
+              pUsedByConn->m_TextureHandle.Invalidate();
+            }
+          }
+          else if (!hTexture->IsInvalidated() || pConn->m_Desc.CalculateHash() == defaultTextureDescHash)
+          {
             m_TextureUsage[uiDataIdx].m_iTargetTextureIndex = static_cast<ezInt32>(hTexture - reinterpret_cast<const ezGALTextureHandle*>(&renderTargets));
             EZ_ASSERT_DEV(reinterpret_cast<const ezGALTextureHandle*>(&renderTargets)[m_TextureUsage[uiDataIdx].m_iTargetTextureIndex] == *hTexture, "Offset computation broken.");
 

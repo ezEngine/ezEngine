@@ -78,7 +78,7 @@ void ezCameraShakeVolumeComponent::SerializeComponent(ezWorldWriter& inout_strea
 void ezCameraShakeVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI()); // NOLINT: ignore unused variable
   auto& s = inout_stream.GetStream();
 
   s >> m_BurstDuration;
@@ -153,7 +153,7 @@ void ezCameraShakeVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout
 void ezCameraShakeVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI()); // NOLINT: ignore unused variable
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;

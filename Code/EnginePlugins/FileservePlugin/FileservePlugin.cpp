@@ -21,7 +21,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
 
     if (fs == nullptr)
     {
-      fs = EZ_DEFAULT_NEW(ezFileserveClient);
+      fs = EZ_DEFAULT_NEW(ezFileserveClient); // NOLINT: fs wil be used if EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS is active
 
       // on sandboxed platforms we must go through fileserve, so we enforce a fileserve connection
       // on unrestricted platforms, we use fileserve, if a connection can be established,

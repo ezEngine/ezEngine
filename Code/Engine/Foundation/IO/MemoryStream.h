@@ -157,7 +157,7 @@ public:
 /// To grow, additional chunks of data are allocated. No memory ever needs to be copied to grow the container.
 /// However, that also means that the memory isn't stored in one contiguous array, therefore data has to be accessed piece-wise
 /// through GetContiguousMemoryRange().
-class EZ_FOUNDATION_DLL ezDefaultMemoryStreamStorage : public ezMemoryStreamStorageInterface
+class EZ_FOUNDATION_DLL ezDefaultMemoryStreamStorage final : public ezMemoryStreamStorageInterface
 {
 public:
   ezDefaultMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator());

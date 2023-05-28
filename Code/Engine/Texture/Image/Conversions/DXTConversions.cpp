@@ -2058,7 +2058,7 @@ namespace
   {
   public:
     ezInt32 r, g, b;
-    ezInt32 pad;
+    ezInt32 pad = 0;
 
   public:
     BC6IntColor() = default;

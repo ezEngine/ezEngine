@@ -47,7 +47,7 @@ ezResult ezLogAnimNode::SerializeNode(ezStreamWriter& stream) const
 
 ezResult ezLogAnimNode::DeserializeNode(ezStreamReader& stream)
 {
-  const auto version = stream.ReadVersion(1);
+  const auto version = stream.ReadVersion(1); // NOLINT: ignore dead store warning
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 

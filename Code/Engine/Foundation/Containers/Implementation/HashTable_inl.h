@@ -444,6 +444,7 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
   {
+    EZ_ASSERT_DEBUG(m_pEntries != nullptr, "No entries present"); // To fix static analysis
     out_value = m_pEntries[uiIndex].value;
     return true;
   }
