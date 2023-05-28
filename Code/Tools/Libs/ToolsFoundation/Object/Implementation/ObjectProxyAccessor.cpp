@@ -10,9 +10,9 @@ ezObjectProxyAccessor::ezObjectProxyAccessor(ezObjectAccessorBase* pSource)
 
 ezObjectProxyAccessor::~ezObjectProxyAccessor() = default;
 
-void ezObjectProxyAccessor::StartTransaction(const char* szDisplayString)
+void ezObjectProxyAccessor::StartTransaction(ezStringView sDisplayString)
 {
-  m_pSource->StartTransaction(szDisplayString);
+  m_pSource->StartTransaction(sDisplayString);
 }
 
 void ezObjectProxyAccessor::CancelTransaction()

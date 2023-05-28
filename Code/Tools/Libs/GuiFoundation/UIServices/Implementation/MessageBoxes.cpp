@@ -42,8 +42,9 @@ void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg)
   if (s_bHeadless)
     ezLog::Info(msg.GetText(tmp));
   else
-    QMessageBox::information(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(),
-      QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
+  {
+    QMessageBox::information(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), QMessageBox::StandardButton::Ok);
+  }
 }
 
 void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
@@ -53,8 +54,9 @@ void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
   if (s_bHeadless)
     ezLog::Warning(msg.GetText(tmp));
   else
-    QMessageBox::warning(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(),
-      QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
+  {
+    QMessageBox::warning(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), QMessageBox::StandardButton::Ok);
+  }
 }
 
 QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(
@@ -67,7 +69,7 @@ QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(
   else
   {
     ezStringBuilder tmp;
-    return QMessageBox::question(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(),
-      QString::fromUtf8(msg.GetText(tmp)), buttons, defaultButton);
+
+    return QMessageBox::question(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), buttons, defaultButton);
   }
 }

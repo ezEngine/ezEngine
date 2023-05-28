@@ -9,21 +9,27 @@
 
 ezFormatString::ezFormatString(const ezStringBuilder& s)
 {
-  m_szString = s.GetData();
+  m_sString = s.GetView();
 }
 
-const char* ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, ezStringView* pArgs, ezUInt32 uiNumArgs) const
+const char* ezFormatString::GetTextCStr(ezStringBuilder& out_sString) const
 {
-  const char* szString = m_szString;
+  out_sString = m_sString;
+  return out_sString.GetData();
+}
+
+ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, ezStringView* pArgs, ezUInt32 uiNumArgs) const
+{
+  ezStringView sString = m_sString;
 
   ezUInt32 uiLastParam = -1;
 
   ref_sStorage.Clear();
-  while (*szString != '\0')
+  while (!sString.IsEmpty())
   {
-    if (*szString == '%')
+    if (sString.StartsWith("%"))
     {
-      if (*(szString + 1) == '%')
+      if (sString.TrimWordStart("%%"))
       {
         ref_sStorage.Append("%"_ezsv);
       }
@@ -32,12 +38,10 @@ const char* ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, ez
         EZ_ASSERT_DEBUG(false, "Single percentage signs are not allowed in ezFormatString. Did you forgot to migrate a printf-style "
                                "string? Use double percentage signs for the actual character.");
       }
-
-      szString += 2;
     }
-    else if (*szString == '{' && *(szString + 1) >= '0' && *(szString + 1) <= '9' && *(szString + 2) == '}')
+    else if (sString.GetElementCount() >= 3 && *sString.GetStartPointer() == '{' && *(sString.GetStartPointer() + 1) >= '0' && *(sString.GetStartPointer() + 1) <= '9' && *(sString.GetStartPointer() + 2) == '}')
     {
-      uiLastParam = *(szString + 1) - '0';
+      uiLastParam = *(sString.GetStartPointer() + 1) - '0';
       EZ_ASSERT_DEV(uiLastParam < uiNumArgs, "Too many placeholders in format string");
 
       if (uiLastParam < uiNumArgs)
@@ -45,9 +49,11 @@ const char* ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, ez
         ref_sStorage.Append(pArgs[uiLastParam]);
       }
 
-      szString += 3;
+      sString.ChopAwayFirstCharacterAscii();
+      sString.ChopAwayFirstCharacterAscii();
+      sString.ChopAwayFirstCharacterAscii();
     }
-    else if (*szString == '{' && *(szString + 1) == '}')
+    else if (sString.TrimWordStart("{}"))
     {
       ++uiLastParam;
       EZ_ASSERT_DEV(uiLastParam < uiNumArgs, "Too many placeholders in format string");
@@ -56,17 +62,16 @@ const char* ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, ez
       {
         ref_sStorage.Append(pArgs[uiLastParam]);
       }
-
-      szString += 2;
     }
     else
     {
-      const ezUInt32 character = ezUnicodeUtils::DecodeUtf8ToUtf32(szString);
+      const ezUInt32 character = sString.GetCharacter();
       ref_sStorage.Append(character);
+      sString.ChopAwayFirstCharacterUtf8();
     }
   }
 
-  return ref_sStorage.GetData();
+  return ref_sStorage.GetView();
 }
 
 //////////////////////////////////////////////////////////////////////////

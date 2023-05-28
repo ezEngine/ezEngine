@@ -2,7 +2,7 @@
 
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-void ezObjectAccessorBase::StartTransaction(const char* szDisplayString) {}
+void ezObjectAccessorBase::StartTransaction(ezStringView sDisplayString) {}
 
 
 void ezObjectAccessorBase::CancelTransaction() {}

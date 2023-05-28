@@ -1175,11 +1175,11 @@ bool ezStringBuilder::TrimWordEnd(const char* szWord1, const char* szWord2 /*= n
 void ezStringBuilder::Format(const ezFormatString& string)
 {
   Clear();
-  const char* szText = string.GetText(*this);
+  ezStringView sText = string.GetText(*this);
 
   // this is for the case that GetText does not use the ezStringBuilder as temp storage
-  if (szText != GetData())
-    *this = szText;
+  if (sText.GetStartPointer() != GetData())
+    *this = sText;
 }
 
 void ezStringBuilder::AppendFormat(const ezFormatString& string)

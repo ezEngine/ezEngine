@@ -17,7 +17,5 @@ PrintImplementation::PrintImplementation()
 void PrintImplementation::Print(const ezFormatString& text)
 {
   ezStringBuilder tmp;
-  const char* szFormattedText = text.GetText(tmp);
-
-  ezLog::Info(szFormattedText);
+  ezLog::Info(text.GetText(tmp));
 }

@@ -11,9 +11,9 @@ ezObjectCommandAccessor::ezObjectCommandAccessor(ezCommandHistory* pHistory)
 {
 }
 
-void ezObjectCommandAccessor::StartTransaction(const char* szDisplayString)
+void ezObjectCommandAccessor::StartTransaction(ezStringView sDisplayString)
 {
-  m_pHistory->StartTransaction(szDisplayString);
+  m_pHistory->StartTransaction(sDisplayString);
 }
 
 void ezObjectCommandAccessor::CancelTransaction()

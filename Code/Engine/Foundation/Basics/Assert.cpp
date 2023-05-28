@@ -134,7 +134,7 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
 bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg)
 {
   ezStringBuilder tmp;
-  return ezFailedCheck(szSourceFile, uiLine, szFunction, szExpression, msg.GetText(tmp));
+  return ezFailedCheck(szSourceFile, uiLine, szFunction, szExpression, msg.GetTextCStr(tmp));
 }
 
 

@@ -454,15 +454,14 @@ EZ_TEST_DLL bool ezTestInt(
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_TEST_DLL bool ezTestString(std::string s1, std::string s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine,
-  const char* szFunction, const char* szMsg, ...);
+EZ_TEST_DLL bool ezTestString(ezStringView s1, ezStringView s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output.
 #define EZ_TEST_STRING(i1, i2) EZ_TEST_STRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                                   \
-  ezTestString(static_cast<const char*>(s1), static_cast<const char*>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
+  ezTestString(static_cast<ezStringView>(s1), static_cast<ezStringView>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
     EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
