@@ -136,41 +136,40 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
   m_pAssetTableWriter = EZ_DEFAULT_NEW(ezAssetTableWriter, m_FileSystemConfig);
 
-  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "AssetCuratorUpdateCache", [this]()
+  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "AssetCuratorUpdateCache", [this]() {
+    EZ_LOCK(m_CuratorMutex);
+
+    m_CuratorMutex.Unlock();
+    CheckFileSystem();
+    m_CuratorMutex.Lock();
+
+    // As we fired a AssetListReset in CheckFileSystem, set everything new to FileUnchanged or
+    // we would fire an added call for every asset.
+    for (auto it = m_KnownSubAssets.GetIterator(); it.IsValid(); ++it)
     {
-      EZ_LOCK(m_CuratorMutex);
-
-      m_CuratorMutex.Unlock();
-      CheckFileSystem();
-      m_CuratorMutex.Lock();
-
-      // As we fired a AssetListReset in CheckFileSystem, set everything new to FileUnchanged or
-      // we would fire an added call for every asset.
-      for (auto it = m_KnownSubAssets.GetIterator(); it.IsValid(); ++it)
+      if (it.Value().m_ExistanceState == ezAssetExistanceState::FileAdded)
       {
-        if (it.Value().m_ExistanceState == ezAssetExistanceState::FileAdded)
-        {
-          it.Value().m_ExistanceState = ezAssetExistanceState::FileUnchanged;
-        }
+        it.Value().m_ExistanceState = ezAssetExistanceState::FileUnchanged;
       }
-      for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+    }
+    for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Value()->m_ExistanceState == ezAssetExistanceState::FileAdded)
       {
-        if (it.Value()->m_ExistanceState == ezAssetExistanceState::FileAdded)
-        {
-          it.Value()->m_ExistanceState = ezAssetExistanceState::FileUnchanged;
-        }
+        it.Value()->m_ExistanceState = ezAssetExistanceState::FileUnchanged;
       }
+    }
 
-      // Re-save caches after we made a full CheckFileSystem pass.
-      ezMap<ezString, ezFileStatus> referencedFiles;
-      ezMap<ezString, ezFileStatus::Status> referencedFolders;
-      ezFileSystemModel* pFiles = ezFileSystemModel::GetSingleton();
-      {
-        referencedFiles = *pFiles->GetFiles();
-        referencedFolders = *pFiles->GetFolders();
-      }
-      SaveCaches(referencedFiles, referencedFolders); //
-    });
+    // Re-save caches after we made a full CheckFileSystem pass.
+    ezMap<ezString, ezFileStatus> referencedFiles;
+    ezMap<ezString, ezFileStatus::Status> referencedFolders;
+    ezFileSystemModel* pFiles = ezFileSystemModel::GetSingleton();
+    {
+      referencedFiles = *pFiles->GetFiles();
+      referencedFolders = *pFiles->GetFolders();
+    }
+    SaveCaches(referencedFiles, referencedFolders); //
+  });
   pInitTask->ConfigureTask("Initialize Curator", ezTaskNesting::Never);
   m_InitializeCuratorTaskID = ezTaskSystem::StartSingleTask(pInitTask, ezTaskPriority::FileAccessHighPriority);
 
@@ -603,8 +602,7 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
   // TODO: This is the old slow code path that will find the longest substring match.
   // Should be removed or folded into FindBestMatchForFile once it's surely not needed anymore.
 
-  auto FindAsset = [this](ezStringView sPathView) -> ezAssetInfo*
-  {
+  auto FindAsset = [this](ezStringView sPathView) -> ezAssetInfo* {
     // try to find the 'exact' relative path
     // otherwise find the shortest possible path
     ezUInt32 uiMinLength = 0xFFFFFFFF;
@@ -953,20 +951,18 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& ref_sFile, ezArra
   {
     EZ_LOCK(m_CuratorMutex);
 
-    auto SearchFile = [this](ezStringBuilder& ref_sName) -> bool
-    {
-      return ezFileSystemModel::GetSingleton()->FindFile([&ref_sName](const ezString& sFile, const ezFileStatus& stat)
-                                                {
-                                                  if (stat.m_Status != ezFileStatus::Status::Valid)
-                                                    return false;
+    auto SearchFile = [this](ezStringBuilder& ref_sName) -> bool {
+      return ezFileSystemModel::GetSingleton()->FindFile([&ref_sName](const ezString& sFile, const ezFileStatus& stat) {
+                                                if (stat.m_Status != ezFileStatus::Status::Valid)
+                                                  return false;
 
-                                                  if (sFile.EndsWith_NoCase(ref_sName))
-                                                  {
-                                                    ref_sName = sFile;
-                                                    return true;
-                                                  }
-                                                  return false; //
-                                                })
+                                                if (sFile.EndsWith_NoCase(ref_sName))
+                                                {
+                                                  ref_sName = sFile;
+                                                  return true;
+                                                }
+                                                return false; //
+                                              })
         .Succeeded();
     };
 
@@ -1003,8 +999,7 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool
   ezSet<ezUuid> todoList;
   todoList.Insert(assetGuid);
 
-  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset)
-  {
+  auto GatherReferences = [&](const ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, const ezStringBuilder& sAsset) {
     auto it = inverseTracker.Find(sAsset);
     if (it.IsValid())
     {
@@ -1259,8 +1254,7 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
 
       ezMap<ezUInt32, ezString> connection;
 
-      auto ExtendConnection = [&](const ezString& ref, ezStringView sLabel)
-      {
+      auto ExtendConnection = [&](const ezString& ref, ezStringView sLabel) {
         ezUInt32 uiOutputNode = *nodeMap.GetValue(ref);
         sTemp = connection[uiOutputNode];
         if (sTemp.IsEmpty())
