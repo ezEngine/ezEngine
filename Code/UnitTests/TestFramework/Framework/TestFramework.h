@@ -460,7 +460,7 @@ EZ_TEST_DLL bool ezTestString(ezStringView s1, ezStringView s2, const char* szSt
 #define EZ_TEST_STRING(i1, i2) EZ_TEST_STRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                                   \
+#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                                     \
   ezTestString(static_cast<ezStringView>(s1), static_cast<ezStringView>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
     EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
