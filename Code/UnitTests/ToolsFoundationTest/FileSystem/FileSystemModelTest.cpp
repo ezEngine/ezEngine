@@ -24,6 +24,8 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 {
+  constexpr ezUInt32 WAIT_LOOPS = 100;
+
   ezStringBuilder sOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
   sOutputFolder.AppendPath("Model");
   sOutputFolder.MakeCleanPath();
@@ -165,7 +167,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     EZ_TEST_RESULT(eztCreateFile(sFilePath));
 
-    for (ezUInt32 i = 0; i < 30; i++)
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
@@ -197,7 +199,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       FileOut.Close();
     }
 
-    for (ezUInt32 i = 0; i < 30; i++)
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
@@ -226,7 +228,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sFilePathOld, sFilePathNew));
 
-    for (ezUInt32 i = 0; i < 30; i++)
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
@@ -254,7 +256,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     EZ_TEST_RESULT(ezFileSystem::CreateDirectoryStructure(sFolderPath));
 
-    for (ezUInt32 i = 0; i < 30; i++)
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
@@ -283,7 +285,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sFilePathOld, sFilePathNew));
 
-    for (ezUInt32 i = 0; i < 30; i++)
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
@@ -320,7 +322,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sFolderPathOld, sFolderPathNew));
 
-    for (ezUInt32 i = 0; i < 30; i++)
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
@@ -638,7 +640,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     EZ_TEST_RESULT(ezOSFile::DeleteFolder(sFolderPath));
 
-    for (ezUInt32 i = 0; i < 30; i++)
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
