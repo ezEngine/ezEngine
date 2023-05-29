@@ -2,12 +2,12 @@
 
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 
-#include <ToolsFoundation/FileSystem/FileSystemWatcher.h>
+#  include <ToolsFoundation/FileSystem/FileSystemWatcher.h>
 
-#include <Foundation/IO/DirectoryWatcher.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Threading/DelegateTask.h>
+#  include <Foundation/IO/DirectoryWatcher.h>
+#  include <Foundation/IO/FileSystem/FileSystem.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Threading/DelegateTask.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetWatcher

@@ -2,18 +2,18 @@
 
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER) && EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-#include <ToolsFoundation/FileSystem/FileSystemModel.h>
-#include <ToolsFoundation/FileSystem/FileSystemWatcher.h>
+#  include <ToolsFoundation/FileSystem/FileSystemModel.h>
+#  include <ToolsFoundation/FileSystem/FileSystemWatcher.h>
 
-#include <Foundation/Algorithm/HashStream.h>
-#include <Foundation/Configuration/SubSystem.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Utilities/Progress.h>
+#  include <Foundation/Algorithm/HashStream.h>
+#  include <Foundation/Configuration/SubSystem.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
+#  include <Foundation/IO/FileSystem/FileSystem.h>
+#  include <Foundation/IO/MemoryStream.h>
+#  include <Foundation/IO/OSFile.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Time/Stopwatch.h>
+#  include <Foundation/Utilities/Progress.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFileSystemModel);
 
@@ -69,11 +69,11 @@ ezFileChangedEvent::ezFileChangedEvent(ezStringView sFile, ezFileStatus status, 
 
 bool ezFileSystemModel::IsSameFile(const ezStringView sAbsolutePathA, const ezStringView sAbsolutePathB)
 {
-#if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS))
+#  if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS))
   return sAbsolutePathA.IsEqual_NoCase(sAbsolutePathB);
-#else
+#  else
   return sAbsolutePathA.IsEqual(sAbsolutePathB);
-#endif
+#  endif
 }
 
 ////////////////////////////////////////////////////////////////////////

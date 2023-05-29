@@ -4,9 +4,9 @@
 
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 
-#include <Foundation/Application/Config/FileSystemConfig.h>
-#include <Foundation/IO/DirectoryWatcher.h>
-#include <Foundation/Threading/TaskSystem.h>
+#  include <Foundation/Application/Config/FileSystemConfig.h>
+#  include <Foundation/IO/DirectoryWatcher.h>
+#  include <Foundation/Threading/TaskSystem.h>
 
 class ezTask;
 

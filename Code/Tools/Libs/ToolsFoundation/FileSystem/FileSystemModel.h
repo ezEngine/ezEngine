@@ -4,11 +4,11 @@
 
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER) && EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-#include <Foundation/Application/Config/FileSystemConfig.h>
-#include <Foundation/Configuration/Singleton.h>
-#include <Foundation/Threading/LockedObject.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <ToolsFoundation/FileSystem/Declarations.h>
+#  include <Foundation/Application/Config/FileSystemConfig.h>
+#  include <Foundation/Configuration/Singleton.h>
+#  include <Foundation/Threading/LockedObject.h>
+#  include <Foundation/Types/UniquePtr.h>
+#  include <ToolsFoundation/FileSystem/Declarations.h>
 
 class ezFileSystemWatcher;
 struct ezFileSystemWatcherEvent;
