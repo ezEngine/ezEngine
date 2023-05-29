@@ -39,6 +39,7 @@ jobs:
     displayName: 'Fetch suggested changes'
     condition: always()
     inputs:
+      pwsh: true
       targetType: 'inline'
       script: |
         # Changes done by clang tidy on MemberProperty.h are always incorrect
