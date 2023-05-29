@@ -179,7 +179,8 @@ public:
     if (m_iExpectedParsingErrors >= 0)
       return;
 
-    EZ_TEST_FAILURE("JSON Parsing Error", "(%u, %u): %s", uiLine, uiColumn, sMessage);
+    ezStringBuilder tmp;
+    EZ_TEST_FAILURE("JSON Parsing Error", "(%u, %u): %s", uiLine, uiColumn, sMessage.GetData(tmp));
   }
 
   bool m_bSkipObject;
@@ -608,21 +609,21 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-    //ASCII a character. (1 utf16 code point, 1 utf8 code points).
+    // ASCII a character. (1 utf16 code point, 1 utf8 code points).
     reader.Add(ParseResult(Variable, "a"));
     reader.Add(ParseResult("a"));
 
-    //Greek Reversed Lunate Epsilon Symbol (1 utf16 code point, 2 utf8 code points).
+    // Greek Reversed Lunate Epsilon Symbol (1 utf16 code point, 2 utf8 code points).
     reader.Add(ParseResult(Variable, "b"));
-    reader.Add(ParseResult("\xCF\xB6")); 
+    reader.Add(ParseResult("\xCF\xB6"));
 
     // Superset Beside Subset (1 utf16 code point, 3 utf8 code points).
     reader.Add(ParseResult(Variable, "c"));
-    reader.Add(ParseResult("a\xE2\xAB\x97z")); 
+    reader.Add(ParseResult("a\xE2\xAB\x97z"));
 
     // Duck+Sparkling Heart (2 utf16 code point, 4 utf8 code points each).
     reader.Add(ParseResult(Variable, "d"));
-    reader.Add(ParseResult("\xF0\x9F\xA6\x86\xF0\x9F\x92\x96")); 
+    reader.Add(ParseResult("\xF0\x9F\xA6\x86\xF0\x9F\x92\x96"));
 
     reader.Add(ParseResult(EndObject));
 
@@ -641,11 +642,11 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(BeginObject));
 
-    //Invalid character in literal
+    // Invalid character in literal
     reader.Add(ParseResult(Variable, "a"));
     reader.Add(ParseResult("G"));
 
-    //Too few characters in literal
+    // Too few characters in literal
     reader.Add(ParseResult(Variable, "b"));
     reader.Add(ParseResult(""));
 

@@ -45,9 +45,9 @@ bool ezJSONReader::OnVariable(ezStringView sVarName)
 void ezJSONReader::OnReadValue(ezStringView sValue)
 {
   if (m_Stack.PeekBack().m_Mode == ElementMode::Array)
-    m_Stack.PeekBack().m_Array.PushBack(ezVariant(sValue));
+    m_Stack.PeekBack().m_Array.PushBack(std::move(ezString(sValue)));
   else
-    m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant(sValue);
+    m_Stack.PeekBack().m_Dictionary[m_sLastName] = std::move(ezString(sValue));
 
   m_sLastName.Clear();
 }
@@ -105,7 +105,7 @@ void ezJSONReader::OnEndObject()
     }
     else
     {
-      Parent.m_Dictionary[Child.m_sName] = Child.m_Dictionary;
+      Parent.m_Dictionary[Child.m_sName] = std::move(Child.m_Dictionary);
     }
 
     m_Stack.PopBack();
@@ -136,7 +136,7 @@ void ezJSONReader::OnEndArray()
   }
   else
   {
-    Parent.m_Dictionary[Child.m_sName] = Child.m_Array;
+    Parent.m_Dictionary[Child.m_sName] = std::move(Child.m_Array);
   }
 
   m_Stack.PopBack();
