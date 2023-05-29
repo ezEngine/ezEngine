@@ -66,10 +66,10 @@ void ezTelemetry::FlushOutgoingQueues()
 }
 
 
-ezResult ezTelemetry::ConnectToServer(const char* szConnectTo)
+ezResult ezTelemetry::ConnectToServer(ezStringView sConnectTo)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-  return OpenConnection(Client, szConnectTo);
+  return OpenConnection(Client, sConnectTo);
 #else
   ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::ConnectToServer() will be ignored.");
   return EZ_FAILURE;

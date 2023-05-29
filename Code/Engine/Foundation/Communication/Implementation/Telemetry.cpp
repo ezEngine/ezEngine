@@ -214,15 +214,15 @@ void ezTelemetry::UpdateNetwork()
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-void ezTelemetry::SetServerName(const char* szName)
+void ezTelemetry::SetServerName(ezStringView sName)
 {
   if (s_ConnectionMode == ConnectionMode::Client)
     return;
 
-  if (s_sServerName == szName)
+  if (s_sServerName == sName)
     return;
 
-  s_sServerName = szName;
+  s_sServerName = sName;
 
   SendServerName();
 }
@@ -267,12 +267,12 @@ void ezTelemetry::InitializeAsServer()
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
-ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
+ezResult ezTelemetry::InitializeAsClient(ezStringView sConnectTo0)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   g_pHost = enet_host_create(nullptr, 1, 2, 0, 0);
 
-  ezStringBuilder sConnectTo = szConnectTo;
+  ezStringBuilder sConnectTo = sConnectTo0;
 
   const char* szColon = sConnectTo.FindLastSubString(":");
   if (szColon != nullptr)
@@ -319,7 +319,7 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
   return EZ_FAILURE;
 }
 
-ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, const char* szConnectTo)
+ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, ezStringView sConnectTo)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   CloseConnection();
@@ -343,7 +343,7 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, const char* szConnectT
       InitializeAsServer();
       break;
     case ezTelemetry::Client:
-      if (InitializeAsClient(szConnectTo) == EZ_FAILURE)
+      if (InitializeAsClient(sConnectTo) == EZ_FAILURE)
       {
         CloseConnection();
         return EZ_FAILURE;
