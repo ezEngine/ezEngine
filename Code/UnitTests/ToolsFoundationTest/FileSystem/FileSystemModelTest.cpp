@@ -1,5 +1,7 @@
 #include <ToolsFoundationTest/ToolsFoundationTestPCH.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER) && EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -8,14 +10,15 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
+
 EZ_CREATE_SIMPLE_TEST_GROUP(FileSystem);
 
 namespace
 {
-  ezResult eztCreateFile(ezStringView path)
+  ezResult eztCreateFile(ezStringView sPath)
   {
     ezFileWriter FileOut;
-    EZ_SUCCEED_OR_RETURN(FileOut.Open(path));
+    EZ_SUCCEED_OR_RETURN(FileOut.Open(sPath));
     EZ_SUCCEED_OR_RETURN(FileOut.WriteString("Test"));
     FileOut.Close();
     return EZ_SUCCESS;
@@ -591,7 +594,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ezStringBuilder sFilePathNew(sOutputFolder);
     sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
 
-    auto callback = [](const ezFileStatus& status, ezStreamReader& reader) -> ezUuid {
+    auto callback = [](const ezFileStatus& status, ezStreamReader& ref_reader) -> ezUuid
+    {
       EZ_TEST_INT((ezInt64)status.m_uiHash, (ezInt64)10983861097202158394u);
       ezUuid guid;
       guid.CreateNewUuid();
@@ -692,3 +696,5 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(folderId);
   }
 }
+
+#endif

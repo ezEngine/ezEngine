@@ -2,6 +2,8 @@
 
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER) && EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Threading/LockedObject.h>
@@ -67,10 +69,10 @@ public:
 
 public:
   /// \brief Return true if the two paths point to the same file on disk. On different platforms the same strings can produce different results. This function assumes both paths are absolute and cleaned via ezStringBuilder::MakeCleanPath.
-  static bool IsSameFile(ezStringView sAbsolutePathA, ezStringView sAbsolutePathB);
+  static bool IsSameFile(const ezStringView sAbsolutePathA, const ezStringView sAbsolutePathB);
 
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
-  static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
+  static ezUInt64 HashFile(ezStreamReader& ref_inputStream, ezStreamWriter* pPassThroughStream);
 
 public:
   /// \name Setup
@@ -109,7 +111,7 @@ public:
   /// \param sPath Absolute or relative path to a file to be searched for.
   /// \param stat Contains the current state of the file in the model if found.
   /// \return Returns EZ_SUCCESS if the file was found.
-  ezResult FindFile(ezStringView sPath, ezFileStatus& stat) const;
+  ezResult FindFile(ezStringView sPath, ezFileStatus& out_stat) const;
 
   /// \brief Searches for the first file in the model that satisfies the given visitor function.
   /// \param visitor Called for every file in the model. If this functions returns true, the search is canceled and the function returns EZ_SUCCESS.
@@ -153,7 +155,7 @@ public:
   /// \return Returns EZ_SUCCESS if the file existed and could be opened. Returns EZ_FAILURE if the file is not in the model or the file can't be opened for read access. On read failure, the file will be marked as locked.
   ezResult ReadDocument(ezStringView sAbsolutePath, const ezDelegate<ezUuid(const ezFileStatus&, ezStreamReader&)>& callback);
 
-  /// \brief Returns an up-to-date hash for the given file. Will trigger m_FileChangedEvents if the file has been modified since the last check. Hashes are cached so in the best case this will just check the timestamp on disk against the model and then return the cached hash.
+  /// \brief Returns an up-to-date hash for the given file. Will trigger m_FileChangedEvents if the file has been modified since the last check. Hashes are cached so in the best case this will just check the timestamp on disk against the model and then return the cached hash. This function will also work on files outside of the data directories.
   /// \param sAbsolutePath Path to the document. Must be in the model.
   /// \param out_stat Contains the up to date info for the file, including hash.
   /// \return Returns EZ_SUCCESS if the file existed and could be opened. On failure, the file will be marked as locked.
@@ -193,4 +195,7 @@ private:
   ezMap<ezString, ezFileStatus> m_ReferencedFiles;           // Absolute path to stat map
   ezMap<ezString, ezFileStatus::Status> m_ReferencedFolders; // Absolute path to status map
   ezSet<ezString> m_LockedFiles;
+  ezMap<ezString, ezFileStatus> m_TransiendFiles; // Absolute path to stat for files outside the data directories.
 };
+
+#endif

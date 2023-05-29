@@ -1,5 +1,7 @@
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER) && EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 #include <ToolsFoundation/FileSystem/FileSystemWatcher.h>
 
@@ -65,7 +67,7 @@ ezFileChangedEvent::ezFileChangedEvent(ezStringView sFile, ezFileStatus status, 
 {
 }
 
-bool ezFileSystemModel::IsSameFile(ezStringView sAbsolutePathA, ezStringView sAbsolutePathB)
+bool ezFileSystemModel::IsSameFile(const ezStringView sAbsolutePathA, const ezStringView sAbsolutePathB)
 {
 #if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS))
   return sAbsolutePathA.IsEqual_NoCase(sAbsolutePathB);
@@ -226,7 +228,7 @@ void ezFileSystemModel::CheckFileSystem()
 }
 
 
-ezResult ezFileSystemModel::FindFile(ezStringView sPath, ezFileStatus& stat) const
+ezResult ezFileSystemModel::FindFile(ezStringView sPath, ezFileStatus& out_stat) const
 {
   if (!m_bInitialized)
     return EZ_FAILURE;
@@ -268,7 +270,7 @@ ezResult ezFileSystemModel::FindFile(ezStringView sPath, ezFileStatus& stat) con
 
   if (it.IsValid())
   {
-    stat = it.Value();
+    out_stat = it.Value();
     return EZ_SUCCESS;
   }
   return EZ_FAILURE;
@@ -358,10 +360,6 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
   ezStringBuilder sAbsolutePath2(sAbsolutePath);
   sAbsolutePath2.MakeCleanPath();
 
-  // We ignore any changes outside the model's data dirs.
-  if (FindDataDir(sAbsolutePath2) == -1)
-    return EZ_FAILURE;
-
   ezFileStats statDep;
   if (ezOSFile::GetFileStats(sAbsolutePath2, statDep).Failed())
   {
@@ -369,57 +367,99 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
     return EZ_FAILURE;
   }
 
+  // We ignore any changes outside the model's data dirs.
+  if (FindDataDir(sAbsolutePath2) != -1)
   {
-    EZ_LOCK(m_FilesMutex);
-    auto it = m_ReferencedFiles.Find(sAbsolutePath2);
-    if (it.IsValid())
     {
-      out_stat = it.Value();
+      EZ_LOCK(m_FilesMutex);
+      auto it = m_ReferencedFiles.Find(sAbsolutePath2);
+      if (it.IsValid())
+      {
+        out_stat = it.Value();
+      }
     }
-  }
 
-  // We can only hash files that are tracked.
-  if (out_stat.m_Status == ezFileStatus::Status::Unknown)
-  {
-    out_stat = HandleSingleFile(sAbsolutePath2, statDep, false);
+    // We can only hash files that are tracked.
     if (out_stat.m_Status == ezFileStatus::Status::Unknown)
     {
-      ezLog::Error("Failed to hash file '{0}', update failed", sAbsolutePath2);
-      return EZ_FAILURE;
+      out_stat = HandleSingleFile(sAbsolutePath2, statDep, false);
+      if (out_stat.m_Status == ezFileStatus::Status::Unknown)
+      {
+        ezLog::Error("Failed to hash file '{0}', update failed", sAbsolutePath2);
+        return EZ_FAILURE;
+      }
     }
-  }
 
-  // if the file has been modified, make sure to get updated data
-  if (!out_stat.m_LastModified.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical) || out_stat.m_uiHash == 0)
+    // if the file has been modified, make sure to get updated data
+    if (!out_stat.m_LastModified.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical) || out_stat.m_uiHash == 0)
+    {
+      FILESYSTEM_PROFILE(sAbsolutePath2);
+      ezFileReader file;
+      if (file.Open(sAbsolutePath2).Failed())
+      {
+        MarkFileLocked(sAbsolutePath2);
+        ezLog::Error("Failed to hash file '{0}', open failed", sAbsolutePath2);
+        return EZ_FAILURE;
+      }
+
+      // We need to request the stats again wile while we have shared read access or we might trigger a race condition of writes to the file between the last stat call and the current file open.
+      if (ezOSFile::GetFileStats(sAbsolutePath2, statDep).Failed())
+      {
+        ezLog::Error("Failed to hash file '{0}', retrieve stats failed", sAbsolutePath2);
+        return EZ_FAILURE;
+      }
+      out_stat.m_LastModified = statDep.m_LastModificationTime;
+      out_stat.m_uiHash = ezFileSystemModel::HashFile(file, nullptr);
+      out_stat.m_Status = ezFileStatus::Status::Valid;
+
+      // Update state. No need to compare timestamps we hold a lock on the file via the reader.
+      EZ_LOCK(m_FilesMutex);
+      m_ReferencedFiles.Insert(sAbsolutePath2, out_stat);
+    }
+    return EZ_SUCCESS;
+  }
+  else
   {
-    FILESYSTEM_PROFILE(sAbsolutePath2);
-    ezFileReader file;
-    if (file.Open(sAbsolutePath2).Failed())
     {
-      MarkFileLocked(sAbsolutePath2);
-      ezLog::Error("Failed to hash file '{0}', open failed", sAbsolutePath2);
-      return EZ_FAILURE;
+      EZ_LOCK(m_FilesMutex);
+      auto it = m_TransiendFiles.Find(sAbsolutePath2);
+      if (it.IsValid())
+      {
+        out_stat = it.Value();
+      }
     }
 
-    // We need to request the stats again wile while we have shared read access or we might trigger a race condition of writes to the file between the last stat call and the current file open.
-    if (ezOSFile::GetFileStats(sAbsolutePath2, statDep).Failed())
+    // if the file has been modified, make sure to get updated data
+    if (!out_stat.m_LastModified.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical) || out_stat.m_uiHash == 0)
     {
-      ezLog::Error("Failed to hash file '{0}', retrieve stats failed", sAbsolutePath2);
-      return EZ_FAILURE;
-    }
-    out_stat.m_LastModified = statDep.m_LastModificationTime;
-    out_stat.m_uiHash = ezFileSystemModel::HashFile(file, nullptr);
-    out_stat.m_Status = ezFileStatus::Status::Valid;
+      FILESYSTEM_PROFILE(sAbsolutePath2);
+      ezFileReader file;
+      if (file.Open(sAbsolutePath2).Failed())
+      {
+        ezLog::Error("Failed to hash file '{0}', open failed", sAbsolutePath2);
+        return EZ_FAILURE;
+      }
 
-    // Update state. No need to compare timestamps we hold a lock on the file via the reader.
-    EZ_LOCK(m_FilesMutex);
-    m_ReferencedFiles.Insert(sAbsolutePath2, out_stat);
+      // We need to request the stats again wile while we have shared read access or we might trigger a race condition of writes to the file between the last stat call and the current file open.
+      if (ezOSFile::GetFileStats(sAbsolutePath2, statDep).Failed())
+      {
+        ezLog::Error("Failed to hash file '{0}', retrieve stats failed", sAbsolutePath2);
+        return EZ_FAILURE;
+      }
+      out_stat.m_LastModified = statDep.m_LastModificationTime;
+      out_stat.m_uiHash = ezFileSystemModel::HashFile(file, nullptr);
+      out_stat.m_Status = ezFileStatus::Status::Valid;
+
+      // Update state. No need to compare timestamps we hold a lock on the file via the reader.
+      EZ_LOCK(m_FilesMutex);
+      m_TransiendFiles.Insert(sAbsolutePath2, out_stat);
+    }
+    return EZ_SUCCESS;
   }
-  return EZ_SUCCESS;
 }
 
 
-ezUInt64 ezFileSystemModel::HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream)
+ezUInt64 ezFileSystemModel::HashFile(ezStreamReader& ref_inputStream, ezStreamWriter* pPassThroughStream)
 {
   ezHashStreamWriter64 hsw;
 
@@ -428,7 +468,7 @@ ezUInt64 ezFileSystemModel::HashFile(ezStreamReader& InputStream, ezStreamWriter
 
   while (true)
   {
-    const ezUInt64 uiRead = InputStream.ReadBytes(cachedBytes, EZ_ARRAY_SIZE(cachedBytes));
+    const ezUInt64 uiRead = ref_inputStream.ReadBytes(cachedBytes, EZ_ARRAY_SIZE(cachedBytes));
 
     if (uiRead == 0)
       break;
@@ -861,3 +901,5 @@ ezInt32 ezFileSystemModel::FindDataDir(const ezStringView path)
   }
   return -1;
 }
+
+#endif

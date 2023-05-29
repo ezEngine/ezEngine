@@ -1,5 +1,7 @@
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
+
 #include <ToolsFoundation/FileSystem/FileSystemWatcher.h>
 
 #include <Foundation/IO/DirectoryWatcher.h>
@@ -204,3 +206,5 @@ void ezFileSystemWatcher::ConsumeEntry(ezDynamicArray<PendingUpdate>& container,
     consume(update.m_sAbsPath, type);
   }
 }
+
+#endif

@@ -2,6 +2,8 @@
 
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
+
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Threading/TaskSystem.h>
@@ -89,3 +91,5 @@ private:
   ezHybridArray<PendingUpdate, 4> m_DirectoryAdded;
   ezHybridArray<PendingUpdate, 4> m_DirectoryRemoved;
 };
+
+#endif
