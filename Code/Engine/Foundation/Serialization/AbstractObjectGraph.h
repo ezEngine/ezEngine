@@ -28,7 +28,7 @@ public:
 
   const ezHybridArray<Property, 16>& GetProperties() const { return m_Properties; }
 
-  void AddProperty(const char* szName, const ezVariant& value);
+  void AddProperty(ezStringView sName, const ezVariant& value);
 
   void RemoveProperty(const char* szName);
 
@@ -124,7 +124,7 @@ public:
   using FilterFunction = ezDelegate<bool(const ezAbstractObjectNode*, const ezAbstractObjectNode::Property*)>;
   ezAbstractObjectNode* Clone(ezAbstractObjectGraph& ref_cloneTarget, const ezAbstractObjectNode* pRootNode = nullptr, FilterFunction filter = FilterFunction()) const;
 
-  const char* RegisterString(const char* szString);
+  const char* RegisterString(ezStringView sString);
 
   const ezAbstractObjectNode* GetNode(const ezUuid& guid) const;
   ezAbstractObjectNode* GetNode(const ezUuid& guid);

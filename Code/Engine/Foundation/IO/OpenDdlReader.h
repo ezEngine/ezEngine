@@ -16,19 +16,19 @@ public:
   EZ_ALWAYS_INLINE bool IsCustomType() const { return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom; } // [tested]
 
   /// \brief Whether this is a custom object type of the requested type.
-  EZ_ALWAYS_INLINE bool IsCustomType(const char* szTypeName) const
+  EZ_ALWAYS_INLINE bool IsCustomType(ezStringView sTypeName) const
   {
-    return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom && ezStringUtils::IsEqual(m_szCustomType, szTypeName);
+    return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom && m_sCustomType == sTypeName;
   }
 
   /// \brief Returns the string for the custom type name.
-  EZ_ALWAYS_INLINE const char* GetCustomType() const { return m_szCustomType; } // [tested]
+  EZ_ALWAYS_INLINE ezStringView GetCustomType() const { return m_sCustomType; } // [tested]
 
   /// \brief Whether the name of the object is non-empty.
-  EZ_ALWAYS_INLINE bool HasName() const { return !ezStringUtils::IsNullOrEmpty(m_szName); } // [tested]
+  EZ_ALWAYS_INLINE bool HasName() const { return !m_sName.IsEmpty(); } // [tested]
 
   /// \brief Returns the name of the object.
-  EZ_ALWAYS_INLINE const char* GetName() const { return m_szName; } // [tested]
+  EZ_ALWAYS_INLINE ezStringView GetName() const { return m_sName; } // [tested]
 
   /// \brief Returns whether the element name is a global or a local name.
   EZ_ALWAYS_INLINE bool IsNameGlobal() const { return (m_uiNumChildElements & EZ_BIT(31)) != 0; } // [tested]
@@ -93,24 +93,24 @@ public:
 
   /// \brief Searches for a child with the given name. It does not matter whether the object's name is 'local' or 'global'.
   /// \a szName is case-sensitive.
-  const ezOpenDdlReaderElement* FindChild(const char* szName) const; // [tested]
+  const ezOpenDdlReaderElement* FindChild(ezStringView sName) const; // [tested]
 
   /// \brief Searches for a child element that has the given type, name and if it is a primitives list, at least the desired number of primitives.
-  const ezOpenDdlReaderElement* FindChildOfType(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives = 1) const;
+  const ezOpenDdlReaderElement* FindChildOfType(ezOpenDdlPrimitiveType type, ezStringView sName, ezUInt32 uiMinNumberOfPrimitives = 1) const;
 
   /// \brief Searches for a child element with the given type and optionally also a certain name.
-  const ezOpenDdlReaderElement* FindChildOfType(const char* szType, const char* szName = nullptr) const;
+  const ezOpenDdlReaderElement* FindChildOfType(ezStringView sType, ezStringView sName = nullptr) const;
 
 private:
   friend class ezOpenDdlReader;
 
-  ezOpenDdlPrimitiveType m_PrimitiveType;
-  ezUInt32 m_uiNumChildElements;
-  const void* m_pFirstChild;
-  const ezOpenDdlReaderElement* m_pLastChild;
-  const char* m_szCustomType;
-  const char* m_szName;
-  const ezOpenDdlReaderElement* m_pSiblingElement;
+  ezOpenDdlPrimitiveType m_PrimitiveType = ezOpenDdlPrimitiveType::Custom;
+  ezUInt32 m_uiNumChildElements = 0;
+  const void* m_pFirstChild = nullptr;
+  const ezOpenDdlReaderElement* m_pLastChild = nullptr;
+  ezStringView m_sCustomType;
+  ezStringView m_sName;
+  const ezOpenDdlReaderElement* m_pSiblingElement = nullptr;
 };
 
 /// \brief An OpenDDL reader parses an entire DDL document and creates an in-memory representation of the document structure.
@@ -134,13 +134,13 @@ public:
   const ezOpenDdlReaderElement* GetRootElement() const; // [tested]
 
   /// \brief Searches for an element with a global name. NULL if there is no such element.
-  const ezOpenDdlReaderElement* FindElement(const char* szGlobalName) const; // [tested]
+  const ezOpenDdlReaderElement* FindElement(ezStringView sGlobalName) const; // [tested]
 
 protected:
-  virtual void OnBeginObject(const char* szType, const char* szName, bool bGlobalName) override;
+  virtual void OnBeginObject(ezStringView sType, ezStringView sName, bool bGlobalName) override;
   virtual void OnEndObject() override;
 
-  virtual void OnBeginPrimitiveList(ezOpenDdlPrimitiveType type, const char* szName, bool bGlobalName) override;
+  virtual void OnBeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringView sName, bool bGlobalName) override;
   virtual void OnEndPrimitiveList() override;
 
   virtual void OnPrimitiveBool(ezUInt32 count, const bool* pData, bool bThisIsAll) override;
@@ -160,10 +160,10 @@ protected:
 
   virtual void OnPrimitiveString(ezUInt32 count, const ezStringView* pData, bool bThisIsAll) override;
 
-  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override;
+  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override;
 
 protected:
-  ezOpenDdlReaderElement* CreateElement(ezOpenDdlPrimitiveType type, const char* szType, const char* szName, bool bGlobalName);
+  ezOpenDdlReaderElement* CreateElement(ezOpenDdlPrimitiveType type, ezStringView sType, ezStringView sName, bool bGlobalName);
   const char* CopyString(const ezStringView& string);
   void StorePrimitiveData(bool bThisIsAll, ezUInt32 bytecount, const ezUInt8* pData);
 

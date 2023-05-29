@@ -95,6 +95,17 @@ struct ezHashHelper<const char*>
   EZ_ALWAYS_INLINE static bool Equal(const char* a, const char* b) { return ezStringUtils::IsEqual(a, b); }
 };
 
+template <>
+struct ezHashHelper<ezStringView>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezStringView sValue)
+  {
+    return ezHashingUtils::StringHashTo32(ezHashingUtils::StringHash(sValue));
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(ezStringView a, ezStringView b) { return a == b; }
+};
+
 template <typename T>
 struct ezHashHelper<T*>
 {

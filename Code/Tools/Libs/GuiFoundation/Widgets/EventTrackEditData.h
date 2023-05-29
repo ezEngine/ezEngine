@@ -40,7 +40,7 @@ public:
 
   const ezSet<ezString>& GetAvailableEvents() const { return m_AvailableEvents; }
 
-  void AddAvailableEvent(const char* szEvent);
+  void AddAvailableEvent(ezStringView sEvent);
 
   ezResult WriteToDDL(const char* szFile);
   ezResult ReadFromDDL(const char* szFile);

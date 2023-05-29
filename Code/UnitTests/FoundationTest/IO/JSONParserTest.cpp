@@ -83,25 +83,25 @@ public:
 
   void Add(ParseResult pr) { m_Results.PushBack(pr); }
 
-  virtual bool OnVariable(const char* szVarName) override
+  virtual bool OnVariable(ezStringView sVarName) override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == Variable);
-    EZ_TEST_STRING(m_Results.PeekFront().m_szValue, szVarName);
+    EZ_TEST_STRING(m_Results.PeekFront().m_szValue, sVarName);
 
     m_Results.PopFront();
 
-    m_bSkipObject = ezStringUtils::IsEqual(szVarName, "skip_obj");
-    m_bSkipArray = ezStringUtils::IsEqual(szVarName, "skip_array");
+    m_bSkipObject = sVarName == "skip_obj";
+    m_bSkipArray = sVarName == "skip_array";
 
-    return !ezStringUtils::IsEqual(szVarName, "skip_var");
+    return sVarName != "skip_var";
   }
 
-  virtual void OnReadValue(const char* szValue) override
+  virtual void OnReadValue(ezStringView sValue) override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueString);
-    EZ_TEST_STRING(m_Results.PeekFront().m_szValue, szValue);
+    EZ_TEST_STRING(m_Results.PeekFront().m_szValue, sValue);
 
     m_Results.PopFront();
   }
@@ -172,14 +172,14 @@ public:
 
   ezInt32 m_iExpectedParsingErrors;
 
-  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override
+  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override
   {
     --m_iExpectedParsingErrors;
 
     if (m_iExpectedParsingErrors >= 0)
       return;
 
-    EZ_TEST_FAILURE("JSON Parsing Error", "(%u, %u): %s", uiLine, uiColumn, szMessage);
+    EZ_TEST_FAILURE("JSON Parsing Error", "(%u, %u): %s", uiLine, uiColumn, sMessage);
   }
 
   bool m_bSkipObject;

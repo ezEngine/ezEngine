@@ -10,7 +10,7 @@
 struct ezTypeHashTable
 {
   ezMutex m_Mutex;
-  ezHashTable<const char*, ezRTTI*, ezHashHelper<const char*>, ezStaticAllocatorWrapper> m_Table;
+  ezHashTable<ezStringView, ezRTTI*, ezHashHelper<ezStringView>, ezStaticAllocatorWrapper> m_Table;
 };
 
 ezTypeHashTable* GetTypeHashTable()
@@ -233,13 +233,13 @@ void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_proper
   out_properties.PushBackRange(GetProperties());
 }
 
-ezRTTI* ezRTTI::FindTypeByName(const char* szName)
+ezRTTI* ezRTTI::FindTypeByName(ezStringView sName)
 {
   ezRTTI* pInstance = nullptr;
   {
     auto pTable = GetTypeHashTable();
     EZ_LOCK(pTable->m_Mutex);
-    if (pTable->m_Table.TryGetValue(szName, pInstance))
+    if (pTable->m_Table.TryGetValue(sName, pInstance))
       return pInstance;
   }
 
@@ -248,9 +248,9 @@ ezRTTI* ezRTTI::FindTypeByName(const char* szName)
 
   while (pInstance)
   {
-    if (ezStringUtils::IsEqual(pInstance->GetTypeName(), szName))
+    if (pInstance->GetTypeName() == sName)
     {
-      EZ_REPORT_FAILURE("The hash table lookup should have already found the RTTI type '{}'", szName);
+      EZ_REPORT_FAILURE("The hash table lookup should have already found the RTTI type '{}'", sName);
       return pInstance;
     }
 
@@ -295,7 +295,7 @@ ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
   return nullptr;
 }
 
-ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchBaseTypes /* = true */) const
+ezAbstractProperty* ezRTTI::FindPropertyByName(ezStringView sName, bool bSearchBaseTypes /* = true */) const
 {
   const ezRTTI* pInstance = this;
 
@@ -303,7 +303,7 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchB
   {
     for (ezUInt32 p = 0; p < pInstance->m_Properties.GetCount(); ++p)
     {
-      if (ezStringUtils::IsEqual(pInstance->m_Properties[p]->GetPropertyName(), szName))
+      if (pInstance->m_Properties[p]->GetPropertyName() == sName)
       {
         return pInstance->m_Properties[p];
       }

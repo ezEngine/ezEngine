@@ -30,10 +30,9 @@ void ezOpenDdlParser::SetCacheSize(ezUInt32 uiSizeInKB)
 
 
 // Extension to default OpenDDL: We allow ':' and '.' to appear in identifier names
-bool IsDdlIdentifierCharacter(ezUInt8 uiByte)
+bool IsDdlIdentifierCharacter(ezUInt32 uiByte)
 {
-  return (
-    (uiByte >= 'a' && uiByte <= 'z') || (uiByte >= 'A' && uiByte <= 'Z') || (uiByte == '_') || (uiByte >= '0' && uiByte <= '9') || (uiByte == ':') || (uiByte == '.'));
+  return ((uiByte >= 'a' && uiByte <= 'z') || (uiByte >= 'A' && uiByte <= 'Z') || (uiByte == '_') || (uiByte >= '0' && uiByte <= '9') || (uiByte == ':') || (uiByte == '.'));
 }
 
 void ezOpenDdlParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset /*= 0*/)
@@ -165,14 +164,14 @@ void ezOpenDdlParser::StopParsing()
   m_StateStack.Clear();
 }
 
-void ezOpenDdlParser::ParsingError(const char* szMessage, bool bFatal)
+void ezOpenDdlParser::ParsingError(ezStringView sMessage, bool bFatal)
 {
   if (bFatal)
-    ezLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, szMessage);
+    ezLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, sMessage);
   else
-    ezLog::Warning(m_pLogInterface, szMessage);
+    ezLog::Warning(m_pLogInterface, sMessage);
 
-  OnParsingError(szMessage, bFatal, m_uiCurLine, m_uiCurColumn);
+  OnParsingError(sMessage, bFatal, m_uiCurLine, m_uiCurColumn);
 
   if (bFatal)
   {
