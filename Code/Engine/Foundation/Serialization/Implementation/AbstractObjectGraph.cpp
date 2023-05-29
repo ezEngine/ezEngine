@@ -90,11 +90,11 @@ ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& ref_cl
   }
 }
 
-const char* ezAbstractObjectGraph::RegisterString(ezStringView sString)
+ezStringView ezAbstractObjectGraph::RegisterString(ezStringView sString)
 {
   auto it = m_Strings.Insert(sString);
   EZ_ASSERT_DEV(it.IsValid(), "");
-  return it.Key().GetData();
+  return it.Key();
 }
 
 ezAbstractObjectNode* ezAbstractObjectGraph::GetNode(const ezUuid& guid)
@@ -107,40 +107,40 @@ const ezAbstractObjectNode* ezAbstractObjectGraph::GetNode(const ezUuid& guid) c
   return const_cast<ezAbstractObjectGraph*>(this)->GetNode(guid);
 }
 
-const ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(const char* szName) const
+const ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(ezStringView sName) const
 {
-  return const_cast<ezAbstractObjectGraph*>(this)->GetNodeByName(szName);
+  return const_cast<ezAbstractObjectGraph*>(this)->GetNodeByName(sName);
 }
 
-ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(const char* szName)
+ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(ezStringView sName)
 {
-  return m_NodesByName.GetValueOrDefault(szName, nullptr);
+  return m_NodesByName.GetValueOrDefault(sName, nullptr);
 }
 
-ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, const char* szType, ezUInt32 uiTypeVersion, const char* szNodeName)
+ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, ezStringView sType, ezUInt32 uiTypeVersion, ezStringView sNodeName)
 {
   EZ_ASSERT_DEV(!m_Nodes.Contains(guid), "object {0} must not yet exist", guid);
-  if (!ezStringUtils::IsNullOrEmpty(szNodeName))
+  if (!sNodeName.IsEmpty())
   {
-    szNodeName = RegisterString(szNodeName);
+    sNodeName = RegisterString(sNodeName);
   }
   else
   {
-    szNodeName = nullptr;
+    sNodeName = {};
   }
 
   ezAbstractObjectNode* pNode = EZ_DEFAULT_NEW(ezAbstractObjectNode);
   pNode->m_Guid = guid;
   pNode->m_pOwner = this;
-  pNode->m_szType = RegisterString(szType);
+  pNode->m_sType = RegisterString(sType);
   pNode->m_uiTypeVersion = uiTypeVersion;
-  pNode->m_szNodeName = szNodeName;
+  pNode->m_sNodeName = sNodeName;
 
   m_Nodes[guid] = pNode;
 
-  if (!ezStringUtils::IsNullOrEmpty(szNodeName))
+  if (!sNodeName.IsEmpty())
   {
-    m_NodesByName[szNodeName] = pNode;
+    m_NodesByName[sNodeName] = pNode;
   }
 
   return pNode;
@@ -153,8 +153,8 @@ void ezAbstractObjectGraph::RemoveNode(const ezUuid& guid)
   if (it.IsValid())
   {
     ezAbstractObjectNode* pNode = it.Value();
-    if (pNode->m_szNodeName != nullptr)
-      m_NodesByName.Remove(pNode->m_szNodeName);
+    if (!pNode->m_sNodeName.IsEmpty())
+      m_NodesByName.Remove(pNode->m_sNodeName);
 
     m_Nodes.Remove(guid);
     EZ_DEFAULT_DELETE(pNode);
@@ -164,31 +164,31 @@ void ezAbstractObjectGraph::RemoveNode(const ezUuid& guid)
 void ezAbstractObjectNode::AddProperty(ezStringView sName, const ezVariant& value)
 {
   auto& prop = m_Properties.ExpandAndGetRef();
-  prop.m_szPropertyName = m_pOwner->RegisterString(sName);
+  prop.m_sPropertyName = m_pOwner->RegisterString(sName);
   prop.m_Value = value;
 }
 
-void ezAbstractObjectNode::ChangeProperty(const char* szName, const ezVariant& value)
+void ezAbstractObjectNode::ChangeProperty(ezStringView sName, const ezVariant& value)
 {
   for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)
   {
-    if (ezStringUtils::IsEqual(m_Properties[i].m_szPropertyName, szName))
+    if (m_Properties[i].m_sPropertyName == sName)
     {
       m_Properties[i].m_Value = value;
       return;
     }
   }
 
-  EZ_REPORT_FAILURE("Property '{0}' is unknown", szName);
+  EZ_REPORT_FAILURE("Property '{0}' is unknown", sName);
 }
 
-void ezAbstractObjectNode::RenameProperty(const char* szOldName, const char* szNewName)
+void ezAbstractObjectNode::RenameProperty(ezStringView sOldName, ezStringView sNewName)
 {
   for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)
   {
-    if (ezStringUtils::IsEqual(m_Properties[i].m_szPropertyName, szOldName))
+    if (m_Properties[i].m_sPropertyName == sOldName)
     {
-      m_Properties[i].m_szPropertyName = m_pOwner->RegisterString(szNewName);
+      m_Properties[i].m_sPropertyName = m_pOwner->RegisterString(sNewName);
       return;
     }
   }
@@ -199,12 +199,12 @@ void ezAbstractObjectNode::ClearProperties()
   m_Properties.Clear();
 }
 
-ezResult ezAbstractObjectNode::InlineProperty(const char* szName)
+ezResult ezAbstractObjectNode::InlineProperty(ezStringView sName)
 {
   for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)
   {
     Property& prop = m_Properties[i];
-    if (ezStringUtils::IsEqual(prop.m_szPropertyName, szName))
+    if (prop.m_sPropertyName == sName)
     {
       if (!prop.m_Value.IsA<ezUuid>())
         return EZ_FAILURE;
@@ -243,11 +243,11 @@ ezResult ezAbstractObjectNode::InlineProperty(const char* szName)
   return EZ_FAILURE;
 }
 
-void ezAbstractObjectNode::RemoveProperty(const char* szName)
+void ezAbstractObjectNode::RemoveProperty(ezStringView sName)
 {
   for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)
   {
-    if (ezStringUtils::IsEqual(m_Properties[i].m_szPropertyName, szName))
+    if (m_Properties[i].m_sPropertyName == sName)
     {
       m_Properties.RemoveAtAndSwap(i);
       return;
@@ -255,16 +255,16 @@ void ezAbstractObjectNode::RemoveProperty(const char* szName)
   }
 }
 
-void ezAbstractObjectNode::SetType(const char* szType)
+void ezAbstractObjectNode::SetType(ezStringView sType)
 {
-  m_szType = m_pOwner->RegisterString(szType);
+  m_sType = m_pOwner->RegisterString(sType);
 }
 
-const ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const char* szName) const
+const ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(ezStringView sName) const
 {
   for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)
   {
-    if (ezStringUtils::IsEqual(m_Properties[i].m_szPropertyName, szName))
+    if (m_Properties[i].m_sPropertyName == sName)
     {
       return &m_Properties[i];
     }
@@ -273,11 +273,11 @@ const ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const c
   return nullptr;
 }
 
-ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const char* szName)
+ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(ezStringView sName)
 {
   for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)
   {
-    if (ezStringUtils::IsEqual(m_Properties[i].m_szPropertyName, szName))
+    if (m_Properties[i].m_sPropertyName == sName)
     {
       return &m_Properties[i];
     }
@@ -327,7 +327,7 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
 void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* pRoot, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* pRhsRoot)
 {
   ezHashTable<ezUuid, ezUuid> guidMap;
-  EZ_ASSERT_DEV(ezStringUtils::IsEqual(pRoot->GetType(), pRhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
+  EZ_ASSERT_DEV(pRoot->GetType() == pRhsRoot->GetType(), "Roots must have the same type to be able re-map guids!");
 
   ReMapNodeGuidsToMatchGraphRecursive(guidMap, pRoot, rhsGraph, pRhsRoot);
 
@@ -345,7 +345,7 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* pRo
 
 void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
 {
-  if (!ezStringUtils::IsEqual(lhs->GetType(), rhs->GetType()))
+  if (lhs->GetType() != rhs->GetType())
   {
     // Types differ, remapping ends as this is a removal and add of a new object.
     return;
@@ -367,7 +367,7 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUu
       auto it = m_Nodes.Find(prop.m_Value.Get<ezUuid>());
       if (it.IsValid())
       {
-        if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_szPropertyName))
+        if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_sPropertyName))
         {
           if (rhsProp->m_Value.IsA<ezUuid>() && rhsProp->m_Value.Get<ezUuid>().IsValid())
           {
@@ -392,7 +392,7 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUu
           auto it = m_Nodes.Find(subValue.Get<ezUuid>());
           if (it.IsValid())
           {
-            if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_szPropertyName))
+            if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_sPropertyName))
             {
               if (rhsProp->m_Value.IsA<ezVariantArray>())
               {
@@ -427,7 +427,7 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUu
           auto it = m_Nodes.Find(subValue.Get<ezUuid>());
           if (it.IsValid())
           {
-            if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_szPropertyName))
+            if (const ezAbstractObjectNode::Property* rhsProp = rhs->FindProperty(prop.m_sPropertyName))
             {
               if (rhsProp->m_Value.IsA<ezVariantDictionary>())
               {
@@ -583,7 +583,9 @@ ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractO
   auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetTypeVersion(), pNode->GetNodeName());
 
   for (const auto& props : pNode->GetProperties())
-    pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+  {
+    pNewNode->AddProperty(props.m_sPropertyName, props.m_Value);
+  }
 
   return pNewNode;
 }
@@ -598,13 +600,14 @@ ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractO
     {
       if (!ref_filter(pNode, &props))
         continue;
-      pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+
+      pNewNode->AddProperty(props.m_sPropertyName, props.m_Value);
     }
   }
   else
   {
     for (const auto& props : pNode->GetProperties())
-      pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+      pNewNode->AddProperty(props.m_sPropertyName, props.m_Value);
   }
 
   return pNewNode;
@@ -624,8 +627,8 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
         ezAbstractGraphDiffOperation op;
         op.m_Node = itNodeBase.Key();
         op.m_Operation = ezAbstractGraphDiffOperation::Op::NodeRemoved;
-        op.m_sProperty = itNodeBase.Value()->m_szType;
-        op.m_Value = itNodeBase.Value()->m_szNodeName;
+        op.m_sProperty = itNodeBase.Value()->m_sType;
+        op.m_Value = itNodeBase.Value()->m_sNodeName;
 
         out_diffResult.PushBack(op);
       }
@@ -642,8 +645,8 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
         ezAbstractGraphDiffOperation op;
         op.m_Node = itNodeThis.Key();
         op.m_Operation = ezAbstractGraphDiffOperation::Op::NodeAdded;
-        op.m_sProperty = itNodeThis.Value()->m_szType;
-        op.m_Value = itNodeThis.Value()->m_szNodeName;
+        op.m_sProperty = itNodeThis.Value()->m_sType;
+        op.m_Value = itNodeThis.Value()->m_sNodeName;
 
         out_diffResult.PushBack(op);
 
@@ -651,7 +654,7 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
         for (const auto& prop : itNodeThis.Value()->GetProperties())
         {
           op.m_Operation = ezAbstractGraphDiffOperation::Op::PropertyChanged;
-          op.m_sProperty = prop.m_szPropertyName;
+          op.m_sProperty = prop.m_sPropertyName;
           op.m_Value = prop.m_Value;
 
           out_diffResult.PushBack(op);
@@ -675,7 +678,7 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
 
         for (const ezAbstractObjectNode::Property& baseProp : pBaseNode->GetProperties())
         {
-          if (ezStringUtils::IsEqual(baseProp.m_szPropertyName, prop.m_szPropertyName))
+          if (baseProp.m_sPropertyName == prop.m_sPropertyName)
           {
             if (baseProp.m_Value == prop.m_Value)
             {
@@ -693,7 +696,7 @@ void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph&
           ezAbstractGraphDiffOperation op;
           op.m_Node = itNodeThis.Key();
           op.m_Operation = ezAbstractGraphDiffOperation::Op::PropertyChanged;
-          op.m_sProperty = prop.m_szPropertyName;
+          op.m_sProperty = prop.m_sPropertyName;
           op.m_Value = prop.m_Value;
 
           out_diffResult.PushBack(op);

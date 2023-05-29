@@ -286,7 +286,7 @@ public:
         {
           for (auto pProp : pSubNode->GetProperties())
           {
-            pNode->AddProperty(pProp.m_szPropertyName, pProp.m_Value);
+            pNode->AddProperty(pProp.m_sPropertyName, pProp.m_Value);
           }
         }
       }

@@ -150,7 +150,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
     auto* pNode = it.Value();
     const ezUuid& guid = pNode->GetGuid();
 
-    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "Connection") == false)
+    if (pNode->GetNodeName() != "Connection")
       continue;
 
     RenderPipelineResourceLoaderConnectionInternal data;

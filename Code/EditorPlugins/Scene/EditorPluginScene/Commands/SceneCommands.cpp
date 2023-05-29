@@ -173,7 +173,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
-    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
+    if (pNode->GetNodeName() == "root")
     {
       auto* pNewObject = reader.CreateObjectFromNode(pNode);
 

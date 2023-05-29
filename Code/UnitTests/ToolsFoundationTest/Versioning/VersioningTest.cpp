@@ -146,7 +146,7 @@ namespace
     {
       auto* pNode = it.Value();
 
-      if (ezStringUtils::IsEqual(szOldName, pNode->GetType()))
+      if (szOldName == pNode->GetType())
         pNode->SetType(szNewName);
     }
 
@@ -154,7 +154,7 @@ namespace
     {
       auto* pNode = it.Value();
 
-      if (ezStringUtils::IsEqual("ezReflectedTypeDescriptor", pNode->GetType()))
+      if ("ezReflectedTypeDescriptor" == pNode->GetType())
       {
         if (auto* pProp = pNode->FindProperty("TypeName"))
         {

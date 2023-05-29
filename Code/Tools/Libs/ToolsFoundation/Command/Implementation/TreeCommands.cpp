@@ -262,7 +262,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
       auto* pNode = it.Value();
-      if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
+      if (pNode->GetNodeName() == "root")
       {
         RootNodes.PushBack(pNode);
       }

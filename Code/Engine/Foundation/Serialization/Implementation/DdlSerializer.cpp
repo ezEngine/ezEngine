@@ -58,7 +58,7 @@ namespace
 
 static void WriteGraph(ezOpenDdlWriter& ref_writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
-  ezMap<const char*, const ezVariant*, CompareConstChar> SortedProperties;
+  ezMap<ezStringView, const ezVariant*> SortedProperties;
 
   ref_writer.BeginObject(szName);
 
@@ -75,13 +75,13 @@ static void WriteGraph(ezOpenDdlWriter& ref_writer, const ezAbstractObjectGraph*
       ezOpenDdlUtils::StoreString(ref_writer, node.GetType(), "t");
       ezOpenDdlUtils::StoreUInt32(ref_writer, node.GetTypeVersion(), "v");
 
-      if (!ezStringUtils::IsNullOrEmpty(node.GetNodeName()))
+      if (!node.GetNodeName().IsEmpty())
         ezOpenDdlUtils::StoreString(ref_writer, node.GetNodeName(), "n");
 
       ref_writer.BeginObject("p");
       {
         for (const auto& prop : node.GetProperties())
-          SortedProperties[prop.m_szPropertyName] = &prop.m_Value;
+          SortedProperties[prop.m_sPropertyName] = &prop.m_Value;
 
         for (auto it = SortedProperties.GetIterator(); it.IsValid(); ++it)
         {
