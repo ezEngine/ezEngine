@@ -366,7 +366,7 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezStringVi
 
   while (pChild)
   {
-    if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom && pChild->GetCustomType() == sType && (sName.IsEmpty() || pChild->GetName() ==  sName))
+    if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom && pChild->GetCustomType() == sType && (sName.IsEmpty() || pChild->GetName() == sName))
     {
       return pChild;
     }
