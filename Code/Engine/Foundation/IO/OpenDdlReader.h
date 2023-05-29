@@ -164,7 +164,7 @@ protected:
 
 protected:
   ezOpenDdlReaderElement* CreateElement(ezOpenDdlPrimitiveType type, ezStringView sType, ezStringView sName, bool bGlobalName);
-  const char* CopyString(const ezStringView& string);
+  ezStringView CopyString(const ezStringView& string);
   void StorePrimitiveData(bool bThisIsAll, ezUInt32 bytecount, const ezUInt8* pData);
 
   void ClearDataChunks();

@@ -50,14 +50,14 @@ const ezOpenDdlReaderElement* ezOpenDdlReader::FindElement(ezStringView sGlobalN
   return m_GlobalNames.GetValueOrDefault(sGlobalName, nullptr);
 }
 
-const char* ezOpenDdlReader::CopyString(const ezStringView& string)
+ezStringView ezOpenDdlReader::CopyString(const ezStringView& string)
 {
   if (string.IsEmpty())
-    return nullptr;
+    return {};
 
   // no idea how to make this more efficient without running into lots of other problems
   m_Strings.PushBack(string);
-  return m_Strings.PeekBack().GetData();
+  return m_Strings.PeekBack();
 }
 
 ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType type, ezStringView sType, ezStringView sName, bool bGlobalName)
@@ -230,8 +230,7 @@ void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pDat
 
   for (ezUInt32 i = 0; i < count; ++i)
   {
-    const char* szStart = CopyString(pData[i]);
-    pTarget[i] = ezStringView(szStart, szStart + pData[i].GetElementCount());
+    pTarget[i] = CopyString(pData[i]);
   }
 
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
