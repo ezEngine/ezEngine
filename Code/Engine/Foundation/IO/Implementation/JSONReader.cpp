@@ -35,19 +35,19 @@ ezResult ezJSONReader::Parse(ezStreamReader& ref_inputStream, ezUInt32 uiFirstLi
   return EZ_SUCCESS;
 }
 
-bool ezJSONReader::OnVariable(const char* szVarName)
+bool ezJSONReader::OnVariable(ezStringView sVarName)
 {
-  m_sLastName = szVarName;
+  m_sLastName = sVarName;
 
   return true;
 }
 
-void ezJSONReader::OnReadValue(const char* szValue)
+void ezJSONReader::OnReadValue(ezStringView sValue)
 {
   if (m_Stack.PeekBack().m_Mode == ElementMode::Array)
-    m_Stack.PeekBack().m_Array.PushBack(ezVariant(szValue));
+    m_Stack.PeekBack().m_Array.PushBack(ezVariant(sValue));
   else
-    m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant(szValue);
+    m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant(sValue);
 
   m_sLastName.Clear();
 }
@@ -144,7 +144,7 @@ void ezJSONReader::OnEndArray()
 
 
 
-void ezJSONReader::OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
+void ezJSONReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
 {
   m_bParsingError = true;
 }

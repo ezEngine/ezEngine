@@ -41,79 +41,79 @@ public:
   void SetArrayMode(ArrayMode arrayMode) { m_ArrayMode = arrayMode; }
 
   /// \brief Shorthand for "BeginVariable(szName); WriteBool(value); EndVariable(); "
-  void AddVariableBool(const char* szName, bool value); // [tested]
+  void AddVariableBool(ezStringView sName, bool value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteInt32(value); EndVariable(); "
-  void AddVariableInt32(const char* szName, ezInt32 value); // [tested]
+  void AddVariableInt32(ezStringView sName, ezInt32 value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteUInt32(value); EndVariable(); "
-  void AddVariableUInt32(const char* szName, ezUInt32 value); // [tested]
+  void AddVariableUInt32(ezStringView sName, ezUInt32 value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteInt64(value); EndVariable(); "
-  void AddVariableInt64(const char* szName, ezInt64 value); // [tested]
+  void AddVariableInt64(ezStringView sName, ezInt64 value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteUInt64(value); EndVariable(); "
-  void AddVariableUInt64(const char* szName, ezUInt64 value); // [tested]
+  void AddVariableUInt64(ezStringView sName, ezUInt64 value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteFloat(value); EndVariable(); "
-  void AddVariableFloat(const char* szName, float value); // [tested]
+  void AddVariableFloat(ezStringView sName, float value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteDouble(value); EndVariable(); "
-  void AddVariableDouble(const char* szName, double value); // [tested]
+  void AddVariableDouble(ezStringView sName, double value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteString(value); EndVariable(); "
-  void AddVariableString(const char* szName, ezStringView value); // [tested]
+  void AddVariableString(ezStringView sName, ezStringView value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteNULL(value); EndVariable(); "
-  void AddVariableNULL(const char* szName); // [tested]
+  void AddVariableNULL(ezStringView sName); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteTime(value); EndVariable(); "
-  void AddVariableTime(const char* szName, ezTime value); // [tested]
+  void AddVariableTime(ezStringView sName, ezTime value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteUuid(value); EndVariable(); "
-  void AddVariableUuid(const char* szName, ezUuid value); // [tested]
+  void AddVariableUuid(ezStringView sName, ezUuid value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteAngle(value); EndVariable(); "
-  void AddVariableAngle(const char* szName, ezAngle value); // [tested]
+  void AddVariableAngle(ezStringView sName, ezAngle value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteColor(value); EndVariable(); "
-  void AddVariableColor(const char* szName, const ezColor& value); // [tested]
+  void AddVariableColor(ezStringView sName, const ezColor& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteColorGamma(value); EndVariable(); "
-  void AddVariableColorGamma(const char* szName, const ezColorGammaUB& value); // [tested]
+  void AddVariableColorGamma(ezStringView sName, const ezColorGammaUB& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteVec2(value); EndVariable(); "
-  void AddVariableVec2(const char* szName, const ezVec2& value); // [tested]
+  void AddVariableVec2(ezStringView sName, const ezVec2& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteVec3(value); EndVariable(); "
-  void AddVariableVec3(const char* szName, const ezVec3& value); // [tested]
+  void AddVariableVec3(ezStringView sName, const ezVec3& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteVec4(value); EndVariable(); "
-  void AddVariableVec4(const char* szName, const ezVec4& value); // [tested]
+  void AddVariableVec4(ezStringView sName, const ezVec4& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteVec2I32(value); EndVariable(); "
-  void AddVariableVec2I32(const char* szName, const ezVec2I32& value); // [tested]
+  void AddVariableVec2I32(ezStringView sName, const ezVec2I32& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteVec3I32(value); EndVariable(); "
-  void AddVariableVec3I32(const char* szName, const ezVec3I32& value); // [tested]
+  void AddVariableVec3I32(ezStringView sName, const ezVec3I32& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteVec4I32(value); EndVariable(); "
-  void AddVariableVec4I32(const char* szName, const ezVec4I32& value); // [tested]
+  void AddVariableVec4I32(ezStringView sName, const ezVec4I32& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteQuat(value); EndVariable(); "
-  void AddVariableQuat(const char* szName, const ezQuat& value); // [tested]
+  void AddVariableQuat(ezStringView sName, const ezQuat& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteMat3(value); EndVariable(); "
-  void AddVariableMat3(const char* szName, const ezMat3& value); // [tested]
+  void AddVariableMat3(ezStringView sName, const ezMat3& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteMat4(value); EndVariable(); "
-  void AddVariableMat4(const char* szName, const ezMat4& value); // [tested]
+  void AddVariableMat4(ezStringView sName, const ezMat4& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteDataBuffer(value); EndVariable(); "
-  void AddVariableDataBuffer(const char* szName, const ezDataBuffer& value); // [tested]
+  void AddVariableDataBuffer(ezStringView sName, const ezDataBuffer& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteVariant(value); EndVariable(); "
-  void AddVariableVariant(const char* szName, const ezVariant& value); // [tested]
+  void AddVariableVariant(ezStringView sName, const ezVariant& value); // [tested]
 
 
   /// \brief Writes a bool to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
@@ -225,13 +225,13 @@ public:
   ///
   /// How exactly the raw data is represented in JSON is up to the derived class. \a szDataType allows to additionally output a string
   /// that identifies the type of data.
-  virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) = 0;
+  virtual void WriteBinaryData(ezStringView sDataType, const void* pData, ezUInt32 uiBytes, ezStringView sValueString = nullptr) = 0;
 
   /// \brief Begins outputting a variable. \a szName is the variable name.
   ///
   /// Between BeginVariable() and EndVariable() you can call the WriteXYZ functions once to write out the variable's data.
   /// You can also call BeginArray() and BeginObject() without a variable name to output an array or object variable.
-  virtual void BeginVariable(const char* szName) = 0;
+  virtual void BeginVariable(ezStringView sName) = 0;
 
   /// \brief Ends outputting a variable.
   virtual void EndVariable() = 0;
@@ -241,7 +241,7 @@ public:
   /// If szName is nullptr this will create an anonymous array, which is necessary when you want to put an array as a value into another array.
   /// BeginArray() with a non-nullptr value for \a szName is identical to calling BeginVariable() first. In this case EndArray() will also
   /// end the variable definition, so no additional call to EndVariable() is required.
-  virtual void BeginArray(const char* szName = nullptr) = 0;
+  virtual void BeginArray(ezStringView sName = nullptr) = 0;
 
   /// \brief Ends outputting an array variable.
   virtual void EndArray() = 0;
@@ -251,7 +251,7 @@ public:
   /// If szName is nullptr this will create an anonymous object, which is necessary when you want to put an object as a value into an array.
   /// BeginObject() with a non-nullptr value for \a szName is identical to calling BeginVariable() first. In this case EndObject() will also
   /// end the variable definition, so no additional call to EndVariable() is required.
-  virtual void BeginObject(const char* szName = nullptr) = 0;
+  virtual void BeginObject(ezStringView sName = nullptr) = 0;
 
   /// \brief Ends outputting an object variable.
   virtual void EndObject() = 0;
@@ -366,22 +366,22 @@ public:
 
   /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw
   /// data (Hex encoded, little endian).
-  virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) override; // [tested]
+  virtual void WriteBinaryData(ezStringView sDataType, const void* pData, ezUInt32 uiBytes, ezStringView sValueString = nullptr) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginVariable()
-  virtual void BeginVariable(const char* szName) override; // [tested]
+  virtual void BeginVariable(ezStringView sName) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::EndVariable()
   virtual void EndVariable() override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginArray()
-  virtual void BeginArray(const char* szName = nullptr) override; // [tested]
+  virtual void BeginArray(ezStringView sName = {}) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::EndArray()
   virtual void EndArray() override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginObject()
-  virtual void BeginObject(const char* szName = nullptr) override; // [tested]
+  virtual void BeginObject(ezStringView sName = {}) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::EndObject()
   virtual void EndObject() override; // [tested]
