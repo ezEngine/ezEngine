@@ -90,9 +90,9 @@ ezAbstractObjectNode* ezAbstractObjectGraph::Clone(ezAbstractObjectGraph& ref_cl
   }
 }
 
-const char* ezAbstractObjectGraph::RegisterString(const char* szString)
+const char* ezAbstractObjectGraph::RegisterString(ezStringView sString)
 {
-  auto it = m_Strings.Insert(szString);
+  auto it = m_Strings.Insert(sString);
   EZ_ASSERT_DEV(it.IsValid(), "");
   return it.Key().GetData();
 }
@@ -161,10 +161,10 @@ void ezAbstractObjectGraph::RemoveNode(const ezUuid& guid)
   }
 }
 
-void ezAbstractObjectNode::AddProperty(const char* szName, const ezVariant& value)
+void ezAbstractObjectNode::AddProperty(ezStringView sName, const ezVariant& value)
 {
   auto& prop = m_Properties.ExpandAndGetRef();
-  prop.m_szPropertyName = m_pOwner->RegisterString(szName);
+  prop.m_szPropertyName = m_pOwner->RegisterString(sName);
   prop.m_Value = value;
 }
 

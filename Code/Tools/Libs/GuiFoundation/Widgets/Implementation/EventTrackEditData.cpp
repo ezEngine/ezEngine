@@ -53,16 +53,16 @@ void ezEventTrackData::ConvertToRuntimeData(ezEventTrack& out_result) const
   }
 }
 
-void ezEventSet::AddAvailableEvent(const char* szEvent)
+void ezEventSet::AddAvailableEvent(ezStringView sEvent)
 {
-  if (ezStringUtils::IsNullOrEmpty(szEvent))
+  if (sEvent.IsEmpty())
     return;
 
-  if (m_AvailableEvents.Contains(szEvent))
+  if (m_AvailableEvents.Contains(sEvent))
     return;
 
   m_bModified = true;
-  m_AvailableEvents.Insert(szEvent);
+  m_AvailableEvents.Insert(sEvent);
 }
 
 ezResult ezEventSet::WriteToDDL(const char* szFile)

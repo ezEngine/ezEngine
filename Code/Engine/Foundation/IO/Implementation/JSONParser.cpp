@@ -90,7 +90,7 @@ void ezJSONParser::ParseAll()
   }
 }
 
-void ezJSONParser::ParsingError(const char* szMessage, bool bFatal)
+void ezJSONParser::ParsingError(ezStringView sMessage, bool bFatal)
 {
   if (bFatal)
   {
@@ -100,11 +100,11 @@ void ezJSONParser::ParsingError(const char* szMessage, bool bFatal)
   }
 
   if (bFatal)
-    ezLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, szMessage);
+    ezLog::Error(m_pLogInterface, "Line {0} ({1}): {2}", m_uiCurLine, m_uiCurColumn, sMessage);
   else
-    ezLog::Warning(m_pLogInterface, szMessage);
+    ezLog::Warning(m_pLogInterface, sMessage);
 
-  OnParsingError(szMessage, bFatal, m_uiCurLine, m_uiCurColumn);
+  OnParsingError(sMessage, bFatal, m_uiCurLine, m_uiCurColumn);
 }
 
 void ezJSONParser::SkipObject()
@@ -309,7 +309,7 @@ void ezJSONParser::ContinueValue()
       m_StateStack.PopBack();
 
       if (!m_bSkippingMode)
-        OnReadValue((const char*)&m_TempString[0]);
+        OnReadValue(ezStringView((const char*)&m_TempString[0]));
     }
       return;
 

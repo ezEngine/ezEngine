@@ -73,7 +73,7 @@ void ezDuktapeHelper::VerifyExpectedStackChange(ezInt32 iExpectedStackChange, co
 void ezDuktapeHelper::Error(const ezFormatString& text)
 {
   ezStringBuilder tmp;
-  duk_error(m_pContext, DUK_ERR_ERROR, text.GetText(tmp));
+  duk_error(m_pContext, DUK_ERR_ERROR, text.GetTextCStr(tmp));
 }
 
 void ezDuktapeHelper::LogStackTrace(ezInt32 iErrorObjIdx)
@@ -380,29 +380,29 @@ void ezDuktapeHelper::RegisterGlobalFunction(
 {
   // TODO: could store iFuncIdx for faster function calls
 
-  duk_push_global_object(m_pContext);                                                 // [ global ]
-  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, function, uiNumArguments);  // [ global func ]
-  duk_set_magic(m_pContext, -1, iMagicValue);                                         // [ global func ]
-  duk_put_prop_string(m_pContext, -2, szFunctionName);                                // [ global ]
-  duk_pop(m_pContext);                                                                // [ ]
+  duk_push_global_object(m_pContext);                                                // [ global ]
+  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, function, uiNumArguments); // [ global func ]
+  duk_set_magic(m_pContext, -1, iMagicValue);                                        // [ global func ]
+  duk_put_prop_string(m_pContext, -2, szFunctionName);                               // [ global ]
+  duk_pop(m_pContext);                                                               // [ ]
 }
 
 void ezDuktapeHelper::RegisterGlobalFunctionWithVarArgs(const char* szFunctionName, duk_c_function function, ezInt16 iMagicValue /*= 0*/)
 {
   // TODO: could store iFuncIdx for faster function calls
 
-  duk_push_global_object(m_pContext);                                              // [ global ]
-  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, function, DUK_VARARGS);  // [ global func ]
-  duk_set_magic(m_pContext, -1, iMagicValue);                                      // [ global func ]
-  duk_put_prop_string(m_pContext, -2, szFunctionName);                             // [ global ]
-  duk_pop(m_pContext);                                                             // [ ]
+  duk_push_global_object(m_pContext);                                             // [ global ]
+  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, function, DUK_VARARGS); // [ global func ]
+  duk_set_magic(m_pContext, -1, iMagicValue);                                     // [ global func ]
+  duk_put_prop_string(m_pContext, -2, szFunctionName);                            // [ global ]
+  duk_pop(m_pContext);                                                            // [ ]
 }
 
 void ezDuktapeHelper::RegisterObjectFunction(
   const char* szFunctionName, duk_c_function function, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex /*= -1*/, ezInt16 iMagicValue /*= 0*/)
 {
-  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, function, uiNumArguments);  // [ func ]
-  duk_set_magic(m_pContext, -1, iMagicValue);                                         // [ func ]
+  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, function, uiNumArguments); // [ func ]
+  duk_set_magic(m_pContext, -1, iMagicValue);                                        // [ func ]
 
   if (iParentObjectIndex < 0)
   {

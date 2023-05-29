@@ -408,7 +408,7 @@ void ezQtFileserveWidget::LogActivity(const ezFormatString& text, ezFileserveAct
   auto& item = m_pActivityModel->AppendItem();
 
   ezStringBuilder tmp;
-  item.m_Text = text.GetText(tmp);
+  item.m_Text = text.GetTextCStr(tmp);
   item.m_Type = type;
 }
 

@@ -1793,14 +1793,17 @@ bool ezTestWString(std::wstring s1, std::wstring s2, const char* szWString1, con
   return EZ_SUCCESS;
 }
 
-bool ezTestString(std::string s1, std::string s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestString(ezStringView s1, ezStringView s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
   if (s1 != s2)
   {
+    ezStringBuilder ss1 = s1;
+    ezStringBuilder ss2 = s2;
+
     char szErrorText[2048];
-    safeprintf(szErrorText, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", szString1, s1.c_str(), szString2, s2.c_str());
+    safeprintf(szErrorText, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", szString1, ss1.GetData(), szString2, ss2.GetData());
 
     OUTPUT_TEST_ERROR
   }

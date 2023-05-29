@@ -28,8 +28,8 @@ ezResult ezOpenDdlReader::ParseDocument(ezStreamReader& inout_stream, ezUInt32 u
   pElement->m_pLastChild = nullptr;
   pElement->m_PrimitiveType = ezOpenDdlPrimitiveType::Custom;
   pElement->m_pSiblingElement = nullptr;
-  pElement->m_szCustomType = CopyString("root");
-  pElement->m_szName = nullptr;
+  pElement->m_sCustomType = CopyString("root");
+  pElement->m_sName = nullptr;
   pElement->m_uiNumChildElements = 0;
 
   m_ObjectStack.PushBack(pElement);
@@ -45,30 +45,30 @@ const ezOpenDdlReaderElement* ezOpenDdlReader::GetRootElement() const
 }
 
 
-const ezOpenDdlReaderElement* ezOpenDdlReader::FindElement(const char* szGlobalName) const
+const ezOpenDdlReaderElement* ezOpenDdlReader::FindElement(ezStringView sGlobalName) const
 {
-  return m_GlobalNames.GetValueOrDefault(szGlobalName, nullptr);
+  return m_GlobalNames.GetValueOrDefault(sGlobalName, nullptr);
 }
 
-const char* ezOpenDdlReader::CopyString(const ezStringView& string)
+ezStringView ezOpenDdlReader::CopyString(const ezStringView& string)
 {
   if (string.IsEmpty())
-    return nullptr;
+    return {};
 
   // no idea how to make this more efficient without running into lots of other problems
   m_Strings.PushBack(string);
-  return m_Strings.PeekBack().GetData();
+  return m_Strings.PeekBack();
 }
 
-ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType type, const char* szType, const char* szName, bool bGlobalName)
+ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType type, ezStringView sType, ezStringView sName, bool bGlobalName)
 {
   ezOpenDdlReaderElement* pElement = &m_Elements.ExpandAndGetRef();
   pElement->m_pFirstChild = nullptr;
   pElement->m_pLastChild = nullptr;
   pElement->m_PrimitiveType = type;
   pElement->m_pSiblingElement = nullptr;
-  pElement->m_szCustomType = szType;
-  pElement->m_szName = CopyString(szName);
+  pElement->m_sCustomType = sType;
+  pElement->m_sName = CopyString(sName);
   pElement->m_uiNumChildElements = 0;
 
   if (bGlobalName)
@@ -76,9 +76,9 @@ ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType ty
     pElement->m_uiNumChildElements = EZ_BIT(31);
   }
 
-  if (bGlobalName && !ezStringUtils::IsNullOrEmpty(szName))
+  if (bGlobalName && !sName.IsEmpty())
   {
-    m_GlobalNames[szName] = pElement;
+    m_GlobalNames[sName] = pElement;
   }
 
   ezOpenDdlReaderElement* pParent = m_ObjectStack.PeekBack();
@@ -101,9 +101,9 @@ ezOpenDdlReaderElement* ezOpenDdlReader::CreateElement(ezOpenDdlPrimitiveType ty
 }
 
 
-void ezOpenDdlReader::OnBeginObject(const char* szType, const char* szName, bool bGlobalName)
+void ezOpenDdlReader::OnBeginObject(ezStringView sType, ezStringView sName, bool bGlobalName)
 {
-  CreateElement(ezOpenDdlPrimitiveType::Custom, CopyString(szType), szName, bGlobalName);
+  CreateElement(ezOpenDdlPrimitiveType::Custom, CopyString(sType), sName, bGlobalName);
 }
 
 void ezOpenDdlReader::OnEndObject()
@@ -111,9 +111,9 @@ void ezOpenDdlReader::OnEndObject()
   m_ObjectStack.PopBack();
 }
 
-void ezOpenDdlReader::OnBeginPrimitiveList(ezOpenDdlPrimitiveType type, const char* szName, bool bGlobalName)
+void ezOpenDdlReader::OnBeginPrimitiveList(ezOpenDdlPrimitiveType type, ezStringView sName, bool bGlobalName)
 {
-  CreateElement(type, nullptr, szName, bGlobalName);
+  CreateElement(type, nullptr, sName, bGlobalName);
 
   m_TempCache.Clear();
 }
@@ -230,15 +230,14 @@ void ezOpenDdlReader::OnPrimitiveString(ezUInt32 count, const ezStringView* pDat
 
   for (ezUInt32 i = 0; i < count; ++i)
   {
-    const char* szStart = CopyString(pData[i]);
-    pTarget[i] = ezStringView(szStart, szStart + pData[i].GetElementCount());
+    pTarget[i] = CopyString(pData[i]);
   }
 
   m_ObjectStack.PeekBack()->m_uiNumChildElements += count;
 }
 
 
-void ezOpenDdlReader::OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
+void ezOpenDdlReader::OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
 {
   if (bFatal)
   {
@@ -319,7 +318,7 @@ bool ezOpenDdlReaderElement::HasPrimitives(ezOpenDdlPrimitiveType type, ezUInt32
   return m_uiNumChildElements >= uiMinNumberOfPrimitives;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(const char* szName) const
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(ezStringView sName) const
 {
   EZ_ASSERT_DEBUG(m_PrimitiveType == ezOpenDdlPrimitiveType::Custom, "Cannot search for a child object in a primitives list");
 
@@ -327,7 +326,7 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(const char* szNa
 
   while (pChild)
   {
-    if (ezStringUtils::IsEqual(pChild->GetName(), szName))
+    if (pChild->GetName() == sName)
     {
       return pChild;
     }
@@ -338,7 +337,7 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(const char* szNa
   return nullptr;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives /* = 1*/) const
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlPrimitiveType type, ezStringView sName, ezUInt32 uiMinNumberOfPrimitives /* = 1*/) const
 {
   /// \test This is new
 
@@ -348,7 +347,7 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlP
 
   while (pChild)
   {
-    if (pChild->GetPrimitivesType() == type && ezStringUtils::IsEqual(pChild->GetName(), szName))
+    if (pChild->GetPrimitivesType() == type && pChild->GetName() == sName)
     {
       if (type == ezOpenDdlPrimitiveType::Custom || pChild->GetNumPrimitives() >= uiMinNumberOfPrimitives)
         return pChild;
@@ -360,13 +359,13 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlP
   return nullptr;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(const char* szType, const char* szName /*= nullptr*/) const
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezStringView sType, ezStringView sName /*= {}*/) const
 {
   const ezOpenDdlReaderElement* pChild = static_cast<const ezOpenDdlReaderElement*>(m_pFirstChild);
 
   while (pChild)
   {
-    if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom && ezStringUtils::IsEqual(pChild->GetCustomType(), szType) && (szName == nullptr || ezStringUtils::IsEqual(pChild->GetName(), szName)))
+    if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom && pChild->GetCustomType() == sType && (sName.IsEmpty() || pChild->GetName() == sName))
     {
       return pChild;
     }

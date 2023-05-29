@@ -419,7 +419,7 @@ void ezDocument::ShowDocumentStatus(const ezFormatString& msg) const
 
   ezDocumentEvent e;
   e.m_pDocument = this;
-  e.m_szStatusMsg = msg.GetText(tmp);
+  e.m_sStatusMsg = msg.GetText(tmp);
   e.m_Type = ezDocumentEvent::Type::DocumentStatusMsg;
 
   m_EventsOne.Broadcast(e);

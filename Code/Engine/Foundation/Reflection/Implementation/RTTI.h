@@ -102,14 +102,14 @@ public:
   EZ_ALWAYS_INLINE const ezBitflags<ezTypeFlags>& GetTypeFlags() const { return m_TypeFlags; } // [tested]
 
   /// \brief Searches all ezRTTI instances for the one with the given name, or nullptr if no such type exists.
-  static ezRTTI* FindTypeByName(const char* szName); // [tested]
+  static ezRTTI* FindTypeByName(ezStringView sName); // [tested]
 
   /// \brief Searches all ezRTTI instances for the one with the given hashed name, or nullptr if no such type exists.
   static ezRTTI* FindTypeByNameHash(ezUInt64 uiNameHash); // [tested]
   static ezRTTI* FindTypeByNameHash32(ezUInt32 uiNameHash);
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
-  ezAbstractProperty* FindPropertyByName(const char* szName, bool bSearchBaseTypes = true) const; // [tested]
+  ezAbstractProperty* FindPropertyByName(ezStringView sName, bool bSearchBaseTypes = true) const; // [tested]
 
   /// \brief Returns the name of the plugin which this type is declared in.
   EZ_ALWAYS_INLINE const char* GetPluginName() const { return m_szPluginName; } // [tested]

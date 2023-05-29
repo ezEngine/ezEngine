@@ -5,177 +5,177 @@
 ezJSONWriter::ezJSONWriter() = default;
 ezJSONWriter::~ezJSONWriter() = default;
 
-void ezJSONWriter::AddVariableBool(const char* szName, bool value)
+void ezJSONWriter::AddVariableBool(ezStringView sName, bool value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteBool(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableInt32(const char* szName, ezInt32 value)
+void ezJSONWriter::AddVariableInt32(ezStringView sName, ezInt32 value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteInt32(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableUInt32(const char* szName, ezUInt32 value)
+void ezJSONWriter::AddVariableUInt32(ezStringView sName, ezUInt32 value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteUInt32(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableInt64(const char* szName, ezInt64 value)
+void ezJSONWriter::AddVariableInt64(ezStringView sName, ezInt64 value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteInt64(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableUInt64(const char* szName, ezUInt64 value)
+void ezJSONWriter::AddVariableUInt64(ezStringView sName, ezUInt64 value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteUInt64(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableFloat(const char* szName, float value)
+void ezJSONWriter::AddVariableFloat(ezStringView sName, float value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteFloat(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableDouble(const char* szName, double value)
+void ezJSONWriter::AddVariableDouble(ezStringView sName, double value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteDouble(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableString(const char* szName, ezStringView value)
+void ezJSONWriter::AddVariableString(ezStringView sName, ezStringView value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteString(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableNULL(const char* szName)
+void ezJSONWriter::AddVariableNULL(ezStringView sName)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteNULL();
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableTime(const char* szName, ezTime value)
+void ezJSONWriter::AddVariableTime(ezStringView sName, ezTime value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteTime(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableUuid(const char* szName, ezUuid value)
+void ezJSONWriter::AddVariableUuid(ezStringView sName, ezUuid value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteUuid(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableAngle(const char* szName, ezAngle value)
+void ezJSONWriter::AddVariableAngle(ezStringView sName, ezAngle value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteAngle(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableColor(const char* szName, const ezColor& value)
+void ezJSONWriter::AddVariableColor(ezStringView sName, const ezColor& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteColor(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableColorGamma(const char* szName, const ezColorGammaUB& value)
+void ezJSONWriter::AddVariableColorGamma(ezStringView sName, const ezColorGammaUB& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteColorGamma(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableVec2(const char* szName, const ezVec2& value)
+void ezJSONWriter::AddVariableVec2(ezStringView sName, const ezVec2& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteVec2(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableVec3(const char* szName, const ezVec3& value)
+void ezJSONWriter::AddVariableVec3(ezStringView sName, const ezVec3& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteVec3(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableVec4(const char* szName, const ezVec4& value)
+void ezJSONWriter::AddVariableVec4(ezStringView sName, const ezVec4& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteVec4(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableVec2I32(const char* szName, const ezVec2I32& value)
+void ezJSONWriter::AddVariableVec2I32(ezStringView sName, const ezVec2I32& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteVec2I32(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableVec3I32(const char* szName, const ezVec3I32& value)
+void ezJSONWriter::AddVariableVec3I32(ezStringView sName, const ezVec3I32& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteVec3I32(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableVec4I32(const char* szName, const ezVec4I32& value)
+void ezJSONWriter::AddVariableVec4I32(ezStringView sName, const ezVec4I32& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteVec4I32(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableQuat(const char* szName, const ezQuat& value)
+void ezJSONWriter::AddVariableQuat(ezStringView sName, const ezQuat& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteQuat(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableMat3(const char* szName, const ezMat3& value)
+void ezJSONWriter::AddVariableMat3(ezStringView sName, const ezMat3& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteMat3(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableMat4(const char* szName, const ezMat4& value)
+void ezJSONWriter::AddVariableMat4(ezStringView sName, const ezMat4& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteMat4(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableDataBuffer(const char* szName, const ezDataBuffer& value)
+void ezJSONWriter::AddVariableDataBuffer(ezStringView sName, const ezDataBuffer& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteDataBuffer(value);
   EndVariable();
 }
 
-void ezJSONWriter::AddVariableVariant(const char* szName, const ezVariant& value)
+void ezJSONWriter::AddVariableVariant(ezStringView sName, const ezVariant& value)
 {
-  BeginVariable(szName);
+  BeginVariable(sName);
   WriteVariant(value);
   EndVariable();
 }

@@ -24,10 +24,10 @@ public:
 
 private:
   /// \brief This function can be overridden to skip certain variables, however the overriding function must still call this.
-  virtual bool OnVariable(const char* szVarName) override;
+  virtual bool OnVariable(ezStringView sVarName) override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnReadValue(const char* szValue) override;
+  virtual void OnReadValue(ezStringView sValue) override;
 
   /// \brief [internal] Do not override further.
   virtual void OnReadValue(double fValue) override;
@@ -50,7 +50,7 @@ private:
   /// \brief [internal] Do not override further.
   virtual void OnEndArray() override;
 
-  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override;
+  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override;
 
 protected:
   enum class ElementMode : ezInt8

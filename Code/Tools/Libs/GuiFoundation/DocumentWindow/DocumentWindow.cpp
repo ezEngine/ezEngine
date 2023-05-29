@@ -192,7 +192,7 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
 
     case ezDocumentEvent::Type::DocumentStatusMsg:
     {
-      ShowTemporaryStatusBarMsg(e.m_szStatusMsg);
+      ShowTemporaryStatusBarMsg(e.m_sStatusMsg);
     }
     break;
 
@@ -433,7 +433,7 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& msg, ezTime duration)
 {
   ezStringBuilder tmp;
-  statusBar()->showMessage(QString::fromUtf8(msg.GetText(tmp)), (int)duration.GetMilliseconds());
+  statusBar()->showMessage(QString::fromUtf8(msg.GetTextCStr(tmp)), (int)duration.GetMilliseconds());
 }
 
 
@@ -446,7 +446,7 @@ void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& text)
   }
 
   ezStringBuilder tmp;
-  m_pPermanentDocumentStatusText->setText(QString::fromUtf8(text.GetText(tmp)));
+  m_pPermanentDocumentStatusText->setText(QString::fromUtf8(text.GetTextCStr(tmp)));
 }
 
 void ezQtDocumentWindow::CreateImageCapture(const char* szOutputPath)

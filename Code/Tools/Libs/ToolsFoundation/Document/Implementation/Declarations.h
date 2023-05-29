@@ -62,7 +62,7 @@ struct ezDocumentEvent
   Type m_Type;
   const ezDocument* m_pDocument;
 
-  const char* m_szStatusMsg;
+  ezStringView m_sStatusMsg;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentInfo : public ezReflectedClass

@@ -181,7 +181,7 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
   pInterface->HandleLogMessage(le);
 }
 
-void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString)
+void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, ezStringView sString)
 {
   ezLogBlock* pTopBlock = pInterface->m_pCurrentBlock;
   ezUInt8 uiIndentation = 0;
@@ -195,9 +195,9 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
   char szTag[32] = "";
 
-  if (ezStringUtils::StartsWith(szString, "["))
+  if (sString.StartsWith("["))
   {
-    const char* szAfterTag = szString;
+    const char* szAfterTag = sString.GetStartPointer();
 
     ++szAfterTag;
 
@@ -214,7 +214,7 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
     if (*szAfterTag == ']')
     {
       szTag[iPos] = '\0';
-      szString = szAfterTag + 1;
+      sString.SetStartPosition(szAfterTag + 1);
     }
     else
     {
@@ -224,7 +224,7 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
   ezLoggingEventData le;
   le.m_EventType = type;
-  le.m_sText = szString;
+  le.m_sText = sString;
   le.m_uiIndentation = uiIndentation;
   le.m_sTag = szTag;
 

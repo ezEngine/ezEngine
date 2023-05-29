@@ -15,7 +15,7 @@ static void WriteObjectToDDL(const ezOpenDdlReaderElement* pElement, ezOpenDdlWr
 {
   if (pElement->HasName())
   {
-    EZ_TEST_BOOL(!ezStringUtils::IsNullOrEmpty(pElement->GetName()));
+    EZ_TEST_BOOL(!pElement->GetName().IsEmpty());
   }
 
   if (pElement->IsCustomType())

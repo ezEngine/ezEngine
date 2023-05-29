@@ -13,7 +13,7 @@
 void TestFormat(const ezFormatString& str, const char* szExpected)
 {
   ezStringBuilder sb;
-  const char* szText = str.GetText(sb);
+  ezStringView szText = str.GetText(sb);
 
   EZ_TEST_STRING(szText, szExpected);
 }
@@ -21,7 +21,7 @@ void TestFormat(const ezFormatString& str, const char* szExpected)
 void TestFormatWChar(const ezFormatString& str, const wchar_t* pExpected)
 {
   ezStringBuilder sb;
-  const char* szText = str.GetText(sb);
+  ezStringView szText = str.GetText(sb);
 
   EZ_TEST_WSTRING(ezStringWChar(szText), pExpected);
 }
@@ -69,7 +69,7 @@ void CompareSnprintf(ezStringBuilder& ref_sLog, const ezFormatString& str, const
     sw.StopAndReset();
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
-      const char* szText = str.GetText(sb);
+      ezStringView sText = str.GetText(sb);
     }
 
     t3 = sw.Checkpoint();

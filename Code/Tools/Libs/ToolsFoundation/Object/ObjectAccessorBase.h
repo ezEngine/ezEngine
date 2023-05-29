@@ -13,7 +13,7 @@ public:
   /// \name Transaction Operations
   ///@{
 
-  virtual void StartTransaction(const char* szDisplayString);
+  virtual void StartTransaction(ezStringView sDisplayString);
   virtual void CancelTransaction();
   virtual void FinishTransaction();
   virtual void BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands = false);

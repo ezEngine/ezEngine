@@ -626,7 +626,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
   // expect a custom type
   if (pElement->IsCustomType())
   {
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "VarArray"))
+    if (pElement->GetCustomType() == "VarArray")
     {
       ezVariantArray value;
       ezVariant varChild;
@@ -646,7 +646,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "VarDict"))
+    if (pElement->GetCustomType() == "VarDict")
     {
       ezVariantDictionary value;
       ezVariant varChild;
@@ -670,7 +670,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "VarDataBuffer"))
+    if (pElement->GetCustomType() == "VarDataBuffer")
     {
       /// \test This is just quickly hacked
 
@@ -690,7 +690,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Color"))
+    if (pElement->GetCustomType() == "Color")
     {
       ezColor value;
       if (ConvertToColor(pElement, value).Failed())
@@ -700,7 +700,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "ColorGamma"))
+    if (pElement->GetCustomType() == "ColorGamma")
     {
       ezColorGammaUB value;
       if (ConvertToColorGamma(pElement, value).Failed())
@@ -710,7 +710,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Time"))
+    if (pElement->GetCustomType() == "Time")
     {
       ezTime value;
       if (ConvertToTime(pElement, value).Failed())
@@ -720,7 +720,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec2"))
+    if (pElement->GetCustomType() == "Vec2")
     {
       ezVec2 value;
       if (ConvertToVec2(pElement, value).Failed())
@@ -730,7 +730,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec3"))
+    if (pElement->GetCustomType() == "Vec3")
     {
       ezVec3 value;
       if (ConvertToVec3(pElement, value).Failed())
@@ -740,7 +740,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec4"))
+    if (pElement->GetCustomType() == "Vec4")
     {
       ezVec4 value;
       if (ConvertToVec4(pElement, value).Failed())
@@ -750,7 +750,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec2i"))
+    if (pElement->GetCustomType() == "Vec2i")
     {
       ezVec2I32 value;
       if (ConvertToVec2I(pElement, value).Failed())
@@ -760,7 +760,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec3i"))
+    if (pElement->GetCustomType() == "Vec3i")
     {
       ezVec3I32 value;
       if (ConvertToVec3I(pElement, value).Failed())
@@ -770,7 +770,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec4i"))
+    if (pElement->GetCustomType() == "Vec4i")
     {
       ezVec4I32 value;
       if (ConvertToVec4I(pElement, value).Failed())
@@ -780,7 +780,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec2u"))
+    if (pElement->GetCustomType() == "Vec2u")
     {
       ezVec2U32 value;
       if (ConvertToVec2U(pElement, value).Failed())
@@ -790,7 +790,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec3u"))
+    if (pElement->GetCustomType() == "Vec3u")
     {
       ezVec3U32 value;
       if (ConvertToVec3U(pElement, value).Failed())
@@ -800,7 +800,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Vec4u"))
+    if (pElement->GetCustomType() == "Vec4u")
     {
       ezVec4U32 value;
       if (ConvertToVec4U(pElement, value).Failed())
@@ -810,7 +810,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Mat3"))
+    if (pElement->GetCustomType() == "Mat3")
     {
       ezMat3 value;
       if (ConvertToMat3(pElement, value).Failed())
@@ -820,7 +820,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Mat4"))
+    if (pElement->GetCustomType() == "Mat4")
     {
       ezMat4 value;
       if (ConvertToMat4(pElement, value).Failed())
@@ -830,7 +830,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Transform"))
+    if (pElement->GetCustomType() == "Transform")
     {
       ezTransform value;
       if (ConvertToTransform(pElement, value).Failed())
@@ -840,7 +840,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Quat"))
+    if (pElement->GetCustomType() == "Quat")
     {
       ezQuat value;
       if (ConvertToQuat(pElement, value).Failed())
@@ -850,7 +850,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Uuid"))
+    if (pElement->GetCustomType() == "Uuid")
     {
       ezUuid value;
       if (ConvertToUuid(pElement, value).Failed())
@@ -860,7 +860,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Angle"))
+    if (pElement->GetCustomType() == "Angle")
     {
       ezAngle value;
       if (ConvertToAngle(pElement, value).Failed())
@@ -870,7 +870,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       return EZ_SUCCESS;
     }
 
-    if (ezStringUtils::IsEqual(pElement->GetCustomType(), "Invalid"))
+    if (pElement->GetCustomType() == "Invalid")
     {
       out_result = ezVariant();
       return EZ_SUCCESS;
@@ -981,9 +981,9 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
   return EZ_FAILURE;
 }
 
-void ezOpenDdlUtils::StoreColor(ezOpenDdlWriter& ref_writer, const ezColor& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreColor(ezOpenDdlWriter& ref_writer, const ezColor& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Color", szName, bGlobalName, true);
+  ref_writer.BeginObject("Color", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.GetData(), 4);
@@ -993,9 +993,9 @@ void ezOpenDdlUtils::StoreColor(ezOpenDdlWriter& ref_writer, const ezColor& valu
 }
 
 void ezOpenDdlUtils::StoreColorGamma(
-  ezOpenDdlWriter& ref_writer, const ezColorGammaUB& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+  ezOpenDdlWriter& ref_writer, const ezColorGammaUB& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("ColorGamma", szName, bGlobalName, true);
+  ref_writer.BeginObject("ColorGamma", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8);
     ref_writer.WriteUInt8(value.GetData(), 4);
@@ -1004,9 +1004,9 @@ void ezOpenDdlUtils::StoreColorGamma(
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreTime(ezOpenDdlWriter& ref_writer, const ezTime& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreTime(ezOpenDdlWriter& ref_writer, const ezTime& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Time", szName, bGlobalName, true);
+  ref_writer.BeginObject("Time", sName, bGlobalName, true);
   {
     const double d = value.GetSeconds();
 
@@ -1017,9 +1017,9 @@ void ezOpenDdlUtils::StoreTime(ezOpenDdlWriter& ref_writer, const ezTime& value,
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec2(ezOpenDdlWriter& ref_writer, const ezVec2& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec2(ezOpenDdlWriter& ref_writer, const ezVec2& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec2", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec2", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.GetData(), 2);
@@ -1028,9 +1028,9 @@ void ezOpenDdlUtils::StoreVec2(ezOpenDdlWriter& ref_writer, const ezVec2& value,
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec3(ezOpenDdlWriter& ref_writer, const ezVec3& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec3(ezOpenDdlWriter& ref_writer, const ezVec3& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec3", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec3", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.GetData(), 3);
@@ -1039,9 +1039,9 @@ void ezOpenDdlUtils::StoreVec3(ezOpenDdlWriter& ref_writer, const ezVec3& value,
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec4(ezOpenDdlWriter& ref_writer, const ezVec4& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec4(ezOpenDdlWriter& ref_writer, const ezVec4& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec4", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec4", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.GetData(), 4);
@@ -1050,9 +1050,9 @@ void ezOpenDdlUtils::StoreVec4(ezOpenDdlWriter& ref_writer, const ezVec4& value,
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec2I(ezOpenDdlWriter& ref_writer, const ezVec2I32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec2I(ezOpenDdlWriter& ref_writer, const ezVec2I32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec2i", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec2i", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
     ref_writer.WriteInt32(value.GetData(), 2);
@@ -1061,9 +1061,9 @@ void ezOpenDdlUtils::StoreVec2I(ezOpenDdlWriter& ref_writer, const ezVec2I32& va
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec3I(ezOpenDdlWriter& ref_writer, const ezVec3I32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec3I(ezOpenDdlWriter& ref_writer, const ezVec3I32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec3i", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec3i", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
     ref_writer.WriteInt32(value.GetData(), 3);
@@ -1072,9 +1072,9 @@ void ezOpenDdlUtils::StoreVec3I(ezOpenDdlWriter& ref_writer, const ezVec3I32& va
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec4I(ezOpenDdlWriter& ref_writer, const ezVec4I32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec4I(ezOpenDdlWriter& ref_writer, const ezVec4I32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec4i", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec4i", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32);
     ref_writer.WriteInt32(value.GetData(), 4);
@@ -1083,9 +1083,9 @@ void ezOpenDdlUtils::StoreVec4I(ezOpenDdlWriter& ref_writer, const ezVec4I32& va
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec2U(ezOpenDdlWriter& ref_writer, const ezVec2U32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec2U(ezOpenDdlWriter& ref_writer, const ezVec2U32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec2u", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec2u", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
     ref_writer.WriteUInt32(value.GetData(), 2);
@@ -1094,9 +1094,9 @@ void ezOpenDdlUtils::StoreVec2U(ezOpenDdlWriter& ref_writer, const ezVec2U32& va
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec3U(ezOpenDdlWriter& ref_writer, const ezVec3U32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec3U(ezOpenDdlWriter& ref_writer, const ezVec3U32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec3u", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec3u", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
     ref_writer.WriteUInt32(value.GetData(), 3);
@@ -1105,9 +1105,9 @@ void ezOpenDdlUtils::StoreVec3U(ezOpenDdlWriter& ref_writer, const ezVec3U32& va
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVec4U(ezOpenDdlWriter& ref_writer, const ezVec4U32& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVec4U(ezOpenDdlWriter& ref_writer, const ezVec4U32& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Vec4u", szName, bGlobalName, true);
+  ref_writer.BeginObject("Vec4u", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32);
     ref_writer.WriteUInt32(value.GetData(), 4);
@@ -1117,9 +1117,9 @@ void ezOpenDdlUtils::StoreVec4U(ezOpenDdlWriter& ref_writer, const ezVec4U32& va
 }
 
 
-void ezOpenDdlUtils::StoreMat3(ezOpenDdlWriter& ref_writer, const ezMat3& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreMat3(ezOpenDdlWriter& ref_writer, const ezMat3& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Mat3", szName, bGlobalName, true);
+  ref_writer.BeginObject("Mat3", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
 
@@ -1131,9 +1131,9 @@ void ezOpenDdlUtils::StoreMat3(ezOpenDdlWriter& ref_writer, const ezMat3& value,
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreMat4(ezOpenDdlWriter& ref_writer, const ezMat4& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreMat4(ezOpenDdlWriter& ref_writer, const ezMat4& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Mat4", szName, bGlobalName, true);
+  ref_writer.BeginObject("Mat4", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
 
@@ -1145,9 +1145,9 @@ void ezOpenDdlUtils::StoreMat4(ezOpenDdlWriter& ref_writer, const ezMat4& value,
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& ref_writer, const ezTransform& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& ref_writer, const ezTransform& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Transform", szName, bGlobalName, true);
+  ref_writer.BeginObject("Transform", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
 
@@ -1172,9 +1172,9 @@ void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& ref_writer, const ezTransfo
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreQuat(ezOpenDdlWriter& ref_writer, const ezQuat& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreQuat(ezOpenDdlWriter& ref_writer, const ezQuat& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Quat", szName, bGlobalName, true);
+  ref_writer.BeginObject("Quat", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
     ref_writer.WriteFloat(value.v.GetData(), 4);
@@ -1183,9 +1183,9 @@ void ezOpenDdlUtils::StoreQuat(ezOpenDdlWriter& ref_writer, const ezQuat& value,
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreUuid(ezOpenDdlWriter& ref_writer, const ezUuid& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreUuid(ezOpenDdlWriter& ref_writer, const ezUuid& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Uuid", szName, bGlobalName, true);
+  ref_writer.BeginObject("Uuid", sName, bGlobalName, true);
   {
     ezUInt64 ui[2];
     value.GetValues(ui[0], ui[1]);
@@ -1197,9 +1197,9 @@ void ezOpenDdlUtils::StoreUuid(ezOpenDdlWriter& ref_writer, const ezUuid& value,
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreAngle(ezOpenDdlWriter& ref_writer, const ezAngle& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreAngle(ezOpenDdlWriter& ref_writer, const ezAngle& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Angle", szName, bGlobalName, true);
+  ref_writer.BeginObject("Angle", sName, bGlobalName, true);
   {
     // have to use radians to prevent precision loss
     const float f = value.GetRadian();
@@ -1211,143 +1211,143 @@ void ezOpenDdlUtils::StoreAngle(ezOpenDdlWriter& ref_writer, const ezAngle& valu
   ref_writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   switch (value.GetType())
   {
     case ezVariant::Type::Invalid:
-      StoreInvalid(ref_writer, szName, bGlobalName);
+      StoreInvalid(ref_writer, sName, bGlobalName);
       return;
 
     case ezVariant::Type::Bool:
-      StoreBool(ref_writer, value.Get<bool>(), szName, bGlobalName);
+      StoreBool(ref_writer, value.Get<bool>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Int8:
-      StoreInt8(ref_writer, value.Get<ezInt8>(), szName, bGlobalName);
+      StoreInt8(ref_writer, value.Get<ezInt8>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::UInt8:
-      StoreUInt8(ref_writer, value.Get<ezUInt8>(), szName, bGlobalName);
+      StoreUInt8(ref_writer, value.Get<ezUInt8>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Int16:
-      StoreInt16(ref_writer, value.Get<ezInt16>(), szName, bGlobalName);
+      StoreInt16(ref_writer, value.Get<ezInt16>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::UInt16:
-      StoreUInt16(ref_writer, value.Get<ezUInt16>(), szName, bGlobalName);
+      StoreUInt16(ref_writer, value.Get<ezUInt16>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Int32:
-      StoreInt32(ref_writer, value.Get<ezInt32>(), szName, bGlobalName);
+      StoreInt32(ref_writer, value.Get<ezInt32>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::UInt32:
-      StoreUInt32(ref_writer, value.Get<ezUInt32>(), szName, bGlobalName);
+      StoreUInt32(ref_writer, value.Get<ezUInt32>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Int64:
-      StoreInt64(ref_writer, value.Get<ezInt64>(), szName, bGlobalName);
+      StoreInt64(ref_writer, value.Get<ezInt64>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::UInt64:
-      StoreUInt64(ref_writer, value.Get<ezUInt64>(), szName, bGlobalName);
+      StoreUInt64(ref_writer, value.Get<ezUInt64>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Float:
-      StoreFloat(ref_writer, value.Get<float>(), szName, bGlobalName);
+      StoreFloat(ref_writer, value.Get<float>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Double:
-      StoreDouble(ref_writer, value.Get<double>(), szName, bGlobalName);
+      StoreDouble(ref_writer, value.Get<double>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::String:
-      ezOpenDdlUtils::StoreString(ref_writer, value.Get<ezString>(), szName, bGlobalName);
+      ezOpenDdlUtils::StoreString(ref_writer, value.Get<ezString>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::StringView:
-      ezOpenDdlUtils::StoreString(ref_writer, value.Get<ezStringView>(), szName, bGlobalName);
+      ezOpenDdlUtils::StoreString(ref_writer, value.Get<ezStringView>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Color:
-      StoreColor(ref_writer, value.Get<ezColor>(), szName, bGlobalName);
+      StoreColor(ref_writer, value.Get<ezColor>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector2:
-      StoreVec2(ref_writer, value.Get<ezVec2>(), szName, bGlobalName);
+      StoreVec2(ref_writer, value.Get<ezVec2>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector3:
-      StoreVec3(ref_writer, value.Get<ezVec3>(), szName, bGlobalName);
+      StoreVec3(ref_writer, value.Get<ezVec3>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector4:
-      StoreVec4(ref_writer, value.Get<ezVec4>(), szName, bGlobalName);
+      StoreVec4(ref_writer, value.Get<ezVec4>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector2I:
-      StoreVec2I(ref_writer, value.Get<ezVec2I32>(), szName, bGlobalName);
+      StoreVec2I(ref_writer, value.Get<ezVec2I32>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector3I:
-      StoreVec3I(ref_writer, value.Get<ezVec3I32>(), szName, bGlobalName);
+      StoreVec3I(ref_writer, value.Get<ezVec3I32>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector4I:
-      StoreVec4I(ref_writer, value.Get<ezVec4I32>(), szName, bGlobalName);
+      StoreVec4I(ref_writer, value.Get<ezVec4I32>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector2U:
-      StoreVec2U(ref_writer, value.Get<ezVec2U32>(), szName, bGlobalName);
+      StoreVec2U(ref_writer, value.Get<ezVec2U32>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector3U:
-      StoreVec3U(ref_writer, value.Get<ezVec3U32>(), szName, bGlobalName);
+      StoreVec3U(ref_writer, value.Get<ezVec3U32>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Vector4U:
-      StoreVec4U(ref_writer, value.Get<ezVec4U32>(), szName, bGlobalName);
+      StoreVec4U(ref_writer, value.Get<ezVec4U32>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Quaternion:
-      StoreQuat(ref_writer, value.Get<ezQuat>(), szName, bGlobalName);
+      StoreQuat(ref_writer, value.Get<ezQuat>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Matrix3:
-      StoreMat3(ref_writer, value.Get<ezMat3>(), szName, bGlobalName);
+      StoreMat3(ref_writer, value.Get<ezMat3>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Matrix4:
-      StoreMat4(ref_writer, value.Get<ezMat4>(), szName, bGlobalName);
+      StoreMat4(ref_writer, value.Get<ezMat4>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Transform:
-      StoreTransform(ref_writer, value.Get<ezTransform>(), szName, bGlobalName);
+      StoreTransform(ref_writer, value.Get<ezTransform>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Time:
-      StoreTime(ref_writer, value.Get<ezTime>(), szName, bGlobalName);
+      StoreTime(ref_writer, value.Get<ezTime>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Uuid:
-      StoreUuid(ref_writer, value.Get<ezUuid>(), szName, bGlobalName);
+      StoreUuid(ref_writer, value.Get<ezUuid>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::Angle:
-      StoreAngle(ref_writer, value.Get<ezAngle>(), szName, bGlobalName);
+      StoreAngle(ref_writer, value.Get<ezAngle>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::ColorGamma:
-      StoreColorGamma(ref_writer, value.Get<ezColorGammaUB>(), szName, bGlobalName);
+      StoreColorGamma(ref_writer, value.Get<ezColorGammaUB>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::VariantArray:
     {
       /// \test This is just quickly hacked
 
-      ref_writer.BeginObject("VarArray", szName, bGlobalName);
+      ref_writer.BeginObject("VarArray", sName, bGlobalName);
 
       const ezVariantArray& arr = value.Get<ezVariantArray>();
       for (ezUInt32 i = 0; i < arr.GetCount(); ++i)
@@ -1363,7 +1363,7 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
     {
       /// \test This is just quickly hacked
 
-      ref_writer.BeginObject("VarDict", szName, bGlobalName);
+      ref_writer.BeginObject("VarDict", sName, bGlobalName);
 
       const ezVariantDictionary& dict = value.Get<ezVariantDictionary>();
       for (auto it = dict.GetIterator(); it.IsValid(); ++it)
@@ -1379,7 +1379,7 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
     {
       /// \test This is just quickly hacked
 
-      ref_writer.BeginObject("VarDataBuffer", szName, bGlobalName);
+      ref_writer.BeginObject("VarDataBuffer", sName, bGlobalName);
       ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String);
 
       const ezDataBuffer& db = value.Get<ezDataBuffer>();
@@ -1395,7 +1395,7 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
       ezTypedObject obj = value.Get<ezTypedObject>();
       if (ezVariantTypeRegistry::GetSingleton()->FindVariantTypeInfo(obj.m_pType))
       {
-        ref_writer.BeginObject(obj.m_pType->GetTypeName(), szName, bGlobalName);
+        ref_writer.BeginObject(obj.m_pType->GetTypeName(), sName, bGlobalName);
         {
           ezHybridArray<ezAbstractProperty*, 32> properties;
           obj.m_pType->GetAllProperties(properties);
@@ -1434,93 +1434,93 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
   }
 }
 
-void ezOpenDdlUtils::StoreString(ezOpenDdlWriter& ref_writer, const ezStringView& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreString(ezOpenDdlWriter& ref_writer, const ezStringView& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String, sName, bGlobalName);
   ref_writer.WriteString(value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreBool(ezOpenDdlWriter& ref_writer, bool value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreBool(ezOpenDdlWriter& ref_writer, bool value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Bool, sName, bGlobalName);
   ref_writer.WriteBool(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreFloat(ezOpenDdlWriter& ref_writer, float value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreFloat(ezOpenDdlWriter& ref_writer, float value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float, sName, bGlobalName);
   ref_writer.WriteFloat(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreDouble(ezOpenDdlWriter& ref_writer, double value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreDouble(ezOpenDdlWriter& ref_writer, double value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Double, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Double, sName, bGlobalName);
   ref_writer.WriteDouble(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreInt8(ezOpenDdlWriter& ref_writer, ezInt8 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreInt8(ezOpenDdlWriter& ref_writer, ezInt8 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int8, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int8, sName, bGlobalName);
   ref_writer.WriteInt8(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreInt16(ezOpenDdlWriter& ref_writer, ezInt16 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreInt16(ezOpenDdlWriter& ref_writer, ezInt16 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int16, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int16, sName, bGlobalName);
   ref_writer.WriteInt16(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreInt32(ezOpenDdlWriter& ref_writer, ezInt32 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreInt32(ezOpenDdlWriter& ref_writer, ezInt32 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int32, sName, bGlobalName);
   ref_writer.WriteInt32(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreInt64(ezOpenDdlWriter& ref_writer, ezInt64 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreInt64(ezOpenDdlWriter& ref_writer, ezInt64 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int64, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Int64, sName, bGlobalName);
   ref_writer.WriteInt64(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreUInt8(ezOpenDdlWriter& ref_writer, ezUInt8 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreUInt8(ezOpenDdlWriter& ref_writer, ezUInt8 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt8, sName, bGlobalName);
   ref_writer.WriteUInt8(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreUInt16(ezOpenDdlWriter& ref_writer, ezUInt16 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreUInt16(ezOpenDdlWriter& ref_writer, ezUInt16 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt16, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt16, sName, bGlobalName);
   ref_writer.WriteUInt16(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreUInt32(ezOpenDdlWriter& ref_writer, ezUInt32 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreUInt32(ezOpenDdlWriter& ref_writer, ezUInt32 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt32, sName, bGlobalName);
   ref_writer.WriteUInt32(&value);
   ref_writer.EndPrimitiveList();
 }
 
-void ezOpenDdlUtils::StoreUInt64(ezOpenDdlWriter& ref_writer, ezUInt64 value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreUInt64(ezOpenDdlWriter& ref_writer, ezUInt64 value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64, szName, bGlobalName);
+  ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64, sName, bGlobalName);
   ref_writer.WriteUInt64(&value);
   ref_writer.EndPrimitiveList();
 }
 
-EZ_FOUNDATION_DLL void ezOpenDdlUtils::StoreInvalid(ezOpenDdlWriter& ref_writer, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+EZ_FOUNDATION_DLL void ezOpenDdlUtils::StoreInvalid(ezOpenDdlWriter& ref_writer, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
-  ref_writer.BeginObject("Invalid", szName, bGlobalName, true);
+  ref_writer.BeginObject("Invalid", sName, bGlobalName, true);
   ref_writer.EndObject();
 }
 

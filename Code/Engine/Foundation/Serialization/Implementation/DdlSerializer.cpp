@@ -9,11 +9,11 @@
 
 namespace
 {
-  ezSerializedBlock* FindBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, const char* szName)
+  ezSerializedBlock* FindBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezStringView sName)
   {
     for (auto& block : ref_blocks)
     {
-      if (block.m_Name == szName)
+      if (block.m_Name == sName)
       {
         return &block;
       }
@@ -40,13 +40,13 @@ namespace
     return nullptr;
   }
 
-  ezSerializedBlock* GetOrCreateBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, const char* szName)
+  ezSerializedBlock* GetOrCreateBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezStringView sName)
   {
-    ezSerializedBlock* pBlock = FindBlock(ref_blocks, szName);
+    ezSerializedBlock* pBlock = FindBlock(ref_blocks, sName);
     if (!pBlock)
     {
       pBlock = &ref_blocks.ExpandAndGetRef();
-      pBlock->m_Name = szName;
+      pBlock->m_Name = sName;
     }
     if (!pBlock->m_Graph)
     {
@@ -348,38 +348,38 @@ public:
   bool m_bHasHeader = false;
   ezInt32 m_iDepth = 0;
 
-  virtual void OnBeginObject(const char* szType, const char* szName, bool bGlobalName) override
+  virtual void OnBeginObject(ezStringView sType, ezStringView sName, bool bGlobalName) override
   {
     //////////////////////////////////////////////////////////////////////////
     // New document format has header block.
-    if (m_iDepth == 0 && ezStringUtils::StartsWith(szType, "HeaderV"))
+    if (m_iDepth == 0 && sType.StartsWith("HeaderV"))
     {
       m_bHasHeader = true;
     }
     if (m_bHasHeader)
     {
       ++m_iDepth;
-      ezOpenDdlReader::OnBeginObject(szType, szName, bGlobalName);
+      ezOpenDdlReader::OnBeginObject(sType, sName, bGlobalName);
       return;
     }
 
     //////////////////////////////////////////////////////////////////////////
     // Old header is stored in the object block.
     // not yet entered the "Objects" group
-    if (m_iDepth == 0 && ezStringUtils::IsEqual(szType, "Objects"))
+    if (m_iDepth == 0 && sType == "Objects")
     {
       ++m_iDepth;
 
-      ezOpenDdlReader::OnBeginObject(szType, szName, bGlobalName);
+      ezOpenDdlReader::OnBeginObject(sType, sName, bGlobalName);
       return;
     }
 
     // not yet entered the "AssetInfo" group, but inside "Objects"
-    if (m_iDepth == 1 && ezStringUtils::IsEqual(szType, "AssetInfo"))
+    if (m_iDepth == 1 && sType == "AssetInfo")
     {
       ++m_iDepth;
 
-      ezOpenDdlReader::OnBeginObject(szType, szName, bGlobalName);
+      ezOpenDdlReader::OnBeginObject(sType, sName, bGlobalName);
       return;
     }
 
@@ -387,7 +387,7 @@ public:
     if (m_iDepth > 1)
     {
       ++m_iDepth;
-      ezOpenDdlReader::OnBeginObject(szType, szName, bGlobalName);
+      ezOpenDdlReader::OnBeginObject(sType, sName, bGlobalName);
       return;
     }
 

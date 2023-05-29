@@ -18,21 +18,27 @@ class ezFormatStringImpl : public ezFormatString
   static constexpr ezUInt32 MaxNumParameters = 12;
 
 public:
+  ezFormatStringImpl(ezStringView sFormat, ARGS&&... args)
+    : m_Arguments(std::forward<ARGS>(args)...)
+  {
+    m_sString = sFormat;
+  }
+
   ezFormatStringImpl(const char* szFormat, ARGS&&... args)
     : m_Arguments(std::forward<ARGS>(args)...)
   {
-    m_szString = szFormat;
+    m_sString = szFormat;
   }
 
   /// \brief Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
   ///
   /// Requires an ezStringBuilder as storage, ie. writes the formatted text into it. Additionally it returns a const char* to that
   /// string builder data for convenience.
-  virtual const char* GetText(ezStringBuilder& ref_sStorage) const override
+  virtual ezStringView GetText(ezStringBuilder& ref_sStorage) const override
   {
-    if (ezStringUtils::IsNullOrEmpty(m_szString))
+    if (m_sString.IsEmpty())
     {
-      return "";
+      return {};
     }
 
     ezStringView param[MaxNumParameters];
@@ -41,6 +47,16 @@ public:
     ReplaceString<0>(tmp, param);
 
     return BuildFormattedText(ref_sStorage, param, MaxNumParameters);
+  }
+
+  virtual const char* GetTextCStr(ezStringBuilder& out_sString) const override
+  {
+    ezStringView param[MaxNumParameters];
+
+    char tmp[MaxNumParameters][TempStringLength];
+    ReplaceString<0>(tmp, param);
+
+    return BuildFormattedText(out_sString, param, MaxNumParameters).GetStartPointer();
   }
 
 private:
