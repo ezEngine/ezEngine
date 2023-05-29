@@ -9,9 +9,9 @@
 #  include <Foundation/Communication/RemoteMessage.h>
 #  include <Foundation/Logging/Log.h>
 
-ezIpcChannelEnet::ezIpcChannelEnet(const char* szAddress, Mode::Enum mode)
-  : ezIpcChannel(szAddress, mode)
-  , m_sAddress(szAddress)
+ezIpcChannelEnet::ezIpcChannelEnet(ezStringView sAddress, Mode::Enum mode)
+  : ezIpcChannel(sAddress, mode)
+  , m_sAddress(sAddress)
 {
   m_pNetwork = ezRemoteInterfaceEnet::Make();
   m_pNetwork->SetMessageHandler(0, ezMakeDelegate(&ezIpcChannelEnet::NetworkMessageHandler, this));

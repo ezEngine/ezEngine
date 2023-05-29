@@ -26,16 +26,18 @@ EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN("FoundationTest", "Foundation Tests")
   if (cmd.GetBoolOption("-cmd"))
   {
     // print something to stdout
-    const char* szStdOut = cmd.GetStringOption("-stdout");
-    if (!ezStringUtils::IsNullOrEmpty(szStdOut))
+    ezStringView sStdOut = cmd.GetStringOption("-stdout");
+    if (!sStdOut.IsEmpty())
     {
-      std::cout << szStdOut;
+      ezStringBuilder tmp;
+      std::cout << sStdOut.GetData(tmp);
     }
 
-    const char* szStdErr = cmd.GetStringOption("-stderr");
-    if (!ezStringUtils::IsNullOrEmpty(szStdErr))
+    ezStringView sStdErr = cmd.GetStringOption("-stderr");
+    if (!sStdErr.IsEmpty())
     {
-      std::cerr << szStdErr;
+      ezStringBuilder tmp;
+      std::cerr << sStdErr.GetData(tmp);
     }
 
     // wait a little

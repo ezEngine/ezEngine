@@ -19,12 +19,12 @@ ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)
 
 ezPipeChannel_win::State::~State() = default;
 
-ezPipeChannel_win::ezPipeChannel_win(const char* szAddress, Mode::Enum mode)
-  : ezIpcChannel(szAddress, mode)
+ezPipeChannel_win::ezPipeChannel_win(ezStringView sAddress, Mode::Enum mode)
+  : ezIpcChannel(sAddress, mode)
   , m_InputState(this)
   , m_OutputState(this)
 {
-  CreatePipe(szAddress);
+  CreatePipe(sAddress);
   m_pOwner->AddChannel(this);
 }
 
@@ -42,9 +42,9 @@ ezPipeChannel_win::~ezPipeChannel_win()
   m_pOwner->RemoveChannel(this);
 }
 
-bool ezPipeChannel_win::CreatePipe(const char* szAddress)
+bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
 {
-  ezStringBuilder sPipename("\\\\.\\pipe\\", szAddress);
+  ezStringBuilder sPipename("\\\\.\\pipe\\", sAddress);
 
   if (m_Mode == Mode::Server)
   {

@@ -18,14 +18,14 @@ struct IOContext
 class EZ_FOUNDATION_DLL ezPipeChannel_win : public ezIpcChannel
 {
 public:
-  ezPipeChannel_win(const char* szAddress, Mode::Enum mode);
+  ezPipeChannel_win(ezStringView sAddress, Mode::Enum mode);
   ~ezPipeChannel_win();
 
 private:
   friend class ezMessageLoop;
   friend class ezMessageLoop_win;
 
-  bool CreatePipe(const char* szAddress);
+  bool CreatePipe(ezStringView sAddress);
 
   virtual void AddToMessageLoop(ezMessageLoop* pMsgLoop) override;
 

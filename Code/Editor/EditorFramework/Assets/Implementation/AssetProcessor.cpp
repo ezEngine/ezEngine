@@ -239,6 +239,8 @@ void ezProcessTask::StartProcess()
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;
 
+  ezStringBuilder tmp;
+
   QStringList args;
   args << "-appname";
   args << ezApplication::GetApplicationInstance()->GetApplicationName().GetData();
@@ -247,7 +249,7 @@ void ezProcessTask::StartProcess()
   args << "-project";
   args << ezToolsProject::GetSingleton()->GetProjectFile().GetData();
   args << "-renderer";
-  args << ezGameApplication::GetActiveRenderer();
+  args << ezGameApplication::GetActiveRenderer().GetData(tmp);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const char* EditorProcessorExecutable = "EditorProcessor.exe";

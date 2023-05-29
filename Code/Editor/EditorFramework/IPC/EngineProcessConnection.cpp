@@ -112,6 +112,8 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
 
+  ezStringBuilder tmp;
+
   QStringList args;
   if (m_bProcessShouldWaitForDebugger)
   {
@@ -144,7 +146,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   // set up the EditorEngineProcess telemetry server on a different port
   {
     args << "-TelemetryPort";
-    args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050");
+    args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050").GetData(tmp);
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -222,7 +224,8 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).IgnoreResult();
 
   ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
-  waitDialog.m_OnIdle = [this]() -> bool {
+  waitDialog.m_OnIdle = [this]() -> bool
+  {
     if (m_pRemoteProcess->IsConnected())
       return false;
 
@@ -314,7 +317,8 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
   data.m_AssetGuid = assetGuid;
   data.m_pCallback = pCallback;
 
-  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool {
+  ezProcessCommunicationChannel::WaitForMessageCallback callback = [&data](ezProcessMessage* pMsg) -> bool
+  {
     ezEditorEngineDocumentMsg* pMsg2 = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg);
     if (pMsg2 && data.m_AssetGuid == pMsg2->m_DocumentGuid)
     {
@@ -387,7 +391,8 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   {
     docs.PushBack(it.Value());
   }
-  docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b) {
+  docs.Sort([](const ezAssetDocument* a, const ezAssetDocument* b)
+    {
     if (a->IsMainDocument() != b->IsMainDocument())
       return a->IsMainDocument();
     return a < b; });

@@ -49,13 +49,13 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 
   if (!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
   {
-    if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC")))
+    if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC").IsEmpty())
     {
       EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
       return EZ_FAILURE;
     }
 
-    if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID")))
+    if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID").IsEmpty())
     {
       EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
       return EZ_FAILURE;

@@ -15,7 +15,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 class EZ_FOUNDATION_DLL ezPipeChannel_linux : public ezIpcChannel
 {
 public:
-  ezPipeChannel_linux(const char* szAddress, Mode::Enum mode);
+  ezPipeChannel_linux(ezStringView sAddress, Mode::Enum mode);
   ~ezPipeChannel_linux();
 
 private:

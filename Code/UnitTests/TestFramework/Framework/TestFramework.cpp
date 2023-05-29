@@ -325,6 +325,8 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
     }
   }
 
+  ezStringBuilder tmp;
+
   opt_HTML.SetDefaultValue(m_Settings.m_bOpenHtmlOutputOnError);
   m_Settings.m_bOpenHtmlOutputOnError = opt_HTML.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
@@ -343,7 +345,7 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   m_Settings.m_iRevision = opt_Revision.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
   m_Settings.m_bEnableAllTests = opt_EnableAllTests.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
   m_Settings.m_uiFullPasses = static_cast<ezUInt8>(opt_Passes.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd));
-  m_Settings.m_sTestFilter = opt_Filter.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
+  m_Settings.m_sTestFilter = opt_Filter.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd).GetData(tmp);
 
   if (opt_Json.IsOptionSpecified(nullptr, &cmd))
   {

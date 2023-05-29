@@ -69,10 +69,10 @@ ezResult ezGraphicsTest::SetupRenderer()
   constexpr const char* szDefaultRenderer = "DX11";
 #endif
 
-  const char* szRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+  ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";
-  ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+  ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
   ezShaderManager::Configure(szShaderModel, true);
   EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
@@ -81,14 +81,14 @@ ezResult ezGraphicsTest::SetupRenderer()
   {
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bDebugDevice = false;
-    m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+    m_pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
     if (m_pDevice->Init().Failed())
       return EZ_FAILURE;
 
     ezGALDevice::SetDefaultDevice(m_pDevice);
   }
 
-  if (ezStringUtils::IsEqual_NoCase(szRendererName, "DX11"))
+  if (sRendererName.IsEqual_NoCase("DX11"))
   {
     if (m_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || m_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
     {
@@ -105,7 +105,7 @@ ezResult ezGraphicsTest::SetupRenderer()
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
     }
   }
-  else if (ezStringUtils::IsEqual_NoCase(szRendererName, "Vulkan"))
+  else if (sRendererName.IsEqual_NoCase("Vulkan"))
   {
     if (m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
     {

@@ -228,12 +228,12 @@ void ezGameApplication::Init_SetupDefaultResources()
   }
 }
 
-const char* GetRendererNameFromCommandLine()
+ezStringView GetRendererNameFromCommandLine()
 {
   return opt_Renderer.GetOptionValue(ezCommandLineOption::LogMode::FirstTimeIfSpecified);
 }
 
-const char* ezGameApplication::GetActiveRenderer()
+ezStringView ezGameApplication::GetActiveRenderer()
 {
   return GetRendererNameFromCommandLine();
 }
@@ -255,9 +255,9 @@ void ezGameApplication::Init_SetupGraphicsDevice()
     }
     else
     {
-      const char* szRendererName = GetRendererNameFromCommandLine();
-      pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-      EZ_ASSERT_DEV(pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
+      ezStringView sRendererName = GetRendererNameFromCommandLine();
+      pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+      EZ_ASSERT_DEV(pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
     }
 
     EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
@@ -273,10 +273,10 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 {
   ezPlugin::InitializeStaticallyLinkedPlugins();
 
-  const char* szRendererName = GetRendererNameFromCommandLine();
+  ezStringView sRendererName = GetRendererNameFromCommandLine();
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";
-  ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+  ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
   ezShaderManager::Configure(szShaderModel, true);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
