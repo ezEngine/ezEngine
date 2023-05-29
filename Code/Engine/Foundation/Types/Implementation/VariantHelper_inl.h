@@ -372,6 +372,13 @@ class ezVariantHelper
     ezVariant::DispatchTo(toStringFunc, value.GetType());
   }
 
+  static void To(const ezVariant& value, ezStringView& result, bool& bSuccessful)
+  {
+    bSuccessful = true;
+
+    result = value.Get<ezString>().GetView();
+  }
+
   static void To(const ezVariant& value, ezTypedPointer& result, bool& bSuccessful)
   {
     bSuccessful = true;

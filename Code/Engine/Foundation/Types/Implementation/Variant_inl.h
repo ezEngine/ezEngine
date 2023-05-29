@@ -130,11 +130,6 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezQuat& value)
   InitInplace(value);
 }
 
-EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezStringView& value)
-{
-  InitInplace(value);
-}
-
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezTime& value)
 {
   InitInplace(value);
@@ -534,7 +529,7 @@ const T& ezVariant::Cast() const
 
 EZ_ALWAYS_INLINE bool ezVariant::IsNumberStatic(ezUInt32 type)
 {
-  return type > Type::Invalid && type <= Type::Double;
+  return type > Type::FirstStandardType && type <= Type::Double;
 }
 
 EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPointStatic(ezUInt32 type)

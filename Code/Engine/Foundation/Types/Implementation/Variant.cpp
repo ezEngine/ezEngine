@@ -76,6 +76,19 @@ ezVariant::ezVariant(const ezTypedObject& value)
   m_bIsShared = true;
 }
 
+ezVariant::ezVariant(const ezStringView& value, bool bCopyString)
+{
+  if (bCopyString)
+  {
+    const ezRTTI* pType = ezGetStaticRTTI<ezString>();
+    m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<ezString>, value, pType);
+    m_uiType = ezVariantType::String;
+    m_bIsShared = true;
+  }
+  else
+    InitInplace(value);
+}
+
 void ezVariant::CopyTypedObject(const void* value, const ezRTTI* pType)
 {
   Release();
@@ -320,7 +333,15 @@ struct ConvertFunc
   {
     T result;
     ezVariantHelper::To(*m_pThis, result, m_bSuccessful);
-    m_Result = result;
+
+    if constexpr (std::is_same_v<T, ezStringView>)
+    {
+      m_Result = ezVariant(result, false);
+    }
+    else
+    {
+      m_Result = result;
+    }
   }
 
   const ezVariant* m_pThis;
@@ -440,9 +461,14 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (type == Type::Invalid)
     return false;
 
-  if (type == Type::String && (m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer))
+  if (type == Type::String && m_uiType == Type::Invalid)
+    return true;
+
+  if (type == Type::String && (m_uiType > Type::FirstStandardType && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer))
     return true;
   if (type == Type::String && (m_uiType == Type::VariantArray || m_uiType == Type::VariantDictionary))
+    return true;
+  if (type == Type::StringView && m_uiType == Type::String)
     return true;
 
   if (!IsValid())

@@ -22,7 +22,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Log, ezNoBase, 1, ezRTTINo
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStringView BuildFormattedText(const char* szText, const ezVariantArray& params, ezStringBuilder& ref_sStorage)
+ezStringView BuildFormattedText(ezStringView sText, const ezVariantArray& params, ezStringBuilder& ref_sStorage)
 {
   ezHybridArray<ezString, 12> stringStorage;
   stringStorage.Reserve(params.GetCount());
@@ -38,27 +38,27 @@ ezStringView BuildFormattedText(const char* szText, const ezVariantArray& params
     stringViews.PushBack(s);
   }
 
-  ezFormatString fs(szText);
+  ezFormatString fs(sText);
   return fs.BuildFormattedText(ref_sStorage, stringViews.GetData(), stringViews.GetCount());
 }
 
 // static
-void ezScriptExtensionClass_Log::Info(const char* szText, const ezVariantArray& params)
+void ezScriptExtensionClass_Log::Info(ezStringView sText, const ezVariantArray& params)
 {
   ezStringBuilder sStorage;
-  ezLog::Info(BuildFormattedText(szText, params, sStorage));
+  ezLog::Info(BuildFormattedText(sText, params, sStorage));
 }
 
 // static
-void ezScriptExtensionClass_Log::Warning(const char* szText, const ezVariantArray& params)
+void ezScriptExtensionClass_Log::Warning(ezStringView sText, const ezVariantArray& params)
 {
   ezStringBuilder sStorage;
-  ezLog::Warning(BuildFormattedText(szText, params, sStorage));
+  ezLog::Warning(BuildFormattedText(sText, params, sStorage));
 }
 
 // static
-void ezScriptExtensionClass_Log::Error(const char* szText, const ezVariantArray& params)
+void ezScriptExtensionClass_Log::Error(ezStringView sText, const ezVariantArray& params)
 {
   ezStringBuilder sStorage;
-  ezLog::Error(BuildFormattedText(szText, params, sStorage));
+  ezLog::Error(BuildFormattedText(sText, params, sStorage));
 }

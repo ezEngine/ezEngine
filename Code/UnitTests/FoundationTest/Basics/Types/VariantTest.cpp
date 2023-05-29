@@ -780,19 +780,19 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     const char* szTemp = "This is an ezStringView";
     ezStringView bla(szTemp);
-    ezVariant v(bla);
+    ezVariant v(bla, false);
     TestVariant<ezStringView>(v, ezVariantType::StringView);
 
     const ezString sCopy = szTemp;
     EZ_TEST_BOOL(v.Get<ezStringView>() == sCopy);
 
-    EZ_TEST_BOOL(v == ezVariant(ezStringView(sCopy.GetData())));
-    EZ_TEST_BOOL(v != ezVariant(ezStringView("This is something else")));
+    EZ_TEST_BOOL(v == ezVariant(ezStringView(sCopy.GetData()), false));
+    EZ_TEST_BOOL(v != ezVariant(ezStringView("This is something else"), false));
 
     EZ_TEST_BOOL(v == ezStringView(sCopy.GetData()));
     EZ_TEST_BOOL(v != ezStringView("This is something else"));
 
-    v = ezStringView("blurg!");
+    v = ezVariant(ezStringView("blurg!"), false);
     EZ_TEST_BOOL(v == ezStringView("blurg!"));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
@@ -1447,7 +1447,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
-    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView) == true);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::DataBuffer) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
@@ -1627,12 +1627,44 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezStringView)")
   {
     ezStringView va("Test String");
-    ezVariant v(va);
+    ezVariant v(va, false);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::StringView);
 
     EZ_TEST_BOOL(v.ConvertTo<ezStringView>() == va);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::StringView).Get<ezStringView>() == va);
+
+    {
+      ezVariant va, va2;
+
+      va = "Bla";
+      EZ_TEST_BOOL(va.IsA<ezString>());
+      EZ_TEST_BOOL(va.CanConvertTo<ezString>());
+      EZ_TEST_BOOL(va.CanConvertTo<ezStringView>());
+
+      va = ezVariant("Bla"_ezsv, false);
+      EZ_TEST_BOOL(va.IsA<ezStringView>());
+      EZ_TEST_BOOL(va.CanConvertTo<ezString>());
+      EZ_TEST_BOOL(va.CanConvertTo<ezStringView>());
+
+      va2 = va;
+      EZ_TEST_BOOL(va2.IsA<ezStringView>());
+      EZ_TEST_BOOL(va2.CanConvertTo<ezString>());
+      EZ_TEST_BOOL(va2.CanConvertTo<ezStringView>());
+      EZ_TEST_BOOL(va2.ConvertTo<ezStringView>() == "Bla");
+      EZ_TEST_BOOL(va2.ConvertTo<ezString>() == "Bla");
+
+      ezVariant va3 = va2.ConvertTo(ezVariantType::StringView);
+      EZ_TEST_BOOL(va3.IsA<ezStringView>());
+      EZ_TEST_BOOL(va3.ConvertTo<ezString>() == "Bla");
+
+      va = "Blub";
+      EZ_TEST_BOOL(va.IsA<ezString>());
+
+      ezVariant va4 = va.ConvertTo(ezVariantType::StringView);
+      EZ_TEST_BOOL(va4.IsA<ezStringView>());
+      EZ_TEST_BOOL(va4.ConvertTo<ezString>() == "Blub");
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezDataBuffer)")

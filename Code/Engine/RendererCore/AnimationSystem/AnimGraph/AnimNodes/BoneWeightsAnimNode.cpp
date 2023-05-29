@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoneWeightsAnimNode, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ARRAY_ACCESSOR_PROPERTY("RootBones", RootBones_GetCount, RootBones_GetValue, RootBones_SetValue, RootBones_Insert, RootBones_Remove),
 
     EZ_MEMBER_PROPERTY("Weights", m_WeightsPin)->AddAttributes(new ezHiddenAttribute()),

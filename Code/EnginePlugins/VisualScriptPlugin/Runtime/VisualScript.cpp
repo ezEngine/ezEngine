@@ -526,7 +526,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, ezV
       }
       else if (expectedType == ezVariantType::StringView)
       {
-        return GetData<ezString>(dataOffset).GetView();
+        return ezVariant(GetData<ezString>(dataOffset).GetView(), false);
       }
       EZ_ASSERT_NOT_IMPLEMENTED;
     case ezVisualScriptDataType::Variant:

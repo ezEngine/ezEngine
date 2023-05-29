@@ -17,7 +17,7 @@ namespace
   static ezVariantArray GetDefaultTags()
   {
     ezVariantArray value(ezStaticAllocatorWrapper::GetAllocator());
-    value.PushBack(ezStringView("SkyLight"));
+    value.PushBack("SkyLight");
     return value;
   }
 } // namespace

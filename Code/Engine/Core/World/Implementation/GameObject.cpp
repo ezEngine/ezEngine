@@ -12,7 +12,7 @@ namespace
   static ezVariantArray GetDefaultTags()
   {
     ezVariantArray value(ezStaticAllocatorWrapper::GetAllocator());
-    value.PushBack(ezStringView("CastShadow"));
+    value.PushBack("CastShadow");
     return value;
   }
 } // namespace

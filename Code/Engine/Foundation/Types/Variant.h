@@ -100,7 +100,7 @@ public:
   ezVariant(const char* value);
   ezVariant(const ezString& value);
   ezVariant(const ezUntrackedString& value);
-  ezVariant(const ezStringView& value);
+  ezVariant(const ezStringView& value, bool bCopyString = true);
   ezVariant(const ezDataBuffer& value);
   ezVariant(const ezTime& value);
   ezVariant(const ezUuid& value);

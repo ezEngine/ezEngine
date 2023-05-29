@@ -157,8 +157,34 @@ class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
 
 public:
   ezDefaultValueAttribute() = default;
+
   ezDefaultValueAttribute(const ezVariant& value)
     : m_Value(value)
+  {
+  }
+
+  ezDefaultValueAttribute(ezInt32 value)
+    : m_Value(value)
+  {
+  }
+
+  ezDefaultValueAttribute(float value)
+    : m_Value(value)
+  {
+  }
+
+  ezDefaultValueAttribute(double value)
+    : m_Value(value)
+  {
+  }
+
+  ezDefaultValueAttribute(ezStringView value)
+    : m_Value(ezVariant(value, false))
+  {
+  }
+
+  ezDefaultValueAttribute(const char* value)
+    : m_Value(ezVariant(ezStringView(value), false))
   {
   }
 
