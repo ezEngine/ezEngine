@@ -309,7 +309,7 @@ void ezJSONParser::ContinueValue()
       m_StateStack.PopBack();
 
       if (!m_bSkippingMode)
-        OnReadValue((const char*)&m_TempString[0]);
+        OnReadValue(ezStringView((const char*)&m_TempString[0]));
     }
       return;
 

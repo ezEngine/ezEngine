@@ -232,6 +232,12 @@ namespace JSONReaderTestDetail
         ref_compare.PopFront();
         break;
 
+      case ezVariant::Type::StringView:
+        // ezLog::Printf("Expect: %s - Is: %s\n", var.Get<ezString>().GetData(), Compare.PeekFront().GetData());
+        EZ_TEST_STRING(ref_compare.PeekFront(), var.Get<ezStringView>());
+        ref_compare.PopFront();
+        break;
+
       case ezVariant::Type::Vector2:
       {
         ezStringBuilder sTemp;
