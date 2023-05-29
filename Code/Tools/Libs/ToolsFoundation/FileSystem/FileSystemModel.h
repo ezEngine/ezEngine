@@ -10,8 +10,6 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/FileSystem/Declarations.h>
 
-#include <atomic>
-
 class ezFileSystemWatcher;
 struct ezFileSystemWatcherEvent;
 struct ezFileStats;
@@ -190,7 +188,7 @@ private:
 
   // Actual file system data
   mutable ezMutex m_FilesMutex;
-  std::atomic<bool> m_bInitialized = false;
+  ezAtomicBool m_bInitialized = false;
 
   ezMap<ezString, ezFileStatus> m_ReferencedFiles;           // Absolute path to stat map
   ezMap<ezString, ezFileStatus::Status> m_ReferencedFolders; // Absolute path to status map
