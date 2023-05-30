@@ -441,8 +441,8 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(ezStringView sAbsFilePath, const 
 
   // try to read the asset file
   ezStatus infoStatus;
-  ezResult res = pFiles->ReadDocument(sAbsFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& reader) -> ezUuid {
-      infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, reader);
+  ezResult res = pFiles->ReadDocument(sAbsFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& ref_reader) -> ezUuid {
+      infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, ref_reader);
       // Here we return the GUID of the document. This links the 'file' to the 'asset'.
       // This is the same as later calling ezAssetFiles::LinkAsset
       return out_assetInfo->m_Info->m_DocumentID; });

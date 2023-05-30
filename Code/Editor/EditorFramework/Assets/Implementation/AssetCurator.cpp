@@ -1254,8 +1254,8 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
 
       ezMap<ezUInt32, ezString> connection;
 
-      auto ExtendConnection = [&](const ezString& ref, ezStringView sLabel) {
-        ezUInt32 uiOutputNode = *nodeMap.GetValue(ref);
+      auto ExtendConnection = [&](const ezString& sRef, ezStringView sLabel) {
+        ezUInt32 uiOutputNode = *nodeMap.GetValue(sRef);
         sTemp = connection[uiOutputNode];
         if (sTemp.IsEmpty())
           sTemp = sLabel;
@@ -1264,14 +1264,14 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
         connection[uiOutputNode] = sTemp;
       };
 
-      for (const ezString& ref : pAssetInfo->m_Info->m_TransformDependencies)
+      for (const ezString& sRef : pAssetInfo->m_Info->m_TransformDependencies)
       {
-        ExtendConnection(ref, "Transform");
+        ExtendConnection(sRef, "Transform");
       }
 
-      for (const ezString& ref : pAssetInfo->m_Info->m_ThumbnailDependencies)
+      for (const ezString& sRef : pAssetInfo->m_Info->m_ThumbnailDependencies)
       {
-        ExtendConnection(ref, "Thumbnail");
+        ExtendConnection(sRef, "Thumbnail");
       }
 
       // This will make the graph very big, not recommended.

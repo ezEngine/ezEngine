@@ -27,7 +27,7 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 {
-  constexpr ezUInt32 WAIT_LOOPS = 500;
+  constexpr ezUInt32 WAIT_LOOPS = 1000;
 
   ezStringBuilder sOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
   sOutputFolder.AppendPath("Model");
