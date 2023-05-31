@@ -439,14 +439,14 @@ void ezDocumentManager::CloseAllDocuments()
   }
 }
 
-ezDocument* ezDocumentManager::GetDocumentByPath(const char* szPath) const
+ezDocument* ezDocumentManager::GetDocumentByPath(ezStringView sPath) const
 {
-  ezStringBuilder sPath = szPath;
-  sPath.MakeCleanPath();
+  ezStringBuilder sPath2 = sPath;
+  sPath2.MakeCleanPath();
 
   for (ezDocument* pDoc : m_AllOpenDocuments)
   {
-    if (sPath.IsEqual_NoCase(pDoc->GetDocumentPath()))
+    if (sPath2.IsEqual_NoCase(pDoc->GetDocumentPath()))
       return pDoc;
   }
 
@@ -469,21 +469,21 @@ ezDocument* ezDocumentManager::GetDocumentByGuid(const ezUuid& guid)
 }
 
 
-bool ezDocumentManager::EnsureDocumentIsClosedInAllManagers(const char* szPath)
+bool ezDocumentManager::EnsureDocumentIsClosedInAllManagers(ezStringView sPath)
 {
   bool bClosedAny = false;
   for (auto man : s_AllDocumentManagers)
   {
-    if (man->EnsureDocumentIsClosed(szPath))
+    if (man->EnsureDocumentIsClosed(sPath))
       bClosedAny = true;
   }
 
   return bClosedAny;
 }
 
-bool ezDocumentManager::EnsureDocumentIsClosed(const char* szPath)
+bool ezDocumentManager::EnsureDocumentIsClosed(ezStringView sPath)
 {
-  auto pDoc = GetDocumentByPath(szPath);
+  auto pDoc = GetDocumentByPath(sPath);
 
   if (pDoc == nullptr)
     return false;
@@ -493,9 +493,9 @@ bool ezDocumentManager::EnsureDocumentIsClosed(const char* szPath)
   return true;
 }
 
-ezResult ezDocumentManager::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc)
+ezResult ezDocumentManager::FindDocumentTypeFromPath(ezStringView sPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc)
 {
-  const ezString sFileExt = ezPathUtils::GetFileExtension(szPath);
+  const ezString sFileExt = ezPathUtils::GetFileExtension(sPath);
 
   const auto& allDesc = GetAllDocumentDescriptors();
 

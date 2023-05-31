@@ -19,6 +19,8 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/FileSystem/Declarations.h>
+
 #include <tuple>
 
 class ezUpdateTask;
@@ -28,8 +30,10 @@ class ezDirectoryWatcher;
 class ezProcessTask;
 struct ezFileStats;
 class ezAssetProcessorLog;
-class ezAssetWatcher;
+class ezFileSystemWatcher;
 class ezAssetTableWriter;
+struct ezFileChangedEvent;
+class ezFileSystemModel;
 
 #if 0 // Define to enable extensive curator profile scopes
 #  define CURATOR_PROFILE(szName) EZ_PROFILE_SCOPE(szName)
@@ -112,28 +116,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezSubAsset
   ezSubAssetData m_Data;
 };
 
-/// \brief Information about a single file on disk. The file might be an asset or any other file (needed for dependencies).
-struct EZ_EDITORFRAMEWORK_DLL ezFileStatus
-{
-  enum class Status
-  {
-    Unknown,    ///< Since the file has been tagged as 'Unknown' it has not been encountered again on disk (yet)
-    FileLocked, ///< The file is probably an asset, but we could not read it
-    Valid       ///< The file exists on disk
-  };
 
-  ezFileStatus()
-  {
-    m_uiHash = 0;
-    m_Status = Status::Unknown;
-  }
-
-  ezTimestamp m_Timestamp;
-  ezUInt64 m_uiHash;
-  ezUuid m_AssetGuid; ///< If the file is linked to an asset, the GUID is valid, otherwise not.
-  Status m_Status;
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezFileStatus);
 
 struct ezAssetCuratorEvent
 {
@@ -277,10 +260,7 @@ public:
   void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count);
 
   /// \brief Iterates over all known data directories and returns the absolute path to the directory in which this asset is located
-  ezString FindDataDirectoryForAsset(const char* szAbsoluteAssetPath) const;
-
-  /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
-  const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
+  ezString FindDataDirectoryForAsset(ezStringView sAbsoluteAssetPath) const;
 
   /// \brief Uses knowledge about all existing files on disk to find the best match for a file. Very slow.
   ///
@@ -306,7 +286,6 @@ public:
 
   /// \brief Allows to tell the system of a new or changed file, that might be of interest to the Curator.
   void NotifyOfFileChange(const char* szAbsolutePath);
-
   /// \brief Allows to tell the system to re-evaluate an assets status.
   void NotifyOfAssetChange(const ezUuid& assetGuid);
   void UpdateAssetLastAccessTime(const ezUuid& assetGuid);
@@ -317,6 +296,7 @@ public:
   void NeedsReloadResources(const ezUuid& assetGuid);
 
   void InvalidateAssetsWithTransformState(ezAssetInfo::TransformState state);
+
 
   ///@}
 
@@ -352,10 +332,8 @@ private:
   /// \brief Returns the asset info for the asset with the given (stringyfied) GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezString& sAssetGuid);
 
-  /// \brief Handles removing files and then forwards to HandleSingleFile overload.
-  void HandleSingleFile(const ezString& sAbsolutePath);
-  /// \brief Handles adding and updating files. FileStat must be valid.
-  void HandleSingleFile(const ezString& sAbsolutePath, const ezFileStats& FileStat);
+  void OnAssetFilesEvent(const ezFileChangedEvent& e);
+
   /// \brief Some assets are vital for the engine to run. Each data directory can contain a [DataDirName].ezCollectionAsset
   ///   that has all its references transformed before any other documents are loaded.
   void ProcessAllCoreAssets();
@@ -379,17 +357,14 @@ private:
     ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDeps, const ezHybridArray<ezString, 16>& assetThumbnailDeps, ezSet<ezString>& missingTransformDeps, ezSet<ezString>& missingThumbnailDeps, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
   bool AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
 
-  ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
-  ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
+  ezResult EnsureAssetInfoUpdated(ezStringView sAbsFilePath, const ezFileStatus& stat, bool bForce = false);
   void TrackDependencies(ezAssetInfo* pAssetInfo);
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
   ezResult CheckForCircularDependencies(ezAssetInfo* pAssetInfo);
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved);
-  ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
+  ezResult ReadAssetDocumentInfo(ezStringView sAbsFilePath, const ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
   void UpdateSubAssets(ezAssetInfo& assetInfo);
-  /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
-  static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
 
   void RemoveAssetTransformState(const ezUuid& assetGuid);
   void InvalidateAssetTransformState(const ezUuid& assetGuid);
@@ -403,11 +378,9 @@ private:
   /// \name Check File System Helper
   ///@{
   void SetAllAssetStatusUnknown();
-  void RemoveStaleFileInfos();
+  void LoadCaches(ezMap<ezString, ezFileStatus>& out_referencedFiles, ezMap<ezString, ezFileStatus::Status>& out_referencedFolders);
+  void SaveCaches(const ezMap<ezString, ezFileStatus>& referencedFiles, const ezMap<ezString, ezFileStatus::Status>& referencedFolders);
   static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
-  void IterateDataDirectory(const char* szDataDir, ezSet<ezString>* pFoundFiles = nullptr);
-  void LoadCaches();
-  void SaveCaches();
 
   ///@}
   /// \name Utilities
@@ -427,8 +400,6 @@ private:
   friend class ezUpdateTask;
   friend class ezAssetProcessor;
   friend class ezProcessTask;
-  friend class ezAssetWatcher;
-  friend class ezDirectoryUpdateTask;
 
   mutable ezCuratorMutex m_CuratorMutex; // Global lock
   ezTaskGroupID m_InitializeCuratorTaskID;
@@ -438,8 +409,6 @@ private:
   // Actual data stored in the curator
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
   ezHashTable<ezUuid, ezSubAsset> m_KnownSubAssets;
-  ezMap<ezString, ezFileStatus, ezCompareString_NoCase> m_ReferencedFiles;
-  ezSet<ezString> m_AssetFolders;
 
   // Derived dependency lookup tables
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseTransformDeps; // [Absolute path -> asset Guid]
@@ -460,9 +429,8 @@ private:
 
   // Immutable data after StartInitialize
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezSet<ezString> m_ValidAssetExtensions;
-  ezUniquePtr<ezAssetWatcher> m_pWatcher;
   ezUniquePtr<ezAssetTableWriter> m_pAssetTableWriter;
+  ezSet<ezString> m_ValidAssetExtensions;
 
   // Update task
   bool m_bRunUpdateTask = false;
