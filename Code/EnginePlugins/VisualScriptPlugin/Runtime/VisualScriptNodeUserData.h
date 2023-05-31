@@ -14,12 +14,12 @@ namespace
     ezUInt32 m_uiPadding;
 #endif
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_Size, ezUInt32& out_alignment)
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
     {
       inout_stream << nodeDesc.m_UserData.m_pTargetType->GetTypeName();
 
-      out_Size = sizeof(NodeUserData_Type);
-      out_alignment = EZ_ALIGNMENT_OF(NodeUserData_Type);
+      out_uiSize = sizeof(NodeUserData_Type);
+      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Type);
       return EZ_SUCCESS;
     }
 
@@ -38,11 +38,11 @@ namespace
       return EZ_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
     {
       NodeUserData_Type userData;
       EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
-      node.SetUserData(userData, inout_pAdditionalData);
+      ref_node.SetUserData(userData, inout_pAdditionalData);
       return EZ_SUCCESS;
     }
 
@@ -67,14 +67,14 @@ namespace
     ezUInt32 m_uiPadding;
 #endif
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_Size, ezUInt32& out_alignment)
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
     {
-      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_Size, out_alignment));
+      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
       inout_stream << nodeDesc.m_UserData.m_pTargetProperty->GetPropertyName();
 
-      out_Size = sizeof(NodeUserData_TypeAndProperty);
-      out_alignment = EZ_ALIGNMENT_OF(NodeUserData_TypeAndProperty);
+      out_uiSize = sizeof(NodeUserData_TypeAndProperty);
+      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_TypeAndProperty);
       return EZ_SUCCESS;
     }
 
@@ -106,7 +106,7 @@ namespace
     }
 
     template <bool PropIsFunction>
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
     {
       NodeUserData_TypeAndProperty userData;
       EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
@@ -120,7 +120,7 @@ namespace
         EZ_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetProperties(), userData.m_pProperty));
       }
 
-      node.SetUserData(userData, inout_pAdditionalData);
+      ref_node.SetUserData(userData, inout_pAdditionalData);
       return EZ_SUCCESS;
     }
 
@@ -143,21 +143,21 @@ namespace
   {
     ezEnum<ezComparisonOperator> m_ComparisonOperator;
 
-    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_Size, ezUInt32& out_alignment)
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
     {
       ezEnum<ezComparisonOperator> compOp = nodeDesc.m_UserData.m_ComparisonOperator;
       inout_stream << compOp;
 
-      out_Size = sizeof(NodeUserData_Comparison);
-      out_alignment = EZ_ALIGNMENT_OF(NodeUserData_Comparison);
+      out_uiSize = sizeof(NodeUserData_Comparison);
+      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Comparison);
       return EZ_SUCCESS;
     }
 
-    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
     {
       NodeUserData_Comparison userData;
       inout_stream >> userData.m_ComparisonOperator;
-      node.SetUserData(userData, inout_pAdditionalData);
+      ref_node.SetUserData(userData, inout_pAdditionalData);
 
       return EZ_SUCCESS;
     }

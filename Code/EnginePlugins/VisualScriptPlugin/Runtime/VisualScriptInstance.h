@@ -7,7 +7,7 @@
 class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptInstance : public ezScriptInstance
 {
 public:
-  ezVisualScriptInstance(ezReflectedClass& owner, ezWorld* pWorld, const ezSharedPtr<const ezVisualScriptDataStorage>& pConstantDataStorage, const ezSharedPtr<const ezVisualScriptDataDescription>& pVariableDataDesc);
+  ezVisualScriptInstance(ezReflectedClass& ref_owner, ezWorld* pWorld, const ezSharedPtr<const ezVisualScriptDataStorage>& pConstantDataStorage, const ezSharedPtr<const ezVisualScriptDataDescription>& pVariableDataDesc);
 
   virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) override;
 
@@ -51,7 +51,7 @@ class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptExecutionContext
 public:
   ezVisualScriptExecutionContext(ezUniquePtr<ezVisualScriptGraphDescription>&& pDesc);
 
-  ezResult Initialize(ezVisualScriptInstance& instance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue);
+  ezResult Initialize(ezVisualScriptInstance& ref_instance, ezArrayPtr<ezVariant> arguments);
 
   using ReturnValue = ezVisualScriptGraphDescription::ReturnValue;
   ReturnValue::Enum Execute();
@@ -75,7 +75,7 @@ public:
   virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override { return nullptr; }
   virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override { return ezPropertyFlags::Void; }
 
-  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue) const override;
+  virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const override;
 
 private:
   ezHashedString m_sPropertyNameStorage;
