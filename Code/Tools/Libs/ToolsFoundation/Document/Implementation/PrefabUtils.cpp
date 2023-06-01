@@ -39,11 +39,11 @@ ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& ref
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
-    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "ObjectTree"))
+    if (pNode->GetNodeName() == "ObjectTree")
     {
       for (const auto& ObjectTreeProp : pNode->GetProperties())
       {
-        if (ezStringUtils::IsEqual(ObjectTreeProp.m_szPropertyName, "Children") && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
+        if (ObjectTreeProp.m_sPropertyName == "Children" && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
         {
           const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
 
@@ -69,11 +69,11 @@ void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& ref_graph, ezHybridArray
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto* pNode = it.Value();
-    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "ObjectTree"))
+    if (pNode->GetNodeName() == "ObjectTree")
     {
       for (const auto& ObjectTreeProp : pNode->GetProperties())
       {
-        if (ezStringUtils::IsEqual(ObjectTreeProp.m_szPropertyName, "Children") && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
+        if (ObjectTreeProp.m_sPropertyName == "Children" && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
         {
           const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
 

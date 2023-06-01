@@ -434,7 +434,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
     FunctionTest test;
     test.m_values.PushBack(ezVariant(ezString("String0")));
     test.m_values.PushBack(ezVariant(ezString("String1")));
-    test.m_values.PushBack(ezStringView("String2"));
+    test.m_values.PushBack(ezVariant(ezStringView("String2"), false));
 
     ezVariant ret;
     funccall.Execute(&test, test.m_values, ret);

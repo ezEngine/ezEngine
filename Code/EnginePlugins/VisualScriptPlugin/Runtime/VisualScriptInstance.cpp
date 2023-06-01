@@ -2,8 +2,8 @@
 
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
-ezVisualScriptInstance::ezVisualScriptInstance(ezReflectedClass& owner, ezWorld* pWorld, const ezSharedPtr<const ezVisualScriptDataStorage>& pConstantDataStorage, const ezSharedPtr<const ezVisualScriptDataDescription>& pVariableDataDesc)
-  : m_Owner(owner)
+ezVisualScriptInstance::ezVisualScriptInstance(ezReflectedClass& ref_owner, ezWorld* pWorld, const ezSharedPtr<const ezVisualScriptDataStorage>& pConstantDataStorage, const ezSharedPtr<const ezVisualScriptDataDescription>& pVariableDataDesc)
+  : m_Owner(ref_owner)
   , m_pWorld(pWorld)
   , m_pConstantDataStorage(pConstantDataStorage)
 {
@@ -25,9 +25,9 @@ ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(ezUniquePtr<ezVis
 {
 }
 
-ezResult ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& instance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue)
+ezResult ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& ref_instance, ezArrayPtr<ezVariant> arguments)
 {
-  m_pInstance = &instance;
+  m_pInstance = &ref_instance;
 
   auto pNode = m_pDesc->GetNode(0);
   EZ_ASSERT_DEV(pNode->m_Type == ezVisualScriptNodeDescription::Type::EntryCall, "Invalid entry node");
@@ -74,12 +74,12 @@ ezVisualScriptFunctionProperty::ezVisualScriptFunctionProperty(const char* szPro
 
 ezVisualScriptFunctionProperty::~ezVisualScriptFunctionProperty() = default;
 
-void ezVisualScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue) const
+void ezVisualScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const
 {
   EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
   auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(pInstance);
 
-  if (m_ExecutionContext.Initialize(*pVisualScriptInstance, arguments, returnValue).Failed())
+  if (m_ExecutionContext.Initialize(*pVisualScriptInstance, arguments).Failed())
   {
     return;
   }

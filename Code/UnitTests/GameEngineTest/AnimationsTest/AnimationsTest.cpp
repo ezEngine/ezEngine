@@ -45,7 +45,7 @@ ezResult ezGameEngineTestAnimations::InitializeSubTest(ezInt32 iIdentifier)
 
 ezTestAppRun ezGameEngineTestAnimations::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
-  const bool bVulkan = ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "Vulkan");
+  const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
   if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)

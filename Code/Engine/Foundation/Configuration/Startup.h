@@ -92,10 +92,10 @@ public:
   /// this set, even though they don't use graphical output. 'editor' : for all applications that run the editor framework, set on the Editor and the
   /// EditorProcessor 'testframework' : for applications that execute the ezTestFramework 'tool' : for all stand-alone tool applications, set by the
   /// editor, editorprocessor, fileserve, etc.
-  static void AddApplicationTag(const char* szTag);
+  static void AddApplicationTag(ezStringView sTag);
 
   /// \brief Query whether a tag was added with AddApplicationTag()
-  static bool HasApplicationTag(const char* szTag);
+  static bool HasApplicationTag(ezStringView sTag);
 
   /// \brief Runs the 'base' startup sequence of all subsystems in the proper order.
   ///
@@ -146,18 +146,18 @@ private:
   /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
   /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and EZ_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event
   /// parameter.
-  static void UnloadPluginSubSystems(const char* szPluginName);
+  static void UnloadPluginSubSystems(ezStringView sPluginName);
 
   static void PluginEventHandler(const ezPluginEvent& EventData);
-  static void AssignSubSystemPlugin(const char* szPluginName);
+  static void AssignSubSystemPlugin(ezStringView sPluginName);
 
   static void ComputeOrder(ezDeque<ezSubSystem*>& Order);
-  static bool HasDependencyOnPlugin(ezSubSystem* pSubSystem, const char* szModule);
+  static bool HasDependencyOnPlugin(ezSubSystem* pSubSystem, ezStringView sModule);
 
   static void Startup(ezStartupStage::Enum stage);
   static void Shutdown(ezStartupStage::Enum stage);
 
   static bool s_bPrintAllSubSystems;
   static ezStartupStage::Enum s_CurrentState;
-  static ezDynamicArray<const char*> s_ApplicationTags;
+  static ezDynamicArray<ezStringView> s_ApplicationTags;
 };

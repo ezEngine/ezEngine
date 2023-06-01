@@ -14,7 +14,7 @@ class ezRemoteInterfaceEnetImpl : public ezRemoteInterfaceEnet
 
 protected:
   virtual void InternalUpdateRemoteInterface() override;
-  virtual ezResult InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress) override;
+  virtual ezResult InternalCreateConnection(ezRemoteMode mode, ezStringView sServerAddress) override;
   virtual void InternalShutdownConnection() override;
   virtual ezTime InternalGetPingToServer() override;
   virtual ezResult InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data) override;
@@ -39,7 +39,7 @@ ezRemoteInterfaceEnet::~ezRemoteInterfaceEnet() = default;
 
 bool ezRemoteInterfaceEnetImpl::s_bEnetInitialized = false;
 
-ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, const char* szServerAddress)
+ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, ezStringView sServerAddress)
 {
   if (!s_bEnetInitialized)
   {
@@ -54,12 +54,12 @@ ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, 
 
   {
     // Extract port from address
-    const char* szPort = ezStringUtils::FindLastSubString(szServerAddress, ":");
-    szPort = (szPort) ? szPort + 1 : szServerAddress;
+    const char* szPortStart = sServerAddress.FindLastSubString(":");
+    ezStringView sPort = (szPortStart != nullptr) ? ezStringView(szPortStart + 1, sServerAddress.GetEndPointer()) : sServerAddress;
     ezInt32 iPort = 0;
-    if (ezConversionUtils::StringToInt(szPort, iPort).Failed())
+    if (ezConversionUtils::StringToInt(sPort, iPort).Failed())
     {
-      ezLog::Error("Failed to extract port from server address: {0}", szServerAddress);
+      ezLog::Error("Failed to extract port from server address: {0}", sServerAddress);
       return EZ_FAILURE;
     }
     m_uiPort = static_cast<ezUInt16>(iPort);
@@ -83,9 +83,10 @@ ezResult ezRemoteInterfaceEnetImpl::InternalCreateConnection(ezRemoteMode mode, 
   }
   else
   {
-    if (DetermineTargetAddress(szServerAddress, m_EnetServerAddress.host, m_EnetServerAddress.port).Failed())
+    if (DetermineTargetAddress(sServerAddress, m_EnetServerAddress.host, m_EnetServerAddress.port).Failed())
     {
-      enet_address_set_host(&m_EnetServerAddress, szServerAddress);
+      ezStringBuilder tmp;
+      enet_address_set_host(&m_EnetServerAddress, sServerAddress.GetData(tmp));
     }
 
     // use default settings for enet_host_create

@@ -1510,7 +1510,7 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
     case ezVariant::Type::String:
       return ezVariant(ezString());
     case ezVariant::Type::StringView:
-      return ezVariant(ezStringView());
+      return ezVariant(ezStringView(), false);
     case ezVariant::Type::DataBuffer:
       return ezVariant(ezDataBuffer());
     case ezVariant::Type::Time:

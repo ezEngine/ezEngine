@@ -465,7 +465,7 @@ ezUuid ezMaterialAssetDocument::GetMaterialNodeGuid(const ezAbstractObjectGraph&
 {
   for (auto it = graph.GetAllNodes().GetIterator(); it.IsValid(); ++it)
   {
-    if (ezStringUtils::IsEqual(it.Value()->GetType(), ezGetStaticRTTI<ezMaterialAssetProperties>()->GetTypeName()))
+    if (it.Value()->GetType() == ezGetStaticRTTI<ezMaterialAssetProperties>()->GetTypeName())
     {
       return it.Value()->GetGuid();
     }

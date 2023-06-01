@@ -2,23 +2,23 @@
 
 // static
 template <typename T, ezUInt32 Size>
-void ezVisualScriptGraphDescription::EmbeddedArrayOrPointer<T, Size>::AddAdditionalDataSize(ezArrayPtr<const T> a, ezUInt32& inout_additionalDataSize)
+void ezVisualScriptGraphDescription::EmbeddedArrayOrPointer<T, Size>::AddAdditionalDataSize(ezArrayPtr<const T> a, ezUInt32& inout_uiAdditionalDataSize)
 {
   if (a.GetCount() > Size)
   {
-    inout_additionalDataSize = ezMemoryUtils::AlignSize<ezUInt32>(inout_additionalDataSize, EZ_ALIGNMENT_OF(T));
-    inout_additionalDataSize += a.GetCount() * sizeof(T);
+    inout_uiAdditionalDataSize = ezMemoryUtils::AlignSize<ezUInt32>(inout_uiAdditionalDataSize, EZ_ALIGNMENT_OF(T));
+    inout_uiAdditionalDataSize += a.GetCount() * sizeof(T);
   }
 }
 
 // static
 template <typename T, ezUInt32 Size>
-void ezVisualScriptGraphDescription::EmbeddedArrayOrPointer<T, Size>::AddAdditionalDataSize(ezUInt32 uiSize, ezUInt32 uiAlignment, ezUInt32& inout_additionalDataSize)
+void ezVisualScriptGraphDescription::EmbeddedArrayOrPointer<T, Size>::AddAdditionalDataSize(ezUInt32 uiSize, ezUInt32 uiAlignment, ezUInt32& inout_uiAdditionalDataSize)
 {
   if (uiSize > Size * sizeof(T))
   {
-    inout_additionalDataSize = ezMemoryUtils::AlignSize<ezUInt32>(inout_additionalDataSize, uiAlignment);
-    inout_additionalDataSize += uiSize;
+    inout_uiAdditionalDataSize = ezMemoryUtils::AlignSize<ezUInt32>(inout_uiAdditionalDataSize, uiAlignment);
+    inout_uiAdditionalDataSize += uiSize;
   }
 }
 

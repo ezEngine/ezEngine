@@ -156,19 +156,19 @@ void ezFileserveClient::UpdateClient()
   m_pNetwork->ExecuteAllMessageHandlers();
 }
 
-void ezFileserveClient::AddServerAddressToTry(const char* szAddress)
+void ezFileserveClient::AddServerAddressToTry(ezStringView sAddress)
 {
   EZ_LOCK(m_Mutex);
-  if (ezStringUtils::IsNullOrEmpty(szAddress))
+  if (sAddress.IsEmpty())
     return;
 
-  if (m_TryServerAddresses.Contains(szAddress))
+  if (m_TryServerAddresses.Contains(sAddress))
     return;
 
-  m_TryServerAddresses.PushBack(szAddress);
+  m_TryServerAddresses.PushBack(sAddress);
 
   // always set the most recent address as the default one
-  m_sServerConnectionAddress = szAddress;
+  m_sServerConnectionAddress = sAddress;
 }
 
 void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent)

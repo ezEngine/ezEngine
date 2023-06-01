@@ -56,7 +56,7 @@ public:
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
   bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }
 
-  void SetRenderer(const char* szRenderer) { m_sRenderer = szRenderer; }
+  void SetRenderer(ezStringView sRenderer) { m_sRenderer = sRenderer; }
   const char* GetRenderer() const { return m_sRenderer; }
 
   bool IsEngineSetup() const { return m_bClientIsConfigured; }

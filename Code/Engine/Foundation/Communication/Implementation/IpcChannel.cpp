@@ -13,7 +13,7 @@
 #  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
 #endif
 
-ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
+ezIpcChannel::ezIpcChannel(ezStringView sAddress, Mode::Enum mode)
   : m_Mode(mode)
   , m_pOwner(ezMessageLoop::GetSingleton())
 {
@@ -28,18 +28,18 @@ ezIpcChannel::~ezIpcChannel()
   m_pOwner->RemoveChannel(this);
 }
 
-ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum mode)
+ezIpcChannel* ezIpcChannel::CreatePipeChannel(ezStringView sAddress, Mode::Enum mode)
 {
-  if (ezStringUtils::IsNullOrEmpty(szAddress) || ezStringUtils::GetStringElementCount(szAddress) > 200)
+  if (sAddress.IsEmpty() || sAddress.GetElementCount() > 200)
   {
-    ezLog::Error("Failed co create pipe '{0}', name is not valid", szAddress);
+    ezLog::Error("Failed co create pipe '{0}', name is not valid", sAddress);
     return nullptr;
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  return EZ_DEFAULT_NEW(ezPipeChannel_win, szAddress, mode);
+  return EZ_DEFAULT_NEW(ezPipeChannel_win, sAddress, mode);
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  return EZ_DEFAULT_NEW(ezPipeChannel_linux, szAddress, mode);
+  return EZ_DEFAULT_NEW(ezPipeChannel_linux, sAddress, mode);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
@@ -47,10 +47,10 @@ ezIpcChannel* ezIpcChannel::CreatePipeChannel(const char* szAddress, Mode::Enum 
 }
 
 
-ezIpcChannel* ezIpcChannel::CreateNetworkChannel(const char* szAddress, Mode::Enum mode)
+ezIpcChannel* ezIpcChannel::CreateNetworkChannel(ezStringView sAddress, Mode::Enum mode)
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-  return EZ_DEFAULT_NEW(ezIpcChannelEnet, szAddress, mode);
+  return EZ_DEFAULT_NEW(ezIpcChannelEnet, sAddress, mode);
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;

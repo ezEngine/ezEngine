@@ -5,16 +5,16 @@
 bool ezDataTransfer::s_bInitialized = false;
 ezSet<ezDataTransfer*> ezDataTransfer::s_AllTransfers;
 
-ezDataTransferObject::ezDataTransferObject(ezDataTransfer& ref_belongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension)
+ezDataTransferObject::ezDataTransferObject(ezDataTransfer& ref_belongsTo, ezStringView sObjectName, ezStringView sMimeType, ezStringView sFileExtension)
   : m_BelongsTo(ref_belongsTo)
 {
   m_bHasBeenTransferred = false;
 
   m_Msg.SetMessageID('TRAN', 'DATA');
   m_Msg.GetWriter() << ref_belongsTo.m_sDataName;
-  m_Msg.GetWriter() << szObjectName;
-  m_Msg.GetWriter() << szMimeType;
-  m_Msg.GetWriter() << szFileExtension;
+  m_Msg.GetWriter() << sObjectName;
+  m_Msg.GetWriter() << sMimeType;
+  m_Msg.GetWriter() << sFileExtension;
 }
 
 ezDataTransferObject::~ezDataTransferObject()
@@ -79,9 +79,9 @@ void ezDataTransfer::DisableDataTransfer()
   m_sDataName.Clear();
 }
 
-void ezDataTransfer::EnableDataTransfer(const char* szDataName)
+void ezDataTransfer::EnableDataTransfer(ezStringView sDataName)
 {
-  if (m_bEnabled && m_sDataName == szDataName)
+  if (m_bEnabled && m_sDataName == sDataName)
     return;
 
   DisableDataTransfer();
@@ -90,7 +90,7 @@ void ezDataTransfer::EnableDataTransfer(const char* szDataName)
 
   ezDataTransfer::s_AllTransfers.Insert(this);
 
-  m_sDataName = szDataName;
+  m_sDataName = sDataName;
 
   EZ_ASSERT_DEV(!m_sDataName.IsEmpty(), "The name for the data transfer must not be empty.");
 

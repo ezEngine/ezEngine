@@ -10,7 +10,7 @@ ezRemoteInterface::~ezRemoteInterface()
   EZ_ASSERT_DEV(m_RemoteMode == ezRemoteMode::None, "ezRemoteInterface::ShutdownConnection() has to be called before destroying the interface");
 }
 
-ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, const char* szServerAddress, bool bStartUpdateThread)
+ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, ezStringView sServerAddress, bool bStartUpdateThread)
 {
   ezUInt32 uiPrevID = m_uiApplicationID;
   ShutdownConnection();
@@ -19,7 +19,7 @@ ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemot
   EZ_LOCK(GetMutex());
 
   m_uiConnectionToken = uiConnectionToken;
-  m_sServerAddress = szServerAddress;
+  m_sServerAddress = sServerAddress;
 
   if (m_uiApplicationID == 0)
   {
@@ -27,7 +27,7 @@ ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemot
     m_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
   }
 
-  if (InternalCreateConnection(mode, szServerAddress).Failed())
+  if (InternalCreateConnection(mode, sServerAddress).Failed())
   {
     ShutdownConnection();
     return EZ_FAILURE;
@@ -45,14 +45,14 @@ ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemot
   return EZ_SUCCESS;
 }
 
-ezResult ezRemoteInterface::StartServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread /*= true*/)
+ezResult ezRemoteInterface::StartServer(ezUInt32 uiConnectionToken, ezStringView sAddress, bool bStartUpdateThread /*= true*/)
 {
-  return CreateConnection(uiConnectionToken, ezRemoteMode::Server, szAddress, bStartUpdateThread);
+  return CreateConnection(uiConnectionToken, ezRemoteMode::Server, sAddress, bStartUpdateThread);
 }
 
-ezResult ezRemoteInterface::ConnectToServer(ezUInt32 uiConnectionToken, const char* szAddress, bool bStartUpdateThread /*= true*/)
+ezResult ezRemoteInterface::ConnectToServer(ezUInt32 uiConnectionToken, ezStringView sAddress, bool bStartUpdateThread /*= true*/)
 {
-  return CreateConnection(uiConnectionToken, ezRemoteMode::Client, szAddress, bStartUpdateThread);
+  return CreateConnection(uiConnectionToken, ezRemoteMode::Client, sAddress, bStartUpdateThread);
 }
 
 ezResult ezRemoteInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime::Seconds(10)*/)
@@ -322,12 +322,12 @@ void ezRemoteInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSyste
   msg.GetWriter().WriteBytes(data.GetPtr(), data.GetCount()).IgnoreResult();
 }
 
-ezResult ezRemoteInterface::DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port)
+ezResult ezRemoteInterface::DetermineTargetAddress(ezStringView sConnectTo0, ezUInt32& out_IP, ezUInt16& out_Port)
 {
   out_IP = 0;
   out_Port = 0;
 
-  ezStringBuilder sConnectTo = szConnectTo;
+  ezStringBuilder sConnectTo = sConnectTo0;
 
   const char* szColon = sConnectTo.FindLastSubString(":");
   if (szColon != nullptr)

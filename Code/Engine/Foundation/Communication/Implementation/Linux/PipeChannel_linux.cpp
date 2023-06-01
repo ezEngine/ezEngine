@@ -12,15 +12,15 @@
 #  include <sys/socket.h>
 #  include <sys/un.h>
 
-ezPipeChannel_linux::ezPipeChannel_linux(const char* szAddress, Mode::Enum Mode)
-  : ezIpcChannel(szAddress, Mode)
+ezPipeChannel_linux::ezPipeChannel_linux(ezStringView sAddress, Mode::Enum Mode)
+  : ezIpcChannel(sAddress, Mode)
 {
   ezStringBuilder pipePath = ezOSFile::GetTempDataFolder("ez-pipes");
 
   // Make sure the directory exists that we want to place the pipes in.
   ezOSFile::CreateDirectoryStructure(pipePath).IgnoreResult();
 
-  pipePath.AppendPath(szAddress);
+  pipePath.AppendPath(sAddress);
   pipePath.Append(".server");
 
   m_serverSocketPath = pipePath;

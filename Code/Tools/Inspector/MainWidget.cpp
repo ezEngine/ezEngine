@@ -220,8 +220,10 @@ void ezQtMainWidget::UpdateStats()
   }
   else
   {
+    ezStringBuilder tmp;
+
     LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
-    LabelServer->setText(QString::fromUtf8("<p>Server: %1:%2</p>").arg(ezTelemetry::GetServerIP()).arg(ezTelemetry::s_uiPort));
+    LabelServer->setText(QString::fromUtf8("<p>Server: %1:%2</p>").arg(ezTelemetry::GetServerIP().GetData(tmp)).arg(ezTelemetry::s_uiPort));
   }
 }
 

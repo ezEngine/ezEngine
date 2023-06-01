@@ -112,6 +112,8 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
 
+  ezStringBuilder tmp;
+
   QStringList args;
   if (m_bProcessShouldWaitForDebugger)
   {
@@ -144,7 +146,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   // set up the EditorEngineProcess telemetry server on a different port
   {
     args << "-TelemetryPort";
-    args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050");
+    args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050").GetData(tmp);
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

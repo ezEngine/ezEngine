@@ -171,18 +171,22 @@ ezStatus ezPrefabDefaultStateProvider::CreateRevertContainerDiff(SuperArray supe
     auto pNode = pGraph->GetNode(objectPrefabGuid);
     ezAbstractObjectGraph prefabSubGraph;
     ezAbstractObjectNode* pPrefabSubRoot = pGraph->Clone(prefabSubGraph, pNode, [pRootNode = pNode, pRootProp = pProp](const ezAbstractObjectNode* pNode, const ezAbstractObjectNode::Property* pProp) {
-      if (pNode == pRootNode && !ezStringUtils::IsEqual(pProp->m_szPropertyName, pRootProp->GetPropertyName()))
+      if (pNode == pRootNode && pProp->m_sPropertyName != pRootProp->GetPropertyName())
         return false;
-      return true;
+
+      return true; //
     });
+
     prefabSubGraph.ReMapNodeGuids(m_PrefabSeedGuid);
 
     ezAbstractObjectGraph instanceSubGraph;
     ezDocumentObjectConverterWriter writer(&instanceSubGraph, pObject->GetDocumentObjectManager(), [pRootObject = pObject, pRootProp = pProp](const ezDocumentObject* pObject, const ezAbstractProperty* pProp) {
       if (pObject == pRootObject && pProp != pRootProp)
         return false;
-      return true;
+
+      return true; //
     });
+
     ezAbstractObjectNode* pInstanceSubRoot = writer.AddObjectToGraph(pObject);
 
     prefabSubGraph.CreateDiffWithBaseGraph(instanceSubGraph, out_diff);

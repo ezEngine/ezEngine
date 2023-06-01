@@ -408,19 +408,20 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
 #define EZ_MSVC_WARNING_NUMBER 4505
 #include <Foundation/Basics/Compiler/MSVC/DisableWarning_MSVC.h>
 
-static bool IsValidIdentifierName(const char* szIdentifier)
+static bool IsValidIdentifierName(ezStringView sIdentifier)
 {
   // empty strings are not valid
-  if (ezStringUtils::IsNullOrEmpty(szIdentifier))
+  if (sIdentifier.IsEmpty())
     return false;
 
   // digits are not allowed as the first character
-  if (szIdentifier[0] >= '0' && szIdentifier[0] <= '9')
+  ezUInt32 uiChar = sIdentifier.GetCharacter();
+  if (uiChar >= '0' && uiChar <= '9')
     return false;
 
-  for (const char* s = szIdentifier; *s != '\0'; ++s)
+  for (auto it = sIdentifier.GetIteratorFront(); it.IsValid(); ++it)
   {
-    const char c = *s;
+    const ezUInt32 c = it.GetCharacter();
 
     if (c >= 'a' && c <= 'z')
       continue;

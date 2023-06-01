@@ -44,23 +44,23 @@ public:
   /// \brief Checks whether all required options are passed to the command line.
   ///
   /// The options are passed as a semicolon-separated list (spare spaces are stripped away), for instance "-opt1; -opt2"
-  static ezResult RequireOptions(const char* szRequiredOptions, ezString* pMissingOption = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
+  static ezResult RequireOptions(ezStringView sRequiredOptions, ezString* pMissingOption = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
 
   /// \brief Prints all available options to the ezLog.
   ///
   /// \param szGroupFilter
   ///   If this is empty, all options from all 'sorting groups' are logged.
   ///   If non-empty, only options from sorting groups that appear in this string will be logged.
-  static bool LogAvailableOptions(LogAvailableModes mode, const char* szGroupFilter = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
+  static bool LogAvailableOptions(LogAvailableModes mode, ezStringView sGroupFilter = {}, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
 
   /// \brief Same as LogAvailableOptions() but captures the output from ezLog and returns it in an ezStringBuilder.
-  static bool LogAvailableOptionsToBuffer(ezStringBuilder& out_sBuffer, LogAvailableModes mode, const char* szGroupFilter = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
+  static bool LogAvailableOptionsToBuffer(ezStringBuilder& out_sBuffer, LogAvailableModes mode, ezStringView sGroupFilter = {}, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()); // [tested]
 
 public:
   /// \param szSortingGroup
   ///   This string is used to sort options. Application options should start with an underscore, such that they appear first
   ///   in the output.
-  ezCommandLineOption(const char* szSortingGroup) { m_szSortingGroup = szSortingGroup; }
+  ezCommandLineOption(ezStringView sSortingGroup) { m_sSortingGroup = sSortingGroup; }
 
   /// \brief Writes the sorting group name to 'out'.
   virtual void GetSortingGroup(ezStringBuilder& ref_sOut) const;
@@ -84,10 +84,10 @@ public:
   virtual void GetLongDesc(ezStringBuilder& ref_sOut) const = 0;
 
   /// \brief Returns a string indicating the exact implementation type.
-  virtual const char* GetType() = 0;
+  virtual ezStringView GetType() = 0;
 
 protected:
-  const char* m_szSortingGroup = nullptr;
+  ezStringView m_sSortingGroup;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ protected:
 class EZ_FOUNDATION_DLL ezCommandLineOptionDoc : public ezCommandLineOption
 {
 public:
-  ezCommandLineOptionDoc(const char* szSortingGroup, const char* szArgument, const char* szParamShortDesc, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
+  ezCommandLineOptionDoc(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sParamShortDesc, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive = false);
 
   virtual void GetOptions(ezStringBuilder& ref_sOut) const override; // [tested]
 
@@ -113,19 +113,19 @@ public:
   virtual void GetLongDesc(ezStringBuilder& ref_sOut) const override; // [tested]
 
   /// \brief Returns "Doc"
-  virtual const char* GetType() override { return "Doc"; }
+  virtual ezStringView GetType() override { return "Doc"; }
 
   /// \brief Checks whether any of the option variants is set on the command line, and returns which one. For example '-h' or '-help'.
   bool IsOptionSpecified(ezStringBuilder* out_pWhich = nullptr, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
 protected:
   bool ShouldLog(LogMode mode, bool bWasSpecified) const;
-  void LogOption(const char* szOption, const char* szValue, bool bWasSpecified) const;
+  void LogOption(ezStringView sOption, ezStringView sValue, bool bWasSpecified) const;
 
-  const char* m_szArgument = nullptr;
-  const char* m_szParamShortDesc = nullptr;
-  const char* m_szParamDefaultValue = nullptr;
-  const char* m_szLongDesc = nullptr;
+  ezStringView m_sArgument;
+  ezStringView m_sParamShortDesc;
+  ezStringView m_sParamDefaultValue;
+  ezStringView m_sLongDesc;
   bool m_bCaseSensitive = false;
   mutable bool m_bLoggedOnce = false;
 };
@@ -138,7 +138,7 @@ protected:
 class EZ_FOUNDATION_DLL ezCommandLineOptionBool : public ezCommandLineOptionDoc
 {
 public:
-  ezCommandLineOptionBool(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, bool bDefaultValue, bool bCaseSensitive = false);
+  ezCommandLineOptionBool(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, bool bDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
   bool GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
@@ -153,7 +153,7 @@ public:
   bool GetDefaultValue() const { return m_bDefaultValue; }
 
   /// \brief Returns "Bool"
-  virtual const char* GetType() override { return "Bool"; }
+  virtual ezStringView GetType() override { return "Bool"; }
 
 protected:
   bool m_bDefaultValue = false;
@@ -170,7 +170,7 @@ protected:
 class EZ_FOUNDATION_DLL ezCommandLineOptionInt : public ezCommandLineOptionDoc
 {
 public:
-  ezCommandLineOptionInt(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, int iDefaultValue, int iMinValue = ezMath::MinValue<int>(), int iMaxValue = ezMath::MaxValue<int>(), bool bCaseSensitive = false);
+  ezCommandLineOptionInt(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, int iDefaultValue, int iMinValue = ezMath::MinValue<int>(), int iMaxValue = ezMath::MaxValue<int>(), bool bCaseSensitive = false);
 
   virtual void GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const override; // [tested]
 
@@ -186,7 +186,7 @@ public:
   }
 
   /// \brief Returns "Int"
-  virtual const char* GetType() override { return "Int"; }
+  virtual ezStringView GetType() override { return "Int"; }
 
   /// \brief Returns the minimum value.
   ezInt32 GetMinValue() const { return m_iMinValue; }
@@ -214,7 +214,7 @@ protected:
 class EZ_FOUNDATION_DLL ezCommandLineOptionFloat : public ezCommandLineOptionDoc
 {
 public:
-  ezCommandLineOptionFloat(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, float fDefaultValue, float fMinValue = ezMath::MinValue<float>(), float fMaxValue = ezMath::MaxValue<float>(), bool bCaseSensitive = false);
+  ezCommandLineOptionFloat(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, float fDefaultValue, float fMinValue = ezMath::MinValue<float>(), float fMaxValue = ezMath::MaxValue<float>(), bool bCaseSensitive = false);
 
   virtual void GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const override; // [tested]
 
@@ -230,7 +230,7 @@ public:
   }
 
   /// \brief Returns "Float"
-  virtual const char* GetType() override { return "Float"; }
+  virtual ezStringView GetType() override { return "Float"; }
 
   /// \brief Returns the minimum value.
   float GetMinValue() const { return m_fMinValue; }
@@ -255,25 +255,25 @@ protected:
 class EZ_FOUNDATION_DLL ezCommandLineOptionString : public ezCommandLineOptionDoc
 {
 public:
-  ezCommandLineOptionString(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
+  ezCommandLineOptionString(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
-  const char* GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
+  ezStringView GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
-  void SetDefaultValue(const char* value)
+  void SetDefaultValue(ezStringView sValue)
   {
-    m_szDefaultValue = value;
+    m_sDefaultValue = sValue;
   }
 
   /// \brief Returns the default value.
-  const char* GetDefaultValue() const { return m_szDefaultValue; }
+  ezStringView GetDefaultValue() const { return m_sDefaultValue; }
 
   /// \brief Returns "String"
-  virtual const char* GetType() override { return "String"; }
+  virtual ezStringView GetType() override { return "String"; }
 
 protected:
-  const char* m_szDefaultValue = "";
+  ezStringView m_sDefaultValue;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -284,25 +284,25 @@ protected:
 class EZ_FOUNDATION_DLL ezCommandLineOptionPath : public ezCommandLineOptionDoc
 {
 public:
-  ezCommandLineOptionPath(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szDefaultValue, bool bCaseSensitive = false);
+  ezCommandLineOptionPath(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
   ezString GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
 
   /// \brief Modifies the default value
-  void SetDefaultValue(const char* value)
+  void SetDefaultValue(ezStringView sValue)
   {
-    m_szDefaultValue = value;
+    m_sDefaultValue = sValue;
   }
 
   /// \brief Returns the default value.
-  const char* GetDefaultValue() const { return m_szDefaultValue; }
+  ezStringView GetDefaultValue() const { return m_sDefaultValue; }
 
   /// \brief Returns "Path"
-  virtual const char* GetType() override { return "Path"; }
+  virtual ezStringView GetType() override { return "Path"; }
 
 protected:
-  const char* m_szDefaultValue = "";
+  ezStringView m_sDefaultValue;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -321,7 +321,7 @@ protected:
 class EZ_FOUNDATION_DLL ezCommandLineOptionEnum : public ezCommandLineOptionDoc
 {
 public:
-  ezCommandLineOptionEnum(const char* szSortingGroup, const char* szArgument, const char* szLongDesc, const char* szEnumKeysAndValues, ezInt32 iDefaultValue, bool bCaseSensitive = false);
+  ezCommandLineOptionEnum(ezStringView sSortingGroup, ezStringView sArgument, ezStringView sLongDesc, ezStringView sEnumKeysAndValues, ezInt32 iDefaultValue, bool bCaseSensitive = false);
 
   /// \brief Returns the value of this option. Either what was specified on the command line, or the default value.
   ezInt32 GetOptionValue(LogMode logMode, const ezCommandLineUtils* pUtils = ezCommandLineUtils::GetGlobalInstance()) const; // [tested]
@@ -349,9 +349,9 @@ public:
   ezInt32 GetDefaultValue() const { return m_iDefaultValue; }
 
   /// \brief Returns "Enum"
-  virtual const char* GetType() override { return "Enum"; }
+  virtual ezStringView GetType() override { return "Enum"; }
 
 protected:
   ezInt32 m_iDefaultValue = 0;
-  const char* m_szEnumKeysAndValues = nullptr;
+  ezStringView m_sEnumKeysAndValues;
 };

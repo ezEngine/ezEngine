@@ -77,7 +77,7 @@ public:
   void UpdateClient();
 
   /// \brief Adds an address that should be tried for connecting with the server.
-  void AddServerAddressToTry(const char* szAddress);
+  void AddServerAddressToTry(ezStringView sAddress);
 
 private:
   friend class ezDataDirectory::FileserveType;

@@ -237,10 +237,10 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
   constexpr const char* szDefaultRenderer = "DX11";
 #endif
 
-  const char* szRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+  ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
   const char* szShaderModel = "";
   const char* szShaderCompiler = "";
-  ezGALDeviceFactory::GetShaderModelAndCompiler(szRendererName, szShaderModel, szShaderCompiler);
+  ezGALDeviceFactory::GetShaderModelAndCompiler(sRendererName, szShaderModel, szShaderCompiler);
 
   ezShaderManager::Configure(szShaderModel, true);
   EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
@@ -337,8 +337,8 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bDebugDevice = true;
 
-    m_pDevice = ezGALDeviceFactory::CreateDevice(szRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-    EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", szRendererName);
+    m_pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+    EZ_ASSERT_DEV(m_pDevice != nullptr, "Device implemention for '{}' not found", sRendererName);
     EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
     ezGALDevice::SetDefaultDevice(m_pDevice);

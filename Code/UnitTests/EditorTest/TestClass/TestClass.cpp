@@ -136,12 +136,12 @@ ezResult ezEditorTest::InitializeTest()
 #endif
   }
 
-  if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && s_bIsReferenceDriver)
+  if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsReferenceDriver)
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
   }
-  else if (ezStringUtils::IsEqual_NoCase(ezGameApplication::GetActiveRenderer(), "DX11") && s_bIsAMDDriver)
+  else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsAMDDriver)
   {
     // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
