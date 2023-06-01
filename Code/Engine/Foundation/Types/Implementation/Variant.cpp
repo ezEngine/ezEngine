@@ -37,6 +37,14 @@ ezVariant::ezVariant(const ezString& value)
   InitShared(value);
 }
 
+ezVariant::ezVariant(const ezStringView& value, bool bCopyString)
+{
+  if (bCopyString)
+    InitShared(ezString(value));
+  else
+    InitInplace(value);
+}
+
 ezVariant::ezVariant(const ezUntrackedString& value)
 {
   InitShared(value);
@@ -74,19 +82,6 @@ ezVariant::ezVariant(const ezTypedObject& value)
   m_Data.shared = EZ_DEFAULT_NEW(RTTISharedData, ptr, value.m_pType);
   m_uiType = Type::TypedObject;
   m_bIsShared = true;
-}
-
-ezVariant::ezVariant(const ezStringView& value, bool bCopyString)
-{
-  if (bCopyString)
-  {
-    const ezRTTI* pType = ezGetStaticRTTI<ezString>();
-    m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<ezString>, value, pType);
-    m_uiType = ezVariantType::String;
-    m_bIsShared = true;
-  }
-  else
-    InitInplace(value);
 }
 
 void ezVariant::CopyTypedObject(const void* value, const ezRTTI* pType)
