@@ -11,9 +11,6 @@ template <typename T, ezUInt32 Size, typename AllocatorWrapper = ezDefaultAlloca
 class ezHybridArray : public ezDynamicArray<T, AllocatorWrapper>
 {
 public:
-  // Only if the stored type is either POD or relocatable the hybrid array itself is also relocatable.
-  EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T);
-
   /// \brief Creates an empty array. Does not allocate any data yet.
   ezHybridArray(); // [tested]
 

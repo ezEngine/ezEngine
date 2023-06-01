@@ -129,8 +129,6 @@ template <ezUInt16 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 struct ezHybridString : public ezHybridStringBase<Size>
 {
 public:
-  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
-
   ezHybridString();
   ezHybridString(ezAllocatorBase* pAllocator);
 
@@ -170,7 +168,7 @@ using ezString64 = ezHybridString<64>;
 using ezString128 = ezHybridString<128>;
 using ezString256 = ezHybridString<256>;
 
-EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezString>::value == 2, "string is not memory relocatable");
+static_assert(ezGetTypeClass<ezString>::value == ezTypeIsClass::value);
 
 template <ezUInt16 Size>
 struct ezCompareHelper<ezHybridString<Size>>
