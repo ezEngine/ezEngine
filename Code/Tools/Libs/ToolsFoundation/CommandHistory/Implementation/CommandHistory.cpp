@@ -457,8 +457,7 @@ ezSharedPtr<ezCommandHistory::Storage> ezCommandHistory::SwapStorage(ezSharedPtr
 
   m_pHistoryStorage = pNewStorage;
 
-  m_pHistoryStorage->m_Events.AddEventHandler([this](const ezCommandHistoryEvent& e)
-    { m_Events.Broadcast(e); },
+  m_pHistoryStorage->m_Events.AddEventHandler([this](const ezCommandHistoryEvent& e) { m_Events.Broadcast(e); },
     m_EventsUnsubscriber);
 
   return retVal;
