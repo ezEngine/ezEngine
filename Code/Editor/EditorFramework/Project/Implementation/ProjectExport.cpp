@@ -150,7 +150,7 @@ ezResult ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_
   {
     if (auto pAssMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
     {
-      pAssMan->GetAdditionalOutputs(addFiles);
+      pAssMan->GetAdditionalOutputs(addFiles).AssertSuccess();
 
       for (const auto& file : addFiles)
       {

@@ -312,7 +312,7 @@ void ezQtAssetProfilesDlg::on_DeleteButton_clicked()
   ezRemoveObjectCommand cmd;
   cmd.m_Object = sel[0]->GetGuid();
 
-  m_pDocument->GetCommandHistory()->AddCommand(cmd);
+  m_pDocument->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 
   m_pDocument->GetCommandHistory()->FinishTransaction();
 }
@@ -338,7 +338,7 @@ void ezQtAssetProfilesDlg::on_RenameButton_clicked()
   cmd.m_sProperty = "Name";
   cmd.m_NewValue = sProfileName;
 
-  m_pDocument->GetCommandHistory()->AddCommand(cmd);
+  m_pDocument->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 
   m_pDocument->GetCommandHistory()->FinishTransaction();
 }

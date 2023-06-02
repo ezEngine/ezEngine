@@ -316,7 +316,7 @@ ezResult ezCppProject::RunCMakeIfNecessary(const ezCppSettings& cfg)
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
 
-  if (ezCppProject::ExistsSolution(cfg) && ezCppProject::CheckCMakeCache(cfg))
+  if (ezCppProject::ExistsSolution(cfg) && ezCppProject::CheckCMakeCache(cfg).Succeeded())
     return EZ_SUCCESS;
 
   return ezCppProject::RunCMake(cfg);
@@ -391,7 +391,7 @@ ezResult ezCppProject::BuildCodeIfNecessary(const ezCppSettings& cfg)
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
 
-  if (!ezCppProject::ExistsSolution(cfg) || !ezCppProject::CheckCMakeCache(cfg))
+  if (!ezCppProject::ExistsSolution(cfg) || ezCppProject::CheckCMakeCache(cfg).Failed())
   {
     EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMake(cfg));
   }
@@ -503,7 +503,7 @@ bool ezCppProject::IsBuildRequired()
   if (!ezCppProject::ExistsSolution(cfg))
     return true;
 
-  if (!ezCppProject::CheckCMakeCache(cfg))
+  if (ezCppProject::CheckCMakeCache(cfg).Failed())
     return true;
 
   ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();

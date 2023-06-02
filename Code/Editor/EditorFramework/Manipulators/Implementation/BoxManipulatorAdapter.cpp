@@ -101,7 +101,7 @@ void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
       ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
-      pObjectAccessor->GetValue(m_pObject, GetProperty(szSizeProperty), oldSize);
+      pObjectAccessor->GetValue(m_pObject, GetProperty(szSizeProperty), oldSize).AssertSuccess();
 
       const ezVec3 vOldSize = oldSize.ConvertTo<ezVec3>();
 
@@ -111,7 +111,7 @@ void ezBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
       if (!ezStringUtils::IsNullOrEmpty(szSizeProperty))
       {
-        pObjectAccessor->SetValue(m_pObject, GetProperty(szSizeProperty), newValue);
+        pObjectAccessor->SetValue(m_pObject, GetProperty(szSizeProperty), newValue).AssertSuccess();
       }
 
       if (pAttr->m_bRecenterParent)

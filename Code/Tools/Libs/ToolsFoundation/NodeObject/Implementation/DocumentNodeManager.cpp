@@ -385,7 +385,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
           ezMoveNodeCommand move;
           move.m_Object = pObject->GetGuid();
           move.m_NewPos = nodeMetaData.m_Pos;
-          history->AddCommand(move);
+          history->AddCommand(move).LogFailure();
         }
         else
         {
@@ -439,7 +439,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
         cmd.m_ObjectTarget = connectionMetaData.m_Target;
         cmd.m_sSourcePin = connectionMetaData.m_SourcePin;
         cmd.m_sTargetPin = connectionMetaData.m_TargetPin;
-        history->AddCommand(cmd);
+        history->AddCommand(cmd).LogFailure();
       }
       else
       {
@@ -566,7 +566,7 @@ bool ezDocumentNodeManager::PasteObjects(const ezArrayPtr<ezDocument::PasteInfo>
         ezMoveNodeCommand move;
         move.m_Object = pObject->GetGuid();
         move.m_NewPos = GetNodePos(pObject) + vMoveNode;
-        history->AddCommand(move);
+        history->AddCommand(move).LogFailure();
       }
     }
 

@@ -87,7 +87,7 @@ ezStatus ezExposedParameterCommandAccessor::GetCount(const ezDocumentObject* pOb
   if (m_pParameterProp == pProp)
   {
     ezHybridArray<ezVariant, 16> keys;
-    GetKeys(pObject, pProp, keys);
+    GetKeys(pObject, pProp, keys).AssertSuccess();
     out_iCount = keys.GetCount();
     return ezStatus(EZ_SUCCESS);
   }
@@ -127,7 +127,7 @@ ezStatus ezExposedParameterCommandAccessor::GetValues(
   if (m_pParameterProp == pProp)
   {
     ezHybridArray<ezVariant, 16> keys;
-    GetKeys(pObject, pProp, keys);
+    GetKeys(pObject, pProp, keys).AssertSuccess();
     for (const auto& key : keys)
     {
       auto& var = out_values.ExpandAndGetRef();

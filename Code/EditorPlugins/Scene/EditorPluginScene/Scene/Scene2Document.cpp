@@ -130,9 +130,9 @@ void ezScene2Document::InitializeAfterLoading(bool bFirstTimeCreation)
   if (pRoot->GetChildren().IsEmpty())
   {
     ezUuid objectGuid;
-    pAccessor->AddObject(pRoot, "Layers", 0, ezGetStaticRTTI<ezSceneLayer>(), objectGuid);
+    pAccessor->AddObject(pRoot, "Layers", 0, ezGetStaticRTTI<ezSceneLayer>(), objectGuid).AssertSuccess();
     const ezDocumentObject* pObject = pAccessor->GetObject(objectGuid);
-    pAccessor->SetValue(pObject, "Layer", GetGuid());
+    pAccessor->SetValue(pObject, "Layer", GetGuid()).AssertSuccess();
   }
 
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
@@ -371,8 +371,8 @@ void ezScene2Document::HandleObjectStateFromEngineMsg2(const ezPushObjectStateMs
         // retrieve all the bone keys and values, these will contain the exposed default values, in case a bone has never been overridden before
         ezVariantArray boneValues, boneKeys;
         ezExposedParameterCommandAccessor proxy(pAccessor, pBonesProperty, pParameterSourceProp);
-        proxy.GetValues(pComponent, pBonesProperty, boneValues);
-        proxy.GetKeys(pComponent, pBonesProperty, boneKeys);
+        proxy.GetValues(pComponent, pBonesProperty, boneValues).AssertSuccess();
+        proxy.GetKeys(pComponent, pBonesProperty, boneKeys).AssertSuccess();
 
         // apply all the new bone transforms
         for (const auto& bone : pState->m_BoneTransforms)
@@ -395,7 +395,7 @@ void ezScene2Document::HandleObjectStateFromEngineMsg2(const ezPushObjectStateMs
           ezVariant var;
           var.CopyTypedObject(&b, ezGetStaticRTTI<ezExposedBone>());
 
-          proxy.SetValue(pComponent, pBonesProperty, var, bone.Key());
+          proxy.SetValue(pComponent, pBonesProperty, var, bone.Key()).AssertSuccess();
         }
 
         // found a component/property to apply bones to, so we can stop
@@ -405,7 +405,7 @@ void ezScene2Document::HandleObjectStateFromEngineMsg2(const ezPushObjectStateMs
 
     pHistory->FinishTransaction();
   }
-  SetActiveLayer(activeLayer);
+  SetActiveLayer(activeLayer).LogFailure();
 }
 
 void ezScene2Document::UpdateLayers()

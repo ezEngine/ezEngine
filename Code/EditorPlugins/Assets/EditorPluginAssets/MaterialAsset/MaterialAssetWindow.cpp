@@ -303,7 +303,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
   // Write Asset Data
-  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false);
+  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).AssertSuccess();
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -340,8 +340,7 @@ void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
       if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
       {
         GetDocument()->GetSelectionManager()->SetSelection(GetMaterialDocument()->GetPropertyObject());
-      }
-    });
+      } });
   }
 }
 
@@ -413,7 +412,7 @@ void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, e
   // not what we want.
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(0, GetMaterialDocument()->GetAssetTypeVersion());
-  GetMaterialDocument()->RecreateVisualShaderFile(AssetHeader);
+  GetMaterialDocument()->RecreateVisualShaderFile(AssetHeader).LogFailure();
 }
 
 void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e)

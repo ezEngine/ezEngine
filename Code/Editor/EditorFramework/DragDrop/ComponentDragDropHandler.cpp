@@ -86,13 +86,13 @@ void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const 
 
   cmd2.m_sProperty = "LocalPosition";
   cmd2.m_NewValue = vPosition;
-  history->AddCommand(cmd2);
+  history->AddCommand(cmd2).AssertSuccess();
 
   if (qRotation.IsValid())
   {
     cmd2.m_sProperty = "LocalRotation";
     cmd2.m_NewValue = qRotation;
-    history->AddCommand(cmd2);
+    history->AddCommand(cmd2).AssertSuccess();
   }
 }
 

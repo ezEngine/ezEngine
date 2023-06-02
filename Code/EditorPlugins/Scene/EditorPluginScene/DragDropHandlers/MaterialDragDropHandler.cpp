@@ -62,7 +62,7 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
     cmd.m_NewValue = GetAssetGuidString(pInfo);
 
     m_pDocument->GetCommandHistory()->StartTransaction("Assign Material");
-    m_pDocument->GetCommandHistory()->AddCommand(cmd);
+    m_pDocument->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
     m_pDocument->GetCommandHistory()->FinishTransaction();
   }
 
@@ -74,7 +74,7 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
     cmd.m_NewValue = GetAssetGuidString(pInfo);
 
     m_pDocument->GetCommandHistory()->StartTransaction("Assign Material");
-    m_pDocument->GetCommandHistory()->AddCommand(cmd);
+    m_pDocument->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
     m_pDocument->GetCommandHistory()->FinishTransaction();
   }
 }

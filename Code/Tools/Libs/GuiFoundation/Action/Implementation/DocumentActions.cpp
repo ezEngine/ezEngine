@@ -183,7 +183,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
     case ezDocumentAction::ButtonType::Save:
     {
       ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
-      pWnd->SaveDocument();
+      pWnd->SaveDocument().LogFailure();
     }
     break;
 
@@ -219,7 +219,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
             if (ezDocumentManager::FindDocumentTypeFromPath(sFile, false, pTypeDesc).Succeeded())
             {
               ezDocument* pDocument = nullptr;
-              m_Context.m_pDocument->GetDocumentManager()->OpenDocument(pTypeDesc->m_sDocumentTypeName, sFile, pDocument);
+              m_Context.m_pDocument->GetDocumentManager()->OpenDocument(pTypeDesc->m_sDocumentTypeName, sFile, pDocument).LogFailure();
             }
           }
         }

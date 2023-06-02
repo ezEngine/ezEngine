@@ -49,7 +49,7 @@ void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& selection
     ezUnlinkPrefabCommand cmd;
     cmd.m_Object = pObject->GetGuid();
 
-    pHistory->AddCommand(cmd);
+    pHistory->AddCommand(cmd).AssertSuccess();
   }
 
   pHistory->FinishTransaction();
@@ -90,7 +90,7 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const
         ezRemoveObjectCommand remCmd;
         remCmd.m_Object = pNode->GetGuid();
 
-        GetCommandHistory()->AddCommand(remCmd);
+        GetCommandHistory()->AddCommand(remCmd).AssertSuccess();
       }
     }
 
@@ -199,7 +199,7 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
       szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
     instCmd.m_RemapGuid = prefabSeed;
 
-    GetCommandHistory()->AddCommand(instCmd);
+    GetCommandHistory()->AddCommand(instCmd).AssertSuccess();
 
     instantiatedRoot = instCmd.m_CreatedRootObject;
   }
@@ -239,7 +239,7 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
     ezRemoveObjectCommand remCmd;
     remCmd.m_Object = pRootObject->GetGuid();
 
-    GetCommandHistory()->AddCommand(remCmd);
+    GetCommandHistory()->AddCommand(remCmd).AssertSuccess();
   }
 
   GetCommandHistory()->FinishTransaction();
@@ -273,8 +273,8 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
 
   m_DocumentObjectMetaData->EndReadMetaData();
 
-  pHistory->AddCommand(remCmd);
-  pHistory->AddCommand(instCmd);
+  pHistory->AddCommand(remCmd).AssertSuccess();
+  pHistory->AddCommand(instCmd).AssertSuccess();
 
   return instCmd.m_CreatedRootObject;
 }
@@ -331,6 +331,6 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
   inst.m_sBasePrefabGraph = sNewBasePrefab;
   inst.m_sObjectGraph = sNewMergedGraph;
 
-  GetCommandHistory()->AddCommand(rm);
-  GetCommandHistory()->AddCommand(inst);
+  GetCommandHistory()->AddCommand(rm).AssertSuccess();
+  GetCommandHistory()->AddCommand(inst).AssertSuccess();
 }

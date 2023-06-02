@@ -119,20 +119,20 @@ void ezMaterialAssetProperties::SetShaderMode(ezEnum<ezMaterialShaderMode> mode)
   {
     case ezMaterialShaderMode::BaseMaterial:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "");
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "").AssertSuccess();
     }
     break;
     case ezMaterialShaderMode::File:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "");
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", "").AssertSuccess();
     }
     break;
     case ezMaterialShaderMode::Custom:
     {
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "");
-      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid(), tmp).GetData());
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "BaseMaterial", "").AssertSuccess();
+      pAccessor->SetValue(m_pDocument->GetPropertyObject(), "Shader", ezConversionUtils::ToString(m_pDocument->GetGuid(), tmp).GetData()).AssertSuccess();
     }
     break;
   }
@@ -227,7 +227,7 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
     // Force generate if custom shader is missing
     ezAssetFileHeader AssetHeader;
     AssetHeader.SetFileHashAndVersion(0, m_pDocument->GetAssetTypeVersion());
-    m_pDocument->RecreateVisualShaderFile(AssetHeader);
+    m_pDocument->RecreateVisualShaderFile(AssetHeader).LogFailure();
     pType = ezShaderTypeRegistry::GetSingleton()->GetShaderType(szShaderPath);
   }
 
@@ -291,7 +291,7 @@ void ezMaterialAssetProperties::LoadOldValues()
             cmd.m_NewValue = it.Value();
 
             // Do not check for success, if a cached value failed to apply, simply ignore it.
-            pHistory->AddCommand(cmd);
+            pHistory->AddCommand(cmd).AssertSuccess();
           }
         }
       }
@@ -579,7 +579,19 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
       cmd.m_Object.CombineWithSeed(PrefabSeed);
       cmd.m_NewValue = op.m_Value;
       cmd.m_sProperty = op.m_sProperty;
-      GetCommandHistory()->AddCommand(cmd);
+
+      auto pObj = GetObjectAccessor()->GetObject(cmd.m_Object);
+      if (!pObj)
+        continue;
+
+      auto pProp = pObj->GetType()->FindPropertyByName(op.m_sProperty);
+      if (!pProp)
+        continue;
+
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        continue;
+
+      GetCommandHistory()->AddCommand(cmd).AssertSuccess();
     }
   }
 
@@ -1159,7 +1171,7 @@ void ezMaterialAssetDocument::RemoveDisconnectedNodes()
       ezRemoveNodeCommand rem;
       rem.m_Object = it.Key()->GetGuid();
 
-      pHistory->AddCommand(rem);
+      pHistory->AddCommand(rem).AssertSuccess();
     }
 
     pHistory->FinishTransaction();

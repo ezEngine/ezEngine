@@ -155,7 +155,7 @@ void ezQtTagsDlg::SaveTags()
     }
   }
 
-  ezQtEditorApp::GetSingleton()->SaveTagRegistry();
+  ezQtEditorApp::GetSingleton()->SaveTagRegistry().LogFailure();
 }
 
 void ezQtTagsDlg::FillList()

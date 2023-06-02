@@ -79,7 +79,7 @@ public:
       return ezApplication::Execution::Quit;
     }
 
-    ezMiniDumpUtils::WriteExternalProcessMiniDump(m_sDumpFile, m_uiProcessID);
+    ezMiniDumpUtils::WriteExternalProcessMiniDump(m_sDumpFile, m_uiProcessID).IgnoreResult();
     return ezApplication::Execution::Quit;
   }
 };

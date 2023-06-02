@@ -355,13 +355,13 @@ bool ezQtPropertyWidget::GetCommonVariantSubType(
     {
       bFirst = false;
       ezVariant value;
-      m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index);
+      m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index).AssertSuccess();
       out_type = value.GetType();
     }
     else
     {
       ezVariant valueNext;
-      m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index);
+      m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index).AssertSuccess();
       if (valueNext.GetType() != out_type)
       {
         out_type = ezVariantType::Invalid;
@@ -383,12 +383,12 @@ ezVariant ezQtPropertyWidget::GetCommonValue(const ezHybridArray<ezPropertySelec
       const auto& item = items[i];
       if (i == 0)
       {
-        m_pObjectAccessor->GetValues(item.m_pObject, pProperty, values);
+        m_pObjectAccessor->GetValues(item.m_pObject, pProperty, values).AssertSuccess();
       }
       else
       {
         ezVariantArray valuesNext;
-        m_pObjectAccessor->GetValues(item.m_pObject, pProperty, valuesNext);
+        m_pObjectAccessor->GetValues(item.m_pObject, pProperty, valuesNext).AssertSuccess();
         if (values != valuesNext)
         {
           return ezVariant();
@@ -405,12 +405,12 @@ ezVariant ezQtPropertyWidget::GetCommonValue(const ezHybridArray<ezPropertySelec
     {
       if (!value.IsValid())
       {
-        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index);
+        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, value, item.m_Index).AssertSuccess();
       }
       else
       {
         ezVariant valueNext;
-        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index);
+        m_pObjectAccessor->GetValue(item.m_pObject, pProperty, valueNext, item.m_Index).AssertSuccess();
         if (value != valueNext)
         {
           value = ezVariant();
@@ -1748,8 +1748,8 @@ void ezQtVariantPropertyWidget::OnInit()
   }
 
   connect(m_pTypeList, &QComboBox::currentIndexChanged,
-    [this](int index) {
-      ChangeVariantType(static_cast<ezVariantType::Enum>(m_pTypeList->itemData(index).toInt()));
+    [this](int iIndex) {
+      ChangeVariantType(static_cast<ezVariantType::Enum>(m_pTypeList->itemData(iIndex).toInt()));
     });
 }
 

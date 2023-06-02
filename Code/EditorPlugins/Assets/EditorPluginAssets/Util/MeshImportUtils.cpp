@@ -147,7 +147,7 @@ namespace ezMeshImportUtils
       // TODO: Set... something else?
 
       pAccessor->FinishTransaction();
-      textureDocument->SaveDocument();
+      textureDocument->SaveDocument().LogFailure();
 
       ezStringBuilder guid;
       ezConversionUtils::ToString(textureDocument->GetGuid(), guid);

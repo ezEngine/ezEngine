@@ -183,7 +183,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
       ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
       for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
-        pObjectAccessor->RemoveValue(pObject, pProp, i);
+        pObjectAccessor->RemoveValue(pObject, pProp, i).AssertSuccess();
       }
 
       ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp, 0);
@@ -216,10 +216,10 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
     {
       ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
       ezHybridArray<ezVariant, 16> keys;
-      pObjectAccessor->GetKeys(pObject, pProp, keys);
+      pObjectAccessor->GetKeys(pObject, pProp, keys).AssertSuccess();
       for (const ezVariant& key : keys)
       {
-        pObjectAccessor->RemoveValue(pObject, pProp, key);
+        pObjectAccessor->RemoveValue(pObject, pProp, key).AssertSuccess();
       }
 
       ezVariant value1 = ezReflectionUtils::GetDefaultValue(pProp, "Dummy");

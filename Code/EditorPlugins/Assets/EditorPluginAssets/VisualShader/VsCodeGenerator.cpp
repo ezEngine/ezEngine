@@ -307,7 +307,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObje
   ezStringBuilder sInlineCode = pDesc->m_OutputPins[uiPinID].m_sShaderCodeInline;
   ezStringBuilder ignore; // DefineWhenUsingDefaultValue not used for output pins
 
-  ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode, ignore);
+  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pOwnerNode, pDesc, sInlineCode, ignore));
 
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pOwnerNode, pDesc, sInlineCode));
 

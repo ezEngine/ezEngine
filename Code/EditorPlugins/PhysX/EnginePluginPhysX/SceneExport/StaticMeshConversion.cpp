@@ -92,7 +92,11 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& ref_world,
   ezChunkStreamWriter chunk(file);
   chunk.BeginStream(1);
 
-  ezPhysXCooking::WriteResourceToStream(chunk, xMesh, surfaces, ezPhysXCooking::MeshType::Triangle);
+  if (ezPhysXCooking::WriteResourceToStream(chunk, xMesh, surfaces, ezPhysXCooking::MeshType::Triangle).Failed())
+  {
+    ezLog::Error("Could not write to global collision mesh file");
+    return;
+  }
 
   chunk.EndStream();
 
