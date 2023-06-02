@@ -353,6 +353,12 @@ namespace ezMath
   /// \brief Checks whether the given 64bit value actually fits into size_t, If it doesn't the program is terminated.
   EZ_FOUNDATION_DLL size_t SafeConvertToSizeT(ezUInt64 uiValue);
 
+  /// \brief If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
+  EZ_FOUNDATION_DLL float ReplaceNaN(float value, float fallback); // [tested]
+
+  /// \brief If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
+  EZ_FOUNDATION_DLL double ReplaceNaN(double value, double fallback); // [tested]
+
 } // namespace ezMath
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>

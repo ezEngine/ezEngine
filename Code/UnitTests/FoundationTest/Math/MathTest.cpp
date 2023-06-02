@@ -899,6 +899,16 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 #endif
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceNaN")
+  {
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(0.0f, 42.0f), 0.0f, 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::HighValue<float>(), 2.0f), ezMath::HighValue<float>(), 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(-ezMath::HighValue<float>(), 2.0f), -ezMath::HighValue<float>(), 0);
+
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::NaN<float>(), 2.0f), 2.0f, 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::NaN<double>(), 3.0), 3.0, 0);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComparisonOperator")
   {
     EZ_TEST_BOOL(ezComparisonOperator::Compare(ezComparisonOperator::Equal, 1.0, 1.0));

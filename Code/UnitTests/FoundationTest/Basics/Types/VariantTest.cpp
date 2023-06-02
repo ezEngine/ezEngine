@@ -1626,13 +1626,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezStringView)")
   {
-    ezStringView va("Test String");
-    ezVariant v(va, false);
+    ezStringView va0("Test String");
+    ezVariant v(va0, false);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::StringView);
 
-    EZ_TEST_BOOL(v.ConvertTo<ezStringView>() == va);
-    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::StringView).Get<ezStringView>() == va);
+    EZ_TEST_BOOL(v.ConvertTo<ezStringView>() == va0);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::StringView).Get<ezStringView>() == va0);
 
     {
       ezVariant va, va2;

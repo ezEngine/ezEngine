@@ -433,7 +433,7 @@ void ezTestFramework::UpdateReferenceImages()
   sDir.AppendPath(GetRelTestDataPath());
 
   const ezStringBuilder sNewFiles(m_sAbsTestOutputDir.c_str(), "/Images_Result");
-  const ezStringBuilder sRefFiles(sDir, "/Images_Reference");
+  const ezStringBuilder sRefFiles(sDir, "/", m_sImageReferenceFolderName.c_str());
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
@@ -461,6 +461,48 @@ void ezTestFramework::UpdateReferenceImages()
 
 #  endif
 
+  // if some target files already exist somewhere (ie. custom folders for the tests)
+  // overwrite the existing files in their location
+  {
+    ezHybridArray<ezString, 32> targetFolders;
+    ezStringBuilder sFullPath, sTargetPath;
+
+    {
+      ezFileSystemIterator it;
+      it.StartSearch(sDir, ezFileSystemIteratorFlags::ReportFoldersRecursive);
+      for (; it.IsValid(); it.Next())
+      {
+        if (it.GetStats().m_sName == m_sImageReferenceFolderName.c_str())
+        {
+          it.GetStats().GetFullPath(sFullPath);
+
+          targetFolders.PushBack(sFullPath);
+        }
+      }
+    }
+
+    ezFileSystemIterator it;
+    it.StartSearch(sNewFiles, ezFileSystemIteratorFlags::ReportFiles);
+    for (; it.IsValid(); it.Next())
+    {
+      it.GetStats().GetFullPath(sFullPath);
+
+      for (ezUInt32 i = 0; i < targetFolders.GetCount(); ++i)
+      {
+        sTargetPath = targetFolders[i];
+        sTargetPath.AppendPath(it.GetStats().m_sName);
+
+        if (ezOSFile::ExistsFile(sTargetPath))
+        {
+          ezOSFile::DeleteFile(sTargetPath).IgnoreResult();
+          ezOSFile::MoveFileOrDirectory(sFullPath, sTargetPath).IgnoreResult();
+          break;
+        }
+      }
+    }
+  }
+
+  // copy the remaining files to the default directory
   ezOSFile::CopyFolder(sNewFiles, sRefFiles).IgnoreResult();
   ezOSFile::DeleteFolder(sNewFiles).IgnoreResult();
 #endif

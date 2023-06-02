@@ -141,9 +141,9 @@ ezUInt32 ezCommandLineUtils::GetParameterCount() const
   return m_Commands.GetCount();
 }
 
-ezStringView ezCommandLineUtils::GetParameter(ezUInt32 uiParam) const
+const ezString& ezCommandLineUtils::GetParameter(ezUInt32 uiParam) const
 {
-  return m_Commands[uiParam].GetData();
+  return m_Commands[uiParam];
 }
 
 ezInt32 ezCommandLineUtils::GetOptionIndex(ezStringView sOption, bool bCaseSensitive) const

@@ -52,7 +52,7 @@ public:
   ezUInt32 GetParameterCount() const; // [tested]
 
   /// \brief Returns the n-th parameter string that was passed to the application.
-  ezStringView GetParameter(ezUInt32 uiParam) const; // [tested]
+  const ezString& GetParameter(ezUInt32 uiParam) const; // [tested]
 
   /// \brief Returns the index at which the given option string can be found in the parameter list.
   ///

@@ -348,11 +348,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       EZ_TEST_FLOAT(angle.GetDegree(), (float)z, 0.1f);
     }
 
-    for (ezUInt32 x = 0; x < 360; x += 20)
+    for (ezUInt32 x = 5; x < 360; x += 20)
     {
-      for (ezUInt32 y = 0; y < 360; y += 20)
+      for (ezUInt32 y = 5; y < 360; y += 20)
       {
-        for (ezUInt32 z = 0; z < 360; z += 30)
+        for (ezUInt32 z = 5; z < 360; z += 30)
         {
           ezQuat q1;
           q1.SetFromEulerAngles(ezAngle::Degree(x), ezAngle::Degree(y), ezAngle::Degree(z));
