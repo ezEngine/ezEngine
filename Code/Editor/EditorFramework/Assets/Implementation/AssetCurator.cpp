@@ -506,7 +506,7 @@ ezTransformStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitf
     {
       // some assets modify the document during transformation
       // make sure the state is saved, at least when the user actively executed the action
-      pDoc->SaveDocument();
+      pDoc->SaveDocument().LogFailure();
     }
   }
   ezLog::Info("Transform asset time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));

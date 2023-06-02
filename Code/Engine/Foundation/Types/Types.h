@@ -64,31 +64,14 @@ public:
 
   /// \brief Used to silence compiler warnings, when success or failure doesn't matter.
   EZ_ALWAYS_INLINE void IgnoreResult()
-  { /* dummy to be called when a return value is [[nodiscard]] but the result is not needed */
+  {
+    /* dummy to be called when a return value is [[nodiscard]] but the result is not needed */
   }
 
   /// \brief Asserts that the function succeeded. In case of failure, the program will terminate.
   ///
   /// If \a msg is given, this will be the assert message. If \a details is provided, \a msg should contain a formatting element ({}), e.g. "Error: {}".
   void AssertSuccess(const char* szMsg = nullptr, const char* szDetails = nullptr) const;
-
-  /// \brief Same as 'Succeeded()'.
-  ///
-  /// Allows ezResult to be used in if statements:
-  ///  - if (r)
-  ///  - if (!r)
-  ///  - if (r1 && r2)
-  ///  - if (r1 || r2)
-  ///
-  /// Disallows anything else implicitly, e.g. all these won't compile:
-  ///   - if (r == true)
-  ///   - bool b = r;
-  ///   - void* p = r;
-  ///   - return r; // with bool return type
-  explicit operator bool() const { return m_E == EZ_SUCCESS; }
-
-  /// \brief Special case to prevent this from working: "bool b = !r"
-  ezResult operator!() const { return ezResult((m_E == EZ_SUCCESS) ? EZ_FAILURE : EZ_SUCCESS); }
 
 private:
   ezResultEnum m_E;

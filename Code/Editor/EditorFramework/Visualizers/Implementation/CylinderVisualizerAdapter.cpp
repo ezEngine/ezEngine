@@ -41,7 +41,7 @@ void ezCylinderVisualizerAdapter::Update()
       return;
 
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, pProp, value);
+    pObjectAccessor->GetValue(m_pObject, pProp, value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCylinderVisualizerAttribute 'radius'",
       pAttr->GetRadiusProperty());
@@ -51,7 +51,7 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetHeightProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetHeightProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetHeightProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezCylinderVisualizerAttribute 'height'");
     m_fHeight = value.ConvertTo<float>();
@@ -60,7 +60,7 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetColorProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezCylinderVisualizerAttribute 'color'");
     m_hCylinder.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
@@ -71,7 +71,7 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetOffsetProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetOffsetProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezVec3>(), "Invalid property bound to ezCylinderVisualizerAttribute 'offset'");
 
@@ -84,7 +84,7 @@ void ezCylinderVisualizerAdapter::Update()
   if (!pAttr->GetAxisProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezCylinderVisualizerAttribute 'axis'");
 

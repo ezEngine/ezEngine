@@ -264,7 +264,7 @@ void ezCommandHistory::StartTransaction(const ezFormatString& displayString)
   if (m_bTemporaryMode && !m_pHistoryStorage->m_TransactionStack.IsEmpty())
   {
     pTransaction = m_pHistoryStorage->m_TransactionStack.PeekBack();
-    pTransaction->Undo(m_bFireEventsWhenUndoingTempCommands);
+    pTransaction->Undo(m_bFireEventsWhenUndoingTempCommands).IgnoreResult();
     pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
     m_pHistoryStorage->m_TransactionStack.PushBack(pTransaction);
     m_pHistoryStorage->m_ActiveCommandStack.PushBack(pTransaction);
@@ -280,7 +280,7 @@ void ezCommandHistory::StartTransaction(const ezFormatString& displayString)
   if (!m_pHistoryStorage->m_TransactionStack.IsEmpty())
   {
     // Stacked transaction
-    m_pHistoryStorage->m_TransactionStack.PeekBack()->AddCommandTransaction(pTransaction);
+    m_pHistoryStorage->m_TransactionStack.PeekBack()->AddCommandTransaction(pTransaction).AssertSuccess();
     m_pHistoryStorage->m_TransactionStack.PushBack(pTransaction);
     m_pHistoryStorage->m_ActiveCommandStack.PushBack(pTransaction);
   }
@@ -342,7 +342,7 @@ void ezCommandHistory::EndTransaction(bool bCancel)
   {
     ezCommandTransaction* pTransaction = m_pHistoryStorage->m_TransactionStack.PeekBack();
 
-    pTransaction->Undo(true);
+    pTransaction->Undo(true).AssertSuccess();
     m_pHistoryStorage->m_TransactionStack.PopBack();
     m_pHistoryStorage->m_ActiveCommandStack.PopBack();
 
@@ -457,7 +457,9 @@ ezSharedPtr<ezCommandHistory::Storage> ezCommandHistory::SwapStorage(ezSharedPtr
 
   m_pHistoryStorage = pNewStorage;
 
-  m_pHistoryStorage->m_Events.AddEventHandler([this](const ezCommandHistoryEvent& e) { m_Events.Broadcast(e); }, m_EventsUnsubscriber);
+  m_pHistoryStorage->m_Events.AddEventHandler([this](const ezCommandHistoryEvent& e)
+    { m_Events.Broadcast(e); },
+    m_EventsUnsubscriber);
 
   return retVal;
 }

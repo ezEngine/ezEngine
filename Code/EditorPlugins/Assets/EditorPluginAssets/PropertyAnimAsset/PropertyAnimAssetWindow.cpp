@@ -21,7 +21,8 @@
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument)
   : ezQtGameObjectDocumentWindow(pDocument)
 {
-  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget* {
+  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
+  {
     ezQtGameObjectViewWidget* pWidget = new ezQtGameObjectViewWidget(nullptr, static_cast<ezQtPropertyAnimAssetDocumentWindow*>(pWindow), pConfig);
     pWindow->AddViewWidget(pWidget);
     return pWidget;
@@ -29,7 +30,8 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "PropertyAnimAssetViewToolBar");
 
   pDocument->SetEditToolConfigDelegate(
-    [this](ezGameObjectEditTool* pTool) { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
+    [this](ezGameObjectEditTool* pTool)
+    { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
   pDocument->m_PropertyAnimEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
 
@@ -385,7 +387,8 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
 
     ezQtPropertyAnimModel* pModel = m_pPropertiesModel;
 
-    auto addRecursive = [&tracks, pModel](auto& ref_self, const ezQtPropertyAnimModelTreeEntry* pTreeItem) -> void {
+    auto addRecursive = [&tracks, pModel](auto& ref_self, const ezQtPropertyAnimModelTreeEntry* pTreeItem) -> void
+    {
       if (pTreeItem->m_pTrack != nullptr)
         tracks.Insert(pTreeItem->m_iTrackIdx);
 
@@ -482,7 +485,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
       ezRemoveObjectCommand cmd;
       cmd.m_Object = trackGuid.Get<ezUuid>();
 
-      pHistory->AddCommand(cmd);
+      pHistory->AddCommand(cmd).AssertSuccess();
     }
   }
 
@@ -537,7 +540,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
 
     cmdSet.m_sProperty = "ObjectPath";
     cmdSet.m_NewValue = varRes;
-    pDoc->GetCommandHistory()->AddCommand(cmdSet);
+    pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
   }
 
   pHistory->FinishTransaction();
@@ -784,11 +787,11 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ez
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Value";
   cmdSet.m_NewValue = newPosY;
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, ezUInt32 cpIdx)
@@ -813,7 +816,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, 
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
@@ -844,7 +847,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveId
 
   cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
   cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, bool bLink)
@@ -868,7 +871,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 uiCurveId
   cmdLink.m_Object = cpGuid.Get<ezUuid>();
   cmdLink.m_sProperty = "Linked";
   cmdLink.m_NewValue = bLink;
-  GetDocument()->GetCommandHistory()->AddCommand(cmdLink);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdLink).AssertSuccess();
 
   if (bLink)
   {
@@ -900,7 +903,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 uiC
   cmd.m_Object = cpGuid.Get<ezUuid>();
   cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
   cmd.m_NewValue = mode;
-  GetDocument()->GetCommandHistory()->AddCommand(cmd);
+  GetDocument()->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -969,7 +972,7 @@ void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double new
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(ezTime::Seconds(newPosX));
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1009,7 +1012,7 @@ void ezQtPropertyAnimAssetDocumentWindow::RemoveGradientCP(ezInt32 idx, const ch
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1051,15 +1054,15 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, 
 
   cmdSet.m_sProperty = "Red";
   cmdSet.m_NewValue = color.r;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Green";
   cmdSet.m_NewValue = color.g;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Blue";
   cmdSet.m_NewValue = color.b;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1087,7 +1090,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, 
 
   cmdSet.m_sProperty = "Alpha";
   cmdSet.m_NewValue = alpha;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1114,7 +1117,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 i
 
   cmdSet.m_sProperty = "Intensity";
   cmdSet.m_NewValue = intensity;
-  history->AddCommand(cmdSet);
+  history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
 }
@@ -1160,7 +1163,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, ez
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
@@ -1180,7 +1183,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
-  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation(QString name)
@@ -1291,13 +1294,13 @@ void ezQtPropertyAnimAssetTreeView::onAfterModelReset()
 
   // changing the selection is not possible in onAfterModelReset, probably because the items are not yet fully valid
   // has to be done shortly after
-  QTimer::singleShot(0, this, [this, newSelection]() {
+  QTimer::singleShot(0, this, [this, newSelection]()
+    {
     selectionModel()->clearSelection();
     for (const auto& idx : newSelection)
     {
       selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::Select | QItemSelectionModel::SelectionFlag::Rows);
-    }
-  });
+    } });
 }
 
 void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
@@ -1323,9 +1326,12 @@ void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent* event)
 
   pRemoveAction->setShortcut(Qt::Key_Delete);
 
-  connect(pFrameAction, &QAction::triggered, this, [this](bool) { Q_EMIT FrameSelectedItemsEvent(); });
-  connect(pRemoveAction, &QAction::triggered, this, [this](bool) { Q_EMIT DeleteSelectedItemsEvent(); });
-  connect(pBindingAction, &QAction::triggered, this, [this](bool) { Q_EMIT RebindSelectedItemsEvent(); });
+  connect(pFrameAction, &QAction::triggered, this, [this](bool)
+    { Q_EMIT FrameSelectedItemsEvent(); });
+  connect(pRemoveAction, &QAction::triggered, this, [this](bool)
+    { Q_EMIT DeleteSelectedItemsEvent(); });
+  connect(pBindingAction, &QAction::triggered, this, [this](bool)
+    { Q_EMIT RebindSelectedItemsEvent(); });
 
   m.exec(QCursor::pos());
 }

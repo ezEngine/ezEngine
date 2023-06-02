@@ -32,7 +32,7 @@ void ezDirectionVisualizerAdapter::Update()
     ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezDirectionVisualizerAttribute 'color'");
     m_hGizmo.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);
@@ -49,7 +49,7 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
     ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetLengthProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetLengthProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezDirectionVisualizerAttribute 'length'");
     fScale *= value.ConvertTo<float>();
@@ -62,7 +62,7 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
     ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezDirectionVisualizerAttribute 'length'");
 

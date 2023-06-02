@@ -114,7 +114,8 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(
           m_pDocument->CanAnimate(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c)));
         float oldValue = oldEuler[c].GetDegree();
         ezUuid track = FindOrAddTrack(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c),
-          [this, oldValue](const ezUuid& trackGuid) {
+          [this, oldValue](const ezUuid& trackGuid)
+          {
             // add a control point at the start of the curve with the original value
             m_pDocument->InsertCurveCpAt(trackGuid, 0, oldValue);
           });
@@ -239,10 +240,10 @@ ezStatus ezPropertyAnimObjectAccessor::SetCurveCp(const ezDocumentObject* pObjec
   ezPropertyAnimTarget::Enum target, double fOldValue, double fNewValue)
 {
   EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, target));
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, target, [this, fOldValue](const ezUuid& trackGuid) {
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, target, [this, fOldValue](const ezUuid& trackGuid)
+    {
     // add a control point at the start of the curve with the original value
-    m_pDocument->InsertCurveCpAt(trackGuid, 0, fOldValue);
-  });
+    m_pDocument->InsertCurveCpAt(trackGuid, 0, fOldValue); });
   return SetOrInsertCurveCp(track, fNewValue);
 }
 
@@ -296,15 +297,18 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, d
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetColorCurveCp(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, const ezColorGammaUB& oldValue, const ezColorGammaUB& newValue)
+ezStatus ezPropertyAnimObjectAccessor::SetColorCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, const ezColorGammaUB& oldValue, const ezColorGammaUB& newValue)
 {
   EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, ezPropertyAnimTarget::Color));
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid) {
-    // add a control point at the start of the curve with the original value
-    m_pDocument->InsertGradientColorCpAt(trackGuid, 0, oldValue);
-  });
-  SetOrInsertColorCurveCp(track, newValue);
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+    {
+      // add a control point at the start of the curve with the original value
+      m_pDocument->InsertGradientColorCpAt(trackGuid, 0, oldValue);
+      //
+    });
+
+  EZ_SUCCEED_OR_RETURN(SetOrInsertColorCurveCp(track, newValue));
+
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -336,15 +340,17 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertColorCurveCp(const ezUuid& tra
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetAlphaCurveCp(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezUInt8 oldValue, ezUInt8 newValue)
+ezStatus ezPropertyAnimObjectAccessor::SetAlphaCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezUInt8 oldValue, ezUInt8 newValue)
 {
   EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, ezPropertyAnimTarget::Color));
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid) {
-    // add a control point at the start of the curve with the original value
-    m_pDocument->InsertGradientAlphaCpAt(trackGuid, 0, oldValue);
-  });
-  SetOrInsertAlphaCurveCp(track, newValue);
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+    {
+      // add a control point at the start of the curve with the original value
+      m_pDocument->InsertGradientAlphaCpAt(trackGuid, 0, oldValue);
+      //
+    });
+
+  EZ_SUCCEED_OR_RETURN(SetOrInsertAlphaCurveCp(track, newValue));
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -374,14 +380,16 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertAlphaCurveCp(const ezUuid& tra
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetIntensityCurveCp(
-  const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, float oldValue, float newValue)
+ezStatus ezPropertyAnimObjectAccessor::SetIntensityCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, float oldValue, float newValue)
 {
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid) {
-    // add a control point at the start of the curve with the original value
-    m_pDocument->InsertGradientIntensityCpAt(trackGuid, 0, oldValue);
-  });
-  SetOrInsertIntensityCurveCp(track, newValue);
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+    {
+      // add a control point at the start of the curve with the original value
+      m_pDocument->InsertGradientIntensityCpAt(trackGuid, 0, oldValue);
+      //
+    });
+
+  EZ_SUCCEED_OR_RETURN(SetOrInsertIntensityCurveCp(track, newValue));
   return ezStatus(EZ_SUCCESS);
 }
 

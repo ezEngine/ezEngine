@@ -1291,7 +1291,7 @@ ezQtCurve1DButtonWidget::ezQtCurve1DButtonWidget(QWidget* pParent)
 void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange)
 {
   ezInt32 iNumPoints = 0;
-  pObjectAccessor->GetCount(pCurveObject, "ControlPoints", iNumPoints);
+  pObjectAccessor->GetCount(pCurveObject, "ControlPoints", iNumPoints).AssertSuccess();
 
   ezVariant v;
   ezHybridArray<ezVec2d, 32> points;
@@ -1309,10 +1309,10 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
 
     ezVec2d p;
 
-    pObjectAccessor->GetValue(pPoint, "Tick", v);
+    pObjectAccessor->GetValue(pPoint, "Tick", v).AssertSuccess();
     p.x = v.ConvertTo<double>();
 
-    pObjectAccessor->GetValue(pPoint, "Value", v);
+    pObjectAccessor->GetValue(pPoint, "Value", v).AssertSuccess();
     p.y = v.ConvertTo<double>();
 
     points.PushBack(p);

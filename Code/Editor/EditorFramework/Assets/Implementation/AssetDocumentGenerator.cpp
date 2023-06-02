@@ -107,7 +107,7 @@ void ezAssetDocumentGenerator::ExecuteImport(ezDynamicArray<ImportData>& ref_all
 
     if (pGeneratedDoc)
     {
-      pGeneratedDoc->SaveDocument(true);
+      pGeneratedDoc->SaveDocument(true).LogFailure();
       pGeneratedDoc->GetDocumentManager()->CloseDocument(pGeneratedDoc);
 
       ezQtEditorApp::GetSingleton()->OpenDocumentQueued(option.m_sOutputFileAbsolute);

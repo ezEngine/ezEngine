@@ -50,7 +50,7 @@ void ezCapsuleVisualizerAdapter::Update()
       return;
 
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, pProp, value);
+    pObjectAccessor->GetValue(m_pObject, pProp, value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCapsuleVisualizerAttribute 'radius'", pAttr->GetRadiusProperty());
     m_fRadius = value.ConvertTo<float>();
@@ -59,7 +59,7 @@ void ezCapsuleVisualizerAdapter::Update()
   if (!pAttr->GetHeightProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetHeightProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetHeightProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property bound to ezCapsuleVisualizerAttribute 'height'");
     m_fHeight = value.ConvertTo<float>();
@@ -68,7 +68,7 @@ void ezCapsuleVisualizerAdapter::Update()
   if (!pAttr->GetColorProperty().IsEmpty())
   {
     ezVariant value;
-    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value).AssertSuccess();
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezCapsuleVisualizerAttribute 'color'");
     m_hSphereTop.SetColor(value.ConvertTo<ezColor>() * pAttr->m_Color);

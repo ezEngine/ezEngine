@@ -258,7 +258,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
     {
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) || bIsValueType)
       {
-        pObjectAccessor->SetValue(pObject, pProp, op.m_Value);
+        pObjectAccessor->SetValue(pObject, pProp, op.m_Value).AssertSuccess();
       }
       else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
       {
@@ -272,7 +272,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
             {
               if (NeedsToBeDeleted(oldGuid))
               {
-                pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid));
+                pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid)).AssertSuccess();
               }
             }
 
@@ -280,7 +280,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
             {
               if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(newGuid))
               {
-                pObjectAccessor->AddObject(pObject, pProp, ezVariant(), ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+                pObjectAccessor->AddObject(pObject, pProp, ezVariant(), ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node).AssertSuccess();
               }
 
               const ezDocumentObject* pChild = pObject->GetChild(newGuid);
@@ -289,7 +289,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
           }
           else
           {
-            pObjectAccessor->SetValue(pObject, pProp, op.m_Value);
+            pObjectAccessor->SetValue(pObject, pProp, op.m_Value).AssertSuccess();
           }
         }
         else
@@ -309,13 +309,13 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
         for (ezUInt32 i = 0; i < values.GetCount(); ++i)
         {
           if (i < (ezUInt32)iCurrentCount)
-            pObjectAccessor->SetValue(pObject, pProp, values[i], i);
+            pObjectAccessor->SetValue(pObject, pProp, values[i], i).AssertSuccess();
           else
-            pObjectAccessor->InsertValue(pObject, pProp, values[i], i);
+            pObjectAccessor->InsertValue(pObject, pProp, values[i], i).AssertSuccess();
         }
         for (ezInt32 i = iCurrentCount - 1; i >= (ezInt32)values.GetCount(); --i)
         {
-          pObjectAccessor->RemoveValue(pObject, pProp, i);
+          pObjectAccessor->RemoveValue(pObject, pProp, i).AssertSuccess();
         }
       }
       else // Class
@@ -328,7 +328,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
         {
           if (NeedsToBeDeleted(currentValues[i].Get<ezUuid>()))
           {
-            pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>()));
+            pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).AssertSuccess();
           }
         }
 
@@ -336,11 +336,11 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
         {
           if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(values[i].Get<ezUuid>()))
           {
-            pObjectAccessor->AddObject(pObject, pProp, i, ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+            pObjectAccessor->AddObject(pObject, pProp, i, ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node).AssertSuccess();
           }
           else
           {
-            pObjectAccessor->MoveObject(pObjectAccessor->GetObject(values[i].Get<ezUuid>()), pObject, pProp, i);
+            pObjectAccessor->MoveObject(pObjectAccessor->GetObject(values[i].Get<ezUuid>()), pObject, pProp, i).AssertSuccess();
           }
         }
       }
@@ -366,9 +366,9 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
         {
           ezVariant variantKey(it.Key());
           if (keys.Contains(variantKey))
-            pObjectAccessor->SetValue(pObject, pProp, it.Value(), variantKey);
+            pObjectAccessor->SetValue(pObject, pProp, it.Value(), variantKey).AssertSuccess();
           else
-            pObjectAccessor->InsertValue(pObject, pProp, it.Value(), variantKey);
+            pObjectAccessor->InsertValue(pObject, pProp, it.Value(), variantKey).AssertSuccess();
         }
       }
       else // Class
@@ -379,7 +379,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
           EZ_VERIFY(pObjectAccessor->GetValue(pObject, pProp, value, key).Succeeded(), "");
           if (NeedsToBeDeleted(value.Get<ezUuid>()))
           {
-            pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()));
+            pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>())).AssertSuccess();
           }
         }
         for (auto it = values.GetIterator(); it.IsValid(); ++it)
@@ -388,11 +388,11 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
           ezVariant variantKey(it.Key());
           if (ezAbstractGraphDiffOperation* pCreate = NeedsToBeCreated(value.Get<ezUuid>()))
           {
-            pObjectAccessor->AddObject(pObject, pProp, variantKey, ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node);
+            pObjectAccessor->AddObject(pObject, pProp, variantKey, ezRTTI::FindTypeByName(pCreate->m_sProperty), pCreate->m_Node).AssertSuccess();
           }
           else
           {
-            pObjectAccessor->MoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()), pObject, pProp, variantKey);
+            pObjectAccessor->MoveObject(pObjectAccessor->GetObject(value.Get<ezUuid>()), pObject, pProp, variantKey).AssertSuccess();
           }
         }
       }

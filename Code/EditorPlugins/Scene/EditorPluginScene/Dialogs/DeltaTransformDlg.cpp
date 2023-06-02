@@ -393,7 +393,7 @@ void ezQtDeltaTransformDlg::on_ButtonUndo_clicked()
   if (history->CanUndo())
   {
     --m_uiActionsApplied;
-    history->Undo();
+    history->Undo().IgnoreResult();
   }
 
   ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());

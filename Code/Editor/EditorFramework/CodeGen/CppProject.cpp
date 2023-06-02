@@ -316,7 +316,7 @@ ezResult ezCppProject::RunCMakeIfNecessary(const ezCppSettings& cfg)
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
 
-  if (ezCppProject::ExistsSolution(cfg) && ezCppProject::CheckCMakeCache(cfg))
+  if (ezCppProject::ExistsSolution(cfg) && ezCppProject::CheckCMakeCache(cfg).Succeeded())
     return EZ_SUCCESS;
 
   return ezCppProject::RunCMake(cfg);
@@ -345,7 +345,8 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
   ezProcessOptions po;
   po.m_sProcess = cfg.m_sMsBuildPath;
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView sText) {
+  po.m_onStdOut = [&](ezStringView sText)
+  {
     if (sText.FindSubString_NoCase("error") != nullptr)
       errors.PushBack(sText);
   };
@@ -391,7 +392,7 @@ ezResult ezCppProject::BuildCodeIfNecessary(const ezCppSettings& cfg)
   if (!ezCppProject::ExistsProjectCMakeListsTxt())
     return EZ_SUCCESS;
 
-  if (!ezCppProject::ExistsSolution(cfg) || !ezCppProject::CheckCMakeCache(cfg))
+  if (!ezCppProject::ExistsSolution(cfg) || ezCppProject::CheckCMakeCache(cfg).Failed())
   {
     EZ_SUCCEED_OR_RETURN(ezCppProject::RunCMake(cfg));
   }
@@ -425,7 +426,8 @@ ezResult ezCppProject::FindMsBuild(const ezCppSettings& cfg)
   ezProcessOptions po;
   po.m_sProcess = sVsWhere;
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView sText) { sStdOut.Append(sText); };
+  po.m_onStdOut = [&](ezStringView sText)
+  { sStdOut.Append(sText); };
 
   // TODO: search for VS2022 or VS2019 depending on cfg
   po.AddCommandLine("-latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe");
@@ -503,7 +505,7 @@ bool ezCppProject::IsBuildRequired()
   if (!ezCppProject::ExistsSolution(cfg))
     return true;
 
-  if (!ezCppProject::CheckCMakeCache(cfg))
+  if (ezCppProject::CheckCMakeCache(cfg).Failed())
     return true;
 
   ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();

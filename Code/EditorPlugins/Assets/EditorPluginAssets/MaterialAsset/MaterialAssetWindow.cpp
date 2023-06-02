@@ -303,7 +303,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
   // Write Asset Data
-  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false);
+  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).AssertSuccess();
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -335,13 +335,13 @@ void ezQtMaterialAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
   if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
   {
     // delayed execution
-    QTimer::singleShot(1, [this]() {
+    QTimer::singleShot(1, [this]()
+      {
       // Check again if the selection is empty. This could have changed due to the delayed execution.
       if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
       {
         GetDocument()->GetSelectionManager()->SetSelection(GetMaterialDocument()->GetPropertyObject());
-      }
-    });
+      } });
   }
 }
 
@@ -388,7 +388,8 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 
   // when this is called during construction, it seems to be overridden again (probably by the dock widget code or the splitter)
   // by delaying it a bit, we have the last word
-  QTimer::singleShot(100, this, [this, bCustom]() { m_pVsePanel->setVisible(bCustom); });
+  QTimer::singleShot(100, this, [this, bCustom]()
+    { m_pVsePanel->setVisible(bCustom); });
 
   if (m_bVisualShaderEnabled != bCustom)
   {
@@ -413,7 +414,7 @@ void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, e
   // not what we want.
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(0, GetMaterialDocument()->GetAssetTypeVersion());
-  GetMaterialDocument()->RecreateVisualShaderFile(AssetHeader);
+  GetMaterialDocument()->RecreateVisualShaderFile(AssetHeader).LogFailure();
 }
 
 void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e)

@@ -62,7 +62,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
   if (PasteCmd.m_sBasePrefabGraph.IsEmpty())
     return; // error
 
-  pCmdHistory->AddCommand(PasteCmd);
+  pCmdHistory->AddCommand(PasteCmd).AssertSuccess();
 
   if (PasteCmd.m_CreatedRootObject.IsValid())
   {

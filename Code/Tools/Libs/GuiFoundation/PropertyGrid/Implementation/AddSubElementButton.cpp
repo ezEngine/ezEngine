@@ -268,7 +268,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
     for (auto& item : m_Items)
     {
       ezInt32 iCount = 0;
-      m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount);
+      m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).AssertSuccess();
 
       if (iCount >= (ezInt32)m_uiMaxElements)
       {
@@ -308,7 +308,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
     for (auto& item : m_Items)
     {
       ezInt32 iCount = 0;
-      m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount);
+      m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount).AssertSuccess();
 
       for (ezInt32 i = 0; i < iCount; ++i)
       {
@@ -406,7 +406,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({m_pObjectAccessor->GetObject(guid), ezVariant()});
       ezDefaultObjectState defaultState(m_pObjectAccessor, selection);
-      defaultState.RevertObject();
+      defaultState.RevertObject().AssertSuccess();
     }
   }
 

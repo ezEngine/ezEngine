@@ -503,7 +503,7 @@ ezTransformStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> t
 
   if (transformFlags.IsSet(ezTransformFlags::TriggeredManually))
   {
-    SaveDocument();
+    SaveDocument().LogFailure();
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
   }
 
@@ -794,7 +794,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
     image.ResetAndAlloc(imgHeader);
     EZ_ASSERT_DEV(data.GetCount() == imgHeader.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
     ezMemoryUtils::Copy(image.GetPixelPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
-    SaveThumbnail(image, thumbnailInfo);
+    SaveThumbnail(image, thumbnailInfo).LogFailure();
 
     ezLog::Success("{0} thumbnail for \"{1}\" has been exported.", GetDocumentTypeName(), GetDocumentPath());
 

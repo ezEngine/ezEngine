@@ -580,7 +580,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       const ezDocumentObject* pChild0 = pAccessor->GetObject(values[0].Get<ezUuid>());
       const ezDocumentObject* pChild1 = pAccessor->GetObject(values[1].Get<ezUuid>());
       pAccessor->StartTransaction("Delete child0");
-      pAccessor->RemoveObject(pChild1);
+      pAccessor->RemoveObject(pChild1).AssertSuccess();
       pAccessor->FinishTransaction();
       EZ_TEST_INT(pAccessor->GetCount(pPrefab3, pProp), 1);
     }
@@ -666,7 +666,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
         ezDefaultContainerState defaultState(pAccessor, selection, "Components");
 
         pAccessor->StartTransaction("Revert children");
-        defaultState.RevertContainer();
+        defaultState.RevertContainer().AssertSuccess();
         pAccessor->FinishTransaction();
       }
     }

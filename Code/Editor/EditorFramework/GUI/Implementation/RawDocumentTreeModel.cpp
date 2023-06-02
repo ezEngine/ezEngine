@@ -134,7 +134,7 @@ bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int iRow, int
     cmd.m_Object = pObject->GetGuid();
     cmd.m_sProperty = m_sNameProperty;
 
-    pHistory->AddCommand(cmd);
+    pHistory->AddCommand(cmd).AssertSuccess();
 
     pHistory->FinishTransaction();
 
