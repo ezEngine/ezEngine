@@ -579,6 +579,18 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
       cmd.m_Object.CombineWithSeed(PrefabSeed);
       cmd.m_NewValue = op.m_Value;
       cmd.m_sProperty = op.m_sProperty;
+
+      auto pObj = GetObjectAccessor()->GetObject(cmd.m_Object);
+      if (!pObj)
+        continue;
+
+      auto pProp = pObj->GetType()->FindPropertyByName(op.m_sProperty);
+      if (!pProp)
+        continue;
+
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        continue;
+
       GetCommandHistory()->AddCommand(cmd).AssertSuccess();
     }
   }
