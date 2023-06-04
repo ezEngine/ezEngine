@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 9, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 10, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -73,27 +73,38 @@ ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
 
 void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonJoint>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    const bool overrideSurface = e.m_pObject->GetTypeAccessor().GetValue("OverrideSurface").ConvertTo<bool>();
+    const bool overrideCollisionLayer = e.m_pObject->GetTypeAccessor().GetValue("OverrideCollisionLayer").ConvertTo<bool>();
+    const ezSkeletonJointType::Enum jointType = (ezSkeletonJointType::Enum)e.m_pObject->GetTypeAccessor().GetValue("JointType").ConvertTo<ezInt32>();
+
+    props["Surface"].m_Visibility = overrideSurface ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["CollisionLayer"].m_Visibility = overrideCollisionLayer ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["LimitSwing"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SwingLimitY"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SwingLimitZ"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["LimitTwist"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["TwistLimitHalfAngle"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["TwistLimitCenterAngle"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["LocalRotation"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    return;
+  }
+
   if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonBoneShape>())
   {
     auto& props = *e.m_pPropertyStates;
 
     const ezSkeletonJointGeometryType::Enum geomType = (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
 
-    const bool overrideName = e.m_pObject->GetTypeAccessor().GetValue("OverrideName").ConvertTo<bool>();
-    const bool overrideSurface = e.m_pObject->GetTypeAccessor().GetValue("OverrideSurface").ConvertTo<bool>();
-    const bool overrideCollisionLayer = e.m_pObject->GetTypeAccessor().GetValue("OverrideCollisionLayer").ConvertTo<bool>();
-
     props["Offset"].m_Visibility = ezPropertyUiState::Invisible;
     props["Rotation"].m_Visibility = ezPropertyUiState::Invisible;
     props["Length"].m_Visibility = ezPropertyUiState::Invisible;
     props["Width"].m_Visibility = ezPropertyUiState::Invisible;
     props["Thickness"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Name"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Surface"].m_Visibility = ezPropertyUiState::Invisible;
-    props["CollisionLayer"].m_Visibility = ezPropertyUiState::Invisible;
-    props["OverrideName"].m_Visibility = ezPropertyUiState::Invisible;
-    props["OverrideSurface"].m_Visibility = ezPropertyUiState::Invisible;
-    props["OverrideCollisionLayer"].m_Visibility = ezPropertyUiState::Invisible;
 
     if (geomType == ezSkeletonJointGeometryType::None)
       return;
@@ -104,13 +115,6 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
 
     props["Offset"].m_Visibility = ezPropertyUiState::Default;
     props["Rotation"].m_Visibility = ezPropertyUiState::Default;
-    props["OverrideName"].m_Visibility = ezPropertyUiState::Default;
-    props["OverrideSurface"].m_Visibility = ezPropertyUiState::Default;
-    props["OverrideCollisionLayer"].m_Visibility = ezPropertyUiState::Default;
-
-    props["Name"].m_Visibility = overrideName ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["Surface"].m_Visibility = overrideSurface ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["CollisionLayer"].m_Visibility = overrideCollisionLayer ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
     if (geomType == ezSkeletonJointGeometryType::Box)
     {
@@ -130,16 +134,16 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
       props["Thickness"].m_Visibility = ezPropertyUiState::Default;
       props["Thickness"].m_sNewLabelText = "Radius";
     }
+
+    return;
   }
 }
 
-ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
+ezStatus ezSkeletonAssetDocument::WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton) const
 {
-  auto pProp = GetProperties(); // ApplyNativePropertyChangesToObjectManager destroys pProp
-
   ezSkeletonResourceDescriptor desc;
-  desc.m_RootTransform = CalculateTransformationMatrix(pProp);
-  pProp->FillResourceDescriptor(desc);
+  desc.m_RootTransform = CalculateTransformationMatrix(&skeleton);
+  skeleton.FillResourceDescriptor(desc);
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(inout_stream));
 
@@ -273,7 +277,12 @@ ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter
 
     ezStringBuilder sAbsFilename = pProp->m_sSourceFile;
 
-    if (!sAbsFilename.IsEmpty())
+    if (sAbsFilename.IsEmpty())
+    {
+      range.BeginNextStep("Writing Result");
+      EZ_SUCCEED_OR_RETURN(WriteResource(stream, *GetProperties()));
+    }
+    else
     {
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
       {
@@ -298,15 +307,14 @@ ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter
       range.BeginNextStep("Importing Skeleton Data");
 
       // synchronize the old data (collision geometry etc.) with the new hierarchy
-      MergeWithNewSkeleton(newSkeleton);
+      const ezEditableSkeleton* pFinalSkeleton = MergeWithNewSkeleton(newSkeleton);
+
+      range.BeginNextStep("Writing Result");
+      EZ_SUCCEED_OR_RETURN(WriteResource(stream, *pFinalSkeleton));
 
       // merge the new data with the actual asset document
       ApplyNativePropertyChangesToObjectManager(true);
     }
-
-    range.BeginNextStep("Writing Result");
-
-    EZ_SUCCEED_OR_RETURN(WriteResource(stream));
   }
 
   ezSkeletonAssetEvent e;
@@ -323,7 +331,7 @@ ezTransformStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const Thumbna
   return status;
 }
 
-void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton)
+const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton)
 {
   ezEditableSkeleton* pOldSkeleton = GetProperties();
   ezMap<ezString, const ezEditableSkeletonJoint*> prevJoints;
@@ -380,6 +388,8 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton& newSkelet
   // move the new top level joints over to our own skeleton
   pOldSkeleton->m_Children = newSkeleton.m_Children;
   newSkeleton.m_Children.Clear(); // prevent this skeleton from deallocating the joints
+
+  return pOldSkeleton;
 }
 
 

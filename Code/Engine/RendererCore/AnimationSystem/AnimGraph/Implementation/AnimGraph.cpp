@@ -84,6 +84,8 @@ void ezAnimGraph::Update(ezTime diff, ezGameObject* pTarget)
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
     msg.m_ModelTransforms = newPose;
 
+    // recursive, so that objects below the mesh can also listen in on these changes
+    // for example bone attachments
     pTarget->SendMessageRecursive(msg);
   }
 }

@@ -354,10 +354,10 @@ namespace ezMath
   EZ_FOUNDATION_DLL size_t SafeConvertToSizeT(ezUInt64 uiValue);
 
   /// \brief If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
-  EZ_FOUNDATION_DLL float ReplaceNaN(float value, float fallback); // [tested]
+  EZ_FOUNDATION_DLL float ReplaceNaN(float fValue, float fFallback); // [tested]
 
   /// \brief If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
-  EZ_FOUNDATION_DLL double ReplaceNaN(double value, double fallback); // [tested]
+  EZ_FOUNDATION_DLL double ReplaceNaN(double fValue, double fFallback); // [tested]
 
 } // namespace ezMath
 

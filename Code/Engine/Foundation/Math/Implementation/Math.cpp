@@ -237,28 +237,28 @@ void ezAngle::NormalizeRange()
   }
 }
 
-float ezMath::ReplaceNaN(float value, float fallback)
+float ezMath::ReplaceNaN(float fValue, float fFallback)
 {
   // ATTENTION: if this is a template, inline or constexpr function, the current MSVC (17.6)
   // seems to generate incorrect code and the IsNaN check doesn't detect NaNs.
   // As an out-of-line function it works.
 
-  if (ezMath::IsNaN(value))
-    return fallback;
+  if (ezMath::IsNaN(fValue))
+    return fFallback;
 
-  return value;
+  return fValue;
 }
 
-double ezMath::ReplaceNaN(double value, double fallback)
+double ezMath::ReplaceNaN(double fValue, double fFallback)
 {
   // ATTENTION: if this is a template, inline or constexpr function, the current MSVC (17.6)
   // seems to generate incorrect code and the IsNaN check doesn't detect NaNs.
   // As an out-of-line function it works.
 
-  if (ezMath::IsNaN(value))
-    return fallback;
+  if (ezMath::IsNaN(fValue))
+    return fFallback;
 
-  return value;
+  return fValue;
 }
 
 ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)

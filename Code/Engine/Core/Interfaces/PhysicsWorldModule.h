@@ -49,6 +49,11 @@ struct ezPhysicsOverlapResult
   ezGameObjectHandle m_hShapeObject;            ///< The game object to which the hit physics shape is attached.
   ezGameObjectHandle m_hActorObject;            ///< The game object to which the parent actor of the hit physics shape is attached.
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex; ///< The shape id of the hit physics shape
+  ezVec3 m_vCenterPosition;                     ///< The center position of the reported object in world space.
+
+  // Physics-engine specific information, may be available or not.
+  void* m_pInternalPhysicsShape = nullptr;
+  void* m_pInternalPhysicsActor = nullptr;
 };
 
 struct ezPhysicsOverlapResultArray

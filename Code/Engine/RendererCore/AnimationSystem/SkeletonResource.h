@@ -14,9 +14,10 @@ struct ezSkeletonResourceGeometry
   ezTransform m_Transform;
   ezUInt16 m_uiAttachedToJoint = 0;
   ezEnum<ezSkeletonJointGeometryType> m_Type;
-  ezHashedString m_sName;
-  ezSurfaceResourceHandle m_hSurface;
-  ezUInt8 m_uiCollisionLayer = 0;
+
+  // for convex geometry
+  ezDynamicArray<ezVec3> m_VertexPositions;
+  ezDynamicArray<ezUInt8> m_TriangleIndices;
 };
 
 struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
@@ -35,6 +36,7 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 
   ezTransform m_RootTransform = ezTransform::IdentityTransform();
   ezSkeleton m_Skeleton;
+  float m_fMaxImpulse = ezMath::HighValue<float>();
 
   ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
 };

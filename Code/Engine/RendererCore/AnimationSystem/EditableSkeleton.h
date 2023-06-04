@@ -34,14 +34,15 @@ struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneShape : public ezReflectedClass
   float m_fLength = 0;    // Box, Capsule; 0 means parent joint to this joint (auto mode)
   float m_fWidth = 0;     // Box
   float m_fThickness = 0; // Sphere radius, Capsule radius
+};
 
-  bool m_bOverrideName = false;
-  bool m_bOverrideSurface = false;
-  bool m_bOverrideCollisionLayer = false;
+struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneCollider : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonBoneCollider, ezReflectedClass);
 
-  ezString m_sNameOverride;
-  ezString m_sSurfaceOverride;
-  ezUInt8 m_uiCollisionLayerOverride;
+  ezString m_sIdentifier;
+  ezDynamicArray<ezVec3> m_VertexPositions;
+  ezDynamicArray<ezUInt8> m_TriangleIndices;
 };
 
 class EZ_RENDERERCORE_DLL ezEditableSkeletonJoint : public ezReflectedClass
@@ -64,6 +65,8 @@ public:
   ezHashedString m_sName;
   ezTransform m_LocalTransform = ezTransform::IdentityTransform();
 
+  ezEnum<ezSkeletonJointType> m_JointType;
+
   bool m_bLimitTwist = false;
   bool m_bLimitSwing = false;
 
@@ -79,6 +82,12 @@ public:
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
   ezHybridArray<ezEditableSkeletonBoneShape, 1> m_BoneShapes;
+  ezDynamicArray<ezEditableSkeletonBoneCollider> m_BoneColliders;
+
+  bool m_bOverrideSurface = false;
+  bool m_bOverrideCollisionLayer = false;
+  ezString m_sSurfaceOverride;
+  ezUInt8 m_uiCollisionLayerOverride;
 };
 
 class EZ_RENDERERCORE_DLL ezEditableSkeleton : public ezReflectedClass
@@ -100,6 +109,7 @@ public:
   ezUInt8 m_uiCollisionLayer = 0;
 
   float m_fUniformScaling = 1.0f;
+  float m_fMaxImpulse = 100.0f;
 
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;

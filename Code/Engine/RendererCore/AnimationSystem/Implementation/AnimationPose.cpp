@@ -42,7 +42,42 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRetrieveBoneState);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRetrieveBoneState, 1, ezRTTIDefaultAllocator<ezMsgRetrieveBoneState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAnimationInvisibleUpdateRate, 1)
+  EZ_ENUM_CONSTANT(ezAnimationInvisibleUpdateRate::FullUpdate),
+  EZ_ENUM_CONSTANT(ezAnimationInvisibleUpdateRate::Max60FPS),
+  EZ_ENUM_CONSTANT(ezAnimationInvisibleUpdateRate::Max30FPS),
+  EZ_ENUM_CONSTANT(ezAnimationInvisibleUpdateRate::Max15FPS),
+  EZ_ENUM_CONSTANT(ezAnimationInvisibleUpdateRate::Max10FPS),
+  EZ_ENUM_CONSTANT(ezAnimationInvisibleUpdateRate::Max5FPS),
+  EZ_ENUM_CONSTANT(ezAnimationInvisibleUpdateRate::Pause),
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
+
+ezTime ezAnimationInvisibleUpdateRate::GetTimeStep(ezAnimationInvisibleUpdateRate::Enum value)
+{
+  switch (value)
+  {
+    case ezAnimationInvisibleUpdateRate::FullUpdate:
+      return ezTime::Zero();
+    case ezAnimationInvisibleUpdateRate::Max60FPS:
+      return ezTime::Seconds(1.0 / 60.0);
+    case ezAnimationInvisibleUpdateRate::Max30FPS:
+      return ezTime::Seconds(1.0 / 30.0);
+    case ezAnimationInvisibleUpdateRate::Max15FPS:
+      return ezTime::Seconds(1.0 / 15.0);
+    case ezAnimationInvisibleUpdateRate::Max10FPS:
+      return ezTime::Seconds(1.0 / 10.0);
+
+    case ezAnimationInvisibleUpdateRate::Max5FPS:
+    case ezAnimationInvisibleUpdateRate::Pause: // full pausing should be handled separately, and if something isn't fully paused, it should behave like a very low update rate
+      return ezTime::Seconds(1.0 / 5.0);
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return ezTime::Zero();
+}
 
 void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& ref_mFullTransform) const
 {

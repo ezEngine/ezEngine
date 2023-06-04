@@ -14,7 +14,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{12166247825455026582,5232126330513722895}}
-		u4 %Hash{3217985267303871201}
+		u4 %Hash{17213740649597632857}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -34,57 +34,7 @@ o
 	u3 %v{3}
 	p
 	{
-		VarArray %ControlPoints
-		{
-			Uuid{u4{3130850768905446023,4878371134425058381}}
-			Uuid{u4{17010715869017477544,4809542584798117131}}
-			Uuid{u4{17975123844400978362,5701944519619299002}}
-			Uuid{u4{4494103603958377356,5271887146642013851}}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{17010715869017477544,4809542584798117131}}
-	s %t{"ezEventTrackControlPointData"}
-	u3 %v{1}
-	p
-	{
-		s %Event{"Animation Cue 1"}
-		i4 %Tick{4880}
-	}
-}
-o
-{
-	Uuid %id{u4{3130850768905446023,4878371134425058381}}
-	s %t{"ezEventTrackControlPointData"}
-	u3 %v{1}
-	p
-	{
-		s %Event{"Animation Cue 1"}
-		i4 %Tick{-9223372036854775808}
-	}
-}
-o
-{
-	Uuid %id{u4{4494103603958377356,5271887146642013851}}
-	s %t{"ezEventTrackControlPointData"}
-	u3 %v{1}
-	p
-	{
-		s %Event{"Animation Cue 1"}
-		i4 %Tick{11520}
-	}
-}
-o
-{
-	Uuid %id{u4{17975123844400978362,5701944519619299002}}
-	s %t{"ezEventTrackControlPointData"}
-	u3 %v{1}
-	p
-	{
-		s %Event{"Animation Cue 1"}
-		i4 %Tick{7520}
+		VarArray %ControlPoints{}
 	}
 }
 o

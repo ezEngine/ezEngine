@@ -167,20 +167,20 @@ ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
   return pRenderData;
 }
 
-void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_ModelTransforms, ezTransform& out_RootTransform, const ezSkeleton& skeleton)
+void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton)
 {
-  out_ModelTransforms.Clear();
+  out_modelTransforms.Clear();
 
   if (!m_hMesh.IsValid())
     return;
 
-  out_RootTransform = m_RootTransform;
+  out_rootTransform = m_RootTransform;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
 
-  out_ModelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::IdentityMatrix());
+  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::IdentityMatrix());
 
   for (auto itBone : bones)
   {
@@ -189,7 +189,7 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_ModelTran
     if (uiJointIdx == ezInvalidJointIndex)
       continue;
 
-    out_ModelTransforms[uiJointIdx] = m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseBindPoseMatrix.GetInverse();
+    out_modelTransforms[uiJointIdx] = m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseBindPoseMatrix.GetInverse();
   }
 }
 

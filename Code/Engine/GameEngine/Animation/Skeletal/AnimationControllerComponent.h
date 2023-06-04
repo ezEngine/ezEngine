@@ -36,6 +36,8 @@ public:
   void SetAnimationControllerFile(const char* szFile); // [ property ]
   const char* GetAnimationControllerFile() const;      // [ property ]
 
+  ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
+
 protected:
   void Update();
 
@@ -44,4 +46,6 @@ protected:
   ezAnimGraphResourceHandle m_hAnimationController;
   ezAnimGraph m_AnimationGraph;
   ezAnimPoseGenerator m_PoseGenerator;
+
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();
 };

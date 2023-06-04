@@ -723,65 +723,67 @@ void ezPxRagdollComponent::ComputeLimbGlobalTransform(ezTransform& transform, co
 
 void ezPxRagdollComponent::AddLimbGeometry(ezBasisAxis::Enum srcBoneDir, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo)
 {
-  PxFilterData pxFilterData = ezPhysX::CreateFilterData(geo.m_uiCollisionLayer, m_uiPxShapeID);
+  EZ_ASSERT_NOT_IMPLEMENTED;
 
-  physx::PxMaterial* pxMaterial = nullptr;
-  if (geo.m_hSurface.IsValid())
-  {
-    ezResourceLock<ezSurfaceResource> pSurface(geo.m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+  //PxFilterData pxFilterData = ezPhysX::CreateFilterData(geo.m_uiCollisionLayer, m_uiPxShapeID);
 
-    if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
-    {
-      pxMaterial = static_cast<physx::PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
-    }
-  }
-  else
-    pxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
+  //physx::PxMaterial* pxMaterial = nullptr;
+  //if (geo.m_hSurface.IsValid())
+  //{
+  //  ezResourceLock<ezSurfaceResource> pSurface(geo.m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
 
-  PxShape* pShape = nullptr;
+  //  if (pSurface->m_pPhysicsMaterialPhysX != nullptr)
+  //  {
+  //    pxMaterial = static_cast<physx::PxMaterial*>(pSurface->m_pPhysicsMaterialPhysX);
+  //  }
+  //}
+  //else
+  //  pxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
 
-  const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
+  //PxShape* pShape = nullptr;
 
-  const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
+  //const ezQuat qBoneDirAdjustment = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveX, srcBoneDir);
 
-  ezTransform st;
-  st.SetIdentity();
-  st.m_vPosition = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
-  st.m_qRotation = qFinalBoneRot * geo.m_Transform.m_qRotation;
+  //const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
-  if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
-  {
-    PxSphereGeometry shape(geo.m_Transform.m_vScale.z);
-    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
-  }
-  else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
-  {
-    ezVec3 ext;
-    ext.x = geo.m_Transform.m_vScale.x * 0.5f;
-    ext.y = geo.m_Transform.m_vScale.y * 0.5f;
-    ext.z = geo.m_Transform.m_vScale.z * 0.5f;
+  //ezTransform st;
+  //st.SetIdentity();
+  //st.m_vPosition = /*boneTrans.GetTranslationVector() +*/ qFinalBoneRot * geo.m_Transform.m_vPosition;
+  //st.m_qRotation = qFinalBoneRot * geo.m_Transform.m_qRotation;
 
-    // TODO: if offset desired
-    st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+  //if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
+  //{
+  //  PxSphereGeometry shape(geo.m_Transform.m_vScale.z);
+  //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
+  //}
+  //else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
+  //{
+  //  ezVec3 ext;
+  //  ext.x = geo.m_Transform.m_vScale.x * 0.5f;
+  //  ext.y = geo.m_Transform.m_vScale.y * 0.5f;
+  //  ext.z = geo.m_Transform.m_vScale.z * 0.5f;
 
-    PxBoxGeometry shape(ext.x, ext.y, ext.z);
-    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
-  }
-  else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
-  {
-    PxCapsuleGeometry shape(geo.m_Transform.m_vScale.z, geo.m_Transform.m_vScale.x * 0.5f);
-    pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
+  //  // TODO: if offset desired
+  //  st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
-    // TODO: if offset desired
-    st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
-  }
-  else
-  {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-  }
+  //  PxBoxGeometry shape(ext.x, ext.y, ext.z);
+  //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
+  //}
+  //else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
+  //{
+  //  PxCapsuleGeometry shape(geo.m_Transform.m_vScale.z, geo.m_Transform.m_vScale.x * 0.5f);
+  //  pShape = PxRigidActorExt::createExclusiveShape(actor, shape, *pxMaterial);
 
-  pShape->setLocalPose(ezPxConversionUtils::ToTransform(st));
-  pShape->setSimulationFilterData(pxFilterData);
-  pShape->setQueryFilterData(pxFilterData);
-  pShape->userData = m_pPxUserData;
+  //  // TODO: if offset desired
+  //  st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+  //}
+  //else
+  //{
+  //  EZ_ASSERT_NOT_IMPLEMENTED;
+  //}
+
+  //pShape->setLocalPose(ezPxConversionUtils::ToTransform(st));
+  //pShape->setSimulationFilterData(pxFilterData);
+  //pShape->setQueryFilterData(pxFilterData);
+  //pShape->userData = m_pPxUserData;
 }

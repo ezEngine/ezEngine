@@ -535,6 +535,8 @@ namespace ezModelImporter2
 
     const bool b8BitBoneIndices = m_Options.m_pMeshOutput->m_Bones.GetCount() <= 255;
 
+    // TODO: m_uiTotalMeshTriangles and m_uiTotalMeshVertices are too high if we skip non-skinned meshes
+
     StreamIndices streams;
     AllocateMeshStreams(mb, ezArrayPtr<aiMesh*>(m_pScene->mMeshes, m_pScene->mNumMeshes), streams, m_uiTotalMeshVertices, m_uiTotalMeshTriangles, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision, m_Options.m_bImportSkinningData, b8BitBoneIndices);
 
@@ -551,6 +553,12 @@ namespace ezModelImporter2
 
       for (const auto& mi : itMesh.Value())
       {
+        if (m_Options.m_bImportSkinningData && !mi.m_pMesh->HasBones())
+        {
+          // skip meshes that have no bones
+          continue;
+        }
+
         SetMeshVertexData(mb, mi.m_pMesh, mi.m_GlobalTransform, uiMeshCurVertexIdx, streams, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision);
 
         if (m_Options.m_bImportSkinningData)
@@ -562,6 +570,12 @@ namespace ezModelImporter2
 
         uiMeshCurTriangleIdx += mi.m_pMesh->mNumFaces;
         uiMeshCurVertexIdx += mi.m_pMesh->mNumVertices;
+      }
+
+      if (uiMeshCurTriangleIdx - uiMeshPrevTriangleIdx == 0)
+      {
+        // skip empty submeshes
+        continue;
       }
 
       if (uiMaterialIdx >= m_OutputMaterials.GetCount())

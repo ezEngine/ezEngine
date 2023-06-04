@@ -255,7 +255,7 @@ void ezQtSkeletonAssetDocumentWindow::SendLiveResourcePreview()
   AssetHeader.Write(memoryWriter).IgnoreResult();
 
   // Write Asset Data
-  pDoc->WriteResource(memoryWriter).AssertSuccess();
+  pDoc->WriteResource(memoryWriter, *pDoc->GetProperties()).AssertSuccess();
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);

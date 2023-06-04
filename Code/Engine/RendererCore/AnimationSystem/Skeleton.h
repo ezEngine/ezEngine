@@ -13,6 +13,8 @@ class ezStreamReader;
 class ezSkeletonBuilder;
 class ezSkeleton;
 
+using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
+
 namespace ozz::animation
 {
   class Skeleton;
@@ -38,8 +40,12 @@ public:
   ezAngle GetTwistLimitCenterAngle() const { return m_TwistLimitCenterAngle; }
   ezAngle GetTwistLimitLow() const;
   ezAngle GetTwistLimitHigh() const;
+  ezEnum<ezSkeletonJointType> GetJointType() const { return m_JointType; }
 
   ezQuat GetLocalOrientation() const { return m_qLocalJointOrientation; }
+
+  ezSurfaceResourceHandle GetSurface() const { return m_hSurface; }
+  ezUInt8 GetCollisionLayer() const { return m_uiCollisionLayer; }
 
 protected:
   friend ezSkeleton;
@@ -49,6 +55,10 @@ protected:
   ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
 
+  ezSurfaceResourceHandle m_hSurface;
+  ezUInt8 m_uiCollisionLayer = 0;
+
+  ezEnum<ezSkeletonJointType> m_JointType;
   ezQuat m_qLocalJointOrientation = ezQuat::IdentityQuaternion();
   ezAngle m_HalfSwingLimitY;
   ezAngle m_HalfSwingLimitZ;

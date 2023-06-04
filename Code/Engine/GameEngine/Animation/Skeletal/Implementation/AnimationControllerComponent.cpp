@@ -12,13 +12,14 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 1, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 2, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("AnimController", GetAnimationControllerFile, SetAnimationControllerFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Graph")),
 
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
+    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
   }
   EZ_END_PROPERTIES;
 
@@ -41,6 +42,7 @@ void ezAnimationControllerComponent::SerializeComponent(ezWorldWriter& inout_str
 
   s << m_hAnimationController;
   s << m_RootMotionMode;
+  s << m_InvisibleUpdateRate;
 }
 
 void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -51,6 +53,11 @@ void ezAnimationControllerComponent::DeserializeComponent(ezWorldReader& inout_s
 
   s >> m_hAnimationController;
   s >> m_RootMotionMode;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_InvisibleUpdateRate;
+  }
 }
 
 void ezAnimationControllerComponent::SetAnimationControllerFile(const char* szFile)
@@ -98,7 +105,24 @@ void ezAnimationControllerComponent::OnSimulationStarted()
 
 void ezAnimationControllerComponent::Update()
 {
-  m_AnimationGraph.Update(GetWorld()->GetClock().GetTimeDiff(), GetOwner());
+  ezTime tMinStep = ezTime::Seconds(0);
+  ezVisibilityState visType = GetOwner()->GetVisibilityState();
+
+  if (visType != ezVisibilityState::Direct)
+  {
+    if (m_InvisibleUpdateRate == ezAnimationInvisibleUpdateRate::Pause && visType == ezVisibilityState::Invisible)
+      return;
+
+    tMinStep = ezAnimationInvisibleUpdateRate::GetTimeStep(m_InvisibleUpdateRate);
+  }
+
+  m_ElapsedTimeSinceUpdate += GetWorld()->GetClock().GetTimeDiff();
+
+  if (m_ElapsedTimeSinceUpdate < tMinStep)
+    return;
+
+  m_AnimationGraph.Update(m_ElapsedTimeSinceUpdate, GetOwner());
+  m_ElapsedTimeSinceUpdate.SetZero();
 
   ezVec3 translation;
   ezAngle rotationX;
