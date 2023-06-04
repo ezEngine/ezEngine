@@ -30,6 +30,7 @@ struct ezSkeletonJointGeometryType
     Capsule,
     Sphere,
     Box,
+    ConvexMesh,
 
     Default = None
   };
@@ -123,3 +124,45 @@ struct EZ_RENDERERCORE_DLL ezMsgRetrieveBoneState : public ezMessage
   // maps from bone name to its local transform
   ezMap<ezString, ezTransform> m_BoneTransforms;
 };
+
+struct ezSkeletonJointType
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    None,
+    // Hinge,
+    // Cone,
+    SwingTwist,
+
+    Default = None,
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonJointType);
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief What to do when an animated object is not visible.
+struct EZ_RENDERERCORE_DLL ezAnimationInvisibleUpdateRate
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    FullUpdate,
+    Max60FPS,
+    Max30FPS,
+    Max15FPS,
+    Max10FPS,
+    Max5FPS,
+    Pause,
+
+    Default = Max5FPS
+  };
+
+  static ezTime GetTimeStep(ezAnimationInvisibleUpdateRate::Enum value);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezAnimationInvisibleUpdateRate);

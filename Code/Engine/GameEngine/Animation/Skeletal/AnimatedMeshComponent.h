@@ -39,7 +39,7 @@ public:
   ezAnimatedMeshComponent();
   ~ezAnimatedMeshComponent();
 
-  void RetrievePose(ezDynamicArray<ezMat4>& out_ModelTransforms, ezTransform& out_RootTransform, const ezSkeleton& skeleton);
+  void RetrievePose(ezDynamicArray<ezMat4>& out_modelTransforms, ezTransform& out_rootTransform, const ezSkeleton& skeleton);
 
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]

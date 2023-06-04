@@ -31,7 +31,7 @@ public:
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  ezStatus WriteResource(ezStreamWriter& inout_stream) const;
+  ezStatus WriteResource(ezStreamWriter& inout_stream, const ezEditableSkeleton& skeleton) const;
 
   bool m_bIsTransforming = false;
 
@@ -63,7 +63,7 @@ protected:
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  void MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton);
+  const ezEditableSkeleton* MergeWithNewSkeleton(ezEditableSkeleton& newSkeleton);
 
   ezEvent<const ezSkeletonAssetEvent&> m_Events;
   bool m_bRenderBones = true;

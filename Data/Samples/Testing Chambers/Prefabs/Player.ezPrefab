@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{15503532128741272157}
+		u4 %Hash{14887481709069074717}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -782,11 +782,12 @@ o
 {
 	Uuid %id{u4{1746141424200519828,5640401124028596311}}
 	s %t{"ezAnimationControllerComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		s %AnimController{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
+		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max60FPS"}
 		s %RootMotionMode{"ezRootMotionMode::Ignore"}
 	}
 }
@@ -2241,6 +2242,23 @@ o
 }
 o
 {
+	Uuid %id{u4{342754006916086506,6664822790827848645}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAnimationInvisibleUpdateRate"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{7605758958972330253,6687734095884105025}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2323,7 +2341,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationControllerComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

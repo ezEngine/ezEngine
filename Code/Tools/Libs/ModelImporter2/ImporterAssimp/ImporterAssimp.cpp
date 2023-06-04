@@ -53,7 +53,16 @@ namespace ezModelImporter2
     ezUInt32 uiAssimpFlags = 0;
     if (m_Options.m_pMeshOutput != nullptr)
     {
-      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
+      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
+
+      if (!m_Options.m_bImportSkinningData)
+      {
+        // joining vertices doesn't take into account that two vertices might have different bone assignments
+        // so in case of a mesh that is cut into multiple pieces (breakable object),
+        // it will re-join vertices that are supposed to stay separate
+        // therefore don't do this for skinned meshes
+        uiAssimpFlags |= aiProcess_JoinIdenticalVertices;
+      }
     }
 
 
@@ -100,6 +109,8 @@ namespace ezModelImporter2
     EZ_SUCCEED_OR_RETURN(PrepareOutputMesh());
 
     EZ_SUCCEED_OR_RETURN(ImportAnimations());
+
+    EZ_SUCCEED_OR_RETURN(ImportBoneColliders(nullptr));
 
     if (m_Options.m_pMeshOutput)
     {
@@ -195,6 +206,78 @@ namespace ezModelImporter2
       else
       {
         EZ_SUCCEED_OR_RETURN(TraverseAiNode(pNode->mChildren[childIdx], globalTransform, nullptr));
+      }
+    }
+
+    return EZ_SUCCESS;
+  }
+
+
+  ezResult ImporterAssimp::ImportBoneColliders(ezEditableSkeletonJoint* pJoint)
+  {
+    if (m_Options.m_pSkeletonOutput == nullptr)
+      return EZ_SUCCESS;
+
+    if (pJoint == nullptr)
+    {
+      for (ezEditableSkeletonJoint* pJoint : m_Options.m_pSkeletonOutput->m_Children)
+      {
+        EZ_SUCCEED_OR_RETURN(ImportBoneColliders(pJoint));
+      }
+
+      return EZ_SUCCESS;
+    }
+    else
+    {
+      for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
+      {
+        EZ_SUCCEED_OR_RETURN(ImportBoneColliders(pChild));
+      }
+    }
+
+    ezStringBuilder sTmp;
+
+    const ezString& sName = pJoint->m_sName.GetString();
+
+    for (auto meshIt : m_MeshInstances)
+    {
+      for (const MeshInstance& meshInst : meshIt.Value())
+      {
+        auto pMesh = meshInst.m_pMesh;
+
+        if (ezStringUtils::FindSubString(pMesh->mName.C_Str(), sName) != nullptr)
+        {
+          sTmp = pMesh->mName.C_Str();
+
+          if (sTmp.TrimWordStart("UCX_") && sTmp.TrimWordStart(sName) && (sTmp.IsEmpty() || sTmp.TrimWordStart("_")))
+          {
+            // mesh is named "UCX_BoneName_xyz" or "UCX_BoneName" -> use mesh as convex collider for this bone
+
+            EZ_ASSERT_DEV(pMesh->HasPositions(), "TODO: early out");
+            EZ_ASSERT_DEV(pMesh->HasFaces(), "TODO: early out");
+
+            ezEditableSkeletonBoneCollider& col = pJoint->m_BoneColliders.ExpandAndGetRef();
+            col.m_sIdentifier = pMesh->mName.C_Str();
+            col.m_TriangleIndices.Reserve(pMesh->mNumFaces * 3);
+            col.m_VertexPositions.Reserve(pMesh->mNumVertices);
+
+            for (ezUInt32 v = 0; v < pMesh->mNumVertices; ++v)
+            {
+              col.m_VertexPositions.PushBack(meshInst.m_GlobalTransform * ConvertAssimpType(pMesh->mVertices[v]));
+            }
+
+            for (ezUInt32 f = 0; f < pMesh->mNumFaces; ++f)
+            {
+              col.m_TriangleIndices.PushBack(pMesh->mFaces[f].mIndices[0]);
+              col.m_TriangleIndices.PushBack(pMesh->mFaces[f].mIndices[1]);
+              col.m_TriangleIndices.PushBack(pMesh->mFaces[f].mIndices[2]);
+            }
+          }
+          else
+          {
+            //ezLog::Error("TODO: error message");
+          }
+        }
       }
     }
 

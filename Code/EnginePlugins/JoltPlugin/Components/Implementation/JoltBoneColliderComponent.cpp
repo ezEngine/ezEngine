@@ -156,6 +156,8 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
     if (geo.m_Type == ezSkeletonJointGeometryType::None)
       continue;
 
+    const ezSkeletonJoint& joint = desc.m_Skeleton.GetJointByIndex(geo.m_uiAttachedToJoint);
+
     auto& shape = m_Shapes.ExpandAndGetRef();
 
     ezGameObject* pGO = nullptr;
@@ -164,7 +166,7 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
       ezGameObjectDesc god;
       god.m_bDynamic = true;
       god.m_hParent = GetOwner()->GetHandle();
-      god.m_sName = geo.m_sName;
+      god.m_sName = joint.GetName();
       god.m_uiTeamID = GetOwner()->GetTeamID();
 
       shape.m_hActorObject = GetWorld()->CreateObject(god, pGO);
@@ -174,8 +176,8 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
         ezJoltQueryShapeActorComponent* pDynAct = nullptr;
         ezJoltQueryShapeActorComponent::CreateComponent(pGO, pDynAct);
 
-        pDynAct->m_uiCollisionLayer = geo.m_uiCollisionLayer;
-        pDynAct->m_hSurface = geo.m_hSurface;
+        pDynAct->m_uiCollisionLayer = joint.GetCollisionLayer();
+        pDynAct->m_hSurface = joint.GetSurface();
         pDynAct->SetInitialObjectFilterID(m_uiObjectFilterID);
       }
       else
@@ -184,8 +186,8 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
         ezJoltDynamicActorComponent::CreateComponent(pGO, pDynAct);
         pDynAct->SetKinematic(true);
 
-        pDynAct->m_uiCollisionLayer = geo.m_uiCollisionLayer;
-        pDynAct->m_hSurface = geo.m_hSurface;
+        pDynAct->m_uiCollisionLayer = joint.GetCollisionLayer();
+        pDynAct->m_hSurface = joint.GetSurface();
         pDynAct->SetInitialObjectFilterID(m_uiObjectFilterID);
       }
     }

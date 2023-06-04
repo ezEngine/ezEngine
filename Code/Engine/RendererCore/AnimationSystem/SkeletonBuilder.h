@@ -16,9 +16,12 @@ public:
   /// \brief Adds a joint to the skeleton
   /// Since the only way to add a joint with a parent is through this method the order of joints in the array is guaranteed
   /// so that child joints always come after their parent joints
-  ezUInt16 AddJoint(const char* szName, const ezTransform& localBindPose, ezUInt16 uiParentIndex = ezInvalidJointIndex);
+  ezUInt16 AddJoint(ezStringView sName, const ezTransform& localBindPose, ezUInt16 uiParentIndex = ezInvalidJointIndex);
 
-  void SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle);
+  void SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle);
+
+  void SetJointSurface(ezUInt16 uiJointIndex, ezStringView sSurface);
+  void SetJointCollisionLayer(ezUInt16 uiJointIndex, ezUInt8 uiCollsionLayer);
 
   /// \brief Creates a skeleton from the accumulated data.
   void BuildSkeleton(ezSkeleton& ref_skeleton) const;
@@ -34,6 +37,7 @@ protected:
     ezTransform m_InverseBindPoseGlobal;
     ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
     ezHashedString m_sName;
+    ezEnum<ezSkeletonJointType> m_JointType;
     ezQuat m_qLocalJointOrientation = ezQuat::IdentityQuaternion();
     ezAngle m_HalfSwingLimitZ;
     ezAngle m_HalfSwingLimitY;
@@ -41,6 +45,9 @@ protected:
     ezAngle m_TwistLimitCenterAngle;
     bool m_bLimitTwist = false;
     bool m_bLimitSwing = false;
+
+    ezString m_sSurface;
+    ezUInt8 m_uiCollisionLayer = 0;
   };
 
   ezDeque<BuilderJoint> m_Joints;

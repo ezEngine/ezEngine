@@ -8,6 +8,12 @@
 #include <ozz/animation/offline/skeleton_builder.h>
 #include <ozz/animation/runtime/skeleton.h>
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointType, 1)
+  EZ_ENUM_CONSTANTS(ezSkeletonJointType::None, ezSkeletonJointType::SwingTwist)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
 ezSkeleton::ezSkeleton() = default;
 ezSkeleton::~ezSkeleton() = default;
 
@@ -36,30 +42,9 @@ ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
   return ezInvalidJointIndex;
 }
 
-//bool ezSkeleton::IsCompatibleWith(const ezSkeleton& other) const
-//{
-//  if (this == &other)
-//    return true;
-//
-//  if (other.GetJointCount() != GetJointCount())
-//    return false;
-//
-//  // TODO: This only checks the joint hierarchy, maybe it should check names or hierarchy based on names
-//  const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_Joints.GetCount());
-//  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
-//  {
-//    if (other.m_Joints[i].GetParentIndex() != m_Joints[i].GetParentIndex())
-//    {
-//      return false;
-//    }
-//  }
-//
-//  return true;
-//}
-
 void ezSkeleton::Save(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(5);
+  inout_stream.WriteVersion(6);
 
   const ezUInt32 uiNumJoints = m_Joints.GetCount();
   inout_stream << uiNumJoints;
@@ -75,6 +60,10 @@ void ezSkeleton::Save(ezStreamWriter& inout_stream) const
     inout_stream << m_Joints[i].m_HalfSwingLimitY;
     inout_stream << m_Joints[i].m_TwistLimitHalfAngle;
     inout_stream << m_Joints[i].m_TwistLimitCenterAngle;
+
+    inout_stream << m_Joints[i].m_JointType;
+    inout_stream << m_Joints[i].m_hSurface;
+    inout_stream << m_Joints[i].m_uiCollisionLayer;
   }
 
   inout_stream << m_BoneDirection;
@@ -82,7 +71,7 @@ void ezSkeleton::Save(ezStreamWriter& inout_stream) const
 
 void ezSkeleton::Load(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = inout_stream.ReadVersion(5);
+  const ezTypeVersion version = inout_stream.ReadVersion(6);
   if (version < 3)
     return;
 
@@ -108,6 +97,13 @@ void ezSkeleton::Load(ezStreamReader& inout_stream)
       inout_stream >> m_Joints[i].m_HalfSwingLimitY;
       inout_stream >> m_Joints[i].m_TwistLimitHalfAngle;
       inout_stream >> m_Joints[i].m_TwistLimitCenterAngle;
+    }
+
+    if (version >= 6)
+    {
+      inout_stream >> m_Joints[i].m_JointType;
+      inout_stream >> m_Joints[i].m_hSurface;
+      inout_stream >> m_Joints[i].m_uiCollisionLayer;
     }
   }
 
