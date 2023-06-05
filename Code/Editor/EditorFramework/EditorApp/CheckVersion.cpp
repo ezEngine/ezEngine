@@ -18,13 +18,13 @@ static ezString GetVersionFilePath()
   return sTemp;
 }
 
-PageDownloader::PageDownloader(const QString& url)
+PageDownloader::PageDownloader(const QString& sUrl)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   QStringList args;
 
   args << "-Command";
-  args << QString("(Invoke-webrequest -URI \"%1\").Content > \"%2\"").arg(url).arg(GetVersionFilePath().GetData());
+  args << QString("(Invoke-webrequest -URI \"%1\").Content > \"%2\"").arg(sUrl).arg(GetVersionFilePath().GetData());
 
   m_pProcess = EZ_DEFAULT_NEW(QProcess);
   connect(m_pProcess.Borrow(), &QProcess::finished, this, &PageDownloader::DownloadDone);

@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
@@ -60,12 +61,13 @@ void ezQtEditorApp::SlotTimedUpdate()
   if (m_bWroteCrashIndicatorFile)
   {
     m_bWroteCrashIndicatorFile = false;
-    QTimer::singleShot(2000, []() {
-      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-      sTemp.AppendPath("ezEditorCrashIndicator");
-      ezOSFile::DeleteFile(sTemp).IgnoreResult();
-      //
-    });
+    QTimer::singleShot(2000, []()
+      {
+        ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+        sTemp.AppendPath("ezEditorCrashIndicator");
+        ezOSFile::DeleteFile(sTemp).IgnoreResult();
+        //
+      });
   }
 
   m_pTimer->start(1);

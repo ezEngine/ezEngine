@@ -13,7 +13,7 @@ class PageDownloader : public QObject
   Q_OBJECT
 
 public:
-  explicit PageDownloader(const QString& url);
+  explicit PageDownloader(const QString& sUrl);
 
   ezStringView GetDownloadedData() const { return m_sDownloadedPage; }
 
