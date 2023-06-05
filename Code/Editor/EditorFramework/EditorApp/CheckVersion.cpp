@@ -20,6 +20,7 @@ static ezString GetVersionFilePath()
 
 PageDownloader::PageDownloader(const QString& url)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   QStringList args;
 
   args << "-Command";
@@ -28,6 +29,9 @@ PageDownloader::PageDownloader(const QString& url)
   m_pProcess = EZ_DEFAULT_NEW(QProcess);
   connect(m_pProcess.Borrow(), &QProcess::finished, this, &PageDownloader::DownloadDone);
   m_pProcess->start("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe", args);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
 }
 
 void PageDownloader::DownloadDone(int exitCode, QProcess::ExitStatus exitStatus)
@@ -118,6 +122,11 @@ ezResult ezQtVersionChecker::StoreKnownVersion()
 
 bool ezQtVersionChecker::Check(bool bForce)
 {
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  EZ_ASSERT_DEV(!bForce, "The version check is not yet implemented on this platform.");
+  return false;
+#endif
+
   if (bForce)
   {
     // to trigger a 'new release available' signal
