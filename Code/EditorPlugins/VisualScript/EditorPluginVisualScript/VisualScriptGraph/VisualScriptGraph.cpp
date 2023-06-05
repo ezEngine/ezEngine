@@ -170,10 +170,16 @@ void ezVisualScriptNodeManager::GetOutputDataPins(const ezDocumentObject* pObjec
 ezStringView ezVisualScriptNodeManager::GetNiceTypeName(const ezDocumentObject* pObject)
 {
   ezStringView sTypeName = pObject->GetType()->GetTypeName();
-  sTypeName.TrimWordStart(ezVisualScriptNodeRegistry::s_szTypeNamePrefix, "Builtin_");
+
+  while (sTypeName.TrimWordStart(ezVisualScriptNodeRegistry::s_szTypeNamePrefix) ||
+         sTypeName.TrimWordStart("Builtin_"))
+  {
+  }
 
   if (const char* szAngleBracket = sTypeName.FindSubString("<"))
+  {
     sTypeName = ezStringView(sTypeName.GetStartPointer(), szAngleBracket);
+  }
 
   return sTypeName;
 }

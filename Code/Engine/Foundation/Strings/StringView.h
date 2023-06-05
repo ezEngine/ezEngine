@@ -192,11 +192,11 @@ public:
   /// \brief Removes all characters from the start and/or end that appear in the given strings by adjusting the begin and end of the view.
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
-  /// \brief If the string starts with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordStart(ezStringView sWord1, ezStringView sWord2 = {}, ezStringView sWord3 = {}, ezStringView sWord4 = {}, ezStringView sWord5 = {}); // [tested]
+  /// \brief If the string starts with the given word (case insensitive), it is removed and the function returns true.
+  bool TrimWordStart(ezStringView sWord); // [tested]
 
-  /// \brief If the string ends with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordEnd(ezStringView sWord1, ezStringView sWord2 = {}, ezStringView sWord3 = {}, ezStringView sWord4 = {}, ezStringView sWord5 = {}); // [tested]
+  /// \brief If the string ends with the given word (case insensitive), it is removed and the function returns true.
+  bool TrimWordEnd(ezStringView sWord); // [tested]
 
   /// \brief Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.

@@ -375,29 +375,51 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     {
       sb = "<test>abc<test>";
       EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
-      EZ_TEST_BOOL(sb == "abc<test>");
+      EZ_TEST_STRING(sb, "abc<test>");
       EZ_TEST_BOOL(sb.TrimWordStart("<test>") == false);
-      EZ_TEST_BOOL(sb == "abc<test>");
+      EZ_TEST_STRING(sb, "abc<test>");
     }
 
     {
       sb = "<test><tut><test><test><tut>abc<tut><test>";
-      EZ_TEST_BOOL(sb.TrimWordStart("<tut>", "<test>"));
-      EZ_TEST_BOOL(sb == "abc<tut><test>");
-      EZ_TEST_BOOL(sb.TrimWordStart("<tut>", "<test>") == false);
-      EZ_TEST_BOOL(sb == "abc<tut><test>");
+      EZ_TEST_BOOL(!sb.TrimWordStart("<tut>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>"));
+      EZ_TEST_STRING(sb, "abc<tut><test>");
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>") == false);
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>") == false);
+      EZ_TEST_STRING(sb, "abc<tut><test>");
     }
 
     {
       sb = "<a><b><c><d><e><a><b><c><d><e>abc";
-      EZ_TEST_BOOL(sb.TrimWordStart("<a>", "<b>", "<c>", "<d>", "<e>"));
-      EZ_TEST_BOOL(sb == "abc");
+
+      while (sb.TrimWordStart("<a>") ||
+             sb.TrimWordStart("<b>") ||
+             sb.TrimWordStart("<c>") ||
+             sb.TrimWordStart("<d>") ||
+             sb.TrimWordStart("<e>"))
+      {
+      }
+
+      EZ_TEST_STRING(sb, "abc");
     }
 
     {
       sb = "<a><b><c><d><e><a><b><c><d><e>";
-      EZ_TEST_BOOL(sb.TrimWordStart("<a>", "<b>", "<c>", "<d>", "<e>"));
-      EZ_TEST_BOOL(sb == "");
+
+      while (sb.TrimWordStart("<a>") ||
+             sb.TrimWordStart("<b>") ||
+             sb.TrimWordStart("<c>") ||
+             sb.TrimWordStart("<d>") ||
+             sb.TrimWordStart("<e>"))
+      {
+      }
+
+      EZ_TEST_STRING(sb, "");
     }
   }
 
@@ -408,32 +430,52 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     {
       sb = "<test>abc<test>";
       EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
-      EZ_TEST_BOOL(sb == "<test>abc");
+      EZ_TEST_STRING(sb, "<test>abc");
       EZ_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
-      EZ_TEST_BOOL(sb == "<test>abc");
+      EZ_TEST_STRING(sb, "<test>abc");
     }
 
     {
       sb = "<tut><test>abc<test><tut><test><test><tut>";
-      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>", "<test>"));
-      EZ_TEST_BOOL(sb == "<tut><test>abc");
-      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>", "<test>") == false);
-      EZ_TEST_BOOL(sb == "<tut><test>abc");
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      EZ_TEST_STRING(sb, "<tut><test>abc");
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>") == false);
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
+      EZ_TEST_STRING(sb, "<tut><test>abc");
     }
 
     {
       sb = "abc<a><b><c><d><e><a><b><c><d><e>";
-      EZ_TEST_BOOL(sb.TrimWordEnd("<a>", "<b>", "<c>", "<d>", "<e>"));
-      EZ_TEST_BOOL(sb == "abc");
+
+      while (sb.TrimWordEnd("<a>") ||
+             sb.TrimWordEnd("<b>") ||
+             sb.TrimWordEnd("<c>") ||
+             sb.TrimWordEnd("<d>") ||
+             sb.TrimWordEnd("<e>"))
+      {
+      }
+
+      EZ_TEST_STRING(sb, "abc");
     }
 
     {
       sb = "<a><b><c><d><e><a><b><c><d><e>";
-      EZ_TEST_BOOL(sb.TrimWordEnd("<a>", "<b>", "<c>", "<d>", "<e>"));
-      EZ_TEST_BOOL(sb == "");
+
+      while (sb.TrimWordEnd("<a>") ||
+             sb.TrimWordEnd("<b>") ||
+             sb.TrimWordEnd("<c>") ||
+             sb.TrimWordEnd("<d>") ||
+             sb.TrimWordEnd("<e>"))
+      {
+      }
+
+      EZ_TEST_STRING(sb, "");
     }
   }
-
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Split")
   {
