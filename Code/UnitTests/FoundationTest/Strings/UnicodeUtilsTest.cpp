@@ -266,7 +266,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomLE")
   {
-    ezUInt16 szWithBom[] = {0xfffe, 'a'};
+    ezUInt16 szWithBom[] = {0xfeff, 'a'};
     ezUInt16 szNoBom[] = {'a'};
 
     const ezUInt16* pString = szWithBom;
@@ -282,7 +282,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomBE")
   {
-    ezUInt16 szWithBom[] = {0xfeff, 'a'};
+    ezUInt16 szWithBom[] = {0xfffe, 'a'};
     ezUInt16 szNoBom[] = {'a'};
 
     const ezUInt16* pString = szWithBom;
