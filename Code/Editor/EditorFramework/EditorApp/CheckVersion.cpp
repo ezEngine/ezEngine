@@ -9,29 +9,57 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <QNetworkReply>
+#include <QProcess>
 
-PageDownloader::PageDownloader(QUrl url)
+static ezString GetVersionFilePath()
 {
-  connect(&m_WebCtrl, &QNetworkAccessManager::finished, this, &PageDownloader::DownloadDone);
-
-  QNetworkRequest request(url);
-  m_WebCtrl.get(request);
+  ezStringBuilder sTemp = ezOSFile::GetTempDataFolder();
+  sTemp.AppendPath("ezEditor/version-page.htm");
+  return sTemp;
 }
 
-void PageDownloader::DownloadDone(QNetworkReply* pReply)
+PageDownloader::PageDownloader(const QString& sUrl)
 {
-  QNetworkReply::NetworkError e = pReply->error();
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  QStringList args;
 
-  if (e != QNetworkReply::NetworkError::NoError)
+  args << "-Command";
+  args << QString("(Invoke-webrequest -URI \"%1\").Content > \"%2\"").arg(sUrl).arg(GetVersionFilePath().GetData());
+
+  m_pProcess = EZ_DEFAULT_NEW(QProcess);
+  connect(m_pProcess.Borrow(), &QProcess::finished, this, &PageDownloader::DownloadDone);
+  m_pProcess->start("C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe", args);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
+}
+
+void PageDownloader::DownloadDone(int exitCode, QProcess::ExitStatus exitStatus)
+{
+  m_pProcess = nullptr;
+
+  ezOSFile file;
+  if (file.Open(GetVersionFilePath(), ezFileOpenMode::Read).Failed())
+    return;
+
+  ezDataBuffer content;
+  file.ReadAll(content);
+
+  content.PushBack('\0');
+  content.PushBack('\0');
+
+  const ezUInt16* pStart = (ezUInt16*)content.GetData();
+  if (ezUnicodeUtils::SkipUtf16BomLE(pStart))
   {
-    m_DownloadedData = pReply->readAll();
+    m_sDownloadedPage = ezStringWChar(pStart);
   }
   else
   {
-    m_DownloadedData = pReply->readAll();
+    const char* szUtf8 = (const char*)content.GetData();
+    m_sDownloadedPage = ezStringWChar(szUtf8);
   }
 
-  pReply->deleteLater();
+  ezOSFile::DeleteFile(GetVersionFilePath()).IgnoreResult();
 
   Q_EMIT FinishedDownload();
 }
@@ -94,6 +122,11 @@ ezResult ezQtVersionChecker::StoreKnownVersion()
 
 bool ezQtVersionChecker::Check(bool bForce)
 {
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  EZ_ASSERT_DEV(!bForce, "The version check is not yet implemented on this platform.");
+  return false;
+#endif
+
   if (bForce)
   {
     // to trigger a 'new release available' signal
@@ -112,10 +145,9 @@ bool ezQtVersionChecker::Check(bool bForce)
 
   m_bCheckInProgresss = true;
 
-  // DON'T use HTTPS here, our Qt version only supports HTTP
-  m_pVersionPage = new PageDownloader(QUrl("http://ezengine.net/pages/getting-started/binaries.html"));
+  m_pVersionPage = EZ_DEFAULT_NEW(PageDownloader, "https://ezengine.net/pages/getting-started/binaries.html");
 
-  connect(m_pVersionPage.data(), &PageDownloader::FinishedDownload, this, &ezQtVersionChecker::PageDownloaded);
+  connect(m_pVersionPage.Borrow(), &PageDownloader::FinishedDownload, this, &ezQtVersionChecker::PageDownloaded);
 
   return true;
 }
@@ -179,7 +211,9 @@ bool ezQtVersionChecker::IsLatestNewer() const
 void ezQtVersionChecker::PageDownloaded()
 {
   m_bCheckInProgresss = false;
-  ezStringBuilder sPage = m_pVersionPage->GetDownloadedData().data();
+  ezStringBuilder sPage = m_pVersionPage->GetDownloadedData();
+
+  m_pVersionPage = nullptr;
 
   if (sPage.IsEmpty())
   {

@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
@@ -20,6 +21,7 @@ ezQtEditorApp::ezQtEditorApp()
   , m_RecentDocuments(100)
 {
   m_bSavePreferencesAfterOpenProject = false;
+  m_pVersionChecker = EZ_DEFAULT_NEW(ezQtVersionChecker);
 
   m_pTimer = new QTimer(nullptr);
 }
@@ -82,26 +84,26 @@ void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bFo
 
   if (bForced || bNewVersionReleased)
   {
-    if (m_VersionChecker.IsLatestNewer())
+    if (m_pVersionChecker->IsLatestNewer())
     {
       ezQtUiServices::GetSingleton()->MessageBoxInformation(
         ezFmt("<html>A new version is available: {}<br><br>Your version is: {}<br><br>Please check the <A "
               "href=\"https://github.com/ezEngine/ezEngine/releases\">Releases</A> for details.</html>",
-          m_VersionChecker.GetKnownLatestVersion(), m_VersionChecker.GetOwnVersion()));
+          m_pVersionChecker->GetKnownLatestVersion(), m_pVersionChecker->GetOwnVersion()));
     }
     else
     {
       ezStringBuilder tmp("You have the latest version: \n");
-      tmp.Append(m_VersionChecker.GetOwnVersion());
+      tmp.Append(m_pVersionChecker->GetOwnVersion());
 
       ezQtUiServices::GetSingleton()->MessageBoxInformation(tmp);
     }
   }
 
-  if (m_VersionChecker.IsLatestNewer())
+  if (m_pVersionChecker->IsLatestNewer())
   {
     ezQtUiServices::GetSingleton()->ShowGlobalStatusBarMessage(
-      ezFmt("New version '{}' available, please update.", m_VersionChecker.GetKnownLatestVersion()));
+      ezFmt("New version '{}' available, please update.", m_pVersionChecker->GetKnownLatestVersion()));
   }
 }
 
@@ -136,7 +138,7 @@ void ezQtEditorApp::UiServicesEvents(const ezQtUiServices::Event& e)
 {
   if (e.m_Type == ezQtUiServices::Event::Type::CheckForUpdates)
   {
-    m_VersionChecker.Check(true);
+    m_pVersionChecker->Check(true);
   }
 }
 

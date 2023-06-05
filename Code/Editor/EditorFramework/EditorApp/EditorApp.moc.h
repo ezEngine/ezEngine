@@ -1,7 +1,6 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
-#include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
@@ -30,6 +29,7 @@ using QStringList = QList<QString>;
 class ezTranslatorFromFiles;
 class ezDynamicStringEnum;
 class QSplashScreen;
+class ezQtVersionChecker;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -313,7 +313,7 @@ private:
   ezSet<ezString> m_DynamicEnumStringsToClear;
   void OnDemandDynamicStringEnumLoad(ezStringView sEnumName, ezDynamicStringEnum& e);
 
-  ezQtVersionChecker m_VersionChecker;
+  ezUniquePtr<ezQtVersionChecker> m_pVersionChecker;
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezQtEditorApp::StartupFlags);
