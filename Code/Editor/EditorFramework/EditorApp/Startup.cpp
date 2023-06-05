@@ -330,10 +330,10 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     if (!IsInUnitTestMode())
     {
-      connect(&m_VersionChecker, &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted, Qt::QueuedConnection);
+      connect(m_pVersionChecker.Borrow(), &ezQtVersionChecker::VersionCheckCompleted, this, &ezQtEditorApp::SlotVersionCheckCompleted, Qt::QueuedConnection);
 
-      m_VersionChecker.Initialize();
-      m_VersionChecker.Check(false);
+      m_pVersionChecker->Initialize();
+      m_pVersionChecker->Check(false);
     }
   }
 
