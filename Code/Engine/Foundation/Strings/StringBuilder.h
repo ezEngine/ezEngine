@@ -384,11 +384,11 @@ public:
   /// \brief Removes all characters from the start and/or end that appear in the given strings.
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
-  /// \brief If the string starts with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordStart(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr); // [tested]
+  /// \brief If the string starts with the given word (case insensitive), it is removed and the function returns true.
+  bool TrimWordStart(ezStringView sWord); // [tested]
 
-  /// \brief If the string ends with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordEnd(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr); // [tested]
+  /// \brief If the string ends with the given word (case insensitive), it is removed and the function returns true.
+  bool TrimWordEnd(ezStringView sWord); // [tested]
 
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes,

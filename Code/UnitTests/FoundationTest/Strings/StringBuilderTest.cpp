@@ -1520,21 +1520,43 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     {
       sb = "<test><tut><test><test><tut>abc<tut><test>";
-      EZ_TEST_BOOL(sb.TrimWordStart("<tut>", "<test>"));
+      EZ_TEST_BOOL(!sb.TrimWordStart("<tut>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>"));
       EZ_TEST_STRING(sb, "abc<tut><test>");
-      EZ_TEST_BOOL(sb.TrimWordStart("<tut>", "<test>") == false);
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>") == false);
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>") == false);
       EZ_TEST_STRING(sb, "abc<tut><test>");
     }
 
     {
       sb = "<a><b><c><d><e><a><b><c><d><e>abc";
-      EZ_TEST_BOOL(sb.TrimWordStart("<a>", "<b>", "<c>", "<d>", "<e>"));
+
+      while (sb.TrimWordStart("<a>") ||
+             sb.TrimWordStart("<b>") ||
+             sb.TrimWordStart("<c>") ||
+             sb.TrimWordStart("<d>") ||
+             sb.TrimWordStart("<e>"))
+      {
+      }
+
       EZ_TEST_STRING(sb, "abc");
     }
 
     {
       sb = "<a><b><c><d><e><a><b><c><d><e>";
-      EZ_TEST_BOOL(sb.TrimWordStart("<a>", "<b>", "<c>", "<d>", "<e>"));
+
+      while (sb.TrimWordStart("<a>") ||
+             sb.TrimWordStart("<b>") ||
+             sb.TrimWordStart("<c>") ||
+             sb.TrimWordStart("<d>") ||
+             sb.TrimWordStart("<e>"))
+      {
+      }
+
       EZ_TEST_STRING(sb, "");
     }
   }
@@ -1553,21 +1575,42 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     {
       sb = "<tut><test>abc<test><tut><test><test><tut>";
-      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>", "<test>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>"));
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
       EZ_TEST_STRING(sb, "<tut><test>abc");
-      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>", "<test>") == false);
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>") == false);
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
       EZ_TEST_STRING(sb, "<tut><test>abc");
     }
 
     {
       sb = "abc<a><b><c><d><e><a><b><c><d><e>";
-      EZ_TEST_BOOL(sb.TrimWordEnd("<a>", "<b>", "<c>", "<d>", "<e>"));
+
+      while (sb.TrimWordEnd("<a>") ||
+             sb.TrimWordEnd("<b>") ||
+             sb.TrimWordEnd("<c>") ||
+             sb.TrimWordEnd("<d>") ||
+             sb.TrimWordEnd("<e>"))
+      {
+      }
+
       EZ_TEST_STRING(sb, "abc");
     }
 
     {
       sb = "<a><b><c><d><e><a><b><c><d><e>";
-      EZ_TEST_BOOL(sb.TrimWordEnd("<a>", "<b>", "<c>", "<d>", "<e>"));
+
+      while (sb.TrimWordEnd("<a>") ||
+             sb.TrimWordEnd("<b>") ||
+             sb.TrimWordEnd("<c>") ||
+             sb.TrimWordEnd("<d>") ||
+             sb.TrimWordEnd("<e>"))
+      {
+      }
+
       EZ_TEST_STRING(sb, "");
     }
   }
