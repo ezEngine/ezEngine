@@ -45,6 +45,7 @@ public:
 
   /// \brief Static function that returns a quaternion that represents the identity rotation (none).
   static const ezQuatTemplate<Type> IdentityQuaternion(); // [tested]
+  static const ezQuatTemplate<Type> sIdentity();
 
   // *** Functions to create a quaternion ***
 public:
@@ -56,31 +57,38 @@ public:
   ///
   /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
   void SetElements(Type x, Type y, Type z, Type w); // [tested]
+  static const ezQuatTemplate<Type> sFromComponents(Type x, Type y, Type z, Type w); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle.
   void SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle); // [tested]
+  static const ezQuatTemplate<Type> sFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle);
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
   void SetShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]
+  static const ezQuatTemplate<Type> sShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo);
 
   /// \brief Creates a quaternion from the given matrix.
   void SetFromMat3(const ezMat3Template<Type>& m); // [tested]
+  static const ezQuatTemplate<Type> sFromRotationMat3(const ezMat3Template<Type>& m);
 
   /// \brief Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
   ///
   /// In skeletal animation it is possible that matrices with mirroring are used, that need to be converted to a
   /// proper quaternion, even though a rotation with mirroring can't be represented by a quaternion.
   /// This function reconstructs a valid quaternion from such matrices. Obviously the mirroring information gets lost,
-  /// but it is typically not needed any further anway.
+  /// but it is typically not needed any further anyway.
   void ReconstructFromMat3(const ezMat3Template<Type>& m);
+  static const ezQuatTemplate<Type> sFromNonOrthogonalMat3(const ezMat3Template<Type>& m);
 
   /// \brief Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
   ///
   /// \sa ReconstructFromMat3()
   void ReconstructFromMat4(const ezMat4Template<Type>& m);
+  static const ezQuatTemplate<Type> sFromNonOrthogonalMat4(const ezMat4Template<Type>& m);
 
   /// \brief Sets this quaternion to be the spherical linear interpolation of the other two.
   void SetSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
+  static const ezQuatTemplate<Type> sSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // ??
 
   // *** Common Functions ***
 public:

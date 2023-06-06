@@ -26,11 +26,16 @@ public:
   constexpr static Type RadToDeg(Type f); // [tested]
 
   /// \brief Creates an instance of ezAngle that was initialized from degree. (Performs a conversion)
+  // [[deprecated("Use sDegree instead")]]
   constexpr static ezAngle Degree(float fDegree); // [tested]
 
   /// \brief Creates an instance of ezAngle that was initialized from radian. (No need for any conversion)
+  //[[deprecated("Use sRadian instead")]]
   constexpr static ezAngle Radian(float fRadian); // [tested]
 
+  constexpr static ezAngle sZero();
+  constexpr static ezAngle sDegree(float fDegree);
+  constexpr static ezAngle sRadian(float fDegree);
 
 
   EZ_DECLARE_POD_TYPE();

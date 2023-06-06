@@ -47,6 +47,8 @@ public:
 
   // *** Predefined Colors ***
 public:
+  // turn into static functions and rename to sAliceBlue() etc ??? (probably not)
+
   static const ezColor AliceBlue;            ///< #F0F8FF
   static const ezColor AntiqueWhite;         ///< #FAEBD7
   static const ezColor Aqua;                 ///< #00FFFF
@@ -207,6 +209,7 @@ public:
 public:
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
   static ezColor ZeroColor();
+  static ezColor sZero();
 
   // *** Constructors ***
 public:
@@ -218,6 +221,9 @@ public:
   /// To initialize the color from a Gamma color space, e.g. when using a color value that was determined with a color picker,
   /// use the constructor that takes a ezColorGammaUB object for initialization.
   constexpr ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
+  static ezColor sRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // ??
+
+  static ezColor sNaN();
 
   /// \brief Initializes this color from a ezColorLinearUB object.
   ///
@@ -252,6 +258,7 @@ public:
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
   void SetHSV(float fHue, float fSat, float fVal); // [tested]
+  static ezColor sHSV(float fHue, float fSat, float fVal);
 
   /// \brief Converts the color part to HSV format.
   ///

@@ -48,14 +48,21 @@ public:
     const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(),
     const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1)); // [tested]
 
+  // ??
+  static ezTransformTemplate<Type> sFromComponents(const ezVec3Template<Type>& vPosition,
+    const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(),
+    const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1));
+
   /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling and shearing will get lost in the process.
   void SetFromMat4(const ezMat4Template<Type>& mMat);
+  static ezTransformTemplate<Type> sFromMat4();
 
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
 
   /// \brief Returns an Identity Transform.
   static const ezTransformTemplate<Type> IdentityTransform();
+  static ezTransformTemplate<Type> sIdentity();
 
   /// \brief Returns the scale component with maximum magnitude.
   Type GetMaxScale() const;
