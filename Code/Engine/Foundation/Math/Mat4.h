@@ -55,8 +55,8 @@ public:
   }
 #endif
 
-  static const ezMat4Template<Type> sZero(); 
-  static const ezMat4Template<Type> sNaN(); 
+  static const ezMat4Template<Type> sZero();
+  static const ezMat4Template<Type> sNaN();
 
   /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
   ///
@@ -67,8 +67,8 @@ public:
   ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
   void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
   static const ezMat4Template<Type> sFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // sLoad ??
-  static const ezMat4Template<Type> sFromColumnMajorArray(const Type* const pData); // ??
-  static const ezMat4Template<Type> sFromRowMajorArray(const Type* const pData); // ??
+  static const ezMat4Template<Type> sFromColumnMajorArray(const Type* const pData);                   // ??
+  static const ezMat4Template<Type> sFromRowMajorArray(const Type* const pData);                      // ??
 
   /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or
   /// row-major format.
