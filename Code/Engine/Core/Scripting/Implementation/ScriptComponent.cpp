@@ -108,21 +108,21 @@ void ezScriptComponent::OnSimulationStarted()
   CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
 }
 
-void ezScriptComponent::BroadcastEventMsg(ezEventMessage& msg)
+void ezScriptComponent::BroadcastEventMsg(ezEventMessage& inout_msg)
 {
-  const ezRTTI* pType = msg.GetDynamicRTTI();
+  const ezRTTI* pType = inout_msg.GetDynamicRTTI();
   for (auto& sender : m_EventSenders)
   {
     if (sender.m_pMsgType == pType)
     {
-      sender.m_Sender.SendEventMessage(msg, this, GetOwner());
+      sender.m_Sender.SendEventMessage(inout_msg, this, GetOwner());
       return;
     }
   }
 
   auto& sender = m_EventSenders.ExpandAndGetRef();
   sender.m_pMsgType = pType;
-  sender.m_Sender.SendEventMessage(msg, this, GetOwner());
+  sender.m_Sender.SendEventMessage(inout_msg, this, GetOwner());
 }
 
 void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScript)
@@ -179,8 +179,8 @@ const ezRangeView<const char*, ezUInt32> ezScriptComponent::GetParameters() cons
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
     [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezScriptComponent::SetParameter(const char* szKey, const ezVariant& value)

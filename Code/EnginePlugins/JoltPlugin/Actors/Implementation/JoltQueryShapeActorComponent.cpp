@@ -71,7 +71,7 @@ void ezJoltQueryShapeActorComponent::SerializeComponent(ezWorldWriter& inout_str
 void ezJoltQueryShapeActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI()); // NOLINT: ignore unused variable
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 

@@ -155,7 +155,7 @@ void ezJoltRagdollComponent::SerializeComponent(ezWorldWriter& inout_stream) con
 void ezJoltRagdollComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   if (uiVersion < 2)

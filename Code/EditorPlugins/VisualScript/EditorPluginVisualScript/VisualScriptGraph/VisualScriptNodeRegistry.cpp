@@ -37,10 +37,10 @@ namespace
     return EZ_SUCCESS;
   }
 
-  void AddInputProperty(ezReflectedTypeDescriptor& typeDesc, ezStringView name, ezVisualScriptDataType::Enum scriptDataType)
+  void AddInputProperty(ezReflectedTypeDescriptor& ref_typeDesc, ezStringView sName, ezVisualScriptDataType::Enum scriptDataType)
   {
-    auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-    propDesc.m_sName = name;
+    auto& propDesc = ref_typeDesc.m_Properties.ExpandAndGetRef();
+    propDesc.m_sName = sName;
     propDesc.m_Flags = ezPropertyFlags::StandardType;
 
     if (scriptDataType == ezVisualScriptDataType::Variant)
@@ -69,38 +69,38 @@ namespace
   }
 
   template <typename T>
-  void AddInputDataPin(ezReflectedTypeDescriptor& typeDesc, ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, ezStringView name)
+  void AddInputDataPin(ezReflectedTypeDescriptor& ref_typeDesc, ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName)
   {
     const ezRTTI* pDataType = ezGetStaticRTTI<T>();
 
     ezVisualScriptDataType::Enum scriptDataType;
-    EZ_VERIFY(GetScriptDataType(pDataType, scriptDataType, "", name).Succeeded(), "Invalid script data type");
+    EZ_VERIFY(GetScriptDataType(pDataType, scriptDataType, "", sName).Succeeded(), "Invalid script data type");
 
-    AddInputProperty(typeDesc, name, scriptDataType);
+    AddInputProperty(ref_typeDesc, sName, scriptDataType);
 
-    nodeDesc.AddInputDataPin(name, pDataType, scriptDataType, false);
+    ref_nodeDesc.AddInputDataPin(sName, pDataType, scriptDataType, false);
   };
 
-  void AddInputDataPin_Any(ezReflectedTypeDescriptor& typeDesc, ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, ezStringView name, bool bRequired, bool bAddVariantProperty = false)
+  void AddInputDataPin_Any(ezReflectedTypeDescriptor& ref_typeDesc, ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName, bool bRequired, bool bAddVariantProperty = false)
   {
     if (bAddVariantProperty)
     {
-      AddInputProperty(typeDesc, name, ezVisualScriptDataType::Variant);
+      AddInputProperty(ref_typeDesc, sName, ezVisualScriptDataType::Variant);
     }
 
-    nodeDesc.AddInputDataPin(name, nullptr, ezVisualScriptDataType::Any, bRequired);
-    nodeDesc.m_bNeedsDataTypeDeduction = true;
+    ref_nodeDesc.AddInputDataPin(sName, nullptr, ezVisualScriptDataType::Any, bRequired);
+    ref_nodeDesc.m_bNeedsDataTypeDeduction = true;
   }
 
   template <typename T>
-  void AddOutputDataPin(ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, ezStringView name)
+  void AddOutputDataPin(ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName)
   {
     const ezRTTI* pDataType = ezGetStaticRTTI<T>();
 
     ezVisualScriptDataType::Enum scriptDataType;
-    EZ_VERIFY(GetScriptDataType(pDataType, scriptDataType, "", name).Succeeded(), "Invalid script data type");
+    EZ_VERIFY(GetScriptDataType(pDataType, scriptDataType, "", sName).Succeeded(), "Invalid script data type");
 
-    nodeDesc.AddOutputDataPin(name, pDataType, scriptDataType);
+    ref_nodeDesc.AddOutputDataPin(sName, pDataType, scriptDataType);
   };
 
   ezStringView StripTypeName(ezStringView sTypeName)
@@ -190,15 +190,15 @@ ezColor ezVisualScriptNodeRegistry::PinDesc::GetColor() const
 
 //////////////////////////////////////////////////////////////////////////
 
-void AddExecutionPin(ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, ezStringView sName, ezHashedString sDynamicPinProperty, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& pins)
+void AddExecutionPin(ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName, ezHashedString sDynamicPinProperty, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& ref_pins)
 {
-  auto& pin = pins.ExpandAndGetRef();
+  auto& pin = ref_pins.ExpandAndGetRef();
   pin.m_sName.Assign(sName);
   pin.m_sDynamicPinProperty = sDynamicPinProperty;
   pin.m_pDataType = nullptr;
   pin.m_ScriptDataType = ezVisualScriptDataType::Invalid;
 
-  nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
+  ref_nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
 }
 
 void ezVisualScriptNodeRegistry::NodeDesc::AddInputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/)
@@ -211,16 +211,16 @@ void ezVisualScriptNodeRegistry::NodeDesc::AddOutputExecutionPin(ezStringView sN
   AddExecutionPin(*this, sName, sDynamicPinProperty, m_OutputPins);
 }
 
-void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& pins)
+void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& ref_pins)
 {
-  auto& pin = pins.ExpandAndGetRef();
+  auto& pin = ref_pins.ExpandAndGetRef();
   pin.m_sName.Assign(sName);
   pin.m_sDynamicPinProperty = sDynamicPinProperty;
   pin.m_pDataType = pDataType;
   pin.m_ScriptDataType = scriptDataType;
   pin.m_bRequired = bRequired;
 
-  nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
+  ref_nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
 }
 
 void ezVisualScriptNodeRegistry::NodeDesc::AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/)

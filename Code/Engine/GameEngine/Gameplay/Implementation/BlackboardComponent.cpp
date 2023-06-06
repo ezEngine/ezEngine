@@ -172,7 +172,8 @@ void ezBlackboardComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 void ezBlackboardComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI()); // NOLINT: ignore dead store warning
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
 
   ezStreamReader& s = inout_stream.GetStream();
 

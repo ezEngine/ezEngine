@@ -26,7 +26,7 @@ param
 	$FilterPattern
 )
 
-$ErrorActionPreference = "Break"
+$ErrorActionPreference = "Stop"
 
 $Workspace = (Resolve-Path $Workspace).Path
 
