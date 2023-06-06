@@ -149,7 +149,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE /wd5240)
     
     # Disable deprecation warnings (qt, etc)
-    target_compile_options(${TARGET_NAME} PRIVATE /wd4996)
+    # target_compile_options(${TARGET_NAME} PRIVATE /wd4996)
 
 endfunction()
 
