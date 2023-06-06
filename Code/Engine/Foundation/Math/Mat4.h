@@ -55,7 +55,6 @@ public:
   }
 #endif
 
-  static const ezMat4Template<Type> sZero();
   static const ezMat4Template<Type> sNaN();
 
   /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.

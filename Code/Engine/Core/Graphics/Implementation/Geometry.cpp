@@ -156,7 +156,7 @@ void ezGeometry::ComputeSmoothVertexNormals()
   // reset all vertex normals
   for (ezUInt32 v = 0; v < m_Vertices.GetCount(); ++v)
   {
-    m_Vertices[v].m_vNormal.SetZero();
+    m_Vertices[v].m_vNormal = ezVec3::sZero();
   }
 
   // add face normal of all adjacent faces to each vertex
@@ -291,7 +291,7 @@ void ezGeometry::ValidateTangents(float fEpsilon)
     // checking for orthogonality to the normal and for squared unit length (standard case) or 3 (magic number for binormal inversion)
     if (!ezMath::IsEqual(vertex.m_vNormal.GetLengthSquared(), 1.f, fEpsilon) || !ezMath::IsEqual(vertex.m_vNormal.Dot(vertex.m_vTangent), 0.f, fEpsilon) || !(ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 1.f, fEpsilon) || ezMath::IsEqual(vertex.m_vTangent.GetLengthSquared(), 3.f, fEpsilon)))
     {
-      vertex.m_vTangent.SetZero();
+      vertex.m_vTangent = ezVec3::sZero();
     }
   }
 }

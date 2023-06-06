@@ -25,7 +25,7 @@ void ezTransformTemplate<Type>::SetFromMat4(const ezMat4Template<Type>& mMat)
 template <typename Type>
 inline void ezTransformTemplate<Type>::SetIdentity()
 {
-  m_vPosition.SetZero();
+  m_vPosition = ezVec3::sZero();
   m_qRotation.SetIdentity();
   m_vScale.Set(1);
 }
@@ -34,7 +34,7 @@ inline void ezTransformTemplate<Type>::SetIdentity()
 template <typename Type>
 inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::IdentityTransform()
 {
-  return ezTransformTemplate<Type>(ezVec3Template<Type>::ZeroVector(), ezQuatTemplate<Type>::IdentityQuaternion(), ezVec3Template<Type>(1));
+  return ezTransformTemplate<Type>(ezVec3Template<Type>::sZero(), ezQuatTemplate<Type>::IdentityQuaternion(), ezVec3Template<Type>(1));
 }
 
 template <typename Type>

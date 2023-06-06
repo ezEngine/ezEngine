@@ -285,7 +285,7 @@ ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)
 
     default:
       EZ_REPORT_FAILURE("Invalid basis dir {0}", basisAxis);
-      return ezVec3::ZeroVector();
+      return ezVec3::sZero();
   }
 }
 
@@ -389,19 +389,19 @@ ezBasisAxis::Enum ezBasisAxis::GetOrthogonalAxis(Enum axis1, Enum axis2, bool bF
   if (bFlip)
     c = -c;
 
-  if (c.IsEqual(ezVec3::UnitXAxis(), 0.01f))
+  if (c.IsEqual(ezVec3::sAxisX(), 0.01f))
     return ezBasisAxis::PositiveX;
-  if (c.IsEqual(-ezVec3::UnitXAxis(), 0.01f))
+  if (c.IsEqual(-ezVec3::sAxisX(), 0.01f))
     return ezBasisAxis::NegativeX;
 
-  if (c.IsEqual(ezVec3::UnitYAxis(), 0.01f))
+  if (c.IsEqual(ezVec3::sAxisY(), 0.01f))
     return ezBasisAxis::PositiveY;
-  if (c.IsEqual(-ezVec3::UnitYAxis(), 0.01f))
+  if (c.IsEqual(-ezVec3::sAxisY(), 0.01f))
     return ezBasisAxis::NegativeY;
 
-  if (c.IsEqual(ezVec3::UnitZAxis(), 0.01f))
+  if (c.IsEqual(ezVec3::sAxisZ(), 0.01f))
     return ezBasisAxis::PositiveZ;
-  if (c.IsEqual(-ezVec3::UnitZAxis(), 0.01f))
+  if (c.IsEqual(-ezVec3::sAxisZ(), 0.01f))
     return ezBasisAxis::NegativeZ;
 
   return axis1;

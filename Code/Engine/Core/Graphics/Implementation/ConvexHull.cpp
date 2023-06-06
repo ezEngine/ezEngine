@@ -288,7 +288,7 @@ ezResult ezConvexHullGenerator::InitializeHull()
 
   // precompute the 'inside' position
   {
-    m_vInside.SetZero();
+    m_vInside = ezVec3d::sZero();
     for (ezUInt32 v = 0; v < 4; ++v)
       m_vInside += m_Vertices[v];
     m_vInside /= 4.0;

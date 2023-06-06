@@ -35,8 +35,8 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 ezCamera::ezCamera()
 {
-  m_vCameraPosition[0].SetZero();
-  m_vCameraPosition[1].SetZero();
+  m_vCameraPosition[0] = ezVec3::sZero();
+  m_vCameraPosition[1] = ezVec3::sZero();
   m_mViewMatrix[0].SetIdentity();
   m_mViewMatrix[1].SetIdentity();
   m_mStereoProjectionMatrix[0].SetIdentity();

@@ -36,7 +36,7 @@ EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetElements(Type inX, Type inY, Type
 template <typename Type>
 EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetIdentity()
 {
-  v.SetZero();
+  v = ezVec3::sZero();
   w = (Type)1;
 }
 
