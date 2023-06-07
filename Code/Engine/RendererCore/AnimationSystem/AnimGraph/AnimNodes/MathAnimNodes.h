@@ -24,8 +24,8 @@ public:
   ezMathExpressionAnimNode();
   ~ezMathExpressionAnimNode();
 
-  void SetExpression(const char* szSz);
-  const char* GetExpression() const;
+  void SetExpression(ezStringView sExpr);
+  ezStringView GetExpression() const;
 
 private:
   ezAnimGraphNumberInputPin m_ValueAPin;  // [ property ]

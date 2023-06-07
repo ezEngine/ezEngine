@@ -10,27 +10,27 @@
 static ezMutex s_EnvVarMutex;
 
 
-ezString ezEnvironmentVariableUtils::GetValueString(const char* szName, const char* szDefault /*= nullptr*/)
+ezString ezEnvironmentVariableUtils::GetValueString(ezStringView sName, ezStringView sDefault /*= nullptr*/)
 {
-  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szName), "Null or empty name passed to ezEnvironmentVariableUtils::GetValueString()");
+  EZ_ASSERT_DEV(!sName.IsEmpty(), "Null or empty name passed to ezEnvironmentVariableUtils::GetValueString()");
 
   EZ_LOCK(s_EnvVarMutex);
 
-  return GetValueStringImpl(szName, szDefault);
+  return GetValueStringImpl(sName, sDefault);
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueString(const char* szName, const char* szValue)
+ezResult ezEnvironmentVariableUtils::SetValueString(ezStringView sName, ezStringView szValue)
 {
   EZ_LOCK(s_EnvVarMutex);
 
-  return SetValueStringImpl(szName, szValue);
+  return SetValueStringImpl(sName, szValue);
 }
 
-ezInt32 ezEnvironmentVariableUtils::GetValueInt(const char* szName, ezInt32 iDefault /*= -1*/)
+ezInt32 ezEnvironmentVariableUtils::GetValueInt(ezStringView sName, ezInt32 iDefault /*= -1*/)
 {
   EZ_LOCK(s_EnvVarMutex);
 
-  ezString value = GetValueString(szName);
+  ezString value = GetValueString(sName);
 
   if (value.IsEmpty())
     return iDefault;
@@ -42,26 +42,26 @@ ezInt32 ezEnvironmentVariableUtils::GetValueInt(const char* szName, ezInt32 iDef
     return iDefault;
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueInt(const char* szName, ezInt32 iValue)
+ezResult ezEnvironmentVariableUtils::SetValueInt(ezStringView sName, ezInt32 iValue)
 {
   ezStringBuilder sb;
   sb.Format("{}", iValue);
 
-  return SetValueString(szName, sb);
+  return SetValueString(sName, sb);
 }
 
-bool ezEnvironmentVariableUtils::IsVariableSet(const char* szName)
+bool ezEnvironmentVariableUtils::IsVariableSet(ezStringView sName)
 {
   EZ_LOCK(s_EnvVarMutex);
 
-  return IsVariableSetImpl(szName);
+  return IsVariableSetImpl(sName);
 }
 
-ezResult ezEnvironmentVariableUtils::UnsetVariable(const char* szName)
+ezResult ezEnvironmentVariableUtils::UnsetVariable(ezStringView sName)
 {
   EZ_LOCK(s_EnvVarMutex);
 
-  return UnsetVariableImpl(szName);
+  return UnsetVariableImpl(sName);
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)

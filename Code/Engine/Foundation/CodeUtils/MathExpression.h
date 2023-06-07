@@ -31,7 +31,7 @@ public:
   bool IsValid() const { return m_bIsValid; }
 
   /// Returns the original expression string that this MathExpression can evaluate.
-  const char* GetExpressionString() const { return m_sOriginalExpression; }
+  ezStringView GetExpressionString() const { return m_sOriginalExpression; }
 
   struct Input
   {

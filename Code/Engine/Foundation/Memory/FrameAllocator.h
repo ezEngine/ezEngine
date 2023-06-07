@@ -8,7 +8,7 @@ class EZ_FOUNDATION_DLL ezDoubleBufferedStackAllocator
 public:
   using StackAllocatorType = ezStackAllocator<ezMemoryTrackingFlags::RegisterAllocator>;
 
-  ezDoubleBufferedStackAllocator(const char* szName, ezAllocatorBase* pParent);
+  ezDoubleBufferedStackAllocator(ezStringView sName, ezAllocatorBase* pParent);
   ~ezDoubleBufferedStackAllocator();
 
   EZ_ALWAYS_INLINE ezAllocatorBase* GetCurrentAllocator() const { return m_pCurrentAllocator; }

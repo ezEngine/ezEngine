@@ -1,24 +1,24 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-ezString ezEnvironmentVariableUtils::GetValueStringImpl(const char* szName, const char* szDefault)
+ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView sDefault)
 {
   EZ_ASSERT_NOT_IMPLEMENTED
   return "";
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueStringImpl(const char* szName, const char* szValue)
+ezResult ezEnvironmentVariableUtils::SetValueStringImpl(ezStringView sName, ezStringView szValue)
 {
   EZ_ASSERT_NOT_IMPLEMENTED
   return EZ_FAILURE;
 }
 
-bool ezEnvironmentVariableUtils::IsVariableSetImpl(const char* szName)
+bool ezEnvironmentVariableUtils::IsVariableSetImpl(ezStringView sName)
 {
   return false;
 }
 
-ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(const char* szName)
+ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
 {
   return EZ_FAILURE;
 }

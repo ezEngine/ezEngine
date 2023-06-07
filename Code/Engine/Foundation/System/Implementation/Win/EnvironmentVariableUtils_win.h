@@ -4,9 +4,9 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <intsafe.h>
 
-ezString ezEnvironmentVariableUtils::GetValueStringImpl(const char* szName, const char* szDefault)
+ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView szDefault)
 {
-  ezStringWChar szwName(szName);
+  ezStringWChar szwName(sName);
   wchar_t szStaticValueBuffer[64] = {0};
   size_t uiRequiredSize = 0;
 
@@ -35,7 +35,7 @@ ezString ezEnvironmentVariableUtils::GetValueStringImpl(const char* szName, cons
 
     if (res != 0)
     {
-      ezLog::Error("Error getting environment variable \"{0}\" with dynamic buffer.", szName);
+      ezLog::Error("Error getting environment variable \"{0}\" with dynamic buffer.", sName);
       EZ_DEFAULT_DELETE_RAW_BUFFER(szDynamicBuffer);
       return szDefault;
     }
@@ -48,14 +48,14 @@ ezString ezEnvironmentVariableUtils::GetValueStringImpl(const char* szName, cons
   }
   else
   {
-    ezLog::Warning("Couldn't get environment variable value for \"{0}\", got {1} as a result.", szName, res);
+    ezLog::Warning("Couldn't get environment variable value for \"{0}\", got {1} as a result.", sName, res);
     return szDefault;
   }
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueStringImpl(const char* szName, const char* szValue)
+ezResult ezEnvironmentVariableUtils::SetValueStringImpl(ezStringView sName, ezStringView szValue)
 {
-  ezStringWChar szwName(szName);
+  ezStringWChar szwName(sName);
   ezStringWChar szwValue(szValue);
 
   if (_wputenv_s(szwName, szwValue) == 0)
@@ -64,9 +64,9 @@ ezResult ezEnvironmentVariableUtils::SetValueStringImpl(const char* szName, cons
     return EZ_FAILURE;
 }
 
-bool ezEnvironmentVariableUtils::IsVariableSetImpl(const char* szName)
+bool ezEnvironmentVariableUtils::IsVariableSetImpl(ezStringView sName)
 {
-  ezStringWChar szwName(szName);
+  ezStringWChar szwName(sName);
   wchar_t szStaticValueBuffer[16] = {0};
   size_t uiRequiredSize = 0;
 
@@ -79,14 +79,14 @@ bool ezEnvironmentVariableUtils::IsVariableSetImpl(const char* szName)
   }
   else
   {
-    ezLog::Error("ezEnvironmentVariableUtils::IsVariableSet(\"{0}\") got {1} from _wgetenv_s.", szName, res);
+    ezLog::Error("ezEnvironmentVariableUtils::IsVariableSet(\"{0}\") got {1} from _wgetenv_s.", sName, res);
     return false;
   }
 }
 
-ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(const char* szName)
+ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
 {
-  ezStringWChar szwName(szName);
+  ezStringWChar szwName(sName);
 
   if (_wputenv_s(szwName, L"") == 0)
     return EZ_SUCCESS;

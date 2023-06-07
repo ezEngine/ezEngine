@@ -70,14 +70,14 @@ void* ezVisualScriptNode_MathExpression::GetInputPinDataPointer(ezUInt8 uiPin)
   return nullptr;
 }
 
-const char* ezVisualScriptNode_MathExpression::GetExpression() const
+ezStringView ezVisualScriptNode_MathExpression::GetExpression() const
 {
   return m_mMathExpression.GetExpressionString();
 }
 
-void ezVisualScriptNode_MathExpression::SetExpression(const char* e)
+void ezVisualScriptNode_MathExpression::SetExpression(ezStringView sExpr)
 {
-  m_mMathExpression.Reset(e);
+  m_mMathExpression.Reset(sExpr);
 }
 
 

@@ -5,14 +5,14 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(const char* szName, ezAllocatorBase* pParent)
+ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(ezStringView sName0, ezAllocatorBase* pParent)
 {
-  ezStringBuilder sName = szName;
+  ezStringBuilder sName = sName0;
   sName.Append("0");
 
   m_pCurrentAllocator = EZ_DEFAULT_NEW(StackAllocatorType, sName, pParent);
 
-  sName = szName;
+  sName = sName0;
   sName.Append("1");
 
   m_pOtherAllocator = EZ_DEFAULT_NEW(StackAllocatorType, sName, pParent);

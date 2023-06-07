@@ -3,28 +3,32 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <stdlib.h>
 
-ezString ezEnvironmentVariableUtils::GetValueStringImpl(const char* szName, const char* szDefault)
+ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView sDefault)
 {
-  const char* value = getenv(szName);
-  return value != nullptr ? value : szDefault;
+  ezStringBuilder tmp;
+  const char* value = getenv(sName.GetData(tmp));
+  return value != nullptr ? value : sDefault;
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueStringImpl(const char* szName, const char* szValue)
+ezResult ezEnvironmentVariableUtils::SetValueStringImpl(ezStringView sName, ezStringView sValue)
 {
-  if (setenv(szName, szValue, 1) == 0)
+  ezStringBuilder tmp, tmp2;
+  if (setenv(sName.GetData(tmp), sValue.GetData(tmp2), 1) == 0)
     return EZ_SUCCESS;
   else
     return EZ_FAILURE;
 }
 
-bool ezEnvironmentVariableUtils::IsVariableSetImpl(const char* szName)
+bool ezEnvironmentVariableUtils::IsVariableSetImpl(ezStringView sName)
 {
-  return getenv(szName) != nullptr;
+  ezStringBuilder tmp;
+  return getenv(sName.GetData(tmp)) != nullptr;
 }
 
-ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(const char* szName)
+ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(ezStringView sName)
 {
-  if (unsetenv(szName) == 0)
+  ezStringBuilder tmp;
+  if (unsetenv(sName.GetData(tmp)) == 0)
     return EZ_SUCCESS;
   else
     return EZ_FAILURE;

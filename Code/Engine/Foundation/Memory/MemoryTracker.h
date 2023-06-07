@@ -74,7 +74,7 @@ public:
     ~Iterator();
 
     ezAllocatorId Id() const;
-    const char* Name() const;
+    ezStringView Name() const;
     ezAllocatorId ParentId() const;
     const ezAllocatorBase::Stats& Stats() const;
 
@@ -105,7 +105,7 @@ public:
 
   static void ResetPerFrameAllocatorStats();
 
-  static const char* GetAllocatorName(ezAllocatorId allocatorId);
+  static ezStringView GetAllocatorName(ezAllocatorId allocatorId);
   static const ezAllocatorBase::Stats& GetAllocatorStats(ezAllocatorId allocatorId);
   static ezAllocatorId GetAllocatorParentId(ezAllocatorId allocatorId);
   static const AllocationInfo& GetAllocationInfo(ezAllocatorId allocatorId, const void* pPtr);

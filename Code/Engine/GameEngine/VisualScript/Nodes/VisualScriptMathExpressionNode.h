@@ -18,8 +18,8 @@ public:
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
 
-  const char* GetExpression() const;
-  void SetExpression(const char* e);
+  ezStringView GetExpression() const;
+  void SetExpression(ezStringView sExpr);
 
   double m_ValueA = 0;
   double m_ValueB = 1;

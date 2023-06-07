@@ -43,14 +43,14 @@ EZ_FORCE_INLINE T& ezDataBlock<T, SizeInBytes>::operator[](ezUInt32 uiIndex) con
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <ezUInt32 BlockSize>
-ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags)
+ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(ezStringView sName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags)
   : m_TrackingFlags(flags)
   , m_SuperBlocks(pParent)
   , m_FreeBlocks(pParent)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(BlockSize >= 4096, "Block size must be 4096 or bigger");
 
-  m_Id = ezMemoryTracker::RegisterAllocator(szName, flags, ezPageAllocator::GetId());
+  m_Id = ezMemoryTracker::RegisterAllocator(sName, flags, ezPageAllocator::GetId());
   m_ThreadID = ezThreadUtils::GetCurrentThreadID();
 
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
@@ -100,7 +100,7 @@ EZ_FORCE_INLINE void ezLargeBlockAllocator<BlockSize>::DeallocateBlock(ezDataBlo
 }
 
 template <ezUInt32 BlockSize>
-EZ_ALWAYS_INLINE const char* ezLargeBlockAllocator<BlockSize>::GetName() const
+EZ_ALWAYS_INLINE ezStringView ezLargeBlockAllocator<BlockSize>::GetName() const
 {
   return ezMemoryTracker::GetAllocatorName(m_Id);
 }
