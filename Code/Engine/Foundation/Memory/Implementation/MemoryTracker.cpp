@@ -143,14 +143,14 @@ ezMemoryTracker::Iterator::~Iterator()
 
 
 // static
-ezAllocatorId ezMemoryTracker::RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId)
+ezAllocatorId ezMemoryTracker::RegisterAllocator(ezStringView sName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId)
 {
   Initialize();
 
   EZ_LOCK(*s_pTrackerData);
 
   AllocatorData data;
-  data.m_sName = szName;
+  data.m_sName = sName;
   data.m_Flags = flags;
   data.m_ParentId = parentId;
 

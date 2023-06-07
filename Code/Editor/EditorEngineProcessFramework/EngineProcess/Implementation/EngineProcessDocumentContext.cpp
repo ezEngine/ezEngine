@@ -299,7 +299,8 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
 void ezEngineProcessDocumentContext::AddSyncObject(ezEditorEngineSyncObject* pSync)
 {
-  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
+  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync)
+    { RemoveSyncObject(pSync); });
 
   m_SyncObjects[pSync->GetGuid()] = pSync;
 }
@@ -686,13 +687,13 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
       if (!GetWorld()->TryGetComponent(hRefComp, pRefComp))
         continue;
 
-      if (!ezStringUtils::IsNullOrEmpty(ref.m_szComponentProperty))
+      if (!ref.m_sComponentProperty.IsEmpty())
       {
         // in this case, a 'regular' component+property reference the new object
         // so we can just re-apply the reference (by setting the property again)
         // and thus trigger that the other object updates/fixes its internal state
 
-        ezAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_szComponentProperty);
+        ezAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_sComponentProperty);
         if (pAbsProp == nullptr)
           continue;
 
@@ -746,11 +747,11 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
 ///     These are needed to fix up references during undo/redo when objects get deleted and recreated.
 ///     Ie. when an object that has references or is referenced gets deleted and then undo restores it, the references should appear as well.
 ///
-ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
+ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, ezStringView sComponentProperty) const
 {
   const char* szTargetGuid = reinterpret_cast<const char*>(pData);
 
-  if (hThis.IsInvalidated() && szComponentProperty == nullptr)
+  if (hThis.IsInvalidated() && sComponentProperty.IsEmpty())
   {
     // This code path is used by ezPrefabReferenceComponent::SerializeComponent() to check whether an arbitrary string may
     // represent a game object reference. References will always be stringyfied GUIDs.
@@ -802,7 +803,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
       EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "");
 
       // tag this reference as being special
-      szComponentProperty = nullptr;
+      sComponentProperty = {};
     }
     else
     {
@@ -827,7 +828,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szTargetGuid), "Expected GUID references");
   }
 
-  if (ezStringUtils::IsNullOrEmpty(szComponentProperty))
+  if (sComponentProperty.IsEmpty())
   {
     return m_Context.m_GameObjectMap.GetHandle(newTargetGuid);
   }
@@ -850,7 +851,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     for (ezUInt32 i = 0; i < referencesTo.GetCount(); ++i)
     {
       // if this is the desired property, update it
-      if (ezStringUtils::IsEqual(referencesTo[i].m_szComponentProperty, szComponentProperty))
+      if (referencesTo[i].m_sComponentProperty == sComponentProperty)
       {
         // retrieve previous reference, needed to update m_GoRef_ReferencedBy
         oldTargetGuid = referencesTo[i].m_ReferenceToGameObject;
@@ -873,7 +874,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     if (newTargetGuid.IsValid())
     {
       auto& refTo = referencesTo.ExpandAndGetRef();
-      refTo.m_szComponentProperty = szComponentProperty;
+      refTo.m_sComponentProperty = sComponentProperty;
       refTo.m_ReferenceToGameObject = newTargetGuid;
     }
   }
@@ -890,7 +891,7 @@ ref_to_is_updated:
 
       for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
-        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && referencedBy[i].m_sComponentProperty == sComponentProperty)
         {
           referencedBy.RemoveAtAndSwap(i);
           break;
@@ -906,7 +907,7 @@ ref_to_is_updated:
       // this loop is currently only to validate that no bugs creeped in
       for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
-        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && referencedBy[i].m_sComponentProperty == sComponentProperty)
         {
           EZ_REPORT_FAILURE("Go-reference was not updated correctly");
         }
@@ -915,7 +916,7 @@ ref_to_is_updated:
       // add the back-reference
       auto& newRef = referencedBy.ExpandAndGetRef();
       newRef.m_ReferencedByComponent = srcComponentGuid;
-      newRef.m_szComponentProperty = szComponentProperty;
+      newRef.m_sComponentProperty = sComponentProperty;
     }
   }
 

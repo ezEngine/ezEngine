@@ -11,9 +11,9 @@ class EZ_CORE_DLL ezScriptExtensionAttribute : public ezPropertyAttribute
 
 public:
   ezScriptExtensionAttribute();
-  ezScriptExtensionAttribute(const char* szTypeName);
+  ezScriptExtensionAttribute(ezStringView sTypeName);
 
-  const char* GetTypeName() const { return m_sTypeName; }
+  ezStringView GetTypeName() const { return m_sTypeName; }
 
 private:
   ezUntrackedString m_sTypeName;

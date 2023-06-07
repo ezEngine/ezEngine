@@ -7,9 +7,9 @@
 #  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 
-ezDuktapeContext::ezDuktapeContext(const char* szWrapperName)
+ezDuktapeContext::ezDuktapeContext(ezStringView sWrapperName)
   : ezDuktapeHelper(nullptr)
-  , m_Allocator(szWrapperName, ezFoundation::GetDefaultAllocator())
+  , m_Allocator(sWrapperName, ezFoundation::GetDefaultAllocator())
 
 {
   InitializeContext();

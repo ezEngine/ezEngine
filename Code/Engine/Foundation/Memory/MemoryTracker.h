@@ -94,7 +94,7 @@ public:
     void* m_pData;
   };
 
-  static ezAllocatorId RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId);
+  static ezAllocatorId RegisterAllocator(ezStringView sName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId);
   static void DeregisterAllocator(ezAllocatorId allocatorId);
 
   static void AddAllocation(
