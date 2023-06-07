@@ -11,13 +11,13 @@ public:
 
   struct KeyEnumValuePair
   {
-    KeyEnumValuePair(const char* szKey, ezInt32 iVal)
-      : m_szKey(szKey)
+    KeyEnumValuePair(ezStringView sKey, ezInt32 iVal)
+      : m_sKey(sKey)
       , m_iEnumValue(iVal)
     {
     }
 
-    const char* m_szKey;
+    ezStringView m_sKey;
     ezInt32 m_iEnumValue = -1;
   };
 
@@ -36,7 +36,7 @@ public:
   ezResult ParseOutputFiles();
   ezResult ParseChannelMappings();
   ezResult ParseChannelSliceMapping(ezInt32 iSlice);
-  ezResult ParseChannelMappingConfig(ezTexConvChannelMapping& out_mapping, const char* szCfg, ezInt32 iChannelIndex, bool bSingleChannel);
+  ezResult ParseChannelMappingConfig(ezTexConvChannelMapping& out_mapping, ezStringView sCfg, ezInt32 iChannelIndex, bool bSingleChannel);
   ezResult ParseUsage();
   ezResult ParseMipmapMode();
   ezResult ParseTargetPlatform();
@@ -48,15 +48,15 @@ public:
   ezResult ParseAssetHeader();
   ezResult ParseBumpMapFilter();
 
-  ezResult ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& ref_uiResult) const;
-  ezResult ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& ref_iResult) const;
-  void PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
-  void PrintOptionValuesHelp(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
-  bool ParseFile(const char* szOption, ezString& ref_sResult) const;
+  ezResult ParseUIntOption(ezStringView sOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& ref_uiResult) const;
+  ezResult ParseStringOption(ezStringView sOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& ref_iResult) const;
+  void PrintOptionValues(ezStringView sOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
+  void PrintOptionValuesHelp(ezStringView sOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const;
+  bool ParseFile(ezStringView sOption, ezString& ref_sResult) const;
 
   bool IsTexFormat() const;
   ezResult WriteTexFile(ezStreamWriter& inout_stream, const ezImage& image);
-  ezResult WriteOutputFile(const char* szFile, const ezImage& image);
+  ezResult WriteOutputFile(ezStringView sFile, const ezImage& image);
 
 private:
   ezString m_sOutputFile;

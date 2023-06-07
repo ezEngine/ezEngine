@@ -20,10 +20,12 @@ namespace ReflectionDetail
     ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
   }
 
-  static const char* GetParentType(ezRTTI* pRTTI)
+  static ezStringView GetParentType(ezRTTI* pRTTI)
   {
     if (pRTTI->GetParentType())
+    {
       return pRTTI->GetParentType()->GetTypeName();
+    }
 
     if ((ezStringUtils::IsEqual(pRTTI->GetTypeName(), "bool")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "float")) ||
         (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "double")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezInt8")) ||
@@ -36,9 +38,11 @@ namespace ReflectionDetail
         (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezMat4")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezTime")) ||
         (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUuid")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezColor")) ||
         (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVariant")) || (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezQuat")))
+    {
       return "Basic Types";
+    }
 
-    return "";
+    return {};
   }
 
   static void SendReflectionTelemetry(ezRTTI* pRTTI)

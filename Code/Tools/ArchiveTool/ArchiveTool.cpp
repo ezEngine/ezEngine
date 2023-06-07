@@ -225,12 +225,12 @@ public:
 
       for (ezUInt32 a = 1; a < GetArgumentCount(); ++a)
       {
-        const char* szArg = GetArgument(a);
+        const ezStringView sArg = GetArgument(a);
 
-        if (ezStringUtils::IsEqual_NoCase(szArg, "-out"))
+        if (sArg.IsEqual_NoCase("-out"))
           break;
 
-        m_sInputs.PushBack(ezOSFile::MakePathAbsoluteWithCWD(szArg));
+        m_sInputs.PushBack(ezOSFile::MakePathAbsoluteWithCWD(sArg));
 
         if (!ezOSFile::ExistsDirectory(m_sInputs.PeekBack()))
           bInputsFolders = false;
@@ -285,9 +285,9 @@ public:
     SUPER::BeforeCoreSystemsShutdown();
   }
 
-  static ezArchiveBuilder::InclusionMode PackFileCallback(const char* szFile)
+  static ezArchiveBuilder::InclusionMode PackFileCallback(ezStringView sFile)
   {
-    const ezStringView ext = ezPathUtils::GetFileExtension(szFile);
+    const ezStringView ext = ezPathUtils::GetFileExtension(sFile);
 
     if (ext.IsEqual_NoCase("jpg") || ext.IsEqual_NoCase("jpeg") || ext.IsEqual_NoCase("png"))
       return ezArchiveBuilder::InclusionMode::Uncompressed;

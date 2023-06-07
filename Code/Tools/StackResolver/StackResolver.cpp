@@ -227,26 +227,26 @@ void ezStackResolver::FormatAsText(ezStringBuilder& ref_sOutput)
 
   for (const auto& frame : m_Stackframes)
   {
-    const char* szModuleName = "<unknown module>";
+    ezStringView sModuleName = "<unknown module>";
 
     if (frame.m_uiModuleIndex < m_Modules.GetCount())
     {
-      szModuleName = m_Modules[frame.m_uiModuleIndex].m_sFilePath;
+      sModuleName = m_Modules[frame.m_uiModuleIndex].m_sFilePath;
     }
 
-    const char* szFileName = "<unknown file>";
+    ezStringView sFileName = "<unknown file>";
     if (!frame.m_sFilename.IsEmpty())
     {
-      szFileName = frame.m_sFilename;
+      sFileName = frame.m_sFilename;
     }
 
-    const char* szSymbol = "<unknown symbol>";
+    ezStringView sSymbol = "<unknown symbol>";
     if (!frame.m_sSymbol.IsEmpty())
     {
-      szSymbol = frame.m_sSymbol;
+      sSymbol = frame.m_sSymbol;
     }
 
-    ref_sOutput.AppendFormat("[][{}] {}({}): '{}'\n", szModuleName, szFileName, frame.m_uiLineNumber, szSymbol);
+    ref_sOutput.AppendFormat("[][{}] {}({}): '{}'\n", sModuleName, sFileName, frame.m_uiLineNumber, sSymbol);
   }
 }
 
@@ -266,30 +266,30 @@ void ezStackResolver::FormatAsJSON(ezStringBuilder& ref_sOutput)
 
   for (const auto& frame : m_Stackframes)
   {
-    const char* szModuleName = "<unknown>";
+    ezStringView sModuleName = "<unknown>";
 
     if (frame.m_uiModuleIndex < m_Modules.GetCount())
     {
-      szModuleName = m_Modules[frame.m_uiModuleIndex].m_sFilePath;
+      sModuleName = m_Modules[frame.m_uiModuleIndex].m_sFilePath;
     }
 
-    const char* szFileName = "<unknown>";
+    ezStringView sFileName = "<unknown>";
     if (!frame.m_sFilename.IsEmpty())
     {
-      szFileName = frame.m_sFilename;
+      sFileName = frame.m_sFilename;
     }
 
-    const char* szSymbol = "<unknown>";
+    ezStringView sSymbol = "<unknown>";
     if (!frame.m_sSymbol.IsEmpty())
     {
-      szSymbol = frame.m_sSymbol;
+      sSymbol = frame.m_sSymbol;
     }
 
     json.BeginObject();
-    json.AddVariableString("Module", szModuleName);
-    json.AddVariableString("File", szFileName);
+    json.AddVariableString("Module", sModuleName);
+    json.AddVariableString("File", sFileName);
     json.AddVariableUInt32("Line", frame.m_uiLineNumber);
-    json.AddVariableString("Symbol", szSymbol);
+    json.AddVariableString("Symbol", sSymbol);
     json.EndObject();
   }
 

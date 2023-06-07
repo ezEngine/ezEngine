@@ -240,9 +240,9 @@ void ezQtMainWidget::closeEvent(QCloseEvent* pEvent)
   Settings.endGroup();
 }
 
-QTreeWidgetItem* ezQtMainWidget::CreateStat(const char* szPath, bool bParent)
+QTreeWidgetItem* ezQtMainWidget::CreateStat(ezStringView sPath, bool bParent)
 {
-  ezStringBuilder sCleanPath = szPath;
+  ezStringBuilder sCleanPath = sPath;
   if (sCleanPath.EndsWith("/"))
     sCleanPath.Shrink(0, 1);
 

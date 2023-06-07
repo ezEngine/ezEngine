@@ -157,11 +157,11 @@ void ezQtCVarsWidget::SyncAllCVarsToServer()
     SendCVarUpdateToServer(it.Key().GetData(), it.Value());
 }
 
-void ezQtCVarsWidget::SendCVarUpdateToServer(const char* szName, const ezCVarWidgetData& cvd)
+void ezQtCVarsWidget::SendCVarUpdateToServer(ezStringView sName, const ezCVarWidgetData& cvd)
 {
   ezTelemetryMessage Msg;
   Msg.SetMessageID('SVAR', ' SET');
-  Msg.GetWriter() << szName;
+  Msg.GetWriter() << sName;
   Msg.GetWriter() << cvd.m_uiType;
 
   switch (cvd.m_uiType)
@@ -186,30 +186,30 @@ void ezQtCVarsWidget::SendCVarUpdateToServer(const char* szName, const ezCVarWid
   ezTelemetry::SendToServer(Msg);
 }
 
-void ezQtCVarsWidget::BoolChanged(const char* szCVar, bool newValue)
+void ezQtCVarsWidget::BoolChanged(ezStringView sCVar, bool newValue)
 {
-  auto& cvarData = m_CVars[szCVar];
+  auto& cvarData = m_CVars[sCVar];
   cvarData.m_bValue = newValue;
-  SendCVarUpdateToServer(szCVar, cvarData);
+  SendCVarUpdateToServer(sCVar, cvarData);
 }
 
-void ezQtCVarsWidget::FloatChanged(const char* szCVar, float newValue)
+void ezQtCVarsWidget::FloatChanged(ezStringView sCVar, float newValue)
 {
-  auto& cvarData = m_CVars[szCVar];
+  auto& cvarData = m_CVars[sCVar];
   cvarData.m_fValue = newValue;
-  SendCVarUpdateToServer(szCVar, cvarData);
+  SendCVarUpdateToServer(sCVar, cvarData);
 }
 
-void ezQtCVarsWidget::IntChanged(const char* szCVar, int newValue)
+void ezQtCVarsWidget::IntChanged(ezStringView sCVar, int newValue)
 {
-  auto& cvarData = m_CVars[szCVar];
+  auto& cvarData = m_CVars[sCVar];
   cvarData.m_iValue = newValue;
-  SendCVarUpdateToServer(szCVar, cvarData);
+  SendCVarUpdateToServer(sCVar, cvarData);
 }
 
-void ezQtCVarsWidget::StringChanged(const char* szCVar, const char* newValue)
+void ezQtCVarsWidget::StringChanged(ezStringView sCVar, ezStringView sNewValue)
 {
-  auto& cvarData = m_CVars[szCVar];
-  cvarData.m_sValue = newValue;
-  SendCVarUpdateToServer(szCVar, cvarData);
+  auto& cvarData = m_CVars[sCVar];
+  cvarData.m_sValue = sNewValue;
+  SendCVarUpdateToServer(sCVar, cvarData);
 }

@@ -162,12 +162,12 @@ ezResult ezTexConv::WriteTexFile(ezStreamWriter& inout_stream, const ezImage& im
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
+ezResult ezTexConv::WriteOutputFile(ezStringView sFile, const ezImage& image)
 {
-  if (ezPathUtils::HasExtension(szFile, "ezImageData"))
+  if (sFile.HasExtension("ezImageData"))
   {
     ezDeferredFileWriter file;
-    file.SetOutput(szFile);
+    file.SetOutput(sFile);
 
     ezAssetFileHeader asset;
     asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
@@ -196,7 +196,7 @@ ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
   else if (IsTexFormat())
   {
     ezDeferredFileWriter file;
-    file.SetOutput(szFile);
+    file.SetOutput(sFile);
 
     EZ_SUCCEED_OR_RETURN(WriteTexFile(file, image));
 
@@ -204,7 +204,7 @@ ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
   }
   else
   {
-    return image.SaveTo(szFile);
+    return image.SaveTo(sFile);
   }
 }
 

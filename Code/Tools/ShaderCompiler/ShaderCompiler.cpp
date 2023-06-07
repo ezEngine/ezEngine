@@ -112,11 +112,11 @@ void ezShaderCompilerApplication::AfterCoreSystemsStartup()
   ezStartup::StartupHighLevelSystems();
 }
 
-ezResult ezShaderCompilerApplication::CompileShader(const char* szShaderFile)
+ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
 {
-  EZ_LOG_BLOCK("Compiling Shader", szShaderFile);
+  EZ_LOG_BLOCK("Compiling Shader", sShaderFile);
 
-  if (ExtractPermutationVarValues(szShaderFile).Failed())
+  if (ExtractPermutationVarValues(sShaderFile).Failed())
     return EZ_FAILURE;
 
   ezHybridArray<ezPermutationVar, 16> PermVars;
@@ -131,22 +131,22 @@ ezResult ezShaderCompilerApplication::CompileShader(const char* szShaderFile)
 
     m_PermutationGenerator.GetPermutation(perm, PermVars);
     ezShaderCompiler sc;
-    if (sc.CompileShaderPermutationForPlatforms(szShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms).Failed())
+    if (sc.CompileShaderPermutationForPlatforms(sShaderFile, PermVars, ezLog::GetThreadLocalLogSystem(), m_sPlatforms).Failed())
       return EZ_FAILURE;
   }
 
-  ezLog::Success("Compiled Shader '{0}'", szShaderFile);
+  ezLog::Success("Compiled Shader '{0}'", sShaderFile);
   return EZ_SUCCESS;
 }
 
-ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* szShaderFile)
+ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView sShaderFile)
 {
   m_PermutationGenerator.Clear();
 
   ezFileReader shaderFile;
-  if (shaderFile.Open(szShaderFile).Failed())
+  if (shaderFile.Open(sShaderFile).Failed())
   {
-    ezLog::Error("Could not open file '{0}'", szShaderFile);
+    ezLog::Error("Could not open file '{0}'", sShaderFile);
     return EZ_FAILURE;
   }
 
