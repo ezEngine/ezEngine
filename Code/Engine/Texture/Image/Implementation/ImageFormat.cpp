@@ -16,7 +16,7 @@ namespace
       m_planeData.SetCount(1);
     }
 
-    const char* m_szName{nullptr};
+    const char* m_szName = nullptr;
 
     struct PlaneData
     {

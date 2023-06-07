@@ -261,7 +261,7 @@ static ezResult ReadImageData(ezStreamReader& inout_stream, ezImageHeader& ref_i
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
+ezResult ezDdsFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezDdsFileFormat::ReadImageHeader");
 
@@ -269,7 +269,7 @@ ezResult ezDdsFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
   return ReadImageData(inout_stream, ref_header, ddsHeader);
 }
 
-ezResult ezDdsFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
+ezResult ezDdsFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezDdsFileFormat::ReadImage");
 
@@ -299,7 +299,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
   const ezImageFormat::Enum format = image.GetImageFormat();
   const ezUInt32 uiBpp = ezImageFormat::GetBitsPerPixel(format);
@@ -512,14 +512,14 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
   return EZ_SUCCESS;
 }
 
-bool ezDdsFileFormat::CanReadFileType(const char* szExtension) const
+bool ezDdsFileFormat::CanReadFileType(ezStringView sExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "dds");
+  return sExtension.IsEqual_NoCase("dds");
 }
 
-bool ezDdsFileFormat::CanWriteFileType(const char* szExtension) const
+bool ezDdsFileFormat::CanWriteFileType(ezStringView sExtension) const
 {
-  return CanReadFileType(szExtension);
+  return CanReadFileType(sExtension);
 }
 
 

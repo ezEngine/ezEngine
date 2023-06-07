@@ -107,7 +107,7 @@ namespace
 
 } // namespace
 
-ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
+ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImageHeader");
 
@@ -122,7 +122,7 @@ ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ez
   return EZ_SUCCESS;
 }
 
-ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
+ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezStbImageFileFormats::ReadImage");
 
@@ -156,7 +156,7 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& inout_stream, ezImage&
   return EZ_SUCCESS;
 }
 
-ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
   ezImageFormat::Enum compatibleFormats[] = {ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8B8A8_UNORM};
 
@@ -180,10 +180,10 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& inout_stream, const e
       return EZ_FAILURE;
     }
 
-    return WriteImage(inout_stream, convertedImage, szFileExtension);
+    return WriteImage(inout_stream, convertedImage, sFileExtension);
   }
 
-  if (ezStringUtils::IsEqual_NoCase(szFileExtension, "png"))
+  if (sFileExtension.IsEqual_NoCase("png"))
   {
     if (stbi_write_png_to_func(write_func, &inout_stream, image.GetWidth(), image.GetHeight(), ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 0))
     {
@@ -191,7 +191,7 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& inout_stream, const e
     }
   }
 
-  if (ezStringUtils::IsEqual_NoCase(szFileExtension, "jpg") || ezStringUtils::IsEqual_NoCase(szFileExtension, "jpeg"))
+  if (sFileExtension.IsEqual_NoCase("jpg") || sFileExtension.IsEqual_NoCase("jpeg"))
   {
     if (stbi_write_jpg_to_func(write_func, &inout_stream, image.GetWidth(), image.GetHeight(), ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 95))
     {
@@ -202,9 +202,9 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& inout_stream, const e
   return EZ_FAILURE;
 }
 
-bool ezStbImageFileFormats::CanReadFileType(const char* szExtension) const
+bool ezStbImageFileFormats::CanReadFileType(ezStringView sExtension) const
 {
-  if (ezStringUtils::IsEqual_NoCase(szExtension, "hdr"))
+  if (sExtension.IsEqual_NoCase("hdr"))
     return true;
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
@@ -219,10 +219,10 @@ bool ezStbImageFileFormats::CanReadFileType(const char* szExtension) const
   return false;
 }
 
-bool ezStbImageFileFormats::CanWriteFileType(const char* szExtension) const
+bool ezStbImageFileFormats::CanWriteFileType(ezStringView sExtension) const
 {
   // even when WIC is available, prefer to write these files through STB, to get consistent output
-  if (ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") || ezStringUtils::IsEqual_NoCase(szExtension, "jpeg"))
+  if (sExtension.IsEqual_NoCase("png") || sExtension.IsEqual_NoCase("jpg") || sExtension.IsEqual_NoCase("jpeg"))
   {
     return true;
   }

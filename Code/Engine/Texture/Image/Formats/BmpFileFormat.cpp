@@ -109,7 +109,7 @@ struct ezBmpBgrxQuad
   ezUInt8 m_reserved;
 };
 
-ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] = {
@@ -140,7 +140,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
       return EZ_FAILURE;
     }
 
-    return WriteImage(inout_stream, convertedImage, szFileExtension);
+    return WriteImage(inout_stream, convertedImage, sFileExtension);
   }
 
   ezUInt64 uiRowPitch = image.GetRowPitch(0);
@@ -501,7 +501,7 @@ namespace
 
 } // namespace
 
-ezResult ezBmpFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
+ezResult ezBmpFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezBmpFileFormat::ReadImage");
 
@@ -514,7 +514,7 @@ ezResult ezBmpFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
   return ReadImageInfo(inout_stream, ref_header, fileHeader, fileInfoHeader, bIndexed, bCompressed, uiBpp, uiDataSize);
 }
 
-ezResult ezBmpFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
+ezResult ezBmpFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezBmpFileFormat::ReadImage");
 
@@ -763,15 +763,14 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
   return EZ_SUCCESS;
 }
 
-bool ezBmpFileFormat::CanReadFileType(const char* szExtension) const
+bool ezBmpFileFormat::CanReadFileType(ezStringView sExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "bmp") || ezStringUtils::IsEqual_NoCase(szExtension, "dib") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "rle");
+  return sExtension.IsEqual_NoCase("bmp") || sExtension.IsEqual_NoCase("dib") || sExtension.IsEqual_NoCase("rle");
 }
 
-bool ezBmpFileFormat::CanWriteFileType(const char* szExtension) const
+bool ezBmpFileFormat::CanWriteFileType(ezStringView sExtension) const
 {
-  return CanReadFileType(szExtension);
+  return CanReadFileType(sExtension);
 }
 
 

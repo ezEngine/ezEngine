@@ -6,11 +6,11 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageFileFormat);
 
-ezImageFileFormat* ezImageFileFormat::GetReaderFormat(const char* szExtension)
+ezImageFileFormat* ezImageFileFormat::GetReaderFormat(ezStringView sExtension)
 {
   for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
-    if (pFormat->CanReadFileType(szExtension))
+    if (pFormat->CanReadFileType(sExtension))
     {
       return pFormat;
     }
@@ -19,11 +19,11 @@ ezImageFileFormat* ezImageFileFormat::GetReaderFormat(const char* szExtension)
   return nullptr;
 }
 
-ezImageFileFormat* ezImageFileFormat::GetWriterFormat(const char* szExtension)
+ezImageFileFormat* ezImageFileFormat::GetWriterFormat(ezStringView sExtension)
 {
   for (ezImageFileFormat* pFormat = ezImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
-    if (pFormat->CanWriteFileType(szExtension))
+    if (pFormat->CanWriteFileType(sExtension))
     {
       return pFormat;
     }
@@ -32,26 +32,26 @@ ezImageFileFormat* ezImageFileFormat::GetWriterFormat(const char* szExtension)
   return nullptr;
 }
 
-ezResult ezImageFileFormat::ReadImageHeader(const char* szFileName, ezImageHeader& ref_header)
+ezResult ezImageFileFormat::ReadImageHeader(ezStringView sFileName, ezImageHeader& ref_header)
 {
-  EZ_LOG_BLOCK("Read Image Header", szFileName);
+  EZ_LOG_BLOCK("Read Image Header", sFileName);
 
-  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(szFileName).GetStartPointer());
+  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(sFileName).GetStartPointer());
 
   ezFileReader reader;
-  if (reader.Open(szFileName) == EZ_FAILURE)
+  if (reader.Open(sFileName) == EZ_FAILURE)
   {
-    ezLog::Warning("Failed to open image file '{0}'", ezArgSensitive(szFileName, "File"));
+    ezLog::Warning("Failed to open image file '{0}'", ezArgSensitive(sFileName, "File"));
     return EZ_FAILURE;
   }
 
-  ezStringView it = ezPathUtils::GetFileExtension(szFileName);
+  ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
   if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
   {
     if (pFormat->ReadImageHeader(reader, ref_header, it.GetStartPointer()) != EZ_SUCCESS)
     {
-      ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(szFileName, "File"));
+      ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(sFileName, "File"));
       return EZ_FAILURE;
     }
 

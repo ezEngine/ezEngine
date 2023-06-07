@@ -75,18 +75,18 @@ ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-ezResult ezTextureAtlasCreationDesc::Save(const char* szFile) const
+ezResult ezTextureAtlasCreationDesc::Save(ezStringView sFile) const
 {
   ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   return Serialize(file);
 }
 
-ezResult ezTextureAtlasCreationDesc::Load(const char* szFile)
+ezResult ezTextureAtlasCreationDesc::Load(ezStringView sFile)
 {
   ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile));
 
   return Deserialize(file);
 }

@@ -66,7 +66,7 @@ static inline ezColorLinearUB GetPixelColor(const ezImageView& image, ezUInt32 x
 }
 
 
-ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] = {
@@ -96,7 +96,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
       return EZ_FAILURE;
     }
 
-    return WriteImage(inout_stream, convertedImage, szFileExtension);
+    return WriteImage(inout_stream, convertedImage, sFileExtension);
   }
 
   const bool bCompress = true;
@@ -299,7 +299,7 @@ static ezResult ReadBytesChecked(ezStreamReader& inout_stream, TYPE& ref_dest)
   return ReadBytesChecked(inout_stream, &ref_dest, sizeof(TYPE));
 }
 
-static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension, TgaHeader& ref_tgaHeader)
+static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension, TgaHeader& ref_tgaHeader)
 {
   EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_iImageIDLength));
   EZ_SUCCEED_OR_RETURN(ReadBytesChecked(inout_stream, ref_tgaHeader.m_Ignored1));
@@ -343,21 +343,21 @@ static ezResult ReadImageHeaderImpl(ezStreamReader& inout_stream, ezImageHeader&
   return EZ_SUCCESS;
 }
 
-ezResult ezTgaFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
+ezResult ezTgaFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezTgaFileFormat::ReadImageHeader");
 
   TgaHeader tgaHeader;
-  return ReadImageHeaderImpl(inout_stream, ref_header, szFileExtension, tgaHeader);
+  return ReadImageHeaderImpl(inout_stream, ref_header, sFileExtension, tgaHeader);
 }
 
-ezResult ezTgaFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
+ezResult ezTgaFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezTgaFileFormat::ReadImage");
 
   ezImageHeader imageHeader;
   TgaHeader tgaHeader;
-  EZ_SUCCEED_OR_RETURN(ReadImageHeaderImpl(inout_stream, imageHeader, szFileExtension, tgaHeader));
+  EZ_SUCCEED_OR_RETURN(ReadImageHeaderImpl(inout_stream, imageHeader, sFileExtension, tgaHeader));
 
   const ezUInt32 uiBytesPerPixel = tgaHeader.m_iBitsPerPixel / 8;
 
@@ -500,14 +500,14 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
   return EZ_SUCCESS;
 }
 
-bool ezTgaFileFormat::CanReadFileType(const char* szExtension) const
+bool ezTgaFileFormat::CanReadFileType(ezStringView sExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "tga");
+  return sExtension.IsEqual_NoCase("tga");
 }
 
-bool ezTgaFileFormat::CanWriteFileType(const char* szExtension) const
+bool ezTgaFileFormat::CanWriteFileType(ezStringView sExtension) const
 {
-  return CanReadFileType(szExtension);
+  return CanReadFileType(sExtension);
 }
 
 

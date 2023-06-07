@@ -28,8 +28,8 @@ struct EZ_TEXTURE_DLL ezTextureAtlasCreationDesc
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
 
-  ezResult Save(const char* szFile) const;
-  ezResult Load(const char* szFile);
+  ezResult Save(ezStringView sFile) const;
+  ezResult Load(ezStringView sFile);
 };
 
 struct EZ_TEXTURE_DLL ezTextureAtlasRuntimeDesc
