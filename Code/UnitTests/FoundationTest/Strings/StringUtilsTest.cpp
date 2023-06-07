@@ -1,10 +1,4 @@
-﻿﻿#include <FoundationTest/FoundationTestPCH.h> // ATTENTION!
-// The first bytes in this file are a Utf-8 BOM (byte-order-mark) to enable Unicode encoding.
-// This BOM often gets lost when the file is touched by certain tools. Then compilation usually breaks.
-// If you see a 'change' in the first line of this file in git, DISCARD the change (to keep the BOM).
-
-// NOTE: Always save this file as "Unicode (UTF-8 with signature)"
-// otherwise important Unicode characters are not encoded
+#include <FoundationTest/FoundationTestPCH.h>
 
 #include <Foundation/Strings/String.h>
 
