@@ -8302,8 +8302,13 @@ int EXRNumLevels(const EXRImage* exr_image) {
   if (exr_image == NULL) return 0;
   if(exr_image->images) return 1; // scanlines
   int levels = 1;
-  const EXRImage* level_image = exr_image;
-  while((level_image = level_image->next_level)) ++levels;
+  const EXRImage* level_image = exr_image->next_level;
+  while(level_image)
+  {
+    level_image = level_image->next_level;
+    ++levels;
+  }
+
   return levels;
 }
 

@@ -14,7 +14,7 @@ void ezSetBase<KeyType, Comparer>::Iterator::Next()
 
   if (m_pElement == nullptr)
   {
-    EZ_ASSERT_DEV(m_pElement != nullptr, "The Iterator is invalid (end).");
+    EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -65,7 +65,7 @@ void ezSetBase<KeyType, Comparer>::Iterator::Prev()
 
   if (m_pElement == nullptr)
   {
-    EZ_ASSERT_DEV(m_pElement != nullptr, "The Iterator is invalid (end).");
+    EZ_ASSERT_DEBUG(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -109,14 +109,6 @@ void ezSetBase<KeyType, Comparer>::Iterator::Prev()
 }
 
 // ***** ezSetBase *****
-
-template <typename KeyType, typename Comparer>
-EZ_ALWAYS_INLINE ezSetBase<KeyType, Comparer>::NilNode::NilNode()
-  : m_pParent(nullptr)
-{
-  m_pLink[0] = nullptr;
-  m_pLink[1] = nullptr;
-}
 
 template <typename KeyType, typename Comparer>
 void ezSetBase<KeyType, Comparer>::Constructor()
@@ -439,7 +431,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Acqui
 template <typename KeyType, typename Comparer>
 void ezSetBase<KeyType, Comparer>::ReleaseNode(Node* pNode)
 {
-  EZ_ASSERT_DEV(pNode != nullptr, "pNode is invalid.");
+  EZ_ASSERT_DEBUG(pNode != nullptr, "pNode is invalid.");
 
   ezMemoryUtils::Destruct<Node>(pNode, 1);
 
@@ -707,7 +699,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Remove(const Iterator& pos)
 {
-  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
+  EZ_ASSERT_DEBUG(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
 
   Iterator temp(pos);
   ++temp;

@@ -21,11 +21,7 @@ public:
   using PointerType = T*;
 
   /// \brief Initializes the ezBlobPtr to be empty.
-  EZ_ALWAYS_INLINE ezBlobPtr()
-    : m_pPtr(nullptr)
-
-  {
-  }
+  ezBlobPtr() = default;
 
   /// \brief Initializes the ezBlobPtr with the given pointer and number of elements. No memory is allocated or copied.
   template <typename U>
@@ -141,14 +137,14 @@ public:
   /// \brief Index access.
   EZ_FORCE_INLINE const ValueType& operator[](ezUInt64 uiIndex) const // [tested]
   {
-    EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<const ValueType*>(GetPtr() + uiIndex);
   }
 
   /// \brief Index access.
   EZ_FORCE_INLINE ValueType& operator[](ezUInt64 uiIndex) // [tested]
   {
-    EZ_ASSERT_DEV(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
+    EZ_ASSERT_DEBUG(uiIndex < GetCount(), "Cannot access element {0}, the array only holds {1} elements.", uiIndex, GetCount());
     return *static_cast<ValueType*>(GetPtr() + uiIndex);
   }
 
@@ -190,7 +186,7 @@ public:
   using reverse_iterator = reverse_pointer_iterator<T>;
 
 private:
-  PointerType m_pPtr;
+  PointerType m_pPtr = nullptr;
   ezUInt64 m_uiCount = 0u;
 };
 

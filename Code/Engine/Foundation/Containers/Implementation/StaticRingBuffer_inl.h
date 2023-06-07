@@ -129,7 +129,7 @@ EZ_FORCE_INLINE T& ezStaticRingBuffer<T, C>::PeekFront()
 template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE const T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The ring-buffer only has {0} elements, cannot access element {1}.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "The ring-buffer only has {0} elements, cannot access element {1}.", m_uiCount, uiIndex);
 
   return m_pElements[(m_uiFirstElement + uiIndex) % C];
 }
@@ -137,7 +137,7 @@ EZ_FORCE_INLINE const T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex) 
 template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex)
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The ring-buffer only has {0} elements, cannot access element {1}.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "The ring-buffer only has {0} elements, cannot access element {1}.", m_uiCount, uiIndex);
 
   return m_pElements[(m_uiFirstElement + uiIndex) % C];
 }

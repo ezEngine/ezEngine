@@ -237,7 +237,7 @@ namespace ezInternal
     mutable ezAtomicInteger32 m_iReadCounter;
 
     bool m_bSimulateWorld = true;
-    bool m_bReportErrorWhenStaticObjectMoves;
+    bool m_bReportErrorWhenStaticObjectMoves = true;
 
     /// \brief Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
     ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle, const char*)> m_GameObjectReferenceResolver;

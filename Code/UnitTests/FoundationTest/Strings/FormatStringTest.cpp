@@ -175,6 +175,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Auto Increment")
   {
+    TestFormat(ezFmt("{}{}{}{}", ezInt8(1), ezInt16(2), ezInt32(3), ezInt64(4)), "1234");
+    TestFormat(ezFmt("{3}{2}{1}{0}", ezInt8(1), ezInt16(2), ezInt32(3), ezInt64(4)), "4321");
+
     TestFormat(ezFmt("{}, {}, {}, {}", ezInt8(-1), ezInt16(-2), ezInt32(-3), ezInt64(-4)), "-1, -2, -3, -4");
     TestFormat(ezFmt("{}, {}, {}, {}", ezUInt8(1), ezUInt16(2), ezUInt32(3), ezUInt64(4)), "1, 2, 3, 4");
 
