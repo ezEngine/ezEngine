@@ -28,7 +28,7 @@ public:
   void ResetAndViewExternalStorage(const ezImageHeader& header, ezConstByteBlobPtr imageData);
 
   /// \brief Convenience function to save the image to the given file.
-  ezResult SaveTo(const char* szFileName) const;
+  ezResult SaveTo(ezStringView sFileName) const;
 
   /// \brief Returns the header this image was constructed from.
   const ezImageHeader& GetHeader() const;
@@ -153,7 +153,7 @@ public:
   void ResetAndCopy(const ezImageView& other);
 
   /// \brief Convenience function to load the image from the given file.
-  ezResult LoadFrom(const char* szFileName);
+  ezResult LoadFrom(ezStringView sFileName);
 
   /// \brief Convenience function to convert the image to the given format.
   ezResult Convert(ezImageFormat::Enum targetFormat);

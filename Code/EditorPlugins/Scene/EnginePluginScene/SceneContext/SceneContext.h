@@ -69,7 +69,7 @@ protected:
   virtual void OnThumbnailViewContextCreated() override;
   virtual void OnDestroyThumbnailViewContext() override;
   virtual void UpdateDocumentContext() override;
-  virtual ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const override;
+  virtual ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, ezStringView sProperty) const override;
 
 private:
   struct TagGameObject

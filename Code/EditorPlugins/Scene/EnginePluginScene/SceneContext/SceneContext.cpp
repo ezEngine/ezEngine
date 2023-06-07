@@ -976,12 +976,12 @@ void ezSceneContext::UpdateDocumentContext()
   }
 }
 
-ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const
+ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, ezStringView sProperty) const
 {
   // Test if the component is a direct part of this scene or one of its layers.
   if (m_Context.m_ComponentMap.GetGuid(hThis).IsValid())
   {
-    return SUPER::ResolveStringToGameObjectHandle(pString, hThis, szProperty);
+    return SUPER::ResolveStringToGameObjectHandle(pString, hThis, sProperty);
   }
   for (const ezLayerContext* pLayer : m_Layers)
   {
@@ -989,7 +989,7 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
     {
       if (pLayer->m_Context.m_ComponentMap.GetGuid(hThis).IsValid())
       {
-        return pLayer->ResolveStringToGameObjectHandle(pString, hThis, szProperty);
+        return pLayer->ResolveStringToGameObjectHandle(pString, hThis, sProperty);
       }
     }
   }
@@ -1005,7 +1005,7 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
   {
     if (m_Context.m_GameObjectMap.GetGuid(pParent->GetHandle()).IsValid())
     {
-      return SUPER::ResolveStringToGameObjectHandle(pString, hThis, szProperty);
+      return SUPER::ResolveStringToGameObjectHandle(pString, hThis, sProperty);
     }
     for (const ezLayerContext* pLayer : m_Layers)
     {
@@ -1013,7 +1013,7 @@ ezGameObjectHandle ezSceneContext::ResolveStringToGameObjectHandle(const void* p
       {
         if (pLayer->m_Context.m_GameObjectMap.GetGuid(pParent->GetHandle()).IsValid())
         {
-          return pLayer->ResolveStringToGameObjectHandle(pString, hThis, szProperty);
+          return pLayer->ResolveStringToGameObjectHandle(pString, hThis, sProperty);
         }
       }
     }

@@ -58,8 +58,8 @@ private:
 
   //////////////////////////////////////////////////////////////////////////
   // Purely functional
-  static ezResult AdjustUsage(const char* szFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage);
-  static ezResult ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage);
+  static ezResult AdjustUsage(ezStringView sFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage);
+  static ezResult ConvertAndScaleImage(ezStringView sImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage);
 
   //////////////////////////////////////////////////////////////////////////
   // Output Generation

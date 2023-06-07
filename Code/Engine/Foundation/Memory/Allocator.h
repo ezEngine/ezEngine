@@ -18,9 +18,9 @@ class ezAllocator : public ezInternal::ezAllocatorMixinReallocate<AllocationPoli
                       ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>
 {
 public:
-  ezAllocator(const char* szName, ezAllocatorBase* pParent = nullptr)
+  ezAllocator(ezStringView sName, ezAllocatorBase* pParent = nullptr)
     : ezInternal::ezAllocatorMixinReallocate<AllocationPolicy, TrackingFlags,
-        ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>(szName, pParent)
+        ezHasReallocate<AllocationPolicy, void* (AllocationPolicy::*)(void*, size_t, size_t, size_t)>::value>(sName, pParent)
   {
   }
 };

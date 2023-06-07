@@ -77,7 +77,7 @@ public:
   ezWorld* GetWorld() const { return m_pWorld; }
 
   /// \brief Tries to resolve a 'reference' (given in pData) to an ezGameObject.
-  virtual ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const;
+  virtual ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, ezStringView sProperty) const;
 
 protected:
   virtual void OnInitialize();
@@ -191,13 +191,13 @@ private:
 private:
   struct GoReferenceTo
   {
-    const char* m_szComponentProperty = nullptr;
+    ezStringView m_sComponentProperty;
     ezUuid m_ReferenceToGameObject;
   };
 
   struct GoReferencedBy
   {
-    const char* m_szComponentProperty = nullptr;
+    ezStringView m_sComponentProperty;
     ezUuid m_ReferencedByComponent;
   };
 

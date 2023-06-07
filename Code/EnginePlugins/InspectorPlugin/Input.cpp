@@ -6,32 +6,32 @@
 namespace InputDetail
 {
 
-  static void SendInputSlotData(const char* szInputSlot)
+  static void SendInputSlotData(ezStringView sInputSlot)
   {
     float fValue = 0.0f;
 
     ezTelemetryMessage msg;
     msg.SetMessageID('INPT', 'SLOT');
-    msg.GetWriter() << szInputSlot;
-    msg.GetWriter() << ezInputManager::GetInputSlotFlags(szInputSlot).GetValue();
-    msg.GetWriter() << (ezUInt8)ezInputManager::GetInputSlotState(szInputSlot, &fValue);
+    msg.GetWriter() << sInputSlot;
+    msg.GetWriter() << ezInputManager::GetInputSlotFlags(sInputSlot).GetValue();
+    msg.GetWriter() << (ezUInt8)ezInputManager::GetInputSlotState(sInputSlot, &fValue);
     msg.GetWriter() << fValue;
-    msg.GetWriter() << ezInputManager::GetInputSlotDeadZone(szInputSlot);
+    msg.GetWriter() << ezInputManager::GetInputSlotDeadZone(sInputSlot);
 
     ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
   }
 
-  static void SendInputActionData(const char* szInputSet, const char* szInputAction)
+  static void SendInputActionData(ezStringView sInputSet, ezStringView sInputAction)
   {
     float fValue = 0.0f;
 
-    const ezInputActionConfig cfg = ezInputManager::GetInputActionConfig(szInputSet, szInputAction);
+    const ezInputActionConfig cfg = ezInputManager::GetInputActionConfig(sInputSet, sInputAction);
 
     ezTelemetryMessage msg;
     msg.SetMessageID('INPT', 'ACTN');
-    msg.GetWriter() << szInputSet;
-    msg.GetWriter() << szInputAction;
-    msg.GetWriter() << (ezUInt8)ezInputManager::GetInputActionState(szInputSet, szInputAction, &fValue);
+    msg.GetWriter() << sInputSet;
+    msg.GetWriter() << sInputAction;
+    msg.GetWriter() << (ezUInt8)ezInputManager::GetInputActionState(sInputSet, sInputAction, &fValue);
     msg.GetWriter() << fValue;
     msg.GetWriter() << cfg.m_bApplyTimeScaling;
 
@@ -46,11 +46,13 @@ namespace InputDetail
 
   static void SendAllInputSlots()
   {
-    ezDynamicArray<const char*> InputSlots;
+    ezDynamicArray<ezStringView> InputSlots;
     ezInputManager::RetrieveAllKnownInputSlots(InputSlots);
 
     for (ezUInt32 i = 0; i < InputSlots.GetCount(); ++i)
+    {
       SendInputSlotData(InputSlots[i]);
+    }
   }
 
   static void SendAllInputActions()
@@ -94,10 +96,10 @@ namespace InputDetail
     switch (e.m_EventType)
     {
       case ezInputManager::InputEventData::InputActionChanged:
-        SendInputActionData(e.m_szInputSet, e.m_szInputAction);
+        SendInputActionData(e.m_sInputSet, e.m_sInputAction);
         break;
       case ezInputManager::InputEventData::InputSlotChanged:
-        SendInputSlotData(e.m_szInputSlot);
+        SendInputSlotData(e.m_sInputSlot);
         break;
 
       default:

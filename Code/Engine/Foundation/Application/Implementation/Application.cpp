@@ -8,8 +8,8 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 
-ezApplication::ezApplication(const char* szAppName)
-  : m_sAppName(szAppName)
+ezApplication::ezApplication(ezStringView sAppName)
+  : m_sAppName(sAppName)
 {
 }
 

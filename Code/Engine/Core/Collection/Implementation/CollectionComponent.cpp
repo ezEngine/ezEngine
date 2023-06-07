@@ -41,23 +41,23 @@ void ezCollectionComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_hCollection;
 }
 
-void ezCollectionComponent::SetCollectionFile(const char* szFile)
+void ezCollectionComponent::SetCollectionFile(ezStringView sFile)
 {
   ezCollectionResourceHandle hResource;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    hResource = ezResourceManager::LoadResource<ezCollectionResource>(szFile);
+    hResource = ezResourceManager::LoadResource<ezCollectionResource>(sFile);
     ezResourceManager::PreloadResource(hResource);
   }
 
   SetCollection(hResource);
 }
 
-const char* ezCollectionComponent::GetCollectionFile() const
+ezStringView ezCollectionComponent::GetCollectionFile() const
 {
   if (!m_hCollection.IsValid())
-    return "";
+    return {};
 
   return m_hCollection.GetResourceID();
 }

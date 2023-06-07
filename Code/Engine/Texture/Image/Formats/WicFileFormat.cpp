@@ -89,7 +89,7 @@ static void SetHeader(ezImageHeader& ref_header, ezImageFormat::Enum imageFormat
   ref_header.SetNumFaces(metadata.IsCubemap() ? 6 : 1);
 }
 
-ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, const char* szFileExtension) const
+ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezWicFileFormat::ReadImageHeader");
 
@@ -111,7 +111,7 @@ ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
 
   if (imageFormat == ezImageFormat::UNKNOWN)
   {
-    ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", szFileExtension);
+    ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", sFileExtension);
     wicFlags |= WIC_FLAGS_FORCE_RGB;
     GetMetadataFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, metadata);
     imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
@@ -119,7 +119,7 @@ ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
 
   if (imageFormat == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error("Unable to use image format from '{}' file.", szFileExtension);
+    ezLog::Error("Unable to use image format from '{}' file.", sFileExtension);
     return EZ_FAILURE;
   }
 
@@ -128,7 +128,7 @@ ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
   return EZ_SUCCESS;
 }
 
-ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, const char* szFileExtension) const
+ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezWicFileFormat::ReadImage");
 
@@ -154,7 +154,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
 
   if (imageFormat == ezImageFormat::UNKNOWN)
   {
-    ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", szFileExtension);
+    ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", sFileExtension);
     wicFlags |= WIC_FLAGS_FORCE_RGB;
     LoadFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, nullptr, scratchImage);
     imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
@@ -162,7 +162,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
 
   if (imageFormat == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error("Unable to use image format from '{}' file.", szFileExtension);
+    ezLog::Error("Unable to use image format from '{}' file.", sFileExtension);
     return EZ_FAILURE;
   }
 
@@ -212,7 +212,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
   return EZ_SUCCESS;
 }
 
-ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
   if (m_bTryCoInit)
   {
@@ -238,7 +238,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error("No conversion from format '{0}' to a format suitable for '{}' files known.", ezImageFormat::GetName(image.GetImageFormat()), szFileExtension);
+    ezLog::Error("No conversion from format '{0}' to a format suitable for '{}' files known.", ezImageFormat::GetName(image.GetImageFormat()), sFileExtension);
     return EZ_FAILURE;
   }
 
@@ -253,7 +253,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
       return EZ_FAILURE;
     }
 
-    return WriteImage(inout_stream, convertedImage, szFileExtension);
+    return WriteImage(inout_stream, convertedImage, sFileExtension);
   }
 
   // Store ezImage data in DirectXTex images
@@ -299,18 +299,16 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImage
   return EZ_SUCCESS;
 }
 
-bool ezWicFileFormat::CanReadFileType(const char* szExtension) const
+bool ezWicFileFormat::CanReadFileType(ezStringView sExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "jpeg") ||
-         // ezStringUtils::IsEqual_NoCase(szExtension, "hdr") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "tif") || ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
+  return sExtension.IsEqual_NoCase("png") || sExtension.IsEqual_NoCase("jpg") || sExtension.IsEqual_NoCase("jpeg") ||
+         sExtension.IsEqual_NoCase("tif") || sExtension.IsEqual_NoCase("tiff");
 }
 
-bool ezWicFileFormat::CanWriteFileType(const char* szExtension) const
+bool ezWicFileFormat::CanWriteFileType(ezStringView sExtension) const
 {
   // png, jpg and jpeg are handled by STB (ezStbImageFileFormats)
-  return ezStringUtils::IsEqual_NoCase(szExtension, "tif") || ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
+  return sExtension.IsEqual_NoCase("tif") || sExtension.IsEqual_NoCase("tiff");
 }
 
 #endif

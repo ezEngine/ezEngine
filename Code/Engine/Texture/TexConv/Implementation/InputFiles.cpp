@@ -61,13 +61,13 @@ ezResult ezTexConvProcessor::LoadInputImages()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage)
+ezResult ezTexConvProcessor::ConvertAndScaleImage(ezStringView sImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezEnum<ezTexConvUsage> usage)
 {
   const bool bSingleChannel = ezImageFormat::GetNumChannels(inout_Image.GetImageFormat()) == 1;
 
   if (inout_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
   {
-    ezLog::Error("Could not convert '{}' to RGBA 32-Bit Float format.", szImageName);
+    ezLog::Error("Could not convert '{}' to RGBA 32-Bit Float format.", sImageName);
     return EZ_FAILURE;
   }
 
@@ -75,7 +75,7 @@ ezResult ezTexConvProcessor::ConvertAndScaleImage(const char* szImageName, ezIma
   ezImage scratch;
   if (ezImageUtils::Scale(inout_Image, scratch, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp).Failed())
   {
-    ezLog::Error("Could not resize '{}' to {}x{}", szImageName, uiResolutionX, uiResolutionY);
+    ezLog::Error("Could not resize '{}' to {}x{}", sImageName, uiResolutionX, uiResolutionY);
     return EZ_FAILURE;
   }
 
@@ -98,9 +98,9 @@ ezResult ezTexConvProcessor::ConvertAndScaleInputImages(ezUInt32 uiResolutionX, 
   for (ezUInt32 idx = 0; idx < m_Descriptor.m_InputImages.GetCount(); ++idx)
   {
     auto& img = m_Descriptor.m_InputImages[idx];
-    const char* szName = m_Descriptor.m_InputFiles[idx];
+    ezStringView sName = m_Descriptor.m_InputFiles[idx];
 
-    EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(szName, img, uiResolutionX, uiResolutionY, usage));
+    EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(sName, img, uiResolutionX, uiResolutionY, usage));
   }
 
   return EZ_SUCCESS;

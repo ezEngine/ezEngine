@@ -163,7 +163,7 @@ ezResult ReadImageData(ezStreamReader& ref_stream, ezDynamicArray<ezUInt8>& ref_
   return EZ_SUCCESS;
 }
 
-ezResult ezExrFileFormat::ReadImageHeader(ezStreamReader& ref_stream, ezImageHeader& ref_header, const char* szFileExtension) const
+ezResult ezExrFileFormat::ReadImageHeader(ezStreamReader& ref_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezExrFileFormat::ReadImageHeader");
 
@@ -199,7 +199,7 @@ static void CopyChannel(ezUInt8* pDst, const ezUInt8* pSrc, ezUInt32 uiNumElemen
   }
 }
 
-ezResult ezExrFileFormat::ReadImage(ezStreamReader& ref_stream, ezImage& ref_image, const char* szFileExtension) const
+ezResult ezExrFileFormat::ReadImage(ezStreamReader& ref_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
   EZ_PROFILE_SCOPE("ezExrFileFormat::ReadImage");
 
@@ -302,18 +302,18 @@ ezResult ezExrFileFormat::ReadImage(ezStreamReader& ref_stream, ezImage& ref_ima
   return EZ_SUCCESS;
 }
 
-ezResult ezExrFileFormat::WriteImage(ezStreamWriter& ref_stream, const ezImageView& image, const char* szFileExtension) const
+ezResult ezExrFileFormat::WriteImage(ezStreamWriter& ref_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
 
-bool ezExrFileFormat::CanReadFileType(const char* szExtension) const
+bool ezExrFileFormat::CanReadFileType(ezStringView sExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "exr");
+  return sExtension.IsEqual_NoCase("exr");
 }
 
-bool ezExrFileFormat::CanWriteFileType(const char* szExtension) const
+bool ezExrFileFormat::CanWriteFileType(ezStringView sExtension) const
 {
   return false;
 }

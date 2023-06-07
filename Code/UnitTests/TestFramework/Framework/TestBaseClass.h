@@ -64,14 +64,8 @@ protected:
 private:
   struct TestEntry
   {
-    TestEntry()
-    {
-      m_szName = "";
-      m_iIdentifier = -1;
-    }
-
-    const char* m_szName;
-    ezInt32 m_iIdentifier;
+    const char* m_szName = "";
+    ezInt32 m_iIdentifier = -1;
   };
 
   /// Removes all sub-tests.

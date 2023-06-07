@@ -70,21 +70,23 @@ bool ezRenderDoc::IsInitialized() const
   return m_pRenderDocAPI != nullptr;
 }
 
-void ezRenderDoc::SetAbsCaptureFilePathTemplate(const char* szFilePathTemplate)
+void ezRenderDoc::SetAbsCaptureFilePathTemplate(ezStringView sFilePathTemplate)
 {
   if (m_pRenderDocAPI)
   {
-    m_pRenderDocAPI->SetCaptureFilePathTemplate(szFilePathTemplate);
+    ezStringBuilder tmp;
+    m_pRenderDocAPI->SetCaptureFilePathTemplate(sFilePathTemplate.GetData(tmp));
   }
 }
 
-const char* ezRenderDoc::GetAbsCaptureFilePathTemplate() const
+ezStringView ezRenderDoc::GetAbsCaptureFilePathTemplate() const
 {
   if (m_pRenderDocAPI)
   {
     return m_pRenderDocAPI->GetCaptureFilePathTemplate();
   }
-  return nullptr;
+
+  return {};
 }
 
 void ezRenderDoc::StartFrameCapture(ezWindowHandle hWnd)

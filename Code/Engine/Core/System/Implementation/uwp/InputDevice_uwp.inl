@@ -119,8 +119,8 @@ HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs
     return S_OK;
   }
 
-  const char* szInputSlotName = ezInputManager::ConvertScanCodeToEngineName(static_cast<ezUInt8>(keyStatus.ScanCode), keyStatus.IsExtendedKey == TRUE);
-  if (!szInputSlotName)
+  ezStringView sInputSlotName = ezInputManager::ConvertScanCodeToEngineName(static_cast<ezUInt8>(keyStatus.ScanCode), keyStatus.IsExtendedKey == TRUE);
+  if (sInputSlotName.IsEmpty())
     return S_OK;
 
 
@@ -139,12 +139,12 @@ HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs
   // we ignore the first stupid shift key entirely and then modify the following Numpad* key
   // Note that the 'stupid shift' is sent along with several other keys as well (e.g. left/right/up/down arrows)
   // in these cases we can ignore them entirely, as the following key will have an unambiguous key code
-  if (ezStringUtils::IsEqual(szInputSlotName, ezInputSlot_KeyNumpadStar) && bWasStupidLeftShift)
-    szInputSlotName = ezInputSlot_KeyPrint;
+  if (sInputSlotName == ezInputSlot_KeyNumpadStar && bWasStupidLeftShift)
+    sInputSlotName = ezInputSlot_KeyPrint;
 
   bWasStupidLeftShift = false;
 
-  m_InputSlotValues[szInputSlotName] = keyStatus.IsKeyReleased ? 0.0f : 1.0f;
+  m_InputSlotValues[sInputSlotName] = keyStatus.IsKeyReleased ? 0.0f : 1.0f;
 
   return S_OK;
 }

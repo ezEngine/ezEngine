@@ -33,8 +33,8 @@ public:
   ezCollectionComponent();
   ~ezCollectionComponent();
 
-  void SetCollectionFile(const char* szFile); // [ property ]
-  const char* GetCollectionFile() const;      // [ property ]
+  void SetCollectionFile(ezStringView sFile); // [ property ]
+  ezStringView GetCollectionFile() const;     // [ property ]
 
   void SetCollection(const ezCollectionResourceHandle& hPrefab);
   EZ_ALWAYS_INLINE const ezCollectionResourceHandle& GetCollection() const { return m_hCollection; }

@@ -15,8 +15,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezScriptExtensionAttribute::ezScriptExtensionAttribute() = default;
-ezScriptExtensionAttribute::ezScriptExtensionAttribute(const char* szTypeName)
-  : m_sTypeName(szTypeName)
+ezScriptExtensionAttribute::ezScriptExtensionAttribute(ezStringView sTypeName)
+  : m_sTypeName(sTypeName)
 {
 }
 

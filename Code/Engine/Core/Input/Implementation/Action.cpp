@@ -32,9 +32,9 @@ ezInputManager::ezActionData::ezActionData()
   m_iTriggeredViaAlternative = -1;
 }
 
-void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInputSlot)
+void ezInputManager::ClearInputMapping(ezStringView sInputSet, ezStringView sInputSlot)
 {
-  ezActionMap& Actions = GetInternals().s_ActionMapping[szInputSet];
+  ezActionMap& Actions = GetInternals().s_ActionMapping[sInputSet];
 
   // iterate over all existing actions
   for (ezActionMap::Iterator it = Actions.GetIterator(); it.IsValid(); ++it)
@@ -44,44 +44,47 @@ void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInp
     {
       // if that action is triggered by the given input slot, remove that trigger from the action
 
-      if (it.Value().m_Config.m_sInputSlotTrigger[i1] == szInputSlot)
+      if (it.Value().m_Config.m_sInputSlotTrigger[i1] == sInputSlot)
+      {
         it.Value().m_Config.m_sInputSlotTrigger[i1].Clear();
+      }
     }
   }
 }
 
-void ezInputManager::SetInputActionConfig(
-  const char* szInputSet, const char* szAction, const ezInputActionConfig& config, bool bClearPreviousInputMappings)
+void ezInputManager::SetInputActionConfig(ezStringView sInputSet, ezStringView sAction, const ezInputActionConfig& config, bool bClearPreviousInputMappings)
 {
-  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szInputSet), "The InputSet name must not be empty.");
-  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szAction), "No input action to map to was given.");
+  EZ_ASSERT_DEV(!sInputSet.IsEmpty(), "The InputSet name must not be empty.");
+  EZ_ASSERT_DEV(!sAction.IsEmpty(), "No input action to map to was given.");
 
   if (bClearPreviousInputMappings)
   {
     for (ezUInt32 i1 = 0; i1 < ezInputActionConfig::MaxInputSlotAlternatives; ++i1)
-      ClearInputMapping(szInputSet, config.m_sInputSlotTrigger[i1].GetData());
+    {
+      ClearInputMapping(sInputSet, config.m_sInputSlotTrigger[i1]);
+    }
   }
 
   // store the new action mapping
-  ezInputManager::ezActionData& ad = GetInternals().s_ActionMapping[szInputSet][szAction];
+  ezInputManager::ezActionData& ad = GetInternals().s_ActionMapping[sInputSet][sAction];
   ad.m_Config = config;
 
   InputEventData e;
   e.m_EventType = InputEventData::InputActionChanged;
-  e.m_szInputSet = szInputSet;
-  e.m_szInputAction = szAction;
+  e.m_sInputSet = sInputSet;
+  e.m_sInputAction = sAction;
 
   s_InputEvents.Broadcast(e);
 }
 
-ezInputActionConfig ezInputManager::GetInputActionConfig(const char* szInputSet, const char* szAction)
+ezInputActionConfig ezInputManager::GetInputActionConfig(ezStringView sInputSet, ezStringView sAction)
 {
-  const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(szInputSet);
+  const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(sInputSet);
 
   if (!ItSet.IsValid())
     return ezInputActionConfig();
 
-  const ezActionMap::ConstIterator ItAction = ItSet.Value().Find(szAction);
+  const ezActionMap::ConstIterator ItAction = ItSet.Value().Find(sAction);
 
   if (!ItAction.IsValid())
     return ezInputActionConfig();
@@ -89,12 +92,12 @@ ezInputActionConfig ezInputManager::GetInputActionConfig(const char* szInputSet,
   return ItAction.Value().m_Config;
 }
 
-void ezInputManager::RemoveInputAction(const char* szInputSet, const char* szAction)
+void ezInputManager::RemoveInputAction(ezStringView sInputSet, ezStringView sAction)
 {
-  GetInternals().s_ActionMapping[szInputSet].Remove(szAction);
+  GetInternals().s_ActionMapping[sInputSet].Remove(sAction);
 }
 
-ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, const char* szAction, float* pValue, ezInt8* pTriggeredSlot)
+ezKeyState::Enum ezInputManager::GetInputActionState(ezStringView sInputSet, ezStringView sAction, float* pValue, ezInt8* pTriggeredSlot)
 {
   if (pValue)
     *pValue = 0.0f;
@@ -102,15 +105,15 @@ ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, con
   if (pTriggeredSlot)
     *pTriggeredSlot = -1;
 
-  if (!s_sExclusiveInputSet.IsEmpty() && s_sExclusiveInputSet != szInputSet)
+  if (!s_sExclusiveInputSet.IsEmpty() && s_sExclusiveInputSet != sInputSet)
     return ezKeyState::Up;
 
-  const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(szInputSet);
+  const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(sInputSet);
 
   if (!ItSet.IsValid())
     return ezKeyState::Up;
 
-  const ezActionMap::ConstIterator ItAction = ItSet.Value().Find(szAction);
+  const ezActionMap::ConstIterator ItAction = ItSet.Value().Find(sAction);
 
   if (!ItAction.IsValid())
     return ezKeyState::Up;
@@ -234,7 +237,7 @@ void ezInputManager::UpdateInputActions(ezTime tTimeDifference)
   }
 }
 
-void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Actions, ezTime tTimeDifference)
+void ezInputManager::UpdateInputActions(ezStringView sInputSet, ezActionMap& Actions, ezTime tTimeDifference)
 {
   // reset all action values to zero
   for (ezActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
@@ -305,8 +308,8 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
 
       InputEventData e;
       e.m_EventType = InputEventData::InputActionChanged;
-      e.m_szInputSet = szInputSet;
-      e.m_szInputAction = ItActions.Key().GetData();
+      e.m_sInputSet = sInputSet;
+      e.m_sInputAction = ItActions.Key();
 
       s_InputEvents.Broadcast(e);
     }
@@ -316,14 +319,14 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
   }
 }
 
-void ezInputManager::SetActionDisplayName(const char* szAction, const char* szDisplayName)
+void ezInputManager::SetActionDisplayName(ezStringView sAction, ezStringView sDisplayName)
 {
-  GetInternals().s_ActionDisplayNames[szAction] = szDisplayName;
+  GetInternals().s_ActionDisplayNames[sAction] = sDisplayName;
 }
 
-const ezString ezInputManager::GetActionDisplayName(const char* szAction)
+const ezString ezInputManager::GetActionDisplayName(ezStringView sAction)
 {
-  return GetInternals().s_ActionDisplayNames.GetValueOrDefault(szAction, szAction);
+  return GetInternals().s_ActionDisplayNames.GetValueOrDefault(sAction, sAction);
 }
 
 void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_inputSetNames)
@@ -334,9 +337,9 @@ void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_inputSetNames
     out_inputSetNames.PushBack(it.Key());
 }
 
-void ezInputManager::GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_inputActions)
+void ezInputManager::GetAllInputActions(ezStringView sInputSetName, ezDynamicArray<ezString>& out_inputActions)
 {
-  const auto& map = GetInternals().s_ActionMapping[szInputSetName];
+  const auto& map = GetInternals().s_ActionMapping[sInputSetName];
 
   out_inputActions.Clear();
   out_inputActions.Reserve(map.GetCount());

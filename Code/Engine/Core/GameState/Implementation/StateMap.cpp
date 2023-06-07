@@ -86,11 +86,11 @@ void ezStateMap::RetrieveColor(const ezTempHashedString& sName, ezColor& out_val
   }
 }
 
-void ezStateMap::RetrieveString(const ezTempHashedString& sName, ezString& out_sValue, const char* szDefaultValue /*= nullptr*/)
+void ezStateMap::RetrieveString(const ezTempHashedString& sName, ezString& out_sValue, ezStringView sDefaultValue /*= {} */)
 {
   if (!m_Strings.TryGetValue(sName, out_sValue))
   {
-    out_sValue = szDefaultValue;
+    out_sValue = sDefaultValue;
   }
 }
 

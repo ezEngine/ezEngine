@@ -15,7 +15,7 @@ class EZ_CORE_DLL ezDuktapeContext : public ezDuktapeHelper
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDuktapeContext);
 
 public:
-  ezDuktapeContext(const char* szWrapperName);
+  ezDuktapeContext(ezStringView sWrapperName);
   ~ezDuktapeContext();
 
   /// \name Basics

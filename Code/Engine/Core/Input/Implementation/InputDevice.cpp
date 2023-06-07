@@ -30,9 +30,9 @@ ezInputDevice::ezInputDevice()
   m_uiLastCharacter = '\0';
 }
 
-void ezInputDevice::RegisterInputSlot(const char* szName, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
+void ezInputDevice::RegisterInputSlot(ezStringView sName, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
 {
-  ezInputManager::RegisterInputSlot(szName, szDefaultDisplayName, SlotFlags);
+  ezInputManager::RegisterInputSlot(sName, sDefaultDisplayName, SlotFlags);
 }
 
 void ezInputDevice::Initialize()
@@ -101,9 +101,9 @@ ezUInt32 ezInputDevice::RetrieveLastCharacterFromAllDevices()
   return '\0';
 }
 
-float ezInputDevice::GetInputSlotState(const char* szSlot) const
+float ezInputDevice::GetInputSlotState(ezStringView sSlot) const
 {
-  return m_InputSlotValues.GetValueOrDefault(szSlot, 0.f);
+  return m_InputSlotValues.GetValueOrDefault(sSlot, 0.f);
 }
 
 bool ezInputDevice::HasDeviceBeenUsedLastFrame() const
