@@ -33,9 +33,9 @@ macro(ez_pull_config_vars)
 endmacro()
 
 # #####################################
-# ## ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
+# ## ez_pull_output_vars(LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 # #####################################
-function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
+macro(ez_pull_output_vars LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	ez_pull_all_vars()
 	ez_pull_config_vars()
 
@@ -86,6 +86,14 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 
 	set(OUTPUT_DLL_DEV "${DLL_OUTPUT_DIR}/${OUTPUT_DEV}")
 	set(OUTPUT_LIB_DEV "${LIB_OUTPUT_DIR}/${OUTPUT_DEV}")
+
+endmacro()
+
+# #####################################
+# ## ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
+# #####################################
+function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
+	ez_pull_output_vars("${LIB_OUTPUT_DIR}" "${DLL_OUTPUT_DIR}")
 
 	# If we can't use generator expressions the non-generator expression version of the
 	# output directory should point to the version matching CMAKE_BUILD_TYPE. This is the case for
