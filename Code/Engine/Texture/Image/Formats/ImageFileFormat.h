@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/StringView.h>
+#include <Foundation/Types/Bitflags.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Texture/TextureDLL.h>
-#include <Foundation/Types/Bitflags.h>
 
 class ezStreamReader;
 class ezStreamWriter;

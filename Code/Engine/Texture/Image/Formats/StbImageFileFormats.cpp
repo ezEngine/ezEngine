@@ -210,7 +210,7 @@ bool ezStbImageFileFormats::CanReadFileType(ezStringView sExtension) const
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
   // on Windows Desktop, we prefer to use WIC (ezWicFileFormat)
-  if (ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") || ezStringUtils::IsEqual_NoCase(szExtension, "jpeg"))
+  if (sExtension.IsEqual_NoCase("png") || sExtension.IsEqual_NoCase("jpg") || sExtension.IsEqual_NoCase("jpeg"))
   {
     return true;
   }
