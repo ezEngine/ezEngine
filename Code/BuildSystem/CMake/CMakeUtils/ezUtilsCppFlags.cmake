@@ -148,8 +148,6 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# 'nodiscard': attribute is ignored in this syntactic position
 	target_compile_options(${TARGET_NAME} PRIVATE /wd5240)
     
-    # Disable deprecation warnings (qt, etc)
-    target_compile_options(${TARGET_NAME} PRIVATE /wd4996)
 
 endfunction()
 
@@ -306,9 +304,9 @@ function(ez_set_build_flags TARGET_NAME)
 
 	set_property(TARGET ${TARGET_NAME} PROPERTY CXX_STANDARD 17)
 
-	# There is a bug in the cmake version used by visual studio 2019 which is 3.15.19101501-MSVC_2 that does not correctly pass the c++17 parameter to the compiler. So we need to specify it manually.
-	if(ANDROID AND(${CMAKE_VERSION} VERSION_LESS "3.16.0"))
-		target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
+	# On Android, we need to specify it manually.
+	if(ANDROID)
+		add_compile_options(-std=c++17)
 	endif()
 
 	if(EZ_CMAKE_COMPILER_MSVC)

@@ -290,12 +290,10 @@ EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::TryGetValue(const IdType 
 template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE const ValueType& ezIdTableBase<IdType, ValueType>::operator[](const IdType id) const
 {
-  EZ_ASSERT_DEV(id.m_InstanceIndex < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.",
+  EZ_ASSERT_DEBUG(id.m_InstanceIndex < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.",
     m_Capacity, id.m_InstanceIndex);
   const Entry& entry = m_pEntries[id.m_InstanceIndex];
-  EZ_ASSERT_DEV(entry.id.IsIndexAndGenerationEqual(id),
-    "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})",
-    entry.id.m_Generation, id.m_Generation);
+  EZ_ASSERT_DEBUG(entry.id.IsIndexAndGenerationEqual(id), "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})", entry.id.m_Generation, id.m_Generation);
 
   return entry.value;
 }
@@ -303,12 +301,11 @@ EZ_FORCE_INLINE const ValueType& ezIdTableBase<IdType, ValueType>::operator[](co
 template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::operator[](const IdType id)
 {
-  EZ_ASSERT_DEV(id.m_InstanceIndex < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.",
-    m_Capacity, id.m_InstanceIndex);
+  EZ_ASSERT_DEBUG(id.m_InstanceIndex < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_Capacity, id.m_InstanceIndex);
+
   Entry& entry = m_pEntries[id.m_InstanceIndex];
-  EZ_ASSERT_DEV(entry.id.IsIndexAndGenerationEqual(id),
-    "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})",
-    static_cast<int>(entry.id.m_Generation), id.m_Generation);
+
+  EZ_ASSERT_DEBUG(entry.id.IsIndexAndGenerationEqual(id), "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})", static_cast<int>(entry.id.m_Generation), id.m_Generation);
 
   return entry.value;
 }
@@ -316,14 +313,14 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::operator[](const Id
 template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE const ValueType& ezIdTableBase<IdType, ValueType>::GetValueUnchecked(const IndexType index) const
 {
-  EZ_ASSERT_DEV(index < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_Capacity, index);
+  EZ_ASSERT_DEBUG(index < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_Capacity, index);
   return m_pEntries[index].value;
 }
 
 template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::GetValueUnchecked(const IndexType index)
 {
-  EZ_ASSERT_DEV(index < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_Capacity, index);
+  EZ_ASSERT_DEBUG(index < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_Capacity, index);
   return m_pEntries[index].value;
 }
 

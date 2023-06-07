@@ -1,7 +1,5 @@
 ﻿#include <FoundationTest/FoundationTestPCH.h>
 
-// NOTE: always save as Unicode UTF-8 with signature or compile with /utf-8 on windows.
-
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 

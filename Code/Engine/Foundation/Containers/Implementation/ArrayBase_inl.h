@@ -80,14 +80,14 @@ EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator<(const ezArrayPtr<const 
 template <typename T, typename Derived>
 EZ_ALWAYS_INLINE const T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return static_cast<const Derived*>(this)->GetElementsPtr()[uiIndex];
 }
 
 template <typename T, typename Derived>
 EZ_ALWAYS_INLINE T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex)
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEBUG(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return static_cast<Derived*>(this)->GetElementsPtr()[uiIndex];
 }
 
@@ -244,8 +244,7 @@ bool ezArrayBase<T, Derived>::RemoveAndSwap(const T& value)
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements /*= 1*/)
 {
-  EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.",
-    m_uiCount, uiIndex + uiNumElements - 1);
+  EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex + uiNumElements - 1);
 
   T* pElements = static_cast<Derived*>(this)->GetElementsPtr();
 
@@ -256,8 +255,7 @@ void ezArrayBase<T, Derived>::RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumEl
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements /*= 1*/)
 {
-  EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.",
-    m_uiCount, uiIndex + uiNumElements - 1);
+  EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount, uiIndex + uiNumElements - 1);
 
   T* pElements = static_cast<Derived*>(this)->GetElementsPtr();
 
@@ -344,7 +342,7 @@ void ezArrayBase<T, Derived>::PushBack(T&& value)
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBackUnchecked(const T& value)
 {
-  EZ_ASSERT_DEV(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
+  EZ_ASSERT_DEBUG(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
 
   ezMemoryUtils::CopyConstruct(static_cast<Derived*>(this)->GetElementsPtr() + m_uiCount, value, 1);
   m_uiCount++;
@@ -353,7 +351,7 @@ void ezArrayBase<T, Derived>::PushBackUnchecked(const T& value)
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBackUnchecked(T&& value)
 {
-  EZ_ASSERT_DEV(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
+  EZ_ASSERT_DEBUG(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
 
   ezMemoryUtils::MoveConstruct<T>(static_cast<Derived*>(this)->GetElementsPtr() + m_uiCount, std::move(value));
   m_uiCount++;
@@ -372,8 +370,7 @@ void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<const T>& range)
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PopBack(ezUInt32 uiCountToRemove /* = 1 */)
 {
-  EZ_ASSERT_DEV(
-    m_uiCount >= uiCountToRemove, "Out of bounds access. Array has {0} elements, trying to pop {1} elements.", m_uiCount, uiCountToRemove);
+  EZ_ASSERT_DEV(m_uiCount >= uiCountToRemove, "Out of bounds access. Array has {0} elements, trying to pop {1} elements.", m_uiCount, uiCountToRemove);
 
   m_uiCount -= uiCountToRemove;
   ezMemoryUtils::Destruct(static_cast<Derived*>(this)->GetElementsPtr() + m_uiCount, uiCountToRemove);
@@ -382,14 +379,14 @@ void ezArrayBase<T, Derived>::PopBack(ezUInt32 uiCountToRemove /* = 1 */)
 template <typename T, typename Derived>
 EZ_FORCE_INLINE T& ezArrayBase<T, Derived>::PeekBack()
 {
-  EZ_ASSERT_DEV(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
+  EZ_ASSERT_DEBUG(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
   return static_cast<Derived*>(this)->GetElementsPtr()[m_uiCount - 1];
 }
 
 template <typename T, typename Derived>
 EZ_FORCE_INLINE const T& ezArrayBase<T, Derived>::PeekBack() const
 {
-  EZ_ASSERT_DEV(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
+  EZ_ASSERT_DEBUG(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
   return static_cast<const Derived*>(this)->GetElementsPtr()[m_uiCount - 1];
 }
 

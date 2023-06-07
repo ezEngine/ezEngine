@@ -10,22 +10,17 @@ namespace HybridArrayTestDetail
   class Dummy
   {
   public:
-    int a;
-    std::string s;
+    int a = 0;
+    std::string s = "Test";
 
-    Dummy()
-      : a(0)
-      , s("Test")
-    {
-    }
+    Dummy() = default;
+
     Dummy(int a)
       : a(a)
-      , s("Test")
     {
     }
-    Dummy(const Dummy& other)
 
-      = default;
+    Dummy(const Dummy& other) = default;
     ~Dummy() = default;
 
     Dummy& operator=(const Dummy& other) = default;

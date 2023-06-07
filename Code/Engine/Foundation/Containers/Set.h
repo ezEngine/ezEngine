@@ -17,11 +17,9 @@ private:
   /// \brief Only used by the sentinel node.
   struct NilNode
   {
-    NilNode();
-
     ezUInt16 m_uiLevel = 0;
-    Node* m_pParent;
-    Node* m_pLink[2];
+    Node* m_pParent = nullptr;
+    Node* m_pLink[2] = {nullptr, nullptr};
   };
 
   /// \brief A node storing the key

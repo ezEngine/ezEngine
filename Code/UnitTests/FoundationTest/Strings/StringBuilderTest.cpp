@@ -1,7 +1,5 @@
 ﻿#include <FoundationTest/FoundationTestPCH.h>
 
-// NOTE: always save as Unicode UTF-8 with signature
-
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Strings/String.h>

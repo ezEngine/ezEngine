@@ -1,16 +1,16 @@
 {
-    "Registrations": [
-        {
-            "component": {
-                "type": "git",
-                "git": {
-                    "name": "ezEngine",
-                    "repositoryUrl": "https://github.com/ezEngine/ezEngine",
-                    "commitHash": "b0073763c8ee6a2385876301a76d4250617d0284"
-                }
-            },
-            "license": "MIT"
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "name": "ezEngine",
+          "repositoryUrl": "https://github.com/ezEngine/ezEngine",
+          "commitHash": "f6e1b0674082ee7ded3f704f61189f95f5092029"
         }
-    ],
-    "version": 1
+      },
+      "license": "MIT"
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
 }
