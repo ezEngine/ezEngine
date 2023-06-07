@@ -337,8 +337,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       }
 
       bool bFoundUndefinedVars = false;
-      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
-        {
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e) {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;
@@ -379,8 +378,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       pp.SetPassThroughPragma(true);
       pp.SetPassThroughUnknownCmdsCB(ezMakeDelegate(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
       pp.SetPassThroughLine(false);
-      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
-        {
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e) {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;

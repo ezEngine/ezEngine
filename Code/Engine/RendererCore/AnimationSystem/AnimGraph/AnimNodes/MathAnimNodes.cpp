@@ -32,7 +32,7 @@ ezMathExpressionAnimNode::~ezMathExpressionAnimNode() = default;
 
 void ezMathExpressionAnimNode::SetExpression(ezStringView sExpr)
 {
-m_mExpression.Reset(sExpr);
+  m_mExpression.Reset(sExpr);
 }
 
 ezStringView ezMathExpressionAnimNode::GetExpression() const
