@@ -114,16 +114,16 @@ public:
   static void SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone); // [tested]
 
   /// \brief Returns the dead zone value for the given input slot.
-  static float GetInputSlotDeadZone(const char* szInputSlot); // [tested]
+  static float GetInputSlotDeadZone(ezStringView sInputSlot); // [tested]
 
   /// \brief Returns the flags for the given input slot.
-  static ezBitflags<ezInputSlotFlags> GetInputSlotFlags(const char* szInputSlot); // [tested]
+  static ezBitflags<ezInputSlotFlags> GetInputSlotFlags(ezStringView sInputSlot); // [tested]
 
   /// \brief Returns the current key state of the given input slot and optionally also returns its full value.
   ///
   /// Do not use this function, unless you really, really need the value of exactly this key.
   /// Prefer to map your key to an action and then use GetInputActionState(). That method is more robust and extensible.
-  static ezKeyState::Enum GetInputSlotState(const char* szInputSlot, float* pValue = nullptr); // [tested]
+  static ezKeyState::Enum GetInputSlotState(ezStringView sInputSlot, float* pValue = nullptr); // [tested]
 
   /// \brief Returns an array that contains all the names of all currently known input slots.
   static void RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_inputSlots);
@@ -148,7 +148,7 @@ public:
   /// \brief If \a szInputSlot is used in any action in \a szInputSet, it will be removed from all of them.
   ///
   /// This should be used to reset the usage of an input slot before it is bound to another input action.
-  static void ClearInputMapping(const char* szInputSet, const char* szInputSlot); // [tested]
+  static void ClearInputMapping(ezStringView sInputSet, ezStringView sInputSlot); // [tested]
 
   /// \brief This is the one function to set up which input actions are available and by which input slots (keys) they are triggered.
   ///
@@ -175,24 +175,22 @@ public:
   ///   That means no other action can be triggered by this key within this input set.
   ///   For most actions this should be set to true. However, if you have several actions that can be triggered by the same slot
   ///   (for example touch input) but only in different areas of the screen, this should be set to false.
-  static void SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& config,
-    bool bClearPreviousInputMappings); // [tested]
+  static void SetInputActionConfig(ezStringView sInputSet, ezStringView sAction, const ezInputActionConfig& config, bool bClearPreviousInputMappings); // [tested]
 
   /// \brief Returns the configuration for the given input action in the given input set. Returns a default configuration, if the action
   /// does not exist.
-  static ezInputActionConfig GetInputActionConfig(const char* szInputSet, const char* szAction); // [tested]
+  static ezInputActionConfig GetInputActionConfig(ezStringView sInputSet, ezStringView sAction); // [tested]
 
   /// \brief Deletes all state associated with the given input action.
   ///
   /// It is not necessary to call this function for cleanup.
-  static void RemoveInputAction(const char* szInputSet, const char* szAction); // [tested]
+  static void RemoveInputAction(ezStringView sInputSet, ezStringView sAction); // [tested]
 
   /// \brief Returns the current state and value of the given input action.
   ///
   /// This is the one function that is called repeatedly at runtime to figure out which actions are active and thus which game-play
   /// functions to execute. You can (and should) use the /a pValue to scale game play features (e.g. how fast to drive).
-  static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = nullptr,
-    ezInt8* pTriggeredSlot = nullptr); // [tested]
+  static ezKeyState::Enum GetInputActionState(ezStringView sInputSet, ezStringView sAction, float* pValue = nullptr, ezInt8* pTriggeredSlot = nullptr); // [tested]
 
   /// \brief Sets the display name for the given action.
   static void SetActionDisplayName(const char* szAction, const char* szDisplayName); // [tested]
@@ -252,18 +250,10 @@ public:
       InputActionChanged, ///< An input action has been registered or its state changed.
     };
 
-    EventType m_EventType;
-    const char* m_szInputSlot;
-    const char* m_szInputSet;
-    const char* m_szInputAction;
-
-    InputEventData()
-    {
-      m_EventType = InputSlotChanged;
-      m_szInputSlot = nullptr;
-      m_szInputSet = nullptr;
-      m_szInputAction = nullptr;
-    }
+    EventType m_EventType = InputSlotChanged;
+    ezStringView m_sInputSlot;
+    ezStringView m_sInputSet;
+    ezStringView m_sInputAction;
   };
 
   using ezEventInput = ezEvent<const InputEventData&>;
@@ -282,7 +272,7 @@ private:
   ///
   /// If the input slot was already registered before, the display name is only changed, it the previous registration did not
   /// specify a display name different from the input slot name.
-  static void RegisterInputSlot(const char* szName, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags);
+  static void RegisterInputSlot(ezStringView sName, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags);
 
 private:
   /// \brief Stores the current state for one input slot.

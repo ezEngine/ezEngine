@@ -12,10 +12,10 @@ public:
   /// frame or capture number will be appended.
   /// Note that the final output file name is determined by the frame capture implementation. Use \ref GetLastAbsCaptureFileName()
   /// for retrieving the actual absolute file name of the most recently written capture file.
-  virtual void SetAbsCaptureFilePathTemplate(const char* szFilePathTemplate) = 0;
+  virtual void SetAbsCaptureFilePathTemplate(ezStringView sFilePathTemplate) = 0;
 
   /// \brief Retrieve the absolute file path for storing frame captures.
-  virtual const char* GetAbsCaptureFilePathTemplate() const = 0;
+  virtual ezStringView GetAbsCaptureFilePathTemplate() const = 0;
 
   /// \brief Start capturing a frame rendered to the given window.
   virtual void StartFrameCapture(ezWindowHandle hWnd) = 0;

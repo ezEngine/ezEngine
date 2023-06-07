@@ -25,8 +25,8 @@ public:
   virtual ~ezRenderDoc();
 
   virtual bool IsInitialized() const override;
-  virtual void SetAbsCaptureFilePathTemplate(const char* szFilePathTemplate) override;
-  virtual const char* GetAbsCaptureFilePathTemplate() const override;
+  virtual void SetAbsCaptureFilePathTemplate(ezStringView sFilePathTemplate) override;
+  virtual ezStringView GetAbsCaptureFilePathTemplate() const override;
   virtual void StartFrameCapture(ezWindowHandle hWnd) override;
   virtual bool IsFrameCapturing() const override;
   virtual void EndFrameCaptureAndWriteOutput(ezWindowHandle hWnd) override;

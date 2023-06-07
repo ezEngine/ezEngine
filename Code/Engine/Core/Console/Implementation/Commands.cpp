@@ -34,31 +34,31 @@ void ezQuakeConsole::ExecuteCommand(ezStringView sInput)
   ezConsole::ExecuteCommand(sInput);
 }
 
-void ezQuakeConsole::BindKey(const char* szKey, const char* szCommand)
+void ezQuakeConsole::BindKey(ezStringView sKey, ezStringView sCommand)
 {
   ezStringBuilder s;
-  s.Format("Binding key '{0}' to command '{1}'", szKey, szCommand);
+  s.Format("Binding key '{0}' to command '{1}'", sKey, sCommand);
   AddConsoleString(s, ezConsoleString::Type::Success);
 
-  m_BoundKeys[szKey] = szCommand;
+  m_BoundKeys[sKey] = sCommand;
 }
 
-void ezQuakeConsole::UnbindKey(const char* szKey)
+void ezQuakeConsole::UnbindKey(ezStringView sKey)
 {
   ezStringBuilder s;
-  s.Format("Unbinding key '{0}'", szKey);
+  s.Format("Unbinding key '{0}'", sKey);
   AddConsoleString(s, ezConsoleString::Type::Success);
 
-  m_BoundKeys.Remove(szKey);
+  m_BoundKeys.Remove(sKey);
 }
 
-void ezQuakeConsole::ExecuteBoundKey(const char* szKey)
+void ezQuakeConsole::ExecuteBoundKey(ezStringView sKey)
 {
-  auto it = m_BoundKeys.Find(szKey);
+  auto it = m_BoundKeys.Find(sKey);
 
   if (it.IsValid())
   {
-    ExecuteCommand(it.Value().GetData());
+    ExecuteCommand(it.Value());
   }
 }
 

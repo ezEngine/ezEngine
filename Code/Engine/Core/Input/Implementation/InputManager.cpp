@@ -28,9 +28,9 @@ ezInputManager::ezInputSlot::ezInputSlot()
   m_fDeadZone = 0.0f;
 }
 
-void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
+void ezInputManager::RegisterInputSlot(ezStringView sInputSlot, ezStringView sDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
 {
-  ezMap<ezString, ezInputSlot>::Iterator it = GetInternals().s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::Iterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
   {
@@ -38,9 +38,10 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
     {
       if ((it.Value().m_SlotFlags != ezInputSlotFlags::Default) && (SlotFlags != ezInputSlotFlags::Default))
       {
-        ezStringBuilder tmp;
-        tmp.Printf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b", szInputSlot,
-          it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
+        ezStringBuilder tmp, tmp2;
+        tmp.Printf("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b",
+          sInputSlot.GetData(tmp2), it.Value().m_SlotFlags.GetValue(), SlotFlags.GetValue());
+
         ezLog::Warning(tmp);
       }
 
@@ -54,26 +55,26 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
 
   // ezLog::Debug("Registered Input Slot: '{0}'", szInputSlot);
 
-  ezInputSlot& sm = GetInternals().s_InputSlots[szInputSlot];
+  ezInputSlot& sm = GetInternals().s_InputSlots[sInputSlot];
 
-  sm.m_sDisplayName = szDefaultDisplayName;
+  sm.m_sDisplayName = sDefaultDisplayName;
   sm.m_SlotFlags = SlotFlags;
 
   InputEventData e;
   e.m_EventType = InputEventData::InputSlotChanged;
-  e.m_szInputSlot = szInputSlot;
+  e.m_sInputSlot = sInputSlot;
 
   s_InputEvents.Broadcast(e);
 }
 
-ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(const char* szInputSlot)
+ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(ezStringView sInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
     return it.Value().m_SlotFlags;
 
-  ezLog::Warning("ezInputManager::GetInputSlotFlags: Input Slot '{0}' does not exist (yet).", szInputSlot);
+  ezLog::Warning("ezInputManager::GetInputSlotFlags: Input Slot '{0}' does not exist (yet).", sInputSlot);
 
   return ezInputSlotFlags::Default;
 }
@@ -85,7 +86,7 @@ void ezInputManager::SetInputSlotDisplayName(const char* szInputSlot, const char
 
   InputEventData e;
   e.m_EventType = InputEventData::InputSlotChanged;
-  e.m_szInputSlot = szInputSlot;
+  e.m_sInputSlot = szInputSlot;
 
   s_InputEvents.Broadcast(e);
 }
@@ -129,27 +130,27 @@ void ezInputManager::SetInputSlotDeadZone(const char* szInputSlot, float fDeadZo
 
   InputEventData e;
   e.m_EventType = InputEventData::InputSlotChanged;
-  e.m_szInputSlot = szInputSlot;
+  e.m_sInputSlot = szInputSlot;
 
   s_InputEvents.Broadcast(e);
 }
 
-float ezInputManager::GetInputSlotDeadZone(const char* szInputSlot)
+float ezInputManager::GetInputSlotDeadZone(ezStringView sInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
     return it.Value().m_fDeadZone;
 
-  ezLog::Warning("ezInputManager::GetInputSlotDeadZone: Input Slot '{0}' does not exist (yet).", szInputSlot);
+  ezLog::Warning("ezInputManager::GetInputSlotDeadZone: Input Slot '{0}' does not exist (yet).", sInputSlot);
 
   ezInputSlot s;
   return s.m_fDeadZone; // return the default value
 }
 
-ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, float* pValue)
+ezKeyState::Enum ezInputManager::GetInputSlotState(ezStringView sInputSlot, float* pValue)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
   {
@@ -164,8 +165,9 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, floa
 
   ezLog::Warning("ezInputManager::GetInputSlotState: Input Slot '{0}' does not exist (yet). To ensure all devices are initialized, call "
                  "ezInputManager::Update before querying device states, or at least call ezInputManager::PollHardware.",
-    szInputSlot);
-  RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::None);
+    sInputSlot);
+
+  RegisterInputSlot(sInputSlot, sInputSlot, ezInputSlotFlags::None);
 
   return ezKeyState::Up;
 }
@@ -262,7 +264,7 @@ void ezInputManager::UpdateInputSlotStates()
 
       InputEventData e;
       e.m_EventType = InputEventData::InputSlotChanged;
-      e.m_szInputSlot = it.Key().GetData();
+      e.m_sInputSlot = it.Key().GetData();
 
       s_InputEvents.Broadcast(e);
     }

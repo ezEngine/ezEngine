@@ -184,7 +184,7 @@ void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
   SUPER::BeforeHighLevelSystemsShutdown();
 }
 
-void ezGameEngineTestApplication::StoreScreenshot(ezImage&& image, const char* szContext)
+void ezGameEngineTestApplication::StoreScreenshot(ezImage&& image, ezStringView sContext)
 {
   // store this for image comparison purposes
   m_LastScreenshot.ResetAndMove(std::move(image));

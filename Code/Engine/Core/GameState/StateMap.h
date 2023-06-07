@@ -30,7 +30,7 @@ public:
   void RetrieveDouble(const ezTempHashedString& sName, double& out_fValue, double fDefaultValue = 0);
   void RetrieveVec3(const ezTempHashedString& sName, ezVec3& out_vValue, ezVec3 vDefaultValue = ezVec3(0));
   void RetrieveColor(const ezTempHashedString& sName, ezColor& out_value, ezColor defaultValue = ezColor::White);
-  void RetrieveString(const ezTempHashedString& sName, ezString& out_sValue, const char* szDefaultValue = nullptr);
+  void RetrieveString(const ezTempHashedString& sName, ezString& out_sValue, ezStringView sDefaultValue = {});
 
 private:
   ezHashTable<ezTempHashedString, bool> m_Bools;

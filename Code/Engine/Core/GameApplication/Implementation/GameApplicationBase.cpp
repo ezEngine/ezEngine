@@ -20,8 +20,8 @@
 
 ezGameApplicationBase* ezGameApplicationBase::s_pGameApplicationBaseInstance = nullptr;
 
-ezGameApplicationBase::ezGameApplicationBase(const char* szAppName)
-  : ezApplication(szAppName)
+ezGameApplicationBase::ezGameApplicationBase(ezStringView sAppName)
+  : ezApplication(sAppName)
   , m_ConFunc_TakeScreenshot("TakeScreenshot", "()", ezMakeDelegate(&ezGameApplicationBase::TakeScreenshot, this))
   , m_ConFunc_CaptureFrame("CaptureFrame", "()", ezMakeDelegate(&ezGameApplicationBase::CaptureFrame, this))
 {
@@ -84,7 +84,7 @@ void ezGameApplicationBase::TakeScreenshot()
   m_bTakeScreenshot = true;
 }
 
-void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szContext /*= nullptr*/)
+void ezGameApplicationBase::StoreScreenshot(ezImage&& image, ezStringView sContext /*= {} */)
 {
   class WriteFileTask final : public ezTask
   {
@@ -114,7 +114,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
 
   pWriteTask->m_sPath.Format(":appdata/Screenshots/{0}", ezApplication::GetApplicationInstance()->GetApplicationName());
   AppendCurrentTimestamp(pWriteTask->m_sPath);
-  pWriteTask->m_sPath.Append(szContext);
+  pWriteTask->m_sPath.Append(sContext);
   pWriteTask->m_sPath.Append(".png");
 
   // we move the file writing off to another thread to save some time
@@ -123,7 +123,7 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
   ezTaskSystem::StartSingleTask(pWriteTask, ezTaskPriority::LongRunning);
 }
 
-void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, const char* szContext /* = nullptr*/)
+void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, ezStringView sContext /* = {} */)
 {
   if (m_bTakeScreenshot)
   {
@@ -131,7 +131,7 @@ void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOut
     ezImage img;
     if (pOutputTarget->CaptureImage(img).Succeeded())
     {
-      StoreScreenshot(std::move(img), szContext);
+      StoreScreenshot(std::move(img), sContext);
     }
   }
 }
@@ -161,7 +161,7 @@ ezResult ezGameApplicationBase::GetAbsFrameCaptureOutputPath(ezStringBuilder& re
   return ezFileSystem::ResolvePath(sPath, &ref_sOutputPath, nullptr);
 }
 
-void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandle, const char* szContext /*= nullptr*/)
+void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandle, ezStringView sContext /*= {} */)
 {
   ezFrameCaptureInterface* pCaptureInterface = ezSingletonRegistry::GetSingletonInstance<ezFrameCaptureInterface>();
   if (!pCaptureInterface)
@@ -178,7 +178,7 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
       ezStringBuilder sOutputPath;
       if (GetAbsFrameCaptureOutputPath(sOutputPath).Succeeded())
       {
-        sOutputPath.Append(szContext);
+        sOutputPath.Append(sContext);
         pCaptureInterface->SetAbsCaptureFilePathTemplate(sOutputPath);
       }
 

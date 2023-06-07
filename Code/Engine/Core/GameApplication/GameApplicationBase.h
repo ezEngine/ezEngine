@@ -52,7 +52,7 @@ class EZ_CORE_DLL ezGameApplicationBase : public ezApplication
 public:
   using SUPER = ezApplication;
 
-  ezGameApplicationBase(const char* szAppName);
+  ezGameApplicationBase(ezStringView sAppName);
   ~ezGameApplicationBase();
 
   /// \name Basics
@@ -80,9 +80,9 @@ public:
 
 protected:
   /// \brief Called with the result from taking a screenshot. The default implementation writes the image to disk at ':appdata/Screenshots'
-  virtual void StoreScreenshot(ezImage&& image, const char* szContext = nullptr);
+  virtual void StoreScreenshot(ezImage&& image, ezStringView sContext = {});
 
-  void ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, const char* szContext = nullptr);
+  void ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, ezStringView sContext = {});
 
   bool m_bTakeScreenshot = false;
 
@@ -113,7 +113,7 @@ public:
   virtual ezResult GetAbsFrameCaptureOutputPath(ezStringBuilder& ref_sOutputPath);
 
 protected:
-  void ExecuteFrameCapture(ezWindowHandle targetWindowHandle, const char* szContext = nullptr);
+  void ExecuteFrameCapture(ezWindowHandle targetWindowHandle, ezStringView sContext = {});
 
   bool m_bContinuousFrameCapture = false;
   bool m_bCaptureFrame = false;

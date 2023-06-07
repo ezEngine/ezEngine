@@ -73,7 +73,7 @@ public:
   };
 
   /// \brief Constructor.
-  ezApplication(const char* szAppName);
+  ezApplication(ezStringView sAppName);
 
   /// \brief Virtual destructor.
   virtual ~ezApplication();
