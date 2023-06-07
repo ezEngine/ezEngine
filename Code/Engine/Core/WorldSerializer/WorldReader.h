@@ -137,7 +137,7 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const;
 
-  using FindComponentTypeCallback = ezDelegate<const ezRTTI*(const char* szTypeName)>;
+  using FindComponentTypeCallback = ezDelegate<const ezRTTI*(ezStringView sTypeName)>;
 
   /// \brief An optional callback to redirect the lookup of a component type name to an ezRTTI type.
   ///

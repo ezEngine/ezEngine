@@ -80,10 +80,10 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::SetInputSlotDisplayName("test_slot_3", "Test Slot 3 Name");
     ezInputManager::SetInputSlotDisplayName("test_slot_4", "Test Slot 4 Name");
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_1"), "Test Slot 1 Name"));
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_2"), "Test Slot 2 Name"));
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_3"), "Test Slot 3 Name"));
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_4"), "Test Slot 4 Name"));
+    EZ_TEST_STRING(ezInputManager::GetInputSlotDisplayName("test_slot_1"), "Test Slot 1 Name");
+    EZ_TEST_STRING(ezInputManager::GetInputSlotDisplayName("test_slot_2"), "Test Slot 2 Name");
+    EZ_TEST_STRING(ezInputManager::GetInputSlotDisplayName("test_slot_3"), "Test Slot 3 Name");
+    EZ_TEST_STRING(ezInputManager::GetInputSlotDisplayName("test_slot_4"), "Test Slot 4 Name");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInputSlotDeadZone / GetInputSlotDisplayName")
@@ -367,18 +367,18 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
   {
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    const char* szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
-    EZ_TEST_BOOL(ezStringUtils::IsNullOrEmpty(szSlot));
+    ezStringView sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
+    EZ_TEST_BOOL(sSlot.IsEmpty());
 
     ezInputManager::InjectInputSlotValue("test_slot", 1.0f);
 
-    szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
+    sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
+    EZ_TEST_STRING(sSlot, "");
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "test_slot"));
+    sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
+    EZ_TEST_STRING(sSlot, "test_slot");
 
 
     {
@@ -389,33 +389,33 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
       ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-      szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsButton, ezInputSlotFlags::None);
-      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "testdevice_button"));
+      sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsButton, ezInputSlotFlags::None);
+      EZ_TEST_STRING(sSlot, "testdevice_button");
 
-      szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsAnalogStick, ezInputSlotFlags::None);
-      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "testdevice_stick"));
+      sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsAnalogStick, ezInputSlotFlags::None);
+      EZ_TEST_STRING(sSlot, "testdevice_stick");
 
-      szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsMouseWheel, ezInputSlotFlags::None);
-      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "testdevice_wheel"));
+      sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsMouseWheel, ezInputSlotFlags::None);
+      EZ_TEST_STRING(sSlot, "testdevice_wheel");
 
-      szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsTouchPoint, ezInputSlotFlags::None);
-      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "testdevice_touchpoint"));
+      sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsTouchPoint, ezInputSlotFlags::None);
+      EZ_TEST_STRING(sSlot, "testdevice_touchpoint");
 
       ezInputManager::InjectInputSlotValue("test_slot", 1.0f);
 
       ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-      szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsButton, ezInputSlotFlags::None);
-      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
+      sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsButton, ezInputSlotFlags::None);
+      EZ_TEST_STRING(sSlot, "");
 
-      szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsAnalogStick, ezInputSlotFlags::None);
-      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
+      sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsAnalogStick, ezInputSlotFlags::None);
+      EZ_TEST_STRING(sSlot, "");
 
-      szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsMouseWheel, ezInputSlotFlags::None);
-      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
+      sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsMouseWheel, ezInputSlotFlags::None);
+      EZ_TEST_STRING(sSlot, "");
 
-      szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsTouchPoint, ezInputSlotFlags::None);
-      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
+      sSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsTouchPoint, ezInputSlotFlags::None);
+      EZ_TEST_STRING(sSlot, "");
     }
   }
 

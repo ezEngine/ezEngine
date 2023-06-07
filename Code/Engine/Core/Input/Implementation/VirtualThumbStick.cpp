@@ -83,81 +83,80 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum i
   m_bConfigChanged = true;
 }
 
-void ezVirtualThumbStick::SetThumbstickOutput(
-  ezVirtualThumbStick::Output::Enum output, const char* szOutputLeft, const char* szOutputRight, const char* szOutputUp, const char* szOutputDown)
+void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::Output::Enum output, ezStringView sOutputLeft, ezStringView sOutputRight, ezStringView sOutputUp, ezStringView sOutputDown)
 {
   switch (output)
   {
     case ezVirtualThumbStick::Output::Controller0_LeftStick:
     {
-      m_szOutputLeft = ezInputSlot_Controller0_LeftStick_NegX;
-      m_szOutputRight = ezInputSlot_Controller0_LeftStick_PosX;
-      m_szOutputUp = ezInputSlot_Controller0_LeftStick_PosY;
-      m_szOutputDown = ezInputSlot_Controller0_LeftStick_NegY;
+      m_sOutputLeft = ezInputSlot_Controller0_LeftStick_NegX;
+      m_sOutputRight = ezInputSlot_Controller0_LeftStick_PosX;
+      m_sOutputUp = ezInputSlot_Controller0_LeftStick_PosY;
+      m_sOutputDown = ezInputSlot_Controller0_LeftStick_NegY;
     }
     break;
     case ezVirtualThumbStick::Output::Controller0_RightStick:
     {
-      m_szOutputLeft = ezInputSlot_Controller0_RightStick_NegX;
-      m_szOutputRight = ezInputSlot_Controller0_RightStick_PosX;
-      m_szOutputUp = ezInputSlot_Controller0_RightStick_PosY;
-      m_szOutputDown = ezInputSlot_Controller0_RightStick_NegY;
+      m_sOutputLeft = ezInputSlot_Controller0_RightStick_NegX;
+      m_sOutputRight = ezInputSlot_Controller0_RightStick_PosX;
+      m_sOutputUp = ezInputSlot_Controller0_RightStick_PosY;
+      m_sOutputDown = ezInputSlot_Controller0_RightStick_NegY;
     }
     break;
     case ezVirtualThumbStick::Output::Controller1_LeftStick:
     {
-      m_szOutputLeft = ezInputSlot_Controller1_LeftStick_NegX;
-      m_szOutputRight = ezInputSlot_Controller1_LeftStick_PosX;
-      m_szOutputUp = ezInputSlot_Controller1_LeftStick_PosY;
-      m_szOutputDown = ezInputSlot_Controller1_LeftStick_NegY;
+      m_sOutputLeft = ezInputSlot_Controller1_LeftStick_NegX;
+      m_sOutputRight = ezInputSlot_Controller1_LeftStick_PosX;
+      m_sOutputUp = ezInputSlot_Controller1_LeftStick_PosY;
+      m_sOutputDown = ezInputSlot_Controller1_LeftStick_NegY;
     }
     break;
     case ezVirtualThumbStick::Output::Controller1_RightStick:
     {
-      m_szOutputLeft = ezInputSlot_Controller1_RightStick_NegX;
-      m_szOutputRight = ezInputSlot_Controller1_RightStick_PosX;
-      m_szOutputUp = ezInputSlot_Controller1_RightStick_PosY;
-      m_szOutputDown = ezInputSlot_Controller1_RightStick_NegY;
+      m_sOutputLeft = ezInputSlot_Controller1_RightStick_NegX;
+      m_sOutputRight = ezInputSlot_Controller1_RightStick_PosX;
+      m_sOutputUp = ezInputSlot_Controller1_RightStick_PosY;
+      m_sOutputDown = ezInputSlot_Controller1_RightStick_NegY;
     }
     break;
     case ezVirtualThumbStick::Output::Controller2_LeftStick:
     {
-      m_szOutputLeft = ezInputSlot_Controller2_LeftStick_NegX;
-      m_szOutputRight = ezInputSlot_Controller2_LeftStick_PosX;
-      m_szOutputUp = ezInputSlot_Controller2_LeftStick_PosY;
-      m_szOutputDown = ezInputSlot_Controller2_LeftStick_NegY;
+      m_sOutputLeft = ezInputSlot_Controller2_LeftStick_NegX;
+      m_sOutputRight = ezInputSlot_Controller2_LeftStick_PosX;
+      m_sOutputUp = ezInputSlot_Controller2_LeftStick_PosY;
+      m_sOutputDown = ezInputSlot_Controller2_LeftStick_NegY;
     }
     break;
     case ezVirtualThumbStick::Output::Controller2_RightStick:
     {
-      m_szOutputLeft = ezInputSlot_Controller2_RightStick_NegX;
-      m_szOutputRight = ezInputSlot_Controller2_RightStick_PosX;
-      m_szOutputUp = ezInputSlot_Controller2_RightStick_PosY;
-      m_szOutputDown = ezInputSlot_Controller2_RightStick_NegY;
+      m_sOutputLeft = ezInputSlot_Controller2_RightStick_NegX;
+      m_sOutputRight = ezInputSlot_Controller2_RightStick_PosX;
+      m_sOutputUp = ezInputSlot_Controller2_RightStick_PosY;
+      m_sOutputDown = ezInputSlot_Controller2_RightStick_NegY;
     }
     break;
     case ezVirtualThumbStick::Output::Controller3_LeftStick:
     {
-      m_szOutputLeft = ezInputSlot_Controller3_LeftStick_NegX;
-      m_szOutputRight = ezInputSlot_Controller3_LeftStick_PosX;
-      m_szOutputUp = ezInputSlot_Controller3_LeftStick_PosY;
-      m_szOutputDown = ezInputSlot_Controller3_LeftStick_NegY;
+      m_sOutputLeft = ezInputSlot_Controller3_LeftStick_NegX;
+      m_sOutputRight = ezInputSlot_Controller3_LeftStick_PosX;
+      m_sOutputUp = ezInputSlot_Controller3_LeftStick_PosY;
+      m_sOutputDown = ezInputSlot_Controller3_LeftStick_NegY;
     }
     break;
     case ezVirtualThumbStick::Output::Controller3_RightStick:
     {
-      m_szOutputLeft = ezInputSlot_Controller3_RightStick_NegX;
-      m_szOutputRight = ezInputSlot_Controller3_RightStick_PosX;
-      m_szOutputUp = ezInputSlot_Controller3_RightStick_PosY;
-      m_szOutputDown = ezInputSlot_Controller3_RightStick_NegY;
+      m_sOutputLeft = ezInputSlot_Controller3_RightStick_NegX;
+      m_sOutputRight = ezInputSlot_Controller3_RightStick_PosX;
+      m_sOutputUp = ezInputSlot_Controller3_RightStick_PosY;
+      m_sOutputDown = ezInputSlot_Controller3_RightStick_NegY;
     }
     break;
     case ezVirtualThumbStick::Output::Custom:
     {
-      m_szOutputLeft = szOutputLeft;
-      m_szOutputRight = szOutputRight;
-      m_szOutputUp = szOutputUp;
-      m_szOutputDown = szOutputDown;
+      m_sOutputLeft = sOutputLeft;
+      m_sOutputRight = sOutputRight;
+      m_sOutputUp = sOutputUp;
+      m_sOutputDown = sOutputDown;
     }
     break;
   }
@@ -210,10 +209,10 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 {
   m_bIsActive = false;
 
-  m_InputSlotValues[m_szOutputLeft] = 0.0f;
-  m_InputSlotValues[m_szOutputRight] = 0.0f;
-  m_InputSlotValues[m_szOutputUp] = 0.0f;
-  m_InputSlotValues[m_szOutputDown] = 0.0f;
+  m_InputSlotValues[m_sOutputLeft] = 0.0f;
+  m_InputSlotValues[m_sOutputRight] = 0.0f;
+  m_InputSlotValues[m_sOutputUp] = 0.0f;
+  m_InputSlotValues[m_sOutputDown] = 0.0f;
 
   if (!m_bEnabled)
   {
@@ -256,10 +255,10 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
     const float fLength = ezMath::Min(vDir.GetLength(), m_fRadius) / m_fRadius;
     vDir.Normalize();
 
-    m_InputSlotValues[m_szOutputLeft] = ezMath::Max(0.0f, -vDir.x) * fLength;
-    m_InputSlotValues[m_szOutputRight] = ezMath::Max(0.0f, vDir.x) * fLength;
-    m_InputSlotValues[m_szOutputUp] = ezMath::Max(0.0f, vDir.y) * fLength;
-    m_InputSlotValues[m_szOutputDown] = ezMath::Max(0.0f, -vDir.y) * fLength;
+    m_InputSlotValues[m_sOutputLeft] = ezMath::Max(0.0f, -vDir.x) * fLength;
+    m_InputSlotValues[m_sOutputRight] = ezMath::Max(0.0f, vDir.x) * fLength;
+    m_InputSlotValues[m_sOutputUp] = ezMath::Max(0.0f, vDir.y) * fLength;
+    m_InputSlotValues[m_sOutputDown] = ezMath::Max(0.0f, -vDir.y) * fLength;
   }
 }
 

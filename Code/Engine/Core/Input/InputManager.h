@@ -97,21 +97,21 @@ public:
   static void Update(ezTime timeDifference); // [tested]
 
   /// \brief Changes the display name of an input slot.
-  static void SetInputSlotDisplayName(const char* szInputSlot, const char* szDefaultDisplayName); // [tested]
+  static void SetInputSlotDisplayName(ezStringView sInputSlot, ezStringView sDefaultDisplayName); // [tested]
 
   /// \brief Returns the display name that was assigned to the given input slot.
-  static const char* GetInputSlotDisplayName(const char* szInputSlot); // [tested]
+  static ezStringView GetInputSlotDisplayName(ezStringView sInputSlot); // [tested]
 
   /// \brief A shortcut to get the display name of the input slot bound to a given action
   ///
   /// If iTrigger is set, the name of that trigger (0 .. ezInputActionConfig::MaxInputSlotAlternatives) will be used.
   /// If iTrigger is less than 0, the first valid trigger is used.
   /// If iTrigger is outside the valid range or no valid trigger is bound, nullptr is returned.
-  static const char* GetInputSlotDisplayName(const char* szInputSet, const char* szAction, ezInt32 iTrigger = -1);
+  static ezStringView GetInputSlotDisplayName(ezStringView sInputSet, ezStringView sAction, ezInt32 iTrigger = -1);
 
   /// \brief Sets the dead zone for the given input slot. As long as the hardware reports values lower than this, the input slot will report
   /// a value of zero.
-  static void SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone); // [tested]
+  static void SetInputSlotDeadZone(ezStringView sInputSlot, float fDeadZone); // [tested]
 
   /// \brief Returns the dead zone value for the given input slot.
   static float GetInputSlotDeadZone(ezStringView sInputSlot); // [tested]
@@ -126,7 +126,7 @@ public:
   static ezKeyState::Enum GetInputSlotState(ezStringView sInputSlot, float* pValue = nullptr); // [tested]
 
   /// \brief Returns an array that contains all the names of all currently known input slots.
-  static void RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_inputSlots);
+  static void RetrieveAllKnownInputSlots(ezDynamicArray<ezStringView>& out_inputSlots);
 
   /// \brief Returns the last typed character as the OS has reported it. Thus supports Unicode etc.
   ///
@@ -193,24 +193,24 @@ public:
   static ezKeyState::Enum GetInputActionState(ezStringView sInputSet, ezStringView sAction, float* pValue = nullptr, ezInt8* pTriggeredSlot = nullptr); // [tested]
 
   /// \brief Sets the display name for the given action.
-  static void SetActionDisplayName(const char* szAction, const char* szDisplayName); // [tested]
+  static void SetActionDisplayName(ezStringView sAction, ezStringView sDisplayName); // [tested]
 
   /// \brief Returns the display name for the given action, or the action name itself, if no special display name was specified yet.
-  static const ezString GetActionDisplayName(const char* szAction); // [tested]
+  static const ezString GetActionDisplayName(ezStringView sAction); // [tested]
 
   /// \brief Returns the names of all currently registered input sets.
   static void GetAllInputSets(ezDynamicArray<ezString>& out_inputSetNames); // [tested]
 
   /// \brief Returns the names of all input actions in the given input set.
-  static void GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_inputActions); // [tested]
+  static void GetAllInputActions(ezStringView sInputSetName, ezDynamicArray<ezString>& out_inputActions); // [tested]
 
   /// \brief This can be used to pass input exclusively to this input set and no others.
   ///
   /// Querying input from other input sets will always return 'key up'.
-  static void SetExclusiveInputSet(const char* szExclusiveSet) { s_sExclusiveInputSet = szExclusiveSet; }
+  static void SetExclusiveInputSet(ezStringView sExclusiveSet) { s_sExclusiveInputSet = sExclusiveSet; }
 
   /// \brief Returns whether any input set gets input exclusively.
-  static const char* GetExclusiveInputSet() { return s_sExclusiveInputSet; }
+  static ezStringView GetExclusiveInputSet() { return s_sExclusiveInputSet; }
 
   /// \brief This function allows to 'inject' input state for one frame.
   ///
@@ -221,25 +221,25 @@ public:
   /// the input needs to be injected every frame.
   ///
   /// Note that when the input is injected after ezInputManager::Update was called, its effect will be delayed by one frame.
-  static void InjectInputSlotValue(const char* szInputSlot, float fValue); // [tested]
+  static void InjectInputSlotValue(ezStringView sInputSlot, float fValue); // [tested]
 
   /// \brief Checks whether any input slot has been triggered in this frame, which has all \a MustHaveFlags and has none of the \a
   /// MustNotHaveFlags.
   ///
   /// This function can be used in a UI to wait for user input and then assign that input to a certain action.
-  static const char* GetPressedInputSlot(ezInputSlotFlags::Enum mustHaveFlags, ezInputSlotFlags::Enum mustNotHaveFlags); // [tested]
+  static ezStringView GetPressedInputSlot(ezInputSlotFlags::Enum mustHaveFlags, ezInputSlotFlags::Enum mustNotHaveFlags); // [tested]
 
   /// \brief Mostly for internal use. Converts a scan-code value to the string that is used inside the engine for that key.
-  static const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
+  static ezStringView ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
 
   /// \brief Helper for retrieving the input slot string for touch point with a given index.
-  static const char* GetInputSlotTouchPoint(unsigned int uiIndex);
+  static ezStringView GetInputSlotTouchPoint(ezUInt32 uiIndex);
 
   /// \brief Helper for retrieving the input slot string for touch point x position with a given index.
-  static const char* GetInputSlotTouchPointPositionX(unsigned int uiIndex);
+  static ezStringView GetInputSlotTouchPointPositionX(ezUInt32 uiIndex);
 
   /// \brief Helper for retrieving the input slot string for touch point y position with a given index.
-  static const char* GetInputSlotTouchPointPositionY(unsigned int uiIndex);
+  static ezStringView GetInputSlotTouchPointPositionY(ezUInt32 uiIndex);
 
   /// \brief The data that is broadcast when certain events occur.
   struct InputEventData
@@ -334,7 +334,7 @@ private:
   static void UpdateInputActions(ezTime tTimeDifference);
 
   /// \brief Updates the state of all input actions in the given input set.
-  static void UpdateInputActions(const char* szInputSet, ezActionMap& Actions, ezTime tTimeDifference);
+  static void UpdateInputActions(ezStringView sInputSet, ezActionMap& Actions, ezTime tTimeDifference);
 
   /// \brief Returns an iterator to the (next) action that should get triggered by the given slot.
   ///

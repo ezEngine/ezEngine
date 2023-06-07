@@ -46,11 +46,13 @@ namespace InputDetail
 
   static void SendAllInputSlots()
   {
-    ezDynamicArray<const char*> InputSlots;
+    ezDynamicArray<ezStringView> InputSlots;
     ezInputManager::RetrieveAllKnownInputSlots(InputSlots);
 
     for (ezUInt32 i = 0; i < InputSlots.GetCount(); ++i)
+    {
       SendInputSlotData(InputSlots[i]);
+    }
   }
 
   static void SendAllInputActions()

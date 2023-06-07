@@ -53,7 +53,7 @@ void ezInputManager::RegisterInputSlot(ezStringView sInputSlot, ezStringView sDe
       return;
   }
 
-  // ezLog::Debug("Registered Input Slot: '{0}'", szInputSlot);
+  // ezLog::Debug("Registered Input Slot: '{0}'", sInputSlot);
 
   ezInputSlot& sm = GetInternals().s_InputSlots[sInputSlot];
 
@@ -79,34 +79,34 @@ ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(ezStringView sInp
   return ezInputSlotFlags::Default;
 }
 
-void ezInputManager::SetInputSlotDisplayName(const char* szInputSlot, const char* szDefaultDisplayName)
+void ezInputManager::SetInputSlotDisplayName(ezStringView sInputSlot, ezStringView sDefaultDisplayName)
 {
-  RegisterInputSlot(szInputSlot, szDefaultDisplayName, ezInputSlotFlags::Default);
-  GetInternals().s_InputSlots[szInputSlot].m_sDisplayName = szDefaultDisplayName;
+  RegisterInputSlot(sInputSlot, sDefaultDisplayName, ezInputSlotFlags::Default);
+  GetInternals().s_InputSlots[sInputSlot].m_sDisplayName = sDefaultDisplayName;
 
   InputEventData e;
   e.m_EventType = InputEventData::InputSlotChanged;
-  e.m_sInputSlot = szInputSlot;
+  e.m_sInputSlot = sInputSlot;
 
   s_InputEvents.Broadcast(e);
 }
 
-const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSlot)
+ezStringView ezInputManager::GetInputSlotDisplayName(ezStringView sInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(sInputSlot);
 
   if (it.IsValid())
     return it.Value().m_sDisplayName.GetData();
 
-  ezLog::Warning("ezInputManager::GetInputSlotDisplayName: Input Slot '{0}' does not exist (yet).", szInputSlot);
-  return szInputSlot;
+  ezLog::Warning("ezInputManager::GetInputSlotDisplayName: Input Slot '{0}' does not exist (yet).", sInputSlot);
+  return sInputSlot;
 }
 
-const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSet, const char* szAction, ezInt32 iTrigger)
+ezStringView ezInputManager::GetInputSlotDisplayName(ezStringView sInputSet, ezStringView sAction, ezInt32 iTrigger)
 {
   /// \test This is new
 
-  const auto cfg = GetInputActionConfig(szInputSet, szAction);
+  const auto cfg = GetInputActionConfig(sInputSet, sAction);
 
   if (iTrigger < 0)
   {
@@ -123,14 +123,14 @@ const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSet, cons
   return GetInputSlotDisplayName(cfg.m_sInputSlotTrigger[iTrigger]);
 }
 
-void ezInputManager::SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone)
+void ezInputManager::SetInputSlotDeadZone(ezStringView sInputSlot, float fDeadZone)
 {
-  RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::Default);
-  GetInternals().s_InputSlots[szInputSlot].m_fDeadZone = ezMath::Max(fDeadZone, 0.0001f);
+  RegisterInputSlot(sInputSlot, sInputSlot, ezInputSlotFlags::Default);
+  GetInternals().s_InputSlots[sInputSlot].m_fDeadZone = ezMath::Max(fDeadZone, 0.0001f);
 
   InputEventData e;
   e.m_EventType = InputEventData::InputSlotChanged;
-  e.m_sInputSlot = szInputSlot;
+  e.m_sInputSlot = sInputSlot;
 
   s_InputEvents.Broadcast(e);
 }
@@ -271,7 +271,7 @@ void ezInputManager::UpdateInputSlotStates()
   }
 }
 
-void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_inputSlots)
+void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<ezStringView>& out_inputSlots)
 {
   out_inputSlots.Clear();
   out_inputSlots.Reserve(GetInternals().s_InputSlots.GetCount());
@@ -293,12 +293,12 @@ ezUInt32 ezInputManager::RetrieveLastCharacter(bool bResetCurrent)
   return Temp;
 }
 
-void ezInputManager::InjectInputSlotValue(const char* szInputSlot, float fValue)
+void ezInputManager::InjectInputSlotValue(ezStringView sInputSlot, float fValue)
 {
-  GetInternals().s_InjectedInputSlots[szInputSlot] = ezMath::Max(GetInternals().s_InjectedInputSlots[szInputSlot], fValue);
+  GetInternals().s_InjectedInputSlots[sInputSlot] = ezMath::Max(GetInternals().s_InjectedInputSlots[sInputSlot], fValue);
 }
 
-const char* ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum mustHaveFlags, ezInputSlotFlags::Enum mustNotHaveFlags)
+ezStringView ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum mustHaveFlags, ezInputSlotFlags::Enum mustNotHaveFlags)
 {
   for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); ++it)
   {
@@ -315,7 +315,7 @@ const char* ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum mustHaveF
   return ezInputSlot_None;
 }
 
-const char* ezInputManager::GetInputSlotTouchPoint(unsigned int uiIndex)
+ezStringView ezInputManager::GetInputSlotTouchPoint(ezUInt32 uiIndex)
 {
   switch (uiIndex)
   {
@@ -345,7 +345,7 @@ const char* ezInputManager::GetInputSlotTouchPoint(unsigned int uiIndex)
   }
 }
 
-const char* ezInputManager::GetInputSlotTouchPointPositionX(unsigned int uiIndex)
+ezStringView ezInputManager::GetInputSlotTouchPointPositionX(ezUInt32 uiIndex)
 {
   switch (uiIndex)
   {
@@ -375,7 +375,7 @@ const char* ezInputManager::GetInputSlotTouchPointPositionX(unsigned int uiIndex
   }
 }
 
-const char* ezInputManager::GetInputSlotTouchPointPositionY(unsigned int uiIndex)
+ezStringView ezInputManager::GetInputSlotTouchPointPositionY(ezUInt32 uiIndex)
 {
   switch (uiIndex)
   {

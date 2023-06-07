@@ -318,8 +318,7 @@ void ezFallbackGameState::ProcessInput()
 
   if (m_bEnableSceneSelectionMenu)
   {
-    if (ezStringUtils::IsNullOrEmpty(ezInputManager::GetExclusiveInputSet()) ||
-        ezStringUtils::IsEqual(ezInputManager::GetExclusiveInputSet(), "ezPlayer"))
+    if (ezInputManager::GetExclusiveInputSet().IsEmpty() || ezInputManager::GetExclusiveInputSet() == "ezPlayer")
     {
       if (DisplayMenu())
       {

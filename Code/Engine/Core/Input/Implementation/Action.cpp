@@ -237,7 +237,7 @@ void ezInputManager::UpdateInputActions(ezTime tTimeDifference)
   }
 }
 
-void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Actions, ezTime tTimeDifference)
+void ezInputManager::UpdateInputActions(ezStringView sInputSet, ezActionMap& Actions, ezTime tTimeDifference)
 {
   // reset all action values to zero
   for (ezActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
@@ -308,7 +308,7 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
 
       InputEventData e;
       e.m_EventType = InputEventData::InputActionChanged;
-      e.m_sInputSet = szInputSet;
+      e.m_sInputSet = sInputSet;
       e.m_sInputAction = ItActions.Key();
 
       s_InputEvents.Broadcast(e);
@@ -319,14 +319,14 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
   }
 }
 
-void ezInputManager::SetActionDisplayName(const char* szAction, const char* szDisplayName)
+void ezInputManager::SetActionDisplayName(ezStringView sAction, ezStringView sDisplayName)
 {
-  GetInternals().s_ActionDisplayNames[szAction] = szDisplayName;
+  GetInternals().s_ActionDisplayNames[sAction] = sDisplayName;
 }
 
-const ezString ezInputManager::GetActionDisplayName(const char* szAction)
+const ezString ezInputManager::GetActionDisplayName(ezStringView sAction)
 {
-  return GetInternals().s_ActionDisplayNames.GetValueOrDefault(szAction, szAction);
+  return GetInternals().s_ActionDisplayNames.GetValueOrDefault(sAction, sAction);
 }
 
 void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_inputSetNames)
@@ -337,9 +337,9 @@ void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_inputSetNames
     out_inputSetNames.PushBack(it.Key());
 }
 
-void ezInputManager::GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_inputActions)
+void ezInputManager::GetAllInputActions(ezStringView sInputSetName, ezDynamicArray<ezString>& out_inputActions)
 {
-  const auto& map = GetInternals().s_ActionMapping[szInputSetName];
+  const auto& map = GetInternals().s_ActionMapping[sInputSetName];
 
   out_inputActions.Clear();
   out_inputActions.Reserve(map.GetCount());
