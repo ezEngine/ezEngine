@@ -152,11 +152,13 @@ ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_Data, ezLogInte
       continue;
     }
 
-    ezStringView sShaderSource = inout_Data.m_sShaderSource[stage];
+    const ezStringBuilder sShaderSource = inout_Data.m_sShaderSource[stage];
 
     if (!sShaderSource.IsEmpty() && sShaderSource.FindSubString("main") != nullptr)
     {
-      if (CompileVulkanShader(inout_Data.m_sSourceFile, sShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
+      const ezStringBuilder sSourceFile = inout_Data.m_sSourceFile;
+
+      if (CompileVulkanShader(sSourceFile, sShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {
         EZ_SUCCEED_OR_RETURN(ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum)stage));
       }
@@ -194,7 +196,7 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
     sDebugSource.ReplaceAll("#line ", "//ine ");
     szCompileSource = sDebugSource;
 
-    //ezLog::Warning("Vulkan DEBUG shader support not really implemented.");
+    // ezLog::Warning("Vulkan DEBUG shader support not really implemented.");
 
     args.PushBack(L"-Zi"); // Enable debug information.
     // args.PushBack(L"-Fo"); // Optional. Stored in the pdb.
@@ -618,7 +620,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
 
       const ezUInt32 uiCount = vars.GetCount();
 
-      //#TODO_VULKAN Currently hard coded to a single DescriptorSetLayout.
+      // #TODO_VULKAN Currently hard coded to a single DescriptorSetLayout.
       ezHybridArray<ezVulkanDescriptorSetLayout, 3> sets;
       ezVulkanDescriptorSetLayout& set = sets.ExpandAndGetRef();
 
@@ -655,7 +657,8 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
         }
         binding.m_uiWordOffset = info.word_offset.binding;
       }
-      set.bindings.Sort([](const ezVulkanDescriptorSetLayoutBinding& lhs, const ezVulkanDescriptorSetLayoutBinding& rhs) { return lhs.m_uiBinding < rhs.m_uiBinding; });
+      set.bindings.Sort([](const ezVulkanDescriptorSetLayoutBinding& lhs, const ezVulkanDescriptorSetLayoutBinding& rhs)
+        { return lhs.m_uiBinding < rhs.m_uiBinding; });
 
       ezSpirvMetaData::Write(stream, bytecode, sets, vertexInputAttributes);
 
