@@ -226,8 +226,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void(const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
         pp.AddCustomDefine("PP_OBJ").IgnoreResult();
         pp.AddCustomDefine("PP_FUNC(a) a").IgnoreResult();
-        pp.SetPassThroughUnknownCmdsCB([](ezStringView s) -> bool
-          { return s == "version"; }); // TestSettings[i].m_bPassThroughUnknownCommands);
+        pp.SetPassThroughUnknownCmdsCB([](ezStringView s) -> bool { return s == "version"; }); // TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
           fileName.Format("Preprocessor/{0}.txt", TestSettings[i].m_szFileName);
