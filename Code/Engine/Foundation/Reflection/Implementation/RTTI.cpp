@@ -17,7 +17,8 @@ ezTypeHashTable* GetTypeHashTable()
 {
   // Prevent static initialization hazard between first ezRTTI instance
   // and the hash table and also make sure it is sufficiently sized before first use.
-  auto CreateTable = []() -> ezTypeHashTable* {
+  auto CreateTable = []() -> ezTypeHashTable*
+  {
     ezTypeHashTable* table = new ezTypeHashTable();
     table->m_Table.Reserve(512);
     return table;
@@ -53,7 +54,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions,
   ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
   const ezRTTI* (*fnVerifyParent)())
-  : m_szTypeName(szName)
+  : m_sTypeName(szName)
   , m_Properties(properties)
   , m_Functions(functions)
   , m_Attributes(attributes)
@@ -76,14 +77,18 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
 #endif
   }
 
-  if (m_szTypeName)
+  if (!m_sTypeName.IsEmpty())
+  {
     RegisterType();
+  }
 }
 
 ezRTTI::~ezRTTI()
 {
-  if (m_szTypeName)
+  if (!m_sTypeName.IsEmpty())
+  {
     UnregisterType();
+  }
 }
 
 void ezRTTI::GatherDynamicMessageHandlers()
@@ -153,7 +158,7 @@ void ezRTTI::VerifyCorrectness() const
   if (m_VerifyParent != nullptr)
   {
     EZ_ASSERT_DEV(m_VerifyParent() == m_pParentType, "Type '{0}': The given parent type '{1}' does not match the actual parent type '{2}'",
-      m_szTypeName, (m_pParentType != nullptr) ? m_pParentType->GetTypeName() : "null",
+      m_sTypeName, (m_pParentType != nullptr) ? m_pParentType->GetTypeName() : "null",
       (m_VerifyParent() != nullptr) ? m_VerifyParent()->GetTypeName() : "null");
   }
 
@@ -169,7 +174,7 @@ void ezRTTI::VerifyCorrectness() const
         const bool bNewProperty = !Known.Find(pInstance->m_Properties[i]->GetPropertyName()).IsValid();
         Known.Insert(pInstance->m_Properties[i]->GetPropertyName());
 
-        EZ_ASSERT_DEV(bNewProperty, "{0}: The property with name '{1}' is already defined in type '{2}'.", m_szTypeName,
+        EZ_ASSERT_DEV(bNewProperty, "{0}: The property with name '{1}' is already defined in type '{2}'.", m_sTypeName,
           pInstance->m_Properties[i]->GetPropertyName(), pInstance->GetTypeName());
       }
 
@@ -209,18 +214,18 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
 
 void ezRTTI::RegisterType()
 {
-  m_uiTypeNameHash = ezHashingUtils::StringHash(m_szTypeName);
+  m_uiTypeNameHash = ezHashingUtils::StringHash(m_sTypeName);
 
   auto pTable = GetTypeHashTable();
   EZ_LOCK(pTable->m_Mutex);
-  pTable->m_Table.Insert(m_szTypeName, this);
+  pTable->m_Table.Insert(m_sTypeName, this);
 }
 
 void ezRTTI::UnregisterType()
 {
   auto pTable = GetTypeHashTable();
   EZ_LOCK(pTable->m_Mutex);
-  pTable->m_Table.Remove(m_szTypeName);
+  pTable->m_Table.Remove(m_sTypeName);
 }
 
 void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_properties) const
@@ -377,13 +382,13 @@ const ezDynamicArray<const ezRTTI*>& ezRTTI::GetAllTypesDerivedFrom(
   {
     out_derivedTypes.Sort(
       [](const ezRTTI* p1, const ezRTTI* p2) -> bool
-      { return ezStringUtils::Compare(p1->GetTypeName(), p2->GetTypeName()) < 0; });
+      { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
   }
 
   return out_derivedTypes;
 }
 
-void ezRTTI::AssignPlugin(const char* szPluginName)
+void ezRTTI::AssignPlugin(ezStringView sPluginName)
 {
   // assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet
 
@@ -391,9 +396,9 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
 
   while (pInstance)
   {
-    if (pInstance->m_szPluginName == nullptr)
+    if (pInstance->m_sPluginName.IsEmpty())
     {
-      pInstance->m_szPluginName = szPluginName;
+      pInstance->m_sPluginName = sPluginName;
       SanityCheckType(pInstance);
 
       pInstance->SetupParentHierarchy();
@@ -518,7 +523,7 @@ void ezRTTI::PluginEventHandler(const ezPluginEvent& EventData)
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new rtti instances and assign them to that new plugin
-      AssignPlugin(EventData.m_szPluginBinary);
+      AssignPlugin(EventData.m_sPluginBinary);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       ezRTTI::VerifyCorrectnessForAllTypes();

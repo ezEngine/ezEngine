@@ -154,7 +154,7 @@ ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_Data, ezLogInte
 
     ezStringView sShaderSource = inout_Data.m_sShaderSource[stage];
 
-    if (!sShaderSource.IsEmpty() && ezStringUtils::FindSubString(sShaderSource, "main") != nullptr)
+    if (!sShaderSource.IsEmpty() && sShaderSource.FindSubString("main") != nullptr)
     {
       if (CompileVulkanShader(inout_Data.m_sSourceFile, sShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {

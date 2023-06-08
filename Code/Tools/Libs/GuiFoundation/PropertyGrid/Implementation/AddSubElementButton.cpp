@@ -89,7 +89,7 @@ struct TypeComparer
       }
     }
 
-    return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0;
+    return a->GetTypeName().Compare(b->GetTypeName()) < 0;
   }
 };
 
@@ -117,7 +117,7 @@ QMenu* ezQtAddSubElementButton::CreateCategoryMenu(const char* szCategory, ezMap
   sPath = szCategory;
   sPath = sPath.GetFileName();
 
-  QMenu* pNewMenu = pParentMenu->addMenu(ezTranslate(sPath.GetData()));
+  QMenu* pNewMenu = pParentMenu->addMenu(ezTranslate(sPath));
   existingMenus[szCategory] = pNewMenu;
 
   return pNewMenu;
@@ -198,6 +198,8 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
       }
     }
 
+    ezStringBuilder tmp;
+
     // second round: create the actions
     for (const ezRTTI* pRtti : supportedTypes)
     {
@@ -208,11 +210,12 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
       const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
       const ezInDevelopmentAttribute* pInDev = pRtti->GetAttributeByType<ezInDevelopmentAttribute>();
 
+
       if (m_pSearchableMenu != nullptr)
       {
         ezStringBuilder fullName;
         fullName = pCatA ? pCatA->GetCategory() : "";
-        fullName.AppendPath(ezTranslate(pRtti->GetTypeName()));
+        fullName.AppendPath(ezTranslate(pRtti->GetTypeName().GetData(tmp)));
 
         if (pInDev)
         {
@@ -225,7 +228,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
       {
         QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
 
-        ezStringBuilder fullName = ezTranslate(pRtti->GetTypeName());
+        ezStringBuilder fullName = ezTranslate(pRtti->GetTypeName().GetData(tmp));
 
         if (pInDev)
         {
@@ -245,14 +248,16 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
     if (m_pSearchableMenu != nullptr)
     {
-      connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant) {
+      connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
+        {
         const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
 
         OnAction(pRtti);
         m_pMenu->close(); });
 
       connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
-        [this](const QString& sText) { s_sLastMenuSearch = sText.toUtf8().data(); });
+        [this](const QString& sText)
+        { s_sLastMenuSearch = sText.toUtf8().data(); });
 
       m_pMenu->addAction(m_pSearchableMenu);
 

@@ -82,7 +82,7 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
   {
     case ezVariant::Type::Invalid:
     {
-      if (ezStringUtils::IsEqual(pRtti->GetTypeName(), "ezVariant"))
+      if (pRtti->GetTypeName() == "ezVariant")
         return "any";
 
       return nullptr;

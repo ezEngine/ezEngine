@@ -10,14 +10,14 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 using ezPluginModule = void*;
 
-void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber)
+void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& sOriginalFile, ezStringBuilder& sCopiedFile, ezUInt8 uiFileCopyNumber)
 {
   sOriginalFile = ezOSFile::GetApplicationDirectory();
-  sOriginalFile.AppendPath(szPluginName);
+  sOriginalFile.AppendPath(sPluginName);
   sOriginalFile.Append(".so");
 
   sCopiedFile = ezOSFile::GetApplicationDirectory();
-  sCopiedFile.AppendPath(szPluginName);
+  sCopiedFile.AppendPath(sPluginName);
 
   if (uiFileCopyNumber > 0)
     sCopiedFile.AppendFormat("{0}", uiFileCopyNumber);
@@ -25,23 +25,25 @@ void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOrigin
   sCopiedFile.Append(".loaded");
 }
 
-ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile)
+ezResult UnloadPluginModule(ezPluginModule& Module, ezStringView sPluginFile)
 {
   if (dlclose(Module) != 0)
   {
-    ezLog::Error("Could not unload plugin '{0}'. Error {1}", szPluginFile, static_cast<const char*>(dlerror()));
+    ezStringBuilder tmp;
+    ezLog::Error("Could not unload plugin '{0}'. Error {1}", sPluginFile.GetData(tmp), static_cast<const char*>(dlerror()));
     return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, const char* szPluginFile)
+ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& Module, ezStringView sPluginFile)
 {
-  Module = dlopen(szFileToLoad, RTLD_NOW | RTLD_GLOBAL);
+  ezStringBuilder tmp;
+  Module = dlopen(sFileToLoad.GetData(tmp), RTLD_NOW | RTLD_GLOBAL);
   if (Module == nullptr)
   {
-    ezLog::Error("Could not load plugin '{0}'. Error {1}.\nSet the environment variable LD_DEBUG=all to get more information.", szPluginFile, static_cast<const char*>(dlerror()));
+    ezLog::Error("Could not load plugin '{0}'. Error {1}.\nSet the environment variable LD_DEBUG=all to get more information.", sPluginFile.GetData(tmp), static_cast<const char*>(dlerror()));
     return EZ_FAILURE;
   }
   return EZ_SUCCESS;

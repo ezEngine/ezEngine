@@ -111,11 +111,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
     while (pRtti)
     {
-      if (ezStringUtils::IsEqual(pRtti->GetTypeName(), "ezTestStruct"))
+      if (pRtti->GetTypeName() == "ezTestStruct")
         bFoundStruct = true;
-      if (ezStringUtils::IsEqual(pRtti->GetTypeName(), "ezTestClass1"))
+      if (pRtti->GetTypeName() == "ezTestClass1")
         bFoundClass1 = true;
-      if (ezStringUtils::IsEqual(pRtti->GetTypeName(), "ezTestClass2"))
+      if (pRtti->GetTypeName() == "ezTestClass2")
         bFoundClass2 = true;
 
       EZ_TEST_STRING(pRtti->GetPluginName(), "Static");
@@ -328,7 +328,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
     while (pRtti)
     {
-      if (ezStringUtils::IsEqual(pRtti->GetTypeName(), "ezTestStruct2"))
+      if (pRtti->GetTypeName() == "ezTestStruct2")
       {
         bFoundStruct2 = true;
 

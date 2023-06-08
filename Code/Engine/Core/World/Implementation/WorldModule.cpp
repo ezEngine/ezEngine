@@ -192,10 +192,11 @@ void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezR
   ezDynamicArray<ezPlugin::PluginInfo> infos;
   ezPlugin::GetAllPluginInfos(infos);
 
-  auto HasManualDependency = [&](const char* szPluginName) -> bool {
+  auto HasManualDependency = [&](ezStringView sPluginName) -> bool
+  {
     for (const auto& p : infos)
     {
-      if (p.m_sName == szPluginName)
+      if (p.m_sName == sPluginName)
       {
         return !p.m_LoadFlags.IsSet(ezPluginLoadFlags::CustomDependency);
       }
@@ -204,8 +205,8 @@ void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezR
     return false;
   };
 
-  const char* szPlugin1 = m_CreatorFuncs[uiParentTypeId].m_pRtti->GetPluginName();
-  const char* szPlugin2 = pRtti->GetPluginName();
+  ezStringView szPlugin1 = m_CreatorFuncs[uiParentTypeId].m_pRtti->GetPluginName();
+  ezStringView szPlugin2 = pRtti->GetPluginName();
 
   const bool bPrio1 = HasManualDependency(szPlugin1);
   const bool bPrio2 = HasManualDependency(szPlugin2);

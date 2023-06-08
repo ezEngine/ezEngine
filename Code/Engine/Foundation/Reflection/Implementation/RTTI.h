@@ -48,7 +48,7 @@ public:
   static void VerifyCorrectnessForAllTypes();
 
   /// \brief Returns the name of this type.
-  EZ_ALWAYS_INLINE const char* GetTypeName() const { return m_szTypeName; } // [tested]
+  EZ_ALWAYS_INLINE ezStringView GetTypeName() const { return m_sTypeName; } // [tested]
 
   /// \brief Returns the hash of the name of this type.
   EZ_ALWAYS_INLINE ezUInt64 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
@@ -112,7 +112,7 @@ public:
   ezAbstractProperty* FindPropertyByName(ezStringView sName, bool bSearchBaseTypes = true) const; // [tested]
 
   /// \brief Returns the name of the plugin which this type is declared in.
-  EZ_ALWAYS_INLINE const char* GetPluginName() const { return m_szPluginName; } // [tested]
+  EZ_ALWAYS_INLINE ezStringView GetPluginName() const { return m_sPluginName; } // [tested]
 
   /// \brief Returns the array of message handlers that this type has.
   EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
@@ -152,8 +152,8 @@ public:
     const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_derivedTypes, bool bSortByName);
 
 protected:
-  const char* m_szPluginName = nullptr;
-  const char* m_szTypeName;
+  ezStringView m_sPluginName;
+  ezStringView m_sTypeName;
   ezArrayPtr<ezAbstractProperty*> m_Properties;
   ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
@@ -188,7 +188,7 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);
 
   /// \brief Assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet.
-  static void AssignPlugin(const char* szPluginName);
+  static void AssignPlugin(ezStringView sPluginName);
 
   static void SanityCheckType(ezRTTI* pType);
 

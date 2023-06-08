@@ -34,7 +34,7 @@ ezResult ezTypeScriptBinding::Init_Component()
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezComponentHandle hHandle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent)
+ezResult ezTypeScriptBinding::RegisterComponent(ezStringView sTypeName0, ezComponentHandle hHandle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent)
 {
   if (hHandle.IsInvalidated())
     return EZ_FAILURE;
@@ -55,7 +55,7 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
   duk.PushGlobalObject(); // [ global ]
   EZ_DUK_VERIFY_STACK(duk, +1);
 
-  ezStringBuilder sTypeName = szTypeName;
+  ezStringBuilder sTypeName = sTypeName0;
 
   if (bIsNativeComponent)
   {

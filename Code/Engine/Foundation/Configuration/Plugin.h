@@ -23,7 +23,7 @@ struct ezPluginEvent
   };
 
   Type m_EventType;                       ///< Which type of event this is.
-  const char* m_szPluginBinary = nullptr; ///< The file name of the affected plugin.
+  ezStringView m_sPluginBinary; ///< The file name of the affected plugin.
 };
 
 /// \brief Flags for loading a plugin.
@@ -84,7 +84,7 @@ public:
   static void EndPluginChanges();
 
   /// \brief Checks whether a plugin with the given name exists. Does not guarantee that the plugin could be loaded successfully.
-  static bool ExistsPluginFile(const char* szPluginFile);
+  static bool ExistsPluginFile(ezStringView sPluginFile);
 
   /// \brief Tries to load a DLL dynamically into the program.
   ///
@@ -92,7 +92,7 @@ public:
   /// EZ_FAILURE is returned if the DLL cannot be located or it could not be loaded properly.
   ///
   /// See ezPluginLoadFlags for additional options.
-  static ezResult LoadPlugin(const char* szPluginFile, ezBitflags<ezPluginLoadFlags> flags = ezPluginLoadFlags::Default); // [tested]
+  static ezResult LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadFlags> flags = ezPluginLoadFlags::Default); // [tested]
 
   /// \brief Unloads all previously loaded plugins in the reverse order in which they were loaded.
   ///
@@ -125,7 +125,7 @@ public:
   static void GetAllPluginInfos(ezDynamicArray<PluginInfo>& ref_infos);
 
   /// \internal Determines the plugin paths.
-  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber);
+  static void GetPluginPaths(ezStringView sPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber);
 
 private:
   ezPlugin() = delete;

@@ -12,10 +12,8 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 using ezPluginModule = HMODULE;
 
-void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber)
+void ezPlugin::GetPluginPaths(ezStringView sPluginName, ezStringBuilder& ref_sOriginalFile, ezStringBuilder& ref_sCopiedFile, ezUInt8 uiFileCopyNumber)
 {
-  auto sPluginName = ezStringView(szPluginName);
-
   ref_sOriginalFile = ezOSFile::GetApplicationDirectory();
   ref_sOriginalFile.AppendPath(sPluginName);
   ref_sOriginalFile.Append(".dll");
@@ -39,14 +37,14 @@ void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& ref_sOr
   ref_sCopiedFile.Append(".loaded");
 }
 
-ezResult UnloadPluginModule(ezPluginModule& ref_pModule, const char* szPluginFile)
+ezResult UnloadPluginModule(ezPluginModule& ref_pModule, ezStringView sPluginFile)
 {
   // reset last error code
   SetLastError(ERROR_SUCCESS);
 
   if (FreeLibrary(ref_pModule) == FALSE)
   {
-    ezLog::Error("Could not unload plugin '{0}'. Error-Code {1}", szPluginFile, ezArgErrorCode(GetLastError()));
+    ezLog::Error("Could not unload plugin '{0}'. Error-Code {1}", sPluginFile, ezArgErrorCode(GetLastError()));
     return EZ_FAILURE;
   }
 
@@ -54,23 +52,23 @@ ezResult UnloadPluginModule(ezPluginModule& ref_pModule, const char* szPluginFil
   return EZ_SUCCESS;
 }
 
-ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& ref_pModule, const char* szPluginFile)
+ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& ref_pModule, ezStringView sPluginFile)
 {
   // reset last error code
   SetLastError(ERROR_SUCCESS);
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  ezStringBuilder relativePath = szFileToLoad;
+  ezStringBuilder relativePath = sFileToLoad;
   EZ_SUCCEED_OR_RETURN(relativePath.MakeRelativeTo(ezOSFile::GetApplicationDirectory()));
   ref_pModule = LoadPackagedLibrary(ezStringWChar(relativePath).GetData(), 0);
 #  else
-  ref_pModule = LoadLibraryW(ezStringWChar(szFileToLoad).GetData());
+  ref_pModule = LoadLibraryW(ezStringWChar(sFileToLoad).GetData());
 #  endif
 
   if (ref_pModule == nullptr)
   {
     const DWORD err = GetLastError();
-    ezLog::Error("Could not load plugin '{0}'. Error-Code {1}", szPluginFile, ezArgErrorCode(err));
+    ezLog::Error("Could not load plugin '{0}'. Error-Code {1}", sPluginFile, ezArgErrorCode(err));
 
     if (err == 126)
     {

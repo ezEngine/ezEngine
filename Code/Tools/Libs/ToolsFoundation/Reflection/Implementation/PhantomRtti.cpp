@@ -13,8 +13,8 @@ ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUI
   m_sTypeNameStorage = szName;
   m_sPluginNameStorage = szPluginName;
 
-  m_szTypeName = m_sTypeNameStorage.GetData();
-  m_szPluginName = m_sPluginNameStorage.GetData();
+  m_sTypeName = m_sTypeNameStorage.GetData();
+  m_sPluginName = m_sPluginNameStorage.GetData();
 
   RegisterType();
 }
@@ -22,7 +22,7 @@ ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUI
 ezPhantomRTTI::~ezPhantomRTTI()
 {
   UnregisterType();
-  m_szTypeName = nullptr;
+  m_sTypeName = nullptr;
 
   for (auto pProp : m_PropertiesStorage)
   {
@@ -123,7 +123,7 @@ void ezPhantomRTTI::UpdateType(ezReflectedTypeDescriptor& desc)
   ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), 0, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags);
 
   m_sPluginNameStorage = desc.m_sPluginName;
-  m_szPluginName = m_sPluginNameStorage.GetData();
+  m_sPluginName = m_sPluginNameStorage.GetData();
 
   SetProperties(desc.m_Properties);
   SetFunctions(desc.m_Functions);

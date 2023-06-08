@@ -86,7 +86,7 @@ void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new CVars and assign them to that new plugin
-      AssignSubSystemPlugin(EventData.m_szPluginBinary);
+      AssignSubSystemPlugin(EventData.m_sPluginBinary);
 
       // now load the state of all CVars
       LoadCVars();

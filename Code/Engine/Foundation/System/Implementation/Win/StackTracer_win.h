@@ -153,16 +153,18 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
 
   if (false) // e.m_EventType == ezPluginEvent::AfterLoading)
   {
+    ezStringBuilder tmp;
+
     char buffer[1024];
     strcpy_s(buffer, ezOSFile::GetApplicationDirectory().GetStartPointer());
-    strcat_s(buffer, e.m_szPluginBinary);
+    strcat_s(buffer, e.m_sPluginBinary.GetData(tmp));
     strcat_s(buffer, ".dll");
 
     wchar_t szPluginPath[1024];
     mbstowcs(szPluginPath, buffer, EZ_ARRAY_SIZE(szPluginPath));
 
     wchar_t szPluginName[256];
-    mbstowcs(szPluginName, e.m_szPluginBinary, EZ_ARRAY_SIZE(szPluginName));
+    mbstowcs(szPluginName, e.m_sPluginBinary.GetData(tmp), EZ_ARRAY_SIZE(szPluginName));
 
     HANDLE currentProcess = GetCurrentProcess();
 
@@ -172,7 +174,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
       DWORD err = GetLastError();
       if (err != ERROR_SUCCESS)
       {
-        ezLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_szPluginBinary, ezArgErrorCode(err));
+        ezLog::Error("StackTracer could not load symbols for '{0}'. Error-Code {1}", e.m_sPluginBinary, ezArgErrorCode(err));
       }
 
       return;
@@ -191,7 +193,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
         MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
       char errStr[1024];
-      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_szPluginBinary, err, static_cast<char*>(lpMsgBuf));
+      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_sPluginBinary.GetData(tmp), err, static_cast<char*>(lpMsgBuf));
       ezLog::Print(errStr);
 
       LocalFree(lpMsgBuf);

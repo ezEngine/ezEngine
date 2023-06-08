@@ -17,7 +17,7 @@ public:
   ezShaderTypeRegistry();
   ~ezShaderTypeRegistry();
 
-  const ezRTTI* GetShaderType(const char* szShaderPath);
+  const ezRTTI* GetShaderType(ezStringView sShaderPath);
   const ezRTTI* GetShaderBaseType() const { return m_pBaseType; }
 
 private:

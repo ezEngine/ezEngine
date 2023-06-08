@@ -389,7 +389,7 @@ private:
 
   // Needed to prevent including ezRTTI in ezVariant.h
   static bool IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2);
-  static const char* GetTypeName(const ezRTTI* pType);
+  static ezStringView GetTypeName(const ezRTTI* pType);
 
   template <typename T>
   T ConvertNumber() const;

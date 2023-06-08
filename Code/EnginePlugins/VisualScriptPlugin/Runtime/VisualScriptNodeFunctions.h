@@ -42,7 +42,7 @@ using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*
   }
 
 template <typename T>
-const char* GetTypeName()
+ezStringView GetTypeName()
 {
   if constexpr (std::is_same<T, ezTypedPointer>::value)
   {

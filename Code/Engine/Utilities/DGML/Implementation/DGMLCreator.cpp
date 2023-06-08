@@ -57,12 +57,12 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& ref_gr
       // Add components
       for (auto component : pObject->GetComponents())
       {
-        auto szComponentName = component->GetDynamicRTTI()->GetTypeName();
+        auto sComponentName = component->GetDynamicRTTI()->GetTypeName();
 
         ezDGMLGraph::NodeDesc componentND;
         componentND.m_Color = ezColor::LimeGreen;
         componentND.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
-        auto componentNodeId = m_Graph.AddNode(szComponentName, &componentND);
+        auto componentNodeId = m_Graph.AddNode(sComponentName, &componentND);
 
         // And add the link to the game object
 

@@ -10,7 +10,7 @@
 
 ezCopyOnBroadcastEvent<const ezPhantomRttiManagerEvent&> ezPhantomRttiManager::s_Events;
 
-ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::s_NameToPhantom;
+ezHashTable<ezStringView, ezPhantomRTTI*> ezPhantomRttiManager::s_NameToPhantom;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)

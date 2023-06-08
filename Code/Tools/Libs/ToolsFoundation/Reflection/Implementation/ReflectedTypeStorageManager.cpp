@@ -291,8 +291,7 @@ void ezReflectedTypeStorageManager::Shutdown()
 
     for (auto inst : pMapping->m_Instances)
     {
-      const char* sz = inst->GetType()->GetTypeName();
-      ezLog::Error("Type '{0}' survived shutdown!", sz);
+      ezLog::Error("Type '{0}' survived shutdown!", inst->GetType()->GetTypeName());
     }
 
     EZ_ASSERT_DEV(pMapping->m_Instances.IsEmpty(), "A type was removed which still has instances using the type!");
@@ -349,12 +348,12 @@ void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManagerE
       ReflectedTypeStorageMapping* pMapping = s_ReflectedTypeToStorageMapping[e.m_pChangedType];
       EZ_ASSERT_DEV(pMapping != nullptr, "A type was updated but no mapping exists for it!");
 
-      if (pNewType->GetParentType() != nullptr && ezStringUtils::IsEqual(pNewType->GetParentType()->GetTypeName(), "ezEnumBase"))
+      if (pNewType->GetParentType() != nullptr && pNewType->GetParentType()->GetTypeName() == "ezEnumBase")
       {
         // EZ_ASSERT_DEV(false, "Updating enums not implemented yet!");
         break;
       }
-      else if (pNewType->GetParentType() != nullptr && ezStringUtils::IsEqual(pNewType->GetParentType()->GetTypeName(), "ezBitflagsBase"))
+      else if (pNewType->GetParentType() != nullptr && pNewType->GetParentType()->GetTypeName() == "ezBitflagsBase")
       {
         EZ_ASSERT_DEV(false, "Updating bitflags not implemented yet!");
       }

@@ -108,7 +108,7 @@ public:
     ezMemoryStreamReader m_Reader;
     ezDependencyFile m_RequiredFiles;
 
-    ezResult PrePropFileLocator(ezStringView sCurAbsoluteFile, ezStringView szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
+    ezResult PrePropFileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
   };
 
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;

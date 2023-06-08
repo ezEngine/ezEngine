@@ -137,7 +137,7 @@ void ezLongOpControllerManager::UnregisterLongOp(const ezUuid& documentGuid, con
     auto& opInfoPtr = m_ProxyOps[i];
 
     if (opInfoPtr->m_ComponentGuid == componentGuid && opInfoPtr->m_DocumentGuid == documentGuid &&
-        ezStringUtils::IsEqual(opInfoPtr->m_pProxyOp->GetDynamicRTTI()->GetTypeName(), szLongOpType))
+        opInfoPtr->m_pProxyOp->GetDynamicRTTI()->GetTypeName() == szLongOpType)
     {
       RemoveOperation(opInfoPtr->m_OperationGuid);
       return;

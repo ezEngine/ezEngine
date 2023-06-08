@@ -9,7 +9,7 @@ ezScriptRTTI::ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, Functi
   , m_FunctionStorage(std::move(functions))
   , m_MessageHandlerStorage(std::move(messageHandlers))
 {
-  m_szTypeName = m_sTypeNameStorage.GetData();
+  m_sTypeName = m_sTypeNameStorage.GetData();
 
   for (auto& pFunction : m_FunctionStorage)
   {
@@ -39,7 +39,7 @@ ezScriptRTTI::ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, Functi
 ezScriptRTTI::~ezScriptRTTI()
 {
   UnregisterType();
-  m_szTypeName = nullptr;
+  m_sTypeName = {};
 }
 
 const ezAbstractFunctionProperty* ezScriptRTTI::GetFunctionByIndex(ezUInt32 uiIndex) const

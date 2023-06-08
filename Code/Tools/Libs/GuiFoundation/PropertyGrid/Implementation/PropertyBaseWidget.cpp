@@ -538,7 +538,8 @@ void ezQtUnsupportedPropertyWidget::OnInit()
 {
   ezQtScopedBlockSignals bs(m_pWidget);
 
-  QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName());
+  ezStringBuilder tmp;
+  QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName().GetData(tmp));
   if (!m_sMessage.IsEmpty())
     sMessage += QStringLiteral(" (") % QString::fromUtf8(m_sMessage, m_sMessage.GetElementCount()) % QStringLiteral(")");
   m_pWidget->setText(sMessage);
@@ -697,7 +698,8 @@ void ezQtPropertyPointerWidget::UpdateTitle(const ezRTTI* pType /*= nullptr*/)
   ezStringBuilder sb = ezTranslate(m_pProp->GetPropertyName());
   if (pType != nullptr)
   {
-    sb.Append(": ", ezTranslate(pType->GetTypeName()));
+    ezStringBuilder tmp;
+    sb.Append(": ", ezTranslate(pType->GetTypeName().GetData(tmp)));
   }
   m_pGroup->SetTitle(sb);
 }
@@ -1627,8 +1629,8 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
 
     // Label
     {
-      ezStringBuilder sTitle;
-      sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName()));
+      ezStringBuilder sTitle, tmp;
+      sTitle.Format("[{0}] - {1}", m_Keys[index].ConvertTo<ezString>(), ezTranslate(pCommonType->GetTypeName().GetData(tmp)));
 
       if (auto pInDev = pCommonType->GetAttributeByType<ezInDevelopmentAttribute>())
       {
@@ -1647,7 +1649,8 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
 
     // help URL
     {
-      QString url = ezTranslateHelpURL(pCommonType->GetTypeName());
+      ezStringBuilder tmp;
+      QString url = ezTranslateHelpURL(pCommonType->GetTypeName().GetData(tmp));
 
       if (!url.isEmpty())
       {

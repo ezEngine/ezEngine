@@ -54,19 +54,19 @@ public:
 
   /// \brief Adds a node to the graph.
   /// Adds a node to the graph and returns the node id which can be used to reference the node later to add connections etc.
-  NodeId AddNode(const char* szTitle, const NodeDesc* pDesc = nullptr);
+  NodeId AddNode(ezStringView sTitle, const NodeDesc* pDesc = nullptr);
 
   /// \brief Adds a DGML node that can act as a group for other nodes
-  NodeId AddGroup(const char* szTitle, GroupType type, const NodeDesc* pDesc = nullptr);
+  NodeId AddGroup(ezStringView sTitle, GroupType type, const NodeDesc* pDesc = nullptr);
 
   /// \brief Inserts a node into an existing group node.
   void AddNodeToGroup(NodeId node, NodeId group);
 
   /// \brief Adds a directed connection to the graph (an arrow pointing from source to target node).
-  ConnectionId AddConnection(NodeId source, NodeId target, const char* szLabel = nullptr);
+  ConnectionId AddConnection(NodeId source, NodeId target, ezStringView sLabel = {});
 
   /// \brief Adds a property type. All properties currently use the data type 'string'
-  PropertyId AddPropertyType(const char* szName);
+  PropertyId AddPropertyType(ezStringView sName);
 
   /// \brief Adds a property of the specified type with the given value to a node
   void AddNodeProperty(NodeId node, PropertyId property, const ezFormatString& fmt);
