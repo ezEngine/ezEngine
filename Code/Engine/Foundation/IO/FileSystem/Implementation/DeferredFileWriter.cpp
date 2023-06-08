@@ -44,8 +44,6 @@ ezResult ezDeferredFileWriter::Close(bool* out_pWasWrittenTo /*= nullptr*/)
       ezUInt8 tmp1[1024 * 4];
       ezUInt8 tmp2[1024 * 4];
 
-      ezUInt64 readLeft = m_Storage.GetStorageSize64();
-
       ezMemoryStreamReader storageReader(&m_Storage);
 
       while (true)

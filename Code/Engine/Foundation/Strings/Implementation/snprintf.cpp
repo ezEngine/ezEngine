@@ -319,7 +319,7 @@ static void OutputReverseString(char* szOutputBuffer, unsigned int uiBufferSize,
   {
     --iStringLength;
 
-    OutputChar(szOutputBuffer, uiBufferSize, ref_uiWritePos, szString[iStringLength]);
+    OutputChar(szOutputBuffer, uiBufferSize, ref_uiWritePos, szString[iStringLength]); // NOLINT: False positive from clang-tidy
   }
 }
 

@@ -12,7 +12,7 @@ struct ezLoggingEventData;
 /// easily.
 /// The default implementation uses ezConsoleInterpreter::Lua as the interpreter for commands typed into it.
 /// The interpreter can be replaced with custom implementations.
-class EZ_CORE_DLL ezQuakeConsole : public ezConsole
+class EZ_CORE_DLL ezQuakeConsole final : public ezConsole
 {
 public:
   ezQuakeConsole();

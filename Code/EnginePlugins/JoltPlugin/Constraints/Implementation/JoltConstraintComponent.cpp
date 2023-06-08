@@ -214,7 +214,7 @@ void ezJoltConstraintComponent::SerializeComponent(ezWorldWriter& inout_stream) 
 void ezJoltConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
 
   auto& s = inout_stream.GetStream();
@@ -346,6 +346,13 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID, e
         break;
 
       pObject = pObject->GetParent();
+    }
+
+    if (pObject == nullptr)
+    {
+      ezLog::Error("{0} '{1}' couldn't find ezJoltDynamicActorComponent in hierarchy. Constraint is ignored.", GetDynamicRTTI()->GetTypeName(),
+        GetOwner()->GetName());
+      return EZ_FAILURE;
     }
 
     if (pRbComp == nullptr)

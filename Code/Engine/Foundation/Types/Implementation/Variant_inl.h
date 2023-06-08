@@ -397,7 +397,7 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = nullptr*/) const
     return Cast<T>();
   }
 
-  T result;
+  T result = {};
   bool bSuccessful = true;
   ezVariantHelper::To(*this, result, bSuccessful);
 

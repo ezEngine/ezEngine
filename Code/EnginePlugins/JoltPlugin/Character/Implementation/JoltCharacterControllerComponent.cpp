@@ -69,7 +69,7 @@ void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout
 void ezJoltCharacterControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_DebugFlags;
@@ -572,7 +572,6 @@ void ezJoltCharacterControllerComponent::CreatePresenceBody()
 
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
-  auto* pMaterial = ezJoltCore::GetDefaultMaterial();
 
   JPH::BodyCreationSettings bodyCfg;
   bodyCfg.SetShape(m_pCharacter->GetShape());

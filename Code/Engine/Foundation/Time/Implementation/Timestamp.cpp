@@ -226,7 +226,7 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgDateTime& ar
 
     if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTimeZone) == ezArgDateTime::ShowTimeZone)
     {
-      offset += ezStringUtils::snprintf(szTmp + offset, uiLength - offset, " (UTC)");
+      ezStringUtils::snprintf(szTmp + offset, uiLength - offset, " (UTC)");
     }
   }
 

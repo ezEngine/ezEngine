@@ -360,6 +360,7 @@ void ezGameObject::SetParent(const ezGameObjectHandle& hParent, ezGameObject::Tr
 
   ezGameObject* pParent = nullptr;
   bool _ = pWorld->TryGetObject(hParent, pParent);
+  EZ_IGNORE_UNUSED(_);
   pWorld->SetParent(this, pParent, preserve);
 }
 

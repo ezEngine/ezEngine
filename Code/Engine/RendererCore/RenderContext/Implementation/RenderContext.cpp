@@ -601,13 +601,20 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
                                          ezRenderContextFlags::ConstantBufferBindingChanged)))
     {
       if (pShaderPermutation == nullptr)
+      {
         pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::BlockTillLoaded);
+      }
     }
 
     ezLogBlock applyBindingsBlock("Applying Shader Bindings", pShaderPermutation != nullptr ? pShaderPermutation->GetResourceDescription().GetData() : "");
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::UAVBindingChanged))
     {
+      if (pShaderPermutation == nullptr)
+      {
+        return EZ_FAILURE;
+      }
+
       // RWTextures/UAV are usually only supported in compute and pixel shader.
       if (auto pBin = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::ComputeShader))
       {
@@ -623,6 +630,11 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::TextureBindingChanged))
     {
+      if (pShaderPermutation == nullptr)
+      {
+        return EZ_FAILURE;
+      }
+
       for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
         if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum)stage))
@@ -636,6 +648,11 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::SamplerBindingChanged))
     {
+      if (pShaderPermutation == nullptr)
+      {
+        return EZ_FAILURE;
+      }
+
       for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
         if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum)stage))
@@ -649,6 +666,11 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::BufferBindingChanged))
     {
+      if (pShaderPermutation == nullptr)
+      {
+        return EZ_FAILURE;
+      }
+
       for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
         if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum)stage))
@@ -670,6 +692,11 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ConstantBufferBindingChanged))
     {
+      if (pShaderPermutation == nullptr)
+      {
+        return EZ_FAILURE;
+      }
+
       for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
         if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum)stage))

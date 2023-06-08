@@ -44,7 +44,7 @@ public:
 class ezQtVisualScriptConnection_Legacy : public ezQtConnection
 {
 public:
-  ezQtVisualScriptConnection_Legacy(QGraphicsItem* parent = 0);
+  ezQtVisualScriptConnection_Legacy(QGraphicsItem* pParent = 0);
 
   virtual QPen DeterminePen() const override;
 

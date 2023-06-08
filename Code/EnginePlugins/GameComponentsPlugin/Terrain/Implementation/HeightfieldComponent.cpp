@@ -376,7 +376,6 @@ void ezHeightfieldComponent::BuildGeometry(ezGeometry& geom) const
 
   const ezUInt32 uiNumVerticesX = ezMath::Clamp(m_vColMeshTesselation.x + 1u, 5u, 512u);
   const ezUInt32 uiNumVerticesY = ezMath::Clamp(m_vColMeshTesselation.y + 1u, 5u, 512u);
-  const ezUInt32 uiNumTriangles = (uiNumVerticesX - 1) * (uiNumVerticesY - 1) * 2;
 
   const ezVec3 vSize(m_vHalfExtents.x * 2, m_vHalfExtents.y * 2, m_fHeight);
   const ezVec2 vToNDC = ezVec2(1.0f / (uiNumVerticesX - 1), 1.0f / (uiNumVerticesY - 1));

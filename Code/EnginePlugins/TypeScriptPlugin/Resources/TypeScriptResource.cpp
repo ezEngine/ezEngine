@@ -23,7 +23,7 @@ namespace
     virtual const ezRTTI* GetArgumentType(ezUInt32 uiParamIndex) const override { return nullptr; }
     virtual ezBitflags<ezPropertyFlags> GetArgumentFlags(ezUInt32 uiParamIndex) const override { return ezPropertyFlags::Void; }
 
-    virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue) const override
+    virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& ref_returnValue) const override
     {
       auto pTypeScriptInstance = static_cast<ezTypeScriptInstance*>(pInstance);
       ezTypeScriptBinding& binding = pTypeScriptInstance->GetBinding();
@@ -53,9 +53,9 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezTypeScriptInstance::ezTypeScriptInstance(ezComponent& owner, ezTypeScriptBinding& binding)
-  : m_Binding(binding)
-  , m_Component(owner)
+ezTypeScriptInstance::ezTypeScriptInstance(ezComponent& in_owner, ezTypeScriptBinding& ref_binding)
+  : m_Binding(ref_binding)
+  , m_Component(in_owner)
 {
 }
 

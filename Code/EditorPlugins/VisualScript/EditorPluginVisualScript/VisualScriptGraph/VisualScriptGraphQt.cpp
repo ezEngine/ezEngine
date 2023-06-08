@@ -201,8 +201,8 @@ void ezQtVisualScriptNode::UpdateState()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptNodeScene::ezQtVisualScriptNodeScene(QObject* parent /*= nullptr*/)
-  : ezQtNodeScene(parent)
+ezQtVisualScriptNodeScene::ezQtVisualScriptNodeScene(QObject* pParent /*= nullptr*/)
+  : ezQtNodeScene(pParent)
 {
 }
 

@@ -8,7 +8,7 @@
 
 namespace
 {
-  ezResult ExtractPropertyName(ezStringView sPinName, ezStringView& out_sPropertyName, ezUInt32* out_uiArrayIndex = nullptr)
+  ezResult ExtractPropertyName(ezStringView sPinName, ezStringView& out_sPropertyName, ezUInt32* out_pArrayIndex = nullptr)
   {
     const char* szBracket = sPinName.FindSubString("[");
     if (szBracket == nullptr)
@@ -16,9 +16,9 @@ namespace
 
     out_sPropertyName = ezStringView(sPinName.GetStartPointer(), szBracket);
 
-    if (out_uiArrayIndex != nullptr)
+    if (out_pArrayIndex != nullptr)
     {
-      return ezConversionUtils::StringToUInt(szBracket + 1, *out_uiArrayIndex);
+      return ezConversionUtils::StringToUInt(szBracket + 1, *out_pArrayIndex);
     }
 
     return EZ_SUCCESS;

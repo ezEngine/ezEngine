@@ -28,9 +28,6 @@ ezSimplifiedDataExtractor::~ezSimplifiedDataExtractor() = default;
 void ezSimplifiedDataExtractor::PostSortAndBatch(
   const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
-  const ezCamera* pCamera = view.GetCullingCamera();
-  const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
-
   ezSimplifiedDataCPU* pData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezSimplifiedDataCPU);
 
   pData->m_uiSkyIrradianceIndex = view.GetWorld()->GetIndex();

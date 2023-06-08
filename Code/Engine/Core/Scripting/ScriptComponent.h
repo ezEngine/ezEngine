@@ -39,7 +39,7 @@ public:
   ezScriptComponent();
   ~ezScriptComponent();
 
-  void BroadcastEventMsg(ezEventMessage& msg);
+  void BroadcastEventMsg(ezEventMessage& inout_msg);
 
   void SetScriptClass(const ezScriptClassResourceHandle& hScript);
   const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; }

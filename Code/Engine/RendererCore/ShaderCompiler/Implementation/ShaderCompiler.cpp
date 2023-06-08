@@ -399,7 +399,6 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
       {
         sProcessed[stage].Clear();
         spd.m_szShaderSource[stage] = m_StageSourceFile[stage];
-        uiSourceStringLen = m_StageSourceFile[stage].GetElementCount();
 
         ezLog::Error(pLog, "Shader preprocessing failed");
         return EZ_FAILURE;

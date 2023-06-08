@@ -9,7 +9,7 @@ class ezTypeScriptBinding;
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptInstance : public ezScriptInstance
 {
 public:
-  ezTypeScriptInstance(ezComponent& owner, ezTypeScriptBinding& binding);
+  ezTypeScriptInstance(ezComponent& in_owner, ezTypeScriptBinding& ref_binding);
 
   virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) override;
 

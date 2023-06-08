@@ -517,6 +517,7 @@ void ezJoltRagdollComponent::RetrieveRagdollPose()
     }
 
     const JPH::BodyID bodyId = m_pRagdoll->GetBodyID(m_Limbs[uiLimbIdx].m_uiPartIndex);
+    EZ_ASSERT_DEBUG(!bodyId.IsInvalid(), "Invalid limb -> body mapping");
     JPH::BodyLockRead bodyRead(pModule->GetJoltSystem()->GetBodyLockInterface(), bodyId);
 
     const ezTransform limbGlobalPose = ezJoltConversionUtils::ToTransform(bodyRead.GetBody().GetPosition(), bodyRead.GetBody().GetRotation());
@@ -939,7 +940,7 @@ void ezJoltRagdollComponent::SetupLimbJoints(const ezSkeletonResource* pSkeleton
 
   // the main direction of Jolt bones is +X (for bone limits and such)
   // therefore the main direction of the source bones has to be adjusted
-  const ezQuat qBoneDirAdjustment = -ezBasisAxis::GetBasisRotation(srcBoneDir, ezBasisAxis::PositiveX);
+  // const ezQuat qBoneDirAdjustment = -ezBasisAxis::GetBasisRotation(srcBoneDir, ezBasisAxis::PositiveX);
 
   const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
 

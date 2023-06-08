@@ -1376,7 +1376,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALTextureHandle hTexture(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALTexture* pTexture = nullptr;
 
-        m_Textures.Remove(hTexture, &pTexture);
+        EZ_VERIFY(m_Textures.Remove(hTexture, &pTexture), "Unexpected invalild texture handle");
 
         DestroyViews(pTexture);
         DestroyTexturePlatform(pTexture);
@@ -1464,7 +1464,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALVertexDeclarationHandle hVertexDeclaration(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALVertexDeclaration* pVertexDeclaration = nullptr;
 
-        m_VertexDeclarations.Remove(hVertexDeclaration, &pVertexDeclaration);
+        EZ_VERIFY(m_VertexDeclarations.Remove(hVertexDeclaration, &pVertexDeclaration), "Unexpected invalid handle");
         m_VertexDeclarationTable.Remove(pVertexDeclaration->GetDescription().CalculateHash());
 
         DestroyVertexDeclarationPlatform(pVertexDeclaration);

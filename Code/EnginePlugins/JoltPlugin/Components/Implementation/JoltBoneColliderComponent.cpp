@@ -56,7 +56,7 @@ void ezJoltBoneColliderComponent::SerializeComponent(ezWorldWriter& inout_stream
 void ezJoltBoneColliderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_bQueryShapeOnly;
@@ -197,14 +197,11 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
     shape.m_qOffsetRot = qFinalBoneRot * geo.m_Transform.m_qRotation;
 
 
-    ezJoltShapeComponent* pShape = nullptr;
-
     if (geo.m_Type == ezSkeletonJointGeometryType::Sphere)
     {
       ezJoltShapeSphereComponent* pShapeComp = nullptr;
       ezJoltShapeSphereComponent::CreateComponent(pGO, pShapeComp);
       pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
-      pShape = pShapeComp;
     }
     else if (geo.m_Type == ezSkeletonJointGeometryType::Box)
     {
@@ -219,7 +216,6 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
       ezJoltShapeBoxComponent* pShapeComp = nullptr;
       ezJoltShapeBoxComponent::CreateComponent(pGO, pShapeComp);
       pShapeComp->SetHalfExtents(ext * 0.5f);
-      pShape = pShapeComp;
     }
     else if (geo.m_Type == ezSkeletonJointGeometryType::Capsule)
     {
@@ -232,7 +228,6 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
       ezJoltShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
       pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
       pShapeComp->SetHeight(geo.m_Transform.m_vScale.x);
-      pShape = pShapeComp;
     }
     else
     {

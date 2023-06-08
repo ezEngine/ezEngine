@@ -63,7 +63,7 @@ void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = inout_stream.GetStream();
 

@@ -12,13 +12,11 @@ EZ_DEFINE_AS_POD_TYPE(ezSimplifiedDataConstants);
 
 ezSimplifiedDataGPU::ezSimplifiedDataGPU()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezSimplifiedDataConstants>();
 }
 
 ezSimplifiedDataGPU::~ezSimplifiedDataGPU()
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 

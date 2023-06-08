@@ -212,7 +212,7 @@ void ezQtVisualScriptPin_Legacy::SetPin(const ezPin& pin)
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtVisualScriptConnection_Legacy::ezQtVisualScriptConnection_Legacy(QGraphicsItem* parent /*= 0*/) {}
+ezQtVisualScriptConnection_Legacy::ezQtVisualScriptConnection_Legacy(QGraphicsItem* pParent /*= 0*/) {}
 
 
 QPen ezQtVisualScriptConnection_Legacy::DeterminePen() const

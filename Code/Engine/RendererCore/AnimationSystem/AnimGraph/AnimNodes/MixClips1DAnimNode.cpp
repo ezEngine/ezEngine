@@ -95,6 +95,7 @@ ezResult ezMixClips1DAnimNode::SerializeNode(ezStreamWriter& stream) const
 ezResult ezMixClips1DAnimNode::DeserializeNode(ezStreamReader& stream)
 {
   const auto version = stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 

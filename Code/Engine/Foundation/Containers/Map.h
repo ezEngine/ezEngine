@@ -306,17 +306,17 @@ private:
   /// \brief Root node of the tree.
   Node* m_pRoot;
 
+  /// \brief Stack of recently discarded nodes to quickly acquire new nodes.
+  Node* m_pFreeElementStack;
+
   /// \brief Sentinel node.
   NilNode m_NilNode;
-
-  /// \brief Number of active nodes in the tree.
-  ezUInt32 m_uiCount;
 
   /// \brief Data store. Keeps all the nodes.
   ezDeque<Node, ezNullAllocatorWrapper, false> m_Elements;
 
-  /// \brief Stack of recently discarded nodes to quickly acquire new nodes.
-  Node* m_pFreeElementStack;
+  /// \brief Number of active nodes in the tree.
+  ezUInt32 m_uiCount;
 
   /// \brief Comparer object
   Comparer m_Comparer;

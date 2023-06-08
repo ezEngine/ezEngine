@@ -34,7 +34,7 @@ class ezQtVisualScriptNodeScene : public ezQtNodeScene
   Q_OBJECT
 
 public:
-  ezQtVisualScriptNodeScene(QObject* parent = nullptr);
+  ezQtVisualScriptNodeScene(QObject* pParent = nullptr);
   ~ezQtVisualScriptNodeScene();
 
   virtual void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);

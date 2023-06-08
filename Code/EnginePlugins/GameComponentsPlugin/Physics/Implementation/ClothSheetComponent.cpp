@@ -110,7 +110,7 @@ void ezClothSheetComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 void ezClothSheetComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_vSize;
@@ -492,7 +492,6 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
 
 
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
