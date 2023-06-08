@@ -352,7 +352,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
                 }
                 else
                 {
-                  func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
+                  func(sPath, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
                   dirPath = sPath;
                   EnsureTrailingSlash(dirPath);
                   auto it = m_pImpl->m_pathToWd.Find(dirPath);
