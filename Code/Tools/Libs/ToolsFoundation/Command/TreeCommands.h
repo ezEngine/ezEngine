@@ -16,8 +16,8 @@ public:
   ezAddObjectCommand();
 
 public: // Properties
-  void SetType(const char* szType);
-  const char* GetType() const;
+  void SetType(ezStringView sType);
+  ezStringView GetType() const;
 
   const ezRTTI* m_pType = nullptr;
   ezUuid m_Parent;

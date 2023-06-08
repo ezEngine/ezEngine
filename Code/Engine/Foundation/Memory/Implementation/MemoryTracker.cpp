@@ -109,9 +109,9 @@ ezAllocatorId ezMemoryTracker::Iterator::Id() const
   return CAST_ITER(m_pData)->Id();
 }
 
-const char* ezMemoryTracker::Iterator::Name() const
+ezStringView ezMemoryTracker::Iterator::Name() const
 {
-  return CAST_ITER(m_pData)->Value().m_sName.GetData();
+  return CAST_ITER(m_pData)->Value().m_sName;
 }
 
 ezAllocatorId ezMemoryTracker::Iterator::ParentId() const
@@ -285,11 +285,11 @@ void ezMemoryTracker::ResetPerFrameAllocatorStats()
 }
 
 // static
-const char* ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
+ezStringView ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
 {
   EZ_LOCK(*s_pTrackerData);
 
-  return s_pTrackerData->m_AllocatorData[allocatorId].m_sName.GetData();
+  return s_pTrackerData->m_AllocatorData[allocatorId].m_sName;
 }
 
 // static

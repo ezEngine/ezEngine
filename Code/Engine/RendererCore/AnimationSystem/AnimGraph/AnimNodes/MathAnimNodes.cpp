@@ -30,12 +30,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezMathExpressionAnimNode::ezMathExpressionAnimNode() = default;
 ezMathExpressionAnimNode::~ezMathExpressionAnimNode() = default;
 
-void ezMathExpressionAnimNode::SetExpression(const char* szSz)
+void ezMathExpressionAnimNode::SetExpression(ezStringView sExpr)
 {
-  m_mExpression.Reset(szSz);
+  m_mExpression.Reset(sExpr);
 }
 
-const char* ezMathExpressionAnimNode::GetExpression() const
+ezStringView ezMathExpressionAnimNode::GetExpression() const
 {
   return m_mExpression.GetExpressionString();
 }

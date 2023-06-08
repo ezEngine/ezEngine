@@ -348,13 +348,6 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID, e
       pObject = pObject->GetParent();
     }
 
-    if (pObject == nullptr)
-    {
-      ezLog::Error("{0} '{1}' couldn't find ezJoltDynamicActorComponent in hierarchy. Constraint is ignored.", GetDynamicRTTI()->GetTypeName(),
-        GetOwner()->GetName());
-      return EZ_FAILURE;
-    }
-
     if (pRbComp == nullptr)
     {
       out_uiJoltBodyID = ezInvalidIndex;

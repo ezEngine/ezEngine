@@ -45,7 +45,7 @@ private:
   void SendRedrawMsg();
   void RestoreResource();
   void UpdateNodeEditorVisibility();
-  void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
+  void OnVseConfigChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
   void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
   void SetupDirectoryWatcher(bool needIt);
 

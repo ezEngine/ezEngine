@@ -148,7 +148,7 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
         {
           ezVariant value = pObject->GetTypeAccessor().GetValue("Components", i);
           auto pChild = context.m_pAccessor->GetObjectManager()->GetObject(value.Get<ezUuid>());
-          if (ezStringUtils::IsEqual(szComponentType, pChild->GetType()->GetTypeName()))
+          if (pChild->GetType()->GetTypeName() == szComponentType)
           {
             output.PushBack(pChild);
             continue; //#TODO: break on found component?

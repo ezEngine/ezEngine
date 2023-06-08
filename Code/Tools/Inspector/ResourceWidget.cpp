@@ -13,7 +13,7 @@
 /// \todo Refcount ? (Max?)
 /// \todo Select Resource -> send to App for preview
 
-void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
+void FormatSize(ezStringBuilder& s, ezStringView sPrefix, ezUInt64 uiSize);
 
 ezQtResourceWidget* ezQtResourceWidget::s_pWidget = nullptr;
 
@@ -367,7 +367,7 @@ void ezQtResourceWidget::on_CheckShowDeleted_toggled(bool checked)
   UpdateAll();
 }
 
-static const char* StateToString(ezResourceState state)
+static ezStringView StateToString(ezResourceState state)
 {
   switch (state)
   {
@@ -384,7 +384,7 @@ static const char* StateToString(ezResourceState state)
   return "unknown";
 }
 
-static const char* PriorityToString(ezResourcePriority priority)
+static ezStringView PriorityToString(ezResourcePriority priority)
 {
   switch (priority)
   {

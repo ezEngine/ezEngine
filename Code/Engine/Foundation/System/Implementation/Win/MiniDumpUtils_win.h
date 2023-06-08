@@ -42,8 +42,7 @@ ezMinWindows::HANDLE ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(ezUInt
   return hProcess;
 }
 
-ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
-  const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess, struct _EXCEPTION_POINTERS* pExceptionInfo)
+ezStatus ezMiniDumpUtils::WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess, struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
   HMODULE hDLL = ::LoadLibraryA("dbghelp.dll");
 
@@ -69,17 +68,17 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
 
   // make sure the target folder exists
   {
-    ezStringBuilder folder = szDumpFile;
+    ezStringBuilder folder = sDumpFile;
     folder.PathParentDirectory();
     if (ezOSFile::CreateDirectoryStructure(folder).Failed())
       return ezStatus("Failed to create output directory structure.");
   }
 
-  HANDLE hFile = CreateFileW(ezDosDevicePath(szDumpFile), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+  HANDLE hFile = CreateFileW(ezDosDevicePath(sDumpFile), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (hFile == INVALID_HANDLE_VALUE)
   {
-    return ezStatus(ezFmt("Creating dump file '{}' failed (Error: '{}').", szDumpFile, ezArgErrorCode(GetLastError())));
+    return ezStatus(ezFmt("Creating dump file '{}' failed (Error: '{}').", sDumpFile, ezArgErrorCode(GetLastError())));
   }
 
   EZ_SCOPE_EXIT(CloseHandle(hFile););
@@ -98,19 +97,19 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(const char* szDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo)
+ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(ezStringView sDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
-  return WriteProcessMiniDump(szDumpFile, GetCurrentProcessId(), GetCurrentProcess(), pExceptionInfo);
+  return WriteProcessMiniDump(sDumpFile, GetCurrentProcessId(), GetCurrentProcess(), pExceptionInfo);
 }
 
-ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess)
+ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess)
 {
-  return WriteProcessMiniDump(szDumpFile, uiProcessID, pProcess, nullptr);
+  return WriteProcessMiniDump(sDumpFile, uiProcessID, pProcess, nullptr);
 }
 
 #endif
 
-ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID)
+ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   HANDLE hProcess = ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(uiProcessID);
@@ -120,14 +119,14 @@ ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(const char* szDumpFile, e
     return ezStatus("Cannot access process for mini-dump writing (PID invalid or not enough rights).");
   }
 
-  return WriteProcessMiniDump(szDumpFile, uiProcessID, hProcess, nullptr);
+  return WriteProcessMiniDump(sDumpFile, uiProcessID, hProcess, nullptr);
 
 #else
   return ezStatus("Not implemented on UPW");
 #endif
 }
 
-ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(const char* szDumpFile)
+ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder sDumpToolPath = ezOSFile::GetApplicationDirectory();
@@ -142,7 +141,7 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(const char* szDumpFile)
   procOpt.m_Arguments.PushBack("-PID");
   procOpt.AddArgument("{}", ezProcess::GetCurrentProcessID());
   procOpt.m_Arguments.PushBack("-f");
-  procOpt.m_Arguments.PushBack(szDumpFile);
+  procOpt.m_Arguments.PushBack(sDumpFile);
 
   if (opt_FullCrashDumps.GetOptionValue(ezCommandLineOption::LogMode::Always))
   {

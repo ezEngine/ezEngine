@@ -397,15 +397,15 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
   }
 }
 
-void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+void ezQtMaterialAssetDocumentWindow::OnVseConfigChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
-  if (type != ezDirectoryWatcherType::File || !ezPathUtils::HasExtension(filename, "DDL"))
+  if (type != ezDirectoryWatcherType::File || !ezPathUtils::HasExtension(sFilename, "DDL"))
     return;
 
   // lalala ... this is to allow writes to the file to 'hopefully' finish before we try to read it
   ezThreadUtils::Sleep(ezTime::Milliseconds(100));
 
-  ezVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(filename);
+  ezVisualShaderTypeRegistry::GetSingleton()->UpdateNodeData(sFilename);
 
   // TODO: We write an invalid hash in the file, should maybe compute the correct one on the fly
   // but that would involve the asset curator which would also save / transform everything which is

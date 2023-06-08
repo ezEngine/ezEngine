@@ -42,12 +42,11 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezAttributeHolder);
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor : public ezAttributeHolder
 {
   ezReflectedPropertyDescriptor() = default;
-  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags);
-  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags,
+  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, ezStringView sName, ezStringView sType, ezBitflags<ezPropertyFlags> flags);
+  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, ezStringView sName, ezStringView sType, ezBitflags<ezPropertyFlags> flags,
     const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
   /// \brief Initialize to a constant.
-  ezReflectedPropertyDescriptor(
-    const char* szName, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
+  ezReflectedPropertyDescriptor(ezStringView sName, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
   ezReflectedPropertyDescriptor(const ezReflectedPropertyDescriptor& rhs);
   ~ezReflectedPropertyDescriptor();
 
@@ -65,7 +64,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedPropertyDescripto
 struct EZ_TOOLSFOUNDATION_DLL ezFunctionArgumentDescriptor
 {
   ezFunctionArgumentDescriptor();
-  ezFunctionArgumentDescriptor(const char* szType, ezBitflags<ezPropertyFlags> flags);
+  ezFunctionArgumentDescriptor(ezStringView sType, ezBitflags<ezPropertyFlags> flags);
   ezString m_sType;
   ezBitflags<ezPropertyFlags> m_Flags;
 };
@@ -75,8 +74,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezFunctionArgumentDescriptor
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedFunctionDescriptor : public ezAttributeHolder
 {
   ezReflectedFunctionDescriptor();
-  ezReflectedFunctionDescriptor(
-    const char* szName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, const ezArrayPtr<ezPropertyAttribute* const> attributes);
+  ezReflectedFunctionDescriptor(ezStringView sName, ezBitflags<ezPropertyFlags> flags, ezEnum<ezFunctionType> type, const ezArrayPtr<ezPropertyAttribute* const> attributes);
 
   ezReflectedFunctionDescriptor(const ezReflectedFunctionDescriptor& rhs);
   ~ezReflectedFunctionDescriptor();

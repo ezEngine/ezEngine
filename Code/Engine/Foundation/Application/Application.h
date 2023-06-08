@@ -79,7 +79,7 @@ public:
   virtual ~ezApplication();
 
   /// \brief Changes the application name
-  void SetApplicationName(const char* szAppName);
+  void SetApplicationName(ezStringView sAppName);
 
   /// \brief Returns the application name
   const ezString& GetApplicationName() const { return m_sAppName; }

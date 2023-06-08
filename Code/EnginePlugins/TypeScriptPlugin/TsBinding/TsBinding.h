@@ -310,7 +310,7 @@ private:
   ///@{
 public:
   bool RegisterGameObject(ezGameObjectHandle hHandle, ezUInt32& out_uiStashIdx);
-  ezResult RegisterComponent(const char* szTypeName, ezComponentHandle hHandle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent);
+  ezResult RegisterComponent(ezStringView sTypeName, ezComponentHandle hHandle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent);
 
   /// \brief Removes dead GameObject and Component references from the DukTape stash.
   void CleanupStash(ezUInt32 uiNumIterations);

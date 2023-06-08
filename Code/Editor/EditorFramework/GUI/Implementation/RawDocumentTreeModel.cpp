@@ -62,7 +62,8 @@ QVariant ezQtDummyAdapter::data(const ezDocumentObject* pObject, int iRow, int i
       case Qt::DisplayRole:
       case Qt::EditRole:
       {
-        return QString::fromUtf8(pObject->GetTypeAccessor().GetType()->GetTypeName());
+        ezStringBuilder tmp;
+        return QString::fromUtf8(pObject->GetTypeAccessor().GetType()->GetTypeName().GetData(tmp));
       }
       break;
     }

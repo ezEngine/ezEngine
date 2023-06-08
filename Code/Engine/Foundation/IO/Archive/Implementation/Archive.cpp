@@ -15,9 +15,9 @@ void operator>>(ezStreamReader& inout_stream, ezArchiveStoredString& value)
   inout_stream >> value.m_uiSrcStringOffset;
 }
 
-ezUInt32 ezArchiveTOC::FindEntry(const char* szFile) const
+ezUInt32 ezArchiveTOC::FindEntry(ezStringView sFile) const
 {
-  ezStringBuilder sLowerCasePath = szFile;
+  ezStringBuilder sLowerCasePath = sFile;
   sLowerCasePath.ToLower();
 
   ezUInt32 uiIndex;
@@ -27,11 +27,11 @@ ezUInt32 ezArchiveTOC::FindEntry(const char* szFile) const
   if (!m_PathToEntryIndex.TryGetValue(lookup, uiIndex))
     return ezInvalidIndex;
 
-  EZ_ASSERT_DEBUG(ezStringUtils::IsEqual_NoCase(szFile, GetEntryPathString(uiIndex)), "Hash table corruption detected.");
+  EZ_ASSERT_DEBUG(sFile.IsEqual_NoCase(GetEntryPathString(uiIndex)), "Hash table corruption detected.");
   return uiIndex;
 }
 
-const char* ezArchiveTOC::GetEntryPathString(ezUInt32 uiEntryIdx) const
+ezStringView ezArchiveTOC::GetEntryPathString(ezUInt32 uiEntryIdx) const
 {
   return reinterpret_cast<const char*>(&m_AllPathStrings[m_Entries[uiEntryIdx].m_uiPathStringOffset]);
 }
@@ -137,9 +137,9 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchi
     {
       const ezUInt32 uiSrcStringOffset = m_Entries[i].m_uiPathStringOffset;
 
-      const char* szEntryString = GetEntryPathString(i);
+      ezStringView sEntryString = GetEntryPathString(i);
 
-      sLowerCasePath = szEntryString;
+      sLowerCasePath = sEntryString;
       sLowerCasePath.ToLower();
 
       // cut off the upper 32 bit, we don't need them here
@@ -148,7 +148,7 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchi
       m_PathToEntryIndex.Insert(ezArchiveStoredString(uiLowerCaseHash, uiSrcStringOffset), i);
 
       // Verify that the conversion worked
-      EZ_ASSERT_DEBUG(FindEntry(szEntryString) == i, "Hashed path retrieval did not yield inserted index");
+      EZ_ASSERT_DEBUG(FindEntry(sEntryString) == i, "Hashed path retrieval did not yield inserted index");
     }
   }
 

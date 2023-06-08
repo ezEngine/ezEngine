@@ -407,11 +407,12 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   {
     typesSorted.PushBack(pType);
   }
-  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b)
-    { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
+
+  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return a->GetTypeName().Compare(b->GetTypeName()) < 0; });
+
   for (const ezRTTI* pType : typesSorted)
   {
-    uiHash = ezHashingUtils::xxHash64(pType->GetTypeName(), std::strlen(pType->GetTypeName()), uiHash);
+    uiHash = ezHashingUtils::xxHash64(pType->GetTypeName().GetStartPointer(), pType->GetTypeName().GetElementCount(), uiHash);
     const ezUInt32 uiType = pType->GetTypeVersion();
     uiHash = ezHashingUtils::xxHash64(&uiType, sizeof(uiType), uiHash);
   }

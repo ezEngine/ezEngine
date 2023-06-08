@@ -39,7 +39,7 @@ template <ezUInt32 BlockSizeInByte>
 class ezLargeBlockAllocator
 {
 public:
-  ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
+  ezLargeBlockAllocator(ezStringView sName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
   ~ezLargeBlockAllocator();
 
   template <typename T>
@@ -49,7 +49,7 @@ public:
   void DeallocateBlock(ezDataBlock<T, BlockSizeInByte>& ref_block);
 
 
-  const char* GetName() const;
+  ezStringView GetName() const;
 
   ezAllocatorId GetId() const;
 

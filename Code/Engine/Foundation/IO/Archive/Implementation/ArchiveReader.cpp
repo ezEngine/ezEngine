@@ -111,13 +111,13 @@ ezUniquePtr<ezStreamReader> ezArchiveReader::CreateEntryReader(ezUInt32 uiEntryI
 
 ezResult ezArchiveReader::ExtractFile(ezUInt32 uiEntryIdx, ezStringView sTargetFolder) const
 {
-  const char* szFilePath = m_ArchiveTOC.GetEntryPathString(uiEntryIdx);
+  ezStringView sFilePath = m_ArchiveTOC.GetEntryPathString(uiEntryIdx);
   const ezUInt64 uiMaxSize = m_ArchiveTOC.m_Entries[uiEntryIdx].m_uiUncompressedDataSize;
 
   ezUniquePtr<ezStreamReader> pReader = CreateEntryReader(uiEntryIdx);
 
   ezStringBuilder sOutputFile = sTargetFolder;
-  sOutputFile.AppendPath(szFilePath);
+  sOutputFile.AppendPath(sFilePath);
 
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(sOutputFile));

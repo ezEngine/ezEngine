@@ -70,23 +70,23 @@ public:
     GlobalInclude    ///< An #include <file> has been encountered
   };
 
-  /// \brief This type of callback is used to read an #include file. \a szAbsoluteFile is the path that the FileLocatorCB reported, the result needs
+  /// \brief This type of callback is used to read an #include file. \a sAbsoluteFile is the path that the FileLocatorCB reported, the result needs
   /// to be stored in \a FileContent.
-  using FileOpenCB = ezDelegate<ezResult(const char*, ezDynamicArray<ezUInt8>&, ezTimestamp&)>;
+  using FileOpenCB = ezDelegate<ezResult(ezStringView, ezDynamicArray<ezUInt8>&, ezTimestamp&)>;
 
-  /// \brief This type of callback is used to retrieve the absolute path of the \a szIncludeFile when #included inside \a szCurAbsoluteFile.
+  /// \brief This type of callback is used to retrieve the absolute path of the \a sIncludeFile when #included inside \a sCurAbsoluteFile.
   ///
   /// Note that you should ensure that \a out_sAbsoluteFilePath is always identical (including casing and path slashes) when it is supposed to point
   /// to the same file, as this exact name is used for file lookup (and therefore also file caching).
   /// If it is not identical, file caching will not work, and on different OSes the file may be found or not.
-  using FileLocatorCB = ezDelegate<ezResult(const char*, const char*, IncludeType, ezStringBuilder&)>;
+  using FileLocatorCB = ezDelegate<ezResult(ezStringView, ezStringView, IncludeType, ezStringBuilder&)>;
 
   /// \brief Every time an unknown command (e.g. '#version') is encountered, this callback is used to determine whether the command shall be passed
   /// through.
   ///
   /// If the callback returns false, an error is generated and parsing fails. The callback thus acts as a whitelist for all commands that shall be
   /// passed through.
-  using PassThroughUnknownCmdCB = ezDelegate<bool(const char*)>;
+  using PassThroughUnknownCmdCB = ezDelegate<bool(ezStringView)>;
 
   using MacroParameters = ezDeque<ezTokenParseUtils::TokenStream>;
 
@@ -111,17 +111,10 @@ public:
       Redefine,        ///< A #define for an already existing macro name (also logged as a warning)
     };
 
-    ProcessingEvent()
-    {
-      m_Type = Error;
-      m_pToken = nullptr;
-      m_szInfo = "";
-    }
+    EventType m_Type = EventType::Error;
 
-    EventType m_Type;
-
-    const ezToken* m_pToken;
-    const char* m_szInfo;
+    const ezToken* m_pToken = nullptr;
+    ezStringView m_sInfo;
   };
 
   /// \brief Broadcasts events during the processing. This can be used to create detailed callstacks when an error is encountered.
@@ -168,23 +161,23 @@ public:
   /// \brief Adds a #define to the preprocessor, even before any file is processed.
   ///
   /// This allows to have global macros that are always defined for all processed files, such as the current platform etc.
-  /// \a szDefinition must be in the form of the text that follows a #define statement. So to define the macro "WIN32", just
+  /// \a sDefinition must be in the form of the text that follows a #define statement. So to define the macro "WIN32", just
   /// pass that string. You can define any macro that could also be defined in the source files.
   ///
   /// If the definition is invalid, EZ_FAILURE is returned. Also the preprocessor might end up in an invalid state, so using it any
   /// further might fail (including crashing).
-  ezResult AddCustomDefine(const char* szDefinition);
+  ezResult AddCustomDefine(ezStringView sDefinition);
 
   /// \brief Processes the given file and returns the result as a stream of tokens.
   ///
   /// This function is useful when you want to further process the output afterwards and thus need it in a tokenized form anyway.
-  ezResult Process(const char* szMainFile, ezTokenParseUtils::TokenStream& ref_tokenOutput);
+  ezResult Process(ezStringView sMainFile, ezTokenParseUtils::TokenStream& ref_tokenOutput);
 
   /// \brief Processes the given file and returns the result as a string.
   ///
   /// This function creates a string from the tokenized result. If \a bKeepComments is true, all block and line comments
   /// are included in the output string, otherwise they are removed.
-  ezResult Process(const char* szMainFile, ezStringBuilder& ref_sOutput, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
+  ezResult Process(ezStringView sMainFile, ezStringBuilder& ref_sOutput, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
 
 
 private:
@@ -252,22 +245,22 @@ private:
 
   ezDeque<IfDefState> m_IfdefActiveStack;
 
-  ezResult ProcessFile(const char* szFile, ezTokenParseUtils::TokenStream& TokenOutput);
+  ezResult ProcessFile(ezStringView sFile, ezTokenParseUtils::TokenStream& TokenOutput);
   ezResult ProcessCmd(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& TokenOutput);
 
 public:
-  static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
-  static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification);
+  static ezResult DefaultFileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
+  static ezResult DefaultFileOpen(ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification);
 
 private: // *** File Handling ***
-  ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);
+  ezResult OpenFile(ezStringView sFile, const ezTokenizer** pTokenizer);
 
   FileOpenCB m_FileOpenCallback;
   FileLocatorCB m_FileLocatorCallback;
   ezSet<ezTempHashedString> m_PragmaOnce;
 
 private: // *** Macro Definition ***
-  bool RemoveDefine(const char* szName);
+  bool RemoveDefine(ezStringView sName);
   ezResult HandleDefine(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken);
 
   struct MacroDefinition
@@ -309,9 +302,9 @@ private: // *** Parsing ***
   ezResult CopyTokensAndEvaluateDefined(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination);
   void CopyTokensReplaceParams(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters);
 
-  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken, ezUInt32* pAccepted = nullptr);
+  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken, ezUInt32* pAccepted = nullptr);
   ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenType::Enum Type, ezUInt32* pAccepted = nullptr);
-  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken1, const char* szToken2, ezUInt32* pAccepted = nullptr);
+  ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken1, ezStringView sToken2, ezUInt32* pAccepted = nullptr);
   ezResult ExpectEndOfLine(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32 uiCurToken);
 
 private: // *** Macro Expansion ***
@@ -375,7 +368,7 @@ private: // *** Other ***
     ProcessingEvent pe;                                                                                                                             \
     pe.m_Type = ProcessingEvent::Type;                                                                                                              \
     pe.m_pToken = ErrorToken;                                                                                                                       \
-    pe.m_szInfo = FormatStr;                                                                                                                        \
+    pe.m_sInfo = FormatStr;                                                                                                                         \
     if (pe.m_pToken->m_uiLine == 0 && pe.m_pToken->m_uiColumn == 0)                                                                                 \
     {                                                                                                                                               \
       const_cast<ezToken*>(pe.m_pToken)->m_uiLine = m_CurrentFileStack.PeekBack().m_iCurrentLine;                                                   \
@@ -397,7 +390,7 @@ private: // *** Other ***
     }                                                                                                                                                  \
     ezStringBuilder sInfo;                                                                                                                             \
     sInfo.Format(FormatStr, ##__VA_ARGS__);                                                                                                            \
-    _pe.m_szInfo = sInfo.GetData();                                                                                                                    \
+    _pe.m_sInfo = sInfo;                                                                                                                               \
     m_ProcessingEvents.Broadcast(_pe);                                                                                                                 \
     ezLog::Type(m_pLog, "File '{0}', Line {1} ({2}): {3}", _pe.m_pToken->m_File.GetString(), _pe.m_pToken->m_uiLine, _pe.m_pToken->m_uiColumn, sInfo); \
   }

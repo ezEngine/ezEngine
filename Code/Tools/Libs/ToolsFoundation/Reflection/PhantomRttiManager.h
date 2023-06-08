@@ -59,5 +59,5 @@ public:
 
 private:
   static ezSet<const ezRTTI*> s_RegisteredConcreteTypes;
-  static ezHashTable<const char*, ezPhantomRTTI*> s_NameToPhantom;
+  static ezHashTable<ezStringView, ezPhantomRTTI*> s_NameToPhantom;
 };

@@ -61,17 +61,19 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
     if (pManager->IsFilteredByBaseClass(pObject->GetType(), *pNodeDesc, sBaseClass, true))
       continue;
 
-    const char* szFunctionName = ezStringUtils::FindLastSubString(pObject->GetType()->GetTypeName(), "::");
-    if (szFunctionName != nullptr)
+    const char* szFunctionNameStart = pObject->GetType()->GetTypeName().FindLastSubString("::");
+    if (szFunctionNameStart != nullptr)
     {
-      szFunctionName += 2;
+      szFunctionNameStart += 2;
     }
+
+    const ezStringView sFunctionName(szFunctionNameStart, pObject->GetType()->GetTypeName().GetEndPointer());
 
     for (auto& eventHandler : compiler.GetCompiledModule().m_Functions)
     {
-      if (eventHandler.m_sName == szFunctionName)
+      if (eventHandler.m_sName == sFunctionName)
       {
-        return ezStatus(ezFmt("A event handler for '{}' already exists. Can't have multiple event handler for the same event.", szFunctionName));
+        return ezStatus(ezFmt("A event handler for '{}' already exists. Can't have multiple event handler for the same event.", sFunctionName));
       }
     }
 
@@ -85,7 +87,7 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
       if (pManager->GetConnections(*pins[0]).IsEmpty())
         continue;
 
-      EZ_SUCCEED_OR_RETURN(compiler.AddFunction(szFunctionName, pNodeDesc->m_Type, pObject));
+      EZ_SUCCEED_OR_RETURN(compiler.AddFunction(sFunctionName, pNodeDesc->m_Type, pObject));
     }
   }
 

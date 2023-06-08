@@ -2,14 +2,14 @@
 
 #include <Foundation/Time/Clock.h>
 
-inline void ezClock::SetClockName(const char* szName)
+inline void ezClock::SetClockName(ezStringView sName)
 {
-  m_sName = szName;
+  m_sName = sName;
 }
 
-inline const char* ezClock::GetClockName() const
+inline ezStringView ezClock::GetClockName() const
 {
-  return m_sName.GetData();
+  return m_sName;
 }
 
 inline void ezClock::SetTimeStepSmoothing(ezTimeStepSmoothing* pSmoother)

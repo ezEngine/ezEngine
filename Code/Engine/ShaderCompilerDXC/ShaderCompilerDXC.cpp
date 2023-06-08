@@ -69,9 +69,9 @@ ezComPtr<IDxcCompiler3> s_pDxcCompiler;
 
 static ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode);
 
-static const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
+static const char* GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum Stage)
 {
-  if (ezStringUtils::IsEqual(szPlatform, "VULKAN"))
+  if (sPlatform == "VULKAN")
   {
     switch (Stage)
     {
@@ -92,7 +92,7 @@ static const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum
     }
   }
 
-  EZ_REPORT_FAILURE("Unknown Platform '{}' or Stage {}", szPlatform, Stage);
+  EZ_REPORT_FAILURE("Unknown Platform '{}' or Stage {}", sPlatform, Stage);
   return "";
 }
 
@@ -152,12 +152,13 @@ ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_Data, ezLogInte
       continue;
     }
 
-    const char* szShaderSource = inout_Data.m_szShaderSource[stage];
-    const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szShaderSource);
+    const ezStringBuilder sShaderSource = inout_Data.m_sShaderSource[stage];
 
-    if (uiLength > 0 && ezStringUtils::FindSubString(szShaderSource, "main") != nullptr)
+    if (!sShaderSource.IsEmpty() && sShaderSource.FindSubString("main") != nullptr)
     {
-      if (CompileVulkanShader(inout_Data.m_szSourceFile, szShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
+      const ezStringBuilder sSourceFile = inout_Data.m_sSourceFile;
+
+      if (CompileVulkanShader(sSourceFile, sShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {
         EZ_SUCCEED_OR_RETURN(ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum)stage));
       }
@@ -195,7 +196,7 @@ ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDeb
     sDebugSource.ReplaceAll("#line ", "//ine ");
     szCompileSource = sDebugSource;
 
-    //ezLog::Warning("Vulkan DEBUG shader support not really implemented.");
+    // ezLog::Warning("Vulkan DEBUG shader support not really implemented.");
 
     args.PushBack(L"-Zi"); // Enable debug information.
     // args.PushBack(L"-Fo"); // Optional. Stored in the pdb.
@@ -504,7 +505,7 @@ ezGALResourceFormat::Enum GetEZFormat(SpvReflectFormat format)
 
 ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage)
 {
-  EZ_LOG_BLOCK("ReflectShaderStage", inout_Data.m_szSourceFile);
+  EZ_LOG_BLOCK("ReflectShaderStage", inout_Data.m_sSourceFile);
 
   auto& bytecode = inout_Data.m_StageBinary[Stage].GetByteCode();
 
@@ -619,7 +620,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
 
       const ezUInt32 uiCount = vars.GetCount();
 
-      //#TODO_VULKAN Currently hard coded to a single DescriptorSetLayout.
+      // #TODO_VULKAN Currently hard coded to a single DescriptorSetLayout.
       ezHybridArray<ezVulkanDescriptorSetLayout, 3> sets;
       ezVulkanDescriptorSetLayout& set = sets.ExpandAndGetRef();
 

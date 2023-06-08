@@ -19,7 +19,7 @@ public:
 
 public:
   /// \brief Constructor.
-  ezClock(const char* szName); // [tested]
+  ezClock(ezStringView sName); // [tested]
 
   /// \brief Resets all values to their default. E.g. call this after a new level has loaded to start fresh.
   ///
@@ -119,18 +119,18 @@ public:
   void Load(ezStreamReader& inout_stream);
 
   /// \brief Sets the name of the clock. Useful to identify the clock in tools such as ezInspector.
-  void SetClockName(const char* szName);
+  void SetClockName(ezStringView sName);
 
   /// \brief Returns the name of the clock. All clocks get default names 'Clock N', unless the user specifies another name with
   /// SetClockName.
-  const char* GetClockName() const;
+  ezStringView GetClockName() const;
 
 
 public:
   /// \brief The data that is sent through the event interface.
   struct EventData
   {
-    const char* m_szClockName;
+    ezStringView m_sClockName;
 
     ezTime m_RawTimeStep;
     ezTime m_SmoothedTimeStep;

@@ -159,17 +159,17 @@ ezAddObjectCommand::ezAddObjectCommand()
 
   = default;
 
-const char* ezAddObjectCommand::GetType() const
+ezStringView ezAddObjectCommand::GetType() const
 {
   if (m_pType == nullptr)
-    return "";
+    return {};
 
   return m_pType->GetTypeName();
 }
 
-void ezAddObjectCommand::SetType(const char* szType)
+void ezAddObjectCommand::SetType(ezStringView sType)
 {
-  m_pType = ezRTTI::FindTypeByName(szType);
+  m_pType = ezRTTI::FindTypeByName(sType);
 }
 
 ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
@@ -275,8 +275,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       {
         return pOrderA->m_Value.ConvertTo<ezUInt32>() < pOrderB->m_Value.ConvertTo<ezUInt32>();
       }
-      return a < b;
-    });
+      return a < b; });
 
     ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
     for (ezAbstractObjectNode* pNode : RootNodes)

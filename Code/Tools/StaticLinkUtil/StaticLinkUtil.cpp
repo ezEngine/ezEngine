@@ -188,21 +188,21 @@ public:
       ref_sInOut.Shrink(0, 1);
   }
 
-  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& ref_sOut)
+  ezResult ReadEntireFile(ezStringView sFile, ezStringBuilder& ref_sOut)
   {
     ref_sOut.Clear();
 
     // if we have that file cached already, just return the cached (and possibly modified) content
-    if (!m_ModifiedFiles[szFile].m_sFileContent.IsEmpty())
+    if (!m_ModifiedFiles[sFile].m_sFileContent.IsEmpty())
     {
-      ref_sOut = m_ModifiedFiles[szFile].m_sFileContent.GetData();
+      ref_sOut = m_ModifiedFiles[sFile].m_sFileContent.GetData();
       return EZ_SUCCESS;
     }
 
     ezFileReader File;
-    if (File.Open(szFile) == EZ_FAILURE)
+    if (File.Open(sFile) == EZ_FAILURE)
     {
-      ezLog::Error("Could not open for reading: '{0}'", szFile);
+      ezLog::Error("Could not open for reading: '{0}'", sFile);
       return EZ_FAILURE;
     }
 
@@ -224,30 +224,30 @@ public:
     {
       ezLog::Error("The file \"{0}\" contains characters that are not valid Utf8. This often happens when you type special characters in an editor "
                    "that does not save the file in Utf8 encoding.",
-        szFile);
+        sFile);
       return EZ_FAILURE;
     }
 
     ref_sOut = (const char*)&FileContent[0];
 
-    m_ModifiedFiles[szFile].m_sFileContent = ref_sOut;
+    m_ModifiedFiles[sFile].m_sFileContent = ref_sOut;
 
     SanitizeSourceCode(ref_sOut);
 
     return EZ_SUCCESS;
   }
 
-  void OverwriteFile(const char* szFile, const ezStringBuilder& sFileContent)
+  void OverwriteFile(ezStringView sFile, const ezStringBuilder& sFileContent)
   {
     ezStringBuilder sOut = sFileContent;
     SanitizeSourceCode(sOut);
 
-    if (m_ModifiedFiles[szFile].m_sFileContent == sOut)
+    if (m_ModifiedFiles[sFile].m_sFileContent == sOut)
       return;
 
     m_bAnyFileChanged = true;
-    m_ModifiedFiles[szFile].m_bFileHasChanged = true;
-    m_ModifiedFiles[szFile].m_sFileContent = sOut;
+    m_ModifiedFiles[sFile].m_bFileHasChanged = true;
+    m_ModifiedFiles[sFile].m_sFileContent = sOut;
   }
 
   void OverwriteModifiedFiles()
@@ -378,11 +378,11 @@ public:
     }
   }
 
-  bool RemoveLineWithPrefix(ezStringBuilder& ref_sFile, const char* szLineStart)
+  bool RemoveLineWithPrefix(ezStringBuilder& ref_sFile, ezStringView sLineStart)
   {
     const char* szSkipAhead = ref_sFile.FindSubString("// <StaticLinkUtil::StartHere>");
 
-    const char* szStart = ref_sFile.FindSubString(szLineStart, szSkipAhead);
+    const char* szStart = ref_sFile.FindSubString(sLineStart, szSkipAhead);
 
     if (szStart == nullptr)
       return false;
@@ -441,24 +441,24 @@ public:
     OverwriteFile(sPCHFile.GetData(), sFileContent);
   }
 
-  void FixFileContents(const char* szFile)
+  void FixFileContents(ezStringView sFile)
   {
     ezStringBuilder sFileContent;
-    if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
+    if (ReadEntireFile(sFile, sFileContent) == EZ_FAILURE)
       return;
 
-    if (ezStringUtils::EndsWith(szFile, "PCH.h"))
-      ezLog::Dev("Skipping PCH for #include search: '{0}'", szFile);
+    if (sFile.EndsWith("PCH.h"))
+      ezLog::Dev("Skipping PCH for #include search: '{0}'", sFile);
     else
       FindIncludes(sFileContent);
 
     // rewrite the entire file
-    OverwriteFile(szFile, sFileContent);
+    OverwriteFile(sFile, sFileContent);
   }
 
-  ezString GetFileMarkerName(const char* szFile)
+  ezString GetFileMarkerName(ezStringView sFile)
   {
-    ezStringBuilder sRel = szFile;
+    ezStringBuilder sRel = sFile;
     sRel.MakeRelativeTo(m_sSearchDir.GetData()).IgnoreResult();
 
     ezStringBuilder sRefPointName = ezPathUtils::GetFileName(m_sSearchDir.GetData());
@@ -471,12 +471,12 @@ public:
     return sRefPointName;
   }
 
-  void InsertRefPoint(const char* szFile)
+  void InsertRefPoint(ezStringView sFile)
   {
-    EZ_LOG_BLOCK("InsertRefPoint", szFile);
+    EZ_LOG_BLOCK("InsertRefPoint", sFile);
 
     ezStringBuilder sFileContent;
-    if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
+    if (ReadEntireFile(sFile, sFileContent) == EZ_FAILURE)
       return;
 
     // if we find this macro in here, we don't need to insert EZ_STATICLINK_FILE in this file
@@ -487,7 +487,7 @@ public:
 
 
     ezString sLibraryMarker = GetLibraryMarkerName();
-    ezString sFileMarker = GetFileMarkerName(szFile);
+    ezString sFileMarker = GetFileMarkerName(sFile);
 
     ezStringBuilder sNewMarker;
     sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker, sFileMarker);
@@ -513,7 +513,7 @@ public:
     }
 
     // rewrite the entire file
-    OverwriteFile(szFile, sFileContent);
+    OverwriteFile(sFile, sFileContent);
   }
 
   void UpdateStaticLinkLibraryBlock()
@@ -521,14 +521,14 @@ public:
     if (m_bHadSeriousWarnings || m_bHadErrors)
       return;
 
-    const char* szFile = m_sRefPointGroupFile.GetData();
+    ezStringView sFile = m_sRefPointGroupFile;
 
-    EZ_LOG_BLOCK("RewriteRefPointGroup", szFile);
+    EZ_LOG_BLOCK("RewriteRefPointGroup", sFile);
 
     ezLog::Info("Replacing macro EZ_STATICLINK_LIBRARY in file '{0}'.", m_sRefPointGroupFile);
 
     ezStringBuilder sFileContent;
-    if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
+    if (ReadEntireFile(sFile, sFileContent) == EZ_FAILURE)
       return;
 
     // remove all instances of EZ_STATICLINK_FILE from this file, it already contains EZ_STATICLINK_LIBRARY
@@ -601,7 +601,7 @@ public:
       sFileContent.AppendFormat("\n\n{0}\n\n", sNewGroupMarker);
     }
 
-    OverwriteFile(szFile, sFileContent);
+    OverwriteFile(sFile, sFileContent);
   }
 
   void IterateOverFiles()

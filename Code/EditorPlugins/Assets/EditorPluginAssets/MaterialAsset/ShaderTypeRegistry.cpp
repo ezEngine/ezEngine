@@ -259,12 +259,12 @@ ezShaderTypeRegistry::~ezShaderTypeRegistry()
   ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
 
-const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
+const ezRTTI* ezShaderTypeRegistry::GetShaderType(ezStringView sShaderPath0)
 {
-  if (ezStringUtils::IsNullOrEmpty(szShaderPath))
+  if (sShaderPath0.IsEmpty())
     return nullptr;
 
-  ezStringBuilder sShaderPath = szShaderPath;
+  ezStringBuilder sShaderPath = sShaderPath0;
   sShaderPath.MakeCleanPath();
 
   if (sShaderPath.IsAbsolutePath())
@@ -287,11 +287,11 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
   }
   else
   {
-    ezStringBuilder sAbsPath = szShaderPath;
+    ezStringBuilder sAbsPath = sShaderPath0;
     {
       if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
       {
-        ezLog::Warning("Can't make path absolute: '{0}'", szShaderPath);
+        ezLog::Warning("Can't make path absolute: '{0}'", sShaderPath0);
         return nullptr;
       }
       sAbsPath.MakeCleanPath();

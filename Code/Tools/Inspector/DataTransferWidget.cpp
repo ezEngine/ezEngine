@@ -240,12 +240,13 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   }
 }
 
-bool ezQtDataWidget::SaveToFile(TransferDataObject& item, const char* szFile)
+bool ezQtDataWidget::SaveToFile(TransferDataObject& item, ezStringView sFile)
 {
   auto& Stream = item.m_Storage;
   ezMemoryStreamReader Reader(&Stream);
 
-  QFile FileOut(szFile);
+  ezStringBuilder tmp;
+  QFile FileOut(sFile.GetData(tmp));
   if (!FileOut.open(QIODevice::WriteOnly))
   {
     QMessageBox::warning(this, QLatin1String("Error writing to file"), QLatin1String("Could not open the specified file for writing."), QMessageBox::Ok, QMessageBox::Ok);

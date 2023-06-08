@@ -39,12 +39,12 @@ namespace
     s_NameToTypeTable.Insert("TextureCube", ezGetStaticRTTI<ezString>());
   }
 
-  const ezRTTI* GetType(ezStringView sType)
+  const ezRTTI* GetType(const char* szType)
   {
     InitializeTables();
 
     const ezRTTI* pType = nullptr;
-    s_NameToTypeTable.TryGetValue(sType, pType);
+    s_NameToTypeTable.TryGetValue(szType, pType);
     return pType;
   }
 

@@ -18,7 +18,7 @@ private:
   void RegisterDefaultFunctions();
 
   ezResult ScalarizeStreams(ezArrayPtr<const ezProcessingStream> streams, ezDynamicArray<ezProcessingStream>& out_ScalarizedStreams);
-  ezResult MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<ezProcessingStream> streams, const char* szStreamType, ezUInt32 uiNumInstances, ezDynamicArray<ezProcessingStream*>& out_MappedStreams);
+  ezResult MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<ezProcessingStream> streams, ezStringView sStreamType, ezUInt32 uiNumInstances, ezDynamicArray<ezProcessingStream*>& out_MappedStreams);
   ezResult MapFunctions(ezArrayPtr<const ezExpression::FunctionDesc> functionDescs, const ezExpression::GlobalData& globalData);
 
   ezDynamicArray<ezExpression::Register, ezAlignedAllocatorWrapper> m_Registers;

@@ -157,7 +157,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 // internal helper macro
 #define EZ_RTTIINFO_DECL(Type, BaseType, Version) \
                                                   \
-  const char* GetTypeName(Type*)                  \
+  ezStringView GetTypeName(Type*)                 \
   {                                               \
     return #Type;                                 \
   }                                               \

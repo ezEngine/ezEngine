@@ -74,9 +74,9 @@ public:
 
   /// \brief
   ///   Returns the opened directory, will be empty if no directory was opened.
-  const char* GetDirectory() const { return m_sDirectoryPath; }
+  ezStringView GetDirectory() const { return m_sDirectoryPath; }
 
-  using EnumerateChangesFunction = ezDelegate<void(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type), 48>;
+  using EnumerateChangesFunction = ezDelegate<void(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type), 48>;
 
   /// \brief
   ///   Calls the callback \p func for each change since the last call. For each change the filename

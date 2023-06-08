@@ -92,10 +92,10 @@ public:
   /// this set, even though they don't use graphical output. 'editor' : for all applications that run the editor framework, set on the Editor and the
   /// EditorProcessor 'testframework' : for applications that execute the ezTestFramework 'tool' : for all stand-alone tool applications, set by the
   /// editor, editorprocessor, fileserve, etc.
-  static void AddApplicationTag(ezStringView sTag);
+  static void AddApplicationTag(const char* szTag);
 
   /// \brief Query whether a tag was added with AddApplicationTag()
-  static bool HasApplicationTag(ezStringView sTag);
+  static bool HasApplicationTag(const char* szTag);
 
   /// \brief Runs the 'base' startup sequence of all subsystems in the proper order.
   ///
@@ -159,5 +159,5 @@ private:
 
   static bool s_bPrintAllSubSystems;
   static ezStartupStage::Enum s_CurrentState;
-  static ezDynamicArray<ezStringView> s_ApplicationTags;
+  static ezDynamicArray<const char*> s_ApplicationTags;
 };

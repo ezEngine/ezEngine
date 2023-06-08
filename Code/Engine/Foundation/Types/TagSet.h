@@ -49,13 +49,13 @@ public:
   void Clear();
 
   /// \brief Adds the tag with the given name. If the tag does not exist, it will be registered.
-  void SetByName(const char* szTag);
+  void SetByName(ezStringView sTag);
 
   /// \brief Removes the given tag. If it doesn't exist, nothing happens.
-  void RemoveByName(const char* szTag);
+  void RemoveByName(ezStringView sTag);
 
   /// \brief Checks whether the named tag is part of this set. Returns false if the tag does not exist.
-  bool IsSetByName(const char* szTag) const;
+  bool IsSetByName(ezStringView sTag) const;
 
   /// \brief Allows to iterate over all tags in this set
   class Iterator

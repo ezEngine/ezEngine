@@ -63,7 +63,7 @@ public:
   bool GetBool(ezTempHashedString sName) const;
 
   /// \brief Returns the 'string' variable with the given name. Logs an error, if the variable doesn't exist in the config file.
-  const char* GetString(ezTempHashedString sName) const;
+  ezStringView GetString(ezTempHashedString sName) const;
 
   /// \brief Returns the 'int' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
   ezInt32 GetInt(ezTempHashedString sName, ezInt32 iFallback) const;
@@ -75,7 +75,7 @@ public:
   bool GetBool(ezTempHashedString sName, bool bFallback) const;
 
   /// \brief Returns the 'string' variable with the given name. Returns the 'fallback' value, if the variable doesn't exist in the config file.
-  const char* GetString(ezTempHashedString sName, const char* szFallback) const;
+  ezStringView GetString(ezTempHashedString sName, ezStringView sFallback) const;
 
 protected:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -108,7 +108,7 @@ public:
     ezMemoryStreamReader m_Reader;
     ezDependencyFile m_RequiredFiles;
 
-    ezResult PrePropFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
+    ezResult PrePropFileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath);
   };
 
   virtual ezResourceLoadData OpenDataStream(const ezResource* pResource) override;

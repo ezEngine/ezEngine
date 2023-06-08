@@ -610,7 +610,7 @@ bool ezVariant::IsDerivedFrom(const ezRTTI* pType1, const ezRTTI* pType2)
   return pType1->IsDerivedFrom(pType2);
 }
 
-const char* ezVariant::GetTypeName(const ezRTTI* pType)
+ezStringView ezVariant::GetTypeName(const ezRTTI* pType)
 {
   return pType->GetTypeName();
 }

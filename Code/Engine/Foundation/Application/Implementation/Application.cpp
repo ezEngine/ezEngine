@@ -15,9 +15,9 @@ ezApplication::ezApplication(ezStringView sAppName)
 
 ezApplication::~ezApplication() = default;
 
-void ezApplication::SetApplicationName(const char* szAppName)
+void ezApplication::SetApplicationName(ezStringView sAppName)
 {
-  m_sAppName = szAppName;
+  m_sAppName = sAppName;
 }
 
 ezCommandLineOptionBool opt_WaitForDebugger("app", "-WaitForDebugger", "If specified, the application will wait at startup until a debugger is attached.", false);

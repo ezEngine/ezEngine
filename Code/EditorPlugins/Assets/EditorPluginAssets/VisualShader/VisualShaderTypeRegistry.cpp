@@ -123,9 +123,9 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
 }
 
 
-void ezVisualShaderTypeRegistry::UpdateNodeData(const char* szCfgFileRelative)
+void ezVisualShaderTypeRegistry::UpdateNodeData(ezStringView sCfgFileRelative)
 {
-  ezStringBuilder sPath(":app/VisualShader/", szCfgFileRelative);
+  ezStringBuilder sPath(":app/VisualShader/", sCfgFileRelative);
 
   LoadConfigFile(sPath);
 }

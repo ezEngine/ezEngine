@@ -62,15 +62,15 @@ ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const ezString
   return &pToken->m_Token;
 }
 
-ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutput)
+ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutput)
 {
   const ezTokenizer* pTokenizer = nullptr;
 
-  if (OpenFile(szFile, &pTokenizer).Failed())
+  if (OpenFile(sFile, &pTokenizer).Failed())
     return EZ_FAILURE;
 
   FileData fd;
-  fd.m_sFileName.Assign(szFile);
+  fd.m_sFileName.Assign(sFile);
   fd.m_sVirtualFileName = fd.m_sFileName;
 
   m_CurrentFileStack.PushBack(fd);
@@ -124,7 +124,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& ref_tokenOutput)
+ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenOutput)
 {
   EZ_ASSERT_DEV(m_FileLocatorCallback.IsValid(), "No file locator callback has been set.");
 
@@ -162,9 +162,9 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& ref_tokenO
   m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
 
   ezStringBuilder sFileToOpen;
-  if (m_FileLocatorCallback("", szMainFile, IncludeType::MainFile, sFileToOpen).Failed())
+  if (m_FileLocatorCallback("", sMainFile, IncludeType::MainFile, sFileToOpen).Failed())
   {
-    ezLog::Error(m_pLog, "Could not locate file '{0}'", szMainFile);
+    ezLog::Error(m_pLog, "Could not locate file '{0}'", sMainFile);
     return EZ_FAILURE;
   }
 
@@ -188,12 +188,12 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& ref_tokenO
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& ref_sOutput, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
+ezResult ezPreprocessor::Process(ezStringView sMainFile, ezStringBuilder& ref_sOutput, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
 {
   ref_sOutput.Clear();
 
   TokenStream TokenOutput;
-  if (Process(szMainFile, TokenOutput).Failed())
+  if (Process(sMainFile, TokenOutput).Failed())
     return EZ_FAILURE;
 
   // generate the final text output
@@ -376,7 +376,7 @@ ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurTo
     ProcessingEvent pe;
     pe.m_pToken = Tokens[uiIdentifier];
     pe.m_Type = bIsIfdef ? ProcessingEvent::CheckIfdef : ProcessingEvent::CheckIfndef;
-    pe.m_szInfo = bDefined ? "defined" : "undefined";
+    pe.m_sInfo = bDefined ? "defined" : "undefined";
     m_ProcessingEvents.Broadcast(pe);
   }
 

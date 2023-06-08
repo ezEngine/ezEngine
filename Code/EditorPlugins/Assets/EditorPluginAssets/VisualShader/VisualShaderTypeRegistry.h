@@ -77,7 +77,7 @@ public:
 
   void UpdateNodeData();
 
-  void UpdateNodeData(const char* szCfgFileRelative);
+  void UpdateNodeData(ezStringView sCfgFileRelative);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorPluginAssets, VisualShader);

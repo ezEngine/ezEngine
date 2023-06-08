@@ -7,8 +7,7 @@
 
 static ezAssertHandler g_PreviousAssertHandler = nullptr;
 
-static bool TelemetryAssertHandler(
-  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   if (ezTelemetry::IsConnectedToClient())
   {

@@ -32,8 +32,7 @@ namespace DirectoryWatcherTestHelpers
 
   void TickWatcher(ezDirectoryWatcher& ref_watcher)
   {
-    ref_watcher.EnumerateChanges([&](const char* szPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-    },
+    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {},
       ezTime::Milliseconds(100));
   }
 } // namespace DirectoryWatcherTestHelpers
@@ -49,8 +48,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
   auto CheckExpectedEvents = [&](ezDirectoryWatcher& ref_watcher, ezArrayPtr<ExpectedEvent> events) {
     ezDynamicArray<ExpectedEventStorage> firedEvents;
     ezUInt32 i = 0;
-    ref_watcher.EnumerateChanges([&](const char* szPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-      tmp = szPath;
+    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+      tmp = sPath;
       tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
       firedEvents.PushBack({tmp, action, type});
       if (i < events.GetCount())
@@ -59,8 +58,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
         EZ_TEST_BOOL_MSG(action == events[i].action, "Expected event at index %d action", i);
         EZ_TEST_BOOL_MSG(type == events[i].type, "Expected event at index %d type mismatch", i);
       }
-      i++;
-    },
+      i++; },
       ezTime::Milliseconds(100));
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
@@ -70,8 +68,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     ezUInt32 i = 0;
     ezDynamicArray<bool> eventFired;
     eventFired.SetCount(events.GetCount());
-    ref_watcher.EnumerateChanges([&](const char* szPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-      tmp = szPath;
+    ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+      tmp = sPath;
       tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
       firedEvents.PushBack({tmp, action, type});
       auto index = events.IndexOf({tmp, action, type});
@@ -81,6 +79,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
         eventFired[index] = true;
       }
       i++;
+      //
     },
       ezTime::Milliseconds(100));
     for (auto& fired : eventFired)
@@ -94,8 +93,8 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
     ezDynamicArray<ExpectedEventStorage> firedEvents;
     ezUInt32 i = 0;
     ezDirectoryWatcher::EnumerateChanges(
-      watchers, [&](const char* szPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
-        tmp = szPath;
+      watchers, [&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {
+        tmp = sPath;
         tmp.Shrink(sTestRootPath.GetCharacterCount(), 0);
         firedEvents.PushBack({tmp, action, type});
         if (i < events.GetCount())
@@ -105,6 +104,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
           EZ_TEST_BOOL_MSG(type == events[i].type, "Expected event at index %d type mismatch", i);
         }
         i++;
+        //
       },
       ezTime::Milliseconds(100));
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");

@@ -120,7 +120,7 @@ ezResult ezExpressionVM::ScalarizeStreams(ezArrayPtr<const ezProcessingStream> s
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<ezProcessingStream> streams, const char* szStreamType, ezUInt32 uiNumInstances, ezDynamicArray<ezProcessingStream*>& out_MappedStreams)
+ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> streamDescs, ezArrayPtr<ezProcessingStream> streams, ezStringView sStreamType, ezUInt32 uiNumInstances, ezDynamicArray<ezProcessingStream*>& out_MappedStreams)
 {
   out_MappedStreams.Clear();
   out_MappedStreams.Reserve(streamDescs.GetCount());
@@ -137,7 +137,7 @@ ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> s
         // verify stream data type
         if (stream.GetDataType() != streamDesc.m_DataType)
         {
-          ezLog::Error("{} stream '{}' expects data of type '{}' or a compatible type. Given type '{}' is not compatible.", szStreamType, streamDesc.m_sName, ezProcessingStream::GetDataTypeName(streamDesc.m_DataType), ezProcessingStream::GetDataTypeName(stream.GetDataType()));
+          ezLog::Error("{} stream '{}' expects data of type '{}' or a compatible type. Given type '{}' is not compatible.", sStreamType, streamDesc.m_sName, ezProcessingStream::GetDataTypeName(streamDesc.m_DataType), ezProcessingStream::GetDataTypeName(stream.GetDataType()));
           return EZ_FAILURE;
         }
 
@@ -147,7 +147,7 @@ ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> s
 
         if (stream.GetDataSize() < uiExpectedSize)
         {
-          ezLog::Error("{} stream '{}' data size must be {} bytes or more. Only {} bytes given", szStreamType, streamDesc.m_sName, uiExpectedSize, stream.GetDataSize());
+          ezLog::Error("{} stream '{}' data size must be {} bytes or more. Only {} bytes given", sStreamType, streamDesc.m_sName, uiExpectedSize, stream.GetDataSize());
           return EZ_FAILURE;
         }
 
@@ -159,7 +159,7 @@ ezResult ezExpressionVM::MapStreams(ezArrayPtr<const ezExpression::StreamDesc> s
 
     if (!bFound)
     {
-      ezLog::Error("Bytecode expects an {} stream '{}'", szStreamType, streamDesc.m_sName);
+      ezLog::Error("Bytecode expects an {} stream '{}'", sStreamType, streamDesc.m_sName);
       return EZ_FAILURE;
     }
   }

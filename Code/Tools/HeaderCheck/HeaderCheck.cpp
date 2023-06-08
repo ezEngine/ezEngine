@@ -279,14 +279,14 @@ public:
     ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   }
 
-  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& ref_sOut)
+  ezResult ReadEntireFile(ezStringView sFile, ezStringBuilder& ref_sOut)
   {
     ref_sOut.Clear();
 
     ezFileReader File;
-    if (File.Open(szFile) == EZ_FAILURE)
+    if (File.Open(sFile) == EZ_FAILURE)
     {
-      ezLog::Error("Could not open for reading: '{0}'", szFile);
+      ezLog::Error("Could not open for reading: '{0}'", sFile);
       return EZ_FAILURE;
     }
 
@@ -308,7 +308,7 @@ public:
     {
       ezLog::Error("The file \"{0}\" contains characters that are not valid Utf8. This often happens when you type special characters in "
                    "an editor that does not save the file in Utf8 encoding.",
-        szFile);
+        sFile);
       return EZ_FAILURE;
     }
 

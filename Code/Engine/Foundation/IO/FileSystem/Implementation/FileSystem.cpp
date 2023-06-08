@@ -878,10 +878,10 @@ void ezFileSystem::SetSdkRootDirectory(ezStringView sSdkDir)
   s_sSdkRootDir = s;
 }
 
-const char* ezFileSystem::GetSdkRootDirectory()
+ezStringView ezFileSystem::GetSdkRootDirectory()
 {
   EZ_ASSERT_DEV(!s_sSdkRootDir.IsEmpty(), "The project directory has not been set through 'ezFileSystem::SetSdkRootDirectory'.");
-  return s_sSdkRootDir.GetData();
+  return s_sSdkRootDir;
 }
 
 void ezFileSystem::SetSpecialDirectory(ezStringView sName, ezStringView sReplacement)

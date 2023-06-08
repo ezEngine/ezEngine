@@ -10,19 +10,19 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystem);
 
 bool ezStartup::s_bPrintAllSubSystems = true;
 ezStartupStage::Enum ezStartup::s_CurrentState = ezStartupStage::None;
-ezDynamicArray<ezStringView> ezStartup::s_ApplicationTags;
+ezDynamicArray<const char*> ezStartup::s_ApplicationTags;
 
 
-void ezStartup::AddApplicationTag(ezStringView sTag)
+void ezStartup::AddApplicationTag(const char* szTag)
 {
-  s_ApplicationTags.PushBack(sTag);
+  s_ApplicationTags.PushBack(szTag);
 }
 
-bool ezStartup::HasApplicationTag(ezStringView sTag)
+bool ezStartup::HasApplicationTag(const char* szTag)
 {
   for (ezUInt32 i = 0; i < s_ApplicationTags.GetCount(); ++i)
   {
-    if (s_ApplicationTags[i].IsEqual_NoCase(sTag))
+    if (ezStringUtils::IsEqual_NoCase(s_ApplicationTags[i], szTag))
       return true;
   }
 
@@ -83,13 +83,13 @@ void ezStartup::PluginEventHandler(const ezPluginEvent& EventData)
 
     case ezPluginEvent::AfterLoadingBeforeInit:
     {
-      AssignSubSystemPlugin(EventData.m_szPluginBinary);
+      AssignSubSystemPlugin(EventData.m_sPluginBinary);
     }
     break;
 
     case ezPluginEvent::StartupShutdown:
     {
-      ezStartup::UnloadPluginSubSystems(EventData.m_szPluginBinary);
+      ezStartup::UnloadPluginSubSystems(EventData.m_sPluginBinary);
     }
     break;
 

@@ -259,6 +259,8 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
   const bool bHasChildren = pObject->GetTypeAccessor().GetCount("Children") > 0;
 
+  ezStringBuilder tmp;
+
   const ezInt32 iComponents = pObject->GetTypeAccessor().GetCount("Components");
   for (ezInt32 i = 0; i < iComponents; i++)
   {
@@ -278,7 +280,7 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
     if (out_sResult.IsEmpty())
     {
       // try to translate the component name, that will typically make it a nice clean name already
-      out_sResult = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
+      out_sResult = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName().GetData(tmp));
 
       // if no translation is available, clean up the component name in a simple way
       if (out_sResult.EndsWith_NoCase("Component"))

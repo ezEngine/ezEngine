@@ -708,7 +708,7 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
   {
     case ezVariant::Type::Invalid:
     {
-      if (ezStringUtils::IsEqual(pType->GetTypeName(), "ezVariant"))
+      if (pType->GetTypeName() == "ezVariant")
       {
         switch (duk_get_type(duk.GetContext(), iObjIdx))
         {
