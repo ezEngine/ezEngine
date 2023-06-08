@@ -657,8 +657,7 @@ ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data
         }
         binding.m_uiWordOffset = info.word_offset.binding;
       }
-      set.bindings.Sort([](const ezVulkanDescriptorSetLayoutBinding& lhs, const ezVulkanDescriptorSetLayoutBinding& rhs)
-        { return lhs.m_uiBinding < rhs.m_uiBinding; });
+      set.bindings.Sort([](const ezVulkanDescriptorSetLayoutBinding& lhs, const ezVulkanDescriptorSetLayoutBinding& rhs) { return lhs.m_uiBinding < rhs.m_uiBinding; });
 
       ezSpirvMetaData::Write(stream, bytecode, sets, vertexInputAttributes);
 
