@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
         firedEvents.PushBack({tmp, action, type});
         if (i < events.GetCount())
         {
-          EZ_TEST_BOOL_MSG(tmp == events[i].path, "Expected event at index %d path mismatch: '%s' vs '%s'", i, tmp, events[i].path);
+          EZ_TEST_BOOL_MSG(tmp == events[i].path, "Expected event at index %d path mismatch: '%s' vs '%s'", i, tmp.GetData(), events[i].path);
           EZ_TEST_BOOL_MSG(action == events[i].action, "Expected event at index %d action", i);
           EZ_TEST_BOOL_MSG(type == events[i].type, "Expected event at index %d type mismatch", i);
         }
