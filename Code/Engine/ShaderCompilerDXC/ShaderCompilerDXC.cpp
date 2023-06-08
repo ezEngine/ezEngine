@@ -69,9 +69,9 @@ ezComPtr<IDxcCompiler3> s_pDxcCompiler;
 
 static ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode);
 
-static const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
+static const char* GetProfileName(ezStringView sPlatform, ezGALShaderStage::Enum Stage)
 {
-  if (ezStringUtils::IsEqual(szPlatform, "VULKAN"))
+  if (sPlatform == "VULKAN")
   {
     switch (Stage)
     {
@@ -92,7 +92,7 @@ static const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum
     }
   }
 
-  EZ_REPORT_FAILURE("Unknown Platform '{}' or Stage {}", szPlatform, Stage);
+  EZ_REPORT_FAILURE("Unknown Platform '{}' or Stage {}", sPlatform, Stage);
   return "";
 }
 
