@@ -23,7 +23,7 @@ struct ezPluginEvent
   };
 
   Type m_EventType;                       ///< Which type of event this is.
-  ezStringView m_sPluginBinary; ///< The file name of the affected plugin.
+  ezStringView m_sPluginBinary;           ///< The file name of the affected plugin.
 };
 
 /// \brief Flags for loading a plugin.

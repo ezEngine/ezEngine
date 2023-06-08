@@ -17,8 +17,7 @@ ezTypeHashTable* GetTypeHashTable()
 {
   // Prevent static initialization hazard between first ezRTTI instance
   // and the hash table and also make sure it is sufficiently sized before first use.
-  auto CreateTable = []() -> ezTypeHashTable*
-  {
+  auto CreateTable = []() -> ezTypeHashTable* {
     ezTypeHashTable* table = new ezTypeHashTable();
     table->m_Table.Reserve(512);
     return table;
@@ -381,8 +380,7 @@ const ezDynamicArray<const ezRTTI*>& ezRTTI::GetAllTypesDerivedFrom(
   if (bSortByName)
   {
     out_derivedTypes.Sort(
-      [](const ezRTTI* p1, const ezRTTI* p2) -> bool
-      { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
+      [](const ezRTTI* p1, const ezRTTI* p2) -> bool { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
   }
 
   return out_derivedTypes;

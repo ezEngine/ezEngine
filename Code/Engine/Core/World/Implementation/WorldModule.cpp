@@ -192,8 +192,7 @@ void ezWorldModuleFactory::AdjustBaseTypeId(const ezRTTI* pParentRtti, const ezR
   ezDynamicArray<ezPlugin::PluginInfo> infos;
   ezPlugin::GetAllPluginInfos(infos);
 
-  auto HasManualDependency = [&](ezStringView sPluginName) -> bool
-  {
+  auto HasManualDependency = [&](ezStringView sPluginName) -> bool {
     for (const auto& p : infos)
     {
       if (p.m_sName == sPluginName)

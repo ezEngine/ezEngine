@@ -408,8 +408,7 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
     typesSorted.PushBack(pType);
   }
 
-  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b)
-    { return a->GetTypeName().Compare(b->GetTypeName()) < 0; });
+  typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return a->GetTypeName().Compare(b->GetTypeName()) < 0; });
 
   for (const ezRTTI* pType : typesSorted)
   {
