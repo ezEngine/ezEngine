@@ -19,7 +19,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  endif
 
 // Comment in to get verbose output on the function of the directory watcher
-//#  define DEBUG_FILE_WATCHER
+// #  define DEBUG_FILE_WATCHER
 
 #  ifdef DEBUG_FILE_WATCHER
 #    define DEBUG_LOG(...) ezLog::Debug(__VA_ARGS__)
@@ -333,7 +333,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
   // An orpahend move from is when we see a move from, but no move to
   // This means the file was moved outside of our view of the file system
   // tread this as a delete.
-  auto processOrphanedMoveFrom = [&](MoveEvent& moveFrom) {
+  auto processOrphanedMoveFrom = [&](MoveEvent& moveFrom)
+  {
     if (whatToWatch.IsSet(Watch::Deletes))
     {
       if (!moveFrom.isDirectory)
@@ -345,26 +346,28 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
       else
       {
         ezStringBuilder dirPath;
-        mirror->Enumerate(moveFrom.path, [&](ezStringView sPath, typename ezFileSystemMirrorType::Type type) {
-                if (type == ezFileSystemMirrorType::Type::File)
+        mirror->Enumerate(moveFrom.path, [&](ezStringView sPath, typename ezFileSystemMirrorType::Type type)
                 {
-                  func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
-                }
-                else
-                {
-                  func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
-                  dirPath = sPath;
-                  EnsureTrailingSlash(dirPath);
-                  auto it = m_pImpl->m_pathToWd.Find(dirPath);
-                  if (it.IsValid())
+                  if (type == ezFileSystemMirrorType::Type::File)
                   {
-                    DEBUG_LOG("No longer watching {}", it.Key());
-                    inotify_rm_watch(inotifyFd, it.Value());
-                    m_pImpl->m_wdToPath.Remove(it.Value());
-                    m_pImpl->m_pathToWd.Remove(it);
+                    func(sPath, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
                   }
-                }
-              })
+                  else
+                  {
+                    func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
+                    dirPath = sPath;
+                    EnsureTrailingSlash(dirPath);
+                    auto it = m_pImpl->m_pathToWd.Find(dirPath);
+                    if (it.IsValid())
+                    {
+                      DEBUG_LOG("No longer watching {}", it.Key());
+                      inotify_rm_watch(inotifyFd, it.Value());
+                      m_pImpl->m_wdToPath.Remove(it.Value());
+                      m_pImpl->m_pathToWd.Remove(it);
+                    }
+                  }
+                  //
+                })
           .AssertSuccess();
         mirror->RemoveDirectory(moveFrom.path).AssertSuccess();
 
