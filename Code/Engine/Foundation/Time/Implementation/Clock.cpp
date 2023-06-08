@@ -21,9 +21,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezClock::ezClock(const char* szName)
+ezClock::ezClock(ezStringView sName)
 {
-  SetClockName(szName);
+  SetClockName(sName);
 
   Reset(true);
 }
@@ -83,7 +83,7 @@ void ezClock::Update()
   m_AccumulatedTime += m_LastTimeDiff;
 
   EventData ed;
-  ed.m_szClockName = m_sName.GetData();
+  ed.m_sClockName = m_sName;
   ed.m_RawTimeStep = tDiff;
   ed.m_SmoothedTimeStep = m_LastTimeDiff;
 

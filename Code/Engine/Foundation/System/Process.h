@@ -49,15 +49,15 @@ struct EZ_FOUNDATION_DLL ezProcessOptions
 
   /// \brief Overload of AddArgument(ezFormatString) for convenience.
   template <typename... ARGS>
-  void AddArgument(const char* szFormat, ARGS&&... args)
+  void AddArgument(ezStringView sFormat, ARGS&&... args)
   {
-    AddArgument(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+    AddArgument(ezFormatStringImpl<ARGS...>(sFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Takes a full command line and appends it as individual arguments by splitting it along white-space and quotation marks.
   ///
   /// Brief, use this, if arguments are already pre-built as a full command line.
-  void AddCommandLine(const char* szCmdLine);
+  void AddCommandLine(ezStringView sCmdLine);
 
   /// \brief Builds the command line from the process arguments and appends it to \a out_sCmdLine.
   void BuildCommandLineString(ezStringBuilder& out_sCmdLine) const;
@@ -152,7 +152,7 @@ public:
   static ezOsProcessID GetCurrentProcessID();
 
 private:
-  void BuildFullCommandLineString(const ezProcessOptions& opt, const char* szProcess, ezStringBuilder& cmd) const;
+  void BuildFullCommandLineString(const ezProcessOptions& opt, ezStringView sProcess, ezStringBuilder& cmd) const;
 
   ezUniquePtr<struct ezProcessImpl> m_pImpl;
 

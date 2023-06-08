@@ -43,8 +43,7 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL ezResult StringToUInt(ezStringView sText, ezUInt32& out_uiRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
   /// \brief Same as StringToInt but converts to a 64bit integer value instead.
-  EZ_FOUNDATION_DLL ezResult StringToInt64(ezStringView sText, ezInt64& out_iRes,
-    const char** out_pLastParsePosition = nullptr); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToInt64(ezStringView sText, ezInt64& out_iRes, const char** out_pLastParsePosition = nullptr); // [tested]
 
   /// \brief Parses szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parseable floating point value.
   ///
@@ -122,8 +121,7 @@ namespace ezConversionUtils
   ///   or uiNumFloats values were successfully extracted.
   /// \return
   ///   The number of successfully extracted values (and thus valid values in out_pFloats).
-  EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(ezStringView sText, ezUInt32 uiNumFloats, float* out_pFloats,
-    const char** out_pLastParsePosition = nullptr); // [tested]
+  EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(ezStringView sText, ezUInt32 uiNumFloats, float* out_pFloats, const char** out_pLastParsePosition = nullptr); // [tested]
 
   /// \brief Converts a hex character ('0', '1', ... '9', 'A'/'a', ... 'F'/'f') to the corresponding int value 0 - 15.
   ///

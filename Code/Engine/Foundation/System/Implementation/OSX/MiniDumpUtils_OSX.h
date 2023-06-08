@@ -3,12 +3,12 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/System/MiniDumpUtils.h>
 
-ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID)
+ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID)
 {
   return ezStatus("Not implemented on OSX");
 }
 
-ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(const char* szDumpFile)
+ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile)
 {
   return ezStatus("Not implemented on OSX");
 }

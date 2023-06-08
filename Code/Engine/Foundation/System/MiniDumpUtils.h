@@ -18,18 +18,18 @@ struct EZ_FOUNDATION_DLL ezMiniDumpUtils
   /// \brief Tries to write a mini-dump for the external process with the given process ID.
   ///
   /// \sa WriteProcessMiniDump()
-  static ezStatus WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID);
+  static ezStatus WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID);
 
   /// \brief Tries to launch ez's 'MiniDumpTool' to write a mini-dump for THIS process (the recommended way when an application is crashing).
   ///
   /// \note On Windows: If the command line option '-fullcrashdumps' is specified, it is forwarded to the MiniDumpTool.
-  static ezStatus LaunchMiniDumpTool(const char* szDumpFile);
+  static ezStatus LaunchMiniDumpTool(ezStringView sDumpFile);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   /// \brief Windows-specific implementation for writing a mini-dump of the running process.
   ///
   /// \sa WriteProcessMiniDump()
-  static ezStatus WriteOwnProcessMiniDump(const char* szDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo);
+  static ezStatus WriteOwnProcessMiniDump(ezStringView sDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo);
 
   /// \brief Given a process ID this function tries to get a HANDLE to the process with the necessary access rights to write a mini-dump.
   static ezMinWindows::HANDLE GetProcessHandleWithNecessaryRights(ezUInt32 uiProcessID);
@@ -37,13 +37,12 @@ struct EZ_FOUNDATION_DLL ezMiniDumpUtils
   /// \brief Windows-specific implementation for writing a mini-dump of another process.
   ///
   /// \sa WriteProcessMiniDump()
-  static ezStatus WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess);
+  static ezStatus WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess);
 
   /// \brief Windows-specific implementation for writing a mini-dump of the running process.
   ///
   /// \note On Windows: If the command line option '-fullcrashdumps' is specified, a crash-dump with a full memory capture is made.
-  static ezStatus WriteProcessMiniDump(
-    const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess, struct _EXCEPTION_POINTERS* pExceptionInfo);
+  static ezStatus WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess, struct _EXCEPTION_POINTERS* pExceptionInfo);
 
 #endif
 };
