@@ -4,20 +4,20 @@
 
 using namespace ezTokenParseUtils;
 
-ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken, ezUInt32* pAccepted)
+ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken, ezUInt32* pAccepted)
 {
   if (Tokens.GetCount() < 1)
   {
-    ezLog::Error(m_pLog, "Expected token '{0}', got empty token stream", szToken);
+    ezLog::Error(m_pLog, "Expected token '{0}', got empty token stream", sToken);
     return EZ_FAILURE;
   }
 
-  if (Accept(Tokens, uiCurToken, szToken, pAccepted))
+  if (Accept(Tokens, uiCurToken, sToken, pAccepted))
     return EZ_SUCCESS;
 
   const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 1, uiCurToken);
   ezString sErrorToken = Tokens[uiErrorToken]->m_DataView;
-  PP_LOG(Error, "Expected token '{0}' got '{1}'", Tokens[uiErrorToken], szToken, sErrorToken);
+  PP_LOG(Error, "Expected token '{0}' got '{1}'", Tokens[uiErrorToken], sToken, sErrorToken);
 
   return EZ_FAILURE;
 }
@@ -39,21 +39,21 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
   return EZ_FAILURE;
 }
 
-ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken1, const char* szToken2, ezUInt32* pAccepted)
+ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken1, ezStringView sToken2, ezUInt32* pAccepted)
 {
   if (Tokens.GetCount() < 2)
   {
-    ezLog::Error(m_pLog, "Expected tokens '{0}{1}', got empty token stream", szToken1, szToken2);
+    ezLog::Error(m_pLog, "Expected tokens '{0}{1}', got empty token stream", sToken1, sToken2);
     return EZ_FAILURE;
   }
 
-  if (Accept(Tokens, uiCurToken, szToken1, szToken2, pAccepted))
+  if (Accept(Tokens, uiCurToken, sToken1, sToken2, pAccepted))
     return EZ_SUCCESS;
 
   const ezUInt32 uiErrorToken = ezMath::Min(Tokens.GetCount() - 2, uiCurToken);
   ezString sErrorToken1 = Tokens[uiErrorToken]->m_DataView;
   ezString sErrorToken2 = Tokens[uiErrorToken + 1]->m_DataView;
-  PP_LOG(Error, "Expected tokens '{0}{1}', got '{2}{3}'", Tokens[uiErrorToken], szToken1, szToken2, sErrorToken1, sErrorToken2);
+  PP_LOG(Error, "Expected tokens '{0}{1}', got '{2}{3}'", Tokens[uiErrorToken], sToken1, sToken2, sErrorToken1, sErrorToken2);
 
   return EZ_FAILURE;
 }

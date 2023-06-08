@@ -104,16 +104,16 @@ bool ezConfigFileResource::GetBool(ezTempHashedString sName) const
   return false;
 }
 
-const char* ezConfigFileResource::GetString(ezTempHashedString sName, const char* szFallback) const
+ezStringView ezConfigFileResource::GetString(ezTempHashedString sName, ezStringView sFallback) const
 {
   auto it = m_StringData.Find(sName);
   if (it.IsValid())
     return it.Value();
 
-  return szFallback;
+  return sFallback;
 }
 
-const char* ezConfigFileResource::GetString(ezTempHashedString sName) const
+ezStringView ezConfigFileResource::GetString(ezTempHashedString sName) const
 {
   auto it = m_StringData.Find(sName);
   if (it.IsValid())
@@ -167,9 +167,9 @@ void ezConfigFileResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezConfigFileResourceLoader::LoadedData::PrePropFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult ezConfigFileResourceLoader::LoadedData::PrePropFileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
 {
-  ezResult res = ezPreprocessor::DefaultFileLocator(szCurAbsoluteFile, szIncludeFile, incType, out_sAbsoluteFilePath);
+  ezResult res = ezPreprocessor::DefaultFileLocator(sCurAbsoluteFile, sIncludeFile, incType, out_sAbsoluteFilePath);
 
   m_RequiredFiles.AddFileDependency(out_sAbsoluteFilePath);
 

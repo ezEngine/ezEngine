@@ -152,12 +152,11 @@ ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_Data, ezLogInte
       continue;
     }
 
-    const char* szShaderSource = inout_Data.m_sShaderSource[stage];
-    const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szShaderSource);
+    ezStringView sShaderSource = inout_Data.m_sShaderSource[stage];
 
-    if (uiLength > 0 && ezStringUtils::FindSubString(szShaderSource, "main") != nullptr)
+    if (!sShaderSource.IsEmpty() && ezStringUtils::FindSubString(sShaderSource, "main") != nullptr)
     {
-      if (CompileVulkanShader(inout_Data.m_sSourceFile, szShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
+      if (CompileVulkanShader(inout_Data.m_sSourceFile, sShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {
         EZ_SUCCEED_OR_RETURN(ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum)stage));
       }

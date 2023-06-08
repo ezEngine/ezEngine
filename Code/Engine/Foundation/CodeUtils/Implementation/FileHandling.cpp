@@ -114,35 +114,35 @@ void ezPreprocessor::SetFileLocatorFunction(FileLocatorCB locateAbsFileCB)
   m_FileLocatorCallback = locateAbsFileCB;
 }
 
-ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult ezPreprocessor::DefaultFileLocator(ezStringView sCurAbsoluteFile, ezStringView sIncludeFile, ezPreprocessor::IncludeType incType, ezStringBuilder& out_sAbsoluteFilePath)
 {
   ezStringBuilder& s = out_sAbsoluteFilePath;
 
   if (incType == ezPreprocessor::RelativeInclude)
   {
-    s = szCurAbsoluteFile;
+    s = sCurAbsoluteFile;
     s.PathParentDirectory();
-    s.AppendPath(szIncludeFile);
+    s.AppendPath(sIncludeFile);
     s.MakeCleanPath();
   }
   else
   {
-    s = szIncludeFile;
+    s = sIncludeFile;
     s.MakeCleanPath();
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification)
+ezResult ezPreprocessor::DefaultFileOpen(ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& ref_fileContent, ezTimestamp& out_fileModification)
 {
   ezFileReader r;
-  if (r.Open(szAbsoluteFile).Failed())
+  if (r.Open(sAbsoluteFile).Failed())
     return EZ_FAILURE;
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stats;
-  if (ezFileSystem::GetFileStats(szAbsoluteFile, stats).Succeeded())
+  if (ezFileSystem::GetFileStats(sAbsoluteFile, stats).Succeeded())
     out_fileModification = stats.m_LastModificationTime;
 #endif
 
@@ -156,14 +156,14 @@ ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicAr
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pTokenizer)
+ezResult ezPreprocessor::OpenFile(ezStringView sFile, const ezTokenizer** pTokenizer)
 {
   EZ_ASSERT_DEV(m_FileOpenCallback.IsValid(), "OpenFile callback has not been set");
   EZ_ASSERT_DEV(m_FileLocatorCallback.IsValid(), "File locator callback has not been set");
 
   *pTokenizer = nullptr;
 
-  auto it = m_pUsedFileCache->Lookup(szFile);
+  auto it = m_pUsedFileCache->Lookup(sFile);
 
   if (it.IsValid())
   {
@@ -174,9 +174,9 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
   ezTimestamp stamp;
 
   ezDynamicArray<ezUInt8> Content;
-  if (m_FileOpenCallback(szFile, Content, stamp).Failed())
+  if (m_FileOpenCallback(sFile, Content, stamp).Failed())
   {
-    ezLog::Error(m_pLog, "Could not open file '{0}'", szFile);
+    ezLog::Error(m_pLog, "Could not open file '{0}'", sFile);
     return EZ_FAILURE;
   }
 
@@ -194,7 +194,7 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
     }
   }
 
-  *pTokenizer = m_pUsedFileCache->Tokenize(szFile, ContentView, stamp, m_pLog);
+  *pTokenizer = m_pUsedFileCache->Tokenize(sFile, ContentView, stamp, m_pLog);
 
   return EZ_SUCCESS;
 }

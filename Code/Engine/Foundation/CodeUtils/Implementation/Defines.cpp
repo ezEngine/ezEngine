@@ -4,9 +4,9 @@
 
 using namespace ezTokenParseUtils;
 
-bool ezPreprocessor::RemoveDefine(const char* szName)
+bool ezPreprocessor::RemoveDefine(ezStringView sName)
 {
-  auto it = m_Macros.Find(szName);
+  auto it = m_Macros.Find(sName);
 
   if (it.IsValid())
   {
@@ -148,11 +148,11 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
+ezResult ezPreprocessor::AddCustomDefine(ezStringView sDefinition)
 {
   m_CustomDefines.PushBack();
-  m_CustomDefines.PeekBack().m_Content.SetCountUninitialized(ezStringUtils::GetStringElementCount(szDefinition));
-  ezMemoryUtils::Copy(&m_CustomDefines.PeekBack().m_Content[0], (ezUInt8*)szDefinition, m_CustomDefines.PeekBack().m_Content.GetCount());
+  m_CustomDefines.PeekBack().m_Content.SetCountUninitialized(sDefinition.GetElementCount());
+  ezMemoryUtils::Copy(&m_CustomDefines.PeekBack().m_Content[0], (ezUInt8*)sDefinition.GetStartPointer(), m_CustomDefines.PeekBack().m_Content.GetCount());
   m_CustomDefines.PeekBack().m_Tokenized.Tokenize(m_CustomDefines.PeekBack().m_Content, m_pLog);
 
   ezUInt32 uiFirstToken = 0;
