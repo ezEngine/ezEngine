@@ -49,11 +49,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+ezRTTI::ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
   ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions,
   ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
   const ezRTTI* (*fnVerifyParent)())
-  : m_sTypeName(szName)
+  : m_sTypeName(sName)
   , m_Properties(properties)
   , m_Functions(functions)
   , m_Attributes(attributes)

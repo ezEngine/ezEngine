@@ -28,24 +28,24 @@ public:
   ~ezFileSystemMirror();
 
   // \brief Adds the directory, and all files in it recursively.
-  ezResult AddDirectory(const char* szPath, bool* out_pDirectoryExistsAlready = nullptr);
+  ezResult AddDirectory(ezStringView sPath, bool* out_pDirectoryExistsAlready = nullptr);
 
   // \brief Adds a file. Creates directories if they do not exist.
-  ezResult AddFile(const char* szPath, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue);
+  ezResult AddFile(ezStringView sPath, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue);
 
   // \brief Removes a file.
-  ezResult RemoveFile(const char* szPath);
+  ezResult RemoveFile(ezStringView sPath);
 
   // \brief Removes a directory. Deletes any files & directories inside.
-  ezResult RemoveDirectory(const char* szPath);
+  ezResult RemoveDirectory(ezStringView sPath);
 
   // \brief Moves a directory. Any files & folders inside are moved with it.
-  ezResult MoveDirectory(const char* szFromPath, const char* szToPath);
+  ezResult MoveDirectory(ezStringView sFromPath, ezStringView sToPath);
 
   using EnumerateFunc = ezDelegate<void(const ezStringBuilder& path, Type type)>;
 
   // \brief Enumerates the files & directories under the given path
-  ezResult Enumerate(const char* szPath, EnumerateFunc callbackFunc);
+  ezResult Enumerate(ezStringView sPath, EnumerateFunc callbackFunc);
 
 private:
   DirEntry* FindDirectory(ezStringBuilder& path);
@@ -81,9 +81,9 @@ template <typename T>
 ezFileSystemMirror<T>::~ezFileSystemMirror() = default;
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::AddDirectory(const char* szPath, bool* out_pDirectoryExistsAlready)
+ezResult ezFileSystemMirror<T>::AddDirectory(ezStringView sPath, bool* out_pDirectoryExistsAlready)
 {
-  ezStringBuilder currentDirAbsPath = szPath;
+  ezStringBuilder currentDirAbsPath = sPath;
   currentDirAbsPath.MakeCleanPath();
   EnsureTrailingSlash(currentDirAbsPath);
 
@@ -158,9 +158,9 @@ ezResult ezFileSystemMirror<T>::AddDirectory(const char* szPath, bool* out_pDire
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::AddFile(const char* szPath, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue)
+ezResult ezFileSystemMirror<T>::AddFile(ezStringView sPath0, const T& value, bool* out_pFileExistsAlready, T* out_pOldValue)
 {
-  ezStringBuilder sPath = szPath;
+  ezStringBuilder sPath = sPath0;
   DirEntry* dir = FindDirectory(sPath);
   if (dir == nullptr)
   {
@@ -204,9 +204,9 @@ ezResult ezFileSystemMirror<T>::AddFile(const char* szPath, const T& value, bool
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::RemoveFile(const char* szPath)
+ezResult ezFileSystemMirror<T>::RemoveFile(ezStringView sPath0)
 {
-  ezStringBuilder sPath = szPath;
+  ezStringBuilder sPath = sPath0;
   DirEntry* dir = FindDirectory(sPath);
   if (dir == nullptr)
   {
@@ -234,10 +234,10 @@ ezResult ezFileSystemMirror<T>::RemoveFile(const char* szPath)
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::RemoveDirectory(const char* szPath)
+ezResult ezFileSystemMirror<T>::RemoveDirectory(ezStringView sPath)
 {
-  ezStringBuilder parentPath = szPath;
-  ezStringBuilder dirName = szPath;
+  ezStringBuilder parentPath = sPath;
+  ezStringBuilder dirName = sPath;
   parentPath.PathParentDirectory();
   EnsureTrailingSlash(parentPath);
   dirName.Shrink(parentPath.GetCharacterCount(), 0);
@@ -258,18 +258,18 @@ ezResult ezFileSystemMirror<T>::RemoveDirectory(const char* szPath)
 }
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::MoveDirectory(const char* szFromPath, const char* szToPath)
+ezResult ezFileSystemMirror<T>::MoveDirectory(ezStringView sFromPath0, ezStringView sToPath0)
 {
-  ezStringBuilder sFromPath = szFromPath;
-  ezStringBuilder sFromName = szFromPath;
+  ezStringBuilder sFromPath = sFromPath0;
+  ezStringBuilder sFromName = sFromPath0;
   sFromPath.PathParentDirectory();
   EnsureTrailingSlash(sFromPath);
   sFromName.Shrink(sFromPath.GetCharacterCount(), 0);
   EnsureTrailingSlash(sFromName);
 
 
-  ezStringBuilder sToPath = szToPath;
-  ezStringBuilder sToName = szToPath;
+  ezStringBuilder sToPath = sToPath0;
+  ezStringBuilder sToName = sToPath0;
   sToPath.PathParentDirectory();
   EnsureTrailingSlash(sToPath);
   sToName.Shrink(sToPath.GetCharacterCount(), 0);
@@ -328,10 +328,10 @@ namespace
 } // namespace
 
 template <typename T>
-ezResult ezFileSystemMirror<T>::Enumerate(const char* szPath, EnumerateFunc callbackFunc)
+ezResult ezFileSystemMirror<T>::Enumerate(ezStringView sPath0, EnumerateFunc callbackFunc)
 {
   ezHybridArray<ezDirEnumerateState<T>, 16> dirStack;
-  ezStringBuilder sPath = szPath;
+  ezStringBuilder sPath = sPath0;
   if (!sPath.EndsWith("/"))
   {
     sPath.Append("/");
@@ -347,7 +347,7 @@ ezResult ezFileSystemMirror<T>::Enumerate(const char* szPath, EnumerateFunc call
   }
   DirEntry* currentDir = dirToEnumerate;
   typename ezMap<ezString, ezFileSystemMirror::DirEntry>::Iterator currentSubDirIt = currentDir->m_subDirectories.GetIterator();
-  sPath = szPath;
+  sPath = sPath0;
 
   while (currentDir != nullptr)
   {
