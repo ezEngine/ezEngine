@@ -152,12 +152,12 @@ ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_Data, ezLogInte
       continue;
     }
 
-    const char* szShaderSource = inout_Data.m_szShaderSource[stage];
+    const char* szShaderSource = inout_Data.m_sShaderSource[stage];
     const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szShaderSource);
 
     if (uiLength > 0 && ezStringUtils::FindSubString(szShaderSource, "main") != nullptr)
     {
-      if (CompileVulkanShader(inout_Data.m_szSourceFile, szShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
+      if (CompileVulkanShader(inout_Data.m_sSourceFile, szShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {
         EZ_SUCCEED_OR_RETURN(ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum)stage));
       }
@@ -504,7 +504,7 @@ ezGALResourceFormat::Enum GetEZFormat(SpvReflectFormat format)
 
 ezResult ezShaderCompilerDXC::ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage)
 {
-  EZ_LOG_BLOCK("ReflectShaderStage", inout_Data.m_szSourceFile);
+  EZ_LOG_BLOCK("ReflectShaderStage", inout_Data.m_sSourceFile);
 
   auto& bytecode = inout_Data.m_StageBinary[Stage].GetByteCode();
 

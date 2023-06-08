@@ -19,11 +19,11 @@ ezString ezEnvironmentVariableUtils::GetValueString(ezStringView sName, ezString
   return GetValueStringImpl(sName, sDefault);
 }
 
-ezResult ezEnvironmentVariableUtils::SetValueString(ezStringView sName, ezStringView szValue)
+ezResult ezEnvironmentVariableUtils::SetValueString(ezStringView sName, ezStringView sValue)
 {
   EZ_LOCK(s_EnvVarMutex);
 
-  return SetValueStringImpl(sName, szValue);
+  return SetValueStringImpl(sName, sValue);
 }
 
 ezInt32 ezEnvironmentVariableUtils::GetValueInt(ezStringView sName, ezInt32 iDefault /*= -1*/)
