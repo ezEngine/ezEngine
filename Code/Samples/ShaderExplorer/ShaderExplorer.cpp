@@ -454,11 +454,11 @@ void ezShaderExplorerApp::CreateScreenQuad()
     m_hQuadMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
 }
 
-void ezShaderExplorerApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+void ezShaderExplorerApp::OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
   if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
   {
-    ezLog::Info("The file {0} was modified", filename);
+    ezLog::Info("The file {0} was modified", sFilename);
     m_bStuffChanged = true;
   }
 }

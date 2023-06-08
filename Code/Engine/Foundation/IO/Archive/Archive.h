@@ -64,15 +64,15 @@ class ezArchiveLookupString
 public:
   EZ_DECLARE_POD_TYPE();
 
-  ezArchiveLookupString(ezUInt64 uiLowerCaseHash, const char* szString, const ezDynamicArray<ezUInt8>& archiveAllPathStrings)
+  ezArchiveLookupString(ezUInt64 uiLowerCaseHash, ezStringView sString, const ezDynamicArray<ezUInt8>& archiveAllPathStrings)
     : m_uiLowerCaseHash(ezHashingUtils::StringHashTo32(uiLowerCaseHash))
-    , m_szString(szString)
+    , m_sString(sString)
     , m_ArchiveAllPathStrings(archiveAllPathStrings)
   {
   }
 
   ezUInt32 m_uiLowerCaseHash;
-  const char* m_szString = nullptr;
+  ezStringView m_sString;
   const ezDynamicArray<ezUInt8>& m_ArchiveAllPathStrings;
 };
 
@@ -89,7 +89,7 @@ struct ezHashHelper<ezArchiveStoredString>
   {
     // in case that we want to lookup a string using a ezArchiveLookupString, we validate
     // that the stored string is actually equal to the lookup string, to enable handling of hash collisions
-    return ezStringUtils::IsEqual_NoCase(reinterpret_cast<const char*>(&b.m_ArchiveAllPathStrings[a.m_uiSrcStringOffset]), b.m_szString);
+    return b.m_sString.IsEqual_NoCase(reinterpret_cast<const char*>(&b.m_ArchiveAllPathStrings[a.m_uiSrcStringOffset]));
   }
 };
 
@@ -105,9 +105,9 @@ public:
   ezDynamicArray<ezUInt8> m_AllPathStrings;
 
   /// \brief Returns the entry index for the given file or ezInvalidIndex, if not found.
-  ezUInt32 FindEntry(const char* szFile) const;
+  ezUInt32 FindEntry(ezStringView sFile) const;
 
-  const char* GetEntryPathString(ezUInt32 uiEntryIdx) const;
+  ezStringView GetEntryPathString(ezUInt32 uiEntryIdx) const;
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream, ezUInt8 uiArchiveVersion);

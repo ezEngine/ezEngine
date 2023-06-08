@@ -345,7 +345,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
       else
       {
         ezStringBuilder dirPath;
-        mirror->Enumerate(moveFrom.path, [&](const char* path, typename ezFileSystemMirrorType::Type type) {
+        mirror->Enumerate(moveFrom.path, [&](ezStringView sPath, typename ezFileSystemMirrorType::Type type)
+                {
                 if (type == ezFileSystemMirrorType::Type::File)
                 {
                   func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
@@ -353,7 +354,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
                 else
                 {
                   func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
-                  dirPath = path;
+                  dirPath = sPath;
                   EnsureTrailingSlash(dirPath);
                   auto it = m_pImpl->m_pathToWd.Find(dirPath);
                   if (it.IsValid())
@@ -693,12 +694,12 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 
 void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo)
 {
-  ezLog::Warning("ezDirectoryWatcher not supported on this linux system");
+  ezLog::Warning("ezDirectoryWatcher not supported on this Linux system");
 }
 
 void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo)
 {
-  ezLog::Warning("ezDirectoryWatcher not supported on this linux system");
+  ezLog::Warning("ezDirectoryWatcher not supported on this Linux system");
 }
 
 #endif

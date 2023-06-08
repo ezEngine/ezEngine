@@ -284,11 +284,11 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
   }
 }
 
-void ezComputeShaderHistogramApp::OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
+void ezComputeShaderHistogramApp::OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
 {
   if (action == ezDirectoryWatcherAction::Modified && type == ezDirectoryWatcherType::File)
   {
-    ezLog::Info("The file {0} was modified", filename);
+    ezLog::Info("The file {0} was modified", sFilename);
     m_bStuffChanged = true;
   }
 }

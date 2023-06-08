@@ -30,7 +30,7 @@ public:
 private:
   void UpdateSwapChain();
   void CreateScreenQuad();
-  void OnFileChanged(const char* filename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
+  void OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
 
   ezShaderExplorerWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
