@@ -51,8 +51,7 @@ void ezFileSystemWatcher::Initialize()
     ezHybridArray<WatcherResult, 16> watcherResults;
     for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
-      pWatcher->EnumerateChanges([pWatcher, &watcherResults](ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
-        { watcherResults.PushBack({sFilename, action, type}); });
+      pWatcher->EnumerateChanges([pWatcher, &watcherResults](ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) { watcherResults.PushBack({sFilename, action, type}); });
     }
     for (const WatcherResult& res : watcherResults)
     {

@@ -345,8 +345,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
       else
       {
         ezStringBuilder dirPath;
-        mirror->Enumerate(moveFrom.path, [&](ezStringView sPath, typename ezFileSystemMirrorType::Type type)
-                {
+        mirror->Enumerate(moveFrom.path, [&](ezStringView sPath, typename ezFileSystemMirrorType::Type type) {
                 if (type == ezFileSystemMirrorType::Type::File)
                 {
                   func(path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
