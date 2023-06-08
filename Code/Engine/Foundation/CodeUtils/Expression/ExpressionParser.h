@@ -44,7 +44,7 @@ private:
   ezExpressionAST::Node* EnsureExpectedType(ezExpressionAST::Node* pNode, ezExpressionAST::DataType::Enum expectedType);
   ezExpressionAST::Node* Unpack(ezExpressionAST::Node* pNode, bool bUnassignedError = true);
 
-  ezResult Expect(const char* szToken, const ezToken** pExpectedToken = nullptr);
+  ezResult Expect(ezStringView sToken, const ezToken** pExpectedToken = nullptr);
   ezResult Expect(ezTokenType::Enum Type, const ezToken** pExpectedToken = nullptr);
 
   void ReportError(const ezToken* pToken, const ezFormatString& message);
