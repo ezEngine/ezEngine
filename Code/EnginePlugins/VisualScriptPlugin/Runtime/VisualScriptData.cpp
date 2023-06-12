@@ -1,5 +1,6 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
+#include <Core/Scripting/ScriptCoroutine.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptData.h>
 
 namespace

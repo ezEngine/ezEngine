@@ -1,6 +1,7 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
 #include <VisualScriptPlugin/Runtime/VisualScriptCoroutine.h>
+#include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
 ezVisualScriptCoroutine::ezVisualScriptCoroutine(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
   : m_LocalDataStorage(pDesc->GetLocalDataDesc())

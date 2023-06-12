@@ -2,6 +2,7 @@
 
 #include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
 
+#include <Core/Scripting/ScriptCoroutine.h>
 #include <Core/World/World.h>
 
 // clang-format off

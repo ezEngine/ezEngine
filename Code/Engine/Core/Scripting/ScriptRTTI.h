@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/CoreDLL.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
