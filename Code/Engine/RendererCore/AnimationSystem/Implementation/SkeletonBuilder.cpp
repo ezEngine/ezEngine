@@ -28,7 +28,7 @@ ezUInt16 ezSkeletonBuilder::AddJoint(ezStringView sName, const ezTransform& loca
   return static_cast<ezUInt16>(m_Joints.GetCount() - 1);
 }
 
-void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle)
+void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle, float fStiffness)
 {
   auto& j = m_Joints[uiJointIndex];
   j.m_qLocalJointOrientation = qLocalOrientation;
@@ -39,6 +39,7 @@ void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLoca
   j.m_TwistLimitCenterAngle = twistLimitCenterAngle;
   j.m_bLimitSwing = bLimitSwing;
   j.m_bLimitTwist = bLimitTwist;
+  j.m_fStiffness = fStiffness;
 }
 
 
@@ -78,6 +79,7 @@ void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& ref_skeleton) const
 
     ref_skeleton.m_Joints[i].m_uiCollisionLayer = m_Joints[i].m_uiCollisionLayer;
     ref_skeleton.m_Joints[i].m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(m_Joints[i].m_sSurface);
+    ref_skeleton.m_Joints[i].m_fStiffness = m_Joints[i].m_fStiffness;
   }
 }
 

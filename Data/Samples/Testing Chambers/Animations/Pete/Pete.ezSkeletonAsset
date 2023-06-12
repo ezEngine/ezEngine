@@ -191,7 +191,7 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{14480472025422740414,4881933244452828737}}
-		u4 %Hash{6432378821129774157}
+		u4 %Hash{2202901069215718130}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3973616563548524274,1591302125804003715}}
@@ -488,6 +488,7 @@ o
 		s %Name{"Torso"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -522,6 +523,7 @@ o
 		s %Name{"Belly"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -560,6 +562,8 @@ o
 		u1 %CollisionLayer{0}
 		s %File{"Animations/Pete/Pete.glb"}
 		b %FlipForwardDir{0}
+		f %MaxImpulse{0x0000C842}
+		s %PreviewMesh{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 		s %RightDir{"ezBasisAxis::NegativeX"}
 		s %Surface{"{ 73b2bf79-7803-43de-9647-117773d05b87 }"}
 		f %UniformScaling{0x0000803F}
@@ -607,6 +611,7 @@ o
 		s %Name{"UpperLeg.L"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0xC2B8B23F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -638,6 +643,7 @@ o
 		s %Name{"Foot.R"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0xDB0F493F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -684,11 +690,11 @@ o
 	p
 	{
 		s %Geometry{"ezSkeletonJointGeometryType::Box"}
-		f %Length{0x7B142E3E}
-		Vec3 %Offset{f{0,0,0x0AD723BC}}
+		f %Length{0xAE47613E}
+		Vec3 %Offset{f{0x8FC2F5BC,0,0x0AD723BC}}
 		Quat %Rotation{f{0,0,0,0x0000803F}}
 		f %Thickness{0x8FC2F53D}
-		f %Width{0x8FC2F53D}
+		f %Width{0x5C8F423E}
 	}
 }
 o
@@ -715,6 +721,7 @@ o
 		s %Name{"Armature"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -749,6 +756,7 @@ o
 		s %Name{"LowerLeg.R"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A863F}}
 		Angle %SwingLimitZ{f{0xC2B8323E}}
@@ -780,6 +788,7 @@ o
 		s %Name{"Hand.R"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0xDB0F493F}}
 		Angle %SwingLimitZ{f{0xDB0F493F}}
@@ -854,13 +863,14 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xFEFFFFBE,0x0100003F,0x0100003F,0xFEFFFFBE}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x00D38C3B,0,0xBE708C3F}}
-		s %JointType{"ezSkeletonJointType::SwingTwist"}
+		s %JointType{"ezSkeletonJointType::None"}
 		b %LimitSwing{1}
 		b %LimitTwist{1}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Hip"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0}}
@@ -892,6 +902,7 @@ o
 		s %Name{"Hand.L"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0xDB0F493F}}
 		Angle %SwingLimitZ{f{0xDB0F493F}}
@@ -953,6 +964,7 @@ o
 		s %Name{"Head"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -983,16 +995,17 @@ o
 		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		b %LimitSwing{1}
 		b %LimitTwist{1}
-		Quat %LocalRotation{f{0xB6673BBE,0xB3673B3E,0xEDD92EBF,0xECD92E3F}}
+		Quat %LocalRotation{f{0xB8673B3E,0x0600003F,0xEED92EBF,0xFEFFFF3E}}
 		s %Name{"UpperArm.L"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x0BBEF53F}}
 		Angle %SwingLimitZ{f{0x0BBEF53F}}
 		Transform %Transform{f{0x511A463E,0x16CE383E,0x0EF85F3B,0x76DD563F,0xC4E0EF3C,0x2554063F,0x67780EBE,0xFDFF7F3F,0x0000803F,0xFCFF7F3F}}
-		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitCenterAngle{f{0xDD357A3D}}
+		Angle %TwistLimitHalfAngle{f{0xDB0FC93F}}
 	}
 }
 o
@@ -1036,12 +1049,13 @@ o
 		s %Name{"UpperArm.R"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x0BBEF53F}}
 		Angle %SwingLimitZ{f{0x0BBEF53F}}
 		Transform %Transform{f{0x4E1A46BE,0x18CE383E,0x21F85F3B,0x51DE563F,0xA2A1EFBC,0x085406BF,0x16670EBE,0x0000803F,0x0000803F,0x0100803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xDB0FC93F}}
 	}
 }
 o
@@ -1070,6 +1084,7 @@ o
 		s %Name{"UpperLeg.R"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0xC2B8B23F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -1113,6 +1128,7 @@ o
 		s %Name{"Mesh"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -1162,6 +1178,7 @@ o
 		s %Name{"LowerArm.L"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x0BBE753F}}
 		Angle %SwingLimitZ{f{0xC2B8323E}}
@@ -1211,6 +1228,7 @@ o
 		s %Name{"LowerArm.R"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x0BBE753F}}
 		Angle %SwingLimitZ{f{0xC2B8323E}}
@@ -1242,6 +1260,7 @@ o
 		s %Name{"Foot.L"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0xDB0F493F}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -1273,6 +1292,7 @@ o
 		s %Name{"Root"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0}}
 		Angle %SwingLimitZ{f{0x920A063F}}
@@ -1307,6 +1327,7 @@ o
 		s %Name{"LowerLeg.L"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A863F}}
 		Angle %SwingLimitZ{f{0xC2B8323E}}
@@ -1341,6 +1362,7 @@ o
 		s %Name{"Neck"}
 		b %OverrideCollisionLayer{0}
 		b %OverrideSurface{0}
+		f %Stiffness{0x00002041}
 		s %Surface{""}
 		Angle %SwingLimitY{f{0x920A063F}}
 		Angle %SwingLimitZ{f{0x920A063F}}

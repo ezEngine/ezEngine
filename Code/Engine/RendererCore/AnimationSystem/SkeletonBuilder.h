@@ -18,7 +18,7 @@ public:
   /// so that child joints always come after their parent joints
   ezUInt16 AddJoint(ezStringView sName, const ezTransform& localBindPose, ezUInt16 uiParentIndex = ezInvalidJointIndex);
 
-  void SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle);
+  void SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle, float fStiffness);
 
   void SetJointSurface(ezUInt16 uiJointIndex, ezStringView sSurface);
   void SetJointCollisionLayer(ezUInt16 uiJointIndex, ezUInt8 uiCollsionLayer);
@@ -45,6 +45,7 @@ protected:
     ezAngle m_TwistLimitCenterAngle;
     bool m_bLimitTwist = false;
     bool m_bLimitSwing = false;
+    float m_fStiffness = 0.0f;
 
     ezString m_sSurface;
     ezUInt8 m_uiCollisionLayer = 0;

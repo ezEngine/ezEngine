@@ -83,6 +83,7 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
 
     props["Surface"].m_Visibility = overrideSurface ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["CollisionLayer"].m_Visibility = overrideCollisionLayer ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["Stiffness"].m_Visibility = (jointType != ezSkeletonJointType::None) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["LimitSwing"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SwingLimitY"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SwingLimitZ"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;

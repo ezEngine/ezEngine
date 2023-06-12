@@ -47,7 +47,10 @@ public:
   ezSurfaceResourceHandle GetSurface() const { return m_hSurface; }
   ezUInt8 GetCollisionLayer() const { return m_uiCollisionLayer; }
 
-protected:
+  float GetStiffness() const { return m_fStiffness; }
+  void SetStiffness(float fValue) { m_fStiffness = fValue; }
+
+private:
   friend ezSkeleton;
   friend ezSkeletonBuilder;
 
@@ -64,6 +67,7 @@ protected:
   ezAngle m_HalfSwingLimitZ;
   ezAngle m_TwistLimitHalfAngle;
   ezAngle m_TwistLimitCenterAngle;
+  float m_fStiffness = 0.0f;
 };
 
 /// \brief The skeleton class encapsulates the information about the joint structure for a model.

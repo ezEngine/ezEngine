@@ -67,6 +67,8 @@ public:
 
   ezEnum<ezSkeletonJointType> m_JointType;
 
+  float m_fStiffness = 0.0f;
+
   bool m_bLimitTwist = false;
   bool m_bLimitSwing = false;
 
