@@ -7,7 +7,22 @@
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-using ezAnimatedMeshComponentManager = ezComponentManager<class ezAnimatedMeshComponent, ezBlockStorageType::FreeList>;
+class EZ_GAMEENGINE_DLL ezAnimatedMeshComponentManager : public ezComponentManager<class ezAnimatedMeshComponent, ezBlockStorageType::Compact>
+{
+public:
+  ezAnimatedMeshComponentManager(ezWorld* pWorld);
+  ~ezAnimatedMeshComponentManager();
+
+  virtual void Initialize() override;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+  void AddToUpdateList(ezAnimatedMeshComponent* pComponent);
+
+private:
+  void ResourceEventHandler(const ezResourceEvent& e);
+
+  ezDeque<ezComponentHandle> m_ComponentsToUpdate;
+};
 
 class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezMeshComponentBase
 {
@@ -52,6 +67,7 @@ protected:
   ezTransform m_RootTransform = ezTransform::IdentityTransform();
   ezBoundingBox m_MaxBounds;
   ezSkinningState m_SkinningState;
+  ezSkeletonResourceHandle m_hDefaultSkeleton;
 };
 
 

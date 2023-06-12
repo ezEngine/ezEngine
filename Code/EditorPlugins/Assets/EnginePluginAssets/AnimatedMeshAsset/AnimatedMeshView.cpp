@@ -28,6 +28,7 @@ ezViewHandle ezAnimatedMeshViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("AnimatedMesh Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 

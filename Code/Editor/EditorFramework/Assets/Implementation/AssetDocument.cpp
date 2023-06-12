@@ -122,21 +122,26 @@ void ezAssetDocument::InternalAfterSaveDocument()
     // creating the document and TransformAsset will most likely fail.
     if (m_EngineConnectionType == ezAssetDocEngineConnection::None || m_pEngineConnection)
     {
-      ezSharedPtr<ezDelegateTask<void>> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "TransformAfterSaveDocument", [this]()
-        {
-          /// \todo Should only be done for platform agnostic assets
-          ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);
+      ezUuid docGuid = GetGuid();
 
-          if (ret.Failed())
-          {
-            ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, GetDocumentPath());
-          }
-          else
-          {
-            ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
-          }
-          //
-        });
+      ezSharedPtr<ezDelegateTask<void>> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "TransformAfterSaveDocument", [docGuid]() {
+        ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(docGuid);
+        if (pDoc == nullptr)
+          return;
+
+        /// \todo Should only be done for platform agnostic assets
+        ezTransformStatus ret = ezAssetCurator::GetSingleton()->TransformAsset(docGuid, ezTransformFlags::TriggeredManually);
+
+        if (ret.Failed())
+        {
+          ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, pDoc->GetDocumentPath());
+        }
+        else
+        {
+          ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
+        }
+        //
+      });
 
       pTask->ConfigureTask("TransformAfterSaveDocument", ezTaskNesting::Maybe);
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::ThisFrameMainThread);

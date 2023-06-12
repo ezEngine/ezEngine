@@ -26,6 +26,7 @@ ezViewHandle ezRmlUiViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Rml Ui Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 

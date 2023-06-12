@@ -67,8 +67,7 @@ public:
 
   ezEnum<ezSkeletonJointType> m_JointType;
 
-  bool m_bLimitTwist = false;
-  bool m_bLimitSwing = false;
+  float m_fStiffness = 0.0f;
 
   ezAngle m_TwistLimitHalfAngle;
   ezAngle m_TwistLimitCenterAngle;
@@ -105,6 +104,8 @@ public:
   void CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkeletonResourceDescriptor& ref_desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& mRootTransform) const;
 
   ezString m_sSourceFile;
+  ezString m_sPreviewMesh;
+
   ezString m_sSurfaceFile;
   ezUInt8 m_uiCollisionLayer = 0;
 

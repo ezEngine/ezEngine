@@ -91,7 +91,8 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
   if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  const auto hSkeleton = pMesh->m_hDefaultSkeleton;
+  m_hDefaultSkeleton = pMesh->m_hDefaultSkeleton;
+  const auto hSkeleton = m_hDefaultSkeleton;
 
   if (!hSkeleton.IsValid())
     return;
@@ -288,6 +289,86 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
 
       return;
     }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+
+ezAnimatedMeshComponentManager::ezAnimatedMeshComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
+{
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezAnimatedMeshComponentManager::ResourceEventHandler, this));
+}
+
+ezAnimatedMeshComponentManager::~ezAnimatedMeshComponentManager()
+{
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezAnimatedMeshComponentManager::ResourceEventHandler, this));
+}
+
+void ezAnimatedMeshComponentManager::Initialize()
+{
+  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimatedMeshComponentManager::Update, this);
+
+  RegisterUpdateFunction(desc);
+}
+
+void ezAnimatedMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+  {
+    if (ezMeshResource* pResource = ezDynamicCast<ezMeshResource*>(e.m_pResource))
+    {
+      ezMeshResourceHandle hMesh(pResource);
+
+      for (auto it = GetComponents(); it.IsValid(); it.Next())
+      {
+        if (it->m_hMesh == hMesh)
+        {
+          AddToUpdateList(it);
+        }
+      }
+    }
+
+    if (ezSkeletonResource* pResource = ezDynamicCast<ezSkeletonResource*>(e.m_pResource))
+    {
+      ezSkeletonResourceHandle hSkeleton(pResource);
+
+      for (auto it = GetComponents(); it.IsValid(); it.Next())
+      {
+        if (it->m_hDefaultSkeleton == hSkeleton)
+        {
+          AddToUpdateList(it);
+        }
+      }
+    }
+  }
+}
+
+void ezAnimatedMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  for (auto hComp : m_ComponentsToUpdate)
+  {
+    ezAnimatedMeshComponent* pComponent = nullptr;
+    if (!TryGetComponent(hComp, pComponent))
+      continue;
+
+    if (!pComponent->IsActive())
+      continue;
+
+    pComponent->InitializeAnimationPose();
+  }
+
+  m_ComponentsToUpdate.Clear();
+}
+
+void ezAnimatedMeshComponentManager::AddToUpdateList(ezAnimatedMeshComponent* pComponent)
+{
+  ezComponentHandle hComponent = pComponent->GetHandle();
+
+  if (m_ComponentsToUpdate.IndexOf(hComponent) == ezInvalidIndex)
+  {
+    m_ComponentsToUpdate.PushBack(hComponent);
   }
 }
 

@@ -57,6 +57,9 @@ public:
   void SetRenderTwistLimits(bool bEnable);
   bool GetRenderTwistLimits() const { return m_bRenderTwistLimits; }
 
+  void SetRenderPreviewMesh(bool bEnable);
+  bool GetRenderPreviewMesh() const { return m_bRenderPreviewMesh; }
+
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
@@ -71,6 +74,7 @@ protected:
   bool m_bRenderJoints = false; // currently not exposed
   bool m_bRenderSwingLimits = true;
   bool m_bRenderTwistLimits = true;
+  bool m_bRenderPreviewMesh = true;
 };
 
 //////////////////////////////////////////////////////////////////////////

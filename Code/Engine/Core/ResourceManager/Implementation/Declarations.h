@@ -34,7 +34,7 @@ struct ezResourceEvent
   };
 
   Type m_Type;
-  const ezResource* m_pResource = nullptr;
+  ezResource* m_pResource = nullptr;
 };
 
 /// \brief Events sent by the ezResourceManager

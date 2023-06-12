@@ -22,6 +22,7 @@ ezViewHandle ezMaterialViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Material Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
   pView->SetShaderPermutationVariable("MATERIAL_PREVIEW", "TRUE");

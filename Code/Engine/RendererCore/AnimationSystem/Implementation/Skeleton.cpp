@@ -10,7 +10,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointType, 1)
-  EZ_ENUM_CONSTANTS(ezSkeletonJointType::None, ezSkeletonJointType::SwingTwist)
+  EZ_ENUM_CONSTANTS(ezSkeletonJointType::None, ezSkeletonJointType::Fixed, ezSkeletonJointType::SwingTwist)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
@@ -44,7 +44,7 @@ ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
 
 void ezSkeleton::Save(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(6);
+  inout_stream.WriteVersion(7);
 
   const ezUInt32 uiNumJoints = m_Joints.GetCount();
   inout_stream << uiNumJoints;
@@ -64,6 +64,7 @@ void ezSkeleton::Save(ezStreamWriter& inout_stream) const
     inout_stream << m_Joints[i].m_JointType;
     inout_stream << m_Joints[i].m_hSurface;
     inout_stream << m_Joints[i].m_uiCollisionLayer;
+    inout_stream << m_Joints[i].m_fStiffness;
   }
 
   inout_stream << m_BoneDirection;
@@ -71,7 +72,7 @@ void ezSkeleton::Save(ezStreamWriter& inout_stream) const
 
 void ezSkeleton::Load(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = inout_stream.ReadVersion(6);
+  const ezTypeVersion version = inout_stream.ReadVersion(7);
   if (version < 3)
     return;
 
@@ -104,6 +105,11 @@ void ezSkeleton::Load(ezStreamReader& inout_stream)
       inout_stream >> m_Joints[i].m_JointType;
       inout_stream >> m_Joints[i].m_hSurface;
       inout_stream >> m_Joints[i].m_uiCollisionLayer;
+    }
+
+    if (version >= 7)
+    {
+      inout_stream >> m_Joints[i].m_fStiffness;
     }
   }
 

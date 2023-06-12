@@ -1,0 +1,80 @@
+string %Shader { "Shaders/Materials/DefaultMaterial.ezShader" }
+
+
+Permutation
+{
+  string %Variable { "BLEND_MODE" }
+  string %Value { "BLEND_MODE_TRANSPARENT" }
+}
+
+Permutation
+{
+  string %Variable { "SHADING_MODE" }
+  string %Value { "SHADING_MODE_LIT" }
+}
+
+Permutation
+{
+  string %Variable { "TWO_SIDED" }
+  string %Value { "FALSE" }
+}
+
+Constant
+{
+  string %Variable { "BaseColor" }
+  Color %Value { f{0.0, 0.0, 0.0, 0.9} }
+}
+
+Constant
+{
+  string %Variable { "EmissiveColor" }
+  Color %Value { f{0.0, 0.0, 0.0, 0.0} }
+}
+
+Constant
+{
+  string %Variable { "RoughnessValue" }
+  f %Value { 1.0 }
+}
+
+Constant
+{
+  string %Variable { "MetallicValue" }
+  f %Value { 0.0 }
+}
+
+Constant
+{
+  string %Variable { "UseBaseTexture" }
+  u3 %Value { 0 }
+}
+
+Constant
+{
+  string %Variable { "UseNormalTexture" }
+  u3 %Value { 0 }
+}
+
+Constant
+{
+  string %Variable { "UseRoughnessTexture" }
+  u3 %Value { 0 }
+}
+
+Constant
+{
+  string %Variable { "UseEmissiveTexture" }
+  u3 %Value { 0 }
+}
+
+Constant
+{
+  string %Variable { "UseMetallicTexture" }
+  u3 %Value { 0 }
+}
+
+Constant
+{
+  string %Variable { "UseOcclusionTexture" }
+  u3 %Value { 0 }
+}

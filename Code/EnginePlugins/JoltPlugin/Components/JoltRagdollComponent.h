@@ -81,15 +81,16 @@ public:
 
   ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
 
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg); // [ msg handler ]
-  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const; // [ msg handler ]
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);      // [ msg handler ]
+  void OnMsgAnimationPoseProposal(ezMsgAnimationPoseProposal& ref_msg); // [ msg handler ]
+  void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;      // [ msg handler ]
 
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
   void SetGravityFactor(float fFactor);                       // [ property ]
 
-  bool m_bSelfCollision = false; // [ property ]
-  float m_fStiffness = 10.0f;    // [ property ]
-  float m_fMass = 50.0f;         // [ property ]
+  bool m_bSelfCollision = false;   // [ property ]
+  float m_fStiffnessFactor = 1.0f; // [ property ]
+  float m_fMass = 50.0f;           // [ property ]
 
   void SetStartMode(ezEnum<ezJoltRagdollStartMode> mode);                     // [ property ]
   ezEnum<ezJoltRagdollStartMode> GetStartMode() const { return m_StartMode; } // [ property ]
@@ -123,6 +124,7 @@ public:
   float m_fCenterAngularVelocity = 0.0f;           // [ property ]
   ezVec3 m_vCenterPosition = ezVec3::ZeroVector(); // [ property ]
 
+  void SetJointTypeOverride(const char* szJointName, ezEnum<ezSkeletonJointType> type);
 
 protected:
   struct Limb
@@ -178,8 +180,17 @@ protected:
   ezVec3 m_vInitialImpulseDirection = ezVec3::ZeroVector();
   ezUInt8 m_uiNumInitialImpulses = 0;
 
+  struct JointOverride
+  {
+    ezTempHashedString m_sJointName;
+    bool m_bOverrideType = false;
+    ezEnum<ezSkeletonJointType> m_JointType;
+  };
+
+  ezDynamicArray<JointOverride> m_JointOverrides;
+
   //////////////////////////////////////////////////////////////////////////
 
   void SetupLimbJoints(const ezSkeletonResource* pSkeleton);
-  void CreateLimbJoint(const ezSkeletonJoint& thisJoint, void* pParentBodyDesc, const ezTransform& parentFrame, void* pThisBodyDesc, const ezTransform& thisFrame);
+  void CreateLimbJoint(const ezSkeletonJoint& thisJoint, void* pParentBodyDesc, void* pThisBodyDesc);
 };

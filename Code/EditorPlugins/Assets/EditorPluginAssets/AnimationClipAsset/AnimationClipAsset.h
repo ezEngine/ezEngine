@@ -41,8 +41,6 @@ public:
   ezString m_sPreviewMesh;
   ezEnum<ezRootMotionSource> m_RootMotionMode;
   ezVec3 m_vConstantRootMotion;
-  // ezString m_sJoint1;
-  // ezString m_sJoint2;
 
   ezEventTrackData m_EventTrack;
 
