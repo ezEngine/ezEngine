@@ -69,9 +69,6 @@ public:
 
   float m_fStiffness = 0.0f;
 
-  bool m_bLimitTwist = false;
-  bool m_bLimitSwing = false;
-
   ezAngle m_TwistLimitHalfAngle;
   ezAngle m_TwistLimitCenterAngle;
   ezAngle m_SwingLimitY;

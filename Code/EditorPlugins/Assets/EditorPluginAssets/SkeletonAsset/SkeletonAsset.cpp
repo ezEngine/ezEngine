@@ -81,16 +81,19 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
     const bool overrideCollisionLayer = e.m_pObject->GetTypeAccessor().GetValue("OverrideCollisionLayer").ConvertTo<bool>();
     const ezSkeletonJointType::Enum jointType = (ezSkeletonJointType::Enum)e.m_pObject->GetTypeAccessor().GetValue("JointType").ConvertTo<ezInt32>();
 
-    props["Surface"].m_Visibility = overrideSurface ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    const bool bHasStiffness = jointType == ezSkeletonJointType::SwingTwist;
+    const bool bHasSwing = jointType == ezSkeletonJointType::SwingTwist;
+    const bool bHasTwist = jointType == ezSkeletonJointType::SwingTwist;
+
     props["CollisionLayer"].m_Visibility = overrideCollisionLayer ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["Stiffness"].m_Visibility = (jointType != ezSkeletonJointType::None) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["LimitSwing"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["SwingLimitY"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["SwingLimitZ"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["LimitTwist"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["TwistLimitHalfAngle"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["TwistLimitCenterAngle"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-    props["LocalRotation"].m_Visibility = (jointType == ezSkeletonJointType::SwingTwist) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["Surface"].m_Visibility = overrideSurface ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    props["LocalRotation"].m_Visibility = bHasStiffness ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["Stiffness"].m_Visibility = bHasStiffness ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SwingLimitY"].m_Visibility = bHasSwing ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SwingLimitZ"].m_Visibility = bHasSwing ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["TwistLimitHalfAngle"].m_Visibility = bHasTwist ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["TwistLimitCenterAngle"].m_Visibility = bHasTwist ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
     return;
   }

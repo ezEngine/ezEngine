@@ -28,7 +28,7 @@ ezUInt16 ezSkeletonBuilder::AddJoint(ezStringView sName, const ezTransform& loca
   return static_cast<ezUInt16>(m_Joints.GetCount() - 1);
 }
 
-void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, bool bLimitSwing, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, bool bLimitTwist, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle, float fStiffness)
+void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle, float fStiffness)
 {
   auto& j = m_Joints[uiJointIndex];
   j.m_qLocalJointOrientation = qLocalOrientation;
@@ -37,8 +37,6 @@ void ezSkeletonBuilder::SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLoca
   j.m_HalfSwingLimitZ = halfSwingLimitZ;
   j.m_TwistLimitHalfAngle = twistLimitHalfAngle;
   j.m_TwistLimitCenterAngle = twistLimitCenterAngle;
-  j.m_bLimitSwing = bLimitSwing;
-  j.m_bLimitTwist = bLimitTwist;
   j.m_fStiffness = fStiffness;
 }
 
@@ -72,10 +70,10 @@ void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& ref_skeleton) const
 
     ref_skeleton.m_Joints[i].m_JointType = m_Joints[i].m_JointType;
     ref_skeleton.m_Joints[i].m_qLocalJointOrientation = m_Joints[i].m_qLocalJointOrientation;
-    ref_skeleton.m_Joints[i].m_HalfSwingLimitY = m_Joints[i].m_bLimitSwing ? m_Joints[i].m_HalfSwingLimitY : ezAngle();
-    ref_skeleton.m_Joints[i].m_HalfSwingLimitZ = m_Joints[i].m_bLimitSwing ? m_Joints[i].m_HalfSwingLimitZ : ezAngle();
-    ref_skeleton.m_Joints[i].m_TwistLimitHalfAngle = m_Joints[i].m_bLimitTwist ? m_Joints[i].m_TwistLimitHalfAngle : ezAngle();
-    ref_skeleton.m_Joints[i].m_TwistLimitCenterAngle = m_Joints[i].m_bLimitTwist ? m_Joints[i].m_TwistLimitCenterAngle : ezAngle();
+    ref_skeleton.m_Joints[i].m_HalfSwingLimitY = m_Joints[i].m_HalfSwingLimitY;
+    ref_skeleton.m_Joints[i].m_HalfSwingLimitZ = m_Joints[i].m_HalfSwingLimitZ;
+    ref_skeleton.m_Joints[i].m_TwistLimitHalfAngle = m_Joints[i].m_TwistLimitHalfAngle;
+    ref_skeleton.m_Joints[i].m_TwistLimitCenterAngle = m_Joints[i].m_TwistLimitCenterAngle;
 
     ref_skeleton.m_Joints[i].m_uiCollisionLayer = m_Joints[i].m_uiCollisionLayer;
     ref_skeleton.m_Joints[i].m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(m_Joints[i].m_sSurface);

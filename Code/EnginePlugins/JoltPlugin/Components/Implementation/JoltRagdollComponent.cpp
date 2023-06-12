@@ -259,8 +259,7 @@ void ezJoltRagdollComponent::CreateLimbsFromBindPose()
 
   m_CurrentLimbTransforms.SetCountUninitialized(desc.m_Skeleton.GetJointCount());
 
-  auto ComputeFullJointTransform = [&](ezUInt32 uiJointIdx, auto self) -> ezMat4
-  {
+  auto ComputeFullJointTransform = [&](ezUInt32 uiJointIdx, auto self) -> ezMat4 {
     const auto& joint = desc.m_Skeleton.GetJointByIndex(uiJointIdx);
     const ezMat4 jointTransform = joint.GetBindPoseLocalTransform().GetAsMat4();
 
@@ -1047,6 +1046,19 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
   ezTransform tParent = ezJoltConversionUtils::ToTransform(pParentLink->mPosition, pParentLink->mRotation);
   ezTransform tThis = ezJoltConversionUtils::ToTransform(pLink->mPosition, pLink->mRotation);
 
+  if (jointType == ezSkeletonJointType::Fixed)
+  {
+    JPH::FixedConstraintSettings* pJoint = new JPH::FixedConstraintSettings();
+    pLink->mToParent = pJoint;
+
+    const ezQuat offsetRot = thisJoint.GetLocalOrientation();
+
+    pJoint->mDrawConstraintSize = 0.1f;
+    pJoint->mPoint1 = pLink->mPosition;
+    pJoint->mPoint2 = pLink->mPosition;
+  }
+
+  if (jointType == ezSkeletonJointType::SwingTwist)
   {
     JPH::SwingTwistConstraintSettings* pJoint = new JPH::SwingTwistConstraintSettings();
     pLink->mToParent = pJoint;
@@ -1059,8 +1071,8 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
     pJoint->mDrawConstraintSize = 0.1f;
     pJoint->mPosition1 = pLink->mPosition;
     pJoint->mPosition2 = pLink->mPosition;
-    pJoint->mNormalHalfConeAngle = thisJoint.GetHalfSwingLimitZ().GetRadian(); // TODO: disable ?
-    pJoint->mPlaneHalfConeAngle = thisJoint.GetHalfSwingLimitY().GetRadian();  // TODO: disable ?
+    pJoint->mNormalHalfConeAngle = thisJoint.GetHalfSwingLimitZ().GetRadian();
+    pJoint->mPlaneHalfConeAngle = thisJoint.GetHalfSwingLimitY().GetRadian();
     pJoint->mTwistMinAngle = -thisJoint.GetTwistLimitHalfAngle().GetRadian();
     pJoint->mTwistMaxAngle = thisJoint.GetTwistLimitHalfAngle().GetRadian();
     pJoint->mMaxFrictionTorque = m_fStiffnessFactor * thisJoint.GetStiffness();

@@ -56,10 +56,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 2, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("LocalRotation", m_qLocalJointRotation),
     EZ_ENUM_MEMBER_PROPERTY("JointType", ezSkeletonJointType, m_JointType),
     EZ_MEMBER_PROPERTY("Stiffness", m_fStiffness)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
-    EZ_MEMBER_PROPERTY("LimitSwing", m_bLimitSwing),
     EZ_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
     EZ_MEMBER_PROPERTY("SwingLimitZ", m_SwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
-    EZ_MEMBER_PROPERTY("LimitTwist", m_bLimitTwist),
     EZ_MEMBER_PROPERTY("TwistLimitHalfAngle", m_TwistLimitHalfAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(10), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
     EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle)->AddAttributes(new ezClampValueAttribute(-ezAngle::Degree(170), ezAngle::Degree(170))),
 
@@ -197,7 +195,7 @@ void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkel
     ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(mRootTransform, qParentAccuRot.GetAsMat4(), full, qParentGlobalRot);
   }
 
-  ref_sb.SetJointLimit(uiThisJointIdx, pThisJoint->m_qLocalJointRotation, pThisJoint->m_JointType, pThisJoint->m_bLimitSwing, pThisJoint->m_SwingLimitY, pThisJoint->m_SwingLimitZ, pThisJoint->m_bLimitTwist, pThisJoint->m_TwistLimitHalfAngle, pThisJoint->m_TwistLimitCenterAngle, pThisJoint->m_fStiffness);
+  ref_sb.SetJointLimit(uiThisJointIdx, pThisJoint->m_qLocalJointRotation, pThisJoint->m_JointType, pThisJoint->m_SwingLimitY, pThisJoint->m_SwingLimitZ, pThisJoint->m_TwistLimitHalfAngle, pThisJoint->m_TwistLimitCenterAngle, pThisJoint->m_fStiffness);
 
   ref_sb.SetJointCollisionLayer(uiThisJointIdx, pThisJoint->m_bOverrideCollisionLayer ? pThisJoint->m_uiCollisionLayerOverride : m_uiCollisionLayer);
   ref_sb.SetJointSurface(uiThisJointIdx, pThisJoint->m_bOverrideSurface ? pThisJoint->m_sSurfaceOverride : m_sSurfaceFile);
@@ -334,8 +332,6 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
   m_SwingLimitZ = pJoint->m_SwingLimitZ;
   m_TwistLimitHalfAngle = pJoint->m_TwistLimitHalfAngle;
   m_TwistLimitCenterAngle = pJoint->m_TwistLimitCenterAngle;
-  m_bLimitSwing = pJoint->m_bLimitSwing;
-  m_bLimitTwist = pJoint->m_bLimitTwist;
   m_fStiffness = pJoint->m_fStiffness;
 
   m_bOverrideSurface = pJoint->m_bOverrideSurface;

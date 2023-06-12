@@ -132,8 +132,8 @@ struct ezSkeletonJointType
   enum Enum
   {
     None,
-    // Hinge,
-    // Cone,
+    Fixed,
+    //  Hinge,
     SwingTwist,
 
     Default = None,

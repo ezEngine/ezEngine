@@ -10,7 +10,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointType, 1)
-  EZ_ENUM_CONSTANTS(ezSkeletonJointType::None, ezSkeletonJointType::SwingTwist)
+  EZ_ENUM_CONSTANTS(ezSkeletonJointType::None, ezSkeletonJointType::Fixed, ezSkeletonJointType::SwingTwist)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
