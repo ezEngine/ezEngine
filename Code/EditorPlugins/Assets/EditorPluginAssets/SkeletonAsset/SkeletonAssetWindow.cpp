@@ -142,6 +142,18 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
     pDoc->SendMessageToEngine(&msg);
   }
 
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewMesh";
+
+    if (pDoc->GetRenderPreviewMesh())
+      msg.m_sPayload = pDoc->GetProperties()->m_sPreviewMesh;
+    else
+      msg.m_sPayload = "";
+
+    GetDocument()->SendMessageToEngine(&msg);
+  }
+
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(true);

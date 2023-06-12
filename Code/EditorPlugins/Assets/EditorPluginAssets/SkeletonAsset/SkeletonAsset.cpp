@@ -216,6 +216,19 @@ void ezSkeletonAssetDocument::SetRenderTwistLimits(bool bEnable)
   m_Events.Broadcast(e);
 }
 
+void ezSkeletonAssetDocument::SetRenderPreviewMesh(bool bEnable)
+{
+  if (m_bRenderPreviewMesh == bEnable)
+    return;
+
+  m_bRenderPreviewMesh = bEnable;
+
+  ezSkeletonAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezSkeletonAssetEvent::RenderStateChanged;
+  m_Events.Broadcast(e);
+}
+
 void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
@@ -328,6 +341,17 @@ ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter
 
 ezTransformStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
 {
+  // the preview mesh is an editor side only option, so the thumbnail context doesn't know anything about this
+  // until we explicitly tell it about the mesh
+  // without sending this here, thumbnails wouldn't look as desired, for assets transformed in the background
+  if (!GetProperties()->m_sPreviewMesh.IsEmpty())
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewMesh";
+    msg.m_sPayload = GetProperties()->m_sPreviewMesh;
+    SendMessageToEngine(&msg);
+  }
+
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }

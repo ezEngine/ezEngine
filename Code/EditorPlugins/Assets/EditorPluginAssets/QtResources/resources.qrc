@@ -41,6 +41,7 @@
     <file>SkeletonColliders.png</file>
     <file>JointSwingLimits.png</file>
     <file>JointTwistLimits.png</file>
+    <file>PreviewMesh.png</file>
   </qresource>
 </RCC>
 

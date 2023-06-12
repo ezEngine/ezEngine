@@ -32,4 +32,6 @@ private:
   ezSkeletonResourceHandle m_hSkeleton;
   ezComponentHandle m_hSkeletonComponent;
   ezComponentHandle m_hPoseComponent;
+  ezString m_sAnimatedMeshToUse;
+  ezComponentHandle m_hAnimMeshComponent;
 };
