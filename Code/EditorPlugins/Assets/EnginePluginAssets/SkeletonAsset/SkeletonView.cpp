@@ -55,6 +55,7 @@ ezViewHandle ezSkeletonViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Skeleton Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 

@@ -18,6 +18,7 @@ ezViewHandle ezTextureCubeViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Texture Cube Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
   pView->SetRenderPassProperty("DepthPrePass", "Active", false);

@@ -26,6 +26,7 @@ ezViewHandle ezKrautTreeViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Kraut Tree Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 

@@ -27,6 +27,7 @@ ezViewHandle ezJoltCollisionMeshViewContext::CreateView()
 {
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Collision Mesh Editor - View", pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 
