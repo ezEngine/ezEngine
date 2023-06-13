@@ -33,7 +33,7 @@ class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
-  ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+  ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
     ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions,
     ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers,
     ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI* (*fnVerifyParent)());
@@ -135,15 +135,18 @@ public:
   /// \brief Returns whether this type can handle the message type with the given id.
   inline bool CanHandleMessage(ezMessageId id) const
   {
-    EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
-                                                       "If this assert is triggered for a type loaded from a dynamic plugin,\n"
-                                                       "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
+    EZ_ASSERT_DEBUG(m_uiMsgIdOffset != ezSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
+                                                            "If this assert is triggered for a type loaded from a dynamic plugin,\n"
+                                                            "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
     const ezUInt32 uiIndex = id - m_uiMsgIdOffset;
     return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers.GetData()[uiIndex] != nullptr;
   }
 
   EZ_ALWAYS_INLINE const ezArrayPtr<ezMessageSenderInfo>& GetMessageSender() const { return m_MessageSenders; }
+
+  using VisitorFunc = ezDelegate<void(const ezRTTI*), 48>;
+  static void ForEachType(VisitorFunc func);
 
   /// \brief Writes all types derived from \a pBaseType to the provided array. Optionally sorts the array by type name to yield a stable result.
   ///
@@ -157,32 +160,31 @@ protected:
   ezArrayPtr<ezAbstractProperty*> m_Properties;
   ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
-  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
+  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType, ezBitflags<ezTypeFlags> flags);
   void RegisterType();
   void UnregisterType();
 
   void GatherDynamicMessageHandlers();
   void SetupParentHierarchy();
 
-  const ezRTTI* m_pParentType;
-  ezRTTIAllocator* m_pAllocator;
+  const ezRTTI* m_pParentType = nullptr;
+  ezRTTIAllocator* m_pAllocator = nullptr;
 
-  ezUInt32 m_uiVariantType;
-  ezUInt32 m_uiTypeSize;
+  ezUInt32 m_uiTypeSize = 0;
   ezUInt32 m_uiTypeVersion = 0;
   ezUInt64 m_uiTypeNameHash = 0;
+  ezUInt32 m_uiTypeIndex = 0;
   ezBitflags<ezTypeFlags> m_TypeFlags;
-  ezUInt32 m_uiMsgIdOffset = 0;
+  ezUInt8 m_uiVariantType = 0;
+  ezUInt16 m_uiMsgIdOffset = ezSmallInvalidIndex;
 
-  bool m_bGatheredDynamicMessageHandlers = false;
   const ezRTTI* (*m_VerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
-  ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper>
-    m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
+  ezSmallArray<ezAbstractMessageHandler*, 1, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
 
   ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
-  ezHybridArray<const ezRTTI*, 8> m_ParentHierarchy;
+  ezSmallArray<const ezRTTI*, 7, ezStaticAllocatorWrapper> m_ParentHierarchy;
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);

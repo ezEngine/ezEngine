@@ -15,6 +15,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Texture/Image/Image.h>
 
@@ -265,9 +266,27 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWo
 
   ezUniquePtr<ezGameStateBase> pCurState;
 
+  ezStopwatch sw;
   {
     ezInt32 iBestPriority = -1;
 
+#if 1
+    ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+      {
+      if (!pRtti->IsDerivedFrom<ezGameStateBase>() || !pRtti->GetAllocator()->CanAllocate())
+        return;
+
+      ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
+
+      const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
+
+      if (iPriority > iBestPriority)
+      {
+        iBestPriority = iPriority;
+
+        pCurState = std::move(pState);
+      } });
+#else
     for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
     {
       if (!pRtti->IsDerivedFrom<ezGameStateBase>() || !pRtti->GetAllocator()->CanAllocate())
@@ -284,7 +303,10 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWo
         pCurState = std::move(pState);
       }
     }
+#endif
   }
+
+  ezLog::Info("Iterating all types took {}", sw.GetRunningTotal());
 
   return pCurState;
 }

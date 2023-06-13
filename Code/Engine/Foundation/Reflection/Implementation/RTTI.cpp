@@ -7,23 +7,26 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/HashTable.h>
 
-struct ezTypeHashTable
+struct ezTypeData
 {
   ezMutex m_Mutex;
-  ezHashTable<ezStringView, ezRTTI*, ezHashHelper<ezStringView>, ezStaticAllocatorWrapper> m_Table;
+  ezHashTable<ezUInt64, ezRTTI*, ezHashHelper<ezUInt64>, ezStaticAllocatorWrapper> m_TypeNameHashToType;
+  ezDynamicArray<ezRTTI*> m_AllTypes;
 };
 
-ezTypeHashTable* GetTypeHashTable()
+ezTypeData* GetTypeData()
 {
   // Prevent static initialization hazard between first ezRTTI instance
-  // and the hash table and also make sure it is sufficiently sized before first use.
-  auto CreateTable = []() -> ezTypeHashTable* {
-    ezTypeHashTable* table = new ezTypeHashTable();
-    table->m_Table.Reserve(512);
-    return table;
+  // and type data and also make sure it is sufficiently sized before first use.
+  auto CreateData = []() -> ezTypeData*
+  {
+    ezTypeData* pData = new ezTypeData();
+    pData->m_TypeNameHashToType.Reserve(512);
+    pData->m_AllTypes.Reserve(512);
+    return pData;
   };
-  static ezTypeHashTable* table = CreateTable();
-  return table;
+  static ezTypeData* pData = CreateData();
+  return pData;
 }
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
@@ -49,7 +52,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-ezRTTI::ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+ezRTTI::ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
   ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions,
   ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
   const ezRTTI* (*fnVerifyParent)())
@@ -94,20 +97,20 @@ void ezRTTI::GatherDynamicMessageHandlers()
 {
   // This cannot be done in the constructor, because the parent types are not guaranteed to be initialized at that point
 
-  if (m_bGatheredDynamicMessageHandlers)
+  if (m_uiMsgIdOffset != ezSmallInvalidIndex)
     return;
 
-  m_bGatheredDynamicMessageHandlers = true;
+  m_uiMsgIdOffset = 0;
 
-  ezUInt32 uiMinMsgId = ezInvalidIndex;
-  ezUInt32 uiMaxMsgId = 0;
+  ezUInt16 uiMinMsgId = ezSmallInvalidIndex;
+  ezUInt16 uiMaxMsgId = 0;
 
   const ezRTTI* pInstance = this;
   while (pInstance != nullptr)
   {
     for (ezUInt32 i = 0; i < pInstance->m_MessageHandlers.GetCount(); ++i)
     {
-      ezUInt32 id = pInstance->m_MessageHandlers[i]->GetMessageId();
+      ezUInt16 id = pInstance->m_MessageHandlers[i]->GetMessageId();
       uiMinMsgId = ezMath::Min(uiMinMsgId, id);
       uiMaxMsgId = ezMath::Max(uiMaxMsgId, id);
     }
@@ -115,10 +118,10 @@ void ezRTTI::GatherDynamicMessageHandlers()
     pInstance = pInstance->m_pParentType;
   }
 
-  if (uiMinMsgId != ezInvalidIndex)
+  if (uiMinMsgId != ezSmallInvalidIndex)
   {
     m_uiMsgIdOffset = uiMinMsgId;
-    ezUInt32 uiNeededCapacity = uiMaxMsgId - uiMinMsgId + 1;
+    ezUInt16 uiNeededCapacity = uiMaxMsgId - uiMinMsgId + 1;
 
     m_DynamicMessageHandlers.SetCount(uiNeededCapacity);
 
@@ -128,7 +131,7 @@ void ezRTTI::GatherDynamicMessageHandlers()
       for (ezUInt32 i = 0; i < pInstance->m_MessageHandlers.GetCount(); ++i)
       {
         ezAbstractMessageHandler* pHandler = pInstance->m_MessageHandlers[i];
-        ezUInt32 uiIndex = pHandler->GetMessageId() - m_uiMsgIdOffset;
+        ezUInt16 uiIndex = pHandler->GetMessageId() - m_uiMsgIdOffset;
 
         // this check ensures that handlers in base classes do not override the derived handlers
         if (m_DynamicMessageHandlers[uiIndex] == nullptr)
@@ -201,7 +204,7 @@ void ezRTTI::VerifyCorrectnessForAllTypes()
 }
 
 
-void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags)
+void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType, ezBitflags<ezTypeFlags> flags)
 {
   m_pParentType = pParentType;
   m_uiVariantType = uiVariantType;
@@ -214,17 +217,26 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
 void ezRTTI::RegisterType()
 {
   m_uiTypeNameHash = ezHashingUtils::StringHash(m_sTypeName);
+  
+  auto pData = GetTypeData();
+  EZ_LOCK(pData->m_Mutex);
+  pData->m_TypeNameHashToType.Insert(m_uiTypeNameHash, this);
 
-  auto pTable = GetTypeHashTable();
-  EZ_LOCK(pTable->m_Mutex);
-  pTable->m_Table.Insert(m_sTypeName, this);
+  m_uiTypeIndex = pData->m_AllTypes.GetCount();
+  pData->m_AllTypes.PushBack(this);
 }
 
 void ezRTTI::UnregisterType()
 {
-  auto pTable = GetTypeHashTable();
-  EZ_LOCK(pTable->m_Mutex);
-  pTable->m_Table.Remove(m_sTypeName);
+  auto pData = GetTypeData();
+  EZ_LOCK(pData->m_Mutex);
+  pData->m_TypeNameHashToType.Remove(m_uiTypeNameHash);
+
+  pData->m_AllTypes.RemoveAtAndSwap(m_uiTypeIndex);
+  if (m_uiTypeIndex != pData->m_AllTypes.GetCount())
+  {
+    pData->m_AllTypes[m_uiTypeIndex]->m_uiTypeIndex = m_uiTypeIndex;
+  }
 }
 
 void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_properties) const
@@ -239,11 +251,13 @@ void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_proper
 
 ezRTTI* ezRTTI::FindTypeByName(ezStringView sName)
 {
+  ezUInt64 uiNameHash = ezHashingUtils::StringHash(sName);
+
   ezRTTI* pInstance = nullptr;
   {
-    auto pTable = GetTypeHashTable();
-    EZ_LOCK(pTable->m_Mutex);
-    if (pTable->m_Table.TryGetValue(sName, pInstance))
+    auto pData = GetTypeData();
+    EZ_LOCK(pData->m_Mutex);
+    if (pData->m_TypeNameHashToType.TryGetValue(uiNameHash, pInstance))
       return pInstance;
   }
 
@@ -267,19 +281,12 @@ ezRTTI* ezRTTI::FindTypeByName(ezStringView sName)
 
 ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
 {
-  // TODO: actually reuse the hash table for the lookup
+  auto pData = GetTypeData();
+  EZ_LOCK(pData->m_Mutex);
 
-  ezRTTI* pInstance = ezRTTI::GetFirstInstance();
-
-  while (pInstance)
-  {
-    if (pInstance->GetTypeNameHash() == uiNameHash)
-      return pInstance;
-
-    pInstance = pInstance->GetNextInstance();
-  }
-
-  return nullptr;
+  ezRTTI* pType = nullptr;
+  pData->m_TypeNameHashToType.TryGetValue(uiNameHash, pType);
+  return pType;
 }
 
 ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
@@ -324,9 +331,9 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(ezStringView sName, bool bSearchB
 
 bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& ref_msg) const
 {
-  EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
-                                                     "If this assert is triggered for a type loaded from a dynamic plugin,\n"
-                                                     "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
+  EZ_ASSERT_DEBUG(m_uiMsgIdOffset != ezSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
+                                                          "If this assert is triggered for a type loaded from a dynamic plugin,\n"
+                                                          "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
   const ezUInt32 uiIndex = ref_msg.GetId() - m_uiMsgIdOffset;
 
@@ -346,9 +353,9 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& ref_msg) const
 
 bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& ref_msg) const
 {
-  EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
-                                                     "If this assert is triggered for a type loaded from a dynamic plugin,\n"
-                                                     "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
+  EZ_ASSERT_DEBUG(m_uiMsgIdOffset != ezSmallInvalidIndex, "Message handler table should have been gathered at this point.\n"
+                                                          "If this assert is triggered for a type loaded from a dynamic plugin,\n"
+                                                          "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
   const ezUInt32 uiIndex = ref_msg.GetId() - m_uiMsgIdOffset;
 
@@ -366,6 +373,17 @@ bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& ref_msg) const
   return false;
 }
 
+void ezRTTI::ForEachType(VisitorFunc func)
+{
+  auto pData = GetTypeData();
+  EZ_LOCK(pData->m_Mutex);
+
+  for (const ezRTTI* pRtti : pData->m_AllTypes)
+  {
+    func(pRtti);
+  }
+}
+
 const ezDynamicArray<const ezRTTI*>& ezRTTI::GetAllTypesDerivedFrom(
   const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_derivedTypes, bool bSortByName)
 {
@@ -380,7 +398,8 @@ const ezDynamicArray<const ezRTTI*>& ezRTTI::GetAllTypesDerivedFrom(
   if (bSortByName)
   {
     out_derivedTypes.Sort(
-      [](const ezRTTI* p1, const ezRTTI* p2) -> bool { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
+      [](const ezRTTI* p1, const ezRTTI* p2) -> bool
+      { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
   }
 
   return out_derivedTypes;
