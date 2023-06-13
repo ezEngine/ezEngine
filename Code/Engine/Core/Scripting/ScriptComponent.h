@@ -65,6 +65,8 @@ private:
   const ezAbstractFunctionProperty* GetScriptFunction(ezUInt32 uiFunctionIndex);
   void CallScriptFunction(ezUInt32 uiFunctionIndex);
 
+  void ReloadScript();
+
   struct EventSender
   {
     const ezRTTI* m_pMsgType = nullptr;

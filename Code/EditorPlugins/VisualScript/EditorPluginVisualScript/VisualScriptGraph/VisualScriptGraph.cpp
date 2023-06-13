@@ -16,8 +16,16 @@ ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisu
   , m_ScriptDataType(pinDesc.m_ScriptDataType)
   , m_bRequired(pinDesc.m_bRequired)
   , m_bHasDynamicPinProperty(pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
+  , m_bSplitExecution(pinDesc.m_bSplitExecution)
 {
-  m_Shape = pinDesc.IsExecutionPin() ? Shape::Arrow : Shape::Circle;
+  if (pinDesc.IsExecutionPin())
+  {
+    m_Shape = Shape::Arrow;
+  }
+  else
+  {
+    m_Shape = (pinDesc.m_ScriptDataType == ezVisualScriptDataType::Array || pinDesc.m_ScriptDataType == ezVisualScriptDataType::Map) ? Shape::Rect : Shape::Circle;
+  }
 }
 
 ezStringView ezVisualScriptPin::GetDataTypeName(ezVisualScriptDataType::Enum deductedType) const
@@ -166,6 +174,42 @@ void ezVisualScriptNodeManager::GetOutputDataPins(const ezDocumentObject* pObjec
   }
 }
 
+void ezVisualScriptNodeManager::GetEntryNodes(const ezDocumentObject* pObject, ezDynamicArray<const ezDocumentObject*>& out_entryNodes) const
+{
+  ezHybridArray<const ezDocumentObject*, 64> nodeStack;
+  nodeStack.PushBack(pObject);
+
+  ezHashSet<const ezDocumentObject*> visitedNodes;
+  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+
+  while (nodeStack.IsEmpty() == false)
+  {
+    const ezDocumentObject* pCurrentNode = nodeStack.PeekBack();
+    nodeStack.PopBack();
+
+    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pCurrentNode->GetType());
+    if (ezVisualScriptNodeDescription::Type::IsEntry(pNodeDesc->m_Type))
+    {
+      out_entryNodes.PushBack(pCurrentNode);
+      continue;
+    }
+
+    GetInputExecutionPins(pCurrentNode, pins);
+    for (auto pPin : pins)
+    {
+      auto connections = GetConnections(*pPin);
+      for (auto pConnection : connections)
+      {
+        const ezDocumentObject* pSourceNode = pConnection->GetSourcePin().GetParent();
+        if (visitedNodes.Insert(pSourceNode))
+          continue;
+
+        nodeStack.PushBack(pSourceNode);
+      }
+    }
+  }
+}
+
 // static
 ezStringView ezVisualScriptNodeManager::GetNiceTypeName(const ezDocumentObject* pObject)
 {
@@ -184,64 +228,16 @@ ezStringView ezVisualScriptNodeManager::GetNiceTypeName(const ezDocumentObject* 
   return sTypeName;
 }
 
-void ezVisualScriptNodeManager::DeductType(const ezDocumentObject* pObject, const ezPin* pChangedPin, bool bConnected)
+ezStringView ezVisualScriptNodeManager::GetNiceFunctionName(const ezDocumentObject* pObject)
 {
-  if (pChangedPin != nullptr)
+  ezStringView sFunctionName = pObject->GetType()->GetTypeName();
+
+  if (const char* szSeparator = sFunctionName.FindLastSubString("::"))
   {
-    auto pVsPin = ezStaticCast<const ezVisualScriptPin*>(pChangedPin);
-    if (pVsPin->GetScriptDataType() != ezVisualScriptDataType::Any)
-      return;
+    sFunctionName = ezStringView(szSeparator + 2, sFunctionName.GetEndPointer());
   }
 
-  ezVisualScriptDataType::Enum deductedType = ezVisualScriptDataType::Invalid;
-
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
-  GetInputDataPins(pObject, pins);
-  for (auto pPin : pins)
-  {
-    if (pPin->GetScriptDataType() != ezVisualScriptDataType::Any)
-      continue;
-
-    // the pin is about to be disconnected so we ignore it here
-    if (bConnected == false && pPin == pChangedPin)
-      continue;
-
-    deductedType = ezMath::Max(deductedType, GetDeductedType(*pPin));
-  }
-
-  if (deductedType == ezVisualScriptDataType::Invalid)
-  {
-    auto typeVar = pObject->GetTypeAccessor().GetValue("Type");
-    if (typeVar.IsValid())
-    {
-      deductedType = static_cast<ezVisualScriptDataType::Enum>(typeVar.Get<ezInt64>());
-    }
-  }
-
-  ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
-  m_ObjectToDeductedType.Insert(pObject, deductedType, &oldDeductedType);
-
-  if (deductedType != oldDeductedType)
-  {
-    m_DeductedTypeChangedEvent.Broadcast(pObject);
-  }
-
-  GetOutputDataPins(pObject, pins);
-  for (auto pPin : pins)
-  {
-    if (pPin->GetScriptDataType() != ezVisualScriptDataType::Any)
-      continue;
-
-    auto connections = GetConnections(*pPin);
-    if (connections.IsEmpty() == false)
-    {
-      for (auto& connection : connections)
-      {
-        auto& targetPin = connection->GetTargetPin();
-        DeductType(targetPin.GetParent(), &targetPin);
-      }
-    }
-  }
+  return sFunctionName;
 }
 
 ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetDeductedType(const ezVisualScriptPin& pin) const
@@ -275,6 +271,17 @@ ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetDeductedType(const ez
   ezEnum<ezVisualScriptDataType> dataType = ezVisualScriptDataType::Invalid;
   m_ObjectToDeductedType.TryGetValue(pObject, dataType);
   return dataType;
+}
+
+bool ezVisualScriptNodeManager::IsCoroutine(const ezDocumentObject* pObject) const
+{
+  auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+  if (pNodeDesc != nullptr && ezVisualScriptNodeDescription::Type::MakesOuterCoroutine(pNodeDesc->m_Type))
+  {
+    return true;
+  }
+
+  return m_CoroutineObjects.Contains(pObject);
 }
 
 bool ezVisualScriptNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
@@ -412,6 +419,7 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
       DeductType(targetPin.GetParent(), &targetPin, true);
+      UpdateCoroutine(targetPin.GetParent(), connection, true);
     }
     break;
 
@@ -420,13 +428,14 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
       DeductType(targetPin.GetParent(), &targetPin, false);
+      UpdateCoroutine(targetPin.GetParent(), connection, false);
     }
     break;
 
     case ezDocumentNodeManagerEvent::Type::AfterNodeAdded:
     {
       auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(e.m_pObject->GetType());
-      if (pNodeDesc->m_bNeedsDataTypeDeduction)
+      if (pNodeDesc != nullptr && pNodeDesc->m_bNeedsDataTypeDeduction)
       {
         DeductType(e.m_pObject);
       }
@@ -449,4 +458,138 @@ void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectProp
   {
     DeductType(e.m_pObject);
   }
+}
+
+void ezVisualScriptNodeManager::DeductType(const ezDocumentObject* pObject, const ezPin* pChangedPin, bool bConnected)
+{
+  if (pChangedPin != nullptr)
+  {
+    auto pVsPin = ezStaticCast<const ezVisualScriptPin*>(pChangedPin);
+    if (pVsPin->GetScriptDataType() != ezVisualScriptDataType::Any)
+      return;
+  }
+
+  ezVisualScriptDataType::Enum deductedType = ezVisualScriptDataType::Invalid;
+
+  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  GetInputDataPins(pObject, pins);
+  for (auto pPin : pins)
+  {
+    if (pPin->GetScriptDataType() != ezVisualScriptDataType::Any)
+      continue;
+
+    // the pin is about to be disconnected so we ignore it here
+    if (bConnected == false && pPin == pChangedPin)
+      continue;
+
+    deductedType = ezMath::Max(deductedType, GetDeductedType(*pPin));
+  }
+
+  if (deductedType == ezVisualScriptDataType::Invalid)
+  {
+    auto typeVar = pObject->GetTypeAccessor().GetValue("Type");
+    if (typeVar.IsValid())
+    {
+      deductedType = static_cast<ezVisualScriptDataType::Enum>(typeVar.Get<ezInt64>());
+    }
+  }
+
+  ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
+  m_ObjectToDeductedType.Insert(pObject, deductedType, &oldDeductedType);
+
+  if (deductedType != oldDeductedType)
+  {
+    m_NodeChangedEvent.Broadcast(pObject);
+  }
+
+  GetOutputDataPins(pObject, pins);
+  for (auto pPin : pins)
+  {
+    if (pPin->GetScriptDataType() != ezVisualScriptDataType::Any)
+      continue;
+
+    auto connections = GetConnections(*pPin);
+    if (connections.IsEmpty() == false)
+    {
+      for (auto& connection : connections)
+      {
+        auto& targetPin = connection->GetTargetPin();
+        DeductType(targetPin.GetParent(), &targetPin);
+      }
+    }
+  }
+}
+
+void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezConnection& changedConnection, bool bConnected)
+{
+  auto vsPin = static_cast<const ezVisualScriptPin&>(changedConnection.GetTargetPin());
+  if (vsPin.IsExecutionPin() == false)
+    return;
+
+  ezHybridArray<const ezDocumentObject*, 16> entryNodes;
+  GetEntryNodes(pTargetNode, entryNodes);
+
+  for (auto pEntryNode : entryNodes)
+  {
+    const bool bWasCoroutine = m_CoroutineObjects.Contains(pEntryNode);
+    const bool bIsCoroutine = IsConnectedToCoroutine(pEntryNode, changedConnection, bConnected);
+
+    if (bWasCoroutine != bIsCoroutine)
+    {
+      if (bIsCoroutine)
+      {
+        m_CoroutineObjects.Insert(pEntryNode);
+      }
+      else
+      {
+        m_CoroutineObjects.Remove(pEntryNode);
+      }
+
+      m_NodeChangedEvent.Broadcast(pEntryNode);
+    }
+  }
+}
+
+bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezConnection& changedConnection, bool bConnected) const
+{
+  ezHybridArray<const ezDocumentObject*, 64> nodeStack;
+  nodeStack.PushBack(pEntryNode);
+
+  ezHashSet<const ezDocumentObject*> visitedNodes;
+  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+
+  while (nodeStack.IsEmpty() == false)
+  {
+    const ezDocumentObject* pCurrentNode = nodeStack.PeekBack();
+    nodeStack.PopBack();
+
+    auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pCurrentNode->GetType());
+    if (ezVisualScriptNodeDescription::Type::MakesOuterCoroutine(pNodeDesc->m_Type))
+    {
+      return true;
+    }
+
+    GetOutputExecutionPins(pCurrentNode, pins);
+    for (auto pPin : pins)
+    {
+      if (pPin->SplitExecution())
+        continue;
+
+      auto connections = GetConnections(*pPin);
+      for (auto pConnection : connections)
+      {
+        // the connection is about to be disconnected so we ignore it here
+        if (bConnected == false && pConnection == &changedConnection)
+          continue;
+
+        const ezDocumentObject* pTargetNode = pConnection->GetTargetPin().GetParent();
+        if (visitedNodes.Insert(pTargetNode))
+          continue;
+
+        nodeStack.PushBack(pTargetNode);
+      }
+    }
+  }
+
+  return false;
 }

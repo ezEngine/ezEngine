@@ -630,9 +630,9 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
         ezDocumentNodeManager::CanConnectResult res;
 
         if (bConnectForward)
-          m_pManager->CanConnect(pConnectionType, *pSourcePin, *pin, res).AssertSuccess();
+          m_pManager->CanConnect(pConnectionType, *pSourcePin, *pin, res).IgnoreResult();
         else
-          m_pManager->CanConnect(pConnectionType, *pin, *pSourcePin, res).AssertSuccess();
+          m_pManager->CanConnect(pConnectionType, *pin, *pSourcePin, res).IgnoreResult();
 
         if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
         {

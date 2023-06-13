@@ -529,7 +529,7 @@ struct ezFunctionType
 };
 
 /// \brief The base class for a property that represents a function.
-class ezAbstractFunctionProperty : public ezAbstractProperty
+class EZ_FOUNDATION_DLL ezAbstractFunctionProperty : public ezAbstractProperty
 {
 public:
   /// \brief Passes the property name through to ezAbstractProperty.

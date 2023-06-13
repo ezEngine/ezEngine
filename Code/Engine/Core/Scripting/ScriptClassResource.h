@@ -1,43 +1,11 @@
 #pragma once
 
 #include <Core/ResourceManager/Resource.h>
-#include <Foundation/Containers/ArrayMap.h>
+#include <Core/Scripting/ScriptCoroutine.h>
+#include <Core/Scripting/ScriptRTTI.h>
 
 class ezWorld;
 using ezScriptClassResourceHandle = ezTypedResourceHandle<class ezScriptClassResource>;
-
-class EZ_CORE_DLL ezScriptInstance
-{
-public:
-  virtual ~ezScriptInstance() = default;
-  virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) = 0;
-};
-
-class EZ_CORE_DLL ezScriptRTTI : public ezRTTI, public ezRefCountingImpl
-{
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezScriptRTTI);
-
-public:
-  enum
-  {
-    NumInplaceFunctions = 7
-  };
-
-  using FunctionList = ezSmallArray<ezUniquePtr<ezAbstractFunctionProperty>, NumInplaceFunctions>;
-  using MessageHandlerList = ezSmallArray<ezUniquePtr<ezAbstractMessageHandler>, NumInplaceFunctions>;
-
-  ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers);
-  ~ezScriptRTTI();
-
-  const ezAbstractFunctionProperty* GetFunctionByIndex(ezUInt32 uiIndex) const;
-
-private:
-  ezString m_sTypeNameStorage;
-  FunctionList m_FunctionStorage;
-  MessageHandlerList m_MessageHandlerStorage;
-  ezSmallArray<ezAbstractFunctionProperty*, NumInplaceFunctions> m_FunctionRawPtrs;
-  ezSmallArray<ezAbstractMessageHandler*, NumInplaceFunctions> m_MessageHandlerRawPtrs;
-};
 
 class EZ_CORE_DLL ezScriptClassResource : public ezResource
 {
@@ -53,8 +21,12 @@ public:
   virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const = 0;
 
 protected:
-  void CreateScriptType(ezStringView sName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers);
+  ezSharedPtr<ezScriptRTTI> CreateScriptType(ezStringView sName, const ezRTTI* pBaseType, ezScriptRTTI::FunctionList&& functions, ezScriptRTTI::MessageHandlerList&& messageHandlers);
   void DeleteScriptType();
 
+  ezSharedPtr<ezScriptCoroutineRTTI> CreateScriptCoroutineType(ezStringView sScriptClassName, ezStringView sFunctionName, ezUniquePtr<ezRTTIAllocator>&& pAllocator);
+  void DeleteAllScriptCoroutineTypes();
+
   ezSharedPtr<ezScriptRTTI> m_pType;
+  ezDynamicArray<ezSharedPtr<ezScriptCoroutineRTTI>> m_CoroutineTypes;
 };

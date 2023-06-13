@@ -20,8 +20,8 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* pStream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& owner, ezWorld* pWorld) const override;
+  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const override;
 
-  ezSharedPtr<const ezVisualScriptDataStorage> m_pConstantDataStorage;
-  ezSharedPtr<const ezVisualScriptDataDescription> m_pVariableDataDesc;
+  ezSharedPtr<ezVisualScriptDataStorage> m_pConstantDataStorage;
+  ezSharedPtr<const ezVisualScriptDataDescription> m_pInstanceDataDesc;
 };

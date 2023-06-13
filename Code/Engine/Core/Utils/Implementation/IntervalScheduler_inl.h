@@ -34,16 +34,31 @@ EZ_ALWAYS_INLINE ezTime ezIntervalSchedulerBase::GetRandomTimeJitter(int pos, ez
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
+bool ezIntervalScheduler<T>::Data::IsValid() const
+{
+  return m_Interval.IsZeroOrPositive();
+}
+
+template <typename T>
+void ezIntervalScheduler<T>::Data::MarkAsInvalid()
+{
+  m_Interval = ezTime::Seconds(-1);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+template <typename T>
 void ezIntervalScheduler<T>::AddOrUpdateWork(const T& work, ezTime interval)
 {
   typename DataMap::Iterator it;
   if (m_WorkIdToData.TryGetValue(work, it))
   {
-    ezTime oldInterval = it.Value().m_Interval;
+    auto& data = it.Value();
+    ezTime oldInterval = data.m_Interval;
     if (interval == oldInterval)
       return;
 
-    m_Data.Remove(it);
+    data.MarkAsInvalid();
 
     const ezUInt32 uiHistogramIndex = GetHistogramIndex(oldInterval);
     m_Histogram[uiHistogramIndex]--;
@@ -65,13 +80,15 @@ template <typename T>
 void ezIntervalScheduler<T>::RemoveWork(const T& work)
 {
   typename DataMap::Iterator it;
-  EZ_VERIFY(m_WorkIdToData.Remove(work, &it), "Entry not found");
+  if (m_WorkIdToData.Remove(work, &it))
+  {
+    auto& data = it.Value();
+    ezTime oldInterval = data.m_Interval;
+    data.MarkAsInvalid();
 
-  ezTime oldInterval = it.Value().m_Interval;
-  m_Data.Remove(it);
-
-  const ezUInt32 uiHistogramIndex = GetHistogramIndex(oldInterval);
-  m_Histogram[uiHistogramIndex]--;
+    const ezUInt32 uiHistogramIndex = GetHistogramIndex(oldInterval);
+    m_Histogram[uiHistogramIndex]--;
+  }
 }
 
 template <typename T>
@@ -87,6 +104,8 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
 {
   if (deltaTime <= ezTime::Zero())
     return;
+
+  m_CurrentTime += deltaTime;
 
   if (m_Data.IsEmpty())
   {
@@ -122,14 +141,17 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
       for (ezUInt32 i = 0; i < uiScheduleCount; ++i, ++it)
       {
         auto& data = it.Value();
-        if (runWorkCallback.IsValid())
+        if (data.IsValid())
         {
-          runWorkCallback(data.m_Work, m_CurrentTime - data.m_LastScheduledTime);
-        }
+          if (runWorkCallback.IsValid())
+          {
+            runWorkCallback(data.m_Work, m_CurrentTime - data.m_LastScheduledTime);
+          }
 
-        // add a little bit of random jitter so we don't end up with perfect timings that might collide with other work
-        data.m_DueTime = m_CurrentTime + ezMath::Max(data.m_Interval, deltaTime) + GetRandomTimeJitter(i, m_uiSeed);
-        data.m_LastScheduledTime = m_CurrentTime;
+          // add a little bit of random jitter so we don't end up with perfect timings that might collide with other work
+          data.m_DueTime = m_CurrentTime + ezMath::Max(data.m_Interval, deltaTime) + GetRandomTimeJitter(i, m_uiSeed);
+          data.m_LastScheduledTime = m_CurrentTime;
+        }
 
         m_ScheduledWork.PushBack(it);
       }
@@ -138,14 +160,17 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
     // re-sort
     for (auto& it : m_ScheduledWork)
     {
-      Data data = it.Value();
-      m_WorkIdToData[data.m_Work] = InsertData(data);
+      if (it.Value().IsValid())
+      {
+        // make a copy of data and re-insert at new due time
+        Data data = it.Value();
+        m_WorkIdToData[data.m_Work] = InsertData(data);
+      }
+
       m_Data.Remove(it);
     }
     m_ScheduledWork.Clear();
   }
-
-  m_CurrentTime += deltaTime;
 }
 
 template <typename T>

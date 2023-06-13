@@ -76,4 +76,18 @@ EZ_CREATE_SIMPLE_TEST(Basics, PointerWithFlags)
     // the two Ptrs still compare equal (pointer part is equal, even if flags are different)
     EZ_TEST_BOOL(ptr == ptr2);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Const ptr")
+  {
+    ezPointerWithFlags<const Dummy, 2> ptr;
+
+    Dummy d1, d2;
+    ptr = &d1;
+
+    const Dummy* pD1 = &d1;
+    const Dummy* pD2 = &d2;
+
+    EZ_TEST_BOOL(ptr.GetPtr() == pD1);
+    EZ_TEST_BOOL(ptr.GetPtr() != pD2);
+  }
 }

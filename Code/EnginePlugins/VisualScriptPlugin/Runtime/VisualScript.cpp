@@ -1,18 +1,22 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
-#include <VisualScriptPlugin/Runtime/VisualScript.h>
-#include <VisualScriptPlugin/Runtime/VisualScriptNodeFunctions.h>
+#include <Core/Scripting/ScriptWorldModule.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
+#include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>
 
-#include <Foundation/IO/StringDeduplicationContext.h>
+ezVisualScriptGraphDescription::ExecuteFunction GetExecuteFunction(ezVisualScriptNodeDescription::Type::Enum nodeType, ezVisualScriptDataType::Enum dataType);
 
 namespace
 {
   static const char* s_NodeDescTypeNames[] = {
     "", // Invalid,
     "EntryCall",
+    "EntryCall_Coroutine",
     "MessageHandler",
+    "MessageHandler_Coroutine",
     "ReflectedFunction",
+    "InplaceCoroutine",
     "GetScriptOwner",
 
     "", // FirstBuiltin,
@@ -42,6 +46,13 @@ namespace
     "Builtin_MakeArray",
 
     "Builtin_TryGetComponentOfBaseType",
+
+    "Builtin_StartCoroutine",
+    "Builtin_StopCoroutine",
+    "Builtin_StopAllCoroutines",
+    "Builtin_WaitForAll",
+    "Builtin_WaitForAny",
+    "Builtin_Yield",
 
     "", // LastBuiltin,
   };
@@ -107,10 +118,10 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 1;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 2;
 
 // static
-ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, ezStreamWriter& inout_stream)
+ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)
 {
   inout_stream.WriteVersion(s_uiVisualScriptGraphDescriptionVersion);
 
@@ -145,12 +156,21 @@ ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScri
   inout_stream << uiRequiredStorageSize;
   inout_stream << nodes.GetCount();
 
-  return streamStorage.CopyToStream(inout_stream);
+  EZ_SUCCEED_OR_RETURN(streamStorage.CopyToStream(inout_stream));
+
+  EZ_SUCCEED_OR_RETURN(localDataDesc.Serialize(inout_stream));
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_stream)
 {
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptGraphDescriptionVersion);
+  if (uiVersion < 2)
+  {
+    ezLog::Error("Invalid visual script desc version. Expected >= 2 but got {}. Visual Script needs re-export", uiVersion);
+    return EZ_FAILURE;
+  }
 
   {
     ezUInt32 uiStorageSize;
@@ -187,466 +207,75 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
 
   m_Nodes = nodes;
 
+  ezSharedPtr<ezVisualScriptDataDescription> pLocalDataDesc = EZ_DEFAULT_NEW(ezVisualScriptDataDescription);
+  EZ_SUCCEED_OR_RETURN(pLocalDataDesc->Deserialize(inout_stream));
+  m_pLocalDataDesc = pLocalDataDesc;
+
   return EZ_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-static const ezTypeVersion s_uiVisualScriptDataDescriptionVersion = 1;
-
-ezResult ezVisualScriptDataDescription::Serialize(ezStreamWriter& inout_stream) const
-{
-  inout_stream.WriteVersion(s_uiVisualScriptDataDescriptionVersion);
-
-  for (auto& typeInfo : m_PerTypeInfo)
-  {
-    inout_stream << typeInfo.m_uiStartOffset;
-    inout_stream << typeInfo.m_uiCount;
-  }
-
-  inout_stream << m_uiStorageSizeNeeded;
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream)
-{
-  ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptDataDescriptionVersion);
-
-  for (auto& typeInfo : m_PerTypeInfo)
-  {
-    inout_stream >> typeInfo.m_uiStartOffset;
-    inout_stream >> typeInfo.m_uiCount;
-  }
-
-  inout_stream >> m_uiStorageSizeNeeded;
-
-  return EZ_SUCCESS;
-}
-
-void ezVisualScriptDataDescription::Clear()
-{
-  ezMemoryUtils::ZeroFillArray(m_PerTypeInfo);
-  m_uiStorageSizeNeeded = 0;
-}
-
-void ezVisualScriptDataDescription::CalculatePerTypeStartOffsets()
-{
-  ezUInt32 uiOffset = 0;
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerTypeInfo); ++i)
-  {
-    auto dataType = static_cast<ezVisualScriptDataType::Enum>(i);
-    auto& typeInfo = m_PerTypeInfo[i];
-
-    if (typeInfo.m_uiCount > 0)
-    {
-      uiOffset = ezMemoryUtils::AlignSize(uiOffset, ezVisualScriptDataType::GetStorageAlignment(dataType));
-      typeInfo.m_uiStartOffset = uiOffset;
-
-      uiOffset += ezVisualScriptDataType::GetStorageSize(dataType) * typeInfo.m_uiCount;
-    }
-  }
-
-  m_uiStorageSizeNeeded = uiOffset;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-ezVisualScriptDataStorage::ezVisualScriptDataStorage(const ezSharedPtr<const ezVisualScriptDataDescription>& pDesc)
+ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
   : m_pDesc(pDesc)
 {
 }
 
-ezVisualScriptDataStorage::~ezVisualScriptDataStorage()
+ezVisualScriptExecutionContext::~ezVisualScriptExecutionContext()
 {
-  DeallocateStorage();
+  Deinitialize();
 }
 
-void ezVisualScriptDataStorage::AllocateStorage()
+void ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& inout_instance, ezVisualScriptDataStorage& inout_localDataStorage, ezArrayPtr<ezVariant> arguments)
 {
-  m_Storage.SetCountUninitialized(m_pDesc->m_uiStorageSizeNeeded);
-  m_Storage.ZeroFill();
+  m_pInstance = &inout_instance;
 
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr();
+  m_DataStorage[DataOffset::Source::Local] = &inout_localDataStorage;
+  m_DataStorage[DataOffset::Source::Instance] = inout_instance.GetInstanceDataStorage();
+  m_DataStorage[DataOffset::Source::Constant] = inout_instance.GetConstantDataStorage();
 
-  for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
+  auto pNode = m_pDesc->GetNode(0);
+  EZ_ASSERT_DEV(ezVisualScriptNodeDescription::Type::IsEntry(pNode->m_Type), "Invalid entry node");
+
+  for (ezUInt32 i = 0; i < arguments.GetCount(); ++i)
   {
-    const auto& typeInfo = m_pDesc->m_PerTypeInfo[scriptDataType];
-    if (typeInfo.m_uiCount == 0)
-      continue;
+    SetDataFromVariant(pNode->GetOutputDataOffset(i), arguments[i]);
+  }
 
-    if (scriptDataType == ezVisualScriptDataType::String)
-    {
-      auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pStrings, typeInfo.m_uiCount);
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Variant)
-    {
-      auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pVariants, typeInfo.m_uiCount);
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
-    {
-      auto pVariantArrays = reinterpret_cast<ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pVariantArrays, typeInfo.m_uiCount);
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
-    {
-      auto pVariantMaps = reinterpret_cast<ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Construct(pVariantMaps, typeInfo.m_uiCount);
-    }
+  m_uiCurrentNode = pNode->GetExecutionIndex(0);
+}
+
+void ezVisualScriptExecutionContext::Deinitialize()
+{
+  // 0x1 is a marker value to indicate that we are in a yield
+  if (m_pCurrentCoroutine > reinterpret_cast<ezScriptCoroutine*>(0x1))
+  {
+    auto pModule = m_pInstance->GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
+    pModule->StopAndDeleteCoroutine(m_pCurrentCoroutine->GetHandle());
+    m_pCurrentCoroutine = nullptr;
   }
 }
 
-void ezVisualScriptDataStorage::DeallocateStorage()
+ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execute(ezTime deltaTimeSinceLastExecution)
 {
-  if (m_Storage.GetByteBlobPtr().IsEmpty())
-    return;
+  EZ_ASSERT_DEV(m_pInstance != nullptr, "Invalid instance");
+  ++m_uiExecutionCounter;
+  m_DeltaTimeSinceLastExecution = deltaTimeSinceLastExecution;
 
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr();
-
-  for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
+  auto pNode = m_pDesc->GetNode(m_uiCurrentNode);
+  while (pNode != nullptr)
   {
-    const auto& typeInfo = m_pDesc->m_PerTypeInfo[scriptDataType];
-    if (typeInfo.m_uiCount == 0)
-      continue;
+    ExecResult result = pNode->m_Function(*this, *pNode);
+    if (result.m_NextExecAndState < ExecResult::State::Completed)
+    {
+      return result;
+    }
 
-    if (scriptDataType == ezVisualScriptDataType::String)
-    {
-      auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pStrings, typeInfo.m_uiCount);
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Variant)
-    {
-      auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pVariants, typeInfo.m_uiCount);
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
-    {
-      auto pVariantArrays = reinterpret_cast<ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pVariantArrays, typeInfo.m_uiCount);
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
-    {
-      auto pVariantMaps = reinterpret_cast<ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
-      ezMemoryUtils::Destruct(pVariantMaps, typeInfo.m_uiCount);
-    }
+    m_uiCurrentNode = pNode->GetExecutionIndex(result.m_NextExecAndState);
+    m_pCurrentCoroutine = nullptr;
+
+    pNode = m_pDesc->GetNode(m_uiCurrentNode);
   }
 
-  m_Storage.Clear();
-}
-
-ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) const
-{
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr();
-
-  for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
-  {
-    const auto& typeInfo = m_pDesc->m_PerTypeInfo[scriptDataType];
-    if (typeInfo.m_uiCount == 0)
-      continue;
-
-    if (scriptDataType == ezVisualScriptDataType::String)
-    {
-      auto pStrings = reinterpret_cast<const ezString*>(pData + typeInfo.m_uiStartOffset);
-      auto pStringsEnd = pStrings + typeInfo.m_uiCount;
-      while (pStrings < pStringsEnd)
-      {
-        inout_stream << *pStrings;
-        ++pStrings;
-      }
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Variant)
-    {
-      auto pVariants = reinterpret_cast<const ezVariant*>(pData + typeInfo.m_uiStartOffset);
-      auto pVariantsEnd = pVariants + typeInfo.m_uiCount;
-      while (pVariants < pVariantsEnd)
-      {
-        inout_stream << *pVariants;
-        ++pVariants;
-      }
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
-    {
-      auto pVariantArrays = reinterpret_cast<const ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
-      auto pVariantArraysEnd = pVariantArrays + typeInfo.m_uiCount;
-      while (pVariantArrays < pVariantArraysEnd)
-      {
-        EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(*pVariantArrays));
-        ++pVariantArrays;
-      }
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
-    {
-      auto pVariantMaps = reinterpret_cast<const ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
-      auto pVariantMapsEnd = pVariantMaps + typeInfo.m_uiCount;
-      while (pVariantMaps < pVariantMapsEnd)
-      {
-        EZ_SUCCEED_OR_RETURN(inout_stream.WriteHashTable(*pVariantMaps));
-        ++pVariantMaps;
-      }
-    }
-    else
-    {
-      const ezUInt32 uiBytesToWrite = typeInfo.m_uiCount * ezVisualScriptDataType::GetStorageSize(static_cast<ezVisualScriptDataType::Enum>(scriptDataType));
-      EZ_SUCCEED_OR_RETURN(inout_stream.WriteBytes(pData + typeInfo.m_uiStartOffset, uiBytesToWrite));
-    }
-  }
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream)
-{
-  if (m_Storage.GetByteBlobPtr().IsEmpty())
-  {
-    AllocateStorage();
-  }
-
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr();
-
-  for (ezUInt32 scriptDataType = 0; scriptDataType < ezVisualScriptDataType::Count; ++scriptDataType)
-  {
-    const auto& typeInfo = m_pDesc->m_PerTypeInfo[scriptDataType];
-    if (typeInfo.m_uiCount == 0)
-      continue;
-
-    if (scriptDataType == ezVisualScriptDataType::String)
-    {
-      auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
-      auto pStringsEnd = pStrings + typeInfo.m_uiCount;
-      while (pStrings < pStringsEnd)
-      {
-        inout_stream >> *pStrings;
-        ++pStrings;
-      }
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Variant)
-    {
-      auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
-      auto pVariantsEnd = pVariants + typeInfo.m_uiCount;
-      while (pVariants < pVariantsEnd)
-      {
-        inout_stream >> *pVariants;
-        ++pVariants;
-      }
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Array)
-    {
-      auto pVariantArrays = reinterpret_cast<ezVariantArray*>(pData + typeInfo.m_uiStartOffset);
-      auto pVariantArraysEnd = pVariantArrays + typeInfo.m_uiCount;
-      while (pVariantArrays < pVariantArraysEnd)
-      {
-        EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(*pVariantArrays));
-        ++pVariantArrays;
-      }
-    }
-    else if (scriptDataType == ezVisualScriptDataType::Map)
-    {
-      auto pVariantMaps = reinterpret_cast<ezVariantDictionary*>(pData + typeInfo.m_uiStartOffset);
-      auto pVariantMapsEnd = pVariantMaps + typeInfo.m_uiCount;
-      while (pVariantMaps < pVariantMapsEnd)
-      {
-        EZ_SUCCEED_OR_RETURN(inout_stream.ReadHashTable(*pVariantMaps));
-        ++pVariantMaps;
-      }
-    }
-    else
-    {
-      const ezUInt32 uiBytesToRead = typeInfo.m_uiCount * ezVisualScriptDataType::GetStorageSize(static_cast<ezVisualScriptDataType::Enum>(scriptDataType));
-      inout_stream.ReadBytes(pData + typeInfo.m_uiStartOffset, uiBytesToRead);
-    }
-  }
-
-  return EZ_SUCCESS;
-}
-
-ezTypedPointer ezVisualScriptDataStorage::GetPointerData(DataOffset dataOffset, ezUInt32 uiExecutionCounter)
-{
-  m_pDesc->CheckOffset(dataOffset, nullptr);
-  auto pData = m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset;
-
-  if (dataOffset.m_uiDataType == ezVisualScriptDataType::GameObject)
-  {
-    auto& gameObjectHandle = *reinterpret_cast<const ezVisualScriptGameObjectHandle*>(pData);
-    return ezTypedPointer(gameObjectHandle.GetPtr(uiExecutionCounter), ezGetStaticRTTI<ezGameObject>());
-  }
-  else if (dataOffset.m_uiDataType == ezVisualScriptDataType::Component)
-  {
-    auto& componentHandle = *reinterpret_cast<const ezVisualScriptComponentHandle*>(pData);
-    ezComponent* pComponent = componentHandle.GetPtr(uiExecutionCounter);
-    return ezTypedPointer(pComponent, pComponent != nullptr ? pComponent->GetDynamicRTTI() : nullptr);
-  }
-  else if (dataOffset.m_uiDataType == ezVisualScriptDataType::TypedPointer)
-  {
-    return *reinterpret_cast<const ezTypedPointer*>(pData);
-  }
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezTypedPointer();
-}
-
-ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, ezVariantType::Enum expectedType, ezUInt32 uiExecutionCounter) const
-{
-  auto scriptDataType = static_cast<ezVisualScriptDataType::Enum>(dataOffset.m_uiDataType);
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  // expectedType == Invalid means that the caller expects an ezVariant so we decide solely based on the scriptDataType.
-  // We set the expectedType to the equivalent of the scriptDataType here so we don't need to check for expectedType == Invalid in all the asserts below.
-  if (expectedType == ezVariantType::Invalid)
-  {
-    expectedType = ezVisualScriptDataType::GetVariantType(scriptDataType);
-  }
-#endif
-
-  switch (scriptDataType)
-  {
-    case ezVisualScriptDataType::Bool:
-      EZ_ASSERT_DEBUG(expectedType == ezVariantType::Bool, "");
-      return GetData<bool>(dataOffset);
-    case ezVisualScriptDataType::Byte:
-      EZ_ASSERT_DEBUG(expectedType == ezVariantType::UInt8, "");
-      return GetData<ezUInt8>(dataOffset);
-    case ezVisualScriptDataType::Int:
-      EZ_ASSERT_DEBUG(expectedType == ezVariantType::Int32, "");
-      return GetData<ezInt32>(dataOffset);
-    case ezVisualScriptDataType::Int64:
-      EZ_ASSERT_DEBUG(expectedType == ezVariantType::Int64, "");
-      return GetData<ezInt64>(dataOffset);
-    case ezVisualScriptDataType::Float:
-      EZ_ASSERT_DEBUG(expectedType == ezVariantType::Float, "");
-      return GetData<float>(dataOffset);
-    case ezVisualScriptDataType::Double:
-      EZ_ASSERT_DEBUG(expectedType == ezVariantType::Double, "");
-      return GetData<double>(dataOffset);
-    case ezVisualScriptDataType::String:
-      if (expectedType == ezVariantType::Invalid || expectedType == ezVariantType::String)
-      {
-        return GetData<ezString>(dataOffset);
-      }
-      else if (expectedType == ezVariantType::StringView)
-      {
-        return ezVariant(GetData<ezString>(dataOffset).GetView(), false);
-      }
-      EZ_ASSERT_NOT_IMPLEMENTED;
-    case ezVisualScriptDataType::Variant:
-      return GetData<ezVariant>(dataOffset);
-    case ezVisualScriptDataType::Array:
-      EZ_ASSERT_DEBUG(expectedType == ezVariantType::VariantArray, "");
-      return GetData<ezVariantArray>(dataOffset);
-    case ezVisualScriptDataType::Map:
-      EZ_ASSERT_DEBUG(expectedType == ezVariantType::VariantDictionary, "");
-      return GetData<ezVariantDictionary>(dataOffset);
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
-
-  return ezVariant();
-}
-
-void ezVisualScriptDataStorage::SetDataFromVariant(DataOffset dataOffset, const ezVariant& value, ezUInt32 uiExecutionCounter)
-{
-  if (dataOffset.IsValid() == false)
-    return;
-
-  auto scriptDataType = static_cast<ezVisualScriptDataType::Enum>(dataOffset.m_uiDataType);
-  switch (scriptDataType)
-  {
-    case ezVisualScriptDataType::Bool:
-      SetData(dataOffset, value.Get<bool>());
-      break;
-    case ezVisualScriptDataType::Byte:
-      if (value.IsA<ezInt8>())
-      {
-        SetData(dataOffset, ezUInt8(value.Get<ezInt8>()));
-      }
-      else
-      {
-        SetData(dataOffset, value.Get<ezUInt8>());
-      }
-      break;
-    case ezVisualScriptDataType::Int:
-      if (value.IsA<ezInt16>())
-      {
-        SetData(dataOffset, ezInt32(value.Get<ezInt16>()));
-      }
-      else if (value.IsA<ezUInt16>())
-      {
-        SetData(dataOffset, ezInt32(value.Get<ezUInt16>()));
-      }
-      else if (value.IsA<ezInt32>())
-      {
-        SetData(dataOffset, value.Get<ezInt32>());
-      }
-      else
-      {
-        SetData(dataOffset, ezInt32(value.Get<ezUInt32>()));
-      }
-      break;
-    case ezVisualScriptDataType::Int64:
-      if (value.IsA<ezInt64>())
-      {
-        SetData(dataOffset, value.Get<ezInt64>());
-      }
-      else
-      {
-        SetData(dataOffset, ezInt64(value.Get<ezUInt64>()));
-      }
-      break;
-    case ezVisualScriptDataType::Float:
-      SetData(dataOffset, value.Get<float>());
-      break;
-    case ezVisualScriptDataType::Double:
-      SetData(dataOffset, value.Get<double>());
-      break;
-    case ezVisualScriptDataType::Color:
-      SetData(dataOffset, value.Get<ezColor>());
-      break;
-    case ezVisualScriptDataType::Vector3:
-      SetData(dataOffset, value.Get<ezVec3>());
-      break;
-    case ezVisualScriptDataType::Quaternion:
-      SetData(dataOffset, value.Get<ezQuat>());
-      break;
-    case ezVisualScriptDataType::Transform:
-      SetData(dataOffset, value.Get<ezTransform>());
-      break;
-    case ezVisualScriptDataType::Time:
-      SetData(dataOffset, value.Get<ezTime>());
-      break;
-    case ezVisualScriptDataType::Angle:
-      SetData(dataOffset, value.Get<ezAngle>());
-      break;
-    case ezVisualScriptDataType::String:
-      if (value.IsA<ezStringView>())
-      {
-        SetData(dataOffset, ezString(value.Get<ezStringView>()));
-      }
-      else
-      {
-        SetData(dataOffset, value.Get<ezString>());
-      }
-      break;
-    case ezVisualScriptDataType::GameObject:
-      SetPointerData(dataOffset, value.Get<ezGameObject*>(), ezGetStaticRTTI<ezGameObject>(), uiExecutionCounter);
-      break;
-    case ezVisualScriptDataType::Component:
-      SetPointerData(dataOffset, value.Get<ezComponent*>(), ezGetStaticRTTI<ezComponent>(), uiExecutionCounter);
-      break;
-    case ezVisualScriptDataType::TypedPointer:
-    {
-      ezTypedPointer typedPtr = value.Get<ezTypedPointer>();
-      SetPointerData(dataOffset, typedPtr.m_pObject, typedPtr.m_pType, uiExecutionCounter);
-    }
-    break;
-    case ezVisualScriptDataType::Variant:
-      SetData(dataOffset, value);
-      break;
-    case ezVisualScriptDataType::Array:
-      SetData(dataOffset, value.Get<ezVariantArray>());
-      break;
-    case ezVisualScriptDataType::Map:
-      SetData(dataOffset, value.Get<ezVariantDictionary>());
-      break;
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
+  return ExecResult::RunNext(0);
 }

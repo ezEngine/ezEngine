@@ -263,7 +263,8 @@ void ezScriptComponent::ClearInstance(bool bDeactivate)
     pModule->RemoveUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow());
   }
 
-  pModule->RemoveScriptReloadFunction(m_hScriptClass, this);
+  pModule->StopAndDeleteAllCoroutines(m_pInstance.Borrow());
+  pModule->RemoveScriptReloadFunction(m_hScriptClass, ezMakeDelegate(&ezScriptComponent::ReloadScript, this));
 
   m_pInstance = nullptr;
   m_pScriptType = nullptr;
@@ -276,13 +277,11 @@ void ezScriptComponent::UpdateScheduling()
   auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
   if (auto pUpdateFunction = GetScriptFunction(ezComponent_ScriptBaseClassFunctions::Update))
   {
-    pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval);
+    const bool bOnlyWhenSimulating = true;
+    pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval, bOnlyWhenSimulating);
   }
 
-  pModule->AddScriptReloadFunction(m_hScriptClass,
-    [this]() {
-      InstantiateScript(IsActiveAndInitialized());
-    });
+  pModule->AddScriptReloadFunction(m_hScriptClass, ezMakeDelegate(&ezScriptComponent::ReloadScript, this));
 }
 
 const ezAbstractFunctionProperty* ezScriptComponent::GetScriptFunction(ezUInt32 uiFunctionIndex)
@@ -302,4 +301,9 @@ void ezScriptComponent::CallScriptFunction(ezUInt32 uiFunctionIndex)
     ezVariant returnValue;
     pFunction->Execute(m_pInstance.Borrow(), ezArrayPtr<ezVariant>(), returnValue);
   }
+}
+
+void ezScriptComponent::ReloadScript()
+{
+  InstantiateScript(IsActiveAndInitialized());
 }

@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Math/CurveFunctions.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Quat.h>
@@ -414,6 +415,46 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezComparisonOperator, 1)
   EZ_ENUM_CONSTANTS(ezComparisonOperator::Equal, ezComparisonOperator::NotEqual)
   EZ_ENUM_CONSTANTS(ezComparisonOperator::Less, ezComparisonOperator::LessEqual)
   EZ_ENUM_CONSTANTS(ezComparisonOperator::Greater, ezComparisonOperator::GreaterEqual)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveFunction, 1)
+ EZ_ENUM_CONSTANT(ezCurveFunction::Linear),
+ EZ_ENUM_CONSTANT(ezCurveFunction::ConstantZero),
+ EZ_ENUM_CONSTANT(ezCurveFunction::ConstantOne),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInSine),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutSine),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutSine),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuad),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuad),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuad),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInCubic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutCubic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutCubic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuartic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuartic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuartic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInQuintic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutQuintic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutQuintic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInExpo),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutExpo),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutExpo),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInCirc),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutCirc),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutCirc),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInBack),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutBack),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutBack), 
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInElastic), 
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutElastic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutElastic),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInBounce),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseOutBounce),
+ EZ_ENUM_CONSTANT(ezCurveFunction::EaseInOutBounce),
+ EZ_ENUM_CONSTANT(ezCurveFunction::Conical),
+ EZ_ENUM_CONSTANT(ezCurveFunction::FadeInHoldFadeOut),
+ EZ_ENUM_CONSTANT(ezCurveFunction::FadeInFadeOut),
+ EZ_ENUM_CONSTANT(ezCurveFunction::Bell),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 

@@ -30,6 +30,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Variant,
     Array,
     Map,
+    Coroutine,
 
     Count,
     Default = Invalid,
@@ -38,6 +39,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
   };
 
   EZ_ALWAYS_INLINE static bool IsNumber(Enum dataType) { return dataType >= Bool && dataType <= Double; }
+  EZ_ALWAYS_INLINE static bool IsPointer(Enum dataType) { return (dataType >= GameObject && dataType <= TypedPointer) || dataType == Coroutine; }
 
   static ezVariantType::Enum GetVariantType(Enum dataType);
   static Enum FromVariantType(ezVariantType::Enum variantType);

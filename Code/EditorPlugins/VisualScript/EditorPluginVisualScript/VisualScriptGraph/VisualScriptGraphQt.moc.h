@@ -39,6 +39,10 @@ public:
 
   virtual void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);
 
+  const QPixmap& GetCoroutineIcon() const { return m_CoroutineIcon; }
+
 private:
-  void DeductedTypeChangedHandler(const ezDocumentObject* pObject);
+  void NodeChangedHandler(const ezDocumentObject* pObject);
+
+  QPixmap m_CoroutineIcon;
 };

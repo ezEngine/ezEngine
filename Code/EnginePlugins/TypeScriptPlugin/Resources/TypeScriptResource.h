@@ -9,17 +9,16 @@ class ezTypeScriptBinding;
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptInstance : public ezScriptInstance
 {
 public:
-  ezTypeScriptInstance(ezComponent& in_owner, ezTypeScriptBinding& ref_binding);
+  ezTypeScriptInstance(ezComponent& inout_owner, ezWorld* pWorld, ezTypeScriptBinding& inout_binding);
 
   virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) override;
 
   ezTypeScriptBinding& GetBinding() { return m_Binding; }
 
-  ezComponent& GetComponent() { return m_Component; }
+  ezComponent& GetComponent() { return static_cast<ezComponent&>(GetOwner()); }
 
 private:
   ezTypeScriptBinding& m_Binding;
-  ezComponent& m_Component;
 };
 
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptClassResource : public ezScriptClassResource
@@ -36,7 +35,7 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* pStream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& owner, ezWorld* pWorld) const override;
+  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const override;
 
 private:
   ezUuid m_Guid;

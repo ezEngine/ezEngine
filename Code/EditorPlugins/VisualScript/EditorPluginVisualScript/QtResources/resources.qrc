@@ -2,5 +2,8 @@
   <qresource prefix="AssetIcons">
     <file>VisualScript.png</file>
   </qresource>
+  <qresource prefix="EditorPluginVisualScript">
+    <file>Coroutine.svg</file>
+  </qresource>
 </RCC>
 
