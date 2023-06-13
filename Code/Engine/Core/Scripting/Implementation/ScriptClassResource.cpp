@@ -61,12 +61,12 @@ ezSharedPtr<ezScriptCoroutineRTTI> ezScriptClassResource::CreateScriptCoroutineT
   sCoroutineTypeName.Set(sScriptClassName, "::", sFunctionName, "<Coroutine>");
 
   ezSharedPtr<ezScriptCoroutineRTTI> pCoroutineType = EZ_DEFAULT_NEW(ezScriptCoroutineRTTI, sCoroutineTypeName, std::move(pAllocator));
-  m_pCoroutineTypes.PushBack(pCoroutineType);
+  m_CoroutineTypes.PushBack(pCoroutineType);
 
   return pCoroutineType;
 }
 
 void ezScriptClassResource::DeleteAllScriptCoroutineTypes()
 {
-  m_pCoroutineTypes.Clear();
+  m_CoroutineTypes.Clear();
 }

@@ -47,7 +47,7 @@ private:
 class EZ_CORE_DLL ezScriptInstance
 {
 public:
-  ezScriptInstance(ezReflectedClass& ref_owner, ezWorld* pWorld);
+  ezScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorld);
   virtual ~ezScriptInstance() = default;
 
   ezReflectedClass& GetOwner() { return m_Owner; }

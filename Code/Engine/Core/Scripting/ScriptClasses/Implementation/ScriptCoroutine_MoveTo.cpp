@@ -20,7 +20,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptCoroutine_MoveTo, ezScriptCoroutine, 1, e
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezScriptCoroutine_MoveTo::Start(ezGameObjectHandle hObject, const ezVec3& targetPos, ezTime duration, ezEnum<ezCurveFunction> easing)
+void ezScriptCoroutine_MoveTo::Start(ezGameObjectHandle hObject, const ezVec3& vTargetPos, ezTime duration, ezEnum<ezCurveFunction> easing)
 {
   ezGameObject* pObject = nullptr;
   if (ezWorld::GetWorld(hObject)->TryGetObject(hObject, pObject) == false)
@@ -31,7 +31,7 @@ void ezScriptCoroutine_MoveTo::Start(ezGameObjectHandle hObject, const ezVec3& t
 
   m_hObject = hObject;
   m_vSourcePos = pObject->GetLocalPosition();
-  m_vTargetPos = targetPos;
+  m_vTargetPos = vTargetPos;
   m_Easing = easing;
 
   m_Duration = duration;

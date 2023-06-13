@@ -226,11 +226,11 @@ ezVisualScriptExecutionContext::~ezVisualScriptExecutionContext()
   Deinitialize();
 }
 
-void ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& inout_instance, ezVisualScriptDataStorage& localDataStorage, ezArrayPtr<ezVariant> arguments)
+void ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& inout_instance, ezVisualScriptDataStorage& inout_localDataStorage, ezArrayPtr<ezVariant> arguments)
 {
   m_pInstance = &inout_instance;
 
-  m_DataStorage[DataOffset::Source::Local] = &localDataStorage;
+  m_DataStorage[DataOffset::Source::Local] = &inout_localDataStorage;
   m_DataStorage[DataOffset::Source::Instance] = inout_instance.GetInstanceDataStorage();
   m_DataStorage[DataOffset::Source::Constant] = inout_instance.GetConstantDataStorage();
 
@@ -260,7 +260,7 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
 {
   EZ_ASSERT_DEV(m_pInstance != nullptr, "Invalid instance");
   ++m_uiExecutionCounter;
-  m_deltaTimeSinceLastExecution = deltaTimeSinceLastExecution;
+  m_DeltaTimeSinceLastExecution = deltaTimeSinceLastExecution;
 
   auto pNode = m_pDesc->GetNode(m_uiCurrentNode);
   while (pNode != nullptr)

@@ -2,8 +2,8 @@
 
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
-ezVisualScriptInstance::ezVisualScriptInstance(ezReflectedClass& ref_owner, ezWorld* pWorld, const ezSharedPtr<ezVisualScriptDataStorage>& pConstantDataStorage, const ezSharedPtr<const ezVisualScriptDataDescription>& pInstanceDataDesc)
-  : ezScriptInstance(ref_owner, pWorld)
+ezVisualScriptInstance::ezVisualScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorld, const ezSharedPtr<ezVisualScriptDataStorage>& pConstantDataStorage, const ezSharedPtr<const ezVisualScriptDataDescription>& pInstanceDataDesc)
+  : ezScriptInstance(inout_owner, pWorld)
   , m_pConstantDataStorage(pConstantDataStorage)
 {
   if (pInstanceDataDesc != nullptr)

@@ -176,5 +176,5 @@ EZ_ALWAYS_INLINE void ezVisualScriptExecutionContext::SetCurrentCoroutine(ezScri
 inline ezTime ezVisualScriptExecutionContext::GetDeltaTimeSinceLastExecution()
 {
   EZ_ASSERT_DEBUG(m_pDesc->IsCoroutine(), "Delta time is only valid for coroutines");
-  return m_deltaTimeSinceLastExecution;
+  return m_DeltaTimeSinceLastExecution;
 }

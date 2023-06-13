@@ -9,7 +9,7 @@ class ezTypeScriptBinding;
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptInstance : public ezScriptInstance
 {
 public:
-  ezTypeScriptInstance(ezComponent& owner, ezWorld* pWorld, ezTypeScriptBinding& binding);
+  ezTypeScriptInstance(ezComponent& inout_owner, ezWorld* pWorld, ezTypeScriptBinding& inout_binding);
 
   virtual void ApplyParameters(const ezArrayMap<ezHashedString, ezVariant>& parameters) override;
 
@@ -35,7 +35,7 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* pStream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& owner, ezWorld* pWorld) const override;
+  virtual ezUniquePtr<ezScriptInstance> Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const override;
 
 private:
   ezUuid m_Guid;

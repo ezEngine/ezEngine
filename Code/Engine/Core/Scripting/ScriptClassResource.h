@@ -28,5 +28,5 @@ protected:
   void DeleteAllScriptCoroutineTypes();
 
   ezSharedPtr<ezScriptRTTI> m_pType;
-  ezDynamicArray<ezSharedPtr<ezScriptCoroutineRTTI>> m_pCoroutineTypes;
+  ezDynamicArray<ezSharedPtr<ezScriptCoroutineRTTI>> m_CoroutineTypes;
 };

@@ -64,8 +64,8 @@ ezScriptFunctionProperty::~ezScriptFunctionProperty() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezScriptInstance::ezScriptInstance(ezReflectedClass& ref_owner, ezWorld* pWorld)
-  : m_Owner(ref_owner)
+ezScriptInstance::ezScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorld)
+  : m_Owner(inout_owner)
   , m_pWorld(pWorld)
 {
 }

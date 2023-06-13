@@ -53,9 +53,9 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-ezTypeScriptInstance::ezTypeScriptInstance(ezComponent& owner, ezWorld* pWorld, ezTypeScriptBinding& binding)
-  : ezScriptInstance(owner, pWorld)
-  , m_Binding(binding)
+ezTypeScriptInstance::ezTypeScriptInstance(ezComponent& inout_owner, ezWorld* pWorld, ezTypeScriptBinding& inout_binding)
+  : ezScriptInstance(inout_owner, pWorld)
+  , m_Binding(inout_binding)
 {
 }
 

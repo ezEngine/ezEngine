@@ -184,7 +184,7 @@ void ezVisualScriptClassResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezUniquePtr<ezScriptInstance> ezVisualScriptClassResource::Instantiate(ezReflectedClass& owner, ezWorld* pWorld) const
+ezUniquePtr<ezScriptInstance> ezVisualScriptClassResource::Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const
 {
-  return EZ_DEFAULT_NEW(ezVisualScriptInstance, owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc);
+  return EZ_DEFAULT_NEW(ezVisualScriptInstance, inout_owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc);
 }
