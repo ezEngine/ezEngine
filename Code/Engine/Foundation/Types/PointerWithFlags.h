@@ -95,10 +95,18 @@ public:
   bool operator!=(const ezPointerWithFlags<PtrType, NumFlagBits>& other) const { return m_pPtr != other.m_pPtr; }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
+  template <typename = typename std::enable_if<std::is_const<PtrType>::value == false>>
   bool operator==(const PtrType* pPtr) const { return GetPtr() == pPtr; }
 
   /// \brief Compares the pointer part for inequality (flags are ignored)
+  template <typename = typename std::enable_if<std::is_const<PtrType>::value == false>>
   bool operator!=(const PtrType* pPtr) const { return !(*this == pPtr); }
+
+  /// \brief Compares the pointer part for equality (flags are ignored)
+  bool operator==(PtrType* pPtr) const { return GetPtr() == pPtr; }
+
+  /// \brief Compares the pointer part for inequality (flags are ignored)
+  bool operator!=(PtrType* pPtr) const { return !(*this == pPtr); }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(std::nullptr_t) const { return GetPtr() == nullptr; }
