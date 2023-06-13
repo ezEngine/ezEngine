@@ -96,11 +96,17 @@ public:
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   template <typename = typename std::enable_if<std::is_const<PtrType>::value == false>>
-  bool operator==(const PtrType* pPtr) const { return GetPtr() == pPtr; }
+  bool operator==(const PtrType* pPtr) const
+  {
+    return GetPtr() == pPtr;
+  }
 
   /// \brief Compares the pointer part for inequality (flags are ignored)
   template <typename = typename std::enable_if<std::is_const<PtrType>::value == false>>
-  bool operator!=(const PtrType* pPtr) const { return !(*this == pPtr); }
+  bool operator!=(const PtrType* pPtr) const
+  {
+    return !(*this == pPtr);
+  }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(PtrType* pPtr) const { return GetPtr() == pPtr; }
