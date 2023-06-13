@@ -26,15 +26,15 @@ public:
   ezPointerWithFlags() = default;
 
   /// \brief Initializes the pointer and flags
-  explicit ezPointerWithFlags(PtrType* pPtr, ezUInt8 flags = 0) { SetPtrAndFlags(pPtr, flags); }
+  explicit ezPointerWithFlags(PtrType* pPtr, ezUInt8 uiFlags = 0) { SetPtrAndFlags(pPtr, uiFlags); }
 
   /// \brief Changes the pointer and flags
-  void SetPtrAndFlags(PtrType* pPtr, ezUInt8 flags)
+  void SetPtrAndFlags(PtrType* pPtr, ezUInt8 uiFlags)
   {
     const std::uintptr_t isrc = *reinterpret_cast<std::uintptr_t*>(&pPtr);
     std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_pPtr);
 
-    iptr = (isrc & PtrMask) | (flags & FlagsMask);
+    iptr = (isrc & PtrMask) | (uiFlags & FlagsMask);
   }
 
   /// \brief Returns the masked off pointer value
@@ -70,13 +70,13 @@ public:
   }
 
   /// \brief Changes only the flags value. The given value must fit into the reserved bits.
-  void SetFlags(ezUInt8 flags)
+  void SetFlags(ezUInt8 uiFlags)
   {
-    EZ_ASSERT_DEBUG(flags <= FlagsMask, "The flag value {} requires more than {} bits", flags, NumFlagBits);
+    EZ_ASSERT_DEBUG(uiFlags <= FlagsMask, "The flag value {} requires more than {} bits", uiFlags, NumFlagBits);
 
     std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_pPtr);
 
-    iptr = (iptr & PtrMask) | (flags & FlagsMask);
+    iptr = (iptr & PtrMask) | (uiFlags & FlagsMask);
   }
 
   /// \brief Returns the masked off pointer value
