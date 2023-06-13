@@ -7,7 +7,7 @@
 /// When accessing the pointer, the lower N bits are masked off.
 /// Typically one can safely store 3 bits in the lower bits of a pointer as most data is 8 byte aligned,
 /// especially when it was heap allocated.
-template <typename PtrType, uint8_t NumFlagBits = 2>
+template <typename PtrType, ezUInt8 NumFlagBits = 2>
 class ezPointerWithFlags
 {
 private:
@@ -26,10 +26,10 @@ public:
   ezPointerWithFlags() = default;
 
   /// \brief Initializes the pointer and flags
-  explicit ezPointerWithFlags(PtrType* pPtr, uint8_t flags = 0) { SetPtrAndFlags(pPtr, flags); }
+  explicit ezPointerWithFlags(PtrType* pPtr, ezUInt8 flags = 0) { SetPtrAndFlags(pPtr, flags); }
 
   /// \brief Changes the pointer and flags
-  void SetPtrAndFlags(PtrType* pPtr, uint8_t flags)
+  void SetPtrAndFlags(PtrType* pPtr, ezUInt8 flags)
   {
     const std::uintptr_t isrc = *reinterpret_cast<std::uintptr_t*>(&pPtr);
     std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_pPtr);
@@ -63,14 +63,14 @@ public:
     iptr = (isrc & PtrMask) | (iptr & FlagsMask);
   }
   /// \brief Returns the flags value only
-  uint8_t GetFlags() const
+  ezUInt8 GetFlags() const
   {
     const std::uintptr_t& iptr = *reinterpret_cast<const std::uintptr_t*>(&m_pPtr);
-    return static_cast<uint8_t>(iptr & FlagsMask);
+    return static_cast<ezUInt8>(iptr & FlagsMask);
   }
 
   /// \brief Changes only the flags value. The given value must fit into the reserved bits.
-  void SetFlags(uint8_t flags)
+  void SetFlags(ezUInt8 flags)
   {
     EZ_ASSERT_DEBUG(flags <= FlagsMask, "The flag value {} requires more than {} bits", flags, NumFlagBits);
 
@@ -87,12 +87,6 @@ public:
 
   /// \brief Changes the pointer value only. Flags stay unchanged.
   void operator=(PtrType* pPtr) { SetPtr(pPtr); }
-
-  /// \brief Compares both the pointer part and the flags part for equality
-  bool operator==(const ezPointerWithFlags<PtrType, NumFlagBits>& other) const { return m_pPtr == other.m_pPtr; }
-
-  /// \brief Compares both the pointer part and the flags part for inequality
-  bool operator!=(const ezPointerWithFlags<PtrType, NumFlagBits>& other) const { return m_pPtr != other.m_pPtr; }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   template <typename = typename std::enable_if<std::is_const<PtrType>::value == false>>

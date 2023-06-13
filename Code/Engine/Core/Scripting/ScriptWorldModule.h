@@ -58,12 +58,18 @@ public:
 
   struct FunctionContext
   {
+    enum Flags : ezUInt8
+    {
+      None,
+      OnlyWhenSimulating
+    };
+
     ezPointerWithFlags<const ezAbstractFunctionProperty, 1> m_pFunctionAndFlags;
     void* m_pInstance = nullptr;
 
     bool operator==(const FunctionContext& other) const
     {
-      return m_pFunctionAndFlags.GetPtr() == other.m_pFunctionAndFlags.GetPtr() && m_pInstance == other.m_pInstance;
+      return m_pFunctionAndFlags == other.m_pFunctionAndFlags && m_pInstance == other.m_pInstance;
     }
   };
 

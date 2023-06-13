@@ -84,7 +84,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, PointerWithFlags)
     Dummy d1, d2;
     ptr = &d1;
 
-    EZ_TEST_BOOL(ptr.GetPtr() == &d1);
-    EZ_TEST_BOOL(ptr.GetPtr() != &d2);
+    const Dummy* pD1 = &d1;
+    const Dummy* pD2 = &d2;
+
+    EZ_TEST_BOOL(ptr.GetPtr() == pD1);
+    EZ_TEST_BOOL(ptr.GetPtr() != pD2);
   }
 }

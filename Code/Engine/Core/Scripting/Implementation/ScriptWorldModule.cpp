@@ -43,7 +43,7 @@ void ezScriptWorldModule::Initialize()
 void ezScriptWorldModule::AddUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance, ezTime updateInterval, bool bOnlyWhenSimulating)
 {
   FunctionContext context;
-  context.m_pFunctionAndFlags.SetPtrAndFlags(pFunction, bOnlyWhenSimulating ? 1 : 0);
+  context.m_pFunctionAndFlags.SetPtrAndFlags(pFunction, bOnlyWhenSimulating ? FunctionContext::Flags::OnlyWhenSimulating : FunctionContext::Flags::None);
   context.m_pInstance = pInstance;
 
   m_Scheduler.AddOrUpdateWork(context, updateInterval);
@@ -204,8 +204,9 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
   }
 
   m_Scheduler.Update(deltaTime,
-    [this](const FunctionContext& context, ezTime deltaTime) {
-      if (GetWorld()->GetWorldSimulationEnabled() || context.m_pFunctionAndFlags.GetFlags() == 0)
+    [this](const FunctionContext& context, ezTime deltaTime)
+    {
+      if (GetWorld()->GetWorldSimulationEnabled() || context.m_pFunctionAndFlags.GetFlags() == FunctionContext::Flags::None)
       {
         ezVariant args[] = {deltaTime};
         ezVariant returnValue;
