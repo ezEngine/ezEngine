@@ -30,7 +30,8 @@ ezResult ezBakingSettings::Serialize(ezStreamWriter& inout_stream) const
 
 ezResult ezBakingSettings::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion version = inout_stream.ReadVersion(s_BakingSettingsVersion); // Ignore dead store warning
+  const ezTypeVersion version = inout_stream.ReadVersion(s_BakingSettingsVersion);
+  EZ_IGNORE_UNUSED(version);
 
   inout_stream >> m_vProbeSpacing;
   inout_stream >> m_uiNumSamplesPerProbe;

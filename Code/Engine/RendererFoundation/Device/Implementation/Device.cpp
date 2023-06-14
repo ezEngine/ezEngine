@@ -1251,6 +1251,8 @@ void ezGALDevice::WaitIdle()
 
 void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
 {
+  EZ_ASSERT_DEBUG(pResource != nullptr, "Must provide valid resource");
+
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   for (auto it = pResource->m_ResourceViews.GetIterator(); it.IsValid(); ++it)

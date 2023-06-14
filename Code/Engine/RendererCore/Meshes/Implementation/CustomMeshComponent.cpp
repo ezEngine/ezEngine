@@ -323,7 +323,6 @@ void ezCustomMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTT
 void ezCustomMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
 
   ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);

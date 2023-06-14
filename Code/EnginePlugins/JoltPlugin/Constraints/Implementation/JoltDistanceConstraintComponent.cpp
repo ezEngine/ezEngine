@@ -107,7 +107,7 @@ void ezJoltDistanceConstraintComponent::SerializeComponent(ezWorldWriter& inout_
 void ezJoltDistanceConstraintComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = inout_stream.GetStream();
 

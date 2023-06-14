@@ -204,6 +204,8 @@ private:
 /// \brief The interface for an allocator that creates instances of reflected types.
 struct EZ_FOUNDATION_DLL ezRTTIAllocator
 {
+  virtual ~ezRTTIAllocator();
+
   /// \brief Returns whether the type that is represented by this allocator, can be dynamically allocated at runtime.
   virtual bool CanAllocate() const { return true; } // [tested]
 

@@ -212,28 +212,28 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezInt8& result, bool& bSuccessful)
   {
-    ezInt32 tempResult;
+    ezInt32 tempResult = 0;
     To(value, tempResult, bSuccessful);
     result = (ezInt8)tempResult;
   }
 
   static void To(const ezVariant& value, ezUInt8& result, bool& bSuccessful)
   {
-    ezUInt32 tempResult;
+    ezUInt32 tempResult = 0;
     To(value, tempResult, bSuccessful);
     result = (ezUInt8)tempResult;
   }
 
   static void To(const ezVariant& value, ezInt16& result, bool& bSuccessful)
   {
-    ezInt32 tempResult;
+    ezInt32 tempResult = 0;
     To(value, tempResult, bSuccessful);
     result = (ezInt16)tempResult;
   }
 
   static void To(const ezVariant& value, ezUInt16& result, bool& bSuccessful)
   {
-    ezUInt32 tempResult;
+    ezUInt32 tempResult = 0;
     To(value, tempResult, bSuccessful);
     result = (ezUInt16)tempResult;
   }

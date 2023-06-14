@@ -167,7 +167,7 @@ void ezWindVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream
 void ezWindVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
@@ -256,7 +256,7 @@ void ezWindVolumeCylinderComponent::SerializeComponent(ezWorldWriter& inout_stre
 void ezWindVolumeCylinderComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fRadius;
@@ -360,7 +360,7 @@ void ezWindVolumeConeComponent::SerializeComponent(ezWorldWriter& inout_stream) 
 void ezWindVolumeConeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_fLength;

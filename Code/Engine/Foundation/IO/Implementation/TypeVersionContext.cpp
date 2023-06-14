@@ -71,6 +71,7 @@ EZ_IMPLEMENT_SERIALIZATION_CONTEXT(ezTypeVersionReadContext)
 ezTypeVersionReadContext::ezTypeVersionReadContext(ezStreamReader& inout_stream)
 {
   auto version = inout_stream.ReadVersion(s_uiTypeVersionContextVersion);
+  EZ_IGNORE_UNUSED(version);
 
   ezUInt32 uiNumTypes = 0;
   inout_stream >> uiNumTypes;
