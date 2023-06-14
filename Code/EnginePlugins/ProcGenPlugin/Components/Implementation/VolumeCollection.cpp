@@ -112,6 +112,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition,
         const ezColor col = ezImageUtils::NearestSample(image.m_pPixelData, image.m_uiImageWidth, image.m_uiImageHeight, ezImageAddressMode::Clamp, uv);
 
         float fValueToUse = image.m_fValue;
+        EZ_IGNORE_UNUSED(fValueToUse);
 
         switch (imgMode)
         {
@@ -218,6 +219,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
       uiSmallestKey = pSmallestShape->m_uiSortingKey;
     }
 
+    EZ_IGNORE_UNUSED(uiSmallestKey);
     EZ_ASSERT_DEBUG(pSmallestShape != nullptr, "Error sorting proc-gen volumes.");
 
     out_collection.m_SortedShapes.PushBack(pSmallestShape);

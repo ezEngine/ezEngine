@@ -362,6 +362,7 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID, e
     }
     else
     {
+      EZ_ASSERT_DEBUG(pObject != nullptr, "pRbComp and pObject should always be valid together");
       if (GetUserFlag(0) == true)
       {
         ezTransform globalFrame = m_LocalFrameA;

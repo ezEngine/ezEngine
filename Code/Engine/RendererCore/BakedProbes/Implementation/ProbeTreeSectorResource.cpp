@@ -42,6 +42,7 @@ ezResult ezProbeTreeSectorResourceDescriptor::Deserialize(ezStreamReader& inout_
   Clear();
 
   const ezTypeVersion version = inout_stream.ReadVersion(s_ProbeTreeResourceDescriptorVersion);
+  EZ_IGNORE_UNUSED(version);
 
   inout_stream >> m_vGridOrigin;
   inout_stream >> m_vProbeSpacing;

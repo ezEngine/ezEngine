@@ -534,6 +534,7 @@ void ezRTTI::PluginEventHandler(const ezPluginEvent& EventData)
   }
 }
 
+ezRTTIAllocator::~ezRTTIAllocator() = default;
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_RTTI);

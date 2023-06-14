@@ -561,14 +561,13 @@ void ezAbstractObjectGraph::ModifyNodeViaNativeCounterpart(ezAbstractObjectNode*
 
   // Create native object graph
   ezAbstractObjectGraph graph;
-  ezAbstractObjectNode* pRootNode2 = nullptr;
   {
     // The ezApplyNativePropertyChangesContext takes care of generating guids for native pointers that match those
     // of the object manager.
     ezApplyNativePropertyChangesContext nativeChangesContext(context, origGraph);
     ezRttiConverterWriter rttiConverter(&graph, &nativeChangesContext, true, true);
     nativeChangesContext.RegisterObject(pOrigRootNode->GetGuid(), pType, pNativeRoot);
-    pRootNode2 = rttiConverter.AddObjectToGraph(pType, pNativeRoot, "Object");
+    rttiConverter.AddObjectToGraph(pType, pNativeRoot, "Object");
   }
 
   // Create diff from native to cloned sub-graph and then apply the diff to the original graph.

@@ -222,6 +222,7 @@ ezResult ezStateMachineDescription::Serialize(ezStreamWriter& ref_originalStream
 ezResult ezStateMachineDescription::Deserialize(ezStreamReader& inout_stream)
 {
   const auto uiVersion = inout_stream.ReadVersion(s_StateMachineDescriptionVersion);
+  EZ_IGNORE_UNUSED(uiVersion);
 
   ezStringDeduplicationReadContext stringDeduplicationReadContext(inout_stream);
   ezTypeVersionReadContext typeVersionReadContext(inout_stream);

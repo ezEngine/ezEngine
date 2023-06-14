@@ -66,7 +66,6 @@ void ezColor::GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const
   norm_r = (norm_r - rgb_min) * rgb_delta_inv;
   norm_g = (norm_g - rgb_min) * rgb_delta_inv;
   norm_b = (norm_b - rgb_min) * rgb_delta_inv;
-  rgb_min = ezMath::Min(norm_r, norm_g, norm_b);
   rgb_max = ezMath::Max(norm_r, norm_g, norm_b);
 
   // hue

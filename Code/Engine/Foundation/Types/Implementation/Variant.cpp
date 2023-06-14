@@ -326,7 +326,7 @@ struct ConvertFunc
   template <typename T>
   EZ_ALWAYS_INLINE void operator()()
   {
-    T result;
+    T result = {};
     ezVariantHelper::To(*m_pThis, result, m_bSuccessful);
 
     if constexpr (std::is_same_v<T, ezStringView>)

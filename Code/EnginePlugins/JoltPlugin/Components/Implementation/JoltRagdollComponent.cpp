@@ -114,7 +114,6 @@ void ezJoltRagdollComponentManager::Update(const ezWorldModule::UpdateContext& c
   EZ_PROFILE_SCOPE("UpdateRagdolls");
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
-  auto* pSystem = pModule->GetJoltSystem();
 
   for (auto it : pModule->GetActiveRagdolls())
   {
@@ -1050,8 +1049,6 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
   {
     JPH::FixedConstraintSettings* pJoint = new JPH::FixedConstraintSettings();
     pLink->mToParent = pJoint;
-
-    const ezQuat offsetRot = thisJoint.GetLocalOrientation();
 
     pJoint->mDrawConstraintSize = 0.1f;
     pJoint->mPoint1 = pLink->mPosition;

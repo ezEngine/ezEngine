@@ -146,7 +146,6 @@ void ezJoltCustomShapeInfo::sCastUser1VsShape(const JPH::ShapeCast& inShapeCast,
 {
   // Fetch offset center of mass shape from cast shape
   JPH_ASSERT(inShapeCast.mShape->GetSubType() == EShapeSubType::User1);
-  const ezJoltCustomShapeInfo* shape1 = static_cast<const ezJoltCustomShapeInfo*>(inShapeCast.mShape);
 
   CollisionDispatch::sCastShapeVsShapeLocalSpace(inShapeCast, inShapeCastSettings, inShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }

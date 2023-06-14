@@ -316,6 +316,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
   };
 
   auto SetTangentDataFromAxis = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+    EZ_ASSERT_DEBUG(pAxis != nullptr, "Axis must be valid");
     ezVec3 vNormal = pAxis[uiSrcIdx];
     vNormal.Normalize();
 
