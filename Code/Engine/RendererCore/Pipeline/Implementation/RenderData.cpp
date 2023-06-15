@@ -99,13 +99,9 @@ void ezRenderData::UpdateRendererTypes()
 {
   s_RendererTypes.Clear();
 
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezRenderer>() || pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) || !pRtti->GetAllocator()->CanAllocate())
-      continue;
-
-    s_RendererTypes.PushBack(pRtti);
-  }
+  ezRTTI::ForEachDerivedType<ezRenderer>([](const ezRTTI* pRtti)
+    { s_RendererTypes.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   s_bRendererInstancesDirty = true;
 }

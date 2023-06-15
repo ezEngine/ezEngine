@@ -858,21 +858,17 @@ ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRt
   return nullptr;
 }
 
-void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
+void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
 {
-  ezRTTI* pFirst = ezRTTI::GetFirstInstance();
-  while (pFirst != nullptr)
-  {
-    if (pFirst->IsDerivedFrom(pRtti))
+  ezRTTI::ForEachDerivedType(pBaseRtti,
+    [&](const ezRTTI* pRtti)
     {
-      out_types.Insert(pFirst);
+      out_types.Insert(pRtti);
       if (bIncludeDependencies)
       {
-        GatherDependentTypes(pFirst, out_types);
+        GatherDependentTypes(pRtti, out_types);
       }
-    }
-    pFirst = pFirst->GetNextInstance();
-  }
+    });
 }
 
 void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_types)
@@ -1133,7 +1129,7 @@ ezInt64 ezReflectionUtils::MakeEnumerationValid(const ezRTTI* pEnumerationRtti, 
 
 bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbstractProperty* pProp)
 {
-  //#VAR TEST
+  // #VAR TEST
   const ezRTTI* pPropType = pProp->GetSpecificType();
 
   ezVariant vTemp;

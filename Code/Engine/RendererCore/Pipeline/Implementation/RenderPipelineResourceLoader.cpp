@@ -123,7 +123,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
   {
     auto pNode = it.Value();
-    ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
+    const ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
     if (pType && pType->IsDerivedFrom<ezRenderPipelinePass>())
     {
       auto pPass = rttiConverter.CreateObjectFromNode(pNode);

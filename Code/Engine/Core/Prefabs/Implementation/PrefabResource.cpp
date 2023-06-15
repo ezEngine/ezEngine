@@ -176,10 +176,8 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     {
       auto& ppd = m_PrefabParamDescs[i];
 
-      if (assetHeader.GetFileVersion() < 6)
-        ppd.LoadOld(s);
-      else
-        ppd.Load(s);
+      EZ_ASSERT_DEV(assetHeader.GetFileVersion() >= 6, "Old resource version not supported anymore");
+      ppd.Load(s);
 
       // initialize the cached property path here once
       // so we can only apply it later as often as needed
@@ -190,20 +188,17 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
         }
         else
         {
-          for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+          if (const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash(ppd.m_sComponentType.GetHash()))
           {
-            if (pRtti->GetTypeNameHash() == ppd.m_sComponentType.GetHash())
-            {
-              ppd.m_CachedPropertyPath.InitializeFromPath(*pRtti, ppd.m_sProperty).IgnoreResult();
-              break;
-            }
+            ppd.m_CachedPropertyPath.InitializeFromPath(*pRtti, ppd.m_sProperty).IgnoreResult();
           }
         }
       }
     }
 
     // sort exposed parameter descriptions by name hash for quicker access
-    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+      { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
   }
 
   res.m_State = ezResourceState::Loaded;
@@ -265,34 +260,6 @@ void ezExposedPrefabParameterDesc::Load(ezStreamReader& inout_stream)
   inout_stream >> comb;
   inout_stream >> m_sComponentType;
   inout_stream >> m_sProperty;
-
-  m_uiWorldReaderObjectIndex = comb & 0x7FFFFFFF;
-  m_uiWorldReaderChildObject = (comb >> 31);
-}
-
-void ezExposedPrefabParameterDesc::LoadOld(ezStreamReader& inout_stream)
-{
-  ezUInt32 comb = 0;
-
-  ezUInt32 uiComponentTypeMurmurHash;
-
-  inout_stream >> m_sExposeName;
-  inout_stream >> comb;
-  inout_stream >> uiComponentTypeMurmurHash;
-  inout_stream >> m_sProperty;
-
-  m_sComponentType.Clear();
-  if (uiComponentTypeMurmurHash != 0)
-  {
-    for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-    {
-      if (ezHashingUtils::MurmurHash32String(pRtti->GetTypeName()) == uiComponentTypeMurmurHash)
-      {
-        m_sComponentType.Assign(pRtti->GetTypeName());
-        break;
-      }
-    }
-  }
 
   m_uiWorldReaderObjectIndex = comb & 0x7FFFFFFF;
   m_uiWorldReaderChildObject = (comb >> 31);

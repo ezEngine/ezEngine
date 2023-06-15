@@ -266,47 +266,24 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWo
 
   ezUniquePtr<ezGameStateBase> pCurState;
 
-  ezStopwatch sw;
   {
     ezInt32 iBestPriority = -1;
 
-#if 1
-    ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+    ezRTTI::ForEachDerivedType<ezGameStateBase>(
+      [&](const ezRTTI* pRtti)
       {
-      if (!pRtti->IsDerivedFrom<ezGameStateBase>() || !pRtti->GetAllocator()->CanAllocate())
-        return;
+        ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
 
-      ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
+        const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
+        if (iPriority > iBestPriority)
+        {
+          iBestPriority = iPriority;
 
-      const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
-
-      if (iPriority > iBestPriority)
-      {
-        iBestPriority = iPriority;
-
-        pCurState = std::move(pState);
-      } });
-#else
-    for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-    {
-      if (!pRtti->IsDerivedFrom<ezGameStateBase>() || !pRtti->GetAllocator()->CanAllocate())
-        continue;
-
-      ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
-
-      const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
-
-      if (iPriority > iBestPriority)
-      {
-        iBestPriority = iPriority;
-
-        pCurState = std::move(pState);
-      }
-    }
-#endif
+          pCurState = std::move(pState);
+        }
+      },
+      ezRTTI::ForEachOptions::ExcludeNonAllocatable);
   }
-
-  ezLog::Info("Iterating all types took {}", sw.GetRunningTotal());
 
   return pCurState;
 }

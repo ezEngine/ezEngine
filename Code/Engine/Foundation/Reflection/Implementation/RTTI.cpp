@@ -29,8 +29,6 @@ ezTypeData* GetTypeData()
   return pData;
 }
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
-
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 
@@ -194,13 +192,8 @@ void ezRTTI::VerifyCorrectness() const
 
 void ezRTTI::VerifyCorrectnessForAllTypes()
 {
-  ezRTTI* pRtti = ezRTTI::GetFirstInstance();
-
-  while (pRtti)
-  {
-    pRtti->VerifyCorrectness();
-    pRtti = pRtti->GetNextInstance();
-  }
+  ezRTTI::ForEachType([](const ezRTTI* pRtti)
+    { pRtti->VerifyCorrectness(); });
 }
 
 
@@ -217,7 +210,7 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
 void ezRTTI::RegisterType()
 {
   m_uiTypeNameHash = ezHashingUtils::StringHash(m_sTypeName);
-  
+
   auto pData = GetTypeData();
   EZ_LOCK(pData->m_Mutex);
   pData->m_TypeNameHashToType.Insert(m_uiTypeNameHash, this);
@@ -249,37 +242,19 @@ void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_proper
   out_properties.PushBackRange(GetProperties());
 }
 
-ezRTTI* ezRTTI::FindTypeByName(ezStringView sName)
+const ezRTTI* ezRTTI::FindTypeByName(ezStringView sName)
 {
   ezUInt64 uiNameHash = ezHashingUtils::StringHash(sName);
 
-  ezRTTI* pInstance = nullptr;
-  {
-    auto pData = GetTypeData();
-    EZ_LOCK(pData->m_Mutex);
-    if (pData->m_TypeNameHashToType.TryGetValue(uiNameHash, pInstance))
-      return pInstance;
-  }
+  auto pData = GetTypeData();
+  EZ_LOCK(pData->m_Mutex);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  pInstance = ezRTTI::GetFirstInstance();
-
-  while (pInstance)
-  {
-    if (pInstance->GetTypeName() == sName)
-    {
-      EZ_REPORT_FAILURE("The hash table lookup should have already found the RTTI type '{}'", sName);
-      return pInstance;
-    }
-
-    pInstance = pInstance->GetNextInstance();
-  }
-#endif
-
-  return nullptr;
+  ezRTTI* pType = nullptr;
+  pData->m_TypeNameHashToType.TryGetValue(uiNameHash, pType);
+  return pType;
 }
 
-ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
+const ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
 {
   auto pData = GetTypeData();
   EZ_LOCK(pData->m_Mutex);
@@ -289,18 +264,23 @@ ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
   return pType;
 }
 
-ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
+const ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
 {
-  // TODO: actually reuse the hash table for the lookup
+  return FindTypeIf([=](const ezRTTI* pRtti)
+    { return (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
+}
 
-  ezRTTI* pInstance = ezRTTI::GetFirstInstance();
+const ezRTTI* ezRTTI::FindTypeIf(PredicateFunc func)
+{
+  auto pData = GetTypeData();
+  EZ_LOCK(pData->m_Mutex);
 
-  while (pInstance)
+  for (const ezRTTI* pRtti : pData->m_AllTypes)
   {
-    if (ezHashingUtils::StringHashTo32(pInstance->GetTypeNameHash()) == uiNameHash)
-      return pInstance;
-
-    pInstance = pInstance->GetNextInstance();
+    if (func(pRtti))
+    {
+      return pRtti;
+    }
   }
 
   return nullptr;
@@ -373,55 +353,54 @@ bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& ref_msg) const
   return false;
 }
 
-void ezRTTI::ForEachType(VisitorFunc func)
+void ezRTTI::ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options /*= ForEachOptions::Default*/)
 {
   auto pData = GetTypeData();
   EZ_LOCK(pData->m_Mutex);
 
   for (const ezRTTI* pRtti : pData->m_AllTypes)
   {
+    if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && pRtti->GetAllocator()->CanAllocate() == false)
+      continue;
+
     func(pRtti);
   }
 }
 
-const ezDynamicArray<const ezRTTI*>& ezRTTI::GetAllTypesDerivedFrom(
-  const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_derivedTypes, bool bSortByName)
+void ezRTTI::ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBitflags<ForEachOptions> options /*= ForEachOptions::Default*/)
 {
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  auto pData = GetTypeData();
+  EZ_LOCK(pData->m_Mutex);
+
+  for (const ezRTTI* pRtti : pData->m_AllTypes)
   {
     if (!pRtti->IsDerivedFrom(pBaseType))
       continue;
 
-    out_derivedTypes.PushBack(pRtti);
-  }
+    if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && pRtti->GetAllocator()->CanAllocate() == false)
+      continue;
 
-  if (bSortByName)
-  {
-    out_derivedTypes.Sort(
-      [](const ezRTTI* p1, const ezRTTI* p2) -> bool
-      { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
+    func(pRtti);
   }
-
-  return out_derivedTypes;
 }
 
 void ezRTTI::AssignPlugin(ezStringView sPluginName)
 {
   // assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet
 
-  ezRTTI* pInstance = ezRTTI::GetFirstInstance();
+  auto pData = GetTypeData();
+  EZ_LOCK(pData->m_Mutex);
 
-  while (pInstance)
+  for (ezRTTI* pRtti : pData->m_AllTypes)
   {
-    if (pInstance->m_sPluginName.IsEmpty())
+    if (pRtti->m_sPluginName.IsEmpty())
     {
-      pInstance->m_sPluginName = sPluginName;
-      SanityCheckType(pInstance);
+      pRtti->m_sPluginName = sPluginName;
+      SanityCheckType(pRtti);
 
-      pInstance->SetupParentHierarchy();
-      pInstance->GatherDynamicMessageHandlers();
+      pRtti->SetupParentHierarchy();
+      pRtti->GatherDynamicMessageHandlers();
     }
-    pInstance = pInstance->GetNextInstance();
   }
 }
 

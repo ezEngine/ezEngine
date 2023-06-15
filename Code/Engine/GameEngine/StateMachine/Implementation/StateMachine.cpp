@@ -265,7 +265,7 @@ ezResult ezStateMachineDescription::Deserialize(ezStreamReader& inout_stream)
       inout_stream >> uiToStateIndex;
 
       inout_stream >> sTypeName;
-      if (ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
+      if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
       {
         ezUniquePtr<ezStateMachineTransition> pTransition = pType->GetAllocator()->Allocate<ezStateMachineTransition>();
         EZ_SUCCEED_OR_RETURN(pTransition->Deserialize(inout_stream));
