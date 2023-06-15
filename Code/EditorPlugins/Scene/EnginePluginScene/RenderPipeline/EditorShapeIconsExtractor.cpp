@@ -170,19 +170,17 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
 
   ezStringBuilder sPath;
 
-  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezComponent>())
-      continue;
-
-    sPath.Set("Editor/ShapeIcons/", pRtti->GetTypeName(), ".dds");
-
-    if (ezFileSystem::ExistsFile(sPath))
+  ezRTTI::ForEachDerivedType<ezComponent>(
+    [&](const ezRTTI* pRtti)
     {
-      auto& shapeIconInfo = m_ShapeIconInfos[pRtti];
-      shapeIconInfo.m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sPath);
-      shapeIconInfo.m_pColorProperty = FindColorProperty(pRtti);
-      shapeIconInfo.m_pColorGammaProperty = FindColorGammaProperty(pRtti);
-    }
-  }
+      sPath.Set("Editor/ShapeIcons/", pRtti->GetTypeName(), ".dds");
+
+      if (ezFileSystem::ExistsFile(sPath))
+      {
+        auto& shapeIconInfo = m_ShapeIconInfos[pRtti];
+        shapeIconInfo.m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sPath);
+        shapeIconInfo.m_pColorProperty = FindColorProperty(pRtti);
+        shapeIconInfo.m_pColorGammaProperty = FindColorGammaProperty(pRtti);
+      }
+    });
 }

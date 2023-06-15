@@ -360,7 +360,10 @@ void ezRTTI::ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options /*
 
   for (const ezRTTI* pRtti : pData->m_AllTypes)
   {
-    if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && pRtti->GetAllocator()->CanAllocate() == false)
+    if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && (pRtti->GetAllocator() == nullptr || pRtti->GetAllocator()->CanAllocate() == false))
+      continue;
+
+    if (options.IsSet(ForEachOptions::ExcludeAbstract) && pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
       continue;
 
     func(pRtti);
@@ -377,7 +380,10 @@ void ezRTTI::ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBit
     if (!pRtti->IsDerivedFrom(pBaseType))
       continue;
 
-    if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && pRtti->GetAllocator()->CanAllocate() == false)
+    if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && (pRtti->GetAllocator() == nullptr || pRtti->GetAllocator()->CanAllocate() == false))
+      continue;
+
+    if (options.IsSet(ForEachOptions::ExcludeAbstract) && pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
       continue;
 
     func(pRtti);

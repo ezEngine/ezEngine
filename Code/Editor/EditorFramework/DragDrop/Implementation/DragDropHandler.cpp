@@ -15,9 +15,8 @@ ezDragDropHandler* ezDragDropHandler::FindDragDropHandler(const ezDragDropInfo* 
   float fBestValue = 0.0f;
   ezDragDropHandler* pBestDnD = nullptr;
 
-  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (pRtti->IsDerivedFrom<ezDragDropHandler>() && pRtti->GetAllocator()->CanAllocate())
+  ezRTTI::ForEachDerivedType<ezDragDropHandler>(
+    [&](const ezRTTI* pRtti)
     {
       ezDragDropHandler* pDnD = pRtti->GetAllocator()->Allocate<ezDragDropHandler>();
 
@@ -36,8 +35,8 @@ ezDragDropHandler* ezDragDropHandler::FindDragDropHandler(const ezDragDropInfo* 
       {
         pDnD->GetDynamicRTTI()->GetAllocator()->Deallocate(pDnD);
       }
-    }
-  }
+    },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   return pBestDnD;
 }

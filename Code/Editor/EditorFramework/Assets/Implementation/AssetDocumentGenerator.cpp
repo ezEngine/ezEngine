@@ -65,13 +65,12 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFil
 
 void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_Generators)
 {
-  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezAssetDocumentGenerator>() || !pRtti->GetAllocator()->CanAllocate())
-      continue;
-
-    out_Generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
-  }
+  ezRTTI::ForEachDerivedType<ezAssetDocumentGenerator>(
+    [&](const ezRTTI* pRtti)
+    {
+      out_Generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
+    },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
   // sort by name
   out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });

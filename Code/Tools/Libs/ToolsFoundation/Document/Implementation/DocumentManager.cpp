@@ -94,12 +94,8 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
 {
   bool bChanges = false;
 
-  ezRTTI* pRtti = ezRTTI::GetFirstInstance();
-
-  while (pRtti)
-  {
-    // find all types derived from ezDocumentManager
-    if (pRtti->IsDerivedFrom<ezDocumentManager>())
+  ezRTTI::ForEachDerivedType<ezDocumentManager>(
+    [&](const ezRTTI* pRtti)
     {
       // add the ones that we don't know yet
       if (!s_KnownManagers.Find(pRtti).IsValid())
@@ -116,15 +112,11 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
           bChanges = true;
         }
       }
-    }
-
-    pRtti = pRtti->GetNextInstance();
-  }
+    });
 
   // triggers a reevaluation next time
   s_AllDocumentDescriptors.Clear();
   GetAllDocumentDescriptors();
-
 
   if (bChanges)
   {

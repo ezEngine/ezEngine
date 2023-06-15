@@ -45,15 +45,12 @@ ezSceneObjectManager::ezSceneObjectManager()
 
 void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
-  ref_types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
+  ref_types.PushBack(ezGetStaticRTTI<ezGameObject>());
 
-  const ezRTTI* pComponentType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
-
-  for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
-  {
-    if (it->IsDerivedFrom(pComponentType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
-      ref_types.PushBack(it);
-  }
+  ezRTTI::ForEachDerivedType<ezComponent>(
+    [&](const ezRTTI* pRtti)
+    { ref_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
 ezStatus ezSceneObjectManager::InternalCanAdd(

@@ -153,6 +153,7 @@ public:
     {
       None = 0,
       ExcludeNonAllocatable = EZ_BIT(0),
+      ExcludeAbstract = EZ_BIT(1),
 
       Default = None
     };
@@ -217,6 +218,8 @@ private:
   /// \brief Handles events by ezPlugin, to figure out which types were provided by which plugin
   static void PluginEventHandler(const ezPluginEvent& EventData);
 };
+
+EZ_DECLARE_FLAGS_OPERATORS(ezRTTI::ForEachOptions);
 
 
 // ***********************************

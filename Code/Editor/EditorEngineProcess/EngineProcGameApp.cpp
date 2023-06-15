@@ -461,10 +461,8 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
   if (pDocumentContext == nullptr)
   {
-    ezRTTI* pRtti = ezRTTI::GetFirstInstance();
-    while (pRtti)
-    {
-      if (pRtti->IsDerivedFrom<ezEngineProcessDocumentContext>())
+    ezRTTI::ForEachDerivedType<ezEngineProcessDocumentContext>(
+      [&](const ezRTTI* pRtti)
       {
         auto* pProp = pRtti->FindPropertyByName("DocumentType");
         if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
@@ -500,13 +498,9 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
             }
 
             ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pMsg->m_DocumentMetaData, pDocumentContext, &m_IPC, pMsg->m_sDocumentType);
-            break;
           }
         }
-      }
-
-      pRtti = pRtti->GetNextInstance();
-    }
+      });
   }
   else
   {
@@ -519,7 +513,8 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
 void ezEngineProcessGameApplication::Init_LoadProjectPlugins()
 {
-  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool {
+  m_CustomPluginConfig.m_Plugins.Sort([](const ezApplicationPluginConfig::PluginConfig& lhs, const ezApplicationPluginConfig::PluginConfig& rhs) -> bool
+    {
     const bool isEnginePluginLhs = lhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
     const bool isEnginePluginRhs = rhs.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr;
 

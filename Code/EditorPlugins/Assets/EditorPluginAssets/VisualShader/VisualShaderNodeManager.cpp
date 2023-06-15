@@ -61,11 +61,11 @@ void ezVisualShaderNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 
 {
   const ezRTTI* pNodeBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
-  {
-    if (it->IsDerivedFrom(pNodeBaseType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
-      ref_types.PushBack(it);
-  }
+  ezRTTI::ForEachDerivedType(
+    pNodeBaseType,
+    [&](const ezRTTI* pRtti)
+    { ref_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
 ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const

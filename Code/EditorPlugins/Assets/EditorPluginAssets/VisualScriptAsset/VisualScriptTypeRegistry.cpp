@@ -120,18 +120,16 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
 
   auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
 
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (pRtti->IsDerivedFrom<ezComponent>())
+  ezRTTI::ForEachType(
+    [&](const ezRTTI* pRtti)
     {
-      dynEnum.AddValidValue(pRtti->GetTypeName(), true);
-    }
-  }
+      if (pRtti->IsDerivedFrom<ezComponent>())
+      {
+        dynEnum.AddValidValue(pRtti->GetTypeName(), true);
+      }
 
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    UpdateNodeType(pRtti);
-  }
+      UpdateNodeType(pRtti);
+    });
 }
 
 static ezColorGammaUB PinTypeColor(ezVisualScriptDataPinType::Enum type)

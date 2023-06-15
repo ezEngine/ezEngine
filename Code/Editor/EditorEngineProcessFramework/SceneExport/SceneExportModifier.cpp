@@ -9,21 +9,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezSceneExportModifier::CreateModifiers(ezHybridArray<ezSceneExportModifier*, 8>& ref_modifiers)
 {
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezSceneExportModifier>())
-      continue;
-
-    if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
-      continue;
-
-    if (pRtti->GetAllocator() == nullptr || !pRtti->GetAllocator()->CanAllocate())
-      continue;
-
-    ezSceneExportModifier* pMod = pRtti->GetAllocator()->Allocate<ezSceneExportModifier>();
-
-    ref_modifiers.PushBack(pMod);
-  }
+  ezRTTI::ForEachDerivedType<ezSceneExportModifier>(
+    [&](const ezRTTI* pRtti)
+    {
+      ezSceneExportModifier* pMod = pRtti->GetAllocator()->Allocate<ezSceneExportModifier>();
+      ref_modifiers.PushBack(pMod);
+    },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 }
 
 void ezSceneExportModifier::DestroyModifiers(ezHybridArray<ezSceneExportModifier*, 8>& ref_modifiers)

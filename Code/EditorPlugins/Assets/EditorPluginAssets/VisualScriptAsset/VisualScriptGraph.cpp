@@ -69,11 +69,11 @@ void ezVisualScriptNodeManager_Legacy::GetCreateableTypes(ezHybridArray<const ez
 {
   const ezRTTI* pNodeBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
-  {
-    if (it->IsDerivedFrom(pNodeBaseType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
-      ref_types.PushBack(it);
-  }
+  ezRTTI::ForEachDerivedType(
+    pNodeBaseType,
+    [&](const ezRTTI* pRtti)
+    { ref_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
 const ezRTTI* ezVisualScriptNodeManager_Legacy::GetConnectionType() const
