@@ -736,7 +736,8 @@ void ezEditorSceneDocumentTest::ComponentOperations()
   };
 
   ezDynamicArray<const ezRTTI*> componentTypes;
-  ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezComponent>(), componentTypes, true);
+  ezRTTI::ForEachDerivedType<ezComponent>([&](const ezRTTI* pRtti)
+    { componentTypes.PushBack(pRtti); });
 
   ezSet<const ezRTTI*> blacklist;
   // The scene already has one and the code asserts otherwise. There needs to be a general way of preventing two settings components from existing at the same time.

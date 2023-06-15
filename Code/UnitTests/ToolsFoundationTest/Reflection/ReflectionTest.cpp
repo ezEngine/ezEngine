@@ -65,7 +65,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float Properties")
   {
     ezFloatStruct floatStruct;
-    ezRTTI* pRttiFloat = ezRTTI::FindTypeByName("ezFloatStruct");
+    const ezRTTI* pRttiFloat = ezRTTI::FindTypeByName("ezFloatStruct");
     EZ_TEST_BOOL(pRttiFloat != nullptr);
 
     VariantToPropertyTest(&floatStruct, pRttiFloat, "Float", ezVariant::Type::Float);
@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Misc Properties")
   {
     ezPODClass podClass;
-    ezRTTI* pRttiPOD = ezRTTI::FindTypeByName("ezPODClass");
+    const ezRTTI* pRttiPOD = ezRTTI::FindTypeByName("ezPODClass");
     EZ_TEST_BOOL(pRttiPOD != nullptr);
 
     VariantToPropertyTest(&podClass, pRttiPOD, "Bool", ezVariant::Type::Bool);
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Math Properties")
   {
     ezMathClass mathClass;
-    ezRTTI* pRttiMath = ezRTTI::FindTypeByName("ezMathClass");
+    const ezRTTI* pRttiMath = ezRTTI::FindTypeByName("ezMathClass");
     EZ_TEST_BOOL(pRttiMath != nullptr);
 
     VariantToPropertyTest(&mathClass, pRttiMath, "Vec2", ezVariant::Type::Vector2);
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enumeration Properties")
   {
     ezEnumerationsClass enumClass;
-    ezRTTI* pRttiEnum = ezRTTI::FindTypeByName("ezEnumerationsClass");
+    const ezRTTI* pRttiEnum = ezRTTI::FindTypeByName("ezEnumerationsClass");
     EZ_TEST_BOOL(pRttiEnum != nullptr);
 
     VariantToPropertyTest(&enumClass, pRttiEnum, "Enum", ezVariant::Type::Int64);
@@ -224,12 +224,8 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor)
 static ezUInt32 GetTypeCount()
 {
   ezUInt32 uiCount = 0;
-  ezRTTI* pType = ezRTTI::GetFirstInstance();
-  while (pType != nullptr)
-  {
-    uiCount++;
-    pType = pType->GetNextInstance();
-  }
+  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
+    { uiCount++; });
   return uiCount;
 }
 
