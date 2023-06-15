@@ -56,19 +56,13 @@ void ezParticleWorldModule::Initialize()
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
 
-  {
-    ezHybridArray<const ezRTTI*, 32> types;
-    ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezParticleModule>(), types, false);
-
-    for (const ezRTTI* pRtti : types)
+  ezRTTI::ForEachDerivedType<ezParticleModule>(
+    [this](const ezRTTI* pRtti)
     {
-      if (pRtti->GetAllocator()->CanAllocate())
-      {
-        ezUniquePtr<ezParticleModule> pModule = pRtti->GetAllocator()->Allocate<ezParticleModule>();
-        pModule->RequestRequiredWorldModulesForCache(this);
-      }
-    }
-  }
+      ezUniquePtr<ezParticleModule> pModule = pRtti->GetAllocator()->Allocate<ezParticleModule>();
+      pModule->RequestRequiredWorldModulesForCache(this);
+    },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 }
 
 
@@ -155,17 +149,16 @@ void ezParticleWorldModule::ConfigureParticleStreamFactories()
 
   ezStringBuilder fullName;
 
-  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezParticleStreamFactory>() || !pRtti->GetAllocator()->CanAllocate())
-      continue;
+  ezRTTI::ForEachDerivedType<ezParticleStreamFactory>(
+    [&](const ezRTTI* pRtti)
+    {
+      ezParticleStreamFactory* pFactory = pRtti->GetAllocator()->Allocate<ezParticleStreamFactory>();
 
-    ezParticleStreamFactory* pFactory = pRtti->GetAllocator()->Allocate<ezParticleStreamFactory>();
+      ezParticleStreamFactory::GetFullStreamName(pFactory->GetStreamName(), pFactory->GetStreamDataType(), fullName);
 
-    ezParticleStreamFactory::GetFullStreamName(pFactory->GetStreamName(), pFactory->GetStreamDataType(), fullName);
-
-    m_StreamFactories[fullName] = pFactory;
-  }
+      m_StreamFactories[fullName] = pFactory;
+    },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 }
 
 void ezParticleWorldModule::ClearParticleStreamFactories()

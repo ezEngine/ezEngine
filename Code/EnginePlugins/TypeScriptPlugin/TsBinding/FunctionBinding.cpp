@@ -27,26 +27,24 @@ void ezTypeScriptBinding::SetupRttiFunctionBindings()
   if (!s_BoundFunctions.IsEmpty())
     return;
 
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezComponent>())
-      continue;
-
-    for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
+  ezRTTI::ForEachDerivedType<ezComponent>(
+    [&](const ezRTTI* pRtti)
     {
-      // TODO: static members ?
-      if (pFunc->GetFunctionType() != ezFunctionType::Member)
-        continue;
-
-      const ezUInt32 uiHash = ComputeFunctionBindingHash(pRtti, pFunc);
-      if (auto pExistingBinding = s_BoundFunctions.GetValue(uiHash))
+      for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
       {
-        EZ_ASSERT_DEV(ezStringUtils::IsEqual(pExistingBinding->m_pFunc->GetPropertyName(), pFunc->GetPropertyName()), "Hash collision for bound function name!");
-      }
+        // TODO: static members ?
+        if (pFunc->GetFunctionType() != ezFunctionType::Member)
+          continue;
 
-      s_BoundFunctions[uiHash].m_pFunc = pFunc;
-    }
-  }
+        const ezUInt32 uiHash = ComputeFunctionBindingHash(pRtti, pFunc);
+        if (auto pExistingBinding = s_BoundFunctions.GetValue(uiHash))
+        {
+          EZ_ASSERT_DEV(ezStringUtils::IsEqual(pExistingBinding->m_pFunc->GetPropertyName(), pFunc->GetPropertyName()), "Hash collision for bound function name!");
+        }
+
+        s_BoundFunctions[uiHash].m_pFunc = pFunc;
+      }
+    });
 }
 
 const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
