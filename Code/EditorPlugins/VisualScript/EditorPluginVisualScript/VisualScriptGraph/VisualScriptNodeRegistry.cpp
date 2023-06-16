@@ -303,10 +303,7 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
   auto& componentTypesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
   auto& scriptBaseClassesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ScriptBaseClasses");
 
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    UpdateNodeType(pRtti);
-  }
+  ezRTTI::ForEachType([this](const ezRTTI* pRtti) { UpdateNodeType(pRtti); });
 }
 
 void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)

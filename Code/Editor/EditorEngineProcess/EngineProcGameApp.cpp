@@ -461,11 +461,8 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
   if (pDocumentContext == nullptr)
   {
-    ezRTTI* pRtti = ezRTTI::GetFirstInstance();
-    while (pRtti)
-    {
-      if (pRtti->IsDerivedFrom<ezEngineProcessDocumentContext>())
-      {
+    ezRTTI::ForEachDerivedType<ezEngineProcessDocumentContext>(
+      [&](const ezRTTI* pRtti) {
         auto* pProp = pRtti->FindPropertyByName("DocumentType");
         if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
         {
@@ -500,13 +497,9 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
             }
 
             ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pMsg->m_DocumentMetaData, pDocumentContext, &m_IPC, pMsg->m_sDocumentType);
-            break;
           }
         }
-      }
-
-      pRtti = pRtti->GetNextInstance();
-    }
+      });
   }
   else
   {

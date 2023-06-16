@@ -16,7 +16,7 @@ public:
 private:
   ezVariant m_Value;
   ezString m_sPropertyNameStorage;
-  ezRTTI* m_pPropertyType;
+  const ezRTTI* m_pPropertyType;
 };
 
 class ezPhantomMemberProperty : public ezAbstractMemberProperty
@@ -32,7 +32,7 @@ public:
 
 private:
   ezString m_sPropertyNameStorage;
-  ezRTTI* m_pPropertyType;
+  const ezRTTI* m_pPropertyType;
 };
 
 class ezPhantomFunctionProperty : public ezAbstractFunctionProperty
@@ -75,7 +75,7 @@ public:
 
 private:
   ezString m_sPropertyNameStorage;
-  ezRTTI* m_pPropertyType;
+  const ezRTTI* m_pPropertyType;
 };
 
 
@@ -95,7 +95,7 @@ public:
 
 private:
   ezString m_sPropertyNameStorage;
-  ezRTTI* m_pPropertyType;
+  const ezRTTI* m_pPropertyType;
 };
 
 
@@ -116,5 +116,5 @@ public:
 
 private:
   ezString m_sPropertyNameStorage;
-  ezRTTI* m_pPropertyType;
+  const ezRTTI* m_pPropertyType;
 };

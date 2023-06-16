@@ -298,11 +298,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
 void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
 {
   ezSet<const ezRTTI*> allRttis;
-
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    allRttis.Insert(pRtti);
-  }
+  ezRTTI::ForEachType([&](const ezRTTI* pRtti) { allRttis.Insert(pRtti); });
 
   ezSet<ezWorldModuleTypeId> mappedIdsToRemove;
 

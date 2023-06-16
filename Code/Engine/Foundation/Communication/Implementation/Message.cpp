@@ -29,21 +29,7 @@ ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& inout_s
   ezUInt8 uiTypeVersion = 0;
   inout_stream >> uiTypeVersion;
 
-  static ezHashTable<ezUInt64, const ezRTTI*, ezHashHelper<ezUInt64>, ezStaticAllocatorWrapper> MessageTypes;
-
-  const ezRTTI* pRtti = nullptr;
-  if (!MessageTypes.TryGetValue(uiTypeHash, pRtti))
-  {
-    for (pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-    {
-      if (pRtti->GetTypeNameHash() == uiTypeHash)
-      {
-        MessageTypes[uiTypeHash] = pRtti;
-        break;
-      }
-    }
-  }
-
+  const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash(uiTypeHash);
   if (pRtti == nullptr || !pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 

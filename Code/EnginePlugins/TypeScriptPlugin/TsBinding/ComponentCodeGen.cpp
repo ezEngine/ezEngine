@@ -104,20 +104,25 @@ static void CreateComponentTypeList(ezSet<const ezRTTI*>& ref_found, ezDynamicAr
   ref_sorted.PushBack(pRtti);
 }
 
-void ezTypeScriptBinding::GenerateAllComponentsCode(ezStringBuilder& out_Code)
+static void CreateComponentTypeList(ezDynamicArray<const ezRTTI*>& out_sorted)
 {
   ezSet<const ezRTTI*> found;
-  ezDynamicArray<const ezRTTI*> sorted;
-  sorted.Reserve(100);
+  out_sorted.Reserve(100);
 
   ezHybridArray<const ezRTTI*, 64> alphabetical;
-  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezComponent>(), alphabetical, true))
-  {
-    if (pRtti == ezGetStaticRTTI<ezComponent>() || pRtti == ezGetStaticRTTI<ezTypeScriptComponent>())
-      continue;
+  ezRTTI::ForEachDerivedType<ezComponent>([&](const ezRTTI* pRtti) { alphabetical.PushBack(pRtti); });
+  alphabetical.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
 
-    CreateComponentTypeList(found, sorted, pRtti);
+  for (auto pRtti : alphabetical)
+  {
+    CreateComponentTypeList(found, out_sorted, pRtti);
   }
+}
+
+void ezTypeScriptBinding::GenerateAllComponentsCode(ezStringBuilder& out_Code)
+{
+  ezDynamicArray<const ezRTTI*> sorted;
+  CreateComponentTypeList(sorted);
 
   for (auto pRtti : sorted)
   {
@@ -189,15 +194,8 @@ declare function __CPP_ComponentFunction_Call(component: Component, id: number, 
 
 void ezTypeScriptBinding::InjectComponentImportExport(ezStringBuilder& content, const char* szComponentFile)
 {
-  ezSet<const ezRTTI*> found;
   ezDynamicArray<const ezRTTI*> sorted;
-  sorted.Reserve(100);
-
-  ezHybridArray<const ezRTTI*, 64> alphabetical;
-  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezComponent>(), alphabetical, true))
-  {
-    CreateComponentTypeList(found, sorted, pRtti);
-  }
+  CreateComponentTypeList(sorted);
 
   ezStringBuilder sImportExport, sTypeName;
 

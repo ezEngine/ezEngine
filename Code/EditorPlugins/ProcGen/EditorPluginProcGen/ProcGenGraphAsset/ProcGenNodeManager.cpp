@@ -82,13 +82,9 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
 
 void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
-  const ezRTTI* pNodeBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
-
-  for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
-  {
-    if (it->IsDerivedFrom(pNodeBaseType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
-      ref_types.PushBack(it);
-  }
+  ezRTTI::ForEachDerivedType<ezProcGenNodeBase>(
+    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
 const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const

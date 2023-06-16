@@ -3,6 +3,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
@@ -258,25 +259,17 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
   m_StageSourceFile[ezGALShaderStage::ComputeShader].ChangeFileExtension("cs");
 
   // try out every compiler that we can find
-  ezRTTI* pRtti = ezRTTI::GetFirstInstance();
-  while (pRtti)
-  {
-    ezRTTIAllocator* pAllocator = pRtti->GetAllocator();
-    if (pRtti->IsDerivedFrom<ezShaderProgramCompiler>() && pAllocator->CanAllocate())
-    {
-      ezShaderProgramCompiler* pCompiler = pAllocator->Allocate<ezShaderProgramCompiler>();
+  ezResult result = EZ_SUCCESS;
+  ezRTTI::ForEachDerivedType<ezShaderProgramCompiler>(
+    [&](const ezRTTI* pRtti) {
+      ezUniquePtr<ezShaderProgramCompiler> pCompiler = pRtti->GetAllocator()->Allocate<ezShaderProgramCompiler>();
 
-      const ezResult ret = RunShaderCompiler(sFile, sPlatform, pCompiler, pLog);
-      pAllocator->Deallocate(pCompiler);
+      if (RunShaderCompiler(sFile, sPlatform, pCompiler.Borrow(), pLog).Failed())
+        result = EZ_FAILURE;
+    },
+    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
-      if (ret.Failed())
-        return ret;
-    }
-
-    pRtti = pRtti->GetNextInstance();
-  }
-
-  return EZ_SUCCESS;
+  return result;
 }
 
 ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog)

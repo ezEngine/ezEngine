@@ -20,7 +20,7 @@ namespace ReflectionDetail
     ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
   }
 
-  static ezStringView GetParentType(ezRTTI* pRTTI)
+  static ezStringView GetParentType(const ezRTTI* pRTTI)
   {
     if (pRTTI->GetParentType())
     {
@@ -45,7 +45,7 @@ namespace ReflectionDetail
     return {};
   }
 
-  static void SendReflectionTelemetry(ezRTTI* pRTTI)
+  static void SendReflectionTelemetry(const ezRTTI* pRTTI)
   {
     ezTelemetryMessage msg;
     msg.SetMessageID('RFLC', 'DATA');
@@ -96,14 +96,7 @@ namespace ReflectionDetail
 
     SendBasicTypesGroup();
 
-    ezRTTI* pRTTI = ezRTTI::GetFirstInstance();
-
-    while (pRTTI)
-    {
-      SendReflectionTelemetry(pRTTI);
-
-      pRTTI = pRTTI->GetNextInstance();
-    }
+    ezRTTI::ForEachType([](const ezRTTI* pRtti) { SendReflectionTelemetry(pRtti); });
   }
 
 

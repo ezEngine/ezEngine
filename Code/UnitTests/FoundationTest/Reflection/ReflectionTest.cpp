@@ -107,21 +107,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     bool bFoundClass1 = false;
     bool bFoundClass2 = false;
 
-    ezRTTI* pRtti = ezRTTI::GetFirstInstance();
+    ezRTTI::ForEachType([&](const ezRTTI* pRtti) {
+        if (pRtti->GetTypeName() == "ezTestStruct")
+          bFoundStruct = true;
+        if (pRtti->GetTypeName() == "ezTestClass1")
+          bFoundClass1 = true;
+        if (pRtti->GetTypeName() == "ezTestClass2")
+          bFoundClass2 = true;
 
-    while (pRtti)
-    {
-      if (pRtti->GetTypeName() == "ezTestStruct")
-        bFoundStruct = true;
-      if (pRtti->GetTypeName() == "ezTestClass1")
-        bFoundClass1 = true;
-      if (pRtti->GetTypeName() == "ezTestClass2")
-        bFoundClass2 = true;
-
-      EZ_TEST_STRING(pRtti->GetPluginName(), "Static");
-
-      pRtti = pRtti->GetNextInstance();
-    }
+        EZ_TEST_STRING(pRtti->GetPluginName(), "Static"); });
 
     EZ_TEST_BOOL(bFoundStruct);
     EZ_TEST_BOOL(bFoundClass1);
@@ -131,10 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsDerivedFrom")
   {
     ezDynamicArray<const ezRTTI*> allTypes;
-    for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti; pRtti = pRtti->GetNextInstance())
-    {
-      allTypes.PushBack(pRtti);
-    }
+    ezRTTI::ForEachType([&](const ezRTTI* pRtti) { allTypes.PushBack(pRtti); });
 
     // ground truth - traversing up the parent list
     auto ManualIsDerivedFrom = [](const ezRTTI* t, const ezRTTI* pBaseType) -> bool {
@@ -206,38 +197,38 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByName")
   {
-    ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
+    const ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
     EZ_TEST_BOOL(pFloat != nullptr);
     EZ_TEST_STRING(pFloat->GetTypeName(), "float");
 
-    ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
+    const ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
     EZ_TEST_BOOL(pStruct != nullptr);
     EZ_TEST_STRING(pStruct->GetTypeName(), "ezTestStruct");
 
-    ezRTTI* pClass2 = ezRTTI::FindTypeByName("ezTestClass2");
+    const ezRTTI* pClass2 = ezRTTI::FindTypeByName("ezTestClass2");
     EZ_TEST_BOOL(pClass2 != nullptr);
     EZ_TEST_STRING(pClass2->GetTypeName(), "ezTestClass2");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByNameHash")
   {
-    ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
-    ezRTTI* pFloat2 = ezRTTI::FindTypeByNameHash(pFloat->GetTypeNameHash());
+    const ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
+    const ezRTTI* pFloat2 = ezRTTI::FindTypeByNameHash(pFloat->GetTypeNameHash());
     EZ_TEST_BOOL(pFloat == pFloat2);
 
-    ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
-    ezRTTI* pStruct2 = ezRTTI::FindTypeByNameHash(pStruct->GetTypeNameHash());
+    const ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
+    const ezRTTI* pStruct2 = ezRTTI::FindTypeByNameHash(pStruct->GetTypeNameHash());
     EZ_TEST_BOOL(pStruct == pStruct2);
 
-    ezRTTI* pClass = ezRTTI::FindTypeByName("ezTestClass2");
-    ezRTTI* pClass2 = ezRTTI::FindTypeByNameHash(pClass->GetTypeNameHash());
+    const ezRTTI* pClass = ezRTTI::FindTypeByName("ezTestClass2");
+    const ezRTTI* pClass2 = ezRTTI::FindTypeByNameHash(pClass->GetTypeNameHash());
     EZ_TEST_BOOL(pClass == pClass2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetProperties")
   {
     {
-      ezRTTI* pType = ezRTTI::FindTypeByName("ezTestStruct");
+      const ezRTTI* pType = ezRTTI::FindTypeByName("ezTestStruct");
 
       auto Props = pType->GetProperties();
       EZ_TEST_INT(Props.GetCount(), 9);
@@ -253,7 +244,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     }
 
     {
-      ezRTTI* pType = ezRTTI::FindTypeByName("ezTestClass2");
+      const ezRTTI* pType = ezRTTI::FindTypeByName("ezTestClass2");
 
       auto Props = pType->GetProperties();
       EZ_TEST_INT(Props.GetCount(), 6);
@@ -314,7 +305,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     if (loadPlugin.Failed())
       return;
 
-    ezRTTI* pStruct2 = ezRTTI::FindTypeByName("ezTestStruct2");
+    const ezRTTI* pStruct2 = ezRTTI::FindTypeByName("ezTestStruct2");
     EZ_TEST_BOOL(pStruct2 != nullptr);
 
     if (pStruct2)
@@ -324,43 +315,39 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
     bool bFoundStruct2 = false;
 
-    ezRTTI* pRtti = ezRTTI::GetFirstInstance();
+    ezRTTI::ForEachType(
+      [&](const ezRTTI* pRtti) {
+        if (pRtti->GetTypeName() == "ezTestStruct2")
+        {
+          bFoundStruct2 = true;
 
-    while (pRtti)
-    {
-      if (pRtti->GetTypeName() == "ezTestStruct2")
-      {
-        bFoundStruct2 = true;
+          EZ_TEST_STRING(pRtti->GetPluginName(), ezFoundationTest_Plugin1);
 
-        EZ_TEST_STRING(pRtti->GetPluginName(), ezFoundationTest_Plugin1);
+          void* pInstance = pRtti->GetAllocator()->Allocate<void>();
+          EZ_TEST_BOOL(pInstance != nullptr);
 
-        void* pInstance = pRtti->GetAllocator()->Allocate<void>();
-        EZ_TEST_BOOL(pInstance != nullptr);
+          ezAbstractProperty* pProp = pRtti->FindPropertyByName("Float2");
 
-        ezAbstractProperty* pProp = pRtti->FindPropertyByName("Float2");
+          EZ_TEST_BOOL(pProp != nullptr);
 
-        EZ_TEST_BOOL(pProp != nullptr);
+          EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
+          ezAbstractMemberProperty* pAbsMember = (ezAbstractMemberProperty*)pProp;
 
-        EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-        ezAbstractMemberProperty* pAbsMember = (ezAbstractMemberProperty*)pProp;
+          EZ_TEST_BOOL(pAbsMember->GetSpecificType() == ezGetStaticRTTI<float>());
 
-        EZ_TEST_BOOL(pAbsMember->GetSpecificType() == ezGetStaticRTTI<float>());
+          ezTypedMemberProperty<float>* pMember = (ezTypedMemberProperty<float>*)pAbsMember;
 
-        ezTypedMemberProperty<float>* pMember = (ezTypedMemberProperty<float>*)pAbsMember;
+          EZ_TEST_FLOAT(pMember->GetValue(pInstance), 42.0f, 0);
+          pMember->SetValue(pInstance, 43.0f);
+          EZ_TEST_FLOAT(pMember->GetValue(pInstance), 43.0f, 0);
 
-        EZ_TEST_FLOAT(pMember->GetValue(pInstance), 42.0f, 0);
-        pMember->SetValue(pInstance, 43.0f);
-        EZ_TEST_FLOAT(pMember->GetValue(pInstance), 43.0f, 0);
-
-        pRtti->GetAllocator()->Deallocate(pInstance);
-      }
-      else
-      {
-        EZ_TEST_STRING(pRtti->GetPluginName(), "Static");
-      }
-
-      pRtti = pRtti->GetNextInstance();
-    }
+          pRtti->GetAllocator()->Deallocate(pInstance);
+        }
+        else
+        {
+          EZ_TEST_STRING(pRtti->GetPluginName(), "Static");
+        }
+      });
 
     EZ_TEST_BOOL(bFoundStruct2);
 

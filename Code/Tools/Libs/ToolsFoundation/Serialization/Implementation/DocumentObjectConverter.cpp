@@ -153,7 +153,7 @@ ezDocumentObjectConverterReader::ezDocumentObjectConverterReader(const ezAbstrac
 ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
 {
   ezDocumentObject* pObject = nullptr;
-  ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
+  const ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
   if (pType)
   {
     pObject = m_pManager->CreateObject(pType, pNode->GetGuid());

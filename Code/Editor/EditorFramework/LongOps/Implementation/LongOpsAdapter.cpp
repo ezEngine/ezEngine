@@ -116,13 +116,13 @@ void ezLongOpsAdapter::PhantomTypeRegistryEventHandler(const ezPhantomRttiManage
 
 void ezLongOpsAdapter::CheckAllTypes()
 {
-  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (pRtti->GetAttributeByType<ezLongOpAttribute>() != nullptr)
-    {
-      m_TypesWithLongOps.Insert(pRtti);
-    }
-  }
+  ezRTTI::ForEachType(
+    [&](const ezRTTI* pRtti) {
+      if (pRtti->GetAttributeByType<ezLongOpAttribute>() != nullptr)
+      {
+        m_TypesWithLongOps.Insert(pRtti);
+      }
+    });
 }
 
 void ezLongOpsAdapter::ObjectAdded(const ezDocumentObject* pObject)
