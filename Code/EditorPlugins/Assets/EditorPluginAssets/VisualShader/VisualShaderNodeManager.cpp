@@ -63,8 +63,7 @@ void ezVisualShaderNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 
 
   ezRTTI::ForEachDerivedType(
     pNodeBaseType,
-    [&](const ezRTTI* pRtti)
-    { ref_types.PushBack(pRtti); },
+    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 

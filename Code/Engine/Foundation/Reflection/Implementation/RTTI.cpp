@@ -18,8 +18,7 @@ ezTypeData* GetTypeData()
 {
   // Prevent static initialization hazard between first ezRTTI instance
   // and type data and also make sure it is sufficiently sized before first use.
-  auto CreateData = []() -> ezTypeData*
-  {
+  auto CreateData = []() -> ezTypeData* {
     ezTypeData* pData = new ezTypeData();
     pData->m_TypeNameHashToType.Reserve(512);
     pData->m_AllTypes.Reserve(512);
@@ -192,8 +191,7 @@ void ezRTTI::VerifyCorrectness() const
 
 void ezRTTI::VerifyCorrectnessForAllTypes()
 {
-  ezRTTI::ForEachType([](const ezRTTI* pRtti)
-    { pRtti->VerifyCorrectness(); });
+  ezRTTI::ForEachType([](const ezRTTI* pRtti) { pRtti->VerifyCorrectness(); });
 }
 
 
@@ -266,8 +264,7 @@ const ezRTTI* ezRTTI::FindTypeByNameHash(ezUInt64 uiNameHash)
 
 const ezRTTI* ezRTTI::FindTypeByNameHash32(ezUInt32 uiNameHash)
 {
-  return FindTypeIf([=](const ezRTTI* pRtti)
-    { return (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
+  return FindTypeIf([=](const ezRTTI* pRtti) { return (ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiNameHash); });
 }
 
 const ezRTTI* ezRTTI::FindTypeIf(PredicateFunc func)

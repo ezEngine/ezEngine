@@ -121,8 +121,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
   auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
 
   ezRTTI::ForEachType(
-    [&](const ezRTTI* pRtti)
-    {
+    [&](const ezRTTI* pRtti) {
       if (pRtti->IsDerivedFrom<ezComponent>())
       {
         dynEnum.AddValidValue(pRtti->GetTypeName(), true);

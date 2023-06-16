@@ -31,8 +31,7 @@ void ezTypeScriptBinding::SetupRttiPropertyBindings()
     return;
 
   ezRTTI::ForEachDerivedType<ezComponent>(
-    [&](const ezRTTI* pRtti)
-    {
+    [&](const ezRTTI* pRtti) {
       for (ezAbstractProperty* pProp : pRtti->GetProperties())
       {
         if (pProp->GetCategory() != ezPropertyCategory::Member)

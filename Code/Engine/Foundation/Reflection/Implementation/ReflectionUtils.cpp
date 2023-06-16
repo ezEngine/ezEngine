@@ -861,8 +861,7 @@ ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRt
 void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
 {
   ezRTTI::ForEachDerivedType(pBaseRtti,
-    [&](const ezRTTI* pRtti)
-    {
+    [&](const ezRTTI* pRtti) {
       out_types.Insert(pRtti);
       if (bIncludeDependencies)
       {

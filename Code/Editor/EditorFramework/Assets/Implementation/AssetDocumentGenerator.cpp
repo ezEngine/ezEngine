@@ -66,8 +66,7 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFil
 void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_Generators)
 {
   ezRTTI::ForEachDerivedType<ezAssetDocumentGenerator>(
-    [&](const ezRTTI* pRtti)
-    {
+    [&](const ezRTTI* pRtti) {
       out_Generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
     },
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);

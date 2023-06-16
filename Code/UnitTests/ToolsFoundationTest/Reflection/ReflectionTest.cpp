@@ -224,8 +224,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor)
 static ezUInt32 GetTypeCount()
 {
   ezUInt32 uiCount = 0;
-  ezRTTI::ForEachType([&](const ezRTTI* pRtti)
-    { uiCount++; });
+  ezRTTI::ForEachType([&](const ezRTTI* pRtti) { uiCount++; });
   return uiCount;
 }
 

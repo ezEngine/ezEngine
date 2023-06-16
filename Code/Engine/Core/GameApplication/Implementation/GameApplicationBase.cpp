@@ -270,8 +270,7 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWo
     ezInt32 iBestPriority = -1;
 
     ezRTTI::ForEachDerivedType<ezGameStateBase>(
-      [&](const ezRTTI* pRtti)
-      {
+      [&](const ezRTTI* pRtti) {
         ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
 
         const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);

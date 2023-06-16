@@ -57,8 +57,7 @@ void ezParticleWorldModule::Initialize()
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
 
   ezRTTI::ForEachDerivedType<ezParticleModule>(
-    [this](const ezRTTI* pRtti)
-    {
+    [this](const ezRTTI* pRtti) {
       ezUniquePtr<ezParticleModule> pModule = pRtti->GetAllocator()->Allocate<ezParticleModule>();
       pModule->RequestRequiredWorldModulesForCache(this);
     },
@@ -150,8 +149,7 @@ void ezParticleWorldModule::ConfigureParticleStreamFactories()
   ezStringBuilder fullName;
 
   ezRTTI::ForEachDerivedType<ezParticleStreamFactory>(
-    [&](const ezRTTI* pRtti)
-    {
+    [&](const ezRTTI* pRtti) {
       ezParticleStreamFactory* pFactory = pRtti->GetAllocator()->Allocate<ezParticleStreamFactory>();
 
       ezParticleStreamFactory::GetFullStreamName(pFactory->GetStreamName(), pFactory->GetStreamDataType(), fullName);

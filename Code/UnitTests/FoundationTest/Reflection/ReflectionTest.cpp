@@ -107,8 +107,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     bool bFoundClass1 = false;
     bool bFoundClass2 = false;
 
-    ezRTTI::ForEachType([&](const ezRTTI* pRtti)
-      {
+    ezRTTI::ForEachType([&](const ezRTTI* pRtti) {
         if (pRtti->GetTypeName() == "ezTestStruct")
           bFoundStruct = true;
         if (pRtti->GetTypeName() == "ezTestClass1")
@@ -126,12 +125,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsDerivedFrom")
   {
     ezDynamicArray<const ezRTTI*> allTypes;
-    ezRTTI::ForEachType([&](const ezRTTI* pRtti)
-      { allTypes.PushBack(pRtti); });
+    ezRTTI::ForEachType([&](const ezRTTI* pRtti) { allTypes.PushBack(pRtti); });
 
     // ground truth - traversing up the parent list
-    auto ManualIsDerivedFrom = [](const ezRTTI* t, const ezRTTI* pBaseType) -> bool
-    {
+    auto ManualIsDerivedFrom = [](const ezRTTI* t, const ezRTTI* pBaseType) -> bool {
       while (t != nullptr)
       {
         if (t == pBaseType)
@@ -319,8 +316,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     bool bFoundStruct2 = false;
 
     ezRTTI::ForEachType(
-      [&](const ezRTTI* pRtti)
-      {
+      [&](const ezRTTI* pRtti) {
         if (pRtti->GetTypeName() == "ezTestStruct2")
         {
           bFoundStruct2 = true;

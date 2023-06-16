@@ -197,8 +197,7 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     }
 
     // sort exposed parameter descriptions by name hash for quicker access
-    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
-      { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+    m_PrefabParamDescs.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
   }
 
   res.m_State = ezResourceState::Loaded;

@@ -71,8 +71,7 @@ void ezVisualScriptNodeManager_Legacy::GetCreateableTypes(ezHybridArray<const ez
 
   ezRTTI::ForEachDerivedType(
     pNodeBaseType,
-    [&](const ezRTTI* pRtti)
-    { ref_types.PushBack(pRtti); },
+    [&](const ezRTTI* pRtti) { ref_types.PushBack(pRtti); },
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 

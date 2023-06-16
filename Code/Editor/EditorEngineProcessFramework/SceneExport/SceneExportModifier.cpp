@@ -10,8 +10,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 void ezSceneExportModifier::CreateModifiers(ezHybridArray<ezSceneExportModifier*, 8>& ref_modifiers)
 {
   ezRTTI::ForEachDerivedType<ezSceneExportModifier>(
-    [&](const ezRTTI* pRtti)
-    {
+    [&](const ezRTTI* pRtti) {
       ezSceneExportModifier* pMod = pRtti->GetAllocator()->Allocate<ezSceneExportModifier>();
       ref_modifiers.PushBack(pMod);
     },

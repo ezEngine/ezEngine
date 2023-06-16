@@ -90,10 +90,8 @@ static void CreateMessageTypeList(ezDynamicArray<const ezRTTI*>& out_sorted)
   out_sorted.Reserve(100);
 
   ezHybridArray<const ezRTTI*, 64> alphabetical;
-  ezRTTI::ForEachDerivedType<ezMessage>([&](const ezRTTI* pRtti)
-    { alphabetical.PushBack(pRtti); });
-  alphabetical.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool
-    { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
+  ezRTTI::ForEachDerivedType<ezMessage>([&](const ezRTTI* pRtti) { alphabetical.PushBack(pRtti); });
+  alphabetical.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
 
   for (auto pRtti : alphabetical)
   {
@@ -187,8 +185,7 @@ static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& 
 
   if (!MessageTypes.TryGetValue(uiTypeHash, ref_pRtti))
   {
-    ref_pRtti = ezRTTI::FindTypeIf([=](const ezRTTI* pRtti)
-      { return ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiTypeHash; });
+    ref_pRtti = ezRTTI::FindTypeIf([=](const ezRTTI* pRtti) { return ezHashingUtils::StringHashTo32(pRtti->GetTypeNameHash()) == uiTypeHash; });
     MessageTypes[uiTypeHash] = ref_pRtti;
   }
 

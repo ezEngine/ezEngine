@@ -96,8 +96,7 @@ namespace ReflectionDetail
 
     SendBasicTypesGroup();
 
-    ezRTTI::ForEachType([](const ezRTTI* pRtti)
-      { SendReflectionTelemetry(pRtti); });
+    ezRTTI::ForEachType([](const ezRTTI* pRtti) { SendReflectionTelemetry(pRtti); });
   }
 
 

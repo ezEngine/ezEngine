@@ -165,7 +165,7 @@ public:
   };
 
   using VisitorFunc = ezDelegate<void(const ezRTTI*), 48>;
-  static void ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default);// [tested]
+  static void ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default); // [tested]
 
   static void ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBitflags<ForEachOptions> options = ForEachOptions::Default);
 

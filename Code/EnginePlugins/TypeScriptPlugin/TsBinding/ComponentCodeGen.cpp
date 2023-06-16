@@ -110,10 +110,8 @@ static void CreateComponentTypeList(ezDynamicArray<const ezRTTI*>& out_sorted)
   out_sorted.Reserve(100);
 
   ezHybridArray<const ezRTTI*, 64> alphabetical;
-  ezRTTI::ForEachDerivedType<ezComponent>([&](const ezRTTI* pRtti)
-    { alphabetical.PushBack(pRtti); });
-  alphabetical.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool
-    { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
+  ezRTTI::ForEachDerivedType<ezComponent>([&](const ezRTTI* pRtti) { alphabetical.PushBack(pRtti); });
+  alphabetical.Sort([](const ezRTTI* p1, const ezRTTI* p2) -> bool { return p1->GetTypeName().Compare(p2->GetTypeName()) < 0; });
 
   for (auto pRtti : alphabetical)
   {
