@@ -1496,7 +1496,7 @@ void ezTestFramework::WriteImageDiffHtml(const char* szFileName, ezImage& ref_re
   outputFile.Close();
 }
 
-bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, char* szErrorMsg)
+bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, bool bIsLineImage, char* szErrorMsg)
 {
   ezImage imgRgba;
   if (ezImageConversion::Convert(img, imgRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
@@ -1554,7 +1554,10 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   }
 
   ezImage imgDiffRgba;
-  ezImageUtils::ComputeImageDifferenceABS(imgExpRgba, imgRgba, imgDiffRgba);
+  if (bIsLineImage)
+    ezImageUtils::ComputeImageDifferenceABSRelaxed(imgExpRgba, imgRgba, imgDiffRgba);
+  else
+    ezImageUtils::ComputeImageDifferenceABS(imgExpRgba, imgRgba, imgDiffRgba);
 
   const ezUInt32 uiMeanError = ezImageUtils::ComputeMeanSquareError(imgDiffRgba, 32);
 
@@ -1603,7 +1606,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   return true;
 }
 
-bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage)
+bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage, bool bIsLineImage)
 {
   ezStringBuilder sImgName;
   GenerateComparisonImageName(uiImageNumber, sImgName);
@@ -1630,7 +1633,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError,
   bool bImagesMatch = true;
   if (img.GetNumArrayIndices() <= 1)
   {
-    bImagesMatch = PerformImageComparison(sImgName, img, uiMaxError, szErrorMsg);
+    bImagesMatch = PerformImageComparison(sImgName, img, uiMaxError, bIsLineImage, szErrorMsg);
   }
   else
   {
@@ -1639,7 +1642,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError,
     {
       ezStringBuilder subImageName;
       subImageName.AppendFormat("{0}_{1}", sImgName, i);
-      if (!PerformImageComparison(subImageName, img.GetSubImageView(0, 0, i), uiMaxError, szErrorMsg))
+      if (!PerformImageComparison(subImageName, img.GetSubImageView(0, 0, i), uiMaxError, bIsLineImage, szErrorMsg))
       {
         bImagesMatch = false;
         if (!lastError.IsEmpty())
@@ -1995,11 +1998,11 @@ bool ezTestTextFiles(const char* szFile1, const char* szFile2, const char* szFil
   return EZ_SUCCESS;
 }
 
-bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+bool ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage, bool bIsLineImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   char szErrorText[s_iMaxErrorMessageLength] = "";
 
-  if (!ezTestFramework::GetInstance()->CompareImages(uiImageNumber, uiMaxError, szErrorText, bIsDepthImage))
+  if (!ezTestFramework::GetInstance()->CompareImages(uiImageNumber, uiMaxError, szErrorText, bIsDepthImage, bIsLineImage))
   {
     OUTPUT_TEST_ERROR
   }

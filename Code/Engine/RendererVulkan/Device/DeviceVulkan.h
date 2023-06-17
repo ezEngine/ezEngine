@@ -9,7 +9,35 @@
 
 #include <vulkan/vulkan.hpp>
 
-using ezGALFormatLookupEntryVulkan = ezGALFormatLookupEntry<vk::Format, (vk::Format)0>;
+EZ_DEFINE_AS_POD_TYPE(vk::Format);
+
+struct ezGALFormatLookupEntryVulkan
+{
+  ezGALFormatLookupEntryVulkan() = default;
+  ezGALFormatLookupEntryVulkan(vk::Format format)
+  {
+    m_format = format;
+    m_readback = format;
+  }
+
+  ezGALFormatLookupEntryVulkan(vk::Format format, ezArrayPtr<vk::Format> mutableFormats)
+  {
+    m_format = format;
+    m_readback = format;
+    m_mutableFormats = mutableFormats;
+  }
+
+  inline ezGALFormatLookupEntryVulkan& R(vk::Format readbackType)
+  {
+    m_readback = readbackType;
+    return *this;
+  }
+
+  vk::Format m_format = vk::Format::eUndefined;
+  vk::Format m_readback = vk::Format::eUndefined;
+  ezHybridArray<vk::Format, 6> m_mutableFormats;
+};
+
 using ezGALFormatLookupTableVulkan = ezGALFormatLookupTable<ezGALFormatLookupEntryVulkan>;
 
 class ezGALBufferVulkan;
@@ -72,6 +100,8 @@ public:
 
     vk::PhysicalDeviceCustomBorderColorFeaturesEXT m_borderColorEXT;
     bool m_bBorderColorFloat = false;
+
+    bool m_bImageFormatList = false;
   };
 
   struct Queue

@@ -7,6 +7,7 @@
 #include <Core/System/Window.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/System/PlatformFeatures.h>
 #include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
@@ -182,8 +183,10 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
   }
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result
+  {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop)
+      { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -230,8 +233,10 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   }
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result
+  {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop)
+      { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -278,6 +283,8 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
       deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
     }
   }
+  AddExtIfSupported(VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, m_extensions.m_bImageFormatList);
+
   return vk::Result::eSuccess;
 }
 
@@ -446,7 +453,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       transferQueueCreateInfo.queueFamilyIndex = m_transferQueue.m_uiQueueFamily;
     }
 
-    //#TODO_VULKAN test that this returns the same as 'layers' passed into the instance.
+    // #TODO_VULKAN test that this returns the same as 'layers' passed into the instance.
     ezUInt32 uiLayers;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.enumerateDeviceLayerProperties(&uiLayers, nullptr));
     ezDynamicArray<vk::LayerProperties> deviceLayers;
@@ -511,7 +518,9 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
   m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
 
-  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainVulkan, desc); }); });
+  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
+    { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALSwapChainVulkan, desc); }); });
 
   return EZ_SUCCESS;
 }
@@ -534,7 +543,7 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
 {
   void* pData = nullptr;
 
-  //#TODO_VULKAN Use transfer queue
+  // #TODO_VULKAN Use transfer queue
   ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(0, pInitialData.GetCount());
   // ezMemoryUtils::Copy(reinterpret_cast<ezUInt8*>(stagingBuffer.m_allocInfo.m_pMappedData), pInitialData.GetPtr(), pInitialData.GetCount());
   ezMemoryAllocatorVulkan::MapMemory(stagingBuffer.m_alloc, &pData);
@@ -546,12 +555,12 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
   region.dstOffset = dstOffset;
   region.size = pInitialData.GetCount();
 
-  //#TODO_VULKAN atomic min size violation?
+  // #TODO_VULKAN atomic min size violation?
   commandBuffer.copyBuffer(stagingBuffer.m_buffer, pBuffer->GetVkBuffer(), 1, &region);
 
   pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
 
-  //#TODO_VULKAN Custom delete later / return to ezStagingBufferPoolVulkan once this is on the transfer queue and runs async to graphics queue.
+  // #TODO_VULKAN Custom delete later / return to ezStagingBufferPoolVulkan once this is on the transfer queue and runs async to graphics queue.
   pStagingBufferPool->ReclaimBuffer(stagingBuffer);
 }
 
@@ -560,7 +569,8 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
   const vk::Offset3D imageOffset = {0, 0, 0};
   const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(subResource.mipLevel);
 
-  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange {
+  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange
+  {
     vk::ImageSubresourceRange range;
     range.aspectMask = layers.aspectMask;
     range.baseMipLevel = layers.mipLevel;
@@ -606,7 +616,7 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
     region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
     region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
 
-    //#TODO_VULKAN atomic min size violation?
+    // #TODO_VULKAN atomic min size violation?
     commandBuffer.copyBufferToImage(stagingBuffer.m_buffer, pTexture->GetImage(), pTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &region);
     pStagingBufferPool->ReclaimBuffer(stagingBuffer);
   }
@@ -1197,7 +1207,7 @@ void ezGALDeviceVulkan::EndFramePlatform()
 {
 #if EZ_ENABLED(EZ_USE_PROFILING)
   {
-    //#TODO_VULKAN This is very wasteful, in normal cases the last endPipeline will have submitted the command buffer via the swapchain. Thus, we start and submit a command buffer here with only the timestamp in it.
+    // #TODO_VULKAN This is very wasteful, in normal cases the last endPipeline will have submitted the command buffer via the swapchain. Thus, we start and submit a command buffer here with only the timestamp in it.
     GetCurrentCommandBuffer();
     ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
   }
@@ -1431,209 +1441,85 @@ void ezGALDeviceVulkan::ReclaimResources(ezDeque<ReclaimResource>& resources)
 
 void ezGALDeviceVulkan::FillFormatLookupTable()
 {
-  ///       The list below is in the same order as the ezGALResourceFormat enum. No format should be missing except the ones that are just
-  ///       different names for the same enum value.
+  /// The list below is in the same order as the ezGALResourceFormat enum. No format should be missing except the ones that are just different names for the same enum value.
+  vk::Format R32G32B32A32_Formats[] = {vk::Format::eR32G32B32A32Sfloat, vk::Format::eR32G32B32A32Uint, vk::Format::eR32G32B32A32Sint};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAFloat, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32A32Sfloat, R32G32B32A32_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32A32Uint, R32G32B32A32_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32A32Sint, R32G32B32A32_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAFloat, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32A32Sfloat)
-                                                                      .RT(vk::Format::eR32G32B32A32Sfloat)
-                                                                      .VA(vk::Format::eR32G32B32A32Sfloat)
-                                                                      .RV(vk::Format::eR32G32B32A32Sfloat));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32A32Uint)
-                                                                     .RT(vk::Format::eR32G32B32A32Uint)
-                                                                     .VA(vk::Format::eR32G32B32A32Uint)
-                                                                     .RV(vk::Format::eR32G32B32A32Uint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32A32Sint)
-                                                                    .RT(vk::Format::eR32G32B32A32Sint)
-                                                                    .VA(vk::Format::eR32G32B32A32Sint)
-                                                                    .RV(vk::Format::eR32G32B32A32Sint));
-
+  vk::Format R32G32B32_Formats[] = {vk::Format::eR32G32B32Sfloat, vk::Format::eR32G32B32Uint, vk::Format::eR32G32B32Sint};
   // TODO 3-channel formats are not really supported under vulkan judging by experience
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBFloat, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32Sfloat)
-                                                                     .RT(vk::Format::eR32G32B32Sfloat)
-                                                                     .VA(vk::Format::eR32G32B32Sfloat)
-                                                                     .RV(vk::Format::eR32G32B32Sfloat));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBUInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32Uint)
-                                                                    .RT(vk::Format::eR32G32B32Uint)
-                                                                    .VA(vk::Format::eR32G32B32Uint)
-                                                                    .RV(vk::Format::eR32G32B32Uint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32Sint)
-                                                                   .RT(vk::Format::eR32G32B32Sint)
-                                                                   .VA(vk::Format::eR32G32B32Sint)
-                                                                   .RV(vk::Format::eR32G32B32Sint));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBFloat, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32Sfloat, R32G32B32_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBUInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32Uint, R32G32B32_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32B32Sint, R32G32B32_Formats));
 
   // TODO dunno if these are actually supported for the respective Vulkan device
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::B5G6R5UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR5G6B5UnormPack16)
-                                                                              .RT(vk::Format::eR5G6B5UnormPack16)
-                                                                              .VA(vk::Format::eR5G6B5UnormPack16)
-                                                                              .RV(vk::Format::eR5G6B5UnormPack16));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::B5G6R5UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR5G6B5UnormPack16));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BGRAUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eB8G8R8A8Unorm)
-                                                                                .RT(vk::Format::eB8G8R8A8Unorm)
-                                                                                .VA(vk::Format::eB8G8R8A8Unorm)
-                                                                                .RV(vk::Format::eB8G8R8A8Unorm));
+  vk::Format B8G8R8A8_Formats[] = {vk::Format::eB8G8R8A8Unorm, vk::Format::eB8G8R8A8Srgb};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BGRAUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eB8G8R8A8Unorm, B8G8R8A8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BGRAUByteNormalizedsRGB, ezGALFormatLookupEntryVulkan(vk::Format::eB8G8R8A8Srgb, B8G8R8A8_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BGRAUByteNormalizedsRGB,
-    ezGALFormatLookupEntryVulkan(vk::Format::eB8G8R8A8Srgb).RT(vk::Format::eB8G8R8A8Srgb).RV(vk::Format::eB8G8R8A8Srgb));
+  vk::Format R16G16B16A16_Formats[] = {vk::Format::eR16G16B16A16Sfloat, vk::Format::eR16G16B16A16Uint, vk::Format::eR16G16B16A16Unorm, vk::Format::eR16G16B16A16Sint, vk::Format::eR16G16B16A16Snorm};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAHalf, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Sfloat, R16G16B16A16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Uint, R16G16B16A16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Unorm, R16G16B16A16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Sint, R16G16B16A16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Snorm, R16G16B16A16_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAHalf, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Sfloat)
-                                                                     .RT(vk::Format::eR16G16B16A16Sfloat)
-                                                                     .VA(vk::Format::eR16G16B16A16Sfloat)
-                                                                     .RV(vk::Format::eR16G16B16A16Sfloat));
+  vk::Format R32G32_Formats[] = {vk::Format::eR32G32Sfloat, vk::Format::eR32G32Uint, vk::Format::eR32G32Sint};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGFloat, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32Sfloat, R32G32_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32Uint, R32G32_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32Sint, R32G32_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Uint)
-                                                                       .RT(vk::Format::eR16G16B16A16Uint)
-                                                                       .VA(vk::Format::eR16G16B16A16Uint)
-                                                                       .RV(vk::Format::eR16G16B16A16Uint));
+  vk::Format R10G10B10A2_Formats[] = {vk::Format::eA2B10G10R10UintPack32, vk::Format::eA2B10G10R10UnormPack32};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGB10A2UInt, ezGALFormatLookupEntryVulkan(vk::Format::eA2B10G10R10UintPack32, R10G10B10A2_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGB10A2UIntNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eA2B10G10R10UnormPack32, R10G10B10A2_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Unorm)
-                                                                                 .RT(vk::Format::eR16G16B16A16Unorm)
-                                                                                 .VA(vk::Format::eR16G16B16A16Unorm)
-                                                                                 .RV(vk::Format::eR16G16B16A16Unorm));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RG11B10Float, ezGALFormatLookupEntryVulkan(vk::Format::eB10G11R11UfloatPack32));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Sint)
-                                                                      .RT(vk::Format::eR16G16B16A16Sint)
-                                                                      .VA(vk::Format::eR16G16B16A16Sint)
-                                                                      .RV(vk::Format::eR16G16B16A16Sint));
+  vk::Format R8G8B8A8_Formats[] = {vk::Format::eR8G8B8A8Unorm, vk::Format::eR8G8B8A8Srgb, vk::Format::eR8G8B8A8Uint, vk::Format::eR8G8B8A8Snorm, vk::Format::eR8G8B8A8Sint};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Unorm, R8G8B8A8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByteNormalizedsRGB, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Srgb, R8G8B8A8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByte, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Uint, R8G8B8A8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Snorm, R8G8B8A8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAByte, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Sint, R8G8B8A8_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16B16A16Snorm)
-                                                                                .RT(vk::Format::eR16G16B16A16Snorm)
-                                                                                .VA(vk::Format::eR16G16B16A16Snorm)
-                                                                                .RV(vk::Format::eR16G16B16A16Snorm));
+  vk::Format R16G16_Formats[] = {vk::Format::eR16G16Sfloat, vk::Format::eR16G16Uint, vk::Format::eR16G16Unorm, vk::Format::eR16G16Sint, vk::Format::eR16G16Snorm};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGHalf, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Sfloat, R16G16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Uint, R16G16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Unorm, R16G16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Sint, R16G16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Snorm, R16G16_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGFloat, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32Sfloat)
-                                                                    .RT(vk::Format::eR32G32Sfloat)
-                                                                    .VA(vk::Format::eR32G32Sfloat)
-                                                                    .RV(vk::Format::eR32G32Sfloat));
+  vk::Format R8G8_Formats[] = {vk::Format::eR8G8Uint, vk::Format::eR8G8Unorm, vk::Format::eR8G8Sint, vk::Format::eR8G8Snorm};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUByte, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Uint, R8G8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Unorm, R8G8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGByte, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Sint, R8G8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Snorm, R8G8_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32Uint)
-                                                                   .RT(vk::Format::eR32G32Uint)
-                                                                   .VA(vk::Format::eR32G32Uint)
-                                                                   .RV(vk::Format::eR32G32Uint));
+  vk::Format R32_Formats[] = {vk::Format::eR32Sfloat, vk::Format::eR32Uint, vk::Format::eR32Sint};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RFloat, ezGALFormatLookupEntryVulkan(vk::Format::eR32Sfloat, R32_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32Uint, R32_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32Sint, R32_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGInt, ezGALFormatLookupEntryVulkan(vk::Format::eR32G32Sint)
-                                                                  .RT(vk::Format::eR32G32Sint)
-                                                                  .VA(vk::Format::eR32G32Sint)
-                                                                  .RV(vk::Format::eR32G32Sint));
+  vk::Format R16_Formats[] = {vk::Format::eR16Sfloat, vk::Format::eR16Uint, vk::Format::eR16Unorm, vk::Format::eR16Sint, vk::Format::eR16Snorm};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RHalf, ezGALFormatLookupEntryVulkan(vk::Format::eR16Sfloat, R16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16Uint, R16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16Unorm, R16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16Sint, R16_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16Snorm, R16_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGB10A2UInt, ezGALFormatLookupEntryVulkan(vk::Format::eA2B10G10R10UintPack32)
-                                                                        .RT(vk::Format::eA2B10G10R10UintPack32)
-                                                                        .VA(vk::Format::eA2B10G10R10UintPack32)
-                                                                        .RV(vk::Format::eA2B10G10R10UintPack32));
+  vk::Format R8_Formats[] = {vk::Format::eR8Uint, vk::Format::eR8Unorm, vk::Format::eR8Sint, vk::Format::eR8Snorm};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUByte, ezGALFormatLookupEntryVulkan(vk::Format::eR8Uint, R8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8Unorm, R8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RByte, ezGALFormatLookupEntryVulkan(vk::Format::eR8Sint, R8_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8Snorm, R8_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGB10A2UIntNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eA2B10G10R10UnormPack32)
-                                                                                  .RT(vk::Format::eA2B10G10R10UnormPack32)
-                                                                                  .VA(vk::Format::eA2B10G10R10UnormPack32)
-                                                                                  .RV(vk::Format::eA2B10G10R10UnormPack32));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::AUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8Unorm));
 
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RG11B10Float, ezGALFormatLookupEntryVulkan(vk::Format::eB10G11R11UfloatPack32)
-                                                                         .RT(vk::Format::eB10G11R11UfloatPack32)
-                                                                         .VA(vk::Format::eB10G11R11UfloatPack32)
-                                                                         .RV(vk::Format::eB10G11R11UfloatPack32));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Unorm)
-                                                                                .RT(vk::Format::eR8G8B8A8Unorm)
-                                                                                .VA(vk::Format::eR8G8B8A8Unorm)
-                                                                                .RV(vk::Format::eR8G8B8A8Unorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByteNormalizedsRGB,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Srgb).RT(vk::Format::eR8G8B8A8Srgb).RV(vk::Format::eR8G8B8A8Srgb));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByte, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Uint)
-                                                                      .RT(vk::Format::eR8G8B8A8Uint)
-                                                                      .VA(vk::Format::eR8G8B8A8Uint)
-                                                                      .RV(vk::Format::eR8G8B8A8Uint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Snorm)
-                                                                               .RT(vk::Format::eR8G8B8A8Snorm)
-                                                                               .VA(vk::Format::eR8G8B8A8Snorm)
-                                                                               .RV(vk::Format::eR8G8B8A8Snorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAByte, ezGALFormatLookupEntryVulkan(vk::Format::eR8G8B8A8Sint)
-                                                                     .RT(vk::Format::eR8G8B8A8Sint)
-                                                                     .VA(vk::Format::eR8G8B8A8Sint)
-                                                                     .RV(vk::Format::eR8G8B8A8Sint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGHalf, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Sfloat)
-                                                                   .RT(vk::Format::eR16G16Sfloat)
-                                                                   .VA(vk::Format::eR16G16Sfloat)
-                                                                   .RV(vk::Format::eR16G16Sfloat));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Uint)
-                                                                     .RT(vk::Format::eR16G16Uint)
-                                                                     .VA(vk::Format::eR16G16Uint)
-                                                                     .RV(vk::Format::eR16G16Uint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Unorm)
-                                                                               .RT(vk::Format::eR16G16Unorm)
-                                                                               .VA(vk::Format::eR16G16Unorm)
-                                                                               .RV(vk::Format::eR16G16Unorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGShort, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Sint)
-                                                                    .RT(vk::Format::eR16G16Sint)
-                                                                    .VA(vk::Format::eR16G16Sint)
-                                                                    .RV(vk::Format::eR16G16Sint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGShortNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR16G16Snorm)
-                                                                              .RT(vk::Format::eR16G16Snorm)
-                                                                              .VA(vk::Format::eR16G16Snorm)
-                                                                              .RV(vk::Format::eR16G16Snorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUByte,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Uint).RT(vk::Format::eR8G8Uint).VA(vk::Format::eR8G8Uint).RV(vk::Format::eR8G8Uint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGUByteNormalized,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Unorm).RT(vk::Format::eR8G8Unorm).VA(vk::Format::eR8G8Unorm).RV(vk::Format::eR8G8Unorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGByte,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Sint).RT(vk::Format::eR8G8Sint).VA(vk::Format::eR8G8Sint).RV(vk::Format::eR8G8Sint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGByteNormalized,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8G8Snorm).RT(vk::Format::eR8G8Snorm).VA(vk::Format::eR8G8Snorm).RV(vk::Format::eR8G8Snorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RFloat,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR32Sfloat).RT(vk::Format::eR32Sfloat).VA(vk::Format::eR32Sfloat).RV(vk::Format::eR32Sfloat));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUInt,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR32Uint).RT(vk::Format::eR32Uint).VA(vk::Format::eR32Uint).RV(vk::Format::eR32Uint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RInt,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR32Sint).RT(vk::Format::eR32Sint).VA(vk::Format::eR32Sint).RV(vk::Format::eR32Sint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RHalf,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR16Sfloat).RT(vk::Format::eR16Sfloat).VA(vk::Format::eR16Sfloat).RV(vk::Format::eR16Sfloat));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUShort,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR16Uint).RT(vk::Format::eR16Uint).VA(vk::Format::eR16Uint).RV(vk::Format::eR16Uint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUShortNormalized,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR16Unorm).RT(vk::Format::eR16Unorm).VA(vk::Format::eR16Unorm).RV(vk::Format::eR16Unorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RShort,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR16Sint).RT(vk::Format::eR16Sint).VA(vk::Format::eR16Sint).RV(vk::Format::eR16Sint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RShortNormalized,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR16Snorm).RT(vk::Format::eR16Snorm).VA(vk::Format::eR16Snorm).RV(vk::Format::eR16Snorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUByte,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8Uint).RT(vk::Format::eR8Uint).VA(vk::Format::eR8Uint).RV(vk::Format::eR8Uint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RUByteNormalized,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8Unorm).RT(vk::Format::eR8Unorm).VA(vk::Format::eR8Unorm).RV(vk::Format::eR8Unorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RByte,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8Sint).RT(vk::Format::eR8Sint).VA(vk::Format::eR8Sint).RV(vk::Format::eR8Sint));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RByteNormalized,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8Snorm).RT(vk::Format::eR8Snorm).VA(vk::Format::eR8Snorm).RV(vk::Format::eR8Snorm));
-
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::AUByteNormalized,
-    ezGALFormatLookupEntryVulkan(vk::Format::eR8Unorm).RT(vk::Format::eR8Unorm).VA(vk::Format::eR8Unorm).RV(vk::Format::eR8Unorm));
-
-  auto SelectDepthFormat = [&](const std::vector<vk::Format>& list) -> vk::Format {
+  auto SelectDepthFormat = [&](const std::vector<vk::Format>& list) -> vk::Format
+  {
     for (auto& format : list)
     {
       vk::FormatProperties formatProperties;
@@ -1644,7 +1530,8 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     return vk::Format::eUndefined;
   };
 
-  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format {
+  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format
+  {
     switch (depthFormat)
     {
       case vk::Format::eD16Unorm:
@@ -1664,67 +1551,68 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
 
   // Select smallest available depth format.  #TODO_VULKAN support packed eX8D24UnormPack32?
   vk::Format depthFormat = SelectDepthFormat({vk::Format::eD16Unorm, vk::Format::eD24UnormS8Uint, vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint});
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D16,
-    ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat)).RT(depthFormat).RV(depthFormat).DS(depthFormat).D(depthFormat));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D16, ezGALFormatLookupEntryVulkan(depthFormat).R(SelectStorageFormat(depthFormat)));
 
   // Select closest depth stencil format.
   depthFormat = SelectDepthFormat({vk::Format::eD24UnormS8Uint, vk::Format::eD32SfloatS8Uint, vk::Format::eD16UnormS8Uint});
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D24S8, ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat))
-                                                                  .RT(depthFormat)
-                                                                  .RV(depthFormat)
-                                                                  .DS(depthFormat)
-                                                                  .D(depthFormat)
-                                                                  .S(depthFormat));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D24S8, ezGALFormatLookupEntryVulkan(depthFormat).R(SelectStorageFormat(depthFormat)));
 
   // Select biggest depth format.
   depthFormat = SelectDepthFormat({vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint, vk::Format::eD16Unorm});
-  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::DFloat,
-    ezGALFormatLookupEntryVulkan(SelectStorageFormat(depthFormat)).RT(depthFormat).RV(depthFormat).D(depthFormat).DS(depthFormat));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::DFloat, ezGALFormatLookupEntryVulkan(depthFormat).R(SelectStorageFormat(depthFormat)));
 
-  // TODO is BC1 the rgba or the rgb format?
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC1, ezGALFormatLookupEntryVulkan(vk::Format::eBc1RgbaUnormBlock).RV(vk::Format::eBc1RgbaUnormBlock));
+  vk::Format BC1_Formats[] = {vk::Format::eBc1RgbaUnormBlock, vk::Format::eBc1RgbaSrgbBlock};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC1, ezGALFormatLookupEntryVulkan(vk::Format::eBc1RgbaUnormBlock, BC1_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC1sRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc1RgbaSrgbBlock, BC1_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC1sRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc1RgbaSrgbBlock).RV(vk::Format::eBc1RgbaSrgbBlock));
+  vk::Format BC2_Formats[] = {vk::Format::eBc2UnormBlock, vk::Format::eBc2SrgbBlock};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC2, ezGALFormatLookupEntryVulkan(vk::Format::eBc2UnormBlock, BC2_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC2sRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc2SrgbBlock, BC2_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC2, ezGALFormatLookupEntryVulkan(vk::Format::eBc2UnormBlock).RV(vk::Format::eBc2UnormBlock));
+  vk::Format BC3_Formats[] = {vk::Format::eBc3UnormBlock, vk::Format::eBc3SrgbBlock};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC3, ezGALFormatLookupEntryVulkan(vk::Format::eBc3UnormBlock, BC3_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC3sRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc3SrgbBlock, BC3_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC2sRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc2SrgbBlock).RV(vk::Format::eBc2SrgbBlock));
+  vk::Format BC4_Formats[] = {vk::Format::eBc4UnormBlock, vk::Format::eBc4SnormBlock};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC4UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc4UnormBlock, BC4_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC4Normalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc4SnormBlock, BC4_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC3, ezGALFormatLookupEntryVulkan(vk::Format::eBc3UnormBlock).RV(vk::Format::eBc3UnormBlock));
+  vk::Format BC5_Formats[] = {vk::Format::eBc5UnormBlock, vk::Format::eBc5SnormBlock};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC5UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc5UnormBlock, BC5_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC5Normalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc5SnormBlock, BC5_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC3sRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc3SrgbBlock).RV(vk::Format::eBc3SrgbBlock));
+  vk::Format BC6_Formats[] = {vk::Format::eBc6HUfloatBlock, vk::Format::eBc6HSfloatBlock};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC6UFloat, ezGALFormatLookupEntryVulkan(vk::Format::eBc6HUfloatBlock, BC6_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC6Float, ezGALFormatLookupEntryVulkan(vk::Format::eBc6HSfloatBlock, BC6_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC4UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc4UnormBlock).RV(vk::Format::eBc4UnormBlock));
+  vk::Format BC7_Formats[] = {vk::Format::eBc7UnormBlock, vk::Format::eBc7SrgbBlock};
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC7UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc7UnormBlock, BC7_Formats));
+  m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC7UNormalizedsRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc7SrgbBlock, BC7_Formats));
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC4Normalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc4SnormBlock).RV(vk::Format::eBc4SnormBlock));
+  if (false)
+  {
+    EZ_LOG_BLOCK("GAL Resource Formats");
+    for (ezUInt32 i = 1; i < ezGALResourceFormat::ENUM_COUNT; i++)
+    {
+      const ezGALFormatLookupEntryVulkan& entry = m_FormatLookupTable.GetFormatInfo((ezGALResourceFormat::Enum)i);
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC5UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc5UnormBlock).RV(vk::Format::eBc5UnormBlock));
+      vk::FormatProperties formatProperties;
+      m_physicalDevice.getFormatProperties(entry.m_format, &formatProperties);
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC5Normalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc5SnormBlock).RV(vk::Format::eBc5SnormBlock));
+      const bool bSampled = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage);
+      const bool bColorAttachment = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment);
+      const bool bDepthAttachment = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC6UFloat, ezGALFormatLookupEntryVulkan(vk::Format::eBc6HUfloatBlock).RV(vk::Format::eBc6HUfloatBlock));
+      const bool bTexel = static_cast<bool>(formatProperties.bufferFeatures & vk::FormatFeatureFlagBits::eUniformTexelBuffer);
+      const bool bStorageTexel = static_cast<bool>(formatProperties.bufferFeatures & vk::FormatFeatureFlagBits::eStorageTexelBuffer);
+      const bool bVertex = static_cast<bool>(formatProperties.bufferFeatures & vk::FormatFeatureFlagBits::eVertexBuffer);
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC6Float, ezGALFormatLookupEntryVulkan(vk::Format::eBc6HSfloatBlock).RV(vk::Format::eBc6HSfloatBlock));
+      ezStringBuilder sTemp;
+      ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), i, sTemp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
 
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC7UNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eBc7UnormBlock).RV(vk::Format::eBc7UnormBlock));
-
-  m_FormatLookupTable.SetFormatInfo(
-    ezGALResourceFormat::BC7UNormalizedsRGB, ezGALFormatLookupEntryVulkan(vk::Format::eBc7SrgbBlock).RV(vk::Format::eBc7SrgbBlock));
+      ezLog::Info("OptTiling S: {}, CA: {}, DA: {}. Buffer: T: {}, ST: {}, V: {}, Format {} -> {}", bSampled ? 1 : 0, bColorAttachment ? 1 : 0, bDepthAttachment ? 1 : 0, bTexel ? 1 : 0, bStorageTexel ? 1 : 0, bVertex ? 1 : 0, sTemp, vk::to_string(entry.m_format).c_str());
+    }
+  }
 }
-
-
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Device_Implementation_DeviceVulkan);

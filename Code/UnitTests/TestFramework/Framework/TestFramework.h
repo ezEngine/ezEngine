@@ -108,8 +108,8 @@ public:
     ezImage& ref_capturedImgAlpha, ezImage& ref_diffImgRgb, ezImage& ref_diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
     ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha);
 
-  bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, char* szErrorMsg);
-  bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage = false);
+  bool PerformImageComparison(ezStringBuilder sImgName, const ezImage& img, ezUInt32 uiMaxError, bool bIsLineImage, char* szErrorMsg);
+  bool CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage = false, bool bIsLineImage = false);
 
   /// \brief A function to be called to add extra info to image diff output, that is not available from here.
   /// E.g. device specific info like driver version.
@@ -540,13 +540,16 @@ EZ_TEST_DLL bool ezTestTextFiles(
 //////////////////////////////////////////////////////////////////////////
 
 EZ_TEST_DLL bool ezTestImage(
-  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, bool bIsDepthImage, bool bIsLineImage, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
 /// \brief Same as EZ_TEST_IMAGE_MSG but uses an empty error message.
 #define EZ_TEST_IMAGE(ImageNumber, MaxError) EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, "")
 
 /// \brief Same as EZ_TEST_DEPTH_IMAGE_MSG but uses an empty error message.
 #define EZ_TEST_DEPTH_IMAGE(ImageNumber, MaxError) EZ_TEST_DEPTH_IMAGE_MSG(ImageNumber, MaxError, "")
+
+/// \brief Same as EZ_TEST_LINE_IMAGE_MSG but uses an empty error message.
+#define EZ_TEST_LINE_IMAGE(ImageNumber, MaxError) EZ_TEST_LINE_IMAGE_MSG(ImageNumber, MaxError, "")
 
 /// \brief Executes an image comparison right now.
 ///
@@ -566,10 +569,14 @@ EZ_TEST_DLL bool ezTestImage(
 /// \note Some tests need to know at the start, whether an image comparison will be done at the end, so they
 /// can capture the image first. For such use cases, use EZ_SCHEDULE_IMAGE_TEST at the start of a sub-test instead.
 #define EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
-  ezTestImage(ImageNumber, MaxError, false, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestImage(ImageNumber, MaxError, false, false, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 #define EZ_TEST_DEPTH_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
-  ezTestImage(ImageNumber, MaxError, true, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+  ezTestImage(ImageNumber, MaxError, true, false, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
+/// \brief Same as EZ_TEST_IMAGE_MSG, but allows for pixels to shift in a 1-pixel radius to account for different line rasterization of GPU vendors.
+#define EZ_TEST_LINE_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
+  ezTestImage(ImageNumber, MaxError, false, true, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 /// \brief Schedules an EZ_TEST_IMAGE to be executed after the current sub-test execution finishes.
 ///

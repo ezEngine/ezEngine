@@ -19,6 +19,29 @@ static void SetDiff(const ezImageView& imageA, const ezImageView& imageB, ezImag
     pR[i] = pB[i] > pA[i] ? (pB[i] - pA[i]) : (pA[i] - pB[i]);
 }
 
+template <typename TYPE, typename ACCU, int COMP>
+static void SetCompMinDiff(const ezImageView& newDifference, ezImage& out_minDifference, ezUInt32 w, ezUInt32 h, ezUInt32 d, ezUInt32 uiComp)
+{
+  const TYPE* pNew = newDifference.GetPixelPointer<TYPE>(0, 0, 0, w, h, d);
+  TYPE* pR = out_minDifference.GetPixelPointer<TYPE>(0, 0, 0, w, h, d);
+
+  for (ezUInt32 i = 0; i < uiComp; i += COMP)
+  {
+    ACCU minDiff = 0;
+    ACCU newDiff = 0;
+    for (ezUInt32 c = 0; c < COMP; c++)
+    {
+      minDiff += pR[i + c];
+      newDiff += pNew[i + c];
+    }
+    if (minDiff > newDiff)
+    {
+      for (ezUInt32 c = 0; c < COMP; c++)
+        pR[i + c] = pNew[i + c];
+    }
+  }
+}
+
 template <typename TYPE>
 static ezUInt32 GetError(const ezImageView& difference, ezUInt32 w, ezUInt32 h, ezUInt32 d, ezUInt32 uiComp, ezUInt32 uiPixel)
 {
@@ -94,6 +117,62 @@ void ezImageUtils::ComputeImageDifferenceABS(const ezImageView& imageA, const ez
             EZ_REPORT_FAILURE("The ezImageFormat {0} is not implemented", (ezUInt32)imageA.GetImageFormat());
             return;
         }
+      }
+    }
+  }
+}
+
+
+void ezImageUtils::ComputeImageDifferenceABSRelaxed(const ezImageView& imageA, const ezImageView& imageB, ezImage& out_difference)
+{
+  EZ_ASSERT_ALWAYS(imageA.GetDepth() == 1 && imageA.GetNumMipLevels() == 1, "Depth slices and mipmaps are not supported");
+
+  EZ_PROFILE_SCOPE("ezImageUtils::ComputeImageDifferenceABSRelaxed");
+
+  ComputeImageDifferenceABS(imageA, imageB, out_difference);
+
+  ezImage tempB;
+  tempB.ResetAndCopy(imageB);
+  ezImage tempDiff;
+  tempDiff.ResetAndCopy(out_difference);
+
+  for (ezInt32 yOffset = -1; yOffset <= 1; ++yOffset)
+  {
+    for (ezInt32 xOffset = -1; xOffset <= 1; ++xOffset)
+    {
+      if (yOffset == 0 && xOffset == 0)
+        continue;
+
+      ezImageUtils::Copy(imageB, ezRectU32(ezMath::Max(xOffset, 0), ezMath::Max(yOffset, 0), imageB.GetWidth() - ezMath::Abs(xOffset), imageB.GetHeight() - ezMath::Abs(yOffset)), tempB, ezVec3U32(-ezMath::Min(xOffset, 0), -ezMath::Min(yOffset, 0), 0)).AssertSuccess("");
+
+      ComputeImageDifferenceABS(imageA, tempB, tempDiff);
+
+      const ezUInt32 uiSize2D = imageA.GetHeight() * imageA.GetWidth();
+      switch (imageA.GetImageFormat())
+      {
+        case ezImageFormat::R8G8B8A8_UNORM:
+        case ezImageFormat::R8G8B8A8_UNORM_SRGB:
+        case ezImageFormat::R8G8B8A8_UINT:
+        case ezImageFormat::R8G8B8A8_SNORM:
+        case ezImageFormat::R8G8B8A8_SINT:
+        case ezImageFormat::B8G8R8A8_UNORM:
+        case ezImageFormat::B8G8R8X8_UNORM:
+        case ezImageFormat::B8G8R8A8_UNORM_SRGB:
+        case ezImageFormat::B8G8R8X8_UNORM_SRGB:
+        {
+          SetCompMinDiff<ezUInt8, ezUInt32, 4>(tempDiff, out_difference, 0, 0, 0, 4 * uiSize2D);
+        }
+        break;
+
+        case ezImageFormat::B8G8R8_UNORM:
+        {
+          SetCompMinDiff<ezUInt8, ezUInt32, 3>(tempDiff, out_difference, 0, 0, 0, 3 * uiSize2D);
+        }
+        break;
+
+        default:
+          EZ_REPORT_FAILURE("The ezImageFormat {0} is not implemented", (ezUInt32)imageA.GetImageFormat());
+          return;
       }
     }
   }

@@ -66,13 +66,23 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 
   if (m_swapChainImageInUseFences[m_uiCurrentSwapChainImage])
   {
-    //#TODO_VULKAN waiting for fence does not seem to be necessary, is it already done by acquireNextImageKHR?
-    // m_pVulkanDevice->GetVulkanDevice().waitForFences(1, &m_swapChainImageInUseFences[m_uiCurrentSwapChainImage], true, 1000000000ui64);
+    // #TODO_VULKAN waiting for fence does not seem to be necessary, is it already done by acquireNextImageKHR?
+    //  m_pVulkanDevice->GetVulkanDevice().waitForFences(1, &m_swapChainImageInUseFences[m_uiCurrentSwapChainImage], true, 1000000000ui64);
     m_swapChainImageInUseFences[m_uiCurrentSwapChainImage] = nullptr;
   }
 
   vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
-  if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+  if (result == vk::Result::eErrorOutOfDateKHR)
+  {
+    ezLog::Warning("Swap-chain is incompatible with target window and will be recreated.");
+    CreateSwapChainInternal().AssertSuccess("Failed to recreate swapchain");
+    vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
+    if (result == vk::Result::eErrorOutOfDateKHR)
+    {
+      ezLog::Error("Failed to acquire image from recreated swapchain.");
+    }
+  }
+  else if (result == vk::Result::eSuboptimalKHR)
   {
     ezLog::Warning("Swap-chain does not match the target window size and should be recreated.");
   }
@@ -219,7 +229,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   supportedFormats.resize(uiNumSurfaceFormats);
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_vulkanSurface, &uiNumSurfaceFormats, supportedFormats.data()));
 
-  vk::Format desiredFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_eRenderTarget;
+  vk::Format desiredFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_format;
   vk::ColorSpaceKHR desiredColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
   vk::ComponentMapping backBufferComponentMapping;
 
@@ -276,7 +286,9 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   if (m_WindowDesc.m_bAllowScreenshots)
     swapChainCreateInfo.imageUsage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
 
-  swapChainCreateInfo.minImageCount = ezMath::Max(m_WindowDesc.m_bDoubleBuffered ? 2u : 1u, surfaceCapabilities.minImageCount);
+  // #TODO_VULKAN Using only 2 images in the swapchain may trigger the following validation error when resizing the window. To prevent this we use 3 images instead. Technically m_bDoubleBuffered now means triple buffering - a problem for another time and creating a swapchain with only 1 texture is impossible anyways on most platforms.
+  // https://vulkan.lunarg.com/doc/view/1.3.239.0/windows/1.3-extensions/vkspec.html#VUID-vkAcquireNextImageKHR-surface-07783
+  swapChainCreateInfo.minImageCount = ezMath::Max(m_WindowDesc.m_bDoubleBuffered ? 3u : 2u, surfaceCapabilities.minImageCount);
   if (surfaceCapabilities.maxImageCount != 0)
     swapChainCreateInfo.minImageCount = ezMath::Min(swapChainCreateInfo.minImageCount, surfaceCapabilities.maxImageCount);
 

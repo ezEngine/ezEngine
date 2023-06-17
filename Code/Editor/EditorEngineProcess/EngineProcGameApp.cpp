@@ -14,9 +14,18 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <shellscalingapi.h>
+#endif
+
+
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", nullptr)
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+#endif
+
   m_LongOpWorkerManager.Startup(&m_IPC);
 }
 
