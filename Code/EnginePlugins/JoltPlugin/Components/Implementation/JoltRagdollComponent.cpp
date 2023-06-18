@@ -411,9 +411,9 @@ void ezJoltRagdollComponent::AddInitialImpulse(const ezVec3& vPosition, const ez
   m_uiNumInitialImpulses++;
 }
 
-void ezJoltRagdollComponent::SetJointTypeOverride(const char* szJointName, ezEnum<ezSkeletonJointType> type)
+void ezJoltRagdollComponent::SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type)
 {
-  const ezTempHashedString sJointNameHashed(szJointName);
+  const ezTempHashedString sJointNameHashed(sJointName);
 
   for (ezUInt32 i = 0; i < m_JointOverrides.GetCount(); ++i)
   {
