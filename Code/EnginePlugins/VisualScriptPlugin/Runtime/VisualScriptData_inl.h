@@ -111,7 +111,7 @@ void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, con
     }
     else
     {
-      EZ_ASSERT_DEBUG(pType->IsDerivedFrom<ezComponent>() == false, "Component type '{}' is stored as typed pointer, cast to ezComponent first to ensure correct storage", pType->GetTypeName());
+      EZ_ASSERT_DEBUG(!pType || pType->IsDerivedFrom<ezComponent>() == false, "Component type '{}' is stored as typed pointer, cast to ezComponent first to ensure correct storage", pType->GetTypeName());
 
       m_pDesc->CheckOffset(dataOffset, pType);
 

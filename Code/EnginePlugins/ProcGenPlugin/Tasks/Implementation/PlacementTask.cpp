@@ -171,11 +171,10 @@ void PlacementTask::ExecuteVM()
     }
 
     // Test density against point threshold and fill remaining input point data from expression
-    float fObjectCount = static_cast<float>(pOutput->m_ObjectsToPlace.GetCount());
     const Pattern* pPattern = pOutput->m_pPattern;
     for (ezUInt32 i = 0; i < uiNumInstances; ++i)
     {
-      auto& inputPoint = m_InputPoints[i];
+      auto& inputPoint =m_InputPoints[i];
       const ezUInt32 uiPointIndex = inputPoint.m_uiPointIndex;
       const float fThreshold = pPattern->m_Points[uiPointIndex].m_fThreshold;
 

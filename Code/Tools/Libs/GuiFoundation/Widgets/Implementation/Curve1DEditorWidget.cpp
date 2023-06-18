@@ -1103,6 +1103,7 @@ ezResult ezQtCurve1DEditorWidget::LoadCurvePreset(const char* szFile)
     return EZ_FAILURE;
 
   const ezTypeVersion version = file.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
 
   Q_EMIT BeginCpChangesEvent("Load Preset");
 

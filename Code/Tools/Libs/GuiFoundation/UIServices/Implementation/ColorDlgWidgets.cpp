@@ -171,7 +171,6 @@ void ezQtColorRangeWidget::paintEvent(QPaintEvent* event)
 void ezQtColorRangeWidget::UpdateImage()
 {
   const int width = rect().width();
-  const int height = rect().height();
 
   m_Image = QImage(width, 1, QImage::Format::Format_RGB32);
 

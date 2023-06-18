@@ -516,7 +516,7 @@ void ezQtCVarItemDelegate::setEditorData(QWidget* pEditor, const QModelIndex& in
 
   if (QLineEdit* pLine = qobject_cast<QLineEdit*>(pEditor))
   {
-    if (value.type() == QVariant::Type::Double)
+    if (value.typeId() == QMetaType::Double)
     {
       double f = value.toDouble();
 

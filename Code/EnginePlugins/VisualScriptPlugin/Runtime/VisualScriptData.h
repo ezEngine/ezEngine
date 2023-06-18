@@ -24,9 +24,17 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataDescription : public ezRefCou
       static const char* GetName(Enum source);
     };
 
+    enum
+    {
+      BYTE_OFFSET_BITS = 24,
+      TYPE_BITS = 6,
+      SOURCE_BITS = 2,
+      INVALID_BYTE_OFFSET = EZ_BIT(BYTE_OFFSET_BITS) - 1
+    };
+
     EZ_ALWAYS_INLINE DataOffset()
     {
-      m_uiByteOffset = ezInvalidIndex;
+      m_uiByteOffset = INVALID_BYTE_OFFSET;
       m_uiType = ezVisualScriptDataType::Invalid;
       m_uiSource = Source::Local;
     }
@@ -40,7 +48,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataDescription : public ezRefCou
 
     EZ_ALWAYS_INLINE bool IsValid() const
     {
-      return m_uiByteOffset != (EZ_BIT(24) - 1) &&
+      return m_uiByteOffset != INVALID_BYTE_OFFSET &&
              m_uiType != ezVisualScriptDataType::Invalid;
     }
 
@@ -49,13 +57,6 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataDescription : public ezRefCou
     EZ_ALWAYS_INLINE bool IsLocal() const { return m_uiSource == Source::Local; }
     EZ_ALWAYS_INLINE bool IsInstance() const { return m_uiSource == Source::Instance; }
     EZ_ALWAYS_INLINE bool IsConstant() const { return m_uiSource == Source::Constant; }
-
-    enum
-    {
-      BYTE_OFFSET_BITS = 24,
-      TYPE_BITS = 6,
-      SOURCE_BITS = 2
-    };
 
     ezUInt32 m_uiByteOffset : BYTE_OFFSET_BITS;
     ezUInt32 m_uiType : TYPE_BITS;

@@ -89,6 +89,7 @@ ezResult ezRecastNavMeshResourceDescriptor::Deserialize(ezStreamReader& inout_st
   Clear();
 
   const ezTypeVersion version = inout_stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_DetourNavmeshData));
 
   bool hasPolygons = false;

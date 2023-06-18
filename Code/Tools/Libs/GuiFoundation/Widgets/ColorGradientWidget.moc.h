@@ -126,7 +126,7 @@ private:
   ezInt32 m_iSelectedAlphaCP;
   ezInt32 m_iSelectedIntensityCP;
 
-  QPoint m_LastMousePosition;
+  QPointF m_LastMousePosition;
   QPixmap m_AlphaPattern;
 
   bool m_bShowScrubber = false;

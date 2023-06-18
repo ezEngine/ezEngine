@@ -146,7 +146,6 @@ void ezNavMeshPointOfInterestGraph::ExtractInterestPointsFromMesh(const rcPolyMe
 
     // filter out too short edges
     {
-      ezUInt32 uiPrevEdgeIdx = isContourEdge.GetCount() - 2;
       ezUInt32 uiCurEdgeIdx = isContourEdge.GetCount() - 1;
 
       for (ezUInt32 uiNextEdgeIdx = 0; uiNextEdgeIdx < isContourEdge.GetCount(); ++uiNextEdgeIdx)
@@ -164,7 +163,6 @@ void ezNavMeshPointOfInterestGraph::ExtractInterestPointsFromMesh(const rcPolyMe
           }
         }
 
-        uiPrevEdgeIdx = uiCurEdgeIdx;
         uiCurEdgeIdx = uiNextEdgeIdx;
       }
     }

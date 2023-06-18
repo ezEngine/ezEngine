@@ -46,7 +46,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezQtUiServices::ezQtUiServices()
   : m_SingletonRegistrar(this)
 {
-  int id = qRegisterMetaType<ezUuid>();
+  qRegisterMetaType<ezUuid>();
   m_pColorDlg = nullptr;
 }
 

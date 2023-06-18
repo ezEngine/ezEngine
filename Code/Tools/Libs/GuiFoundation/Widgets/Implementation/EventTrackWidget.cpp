@@ -658,7 +658,6 @@ void ezQtEventTrackWidget::wheelEvent(QWheelEvent* e)
   ClampZoomPan();
 
   changeX = m_SceneToPixelScale.x() / oldScaleX;
-  changeY = m_SceneToPixelScale.y() / oldScaleY;
 
   posDiff = posDiff * (1.0 / changeX);
 
