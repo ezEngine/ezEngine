@@ -32,8 +32,8 @@ public:
   bool m_bOverrideScale = false;    // [ property ]
 
 protected:
-  void OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg); // [ msg handler ]
+  void OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg) const; // [ msg handler ]
 
   ezHashedString m_sJointToOverride;
-  ezUInt16 m_uiJointIndex = ezInvalidJointIndex;
+  mutable ezUInt16 m_uiJointIndex = ezInvalidJointIndex;
 };

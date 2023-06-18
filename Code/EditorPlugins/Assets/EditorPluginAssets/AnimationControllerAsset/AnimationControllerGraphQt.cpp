@@ -40,10 +40,9 @@ void ezQtAnimationControllerNode::UpdateState()
             val = GetObject()->GetTypeAccessor().GetValue(prop->GetPropertyName());
 
             ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), tmp);
-            tmp = ezTranslate(tmp);
 
             tmp2.Set("{", prop->GetPropertyName(), "}");
-            sTitle.ReplaceAll(tmp2, tmp);
+            sTitle.ReplaceAll(tmp2, ezTranslate(tmp));
           }
         }
       }

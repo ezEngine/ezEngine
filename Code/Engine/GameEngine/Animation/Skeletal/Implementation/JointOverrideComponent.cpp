@@ -72,7 +72,7 @@ const char* ezJointOverrideComponent::GetJointName() const
   return m_sJointToOverride.GetData();
 }
 
-void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg)
+void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg) const
 {
   using namespace ozz::math;
 

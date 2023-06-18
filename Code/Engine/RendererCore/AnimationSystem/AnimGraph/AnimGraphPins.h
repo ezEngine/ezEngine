@@ -89,7 +89,7 @@ public:
   ///
   /// All pin states are reset before every graph update, so this only needs to be called
   /// when a pin should be set to the triggered state, but then it must be called every frame.
-  void SetTriggered(ezAnimGraph& ref_graph, bool bTriggered);
+  void SetTriggered(ezAnimGraph& ref_graph, bool bTriggered = true);
 };
 
 //////////////////////////////////////////////////////////////////////////

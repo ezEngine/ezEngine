@@ -97,20 +97,29 @@ void ezSetBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const 
     {
       if (m_bSetOnActivation)
       {
-        pBlackboard->RegisterEntry(m_sBlackboardEntry, m_fOnActivatedValue);
+        if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_fOnActivatedValue).Failed())
+        {
+          ezLog::Warning("Can't set blackboard value '{}', it isn't known.", m_sBlackboardEntry);
+        }
       }
     }
     else
     {
       if (m_bSetOnDeactivation)
       {
-        pBlackboard->RegisterEntry(m_sBlackboardEntry, m_fOnDeactivatedValue);
+        if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_fOnDeactivatedValue).Failed())
+        {
+          ezLog::Warning("Can't set blackboard value '{}', it isn't known.", m_sBlackboardEntry);
+        }
       }
     }
   }
   else if (bIsActiveNow && m_bSetOnHold)
   {
-    pBlackboard->RegisterEntry(m_sBlackboardEntry, m_fOnHoldValue);
+    if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_fOnHoldValue).Failed())
+    {
+      ezLog::Warning("Can't set blackboard value '{}', it isn't known.", m_sBlackboardEntry);
+    }
   }
 }
 
