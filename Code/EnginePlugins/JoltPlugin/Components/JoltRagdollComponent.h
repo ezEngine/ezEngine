@@ -124,7 +124,7 @@ public:
   float m_fCenterAngularVelocity = 0.0f;           // [ property ]
   ezVec3 m_vCenterPosition = ezVec3::ZeroVector(); // [ property ]
 
-  void SetJointTypeOverride(const char* szJointName, ezEnum<ezSkeletonJointType> type);
+  void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type);
 
 protected:
   struct Limb

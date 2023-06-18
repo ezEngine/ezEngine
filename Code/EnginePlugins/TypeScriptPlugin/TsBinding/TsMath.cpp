@@ -758,7 +758,7 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
       return duk.GetStringValue(iObjIdx);
 
     case ezVariant::Type::StringView:
-      return ezStringView(duk.GetStringValue(iObjIdx));
+      return ezVariant(ezStringView(duk.GetStringValue(iObjIdx)), false);
 
     case ezVariant::Type::Vector2:
       return ezTypeScriptBinding::GetVec2(duk, iObjIdx);
