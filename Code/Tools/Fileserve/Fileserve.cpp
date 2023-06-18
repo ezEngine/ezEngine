@@ -50,9 +50,9 @@ int main(int argc, const char** argv)
       printf("Return Code: '%s'\n", text.c_str());
   }
 
-  #ifdef EZ_USE_QT
+#ifdef EZ_USE_QT
   delete pQtApplication;
-  #endif
+#endif
 
   delete pApp;
 

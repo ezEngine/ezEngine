@@ -720,8 +720,8 @@ namespace ezModelImporter2
     EZ_ASSERT_NOT_IMPLEMENTED;
     return EZ_FAILURE;
 
-    // TODO: adapt BSP import code to new model importer
-    #if 0
+// TODO: adapt BSP import code to new model importer
+#if 0
 
     const char* szFileName = m_Options.m_sSourceFile;
 
