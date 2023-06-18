@@ -182,7 +182,7 @@ private:
   void Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameObject* pSendAnimationEventsTo);
   void ExecuteCmd(ezAnimPoseGeneratorCommandSampleTrack& cmd, const ezGameObject* pSendAnimationEventsTo);
   void ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd);
-  void ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd);
+  void ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd, const ezGameObject* pSendAnimationEventsTo);
   void ExecuteCmd(ezAnimPoseGeneratorCommandModelPoseToOutput& cmd);
   void ExecuteCmd(ezAnimPoseGeneratorCommandSampleEventTrack& cmd, const ezGameObject* pSendAnimationEventsTo);
   void SampleEventTrack(const ezAnimationClipResource* pResource, ezAnimPoseEventTrackSampleMode mode, const ezGameObject* pSendAnimationEventsTo, float fPrevPos, float fCurPos);

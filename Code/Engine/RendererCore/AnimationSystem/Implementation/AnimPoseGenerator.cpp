@@ -236,7 +236,7 @@ void ezAnimPoseGenerator::Execute(ezAnimPoseGeneratorCommand& cmd, const ezGameO
       break;
 
     case ezAnimPoseGeneratorCommandType::LocalToModelPose:
-      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandLocalToModelPose&>(cmd));
+      ExecuteCmd(static_cast<ezAnimPoseGeneratorCommandLocalToModelPose&>(cmd), pSendAnimationEventsTo);
       break;
 
     case ezAnimPoseGeneratorCommandType::ModelPoseToOutput:
@@ -352,7 +352,7 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
   job.Run();
 }
 
-void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd)
+void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose& cmd, const ezGameObject* pSendAnimationEventsTo)
 {
   ozz::animation::LocalToModelJob job;
 
@@ -377,13 +377,16 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandLocalToModelPose&
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  if (cmd.m_pSendLocalPoseMsgTo)
+  if (cmd.m_pSendLocalPoseMsgTo || pSendAnimationEventsTo)
   {
     ezMsgAnimationPosePreparing msg;
     msg.m_pSkeleton = &m_pSkeleton->GetDescriptor().m_Skeleton;
     msg.m_LocalTransforms = ezMakeArrayPtr(const_cast<ozz::math::SoaTransform*>(job.input.data()), (ezUInt32)job.input.size());
 
-    cmd.m_pSendLocalPoseMsgTo->SendMessageRecursive(msg);
+    if (pSendAnimationEventsTo)
+      pSendAnimationEventsTo->SendMessageRecursive(msg);
+    else
+      cmd.m_pSendLocalPoseMsgTo->SendMessageRecursive(msg);
   }
 
   auto transforms = AcquireModelPoseTransforms(cmd.m_ModelPoseOutput);

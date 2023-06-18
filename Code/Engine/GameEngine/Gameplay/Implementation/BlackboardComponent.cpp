@@ -285,11 +285,21 @@ void ezBlackboardComponent::Entries_SetValue(ezUInt32 uiIndex, const ezBlackboar
 {
   m_InitialEntries.EnsureCount(uiIndex + 1);
 
-  m_pBoard->UnregisterEntry(m_InitialEntries[uiIndex].m_sName);
+  if (const ezBlackboard::Entry* pEntry = m_pBoard->GetEntry(m_InitialEntries[uiIndex].m_sName))
+  {
+    if (m_InitialEntries[uiIndex].m_sName != entry.m_sName || pEntry->m_Flags != entry.m_Flags)
+    {
+      m_pBoard->UnregisterEntry(m_InitialEntries[uiIndex].m_sName);
+      m_pBoard->RegisterEntry(entry.m_sName, entry.m_InitialValue, entry.m_Flags);
+    }
+  }
+  else
+  {
+    m_pBoard->RegisterEntry(entry.m_sName, entry.m_InitialValue, entry.m_Flags);
+  }
 
+  m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue).AssertSuccess();
   m_InitialEntries[uiIndex] = entry;
-
-  m_pBoard->RegisterEntry(entry.m_sName, entry.m_InitialValue, entry.m_Flags);
 }
 
 void ezBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, const ezBlackboardEntry& entry)
