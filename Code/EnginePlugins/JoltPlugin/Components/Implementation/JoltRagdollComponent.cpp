@@ -551,6 +551,7 @@ void ezJoltRagdollComponent::RetrieveRagdollPose()
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
+  const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
   const ezTransform rootTransform = pSkeleton->GetDescriptor().m_RootTransform;
   const ezMat4 invRootTransform = rootTransform.GetAsMat4().GetInverse();
   const ezMat4 mInv = invRootTransform * m_RootBodyLocalTransform.GetAsMat4() * GetRagdollRootTransform().GetInverse().GetAsMat4();
@@ -561,21 +562,61 @@ void ezJoltRagdollComponent::RetrieveRagdollPose()
   ezMat4 scale;
   scale.SetScalingMatrix(rootTransform.m_vScale * fObjectScale);
 
+  ezHybridArray<ezMat4, 64> relativeTransforms;
+
+  {
+    // m_CurrentLimbTransforms is stored in model space
+    // for bones that don't have their own shape in the ragdoll,
+    // we don't get a new transform from the ragdoll, but we still must update them,
+    // if there is a parent bone in the ragdoll, otherwise they don't move along as expected
+    // therefore we compute their relative transform here
+    // and then later we take their new parent transform (which may come from the ragdoll)
+    // to set their final new transform
+
+    for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
+    {
+      if (m_Limbs[uiLimbIdx].m_uiPartIndex != ezInvalidJointIndex)
+        continue;
+
+      const auto& joint = skeleton.GetJointByIndex(uiLimbIdx);
+      const ezUInt16 uiParentIdx = joint.GetParentIndex();
+
+      if (uiParentIdx == ezInvalidJointIndex)
+        continue;
+
+      const ezMat4 mJoint = m_CurrentLimbTransforms[uiLimbIdx];
+
+      // remove the parent transform to get the pure local transform
+      const ezMat4 mParentInv = m_CurrentLimbTransforms[uiParentIdx].GetInverse();
+
+      relativeTransforms.PushBack(mParentInv * mJoint);
+    }
+  }
+
+  ezUInt32 uiNextRelativeIdx = 0;
   for (ezUInt32 uiLimbIdx = 0; uiLimbIdx < m_Limbs.GetCount(); ++uiLimbIdx)
   {
     if (m_Limbs[uiLimbIdx].m_uiPartIndex == ezInvalidJointIndex)
     {
-      // no need to do anything, just pass the original pose through
-      continue;
+      const auto& joint = skeleton.GetJointByIndex(uiLimbIdx);
+      const ezUInt16 uiParentIdx = joint.GetParentIndex();
+
+      if (uiParentIdx != ezInvalidJointIndex)
+      {
+        m_CurrentLimbTransforms[uiLimbIdx] = m_CurrentLimbTransforms[uiParentIdx] * relativeTransforms[uiNextRelativeIdx];
+        ++uiNextRelativeIdx;
+      }
     }
+    else
+    {
+      const JPH::BodyID bodyId = m_pRagdoll->GetBodyID(m_Limbs[uiLimbIdx].m_uiPartIndex);
+      EZ_ASSERT_DEBUG(!bodyId.IsInvalid(), "Invalid limb -> body mapping");
+      JPH::BodyLockRead bodyRead(pModule->GetJoltSystem()->GetBodyLockInterface(), bodyId);
 
-    const JPH::BodyID bodyId = m_pRagdoll->GetBodyID(m_Limbs[uiLimbIdx].m_uiPartIndex);
-    EZ_ASSERT_DEBUG(!bodyId.IsInvalid(), "Invalid limb -> body mapping");
-    JPH::BodyLockRead bodyRead(pModule->GetJoltSystem()->GetBodyLockInterface(), bodyId);
+      const ezTransform limbGlobalPose = ezJoltConversionUtils::ToTransform(bodyRead.GetBody().GetPosition(), bodyRead.GetBody().GetRotation());
 
-    const ezTransform limbGlobalPose = ezJoltConversionUtils::ToTransform(bodyRead.GetBody().GetPosition(), bodyRead.GetBody().GetRotation());
-
-    m_CurrentLimbTransforms[uiLimbIdx] = (mInv * limbGlobalPose.GetAsMat4()) * scale;
+      m_CurrentLimbTransforms[uiLimbIdx] = (mInv * limbGlobalPose.GetAsMat4()) * scale;
+    }
   }
 }
 
@@ -1073,10 +1114,10 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
     pJoint->mTwistMinAngle = -thisJoint.GetTwistLimitHalfAngle().GetRadian();
     pJoint->mTwistMaxAngle = thisJoint.GetTwistLimitHalfAngle().GetRadian();
     pJoint->mMaxFrictionTorque = m_fStiffnessFactor * thisJoint.GetStiffness();
-    pJoint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * qTwist * ezVec3::UnitZAxis());
-    pJoint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * qTwist * ezVec3::UnitZAxis());
-    pJoint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::UnitYAxis());
-    pJoint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::UnitYAxis());
+    pJoint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * qTwist * ezVec3::UnitZAxis()).Normalized();
+    pJoint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * qTwist * ezVec3::UnitZAxis()).Normalized();
+    pJoint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::UnitYAxis()).Normalized();
+    pJoint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::UnitYAxis()).Normalized();
   }
 }
 
