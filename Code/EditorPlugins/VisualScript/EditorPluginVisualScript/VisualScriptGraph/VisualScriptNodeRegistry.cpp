@@ -512,7 +512,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
   // Builtin_ToBool, Builtin_ToByte, Builtin_ToInt, Builtin_ToInt64, Builtin_ToFloat, Builtin_ToDouble, Builtin_ToString, Builtin_ToVariant,
   {
-    struct ConversionNodeDesc
+    struct ConversionNodeDesc // NOLINT(*Padding): Don't care about excessive padding here.
     {
       ezVisualScriptDataType::Enum m_DataType;
       const char* m_szCategory;

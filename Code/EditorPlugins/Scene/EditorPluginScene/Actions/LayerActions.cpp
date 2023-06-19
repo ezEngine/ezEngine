@@ -157,8 +157,6 @@ void ezLayerAction::ToggleLayerLoaded(ezScene2Document* pSceneDocument, ezUuid l
 
 void ezLayerAction::Execute(const ezVariant& value)
 {
-  ezUuid layerGuid = GetCurrentSelectedLayer();
-
   switch (m_Type)
   {
     case ActionType::CreateLayer:

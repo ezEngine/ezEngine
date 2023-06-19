@@ -301,8 +301,6 @@ ezViewLightSliderAction::~ezViewLightSliderAction()
 
 void ezViewLightSliderAction::Execute(const ezVariant& value)
 {
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-
   switch (m_ButtonType)
   {
     case ezEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged:

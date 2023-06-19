@@ -35,7 +35,7 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezColorGradientAssetDocument>())
       {
-        ezQtColorGradientAssetDocumentWindow* pDocWnd = new ezQtColorGradientAssetDocumentWindow(e.m_pDocument);
+        new ezQtColorGradientAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
       }
     }
     break;

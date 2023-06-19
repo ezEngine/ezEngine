@@ -218,7 +218,6 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
   const ezVec3 vHalfExtents = m_Volume.GetHalfExtents();
   const float fMaxExtent = ezMath::Max(vHalfExtents.x, vHalfExtents.y, vHalfExtents.z);
   const float fBoost = e->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier) ? 5.0f : 1.0f;
-  const float fSensitivity = fBoost * 0.0001f * fMaxExtent;
 
   if (m_Mode == Mode::Orbit)
   {
@@ -406,9 +405,6 @@ void ezOrbitCameraContext::UpdateContext()
 
   if (m_bRun)
     fSpeedFactor *= 5.0f;
-
-  const float fRotateHorizontal = 45 * fSpeedFactor;
-  const float fRotateVertical = 45 * fSpeedFactor;
 
   fSpeedFactor *= GetCameraSpeed();
 

@@ -185,7 +185,9 @@ ezEditorInput ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezVec2 vNewMousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
+  const QPoint mousePosition = e->globalPosition().toPoint();
+
+  const ezVec2 vNewMousePos = ezVec2(mousePosition.x(), mousePosition.y());
   ezVec2 vDiff = vNewMousePos - ezVec2(m_vLastMousePos.x, m_vLastMousePos.y);
 
   m_vLastMousePos = UpdateMouseMode(e);

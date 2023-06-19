@@ -262,7 +262,9 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
-  const ezVec2I32 CurMousePos(e->globalX(), e->globalY());
+  const QPoint mousePosition = e->globalPosition().toPoint();
+
+  const ezVec2I32 CurMousePos(mousePosition.x(), mousePosition.y());
 
   m_LastInteraction = tNow;
 

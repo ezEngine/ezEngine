@@ -46,7 +46,7 @@ void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezLUTAssetDocument>())
       {
-        ezQtLUTAssetDocumentWindow* pDocWnd = new ezQtLUTAssetDocumentWindow(static_cast<ezLUTAssetDocument*>(e.m_pDocument));
+        new ezQtLUTAssetDocumentWindow(static_cast<ezLUTAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;

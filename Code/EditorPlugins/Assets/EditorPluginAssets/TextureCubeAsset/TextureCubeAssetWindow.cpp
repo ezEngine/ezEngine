@@ -53,8 +53,6 @@ ezTextureCubeLodSliderAction::ezTextureCubeLodSliderAction(const ezActionContext
 
 void ezTextureCubeLodSliderAction::Execute(const ezVariant& value)
 {
-  const ezInt32 iValue = value.Get<ezInt32>();
-
   m_pDocument->m_iTextureLod = value.Get<ezInt32>();
 }
 

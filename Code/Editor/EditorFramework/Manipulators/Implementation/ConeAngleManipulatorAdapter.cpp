@@ -31,10 +31,10 @@ void ezConeAngleManipulatorAdapter::Update()
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezConeAngleManipulatorAttribute* pAttr = static_cast<const ezConeAngleManipulatorAttribute*>(m_pManipulatorAttr);
 
-  if (!pAttr->GetRadiusProperty().IsEmpty())
+  /* if (!pAttr->GetRadiusProperty().IsEmpty())
   {
     float fValue = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetRadiusProperty()));
-  }
+  } */
 
   m_Gizmo.SetRadius(pAttr->m_fScale);
 

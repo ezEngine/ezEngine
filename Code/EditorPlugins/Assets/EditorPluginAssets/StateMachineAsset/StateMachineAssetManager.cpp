@@ -37,7 +37,7 @@ void ezStateMachineAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezStateMachineAssetDocument>())
       {
-        ezQtStateMachineAssetDocumentWindow* pDocWnd = new ezQtStateMachineAssetDocumentWindow(e.m_pDocument);
+        new ezQtStateMachineAssetDocumentWindow(e.m_pDocument); // Not a memory leak
       }
     }
     break;

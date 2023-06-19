@@ -95,8 +95,6 @@ ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 
 ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
-  auto* pDocument = GetOwnerWindow()->GetDocument();
-
   if (e->button() == Qt::MouseButton::MiddleButton)
   {
     if (e->modifiers() & Qt::KeyboardModifier::ControlModifier)

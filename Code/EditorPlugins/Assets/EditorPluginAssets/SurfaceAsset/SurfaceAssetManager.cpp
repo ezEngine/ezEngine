@@ -37,7 +37,7 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSurfaceAssetDocument>())
       {
-        ezQtSurfaceAssetDocumentWindow* pDocWnd = new ezQtSurfaceAssetDocumentWindow(e.m_pDocument);
+        new ezQtSurfaceAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;

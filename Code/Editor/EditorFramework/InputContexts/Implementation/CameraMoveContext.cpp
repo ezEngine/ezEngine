@@ -447,7 +447,7 @@ ezEditorInput ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       if (!m_bDidMoveMouse[1] && m_bOpenMenuOnMouseUp)
       {
-        GetOwnerView()->OpenContextMenu(e->globalPos());
+        GetOwnerView()->OpenContextMenu(e->globalPosition().toPoint());
       }
       return ezEditorInput::WasExclusivelyHandled;
     }

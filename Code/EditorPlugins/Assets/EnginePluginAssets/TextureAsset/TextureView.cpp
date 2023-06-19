@@ -48,8 +48,6 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     ezUInt32 uiWidth = pResource->GetWidth();
     ezUInt32 uiHeight = pResource->GetHeight();
 
-    const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
-
     ezStringBuilder sText;
     if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sText, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
     {

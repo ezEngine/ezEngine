@@ -117,7 +117,8 @@ ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   if (m_ManipulateMode == ManipulateMode::DrawHeight)
   {
-    const ezVec2I32 vMouseMove = ezVec2I32(e->globalPos().x(), e->globalPos().y()) - m_vLastMousePos;
+    const QPoint mousePosition = e->globalPosition().toPoint();
+    const ezVec2I32 vMouseMove = ezVec2I32(mousePosition.x(), mousePosition.y()) - m_vLastMousePos;
     m_iHeightChange -= vMouseMove.y;
 
     m_vLastMousePos = UpdateMouseMode(e);

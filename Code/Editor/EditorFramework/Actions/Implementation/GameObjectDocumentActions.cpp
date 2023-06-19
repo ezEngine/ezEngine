@@ -373,8 +373,6 @@ ezCameraSpeedSliderAction::~ezCameraSpeedSliderAction()
 
 void ezCameraSpeedSliderAction::Execute(const ezVariant& value)
 {
-  const ezInt32 iValue = value.Get<ezInt32>();
-
   switch (m_Type)
   {
     case ActionType::CameraSpeed:

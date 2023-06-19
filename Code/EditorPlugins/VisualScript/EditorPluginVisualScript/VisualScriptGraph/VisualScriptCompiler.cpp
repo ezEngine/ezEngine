@@ -981,7 +981,7 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
       {
         if (pNextAstNode == nullptr)
         {
-          pNodeDesc->m_ExecutionIndices.PushBack(ezInvalidIndex);
+          pNodeDesc->m_ExecutionIndices.PushBack(static_cast<ezUInt16>(ezInvalidIndex));
         }
         else
         {

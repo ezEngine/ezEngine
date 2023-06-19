@@ -10,7 +10,6 @@ ezStatus ezObjectPropertyPath::CreatePath(const ezObjectPropertyPathContext& con
 {
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
   const ezRTTI* pObjType = ezGetStaticRTTI<ezGameObject>();
-  const ezRTTI* pCompType = ezGetStaticRTTI<ezComponent>();
 
   const ezAbstractProperty* pName = pObjType->FindPropertyByName("Name");
   const ezDocumentObject* pObject = context.m_pAccessor->GetObjectManager()->GetObject(prop.m_Object);

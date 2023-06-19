@@ -430,7 +430,6 @@ void ezQtEditorApp::ShutdownEditor()
     for (ezUInt32 i = 0; i < uiNumPanels; ++i)
     {
       ezQtApplicationPanel* pPanel = Panels[i];
-      QObject* pParent = pPanel->parent();
       delete pPanel;
     }
   }

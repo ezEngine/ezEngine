@@ -144,7 +144,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
         for (ezUInt32 i = 0; i < events.GetCount(); ++i)
         {
           iLen = 0;
-          auto ret = events[i]->getPath(szPath, 255, &iLen);
+          EZ_FMOD_ASSERT(events[i]->getPath(szPath, 255, &iLen));
           szPath[iLen] = '\0';
 
           sEventName = szPath;
@@ -238,7 +238,7 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSoundBankAssetDocument>())
       {
-        ezSoundBankAssetDocumentWindow* pDocWnd = new ezSoundBankAssetDocumentWindow(e.m_pDocument);
+        new ezSoundBankAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;

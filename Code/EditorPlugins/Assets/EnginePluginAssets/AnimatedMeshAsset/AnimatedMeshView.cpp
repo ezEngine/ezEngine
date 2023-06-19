@@ -47,8 +47,6 @@ void ezAnimatedMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   ezEngineProcessViewContext::SetCamera(pMsg);
 
-  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
-
   auto hAnimatedMesh = m_pContext->GetAnimatedMesh();
   if (hAnimatedMesh.IsValid())
   {

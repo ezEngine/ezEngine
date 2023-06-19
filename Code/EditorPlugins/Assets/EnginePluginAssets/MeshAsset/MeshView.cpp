@@ -47,8 +47,6 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   ezEngineProcessViewContext::SetCamera(pMsg);
 
-  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
-
   auto hMesh = m_pContext->GetMesh();
   if (hMesh.IsValid())
   {

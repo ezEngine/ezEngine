@@ -156,7 +156,7 @@ bool ezQtLayerDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionV
 {
   const QRect visibleRect = GetVisibleIconRect(option);
   const QRect loadedRect = GetLoadedIconRect(option);
-  if (pEvent->button() == Qt::MouseButton::LeftButton && (visibleRect.contains(pEvent->localPos().toPoint()) || loadedRect.contains(pEvent->localPos().toPoint())))
+  if (pEvent->button() == Qt::MouseButton::LeftButton && (visibleRect.contains(pEvent->position().toPoint()) || loadedRect.contains(pEvent->position().toPoint())))
   {
     m_bPressed = true;
     pEvent->accept();

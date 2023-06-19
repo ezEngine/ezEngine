@@ -242,7 +242,6 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
     }
 
     ApplyNativePropertyChangesToObjectManager();
-    pProp = GetProperties();
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -267,6 +266,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, 
 
       // Need to reacquire pProp pointer since it might be reallocated.
       pProp = GetProperties();
+      EZ_IGNORE_UNUSED(pProp);
     }
   }
 

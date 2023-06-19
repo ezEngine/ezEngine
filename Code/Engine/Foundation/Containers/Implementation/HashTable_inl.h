@@ -460,6 +460,7 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
   if (uiIndex != ezInvalidIndex)
   {
     out_pValue = &m_pEntries[uiIndex].value;
+    EZ_ANALYSIS_ASSUME(out_pValue != nullptr);
     return true;
   }
 
@@ -474,6 +475,7 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
   if (uiIndex != ezInvalidIndex)
   {
     out_pValue = &m_pEntries[uiIndex].value;
+    EZ_ANALYSIS_ASSUME(out_pValue != nullptr);
     return true;
   }
 

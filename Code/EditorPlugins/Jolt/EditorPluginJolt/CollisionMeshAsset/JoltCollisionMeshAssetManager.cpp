@@ -45,7 +45,7 @@ void ezJoltCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDoc
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezJoltCollisionMeshAssetDocument>())
       {
-        ezQtJoltCollisionMeshAssetDocumentWindow* pDocWnd = new ezQtJoltCollisionMeshAssetDocumentWindow(static_cast<ezAssetDocument*>(e.m_pDocument));
+        new ezQtJoltCollisionMeshAssetDocumentWindow(static_cast<ezAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;

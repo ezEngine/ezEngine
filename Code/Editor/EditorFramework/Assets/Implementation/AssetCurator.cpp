@@ -1824,7 +1824,6 @@ void ezAssetCurator::LoadCaches(ezMap<ezString, ezFileStatus>& out_referencedFil
       if (uiFileVersion != EZ_CURATOR_CACHE_FILE_VERSION)
         continue;
 
-      const ezRTTI* pFileStatusType = ezGetStaticRTTI<ezFileStatus>();
       {
         EZ_PROFILE_SCOPE("Assets");
         for (ezUInt32 i = 0; i < uiAssetCount; i++)

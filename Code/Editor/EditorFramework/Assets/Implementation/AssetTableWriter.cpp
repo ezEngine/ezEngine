@@ -209,7 +209,6 @@ void ezAssetTableWriter::NeedsReloadResource(const ezUuid& assetGuid)
   {
     EZ_LOCK(m_AssetTableMutex);
     m_bNeedToReloadResources = true;
-    ezAssetDocumentManager* pManager = asset->m_pAssetInfo->GetManager();
     const ezString& sDocType = asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(assetGuid, sGuid);

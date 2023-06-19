@@ -85,7 +85,9 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     const ezVec3 vLastTranslationResult = m_vTranslationResult;
 
-    const ezVec2I32 diff = ezVec2I32(e->globalX(), e->globalY()) - m_vLastMousePos;
+    const QPoint mousePosition = e->globalPosition().toPoint();
+
+    const ezVec2I32 diff = ezVec2I32(mousePosition.x(), mousePosition.y()) - m_vLastMousePos;
 
     m_vUnsnappedTranslationResult += m_pCamera->GetDirRight() * (float)diff.x * fDistPerPixel;
     m_vUnsnappedTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y * fDistPerPixel;
