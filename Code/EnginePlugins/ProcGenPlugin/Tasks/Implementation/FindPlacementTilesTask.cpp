@@ -32,7 +32,6 @@ void FindPlacementTilesTask::Execute()
   auto& outputContext = m_pComponent->m_OutputContexts[m_uiOutputIndex];
 
   const float fTileSize = outputContext.m_pOutput->GetTileSize();
-  const float fPatternSize = outputContext.m_pOutput->m_pPattern->m_fSize;
   const float fCullDistance = outputContext.m_pOutput->m_fCullDistance * cvar_ProcGenCullingDistanceScale;
 
   float fRadius = ezMath::Min(ezMath::Ceil(fCullDistance / fTileSize + 1.0f), static_cast<float>(cvar_ProcGenCullingMaxRadius));

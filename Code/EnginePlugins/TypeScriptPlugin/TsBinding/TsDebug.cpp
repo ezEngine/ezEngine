@@ -194,7 +194,6 @@ static int __CPP_Debug_DrawInfoText(duk_context* pDuk)
 static int __CPP_Debug_GetResolution(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
-  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
   ezVec2 resolution;
 

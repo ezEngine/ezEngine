@@ -222,9 +222,6 @@ void ezQtImageCache::EnableRequestProcessing()
 
 void ezQtImageCache::RegisterTypeImage(const char* szType, QPixmap pixmap)
 {
-  int width = pixmap.width();
-  int height = pixmap.height();
-
   m_TypeImages[QString::fromUtf8(szType)] = pixmap;
 }
 

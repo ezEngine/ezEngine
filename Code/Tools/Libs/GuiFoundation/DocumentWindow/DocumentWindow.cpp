@@ -47,7 +47,7 @@ void ezQtDocumentWindow::Constructor()
   ezQtMenuBarActionMapView* pMenuBar = new ezQtMenuBarActionMapView(this);
   setMenuBar(pMenuBar);
 
-  ezInt32 iContainerWindowIndex = ezToolsProject::SuggestContainerWindow(m_pDocument);
+  ezToolsProject::SuggestContainerWindow(m_pDocument);
   ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
   pContainer->AddDocumentWindow(this);
 

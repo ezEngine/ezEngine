@@ -303,7 +303,8 @@ ezGameObject* ezVisualScriptGameObjectHandle::GetPtr(ezUInt32 uiExecutionCounter
 
   if (ezWorld* pWorld = ezWorld::GetWorld(m_Handle))
   {
-    bool _ = pWorld->TryGetObject(m_Handle, m_Ptr);
+    bool objectExists = pWorld->TryGetObject(m_Handle, m_Ptr);
+    EZ_IGNORE_UNUSED(objectExists);
   }
 
   return m_Ptr;
@@ -321,7 +322,8 @@ ezComponent* ezVisualScriptComponentHandle::GetPtr(ezUInt32 uiExecutionCounter) 
 
   if (ezWorld* pWorld = ezWorld::GetWorld(m_Handle))
   {
-    bool _ = pWorld->TryGetComponent(m_Handle, m_Ptr);
+    bool componentExists = pWorld->TryGetComponent(m_Handle, m_Ptr);
+    EZ_IGNORE_UNUSED(componentExists);
   }
 
   return m_Ptr;

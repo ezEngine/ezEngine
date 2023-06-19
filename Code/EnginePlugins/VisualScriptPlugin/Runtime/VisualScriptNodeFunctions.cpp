@@ -1,5 +1,3 @@
-#pragma once
-
 #include <Core/Scripting/ScriptWorldModule.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>
@@ -123,7 +121,6 @@ namespace
     ezVariant returnValue;
     pFunction->Execute(pInstance.m_pObject, args, returnValue);
 
-    uiSlot = 0;
     if (returnValue.IsValid())
     {
       inout_context.SetDataFromVariant(node.GetOutputDataOffset(0), returnValue);

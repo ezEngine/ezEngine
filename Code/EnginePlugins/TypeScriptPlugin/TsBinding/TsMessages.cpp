@@ -135,8 +135,6 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    const ezRTTI* pPropType = pProp->GetSpecificType();
-
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
     const char* szTypeName = TsType(pMember->GetSpecificType());

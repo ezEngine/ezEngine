@@ -216,7 +216,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
     else
     {
       QByteArray ba = mimedata->data(szMimeType);
-      ezRawMemoryStreamReader memoryReader(ba.data(), ba.count());
+      ezRawMemoryStreamReader memoryReader(ba.data(), ba.size());
 
       ezPropertyClipboard content;
       ezReflectionSerializer::ReadObjectPropertiesFromDDL(memoryReader, *ezGetStaticRTTI<ezPropertyClipboard>(), &content);

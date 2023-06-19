@@ -114,8 +114,6 @@ void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
 
       case ezActionType::ActionAndMenu:
       {
-        ezNamedAction* pNamed = static_cast<ezNamedAction*>(pProxy->GetAction());
-
         QMenu* pQtMenu = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQMenu();
         QAction* pQtAction = static_cast<ezQtDynamicActionAndMenuProxy*>(pProxy.data())->GetQAction();
         // TODO pButton leaks!

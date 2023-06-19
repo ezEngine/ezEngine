@@ -47,6 +47,7 @@ ezResult ezVisualScriptDataDescription::Serialize(ezStreamWriter& inout_stream) 
 ezResult ezVisualScriptDataDescription::Deserialize(ezStreamReader& inout_stream)
 {
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptDataDescriptionVersion);
+  EZ_IGNORE_UNUSED(uiVersion);
 
   for (auto& typeInfo : m_PerTypeInfo)
   {

@@ -102,6 +102,7 @@ ezResult ezScriptCompendiumResourceDesc::ComponentTypeInfo::Serialize(ezStreamWr
 ezResult ezScriptCompendiumResourceDesc::ComponentTypeInfo::Deserialize(ezStreamReader& inout_stream)
 {
   ezTypeVersion version = inout_stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
 
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadString(m_sComponentTypeName));
   EZ_SUCCEED_OR_RETURN(inout_stream.ReadString(m_sComponentFilePath));
