@@ -49,6 +49,7 @@ namespace ezShaderHelper
       PLATFORMS,
       PERMUTATIONS,
       MATERIALPARAMETER,
+      MATERIALCONFIG,
       RENDERSTATE,
       SHADER,
       VERTEXSHADER,

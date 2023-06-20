@@ -53,31 +53,43 @@ bool ezRenderData::s_bRendererInstancesDirty = false;
 // static
 ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc)
 {
-  Category oldCategory = FindCategory(szCategoryName);
+  ezHashedString sCategoryName;
+  sCategoryName.Assign(szCategoryName);
+
+  Category oldCategory = FindCategory(sCategoryName);
   if (oldCategory != ezInvalidRenderDataCategory)
     return oldCategory;
 
   Category newCategory = Category(static_cast<ezUInt16>(s_CategoryData.GetCount()));
 
   auto& data = s_CategoryData.ExpandAndGetRef();
-  data.m_sName.Assign(szCategoryName);
+  data.m_sName = sCategoryName;
   data.m_sortingKeyFunc = sortingKeyFunc;
 
   return newCategory;
 }
 
 // static
-ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
+ezRenderData::Category ezRenderData::FindCategory(ezTempHashedString sCategoryName)
 {
-  ezTempHashedString categoryName(szCategoryName);
-
   for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < s_CategoryData.GetCount(); ++uiCategoryIndex)
   {
-    if (s_CategoryData[uiCategoryIndex].m_sName == categoryName)
+    if (s_CategoryData[uiCategoryIndex].m_sName == sCategoryName)
       return Category(static_cast<ezUInt16>(uiCategoryIndex));
   }
 
   return ezInvalidRenderDataCategory;
+}
+
+// static
+void ezRenderData::GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames)
+{
+  out_categoryNames.Clear();
+
+  for (auto& data : s_CategoryData)
+  {
+    out_categoryNames.PushBack(data.m_sName);
+  }
 }
 
 // static

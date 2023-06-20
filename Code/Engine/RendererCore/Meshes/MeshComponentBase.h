@@ -88,8 +88,6 @@ public:
   void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial);
   ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;
 
-  EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category) { m_RenderDataCategory = category; }
-
   void SetMeshFile(const char* szFile); // [ property ]
   const char* GetMeshFile() const;      // [ property ]
 
@@ -110,7 +108,6 @@ protected:
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  ezRenderData::Category m_RenderDataCategory = ezInvalidRenderDataCategory;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
   ezColor m_Color = ezColor::White;

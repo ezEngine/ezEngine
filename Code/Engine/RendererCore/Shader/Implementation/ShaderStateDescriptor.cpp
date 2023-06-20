@@ -283,7 +283,7 @@ static ezMap<ezString, ezInt32> StateValuesCullMode;
 static ezMap<ezString, ezInt32> StateValuesCompareFunc;
 static ezMap<ezString, ezInt32> StateValuesStencilOp;
 
-ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
+ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
 {
   ezMap<ezString, ezString> VariableValues;
 
@@ -295,26 +295,23 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
     ezHybridArray<ezStringView, 4> components;
     sSource.Split(false, allAssignments, "\n", ";", "\r");
 
-    ezStringBuilder temp1, temp2;
-    for (const ezStringView& ass : allAssignments)
+    ezStringBuilder temp;
+    for (const ezStringView& assignment : allAssignments)
     {
-      temp1 = ass;
-      temp1.Trim(" \t\r\n;");
-      if (temp1.IsEmpty())
+      temp = assignment;
+      temp.Trim(" \t\r\n;");
+      if (temp.IsEmpty())
         continue;
 
-      temp1.Split(false, components, " ", "\t", "=", "\r");
+      temp.Split(false, components, " ", "\t", "=", "\r");
 
       if (components.GetCount() != 2)
       {
-        ezLog::Error("Malformed shader state assignment: '{0}'", temp1);
+        ezLog::Error("Malformed shader state assignment: '{0}'", temp);
         continue;
       }
 
-      temp1 = components[0];
-      temp2 = components[1];
-
-      VariableValues[temp1] = temp2;
+      VariableValues[components[0]] = components[1];
     }
   }
 

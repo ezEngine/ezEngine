@@ -80,7 +80,7 @@ void ezMeshRenderData::FillBatchIdAndSortingKey()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 2)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -109,11 +109,7 @@ void ezMeshComponentBase::SerializeComponent(ezWorldWriter& inout_stream) const
 
   s << m_hMesh;
 
-  ezUInt32 uiCategory = m_RenderDataCategory.m_uiValue;
-  s << uiCategory;
-
   s << m_Materials.GetCount();
-
   for (const auto& mat : m_Materials)
   {
     s << mat;
@@ -125,15 +121,17 @@ void ezMeshComponentBase::SerializeComponent(ezWorldWriter& inout_stream) const
 void ezMeshComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_hMesh;
 
-  ezUInt32 uiCategory = 0;
-  s >> uiCategory;
-  m_RenderDataCategory.m_uiValue = static_cast<ezUInt16>(uiCategory);
+  if (uiVersion < 2)
+  {
+    ezUInt32 uiCategory = 0;
+    s >> uiCategory;
+  }
 
   ezUInt32 uiMaterials = 0;
   s >> uiMaterials;
@@ -195,34 +193,15 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
     bool bDontCacheYet = false;
 
     // Determine render data category.
-    ezRenderData::Category category = m_RenderDataCategory;
-    if (category == ezInvalidRenderDataCategory)
+    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
+    if (hMaterial.IsValid())
     {
-      if (hMaterial.IsValid())
-      {
-        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
 
-        if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
-          bDontCacheYet = true;
+      if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
+        bDontCacheYet = true;
 
-        ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-        if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-        {
-          category = ezDefaultRenderDataCategories::LitOpaque;
-        }
-        else if (blendModeValue == "BLEND_MODE_MASKED")
-        {
-          category = ezDefaultRenderDataCategories::LitMasked;
-        }
-        else
-        {
-          category = ezDefaultRenderDataCategories::LitTransparent;
-        }
-      }
-      else
-      {
-        category = ezDefaultRenderDataCategories::LitOpaque;
-      }
+      category = pMaterial->GetRenderDataCategory();
     }
 
     msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);

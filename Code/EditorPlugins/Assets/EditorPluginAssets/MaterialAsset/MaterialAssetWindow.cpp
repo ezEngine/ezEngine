@@ -302,8 +302,11 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
+
   // Write Asset Data
-  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).AssertSuccess();
+  if (GetMaterialDocument()->WriteMaterialAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), false).Failed())
+    return;
+
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);

@@ -1,9 +1,6 @@
 #include <Core/World/GameObject.h>
 
-EZ_ALWAYS_INLINE ezRenderData::Category::Category()
-  : m_uiValue(0xFFFF)
-{
-}
+EZ_ALWAYS_INLINE ezRenderData::Category::Category() = default;
 
 EZ_ALWAYS_INLINE ezRenderData::Category::Category(ezUInt16 uiValue)
   : m_uiValue(uiValue)
@@ -42,9 +39,14 @@ EZ_FORCE_INLINE const ezRenderer* ezRenderData::GetCategoryRenderer(Category cat
 }
 
 // static
-EZ_FORCE_INLINE const char* ezRenderData::GetCategoryName(Category category)
+EZ_FORCE_INLINE ezHashedString ezRenderData::GetCategoryName(Category category)
 {
-  return s_CategoryData[category.m_uiValue].m_sName.GetString();
+  if (category.m_uiValue < s_CategoryData.GetCount())
+  {
+    return s_CategoryData[category.m_uiValue].m_sName;
+  }
+
+  return ezHashedString();
 }
 
 EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, const ezCamera& camera) const

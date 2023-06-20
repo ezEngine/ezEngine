@@ -134,6 +134,15 @@ public:
   ezString m_sResult;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDynamicStringEnumMsgToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicStringEnumMsgToEditor, ezEditorEngineMsg);
+
+public:
+  ezString m_sEnumName;
+  ezHybridArray<ezString, 8> m_EnumValues;
+};
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg /////////////////////////////////////
 
 /// \brief Base class for all messages that are tied to some document.

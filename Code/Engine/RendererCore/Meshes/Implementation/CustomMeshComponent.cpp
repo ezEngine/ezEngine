@@ -16,7 +16,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCustomMeshComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -55,24 +55,23 @@ void ezCustomMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
   s << m_Color;
   s << m_hMaterial;
-
-  ezUInt32 uiCategory = m_RenderDataCategory.m_uiValue;
-  s << uiCategory;
 }
 
 void ezCustomMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_Color;
   s >> m_hMaterial;
 
-  ezUInt32 uiCategory = 0;
-  s >> uiCategory;
-  m_RenderDataCategory.m_uiValue = static_cast<ezUInt16>(uiCategory);
+  if (uiVersion < 2)
+  {
+    ezUInt32 uiCategory = 0;
+    s >> uiCategory;
+  }
 }
 
 ezResult ezCustomMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -199,31 +198,9 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     pRenderData->FillBatchIdAndSortingKey();
   }
 
-  bool bDontCacheYet = false;
-
-  // Determine render data category.
-  ezRenderData::Category category = m_RenderDataCategory;
-  if (category == ezInvalidRenderDataCategory)
-  {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-    if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
-      bDontCacheYet = true;
-
-    ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-    if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-    {
-      category = ezDefaultRenderDataCategories::LitOpaque;
-    }
-    else if (blendModeValue == "BLEND_MODE_MASKED")
-    {
-      category = ezDefaultRenderDataCategories::LitMasked;
-    }
-    else
-    {
-      category = ezDefaultRenderDataCategories::LitTransparent;
-    }
-  }
+  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+  ezRenderData::Category category = pMaterial->GetRenderDataCategory();
+  bool bDontCacheYet = pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback;
 
   msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
 }

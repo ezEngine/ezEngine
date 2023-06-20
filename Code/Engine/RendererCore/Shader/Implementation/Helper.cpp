@@ -76,6 +76,7 @@ namespace ezShaderHelper
     out_sections.AddSection("[PLATFORMS]");
     out_sections.AddSection("[PERMUTATIONS]");
     out_sections.AddSection("[MATERIALPARAMETER]");
+    out_sections.AddSection("[MATERIALCONFIG]");
     out_sections.AddSection("[RENDERSTATE]");
     out_sections.AddSection("[SHADER]");
     out_sections.AddSection("[VERTEXSHADER]");

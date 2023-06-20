@@ -113,10 +113,18 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
   {
     case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
     {
-      if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionTypeMsgToEditor>())
+      if (auto pTypeMsg = ezDynamicCast<const ezUpdateReflectionTypeMsgToEditor*>(e.m_pMsg))
       {
-        const ezUpdateReflectionTypeMsgToEditor* pMsg = static_cast<const ezUpdateReflectionTypeMsgToEditor*>(e.m_pMsg);
-        ezPhantomRttiManager::RegisterType(pMsg->m_desc);
+        ezPhantomRttiManager::RegisterType(pTypeMsg->m_desc);
+      }
+      if (auto pDynEnumMsg = ezDynamicCast<const ezDynamicStringEnumMsgToEditor*>(e.m_pMsg))
+      {
+        auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum(pDynEnumMsg->m_sEnumName);
+        for (auto& sEnumValue : pDynEnumMsg->m_EnumValues)
+        {
+          dynEnum.AddValidValue(sEnumValue);
+        }
+        dynEnum.SortValues();
       }
       else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezProjectReadyMsgToEditor>())
       {

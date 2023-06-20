@@ -147,6 +147,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConsoleCmdResultMsgToEditor, 1, ezRTTIDefaultA
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicStringEnumMsgToEditor, 1, ezRTTIDefaultAllocator<ezDynamicStringEnumMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("EnumName", m_sEnumName),
+    EZ_ARRAY_MEMBER_PROPERTY("EnumValues", m_EnumValues),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpReplicationMsg, 1, ezRTTIDefaultAllocator<ezLongOpReplicationMsg>)
 {
   EZ_BEGIN_PROPERTIES
