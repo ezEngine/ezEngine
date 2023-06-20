@@ -381,8 +381,13 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
   metaData.m_uiReceiverIsComponent = false;
   metaData.m_uiRecursive = bRecursive;
 
+  if (m_Data.m_ProcessingMessageQueue == queueType)
+  {
+    delay = ezMath::Max(delay, ezTime::Milliseconds(1));
+  }
+
   ezRTTIAllocator* pMsgRTTIAllocator = msg.GetDynamicRTTI()->GetAllocator();
-  if (delay.GetSeconds() > 0.0)
+  if (delay.IsPositive())
   {
     ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, &m_Data.m_Allocator);
 
@@ -407,8 +412,13 @@ void ezWorld::PostMessage(const ezComponentHandle& hReceiverComponent, const ezM
   metaData.m_uiReceiverIsComponent = true;
   metaData.m_uiRecursive = false;
 
+  if (m_Data.m_ProcessingMessageQueue == queueType)
+  {
+    delay = ezMath::Max(delay, ezTime::Milliseconds(1));
+  }
+
   ezRTTIAllocator* pMsgRTTIAllocator = msg.GetDynamicRTTI()->GetAllocator();
-  if (delay.GetSeconds() > 0.0)
+  if (delay.IsPositive())
   {
     ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, &m_Data.m_Allocator);
 
@@ -867,12 +877,14 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
     queue.Sort(MessageComparer());
 
+    m_Data.m_ProcessingMessageQueue = queueType;
     for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
     {
       ProcessQueuedMessage(queue[i]);
 
       // no need to deallocate these messages, they are allocated through a frame allocator
     }
+    m_Data.m_ProcessingMessageQueue = ezObjectMsgQueueType::COUNT;
 
     queue.Clear();
   }
@@ -884,6 +896,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
     const ezTime now = m_Data.m_Clock.GetAccumulatedTime();
 
+    m_Data.m_ProcessingMessageQueue = queueType;
     while (!queue.IsEmpty())
     {
       auto& entry = queue.Peek();
@@ -896,6 +909,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
       queue.Dequeue();
     }
+    m_Data.m_ProcessingMessageQueue = ezObjectMsgQueueType::COUNT;
   }
 }
 
