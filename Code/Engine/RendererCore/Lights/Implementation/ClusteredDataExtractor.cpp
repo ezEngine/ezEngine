@@ -275,7 +275,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         }
         else
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          ezLog::Warning("Unhandled render data type '{}' in 'Light' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }
@@ -317,7 +317,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         }
         else
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          ezLog::Warning("Unhandled render data type '{}' in 'Decal' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }
@@ -390,7 +390,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(
         }
         else
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          ezLog::Warning("Unhandled render data type '{}' in 'ReflectionProbe' category", it->GetDynamicRTTI()->GetTypeName());
         }
       }
     }

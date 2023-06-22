@@ -268,7 +268,9 @@ struct ezComponentMode
 /// \brief Specifies at which phase the queued message should be processed.
 struct ezObjectMsgQueueType
 {
-  enum Enum
+  using StorageType = ezUInt8;
+
+  enum Enum : StorageType
   {
     PostAsync,        ///< Process the message in the PostAsync phase.
     PostTransform,    ///< Process the message in the PostTransform phase.

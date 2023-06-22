@@ -23,7 +23,7 @@ public:
     bool operator==(const Category& other) const;
     bool operator!=(const Category& other) const;
 
-    ezUInt16 m_uiValue;
+    ezUInt16 m_uiValue = 0xFFFF;
   };
 
   struct Caching
@@ -36,14 +36,16 @@ public:
   };
 
   /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
-  using SortingKeyFunc = ezDelegate<ezUInt64(const ezRenderData*, ezUInt32, const ezCamera&)>;
+  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, ezUInt32, const ezCamera&);
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
-  static Category FindCategory(const char* szCategoryName);
+  static Category FindCategory(ezTempHashedString sCategoryName);
+
+  static void GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames);
 
   static const ezRenderer* GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType);
 
-  static const char* GetCategoryName(Category category);
+  static ezHashedString GetCategoryName(Category category);
 
   ezUInt64 GetCategorySortingKey(Category category, const ezCamera& camera) const;
 

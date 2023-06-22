@@ -11,7 +11,7 @@ struct EZ_RENDERERCORE_DLL ezShaderStateResourceDescriptor
   ezGALDepthStencilStateCreationDescription m_DepthStencilDesc;
   ezGALRasterizerStateCreationDescription m_RasterizerDesc;
 
-  ezResult Load(const char* szSource);
+  ezResult Parse(const char* szSource);
   void Load(ezStreamReader& inout_stream);
   void Save(ezStreamWriter& inout_stream) const;
 

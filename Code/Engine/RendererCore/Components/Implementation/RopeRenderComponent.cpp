@@ -132,20 +132,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   if (hMaterial.IsValid())
   {
     ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-    ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-    if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-    {
-      category = ezDefaultRenderDataCategories::LitOpaque;
-    }
-    else if (blendModeValue == "BLEND_MODE_MASKED")
-    {
-      category = ezDefaultRenderDataCategories::LitMasked;
-    }
-    else
-    {
-      category = ezDefaultRenderDataCategories::LitTransparent;
-    }
+    category = pMaterial->GetRenderDataCategory();
   }
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);

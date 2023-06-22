@@ -346,7 +346,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       }
       else
       {
-        if (shaderPermutationBinary.m_StateDescriptor.Load(sOutput).Failed())
+        if (shaderPermutationBinary.m_StateDescriptor.Parse(sOutput).Failed())
         {
           ezLog::Error(pLog, "Failed to interpret the shader state block");
           return EZ_FAILURE;

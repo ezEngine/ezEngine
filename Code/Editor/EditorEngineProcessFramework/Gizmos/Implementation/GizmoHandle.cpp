@@ -690,10 +690,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandle.ezMaterial");
   }
 
-  m_pGizmoComponent->SetRenderDataCategory(
-    m_bVisualizer ? ezDefaultRenderDataCategories::SimpleOpaque : ezDefaultRenderDataCategories::SimpleForeground);
   m_pGizmoComponent->m_GizmoColor = m_Color;
-  m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
   m_pGizmoComponent->m_bIsPickable = m_bIsPickable;
   m_pGizmoComponent->SetMesh(hMesh);
 
@@ -716,7 +713,6 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
   pObject->SetLocalScaling(m_Transformation.m_vScale);
 
   m_pGizmoComponent->m_GizmoColor = m_Color;
-  m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
   m_pGizmoComponent->SetActiveFlag(m_bVisible);
 }
 

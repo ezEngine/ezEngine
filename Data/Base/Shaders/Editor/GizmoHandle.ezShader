@@ -37,6 +37,10 @@ GIZMO_FACE_CAMERA
 	DestBlendAlpha0 = Blend_InvSrcAlpha
 #endif
 
+[MATERIALCONFIG]
+
+RenderDataCategory = SimpleForeground
+
 [VERTEXSHADER]
 
 #define USE_COLOR0

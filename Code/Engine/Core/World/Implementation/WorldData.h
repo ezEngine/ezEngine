@@ -231,6 +231,7 @@ namespace ezInternal
     using MessageQueue = ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper>;
     mutable MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
     mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
+    ezObjectMsgQueueType::Enum m_ProcessingMessageQueue = ezObjectMsgQueueType::COUNT;
 
     ezThreadID m_WriteThreadID;
     ezInt32 m_iWriteCounter = 0;

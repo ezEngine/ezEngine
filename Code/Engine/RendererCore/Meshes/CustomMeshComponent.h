@@ -68,12 +68,6 @@ public:
   void SetMaterialFile(const char* szMaterial); // [ property ]
   const char* GetMaterialFile() const;          // [ property ]
 
-  /// \brief Sets a specific render data category used for rendering.
-  ///
-  /// Typically it is not necessary to change this, but it can be used to render the object in a
-  /// certain render pass.
-  EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category) { m_RenderDataCategory = category; }
-
   /// \brief Sets the mesh instance color.
   void SetColor(const ezColor& color); // [ property ]
 
@@ -86,7 +80,6 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  ezRenderData::Category m_RenderDataCategory = ezInvalidRenderDataCategory;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
   ezUInt32 m_uiFirstPrimitive = 0;

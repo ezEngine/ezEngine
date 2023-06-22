@@ -163,21 +163,8 @@ void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   }
 
   // Determine render data category.
-  ezRenderData::Category category = ezDefaultRenderDataCategories::LitTransparent;
   ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-  ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-  if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-  {
-    category = ezDefaultRenderDataCategories::LitOpaque;
-  }
-  else if (blendModeValue == "BLEND_MODE_MASKED")
-  {
-    category = ezDefaultRenderDataCategories::LitMasked;
-  }
-  else
-  {
-    category = ezDefaultRenderDataCategories::LitTransparent;
-  }
+  ezRenderData::Category category = pMaterial->GetRenderDataCategory();
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
 }

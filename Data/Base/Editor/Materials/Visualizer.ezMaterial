@@ -1,1 +1,2 @@
 string %Shader { "Shaders/Editor/Visualizer.ezShader" }
+string %RenderDataCategory { "SimpleOpaque" }

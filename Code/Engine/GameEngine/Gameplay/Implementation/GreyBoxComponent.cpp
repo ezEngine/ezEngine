@@ -207,19 +207,7 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
         bDontCacheYet = true;
 
-      ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-      if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-      {
-        category = ezDefaultRenderDataCategories::LitOpaque;
-      }
-      else if (blendModeValue == "BLEND_MODE_MASKED")
-      {
-        category = ezDefaultRenderDataCategories::LitMasked;
-      }
-      else
-      {
-        category = ezDefaultRenderDataCategories::LitTransparent;
-      }
+      category = pMaterial->GetRenderDataCategory();
     }
 
     msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);

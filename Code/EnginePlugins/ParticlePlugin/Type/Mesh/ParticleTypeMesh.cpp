@@ -144,24 +144,7 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
     return false;
 
   m_Bounds = pMesh->GetBounds();
-
-  {
-    m_RenderCategory = ezDefaultRenderDataCategories::LitOpaque;
-
-    ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-    if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-    {
-      m_RenderCategory = ezDefaultRenderDataCategories::LitOpaque;
-    }
-    else if (blendModeValue == "BLEND_MODE_MASKED")
-    {
-      m_RenderCategory = ezDefaultRenderDataCategories::LitMasked;
-    }
-    else
-    {
-      m_RenderCategory = ezDefaultRenderDataCategories::LitTransparent;
-    }
-  }
+  m_RenderCategory = pMaterial->GetRenderDataCategory();
 
   m_bRenderDataCached = true;
   return true;
