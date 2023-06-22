@@ -12,6 +12,8 @@ class ezStreamReader;
 struct ezAnimGraphPinDataLocalTransforms;
 struct ezAnimGraphPinDataBoneWeights;
 class ezAnimationClipResource;
+struct ezInstanceDataDesc;
+
 using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
 
 namespace ozz
@@ -45,14 +47,17 @@ public:
 
 protected:
   friend class ezAnimGraph;
+  friend class ezAnimGraphResource;
 
   ezHashedString m_sCustomNodeTitle;
+  ezUInt32 m_uiInstanceDataOffset = ezInvalidIndex;
 
   virtual ezResult SerializeNode(ezStreamWriter& stream) const = 0;
   virtual ezResult DeserializeNode(ezStreamReader& stream) = 0;
 
   virtual void Initialize(ezAnimGraph& graph, const ezSkeletonResource* pSkeleton) {}
   virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) = 0;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const { return false; }
 };
 
 //////////////////////////////////////////////////////////////////////////

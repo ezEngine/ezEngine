@@ -32,12 +32,12 @@ ezMathExpressionAnimNode::~ezMathExpressionAnimNode() = default;
 
 void ezMathExpressionAnimNode::SetExpression(ezString sExpr)
 {
-  m_mExpression.Reset(sExpr);
+  m_sExpression = sExpr;
 }
 
 ezString ezMathExpressionAnimNode::GetExpression() const
 {
-  return m_mExpression.GetExpressionString();
+  return m_sExpression;
 }
 
 ezResult ezMathExpressionAnimNode::SerializeNode(ezStreamWriter& stream) const
@@ -46,7 +46,7 @@ ezResult ezMathExpressionAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  stream << m_mExpression.GetExpressionString();
+  stream << m_sExpression;
   EZ_SUCCEED_OR_RETURN(m_ValueAPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_ValueBPin.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_ValueCPin.Serialize(stream));
@@ -62,9 +62,7 @@ ezResult ezMathExpressionAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  ezStringBuilder tmp;
-  stream >> tmp;
-  m_mExpression.Reset(tmp);
+  stream >> m_sExpression;
   EZ_SUCCEED_OR_RETURN(m_ValueAPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_ValueBPin.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_ValueCPin.Deserialize(stream));
@@ -76,9 +74,12 @@ ezResult ezMathExpressionAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezMathExpressionAnimNode::Initialize(ezAnimGraph& graph, const ezSkeletonResource* pSkeleton)
 {
-  if (!m_mExpression.IsValid() && m_ResultPin.IsConnected())
+  ezMathExpression expr;
+  expr.Reset(m_sExpression);
+
+  if (!expr.IsValid() && m_ResultPin.IsConnected())
   {
-    ezLog::Error("Math expression '{}' is invalid.", m_mExpression.GetExpressionString());
+    ezLog::Error("Math expression '{}' is invalid.", m_sExpression);
   }
 }
 
@@ -89,7 +90,14 @@ static ezHashedString s_sD = ezMakeHashedString("d");
 
 void ezMathExpressionAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  if (!m_mExpression.IsValid())
+  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+
+  if (pInstance->m_mExpression.GetExpressionString().IsEmpty())
+  {
+    pInstance->m_mExpression.Reset(m_sExpression);
+  }
+
+  if (!pInstance->m_mExpression.IsValid())
   {
     m_ResultPin.SetNumber(graph, 0);
     return;
@@ -103,9 +111,14 @@ void ezMathExpressionAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSk
       {s_sD, static_cast<float>(m_ValueDPin.GetNumber(graph))},
     };
 
-  float result = m_mExpression.Evaluate(inputs);
+  float result = pInstance->m_mExpression.Evaluate(inputs);
   m_ResultPin.SetNumber(graph, result);
 }
 
+bool ezMathExpressionAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+{
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MathAnimNodes);

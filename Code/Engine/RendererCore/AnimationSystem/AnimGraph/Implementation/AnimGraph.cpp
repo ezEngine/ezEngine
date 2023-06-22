@@ -10,7 +10,14 @@ ezMutex ezAnimGraph::s_SharedDataMutex;
 ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> ezAnimGraph::s_SharedBoneWeights;
 
 ezAnimGraph::ezAnimGraph() = default;
-ezAnimGraph::~ezAnimGraph() = default;
+
+ezAnimGraph::~ezAnimGraph()
+{
+  if (m_pInstanceDataAllocator)
+  {
+    m_pInstanceDataAllocator->DestructAndDeallocate(m_InstanceData);
+  }
+}
 
 void ezAnimGraph::Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard /*= nullptr*/)
 {
@@ -50,6 +57,8 @@ void ezAnimGraph::Update(ezTime diff, ezGameObject* pTarget)
     m_PinDataLocalTransforms.Clear();
     m_PinDataModelTransforms.Clear();
 
+    // EXTEND THIS if a new type is introduced
+
     for (auto& pin : m_TriggerInputPinStates)
     {
       pin = 0;
@@ -57,6 +66,10 @@ void ezAnimGraph::Update(ezTime diff, ezGameObject* pTarget)
     for (auto& pin : m_NumberInputPinStates)
     {
       pin = 0;
+    }
+    for (auto& pin : m_BoolInputPinStates)
+    {
+      pin = false;
     }
     for (auto& pin : m_BoneWeightInputPinStates)
     {
@@ -100,7 +113,7 @@ void ezAnimGraph::GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rotationX
 
 ezResult ezAnimGraph::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(5);
+  inout_stream.WriteVersion(6);
 
   const ezUInt32 uiNumNodes = m_Nodes.GetCount();
   inout_stream << uiNumNodes;
@@ -128,6 +141,15 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& inout_stream) const
 
     inout_stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::Number].GetCount();
     for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Number])
+    {
+      EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(ar));
+    }
+  }
+  {
+    EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_BoolInputPinStates));
+
+    inout_stream << m_OutputPinToInputPinMapping[ezAnimGraphPin::Bool].GetCount();
+    for (const auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Bool])
     {
       EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(ar));
     }
@@ -164,9 +186,9 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& inout_stream) const
   return EZ_SUCCESS;
 }
 
-ezResult ezAnimGraph::Deserialize(ezStreamReader& inout_stream)
+ezResult ezAnimGraph::Deserialize(ezStreamReader& inout_stream, ezArrayPtr<ezUniquePtr<ezAnimGraphNode>> allNodes)
 {
-  const auto uiVersion = inout_stream.ReadVersion(5);
+  const auto uiVersion = inout_stream.ReadVersion(6);
 
   ezUInt32 uiNumNodes = 0;
   inout_stream >> uiNumNodes;
@@ -174,12 +196,15 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& inout_stream)
 
   ezStringBuilder sTypeName;
 
-  for (auto& node : m_Nodes)
+  for (ezUInt32 i = 0; i < uiNumNodes; ++i)
   {
+    auto& node = m_Nodes[i];
+
     inout_stream >> sTypeName;
     node = std::move(ezRTTI::FindTypeByName(sTypeName)->GetAllocator()->Allocate<ezAnimGraphNode>());
 
     EZ_SUCCEED_OR_RETURN(node->DeserializeNode(inout_stream));
+    node->m_uiInstanceDataOffset = allNodes[i]->m_uiInstanceDataOffset;
   }
 
   inout_stream >> m_hSkeleton;
@@ -204,6 +229,18 @@ ezResult ezAnimGraph::Deserialize(ezStreamReader& inout_stream)
     inout_stream >> sar;
     m_OutputPinToInputPinMapping[ezAnimGraphPin::Number].SetCount(sar);
     for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Number])
+    {
+      EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(ar));
+    }
+  }
+  if (uiVersion >= 6)
+  {
+    EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_BoolInputPinStates));
+
+    ezUInt32 sar = 0;
+    inout_stream >> sar;
+    m_OutputPinToInputPinMapping[ezAnimGraphPin::Bool].SetCount(sar);
+    for (auto& ar : m_OutputPinToInputPinMapping[ezAnimGraphPin::Bool])
     {
       EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(ar));
     }
@@ -287,6 +324,12 @@ void ezAnimGraph::SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, e
   m_RootRotationX = rotationX;
   m_RootRotationY = rotationY;
   m_RootRotationZ = rotationZ;
+}
+
+void ezAnimGraph::SetInstanceDataAllocator(ezInstanceDataAllocator& allocator)
+{
+  m_pInstanceDataAllocator = &allocator;
+  m_InstanceData = m_pInstanceDataAllocator->AllocateAndConstruct();
 }
 
 ezSharedPtr<ezAnimGraphSharedBoneWeights> ezAnimGraph::CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill)

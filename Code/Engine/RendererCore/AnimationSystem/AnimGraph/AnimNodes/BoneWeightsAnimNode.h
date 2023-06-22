@@ -18,6 +18,7 @@ protected:
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
   virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezBoneWeightsAnimNode
@@ -40,6 +41,9 @@ private:
 
   ezHybridArray<ezHashedString, 2> m_RootBones;
 
-  ezSharedPtr<ezAnimGraphSharedBoneWeights> m_pSharedBoneWeights;
-  ezSharedPtr<ezAnimGraphSharedBoneWeights> m_pSharedInverseBoneWeights;
+  struct InstanceData
+  {
+    ezSharedPtr<ezAnimGraphSharedBoneWeights> m_pSharedBoneWeights;
+    ezSharedPtr<ezAnimGraphSharedBoneWeights> m_pSharedInverseBoneWeights;
+  };
 };

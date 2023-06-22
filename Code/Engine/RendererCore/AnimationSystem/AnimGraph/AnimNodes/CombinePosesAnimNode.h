@@ -14,6 +14,7 @@ protected:
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
   virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezLocalToModelPoseAnimNode
@@ -28,5 +29,8 @@ private:
   ezAnimGraphLocalPoseMultiInputPin m_LocalPosesPin; // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin;      // [ property ]
 
-  ezDynamicArray<ozz::math::SimdFloat4, ezAlignedAllocatorWrapper> m_BlendMask;
+  struct InstanceData
+  {
+    ezDynamicArray<ozz::math::SimdFloat4, ezAlignedAllocatorWrapper> m_BlendMask;
+  };
 };

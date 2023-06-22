@@ -18,10 +18,8 @@ protected:
   //////////////////////////////////////////////////////////////////////////
   // ezLogAnimNode
 
-public:
-  ezString m_sText;
-
 private:
+  ezString m_sText;                       // [ property ]
   ezAnimGraphTriggerInputPin m_ActivePin; // [ property ]
   ezAnimGraphTriggerInputPin m_Input0;    // [ property ]
   ezAnimGraphTriggerInputPin m_Input1;    // [ property ]

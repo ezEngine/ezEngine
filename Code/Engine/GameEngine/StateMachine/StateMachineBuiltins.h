@@ -19,7 +19,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
 
   void SetResource(const ezStateMachineResourceHandle& hResource);
   const ezStateMachineResourceHandle& GetResource() const { return m_hResource; }
@@ -66,7 +66,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
 
   ezSmallArray<ezStateMachineState*, 2> m_SubStates;
 
@@ -150,7 +150,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
 
   ezEnum<ezStateMachineLogicOperator> m_Operator;
   ezSmallArray<ezStateMachineTransition*, 2> m_SubTransitions;

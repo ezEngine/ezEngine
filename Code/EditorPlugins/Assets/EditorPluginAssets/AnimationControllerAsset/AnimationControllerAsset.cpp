@@ -50,8 +50,9 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
 
   const ezColor triggerPinColor = ezColorScheme::DarkUI(ezColorScheme::Grape);
   const ezColor numberPinColor = ezColorScheme::DarkUI(ezColorScheme::Lime);
+  const ezColor boolPinColor = ezColorScheme::DarkUI(ezColorScheme::Blue);
   const ezColor weightPinColor = ezColorScheme::DarkUI(ezColorScheme::Teal);
-  const ezColor localPosePinColor = ezColorScheme::DarkUI(ezColorScheme::Blue);
+  const ezColor localPosePinColor = ezColorScheme::DarkUI(ezColorScheme::Yellow);
   const ezColor modelPosePinColor = ezColorScheme::DarkUI(ezColorScheme::Violet);
   // EXTEND THIS if a new type is introduced
 
@@ -82,6 +83,18 @@ void ezAnimationControllerNodeManager::InternalCreatePins(const ezDocumentObject
     {
       auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), numberPinColor, pObject);
       pPin->m_DataType = ezAnimGraphPin::Number;
+      ref_node.m_Outputs.PushBack(pPin);
+    }
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoolInputPin>())
+    {
+      auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Input, pProp->GetPropertyName(), boolPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::Bool;
+      ref_node.m_Inputs.PushBack(pPin);
+    }
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoolOutputPin>())
+    {
+      auto pPin = EZ_DEFAULT_NEW(ezAnimationControllerNodePin, ezPin::Type::Output, pProp->GetPropertyName(), boolPinColor, pObject);
+      pPin->m_DataType = ezAnimGraphPin::Bool;
       ref_node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphBoneWeightsInputPin>())
@@ -174,6 +187,10 @@ ezStatus ezAnimationControllerNodeManager::InternalCanConnect(const ezPin& sourc
       out_result = CanConnectResult::ConnectNto1;
       break;
 
+    case ezAnimGraphPin::Bool:
+      out_result = CanConnectResult::ConnectNto1;
+      break;
+
     case ezAnimGraphPin::BoneWeights:
       out_result = CanConnectResult::ConnectNto1;
       break;
@@ -223,6 +240,7 @@ ezTransformStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezS
   ezAnimGraph animController;
   animController.m_TriggerInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Trigger].m_uiInputCount);
   animController.m_NumberInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Number].m_uiInputCount);
+  animController.m_BoolInputPinStates.SetCount(pinCounts[ezAnimGraphPin::Bool].m_uiInputCount);
   animController.m_BoneWeightInputPinStates.SetCount(pinCounts[ezAnimGraphPin::BoneWeights].m_uiInputCount);
   animController.m_LocalPoseInputPinStates.SetCount(pinCounts[ezAnimGraphPin::LocalPose].m_uiInputCount);
   animController.m_ModelPoseInputPinStates.SetCount(pinCounts[ezAnimGraphPin::ModelPose].m_uiInputCount);

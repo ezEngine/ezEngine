@@ -9,7 +9,9 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 
+#include <Foundation/Containers/Blob.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Memory/InstanceDataAllocator.h>
 #include <Foundation/Types/SharedPtr.h>
 
 class ezGameObject;
@@ -62,7 +64,7 @@ public:
   const ezSharedPtr<ezBlackboard>& GetBlackboard() { return m_pBlackboard; }
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  ezResult Deserialize(ezStreamReader& inout_stream, ezArrayPtr<ezUniquePtr<ezAnimGraphNode>> allNodes);
 
   ezAnimPoseGenerator& GetPoseGenerator() { return *m_pPoseGenerator; }
 
@@ -75,15 +77,27 @@ public:
   void SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform);
   void SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ);
 
+  void SetInstanceDataAllocator(ezInstanceDataAllocator& allocator);
+
+  template <typename T>
+  T* GetAnimNodeInstanceData(const ezAnimGraphNode& node)
+  {
+    return reinterpret_cast<T*>(ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), node.m_uiInstanceDataOffset));
+  }
+
 private:
   ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
   ezSkeletonResourceHandle m_hSkeleton;
+
+  ezInstanceDataAllocator* m_pInstanceDataAllocator = nullptr;
+  ezBlob m_InstanceData;
 
   ezDynamicArray<ezDynamicArray<ezUInt16>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
 
   // EXTEND THIS if a new type is introduced
   ezDynamicArray<ezInt8> m_TriggerInputPinStates;
   ezDynamicArray<double> m_NumberInputPinStates;
+  ezDynamicArray<bool> m_BoolInputPinStates;
   ezDynamicArray<ezUInt16> m_BoneWeightInputPinStates;
   ezDynamicArray<ezHybridArray<ezUInt16, 1>> m_LocalPoseInputPinStates;
   ezDynamicArray<ezUInt16> m_ModelPoseInputPinStates;
@@ -108,6 +122,8 @@ private:
   friend class ezAnimGraphLocalPoseMultiInputPin;
   friend class ezAnimGraphNumberInputPin;
   friend class ezAnimGraphNumberOutputPin;
+  friend class ezAnimGraphBoolInputPin;
+  friend class ezAnimGraphBoolOutputPin;
 
   bool m_bInitialized = false;
 

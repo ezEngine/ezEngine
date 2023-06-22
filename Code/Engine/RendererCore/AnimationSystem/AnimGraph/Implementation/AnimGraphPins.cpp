@@ -46,7 +46,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphTriggerOutputPin, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraph& ref_graph, bool bTriggered)
+void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraph& ref_graph, bool bTriggered) const
 {
   if (m_iPinIndex < 0)
     return;
@@ -97,7 +97,7 @@ double ezAnimGraphNumberInputPin::GetNumber(ezAnimGraph& ref_graph, double fFall
   return ref_graph.m_NumberInputPinStates[m_iPinIndex];
 }
 
-void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraph& ref_graph, double value)
+void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraph& ref_graph, double value) const
 {
   if (m_iPinIndex < 0)
     return;
@@ -108,6 +108,38 @@ void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraph& ref_graph, double value)
   for (ezUInt16 idx : map)
   {
     ref_graph.m_NumberInputPinStates[idx] = value;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphBoolInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphBoolInputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphBoolOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphBoolOutputPin>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+bool ezAnimGraphBoolInputPin::GetBool(ezAnimGraph& ref_graph, bool bFallback /*= false */) const
+{
+  if (m_iPinIndex < 0)
+    return bFallback;
+
+  return ref_graph.m_BoolInputPinStates[m_iPinIndex];
+}
+
+void ezAnimGraphBoolOutputPin::SetBool(ezAnimGraph& ref_graph, bool bValue) const
+{
+  if (m_iPinIndex < 0)
+    return;
+
+  const auto& map = ref_graph.m_OutputPinToInputPinMapping[ezAnimGraphPin::Bool][m_iPinIndex];
+
+  // set all input pins that are connected to this output pin
+  for (ezUInt16 idx : map)
+  {
+    ref_graph.m_BoolInputPinStates[idx] = bValue;
   }
 }
 
@@ -129,7 +161,7 @@ ezAnimGraphPinDataBoneWeights* ezAnimGraphBoneWeightsInputPin::GetWeights(ezAnim
   return &ref_graph.m_PinDataBoneWeights[ref_graph.m_BoneWeightInputPinStates[m_iPinIndex]];
 }
 
-void ezAnimGraphBoneWeightsOutputPin::SetWeights(ezAnimGraph& ref_graph, ezAnimGraphPinDataBoneWeights* pWeights)
+void ezAnimGraphBoneWeightsOutputPin::SetWeights(ezAnimGraph& ref_graph, ezAnimGraphPinDataBoneWeights* pWeights) const
 {
   if (m_iPinIndex < 0)
     return;
@@ -181,7 +213,7 @@ void ezAnimGraphLocalPoseMultiInputPin::GetPoses(ezAnimGraph& ref_graph, ezDynam
   }
 }
 
-void ezAnimGraphLocalPoseOutputPin::SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataLocalTransforms* pPose)
+void ezAnimGraphLocalPoseOutputPin::SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataLocalTransforms* pPose) const
 {
   if (m_iPinIndex < 0)
     return;
@@ -213,7 +245,7 @@ ezAnimGraphPinDataModelTransforms* ezAnimGraphModelPoseInputPin::GetPose(ezAnimG
   return &ref_graph.m_PinDataModelTransforms[ref_graph.m_ModelPoseInputPinStates[m_iPinIndex]];
 }
 
-void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataModelTransforms* pPose)
+void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataModelTransforms* pPose) const
 {
   if (m_iPinIndex < 0)
     return;

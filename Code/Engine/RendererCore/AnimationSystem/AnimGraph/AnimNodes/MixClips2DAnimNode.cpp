@@ -350,7 +350,7 @@ void ezMixClips2DAnimNode::PlayClips(ezAnimGraph& graph, ezTime tDiff, ezArrayPt
       tAvgDuration += pClip->GetDescriptor().GetDuration();
     }
 
-    void* pThis = this;
+    const void* pThis = this;
     auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), i));
     cmd.m_hAnimationClip = hClip;
     cmd.m_fNormalizedSamplePos = pClip->GetDescriptor().GetDuration().AsFloatInSeconds(); // will be combined with actual pos below

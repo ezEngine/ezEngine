@@ -37,7 +37,7 @@ public:
   /// \brief Returns whether this state needs additional instance data and if so fills the out_desc.
   ///
   /// \see ezStateMachineInstanceDataDesc
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc);
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc);
 
 private:
   // These are dummy functions for the scripting reflection
@@ -78,7 +78,7 @@ class EZ_GAMEENGINE_DLL ezStateMachineTransition : public ezReflectedClass
   /// \brief Returns whether this transition needs additional instance data and if so fills the out_desc.
   ///
   /// \see ezStateMachineInstanceDataDesc
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc);
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc);
 };
 
 /// \brief The state machine description defines the structure of a state machine like e.g.
@@ -124,7 +124,7 @@ private:
   ezDynamicArray<StateContext> m_States;
   ezHashTable<ezHashedString, ezUInt32> m_StateNameToIndexTable;
 
-  ezStateMachineInternal::InstanceDataAllocator m_InstanceDataAllocator;
+  ezInstanceDataAllocator m_InstanceDataAllocator;
 };
 
 /// \brief The state machine instance represents the actual state machine.
@@ -168,7 +168,7 @@ private:
 
   EZ_ALWAYS_INLINE void* GetInstanceData(ezUInt32 uiOffset)
   {
-    return ezStateMachineInternal::InstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
+    return ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), uiOffset);
   }
 
   EZ_ALWAYS_INLINE void* GetCurrentStateInstanceData()

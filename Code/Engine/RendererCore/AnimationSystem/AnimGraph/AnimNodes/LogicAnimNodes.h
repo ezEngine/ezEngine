@@ -22,9 +22,8 @@ public:
   ezLogicAndAnimNode();
   ~ezLogicAndAnimNode();
 
-  bool m_bNegateResult = false; // [ property ]
-
 private:
+  bool m_bNegateResult = false;            // [ property ]
   ezAnimGraphTriggerInputPin m_ActivePin;  // [ property ]
   ezAnimGraphTriggerOutputPin m_OutputPin; // [ property ]
 };
@@ -53,9 +52,8 @@ public:
   ezLogicOrAnimNode();
   ~ezLogicOrAnimNode();
 
-  bool m_bNegateResult = false; // [ property ]
-
 private:
+  bool m_bNegateResult = false;            // [ property ]
   ezAnimGraphTriggerInputPin m_ActivePin;  // [ property ]
   ezAnimGraphTriggerOutputPin m_OutputPin; // [ property ]
 };

@@ -23,6 +23,6 @@ public:
   const char* GetEventName() const { return m_sEventName.GetString(); }
 
 private:
-  ezHashedString m_sEventName;
+  ezHashedString m_sEventName;            // [ property ]
   ezAnimGraphTriggerInputPin m_ActivePin; // [ property ]
 };

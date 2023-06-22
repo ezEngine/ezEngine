@@ -92,7 +92,7 @@ ezResult ezStateMachineState_NestedStateMachine::Deserialize(ezStreamReader& ino
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineState_NestedStateMachine::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineState_NestedStateMachine::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   out_desc.FillFromType<InstanceData>();
   return true;
@@ -240,7 +240,7 @@ ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineState_Compound::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineState_Compound::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   return m_Compound.GetInstanceDataDesc(m_SubStates.GetArrayPtr(), out_desc);
 }
@@ -439,7 +439,7 @@ ezResult ezStateMachineTransition_Compound::Deserialize(ezStreamReader& inout_st
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   return m_Compound.GetInstanceDataDesc(m_SubTransitions.GetArrayPtr(), out_desc);
 }

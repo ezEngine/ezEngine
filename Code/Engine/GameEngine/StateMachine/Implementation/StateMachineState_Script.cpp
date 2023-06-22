@@ -217,7 +217,7 @@ ezResult ezStateMachineState_Script::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineState_Script::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineState_Script::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   out_desc.FillFromType<ScriptInstanceData>();
   return true;

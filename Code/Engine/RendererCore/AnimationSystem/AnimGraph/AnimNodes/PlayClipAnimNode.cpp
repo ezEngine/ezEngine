@@ -127,7 +127,7 @@ void ezPlayClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeleton
 
   m_State.UpdateState(tDiff);
 
-  void* pThis = this;
+  const void* pThis = this;
   auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
 
   if (m_Clips.GetCount() > 1 && m_State.HasTransitioned())

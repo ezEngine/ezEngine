@@ -70,6 +70,8 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
   if (pIn.IsEmpty())
     return;
 
+  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+
   ezAnimGraphPinDataLocalTransforms* pPinData = graph.AddPinDataLocalTransforms();
 
   pPinData->m_vRootMotion.SetZero();
@@ -107,7 +109,8 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
 
   if (pw.GetCount() > m_uiMaxPoses)
   {
-    pw.Sort([](const PinWeight& lhs, const PinWeight& rhs) { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
+    pw.Sort([](const PinWeight& lhs, const PinWeight& rhs)
+      { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
     pw.SetCount(m_uiMaxPoses);
   }
 
@@ -120,24 +123,24 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
       // only initialize and use the inverse mask, when it is actually needed
       if (invWeights.IsEmpty())
       {
-        m_BlendMask.SetCountUninitialized(pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().num_soa_joints());
+        pInstance->m_BlendMask.SetCountUninitialized(pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton().num_soa_joints());
 
-        for (auto& sj : m_BlendMask)
+        for (auto& sj : pInstance->m_BlendMask)
         {
           sj = ozz::math::simd_float4::one();
         }
 
-        invWeights = m_BlendMask;
+        invWeights = pInstance->m_BlendMask;
       }
 
       const ozz::math::SimdFloat4 factor = ozz::math::simd_float4::Load1(in.m_fPinWeight);
 
       const ezArrayPtr<const ozz::math::SimdFloat4> weights = pIn[in.m_uiPinIdx]->m_pWeights->m_pSharedBoneWeights->m_Weights;
 
-      for (ezUInt32 i = 0; i < m_BlendMask.GetCount(); ++i)
+      for (ezUInt32 i = 0; i < pInstance->m_BlendMask.GetCount(); ++i)
       {
         const auto& weight = weights[i];
-        auto& mask = m_BlendMask[i];
+        auto& mask = pInstance->m_BlendMask[i];
 
         const auto oneMinusWeight = ozz::math::NMAdd(factor, weight, ozz::math::simd_float4::one());
 
@@ -187,5 +190,11 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
   m_LocalPosePin.SetPose(graph, pPinData);
 }
 
+
+bool ezCombinePosesAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+{
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_CombinePosesAnimNode);

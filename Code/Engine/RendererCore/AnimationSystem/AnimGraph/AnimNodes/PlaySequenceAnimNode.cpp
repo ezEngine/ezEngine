@@ -331,7 +331,7 @@ void ezPlaySequenceAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
     return;
   }
 
-  void* pThis = this;
+  const void* pThis = this;
   auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
   cmd.m_hAnimationClip = hCurrentClip;
   cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
