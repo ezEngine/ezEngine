@@ -4,8 +4,11 @@
 
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Memory/InstanceDataAllocator.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezAnimGraph;
+class ezAnimGraphNode;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -27,5 +30,9 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
+  ezResult AllocNodes();
+
+  ezInstanceDataAllocator m_InstanceDataAllocator;
   ezDataBuffer m_Storage;
+  ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
 };

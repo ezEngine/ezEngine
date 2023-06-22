@@ -55,7 +55,7 @@ ezResult ezStateMachineState::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineState::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineState::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   return false;
 }
@@ -89,7 +89,7 @@ ezResult ezStateMachineTransition::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-bool ezStateMachineTransition::GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc)
+bool ezStateMachineTransition::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
 {
   return false;
 }
@@ -112,7 +112,7 @@ ezUInt32 ezStateMachineDescription::AddState(ezUniquePtr<ezStateMachineState>&& 
 
   StateContext& stateContext = m_States.ExpandAndGetRef();
 
-  ezStateMachineInstanceDataDesc instanceDataDesc;
+  ezInstanceDataDesc instanceDataDesc;
   if (pState->GetInstanceDataDesc(instanceDataDesc))
   {
     stateContext.m_uiInstanceDataOffset = m_InstanceDataAllocator.AddDesc(instanceDataDesc);
@@ -142,7 +142,7 @@ void ezStateMachineDescription::AddTransition(ezUInt32 uiFromStateIndex, ezUInt3
 
   TransitionContext& transitionContext = pTransitions->ExpandAndGetRef();
 
-  ezStateMachineInstanceDataDesc instanceDataDesc;
+  ezInstanceDataDesc instanceDataDesc;
   if (pTransistion->GetInstanceDataDesc(instanceDataDesc))
   {
     transitionContext.m_uiInstanceDataOffset = m_InstanceDataAllocator.AddDesc(instanceDataDesc);

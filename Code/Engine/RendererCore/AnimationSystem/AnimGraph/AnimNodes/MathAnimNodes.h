@@ -16,6 +16,7 @@ protected:
 
   virtual void Initialize(ezAnimGraph& graph, const ezSkeletonResource* pSkeleton) override;
   virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezLogicAndAnimNode
@@ -34,5 +35,10 @@ private:
   ezAnimGraphNumberInputPin m_ValueDPin;  // [ property ]
   ezAnimGraphNumberOutputPin m_ResultPin; // [ property ]
 
-  ezMathExpression m_mExpression;
+  ezString m_sExpression;
+
+  struct InstanceData
+  {
+    ezMathExpression m_mExpression;
+  };
 };

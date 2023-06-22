@@ -102,7 +102,9 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
     return;
   }
 
-  if (m_pSharedBoneWeights == nullptr && m_pSharedInverseBoneWeights == nullptr)
+  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+
+  if (pInstance->m_pSharedBoneWeights == nullptr && pInstance->m_pSharedInverseBoneWeights == nullptr)
   {
     const auto pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
 
@@ -114,7 +116,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
       name.AppendFormat("-{}", rootBone);
     }
 
-    m_pSharedBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw) {
+    pInstance->m_pSharedBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw) {
       for (const auto& rootBone : m_RootBones)
       {
         int iRootBone = -1;
@@ -138,26 +140,24 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
         };
 
         ozz::animation::IterateJointsDF(*pOzzSkeleton, setBoneWeight, iRootBone);
-      }
-    });
+      } });
 
     if (m_InverseWeightsPin.IsConnected())
     {
       name.Append("-inv");
 
-      m_pSharedInverseBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this](ezAnimGraphSharedBoneWeights& ref_bw) {
+      pInstance->m_pSharedInverseBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pInstance](ezAnimGraphSharedBoneWeights& ref_bw) {
         const ozz::math::SimdFloat4 oneBone = ozz::math::simd_float4::one();
 
         for (ezUInt32 b = 0; b < ref_bw.m_Weights.GetCount(); ++b)
         {
-          ref_bw.m_Weights[b] = ozz::math::MSub(oneBone, oneBone, m_pSharedBoneWeights->m_Weights[b]);
-        }
-      });
+          ref_bw.m_Weights[b] = ozz::math::MSub(oneBone, oneBone, pInstance->m_pSharedBoneWeights->m_Weights[b]);
+        } });
     }
 
     if (!m_WeightsPin.IsConnected())
     {
-      m_pSharedBoneWeights.Clear();
+      pInstance->m_pSharedBoneWeights.Clear();
     }
   }
 
@@ -165,7 +165,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
   {
     ezAnimGraphPinDataBoneWeights* pPinData = graph.AddPinDataBoneWeights();
     pPinData->m_fOverallWeight = m_fWeight;
-    pPinData->m_pSharedBoneWeights = m_pSharedBoneWeights.Borrow();
+    pPinData->m_pSharedBoneWeights = pInstance->m_pSharedBoneWeights.Borrow();
 
     m_WeightsPin.SetWeights(graph, pPinData);
   }
@@ -174,11 +174,16 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
   {
     ezAnimGraphPinDataBoneWeights* pPinData = graph.AddPinDataBoneWeights();
     pPinData->m_fOverallWeight = m_fWeight;
-    pPinData->m_pSharedBoneWeights = m_pSharedInverseBoneWeights.Borrow();
+    pPinData->m_pSharedBoneWeights = pInstance->m_pSharedInverseBoneWeights.Borrow();
 
     m_InverseWeightsPin.SetWeights(graph, pPinData);
   }
 }
 
+bool ezBoneWeightsAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+{
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_BoneWeightsAnimNode);

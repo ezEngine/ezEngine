@@ -4,10 +4,9 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
-/// \brief Plays a single animation clip, either once or looped
-class EZ_RENDERERCORE_DLL ezPlayClipAnimNode : public ezAnimGraphNode
+class EZ_RENDERERCORE_DLL ezPlayClipOnceAnimNode : public ezAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPlayClipAnimNode, ezAnimGraphNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPlayClipOnceAnimNode, ezAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
   // ezAnimGraphNode
@@ -19,7 +18,7 @@ protected:
   virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPlayClipAnimNode
+  // ezPlayClipOnceAnimNode
 
 public:
   ezUInt32 Clips_GetCount() const;                          // [ property ]
@@ -31,15 +30,15 @@ public:
 private:
   ezHybridArray<ezAnimationClipResourceHandle, 1> m_Clips; // [ property ]
 
-  ezAnimGraphTriggerInputPin m_ActivePin;       // [ property ]
+  ezAnimGraphTriggerInputPin m_ActivatePin;     // [ property ]
   ezAnimGraphBoneWeightsInputPin m_WeightsPin;  // [ property ]
   ezAnimGraphNumberInputPin m_SpeedPin;         // [ property ]
   ezAnimGraphNumberInputPin m_ClipIndexPin;     // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
-  ezAnimGraphTriggerOutputPin m_OnFadeOutPin;   // [ property ]
+  ezAnimGraphTriggerOutputPin m_OnFinishedPin;  // [ property ]
 
-  ezAnimState m_State; // [ property ]
+  float m_fPlaybackSpeed = 1.0f; // [ property ]
+
   ezUInt8 m_uiClipToPlay = 0xFF;
-  ezUInt8 m_uiNextClipToPlay = 0xFF;
-  ezTime m_NextClipDuration;
+  ezTime m_PlaybackTime;
 };

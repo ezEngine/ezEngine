@@ -4,60 +4,10 @@
 
 #include <Foundation/Containers/Blob.h>
 #include <Foundation/Containers/SmallArray.h>
-
-/// \brief Structure to describe an instance data type for a state or transition.
-///
-/// Since state machine states and transitions are shared between instances they can't hold their state in member
-/// variables. This structure describes the type of instance data necessary for a state or transition.
-/// Instance data is then automatically allocated by the state machine instance and passed via the pInstanceData pointer
-/// in the state or transition functions.
-/// Use the templated Fill() method to fill the desc from an instance data type.
-struct ezStateMachineInstanceDataDesc
-{
-  ezUInt32 m_uiTypeSize = 0;
-  ezUInt32 m_uiTypeAlignment = 0;
-  ezMemoryUtils::ConstructorFunction m_ConstructorFunction = nullptr;
-  ezMemoryUtils::DestructorFunction m_DestructorFunction = nullptr;
-
-  template <typename T>
-  EZ_ALWAYS_INLINE void FillFromType()
-  {
-    m_uiTypeSize = sizeof(T);
-    m_uiTypeAlignment = EZ_ALIGNMENT_OF(T);
-    m_ConstructorFunction = ezMemoryUtils::MakeConstructorFunction<T>();
-    m_DestructorFunction = ezMemoryUtils::MakeDestructorFunction<T>();
-  }
-};
+#include <Foundation/Memory/InstanceDataAllocator.h>
 
 namespace ezStateMachineInternal
 {
-  /// \brief Helper class to manager instance data allocation, construction and destruction
-  class EZ_GAMEENGINE_DLL InstanceDataAllocator
-  {
-  public:
-    /// \brief Adds the given desc to internal list of data that needs to be allocated and returns the byte offset.
-    ezUInt32 AddDesc(const ezStateMachineInstanceDataDesc& desc);
-
-    void ClearDescs();
-
-    void Construct(const ezByteBlobPtr& blobPtr) const;
-    void Destruct(const ezByteBlobPtr& blobPtr) const;
-
-    ezBlob AllocateAndConstruct() const;
-    void DestructAndDeallocate(ezBlob& ref_blob) const;
-
-    ezUInt32 GetTotalDataSize() const { return m_uiTotalDataSize; }
-
-    EZ_ALWAYS_INLINE static void* GetInstanceData(const ezByteBlobPtr& blobPtr, ezUInt32 uiOffset)
-    {
-      return (uiOffset != ezInvalidIndex) ? blobPtr.GetPtr() + uiOffset : nullptr;
-    }
-
-  private:
-    ezDynamicArray<ezStateMachineInstanceDataDesc> m_Descs;
-    ezUInt32 m_uiTotalDataSize = 0;
-  };
-
   /// \brief Helper class to manage instance data for compound states or transitions
   struct EZ_GAMEENGINE_DLL Compound
   {
@@ -65,7 +15,7 @@ namespace ezStateMachineInternal
     EZ_ALWAYS_INLINE ezUInt32 GetDataSize() const { return m_InstanceDataAllocator.GetTotalDataSize(); }
 
     ezSmallArray<ezUInt32, 2> m_InstanceDataOffsets;
-    InstanceDataAllocator m_InstanceDataAllocator;
+    ezInstanceDataAllocator m_InstanceDataAllocator;
 
     struct InstanceData
     {
@@ -100,14 +50,14 @@ namespace ezStateMachineInternal
     }
 
     template <typename T>
-    bool GetInstanceDataDesc(ezArrayPtr<T*> subObjects, ezStateMachineInstanceDataDesc& out_desc)
+    bool GetInstanceDataDesc(ezArrayPtr<T*> subObjects, ezInstanceDataDesc& out_desc)
     {
       m_InstanceDataOffsets.Clear();
       m_InstanceDataAllocator.ClearDescs();
 
       ezUInt32 uiMaxAlignment = 0;
 
-      ezStateMachineInstanceDataDesc instanceDataDesc;
+      ezInstanceDataDesc instanceDataDesc;
       for (T* pSubObject : subObjects)
       {
         ezUInt32 uiOffset = ezInvalidIndex;

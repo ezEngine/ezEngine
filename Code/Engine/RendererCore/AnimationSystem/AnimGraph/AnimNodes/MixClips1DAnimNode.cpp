@@ -226,7 +226,7 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
 
   if (uiClip1 == uiClip2)
   {
-    void* pThis = this;
+    const void* pThis = this;
     auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
     cmd.m_hAnimationClip = m_Clips[uiClip1].m_hAnimation;
     cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
@@ -242,7 +242,7 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
 
     // sample animation 1
     {
-      void* pThis = this;
+      const void* pThis = this;
       auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
       cmd.m_hAnimationClip = m_Clips[uiClip1].m_hAnimation;
       cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();
@@ -255,7 +255,7 @@ void ezMixClips1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
 
     // sample animation 2
     {
-      void* pThis = this;
+      const void* pThis = this;
       auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 1));
       cmd.m_hAnimationClip = m_Clips[uiClip2].m_hAnimation;
       cmd.m_fNormalizedSamplePos = m_State.GetNormalizedPlaybackPosition();

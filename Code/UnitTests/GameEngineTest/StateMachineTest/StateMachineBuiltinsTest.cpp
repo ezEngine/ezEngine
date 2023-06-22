@@ -31,7 +31,7 @@ namespace
       m_CounterTable[&ref_instance] = pData->m_Counter;
     }
 
-    virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override
+    virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override
     {
       out_desc.FillFromType<InstanceData>();
       return true;
@@ -76,7 +76,7 @@ namespace
       return pData->m_uiConditionCounter > 1;
     }
 
-    bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override
+    bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override
     {
       out_desc.FillFromType<InstanceData>();
       return true;

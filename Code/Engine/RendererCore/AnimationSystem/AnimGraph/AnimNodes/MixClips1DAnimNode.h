@@ -38,7 +38,7 @@ private:
   ezAnimGraphNumberInputPin m_SpeedPin;         // [ property ]
   ezAnimGraphNumberInputPin m_LerpPin;          // [ property ]
   ezAnimGraphLocalPoseOutputPin m_LocalPosePin; // [ property ]
-  ezAnimGraphTriggerOutputPin m_OnFadeOutPin;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_OnFadeOutPin;   // [ property ]
 
   ezAnimState m_State; // [ property ]
 };

@@ -20,7 +20,7 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  virtual bool GetInstanceDataDesc(ezStateMachineInstanceDataDesc& out_desc) override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) override;
 
   void SetScriptClassFile(const char* szFile); // [ property ]
   const char* GetScriptClassFile() const;      // [ property ]

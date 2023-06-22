@@ -34,6 +34,7 @@ public:
     Invalid,
     Trigger,
     Number,
+    Bool,
     BoneWeights,
     LocalPose,
     ModelPose,
@@ -89,7 +90,7 @@ public:
   ///
   /// All pin states are reset before every graph update, so this only needs to be called
   /// when a pin should be set to the triggered state, but then it must be called every frame.
-  void SetTriggered(ezAnimGraph& ref_graph, bool bTriggered = true);
+  void SetTriggered(ezAnimGraph& ref_graph, bool bTriggered = true) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -107,7 +108,25 @@ class EZ_RENDERERCORE_DLL ezAnimGraphNumberOutputPin : public ezAnimGraphOutputP
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNumberOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetNumber(ezAnimGraph& ref_graph, double value);
+  void SetNumber(ezAnimGraph& ref_graph, double value) const;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_RENDERERCORE_DLL ezAnimGraphBoolInputPin : public ezAnimGraphInputPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoolInputPin, ezAnimGraphInputPin);
+
+public:
+  bool GetBool(ezAnimGraph& ref_graph, bool bFallback = false) const;
+};
+
+class EZ_RENDERERCORE_DLL ezAnimGraphBoolOutputPin : public ezAnimGraphOutputPin
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoolOutputPin, ezAnimGraphOutputPin);
+
+public:
+  void SetBool(ezAnimGraph& ref_graph, bool bValue) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -125,7 +144,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphBoneWeightsOutputPin : public ezAnimGraphOu
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphBoneWeightsOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetWeights(ezAnimGraph& ref_graph, ezAnimGraphPinDataBoneWeights* pWeights);
+  void SetWeights(ezAnimGraph& ref_graph, ezAnimGraphPinDataBoneWeights* pWeights) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -151,7 +170,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseOutputPin : public ezAnimGraphOutp
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphLocalPoseOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataLocalTransforms* pPose);
+  void SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataLocalTransforms* pPose) const;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -169,5 +188,5 @@ class EZ_RENDERERCORE_DLL ezAnimGraphModelPoseOutputPin : public ezAnimGraphOutp
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphModelPoseOutputPin, ezAnimGraphOutputPin);
 
 public:
-  void SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataModelTransforms* pPose);
+  void SetPose(ezAnimGraph& ref_graph, ezAnimGraphPinDataModelTransforms* pPose) const;
 };
