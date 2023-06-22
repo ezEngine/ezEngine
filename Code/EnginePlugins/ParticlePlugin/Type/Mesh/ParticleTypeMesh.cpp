@@ -145,7 +145,7 @@ bool ezParticleTypeMesh::QueryMeshAndMaterialInfo() const
 
   m_Bounds = pMesh->GetBounds();
   m_RenderCategory = pMaterial->GetRenderDataCategory();
-  
+
   m_bRenderDataCached = true;
   return true;
 }

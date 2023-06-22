@@ -36,7 +36,7 @@ public:
   };
 
   /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
-  using SortingKeyFunc = ezUInt64(*)(const ezRenderData*, ezUInt32, const ezCamera&);
+  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, ezUInt32, const ezCamera&);
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
   static Category FindCategory(ezTempHashedString sCategoryName);

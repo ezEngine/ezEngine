@@ -95,8 +95,7 @@ namespace
       }
     }
 
-    pp.SetFileOpenFunction([&](ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
-      {
+    pp.SetFileOpenFunction([&](ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification) {
         if (sAbsoluteFile == "MaterialConfig")
         {
           FileContent.PushBackRange(ezMakeArrayPtr((const ezUInt8*)sMaterialConfig.GetStartPointer(), sMaterialConfig.GetElementCount()));
@@ -127,8 +126,7 @@ namespace
         return EZ_SUCCESS; });
 
     bool bFoundUndefinedVars = false;
-    pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
-      {
+    pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e) {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;
