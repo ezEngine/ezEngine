@@ -95,10 +95,10 @@ namespace
       }
     }
 
-    pp.SetFileOpenFunction([&](ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification) {
+    pp.SetFileOpenFunction([&](ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& out_fileContent, ezTimestamp& out_fileModification) {
         if (sAbsoluteFile == "MaterialConfig")
         {
-          FileContent.PushBackRange(ezMakeArrayPtr((const ezUInt8*)sMaterialConfig.GetStartPointer(), sMaterialConfig.GetElementCount()));
+          out_fileContent.PushBackRange(ezMakeArrayPtr((const ezUInt8*)sMaterialConfig.GetStartPointer(), sMaterialConfig.GetElementCount()));
           return EZ_SUCCESS;
         }
 
@@ -113,14 +113,14 @@ namespace
         ezFileStats stats;
         if (ezFileSystem::GetFileStats(sAbsoluteFile, stats).Succeeded())
         {
-          out_FileModification = stats.m_LastModificationTime;
+          out_fileModification = stats.m_LastModificationTime;
         }
 #endif
 
         ezUInt8 Temp[4096];
         while (ezUInt64 uiRead = r.ReadBytes(Temp, 4096))
         {
-          FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
+          out_fileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
         }
 
         return EZ_SUCCESS; });
