@@ -77,7 +77,7 @@ public:
   void SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform);
   void SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ);
 
-  void SetInstanceDataAllocator(ezInstanceDataAllocator& allocator);
+  void SetInstanceDataAllocator(ezInstanceDataAllocator& ref_allocator);
 
   template <typename T>
   T* GetAnimNodeInstanceData(const ezAnimGraphNode& node)

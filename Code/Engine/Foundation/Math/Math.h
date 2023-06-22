@@ -277,7 +277,7 @@ namespace ezMath
   [[nodiscard]] Type SmoothStep(Type value, Type edge1, Type edge2); // [tested]
 
   /// \brief Returns true, if there exists some x with base^x == value
-  EZ_FOUNDATION_DLL [[nodiscard]] bool IsPowerOf(ezInt32 value, ezInt32 iBase); // [tested]
+  [[nodiscard]] EZ_FOUNDATION_DLL bool IsPowerOf(ezInt32 value, ezInt32 iBase); // [tested]
 
   /// \brief Returns true, if there exists some x with 2^x == value
   [[nodiscard]] constexpr bool IsPowerOf2(ezInt32 value); // [tested]
@@ -286,13 +286,13 @@ namespace ezMath
   [[nodiscard]] constexpr bool IsPowerOf2(ezUInt32 value); // [tested]
 
   /// \brief Returns the next power-of-two that is <= value
-  EZ_FOUNDATION_DLL [[nodiscard]] ezUInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
+  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
 
   /// \brief Returns the next power-of-two that is >= value
-  EZ_FOUNDATION_DLL [[nodiscard]] ezUInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
+  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
 
   /// \brief Returns the greatest common divisor.
-  EZ_FOUNDATION_DLL [[nodiscard]] ezUInt32 GreatestCommonDivisor(ezUInt32 a, ezUInt32 b); // [tested]
+  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 GreatestCommonDivisor(ezUInt32 a, ezUInt32 b); // [tested]
 
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
   template <typename Type>
@@ -339,25 +339,25 @@ namespace ezMath
   EZ_FOUNDATION_DLL ezResult TryMultiply32(ezUInt32& out_uiResult, ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1); // [tested]
 
   /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
-  EZ_FOUNDATION_DLL [[nodiscard]] ezUInt32 SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1);
+  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt32 SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1);
 
   /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
   EZ_FOUNDATION_DLL ezResult TryMultiply64(ezUInt64& out_uiResult, ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1); // [tested]
 
   /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
-  EZ_FOUNDATION_DLL [[nodiscard]] ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1);
+  [[nodiscard]] EZ_FOUNDATION_DLL ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1);
 
   /// \brief Checks whether the given 64bit value actually fits into size_t, If it doesn't EZ_FAILURE is returned.
   ezResult TryConvertToSizeT(size_t& out_uiResult, ezUInt64 uiValue); // [tested]
 
   /// \brief Checks whether the given 64bit value actually fits into size_t, If it doesn't the program is terminated.
-  EZ_FOUNDATION_DLL [[nodiscard]] size_t SafeConvertToSizeT(ezUInt64 uiValue);
+  [[nodiscard]] EZ_FOUNDATION_DLL size_t SafeConvertToSizeT(ezUInt64 uiValue);
 
   /// \brief If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
-  EZ_FOUNDATION_DLL [[nodiscard]] float ReplaceNaN(float fValue, float fFallback); // [tested]
+  [[nodiscard]] EZ_FOUNDATION_DLL float ReplaceNaN(float fValue, float fFallback); // [tested]
 
   /// \brief If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
-  EZ_FOUNDATION_DLL [[nodiscard]] double ReplaceNaN(double fValue, double fFallback); // [tested]
+  [[nodiscard]] EZ_FOUNDATION_DLL double ReplaceNaN(double fValue, double fFallback); // [tested]
 
 } // namespace ezMath
 

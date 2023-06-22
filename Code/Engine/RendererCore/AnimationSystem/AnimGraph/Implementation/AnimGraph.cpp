@@ -326,9 +326,9 @@ void ezAnimGraph::SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, e
   m_RootRotationZ = rotationZ;
 }
 
-void ezAnimGraph::SetInstanceDataAllocator(ezInstanceDataAllocator& allocator)
+void ezAnimGraph::SetInstanceDataAllocator(ezInstanceDataAllocator& ref_allocator)
 {
-  m_pInstanceDataAllocator = &allocator;
+  m_pInstanceDataAllocator = &ref_allocator;
   m_InstanceData = m_pInstanceDataAllocator->AllocateAndConstruct();
 }
 
