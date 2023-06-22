@@ -116,8 +116,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
       name.AppendFormat("-{}", rootBone);
     }
 
-    pInstance->m_pSharedBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw)
-      {
+    pInstance->m_pSharedBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw) {
       for (const auto& rootBone : m_RootBones)
       {
         int iRootBone = -1;
@@ -147,8 +146,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkele
     {
       name.Append("-inv");
 
-      pInstance->m_pSharedInverseBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pInstance](ezAnimGraphSharedBoneWeights& ref_bw)
-        {
+      pInstance->m_pSharedInverseBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pInstance](ezAnimGraphSharedBoneWeights& ref_bw) {
         const ozz::math::SimdFloat4 oneBone = ozz::math::simd_float4::one();
 
         for (ezUInt32 b = 0; b < ref_bw.m_Weights.GetCount(); ++b)

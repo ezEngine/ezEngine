@@ -109,8 +109,7 @@ void ezCombinePosesAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkel
 
   if (pw.GetCount() > m_uiMaxPoses)
   {
-    pw.Sort([](const PinWeight& lhs, const PinWeight& rhs)
-      { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
+    pw.Sort([](const PinWeight& lhs, const PinWeight& rhs) { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
     pw.SetCount(m_uiMaxPoses);
   }
 
