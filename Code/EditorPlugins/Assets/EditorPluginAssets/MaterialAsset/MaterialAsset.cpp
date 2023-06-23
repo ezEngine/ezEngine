@@ -990,48 +990,48 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
     ezHybridArray<ezAbstractProperty*, 16> Constants;
 
     const ezDocumentObject* pObject = GetShaderPropertyObject();
-    if (pObject == nullptr)
-      return ezStatus("Invalid shader property object");
-
-    bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData).IsValid();
-    auto pType = pObject->GetTypeAccessor().GetType();
-    ezHybridArray<ezAbstractProperty*, 32> properties;
-    pType->GetAllProperties(properties);
-
-    ezHybridArray<ezPropertySelection, 1> selection;
-    selection.PushBack({pObject, ezVariant()});
-    ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
-
-    for (auto* pProp : properties)
+    if (pObject != nullptr)
     {
-      if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
-        continue;
+      bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData).IsValid();
+      auto pType = pObject->GetTypeAccessor().GetType();
+      ezHybridArray<ezAbstractProperty*, 32> properties;
+      pType->GetAllProperties(properties);
 
-      const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
+      ezHybridArray<ezPropertySelection, 1> selection;
+      selection.PushBack({pObject, ezVariant()});
+      ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
 
-      EZ_ASSERT_DEBUG(pCategory, "Category cannot be null for a shader property");
-      if (pCategory == nullptr)
-        continue;
+      for (auto* pProp : properties)
+      {
+        if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
+          continue;
 
-      if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture 2D"))
-      {
-        Textures2D.PushBack(pProp);
-      }
-      else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture Cube"))
-      {
-        TexturesCube.PushBack(pProp);
-      }
-      else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation"))
-      {
-        Permutations.PushBack(pProp);
-      }
-      else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Constant"))
-      {
-        Constants.PushBack(pProp);
-      }
-      else
-      {
-        EZ_REPORT_FAILURE("Invalid shader property type '{0}'", pCategory->GetCategory());
+        const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
+
+        EZ_ASSERT_DEBUG(pCategory, "Category cannot be null for a shader property");
+        if (pCategory == nullptr)
+          continue;
+
+        if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture 2D"))
+        {
+          Textures2D.PushBack(pProp);
+        }
+        else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture Cube"))
+        {
+          TexturesCube.PushBack(pProp);
+        }
+        else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation"))
+        {
+          Permutations.PushBack(pProp);
+        }
+        else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Constant"))
+        {
+          Constants.PushBack(pProp);
+        }
+        else
+        {
+          EZ_REPORT_FAILURE("Invalid shader property type '{0}'", pCategory->GetCategory());
+        }
       }
     }
 
@@ -1109,7 +1109,10 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
     // render data category
     {
       ezVariantDictionary materialConfig;
-      EZ_SUCCEED_OR_RETURN(ParseMaterialConfig(sRelativeShaderPath, pObject, materialConfig));
+      if (pObject != nullptr)
+      {
+        EZ_SUCCEED_OR_RETURN(ParseMaterialConfig(sRelativeShaderPath, pObject, materialConfig));
+      }
 
       ezVariant renderDataCategory;
       materialConfig.TryGetValue("RenderDataCategory", renderDataCategory);
