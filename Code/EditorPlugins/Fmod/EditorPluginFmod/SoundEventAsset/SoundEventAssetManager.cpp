@@ -37,7 +37,7 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSoundEventAssetDocument>())
       {
-        ezSoundEventAssetDocumentWindow* pDocWnd = new ezSoundEventAssetDocumentWindow(e.m_pDocument);
+        new ezSoundEventAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;

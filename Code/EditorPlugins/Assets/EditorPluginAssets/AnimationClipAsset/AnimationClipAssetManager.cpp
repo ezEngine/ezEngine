@@ -40,8 +40,7 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimationClipAssetDocument>())
       {
-        ezQtAnimationClipAssetDocumentWindow* pDocWnd =
-          new ezQtAnimationClipAssetDocumentWindow(static_cast<ezAnimationClipAssetDocument*>(e.m_pDocument));
+        new ezQtAnimationClipAssetDocumentWindow(static_cast<ezAnimationClipAssetDocument*>(e.m_pDocument)); // NOLINT
       }
     }
     break;

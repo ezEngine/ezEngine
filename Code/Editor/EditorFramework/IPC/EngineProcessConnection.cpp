@@ -440,7 +440,7 @@ void ezEditorEngineProcessConnection::Update()
 void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
   EZ_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does "
-                                 "not enable the engine-connection through the constructor of ezAssetDocument.");
+                                 "not enable the engine-connection through the constructor of ezAssetDocument."); // NOLINT
 
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 

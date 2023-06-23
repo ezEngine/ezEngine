@@ -46,8 +46,6 @@ void ezJoltCollisionMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pM
 
   ezEngineProcessViewContext::SetCamera(pMsg);
 
-  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
-
   auto hResource = m_pContext->GetMesh();
   if (hResource.IsValid())
   {

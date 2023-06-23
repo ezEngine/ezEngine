@@ -698,8 +698,6 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 
 void ezQtPropertyAnimAssetDocumentWindow::UpdateGradientEditor()
 {
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
   if (m_pGradientToDisplay == nullptr || m_iMapGradientToTrack < 0)
   {
     // TODO: clear gradient editor ?
@@ -769,8 +767,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ez
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  auto pProp = pDoc->GetPropertyObject();
-
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
@@ -798,8 +794,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, 
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  auto pProp = pDoc->GetPropertyObject();
-
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
@@ -822,8 +816,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveId
     return;
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
-  auto pProp = pDoc->GetPropertyObject();
 
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
@@ -854,8 +846,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 uiCurveId
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
-  auto pProp = pDoc->GetPropertyObject();
-
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
@@ -885,8 +875,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 uiC
     return;
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
-  auto pProp = pDoc->GetPropertyObject();
 
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);

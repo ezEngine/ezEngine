@@ -45,7 +45,6 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 void ezAssetProcessorLog::HandleLogMessage(const ezLoggingEventData& le)
 {
-  const ezLogMsgType::Enum ThisType = le.m_EventType;
   m_LoggingEvent.Broadcast(le);
 }
 

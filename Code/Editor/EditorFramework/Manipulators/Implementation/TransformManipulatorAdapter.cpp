@@ -22,7 +22,6 @@ void ezTransformManipulatorAdapter::Finalize()
   m_ScaleGizmo.SetTransformation(GetObjectTransform());
 
   const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
-  ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
   if (!pAttr->GetTranslateProperty().IsEmpty())
   {
@@ -59,7 +58,7 @@ void ezTransformManipulatorAdapter::Update()
 void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 {
   const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
-  ezObjectAccessorBase* pAccessor = GetObjectAccessor();
+
   switch (e.m_Type)
   {
     case ezGizmoEvent::Type::BeginInteractions:
@@ -105,8 +104,6 @@ void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
 
 void ezTransformManipulatorAdapter::UpdateGizmoTransform()
 {
-  const ezTransformManipulatorAttribute* pAttr = static_cast<const ezTransformManipulatorAttribute*>(m_pManipulatorAttr);
-
   m_TranslateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideTranslate);
   m_RotateGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideRotate);
   m_ScaleGizmo.SetVisible(m_bManipulatorIsVisible && !m_bHideScale);

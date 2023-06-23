@@ -37,7 +37,7 @@ void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCollectionAssetDocument>())
       {
-        ezQtCollectionAssetDocumentWindow* pDocWnd = new ezQtCollectionAssetDocumentWindow(e.m_pDocument);
+        new ezQtCollectionAssetDocumentWindow(e.m_pDocument); // NOLINT: not a memory leak
       }
     }
     break;

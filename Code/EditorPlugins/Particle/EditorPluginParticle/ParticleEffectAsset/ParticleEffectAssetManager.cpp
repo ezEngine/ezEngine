@@ -34,8 +34,7 @@ void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezParticleEffectAssetDocument>())
       {
-        ezQtParticleEffectAssetDocumentWindow* pDocWnd =
-          new ezQtParticleEffectAssetDocumentWindow(static_cast<ezParticleEffectAssetDocument*>(e.m_pDocument));
+        new ezQtParticleEffectAssetDocumentWindow(static_cast<ezParticleEffectAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;

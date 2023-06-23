@@ -37,7 +37,7 @@ void ezVisualScriptClassAssetManager::OnDocumentManagerEvent(const ezDocumentMan
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezVisualScriptClassAssetDocument>())
       {
-        ezQtVisualScriptWindow* pDocWnd = new ezQtVisualScriptWindow(e.m_pDocument);
+        new ezQtVisualScriptWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;

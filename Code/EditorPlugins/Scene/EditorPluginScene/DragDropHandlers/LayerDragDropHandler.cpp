@@ -59,8 +59,6 @@ void ezLayerOnLayerDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
 {
   if (ezScene2Document* pDoc = ezDynamicCast<ezScene2Document*>(ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument)))
   {
-    const ezDocumentObject* pTarget = pDoc->GetSceneObjectManager()->GetObject(pInfo->m_TargetObject);
-
     const ezUuid activeDoc = pDoc->GetActiveLayer();
     EZ_VERIFY(pDoc->SetActiveLayer(pDoc->GetGuid()).Succeeded(), "Failed to set active document.");
     {

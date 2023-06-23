@@ -66,8 +66,6 @@ void ezQtGameObjectViewWidget::HandleMarqueePickingResult(const ezViewMarqueePic
     newSelection.PushBack(pObject);
   }
 
-  const ezDocumentObject* pRoot = pObjMan->GetRootObject();
-
   for (ezUuid guid : pMsg->m_ObjectGuids)
   {
     const ezDocumentObject* pObject = pObjMan->GetObject(guid);

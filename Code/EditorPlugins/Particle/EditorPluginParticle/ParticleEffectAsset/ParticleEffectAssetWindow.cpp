@@ -554,8 +554,6 @@ void ezQtParticleEffectAssetDocumentWindow::onRemoveSystem(bool)
 
   const ezDocumentObject* pObject = static_cast<ezDocumentObject*>(m_pSystemsCombo->itemData(index).value<void*>());
 
-  ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
-
   GetDocument()->GetObjectAccessor()->StartTransaction("Rename Particle System");
 
   ezRemoveObjectCommand cmd;
@@ -603,8 +601,6 @@ void ezQtParticleEffectAssetDocumentWindow::onRenameSystem(bool)
 
     break;
   }
-
-  ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   m_sSelectedSystem = sName.toUtf8().data();
 

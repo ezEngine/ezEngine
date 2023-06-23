@@ -15,8 +15,6 @@ void ezCameraVisualizerAdapter::Finalize()
   const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
   EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
-  const ezCameraVisualizerAttribute* pAttr = static_cast<const ezCameraVisualizerAttribute*>(m_pVisualizerAttr);
-
   m_hBoxGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::DodgerBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
   m_hFrustumGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::Frustum, ezColor::DodgerBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);
   m_hNearPlaneGizmo.ConfigureHandle(nullptr, ezEngineGizmoHandleType::LineRect, ezColor::LightBlue, ezGizmoFlags::Visualizer | ezGizmoFlags::ShowInOrtho);

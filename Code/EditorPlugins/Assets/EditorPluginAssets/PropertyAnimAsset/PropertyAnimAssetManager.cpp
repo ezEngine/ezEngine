@@ -37,8 +37,7 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezPropertyAnimAssetDocument>())
       {
-        ezQtPropertyAnimAssetDocumentWindow* pDocWnd =
-          new ezQtPropertyAnimAssetDocumentWindow(static_cast<ezPropertyAnimAssetDocument*>(e.m_pDocument));
+        new ezQtPropertyAnimAssetDocumentWindow(static_cast<ezPropertyAnimAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;

@@ -270,8 +270,6 @@ ezResult ezTexConv::ParseInputFiles()
 
 ezResult ezTexConv::ParseOutputFiles()
 {
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-
   m_sOutputFile = opt_Out.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   m_sOutputThumbnailFile = opt_ThumbnailOut.GetOptionValue(ezCommandLineOption::LogMode::Always);
@@ -430,10 +428,6 @@ ezResult ezTexConv::ParseAssetHeader()
 
   if (!ext.StartsWith_NoCase("ez"))
     return EZ_SUCCESS;
-
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-
-  ezUInt32 tmp = m_Processor.m_Descriptor.m_uiAssetVersion;
 
   m_Processor.m_Descriptor.m_uiAssetVersion = (ezUInt16)opt_AssetVersion.GetOptionValue(ezCommandLineOption::LogMode::Always);
 

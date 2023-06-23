@@ -18,14 +18,10 @@ ezSoundEventAssetDocument::ezSoundEventAssetDocument(const char* szDocumentPath)
 void ezSoundEventAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
-
-  const ezSoundEventAssetProperties* pProp = GetProperties();
 }
 
 ezTransformStatus ezSoundEventAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
   const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  const ezSoundEventAssetProperties* pProp = GetProperties();
-
   return ezStatus(EZ_SUCCESS);
 }

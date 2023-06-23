@@ -713,7 +713,6 @@ ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, 
   if (ezOSFile::GetFileStats(sAbsolutePath, Stats).Failed())
   {
     ezFileStatus fileStatus;
-    ezFileStatus::Status folderStatus = ezFileStatus::Status::Unknown;
     bool bFileExisted = false;
     bool bFolderExisted = false;
     {
@@ -727,7 +726,6 @@ ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, 
       if (auto it = m_ReferencedFolders.Find(sAbsolutePath); it.IsValid())
       {
         bFolderExisted = true;
-        folderStatus = it.Value();
         m_ReferencedFolders.Remove(it);
       }
     }

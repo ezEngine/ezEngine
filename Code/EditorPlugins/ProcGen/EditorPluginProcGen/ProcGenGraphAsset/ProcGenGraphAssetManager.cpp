@@ -38,7 +38,7 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezProcGenGraphAssetDocument>())
       {
-        auto pDocWnd = new ezProcGenGraphAssetDocumentWindow(static_cast<ezProcGenGraphAssetDocument*>(e.m_pDocument));
+        new ezProcGenGraphAssetDocumentWindow(static_cast<ezProcGenGraphAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;

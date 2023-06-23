@@ -35,7 +35,7 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCurve1DAssetDocument>())
       {
-        ezQtCurve1DAssetDocumentWindow* pDocWnd = new ezQtCurve1DAssetDocumentWindow(e.m_pDocument);
+        new ezQtCurve1DAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;

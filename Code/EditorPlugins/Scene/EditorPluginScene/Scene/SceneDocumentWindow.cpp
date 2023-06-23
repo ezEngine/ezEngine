@@ -53,8 +53,6 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     addToolBar(pToolBar);
   }
 
-  const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
-
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
     pPropertyPanel->setObjectName("PropertyPanel");

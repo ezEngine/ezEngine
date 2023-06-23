@@ -38,7 +38,7 @@ void ezImageDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezImageDataAssetDocument>())
       {
-        ezQtImageDataAssetDocumentWindow* pDocWnd = new ezQtImageDataAssetDocumentWindow(static_cast<ezImageDataAssetDocument*>(e.m_pDocument));
+        new ezQtImageDataAssetDocumentWindow(static_cast<ezImageDataAssetDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;

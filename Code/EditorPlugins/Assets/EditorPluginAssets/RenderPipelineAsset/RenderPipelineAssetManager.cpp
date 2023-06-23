@@ -37,7 +37,7 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezRenderPipelineAssetDocument>())
       {
-        ezQtRenderPipelineAssetDocumentWindow* pDocWnd = new ezQtRenderPipelineAssetDocumentWindow(e.m_pDocument);
+        new ezQtRenderPipelineAssetDocumentWindow(e.m_pDocument); // NOLINT: Not a memory leak
       }
     }
     break;

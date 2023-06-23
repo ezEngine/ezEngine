@@ -211,9 +211,6 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
-  const ezVec2I32 vDiff = vNewMousePos - m_vLastMousePos;
-
   m_vNegSize = m_vStartNegSize;
   m_vPosSize = m_vStartPosSize;
 

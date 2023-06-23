@@ -40,11 +40,11 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezScene2Document>())
       {
-        ezQtDocumentWindow* pDocWnd = new ezQtScene2DocumentWindow(static_cast<ezScene2Document*>(e.m_pDocument));
+        new ezQtScene2DocumentWindow(static_cast<ezScene2Document*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
       else if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSceneDocument>())
       {
-        ezQtDocumentWindow* pDocWnd = new ezQtSceneDocumentWindow(static_cast<ezSceneDocument*>(e.m_pDocument));
+        new ezQtSceneDocumentWindow(static_cast<ezSceneDocument*>(e.m_pDocument)); // NOLINT: Not a memory leak
       }
     }
     break;

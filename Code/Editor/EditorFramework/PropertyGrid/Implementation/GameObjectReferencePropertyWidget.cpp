@@ -71,6 +71,7 @@ void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
     menu.addAction(QIcon(":/GuiFoundation/Icons/Go16.png"), QLatin1String("Select Referenced Object"), this, SLOT(OnSelectReferencedObject()));
   QAction* pClearAction =
     menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
+  EZ_IGNORE_UNUSED(pClearAction);
 
   pCopyAction->setEnabled(!m_sInternalValue.isEmpty());
   pSelectAction->setEnabled(!m_sInternalValue.isEmpty());

@@ -212,7 +212,7 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
   if (auto type = GetExposedParamsType(pObject))
   {
     auto props = type->GetProperties();
-    return std::any_of(cbegin(props), cend(props), [&](const ezAbstractProperty* pProp) { return pProp == pProp; });
+    return std::any_of(cbegin(props), cend(props), [&](const ezAbstractProperty* pOtherProp) { return pOtherProp == pProp; });
   }
   return false;
 }
@@ -222,7 +222,6 @@ bool ezExposedParameterCommandAccessor::IsExposedProperty(const ezDocumentObject
 void ezQtExposedParameterPropertyWidget::InternalSetValue(const ezVariant& value)
 {
   ezVariantType::Enum commonType = ezVariantType::Invalid;
-  const bool sameType = GetCommonVariantSubType(m_Items, m_pProp, commonType);
   const ezRTTI* pNewtSubType = commonType != ezVariantType::Invalid ? ezReflectionUtils::GetTypeFromVariant(commonType) : nullptr;
 
   ezExposedParameterCommandAccessor* proxy = static_cast<ezExposedParameterCommandAccessor*>(m_pObjectAccessor);

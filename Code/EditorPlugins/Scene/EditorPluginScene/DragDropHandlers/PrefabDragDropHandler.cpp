@@ -49,7 +49,6 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
   if (vPos.IsNaN())
     vPos.SetZero();
 
-  ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
   auto pCmdHistory = m_pDocument->GetCommandHistory();
 
   ezInstantiatePrefabCommand PasteCmd;

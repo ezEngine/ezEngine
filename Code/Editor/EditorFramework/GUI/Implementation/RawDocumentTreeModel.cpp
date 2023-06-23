@@ -521,6 +521,7 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
   {
     auto pDoc = ezDocumentManager::GetDocumentByGuid(info.m_TargetDocument);
     const ezDocumentObject* pTarget = pDoc->GetObjectManager()->GetObject(info.m_TargetObject);
+    EZ_ASSERT_DEBUG(pTarget != nullptr, "object from info should always be valid");
 
     QByteArray encodedData = info.m_pMimeData->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);

@@ -44,7 +44,6 @@ bool ezGreyBoxEditTool::GetSupportsMoveParentOnly() const
 
 void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& ref_msg)
 {
-  auto pSceneDoc = GetDocument();
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
   ref_msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue(); // negative density = local space

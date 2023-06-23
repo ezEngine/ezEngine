@@ -41,7 +41,7 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   ezEngineProcessViewContext::SetCamera(pMsg);
 
-  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
+  // const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
   ezBoundingBox bbox;
   bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());

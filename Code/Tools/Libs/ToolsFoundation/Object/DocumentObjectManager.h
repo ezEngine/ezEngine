@@ -104,9 +104,10 @@ struct ezDocumentObjectEvent
   {
     BeforeObjectDestroyed,
     AfterObjectCreated,
+    Invalid
   };
 
-  Type m_EventType;
+  Type m_EventType = Type::Invalid;
   const ezDocumentObject* m_pObject;
 };
 

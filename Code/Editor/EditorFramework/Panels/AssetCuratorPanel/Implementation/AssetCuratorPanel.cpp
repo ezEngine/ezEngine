@@ -129,7 +129,6 @@ void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& select
 
 void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
 {
-  ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
   QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
 
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());

@@ -440,6 +440,7 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
   }
 
   ezPropertyPath propPath;
+  EZ_ASSERT_DEBUG(object.m_pType != nullptr, "Object does not have a type");
   if (propPath.InitializeFromPath(*object.m_pType, change.m_Steps).Failed())
   {
     ezLog::Error("Failed to init property path on object of type '{0}'.", object.m_pType->GetTypeName());
