@@ -148,8 +148,8 @@ private:
   CachedValues* m_pCachedValues;
 
   CachedValues* GetOrUpdateCachedValues();
-  CachedValues* AllocateCache();
-  void DeallocateCache(ezUInt32 uiCacheIndex);
+  static CachedValues* AllocateCache(ezUInt32& inout_uiCacheIndex);
+  static void DeallocateCache(ezUInt32 uiCacheIndex);
 
   ezMutex m_UpdateCacheMutex;
   static ezDeque<ezMaterialResource::CachedValues> s_CachedValues;

@@ -977,7 +977,7 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
     return m_pCachedValues;
   }
 
-  m_pCachedValues = AllocateCache();
+  m_pCachedValues = AllocateCache(m_uiCacheIndex);
 
   // set state of parent material first
   for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 0;)
@@ -1067,29 +1067,31 @@ void ezMaterialResource::CachedValues::Reset()
   m_RenderDataCategory = ezInvalidRenderDataCategory;
 }
 
-ezMaterialResource::CachedValues* ezMaterialResource::AllocateCache()
+// static
+ezMaterialResource::CachedValues* ezMaterialResource::AllocateCache(ezUInt32& inout_uiCacheIndex)
 {
   EZ_LOCK(s_MaterialCacheMutex);
 
-  ezUInt32 uiOldCacheIndex = m_uiCacheIndex;
+  ezUInt32 uiOldCacheIndex = inout_uiCacheIndex;
 
   ezUInt64 uiCurrentFrame = ezRenderWorld::GetFrameCounter();
   if (!s_FreeMaterialCacheEntries.IsEmpty() && s_FreeMaterialCacheEntries[0].m_uiFrame < uiCurrentFrame)
   {
-    m_uiCacheIndex = s_FreeMaterialCacheEntries[0].m_uiIndex;
+    inout_uiCacheIndex = s_FreeMaterialCacheEntries[0].m_uiIndex;
     s_FreeMaterialCacheEntries.RemoveAtAndCopy(0);
   }
   else
   {
-    m_uiCacheIndex = s_CachedValues.GetCount();
+    inout_uiCacheIndex = s_CachedValues.GetCount();
     s_CachedValues.ExpandAndGetRef();
   }
 
   DeallocateCache(uiOldCacheIndex);
 
-  return &s_CachedValues[m_uiCacheIndex];
+  return &s_CachedValues[inout_uiCacheIndex];
 }
 
+// static
 void ezMaterialResource::DeallocateCache(ezUInt32 uiCacheIndex)
 {
   if (uiCacheIndex != ezInvalidIndex)
@@ -1098,7 +1100,7 @@ void ezMaterialResource::DeallocateCache(ezUInt32 uiCacheIndex)
 
     if (uiCacheIndex < s_CachedValues.GetCount())
     {
-      s_CachedValues[m_uiCacheIndex].Reset();
+      s_CachedValues[uiCacheIndex].Reset();
 
       auto& freeEntry = s_FreeMaterialCacheEntries.ExpandAndGetRef();
       freeEntry.m_uiIndex = uiCacheIndex;
