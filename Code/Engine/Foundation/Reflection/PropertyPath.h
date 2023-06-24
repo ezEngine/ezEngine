@@ -33,7 +33,7 @@ public:
   /// The '[index]' part is only added for properties that require indices (arrays and maps).
   ezResult InitializeFromPath(const ezRTTI& rootObjectRtti, const char* szPath);
   ///\brief Resolves a path provided as an array of ezPropertyPathStep.
-  ezResult InitializeFromPath(const ezRTTI* rootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
+  ezResult InitializeFromPath(const ezRTTI* pRootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path);
 
   ///\brief Applies the entire path and allows writing to the target object.
   ezResult WriteToLeafObject(void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeaf, const ezRTTI& pType)> func) const;

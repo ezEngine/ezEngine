@@ -104,14 +104,14 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
   return EZ_SUCCESS;
 }
 
-ezResult ezPropertyPath::InitializeFromPath(const ezRTTI* rootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path)
+ezResult ezPropertyPath::InitializeFromPath(const ezRTTI* pRootObjectRtti, const ezArrayPtr<const ezPropertyPathStep> path)
 {
   m_bIsValid = false;
 
   m_PathSteps.Clear();
   m_PathSteps.Reserve(path.GetCount());
 
-  const ezRTTI* pCurRtti = rootObjectRtti;
+  const ezRTTI* pCurRtti = pRootObjectRtti;
   for (const ezPropertyPathStep& pathStep : path)
   {
     ezAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(pathStep.m_sProperty);
