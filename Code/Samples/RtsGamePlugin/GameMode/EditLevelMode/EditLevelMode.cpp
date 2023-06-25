@@ -117,9 +117,10 @@ void RtsEditLevelMode::DisplayEditUI()
       m_pBlackboard->SetEntryValue(s_sShipType, iShipType).IgnoreResult();
     }
 
-    ImGui::Text("Select: %s", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
-    ImGui::Text("Create: %s", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
-    ImGui::Text("Remove: %s", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
+    ezStringBuilder tmp;
+    ImGui::Text("Select: %s", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0).GetData(tmp));
+    ImGui::Text("Create: %s", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject").GetData(tmp));
+    ImGui::Text("Remove: %s", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject").GetData(tmp));
 
     ImGui::End();
   }

@@ -30,7 +30,6 @@ private:
   ezAnimGraphNumberInputPin m_InTargetWeight;  // [ property ]
   ezAnimGraphNumberInputPin m_InFadeDuration;  // [ property ]
   ezAnimGraphBoneWeightsInputPin m_InWeights;  // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose;     // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnFadedOut; // [ property ]
 
   struct InstanceData

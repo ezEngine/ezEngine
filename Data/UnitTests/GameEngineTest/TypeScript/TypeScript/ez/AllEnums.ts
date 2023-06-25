@@ -1,5 +1,6 @@
 // AUTO-GENERATED FILE
 
+export enum AnimationInvisibleUpdateRate {  FullUpdate = 0, Max60FPS = 1, Max30FPS = 2, Max15FPS = 3, Max10FPS = 4, Max5FPS = 5, Pause = 6 }
 export enum BasisAxis {  PositiveX = 0, PositiveY = 1, PositiveZ = 2, NegativeX = 3, NegativeY = 4, NegativeZ = 5 }
 export enum CameraMode {  PerspectiveFixedFovX = 1, PerspectiveFixedFovY = 2, OrthoFixedWidth = 3, OrthoFixedHeight = 4 }
 export enum CameraUsageHint {  None = 0, MainView = 1, EditorView = 2, RenderTarget = 3, Culling = 4, Thumbnail = 7 }
