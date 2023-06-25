@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <QApplication>
@@ -49,7 +50,7 @@ void ezQtPin::SetPin(const ezPin& pin)
 {
   m_pPin = &pin;
 
-  m_pLabel->setPlainText(pin.GetName());
+  m_pLabel->setPlainText(ezTranslate(pin.GetName()));
   auto rectLabel = m_pLabel->boundingRect();
 
   const int iRadus = rectLabel.height();
