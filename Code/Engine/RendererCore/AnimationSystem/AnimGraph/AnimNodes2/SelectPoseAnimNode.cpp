@@ -99,7 +99,7 @@ void ezSelectPoseAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
     return;
   }
 
-InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
   const ezInt8 iDstIdx = ezMath::Clamp<ezInt8>((ezInt8)m_InIndex.GetNumber(graph, 0), 0, 3);
 
