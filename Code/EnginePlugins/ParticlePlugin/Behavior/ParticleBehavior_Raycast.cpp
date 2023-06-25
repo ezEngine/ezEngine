@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefa
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezParticleRaycastHitReaction, m_Reaction),
-    EZ_MEMBER_PROPERTY("BounceFactor", m_fBounceFactor)->AddAttributes(new ezDefaultValueAttribute(0.6f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("BounceFactor", m_fBounceFactor)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("OnCollideEvent", m_sOnCollideEvent),
   }
@@ -164,8 +164,16 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
           {
             const ezVec3 vNewDir = vChange.GetReflectedVector(hitResult.m_vNormal) * m_fBounceFactor;
 
-            itPosition.Current() = ezVec3(hitResult.m_vPosition + hitResult.m_vNormal * 0.05f + vNewDir).GetAsVec4(0);
-            itVelocity.Current() = vNewDir / tDiff;
+            if (vNewDir.GetLengthSquared() < ezMath::Square(0.01f))
+            {
+              itPosition.Current() = hitResult.m_vPosition.GetAsPositionVec4();
+              itVelocity.Current().SetZero();
+            }
+            else
+            {
+              itPosition.Current() = ezVec3(hitResult.m_vPosition + vNewDir).GetAsVec4(0);
+              itVelocity.Current() = vNewDir / tDiff;
+            }
           }
           else if (m_Reaction == ezParticleRaycastHitReaction::Die)
           {
@@ -174,6 +182,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
           }
           else if (m_Reaction == ezParticleRaycastHitReaction::Stop)
           {
+            itPosition.Current() = hitResult.m_vPosition.GetAsPositionVec4();
             itVelocity.Current().SetZero();
           }
 
