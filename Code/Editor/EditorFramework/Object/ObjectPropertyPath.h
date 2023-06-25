@@ -38,7 +38,7 @@ public:
     ezStringBuilder& out_sComponentType, ezStringBuilder& out_sPropertyPath);
   static ezStatus CreatePropertyPath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sPropertyPath);
 
-  static ezStatus ResolvePath(const ezObjectPropertyPathContext& context, ezHybridArray<ezPropertyReference, 1>& out_keys,
+  static ezStatus ResolvePath(const ezObjectPropertyPathContext& context, ezDynamicArray<ezPropertyReference>& out_keys,
     const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath);
   static ezStatus ResolvePropertyPath(const ezObjectPropertyPathContext& context, const char* szPropertyPath, ezPropertyReference& out_key);
 

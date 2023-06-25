@@ -7,13 +7,10 @@
 	<!-- Strings-->
 	<Type Name="ezHybridStringBase&lt;*&gt;">
 		<AlternativeType Name="ezStringBuilder" />
-		<DisplayString Condition="((intptr_t)m_Data.m_pAllocator.m_pPtr &amp; 0x1) == 0">{m_Data.m_pElements,s8}</DisplayString>
-		<DisplayString Condition="((intptr_t)m_Data.m_pAllocator.m_pPtr &amp; 0x1) != 0">{m_Data.m_StaticData,s8}</DisplayString>
-		<StringView Condition="((intptr_t)m_Data.m_pAllocator.m_pPtr &amp; 0x1) == 0">m_Data.m_pElements,s8</StringView>
-		<StringView Condition="((intptr_t)m_Data.m_pAllocator.m_pPtr &amp; 0x1) != 0">m_Data.m_StaticData,s8</StringView>
+    <DisplayString>{m_Data.m_pElements,s8}</DisplayString>
+    <StringView>m_Data.m_pElements,s8</StringView>
 		<Expand>
-			<Item Condition="((intptr_t)m_Data.m_pAllocator.m_pPtr &amp; 0x1) == 0" Name="String">m_Data.m_pElements,s8</Item>
-			<Item Condition="((intptr_t)m_Data.m_pAllocator.m_pPtr &amp; 0x1) != 0" Name="String">m_Data.m_StaticData,s8</Item>
+			<Item Name="String">m_Data.m_pElements,s8</Item>
 			<Item Name="CharacterCount">m_uiCharacterCount</Item>
 			<Item Name="ElementCount">m_Data.m_uiCount</Item>
 		</Expand>
@@ -57,7 +54,7 @@
 			<Item Name="capacity">m_uiCapacity</Item>
 			<ArrayItems>
 				<Size>m_uiCount</Size>
-				<ValuePointer>(((int64_t)m_pAllocator.m_pPtr &amp; 0x1) != 0) ? ($T1*)((intptr_t)this + (intptr_t)m_pElements) : m_pElements</ValuePointer>
+				<ValuePointer>m_pElements</ValuePointer>
 			</ArrayItems>
 		</Expand>
 	</Type>
@@ -187,8 +184,8 @@
 
 	<!-- Basic Types -->
 	<Type Name="ezVariant">
-		<DisplayString Condition="m_uiType == Type::TypedObject &amp;&amp; m_bIsShared">({m_Data.shared->m_pType->m_szTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)}</DisplayString>
-		<DisplayString Condition="m_uiType == Type::TypedObject &amp;&amp; !m_bIsShared">({m_Data.inlined.m_pType->m_szTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(&amp;m_Data)}</DisplayString>
+		<DisplayString Condition="m_uiType == Type::TypedObject &amp;&amp; m_bIsShared">({m_Data.shared->m_pType->m_sTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)}</DisplayString>
+		<DisplayString Condition="m_uiType == Type::TypedObject &amp;&amp; !m_bIsShared">({m_Data.inlined.m_pType->m_sTypeName,sb}*) {reinterpret_cast&lt;void*&gt;(&amp;m_Data)}</DisplayString>
 		<Expand>
 			<Item Name="Type">(Type::Enum) m_uiType</Item>
 			<Item Name="Value" Condition="m_uiType == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>

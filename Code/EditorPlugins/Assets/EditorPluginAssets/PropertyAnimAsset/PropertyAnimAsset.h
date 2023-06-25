@@ -142,7 +142,7 @@ private:
   void RebuildMapping();
   void RemoveTrack(const ezUuid& track);
   void AddTrack(const ezUuid& track);
-  void FindTrackKeys(
+  ezStatus FindTrackKeys(
     const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const;
   void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezStringBuilder& sObjectSearchSequence,
     ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;

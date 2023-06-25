@@ -96,7 +96,7 @@ ezStatus ezObjectPropertyPath::CreatePropertyPath(
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& context, ezHybridArray<ezPropertyReference, 1>& ref_keys,
+ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& context, ezDynamicArray<ezPropertyReference>& ref_keys,
   const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath)
 {
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && !context.m_sRootProperty.IsEmpty(), "All context fields must be valid.");
@@ -115,19 +115,23 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   {
     for (const ezDocumentObject* pObj : input)
     {
-      visitor.Visit(pContext, false, [&output, &sName](const ezDocumentObject* pObject) -> bool {
-        const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
-        if (sObjectName == sName)
+      visitor.Visit(pObj, false, [&output, &sName](const ezDocumentObject* pObject) -> bool
         {
-          output.PushBack(pObject);
-          return false;
-        }
-        return true;
-      });
+          const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
+          if (sObjectName == sName)
+          {
+            output.PushBack(pObject);
+            return false;
+          }
+          return true; //
+        });
     }
     input.Clear();
     input.Swap(output);
   }
+
+  if (input.IsEmpty())
+    return ezStatus(ezFmt("ObjectSearchSequence: '{}' could not be resolved", szObjectSearchSequence));
 
   // Test found objects for component
   for (const ezDocumentObject* pObject : input)
@@ -150,7 +154,7 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
           if (pChild->GetType()->GetTypeName() == szComponentType)
           {
             output.PushBack(pChild);
-            continue; //#TODO: break on found component?
+            continue; // #TODO: break on found component?
           }
         }
       }
@@ -159,6 +163,10 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   input.Clear();
   input.Swap(output);
 
+  if (input.IsEmpty())
+    return ezStatus(ezFmt("Component '{}' not found on the search path '{}'", szComponentType, szObjectSearchSequence));
+
+  ezStatus lastError = ezResult(EZ_FAILURE);
   // Test found objects / components for property
   for (const ezDocumentObject* pObject : input)
   {
@@ -170,8 +178,13 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
     {
       ref_keys.PushBack(key);
     }
+
+    if (lastError.Failed())
+    {
+      lastError = res;
+    }
   }
-  return ezStatus(EZ_SUCCESS);
+  return lastError;
 }
 
 ezStatus ezObjectPropertyPath::ResolvePropertyPath(
