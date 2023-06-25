@@ -23,6 +23,14 @@ add_dependencies(${PROJECT_NAME}
   Player
 )
 
+# For SetProcessDpiAwareness
+if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    Shcore.lib
+  )
+endif()
+
 # set all external projects as runtime dependencies of this application
 get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")
 if(EXTERNAL_PROJECTS)

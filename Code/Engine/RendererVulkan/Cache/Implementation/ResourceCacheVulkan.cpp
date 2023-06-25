@@ -106,7 +106,7 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
     const auto& formatInfo = s_pDevice->GetFormatLookupTable().GetFormatInfo(format);
 
     AttachmentDesc& depthAttachment = out_desc.attachments.ExpandAndGetRef();
-    depthAttachment.format = formatInfo.m_eRenderTarget;
+    depthAttachment.format = formatInfo.m_format;
     if (pTex->GetFormatOverrideEnabled())
     {
       depthAttachment.format = pTex->GetImageFormat();
@@ -151,7 +151,7 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
     const auto& formatInfo = s_pDevice->GetFormatLookupTable().GetFormatInfo(format);
 
     AttachmentDesc& colorAttachment = out_desc.attachments.ExpandAndGetRef();
-    colorAttachment.format = formatInfo.m_eRenderTarget;
+    colorAttachment.format = formatInfo.m_format;
     if (pTex->GetFormatOverrideEnabled())
     {
       colorAttachment.format = pTex->GetImageFormat();

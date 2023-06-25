@@ -16,6 +16,14 @@ target_link_libraries(${PROJECT_NAME}
   EditorEngineProcessFramework
 )
 
+# For SetProcessDpiAwareness
+if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    Shcore.lib
+  )
+endif()
+
 # For plugins to work in UWP builds, they must be direct link dependencies, otherwise they are not packaged with the app.
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 

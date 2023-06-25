@@ -59,12 +59,27 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 {
   m_pDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
+  vk::ImageFormatListCreateInfo imageFormats;
   vk::ImageCreateInfo createInfo = {};
-  //#TODO_VULKAN VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT / VkImageFormatListCreateInfoKHR to allow changing the format in a view is slow.
-  createInfo.flags |= vk::ImageCreateFlagBits::eMutableFormat;
+
   if (m_imageFormat == vk::Format::eUndefined)
   {
-    m_imageFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eResourceViewType;
+    const ezGALFormatLookupEntryVulkan& format = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format);
+    m_imageFormat = format.m_format;
+
+    createInfo.flags |= vk::ImageCreateFlagBits::eMutableFormat;
+    if (m_pDevice->GetExtensions().m_bImageFormatList && !format.m_mutableFormats.IsEmpty())
+    {
+      createInfo.pNext = &imageFormats;
+
+      imageFormats.viewFormatCount = format.m_mutableFormats.GetCount();
+      imageFormats.pViewFormats = format.m_mutableFormats.GetData();
+    }
+  }
+  else
+  {
+    // #TODO_VULKAN if m_imageFormat is set, than means that we are replacing the texture format with another because the swapchain surface does not support the target format. This creates a bit of a conundrum: If we want to support mutable formats in this case, we would need to swap the texture view's format as well and this hack would continue ripple through the code base. Probably best to revisit the GetAlternativeFormat logic in ezGALSwapChainVulkan.
+    // For now, don't support mutable formats until we run into problems.
   }
 
   if ((m_imageFormat == vk::Format::eR8G8B8A8Srgb || m_imageFormat == vk::Format::eB8G8R8A8Unorm) && m_Description.m_bCreateRenderTarget)
@@ -205,7 +220,7 @@ ezGALTextureVulkan::StagingMode ezGALTextureVulkan::ComputeStagingMode(const vk:
     return StagingMode::None;
 
   // We want the staging texture to always have the intended format and not the override format given by the parent texture.
-  vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
+  vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_readback;
 
   EZ_ASSERT_DEV(!ezConversionUtilsVulkan::IsStencilFormat(m_imageFormat), "Stencil read-back not implemented.");
   EZ_ASSERT_DEV(!ezConversionUtilsVulkan::IsDepthFormat(stagingFormat), "Depth read-back should use a color format for CPU staging.");
@@ -225,7 +240,8 @@ ezGALTextureVulkan::StagingMode ezGALTextureVulkan::ComputeStagingMode(const vk:
     vk::ImageFormatProperties props;
     vk::Result res = m_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(stagingFormat, createInfo.imageType, vk::ImageTiling::eLinear, vk::ImageUsageFlagBits::eColorAttachment, {}, &props);
 
-    const bool bCanUseDirectTexture = (res == vk::Result::eSuccess) && createInfo.arrayLayers <= props.maxArrayLayers && createInfo.mipLevels <= props.maxMipLevels && createInfo.extent.depth <= props.maxExtent.depth && createInfo.extent.width <= props.maxExtent.width && createInfo.extent.height <= props.maxExtent.height && (createInfo.samples & props.sampleCounts);
+    // #TODO_VULKAN Note that on Nvidia driver 531.68 the above call succeeds even though linear rendering is not supported by the driver. Thus, we need to check explicitly here that vk::FormatFeatureFlagBits::eColorAttachment is supported again via the vk::FormatProperties.
+    const bool bCanUseDirectTexture = (dstFormatProps.linearTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment) && (res == vk::Result::eSuccess) && createInfo.arrayLayers <= props.maxArrayLayers && createInfo.mipLevels <= props.maxMipLevels && createInfo.extent.depth <= props.maxExtent.depth && createInfo.extent.width <= props.maxExtent.width && createInfo.extent.height <= props.maxExtent.height && (createInfo.samples & props.sampleCounts);
     return bCanUseDirectTexture ? StagingMode::Texture : StagingMode::TextureAndBuffer;
   }
 }
@@ -233,7 +249,7 @@ ezGALTextureVulkan::StagingMode ezGALTextureVulkan::ComputeStagingMode(const vk:
 ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(ezDynamicArray<SubResourceOffset>& subResourceSizes) const
 {
   const ezUInt32 alignment = (ezUInt32)ezGALBufferVulkan::GetAlignment(m_pDevice, vk::BufferUsageFlagBits::eTransferDst);
-  const vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
+  const vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_readback;
   const ezUInt8 uiBlockSize = vk::blockSize(stagingFormat);
   const auto blockExtent = vk::blockExtent(stagingFormat);
   const ezUInt32 arrayLayers = (m_Description.m_Type == ezGALTextureType::TextureCube ? (m_Description.m_uiArraySize * 6) : m_Description.m_uiArraySize);
@@ -278,7 +294,7 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(const vk::ImageCreateInfo& crea
     stagingDesc.m_pExisitingNativeObject = nullptr;
 
     const bool bLinearCPU = m_stagingMode == StagingMode::Texture;
-    const vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
+    const vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_readback;
 
     m_hStagingTexture = m_pDevice->CreateTextureInternal(stagingDesc, {}, stagingFormat, bLinearCPU);
     if (m_hStagingTexture.IsInvalidated())

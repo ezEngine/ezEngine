@@ -126,7 +126,10 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 
   RenderObjects(ezShaderBindFlags::NoRasterizerState);
 
-  EZ_TEST_IMAGE(m_iFrame, 150);
+  if (RasterStateDesc.m_bWireFrame)
+    EZ_TEST_LINE_IMAGE(m_iFrame, 300);
+  else
+    EZ_TEST_IMAGE(m_iFrame, 150);
 
   EndFrame();
 

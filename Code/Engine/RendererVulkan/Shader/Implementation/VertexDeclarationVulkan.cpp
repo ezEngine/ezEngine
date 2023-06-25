@@ -53,7 +53,7 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
     vk::VertexInputAttributeDescription& attrib = m_attributes.ExpandAndGetRef();
     attrib.binding = Current.m_uiVertexBufferSlot;
     attrib.location = uiLocation;
-    attrib.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(Current.m_eFormat).m_eVertexAttributeType;
+    attrib.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(Current.m_eFormat).m_format;
     attrib.offset = Current.m_uiOffset;
 
     if (attrib.format == vk::Format::eUndefined)
