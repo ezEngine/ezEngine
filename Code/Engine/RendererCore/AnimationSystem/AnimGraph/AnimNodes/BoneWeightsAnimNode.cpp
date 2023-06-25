@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoneWeightsAnimNode, 1, ezRTTIDefaultAllocator
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Weights"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Cyan)),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Teal)),
     new ezTitleAttribute("Bone Weights '{RootBones[0]}' '{RootBones[1]}' '{RootBones[2]}'"),
   }
   EZ_END_ATTRIBUTES;

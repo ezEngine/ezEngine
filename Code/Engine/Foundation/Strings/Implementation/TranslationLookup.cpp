@@ -320,6 +320,10 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
   }
 
   result.Trim(" ");
+  while (result.ReplaceAll("  ", " ") > 0)
+  {
+    // remove double whitespaces
+  }
 
   if (GetHighlightUntranslated())
   {

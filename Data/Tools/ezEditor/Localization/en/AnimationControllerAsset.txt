@@ -8,9 +8,9 @@ ezAnimationControllerComponent;Animation Controller;;https://ezengine.net/pages/
 
 # Properties
 
-ezBoneWeightsAnimNode;Bone-Weights
+ezBoneWeightsAnimNode;Bone Weights
 
-ezCheckBlackboardValueAnimNode;Blackboard: Check Value
+ezCheckBlackboardValueAnimNode;Blackboard: Compare Value
 
 ezLogicAndAnimNode;Logic AND
 
@@ -47,3 +47,15 @@ ezMathExpressionAnimNode;Expression
 ezMixClips1DAnimNode;Mix Clips 1D
 
 ezPlaySequenceAnimNode;Play Sequence
+
+ezOnBlackboardValueChangedAnimNode;Blackboard: On Value Changed
+
+ezLerpPosesAnimNode;Lerp Poses
+
+ezSampleFrameAnimNode;Sample Frame
+ezSampleAnimClipAnimNode; Sample Clip
+ezPoseResultAnimNode; Pose Result
+ezSelectPoseAnimNode; Select Pose
+ezSampleBlendSpace1DAnimNode;Sample BlendSpace 1D
+ezSampleBlendSpace2DAnimNode;Sample BlendSpace 2D
+ezSwitchBoneWeightsAnimNode;Bone Weights Switch
