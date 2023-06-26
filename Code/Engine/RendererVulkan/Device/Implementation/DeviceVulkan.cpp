@@ -284,9 +284,16 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 
   AddExtIfSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, m_extensions.m_bTimelineSemaphore);
 
+  if(m_extensions.m_bTimelineSemaphore)
+  {
+    deviceCreateInfo.pNext = &m_extensions.m_timelineSemaphoresEXT; 
+    m_extensions.m_timelineSemaphoresEXT.timelineSemaphore = true;
+  }
+
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME, m_extensions.m_bExternalMemoryFd);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreFd);
+
 #endif
 
   return vk::Result::eSuccess;
@@ -382,6 +389,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     m_physicalDevice = physicalDevices[0];
     m_properties = m_physicalDevice.getProperties();
     ezLog::Info("Selected physical device \"{}\" for device creation.", m_properties.deviceName);
+
+    // TODO call vkGetPhysicalDeviceFeatures2 with VkPhysicalDeviceTimelineSemaphoreFeatures and figure out if timeline semaphores are actually truly supported.
   }
 
   ezHybridArray<vk::QueueFamilyProperties, 4> queueFamilyProperties;
@@ -482,6 +491,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
     m_device.getQueue(m_graphicsQueue.m_uiQueueFamily, m_graphicsQueue.m_uiQueueIndex, &m_graphicsQueue.m_queue);
     m_device.getQueue(m_transferQueue.m_uiQueueFamily, m_transferQueue.m_uiQueueIndex, &m_transferQueue.m_queue);
+
+    m_dispatchContext.Init(*this);
   }
 
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance));
@@ -1014,9 +1025,9 @@ void ezGALDeviceVulkan::DestroyBufferPlatform(ezGALBuffer* pBuffer)
 }
 
 ezGALTexture* ezGALDeviceVulkan::CreateTexturePlatform(
-  const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+  const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezGALSharedTextureType sharedType, ezGALPlatformSharedHandle handle)
 {
-  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description);
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, sharedType, handle);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {
@@ -1623,10 +1634,16 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
   }
 }
 
-ezGALSharedTexture* ezGALDeviceVulkan::GetSharedTexture(ezGALTextureHandle hTexture) const
+const ezGALSharedTexture* ezGALDeviceVulkan::GetSharedTexture(ezGALTextureHandle hTexture) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED
-  return nullptr;
+  auto pTexture = GetTexture(hTexture);
+  if(pTexture == nullptr)
+  {
+    return nullptr;
+  }
+
+  // Resolve proxy texture if any
+  return static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
 }
 
 

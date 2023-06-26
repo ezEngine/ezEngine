@@ -15,6 +15,7 @@
 #  include <RendererFoundation/Device/Device.h>
 #  include <RendererFoundation/Device/DeviceFactory.h>
 #  include <RendererFoundation/Device/SwapChain.h>
+#  include <RendererFoundation/Resources/Texture.h>
 
 #  include <xcb/xcb.h>
 #endif
@@ -45,6 +46,14 @@ public:
     m_uiWidth = 0;
     m_uiHeight = 0;
     m_pDevice = pDevice;
+
+    // TODO Resizing
+    ezGALTextureCreationDescription desc;
+    desc.SetAsRenderTarget(640, 480, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
+    for(auto& hSharedTexture : m_hSharedTextures)
+    {
+      hSharedTexture = pDevice->CreateSharedTexture(desc);
+    }
   }
 
   ~ezEngineViewWindow()
@@ -147,6 +156,30 @@ public:
     //ezTaskSystem::FinishFrameTasks();
   }
 
+  ezResult FillMessage(ezViewOpenSharedTexturesMsgToEngine& msg)
+  {
+    const ezGALSharedTexture* pSharedTextureA = m_pDevice->GetSharedTexture(m_hSharedTextures[0]);
+    const ezGALSharedTexture* pSharedTextureB = m_pDevice->GetSharedTexture(m_hSharedTextures[1]);
+    if(pSharedTextureA == nullptr || pSharedTextureB == nullptr)
+    {
+      return EZ_FAILURE;
+    }
+
+    ezGALPlatformSharedHandle hHandle0 = pSharedTextureA->GetSharedHandle();
+    ezGALPlatformSharedHandle hHandle1 = pSharedTextureB->GetSharedHandle();
+
+    msg.m_SharedHandles0A = hHandle0.a;
+    msg.m_SharedHandles0B = hHandle0.b;
+    msg.m_SharedHandles1A = hHandle1.a;
+    msg.m_SharedHandles1B = hHandle1.b;
+
+    msg.m_Width = 640;
+    msg.m_Height = 480;
+    msg.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+
+    return EZ_SUCCESS;
+  }
+
   // Inherited via ezWindowBase
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
@@ -164,6 +197,8 @@ private:
   ezAtomicInteger32 m_iReferenceCount = 0;
   ezGALDevice* m_pDevice = nullptr;
   ezGALSwapChainHandle m_hSwapchain;
+
+  ezGALTextureHandle m_hSharedTextures[2];
 };
 #endif
 
@@ -240,6 +275,19 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
 
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     ShowRestartButton(true);
+
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  ezViewOpenSharedTexturesMsgToEngine msg;
+  msg.m_uiViewID = GetViewID();
+  if(m_pWindow->FillMessage(msg).Succeeded())
+  {
+    m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
+  }
+  else
+  {
+    ezLog::Error("Failed to send initial shared texture create message");
+  }
+#endif
 }
 
 

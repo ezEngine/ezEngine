@@ -36,11 +36,12 @@ vk::ImageAspectFlags ezGALTextureVulkan::GetAspectMask() const
   return mask;
 }
 
-ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool exportShared)
+ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, ezGALSharedTextureType sharedType, ezGALPlatformSharedHandle hSharedHandle)
   : ezGALTexture(Description)
   , m_image(nullptr)
   , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
-  , m_sharedType(exportShared ? SharedType::Exported : SharedType::None)
+  , m_sharedType(sharedType)
+  , m_sharedHandle(hSharedHandle)
 {
 }
 
@@ -184,7 +185,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 
   if (m_pExisitingNativeObject == nullptr)
   {
-    if (m_sharedType != SharedType::Imported)
+    if (m_sharedType != ezGALSharedTextureType::Imported)
     {
 
       ezVulkanAllocationCreateInfo allocInfo;
@@ -204,7 +205,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_image, m_alloc, &m_allocInfo));
 
-      if (m_sharedType == SharedType::Exported)
+      if (m_sharedType == ezGALSharedTextureType::Exported)
       {
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
         if (!m_pDevice->GetExtensions().m_bTimelineSemaphore)
@@ -245,7 +246,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 #endif
       }
     }
-    else
+    else if(m_sharedType == ezGALSharedTextureType::Imported)
     {
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
       if (m_sharedHandle.a == 0 || m_sharedHandle.b == 0)
@@ -298,7 +299,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
       EZ_ASSERT_DEBUG(importInfo.memoryTypeBits == imageMemoryRequirements.memoryRequirements.memoryTypeBits, "Required and imported memory type bits do not match");
 
 
-      vk::ImportMemoryFdInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_sharedHandle.b)};
+      vk::ImportMemoryFdInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_sharedHandle.a)};
       vk::MemoryAllocateInfo allocateInfo{imageMemoryRequirements.memoryRequirements.size, memoryTypeIndex, &fdInfo};
 
       m_allocInfo = {};
@@ -441,7 +442,7 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(const vk::ImageCreateInfo& crea
 ezResult ezGALTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  if (m_sharedType == SharedType::Imported)
+  if (m_sharedType == ezGALSharedTextureType::Imported)
   {
     pVulkanDevice->DeleteLater(m_image, m_allocInfo.m_deviceMemory);
   }
@@ -497,8 +498,7 @@ void ezGALTextureVulkan::SetDebugNamePlatform(const char* szName) const
 
 ezGALPlatformSharedHandle ezGALTextureVulkan::GetSharedHandle() const
 {
-  // TODO
-  return {};
+  return m_sharedHandle;
 }
 
 

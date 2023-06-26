@@ -121,6 +121,7 @@ public:
     bool m_bBorderColorFloat = false;
 
     bool m_bImageFormatList = false;
+    vk::PhysicalDeviceTimelineSemaphoreFeatures m_timelineSemaphoresEXT;
     bool m_bTimelineSemaphore = false;
     bool m_bExternalMemoryFd = false;
     bool m_bExternalSemaphoreFd = false;
@@ -249,7 +250,7 @@ public:
   };
   ezEvent<OnBeforeImageDestroyedData> OnBeforeImageDestroyed;
 
-  virtual ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const override;
+  virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const override;
 
 
   // These functions need to be implemented by a render API abstraction
@@ -294,7 +295,7 @@ protected:
   virtual ezGALBuffer* CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData) override;
   virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) override;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
+  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezGALSharedTextureType sharedType, ezGALPlatformSharedHandle handle) override;
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
 
   virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;

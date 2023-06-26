@@ -619,3 +619,18 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezObjectsForDebugVisMsgToEngine : publ
 public:
   ezDataBuffer m_Objects;
 };
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewOpenSharedTexturesMsgToEngine : public ezEditorEngineViewMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewOpenSharedTexturesMsgToEngine, ezEditorEngineViewMsg);
+
+public:
+  ezUInt64 m_SharedHandles0A;
+  ezUInt64 m_SharedHandles0B;
+  ezUInt64 m_SharedHandles1A;
+  ezUInt64 m_SharedHandles1B;
+
+  uint32_t m_Width;
+  uint32_t m_Height;
+  ezGALResourceFormat::Enum m_Format;
+};

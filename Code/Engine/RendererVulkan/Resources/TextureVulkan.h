@@ -26,13 +26,6 @@ public:
     ezUInt32 m_uiImageHeight;
   };
 
-  enum class SharedType : ezUInt8
-  {
-    None,     ///< Not shared
-    Exported, ///< Allocation owned by this process
-    Imported  ///< Allocation owned by a different process
-  };
-
   EZ_ALWAYS_INLINE vk::Image GetImage() const;
   EZ_ALWAYS_INLINE vk::Format GetImageFormat() const { return m_imageFormat; }
   EZ_ALWAYS_INLINE vk::ImageLayout GetPreferredLayout() const;
@@ -57,13 +50,13 @@ public:
   ezUInt32 ComputeSubResourceOffsets(ezDynamicArray<SubResourceOffset>& out_subResourceOffsets) const;
 
   // Shared Texture
-  EZ_ALWAYS_INLINE SharedType GetSharedType() const;
+  EZ_ALWAYS_INLINE ezGALSharedTextureType GetSharedType() const;
 
 protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool bExportShared = false);
+  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, ezGALSharedTextureType sharedType, ezGALPlatformSharedHandle hSharedHandle);
   ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, vk::Format OverrideFormat, bool bLinearCPU);
 
   ~ezGALTextureVulkan();
@@ -92,7 +85,7 @@ protected:
   bool m_formatOverride = false;
   bool m_bLinearCPU = false;
 
-  SharedType m_sharedType = SharedType::None;
+  ezGALSharedTextureType m_sharedType = ezGALSharedTextureType::None;
   StagingMode m_stagingMode = StagingMode::None;
   ezGALTextureHandle m_hStagingTexture;
   ezGALBufferHandle m_hStagingBuffer;

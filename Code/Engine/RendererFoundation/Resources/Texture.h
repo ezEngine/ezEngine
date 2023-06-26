@@ -19,6 +19,15 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };
 
+
+// Type of the shared texture
+enum class ezGALSharedTextureType : ezUInt8
+{
+  None,     ///< Not shared
+  Exported, ///< Allocation owned by this process
+  Imported  ///< Allocation owned by a different process
+};
+
 // Opaque platform specific handle
 // Typically holds a platform specific handle for the texture and it's synchronisation primitive
 struct ezGALPlatformSharedHandle

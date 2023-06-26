@@ -615,3 +615,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectsForDebugVisMsgToEngine, 1, ezRTTIDefaul
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewOpenSharedTexturesMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewOpenSharedTexturesMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("SharedHandles0A", m_SharedHandles0A),
+    EZ_MEMBER_PROPERTY("SharedHandles0B", m_SharedHandles0B),
+    EZ_MEMBER_PROPERTY("SharedHandles1A", m_SharedHandles1A),
+    EZ_MEMBER_PROPERTY("SharedHandles1B", m_SharedHandles1B),
+    EZ_MEMBER_PROPERTY("width", m_Width),
+    EZ_MEMBER_PROPERTY("height", m_Height),
+    EZ_ENUM_MEMBER_PROPERTY("format", ezGALResourceFormat, m_Format),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;

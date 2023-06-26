@@ -627,7 +627,7 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
     return ezGALTextureHandle();
   }
 
-  ezGALTexture* pTexture = CreateTexturePlatform(desc, initialData);
+  ezGALTexture* pTexture = CreateTexturePlatform(desc, initialData, ezGALSharedTextureType::None, {});
 
   return FinalizeTextureInternal(desc, pTexture);
 }
@@ -746,6 +746,47 @@ void ezGALDevice::DestroyProxyTexture(ezGALTextureHandle hProxyTexture)
   {
     ezLog::Warning("DestroyProxyTexture called on invalid handle (double free?)");
   }
+}
+
+ezGALTextureHandle ezGALDevice::CreateSharedTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> initialData)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
+
+  if (desc.m_ResourceAccess.IsImmutable() && (initialData.IsEmpty() || initialData.GetCount() < desc.m_uiMipLevelCount) &&
+      !desc.m_bCreateRenderTarget)
+  {
+    ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
+    return ezGALTextureHandle();
+  }
+
+  if (desc.m_uiWidth == 0 || desc.m_uiHeight == 0)
+  {
+    ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
+    return ezGALTextureHandle();
+  }
+
+  ezGALTexture* pTexture = CreateTexturePlatform(desc, initialData, ezGALSharedTextureType::Exported, {});
+
+  return FinalizeTextureInternal(desc, pTexture);
+}
+
+ezGALTextureHandle ezGALDevice::OpenSharedTexture(const ezGALTextureCreationDescription& desc, ezGALPlatformSharedHandle hSharedHandle)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
+
+  if (desc.m_uiWidth == 0 || desc.m_uiHeight == 0)
+  {
+    ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
+    return ezGALTextureHandle();
+  }
+
+  ezGALTexture* pTexture = CreateTexturePlatform(desc, {}, ezGALSharedTextureType::Imported, hSharedHandle);
+
+  return FinalizeTextureInternal(desc, pTexture);
 }
 
 ezGALResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALTextureHandle hTexture)

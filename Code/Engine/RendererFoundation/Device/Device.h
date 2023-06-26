@@ -11,6 +11,7 @@
 
 class ezColor;
 struct ezGALPlatformSharedHandle;
+enum class ezGALSharedTextureType : ezUInt8;
 
 /// \brief The ezRenderDevice class is the primary interface for interactions with rendering APIs
 /// It contains a set of (non-virtual) functions to set state, create resources etc. which rely on
@@ -68,8 +69,8 @@ public:
   ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);
   void DestroyProxyTexture(ezGALTextureHandle hProxyTexture);
 
-  ezGALTextureHandle CreateSharedTexture(const ezGALTextureCreationDescription& Description);
-  ezGALTextureHandle OpenSharedTexture(const ezGALTextureCreationDescription& Description, ezGALPlatformSharedHandle hSharedHandle);
+  ezGALTextureHandle CreateSharedTexture(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData = {});
+  ezGALTextureHandle OpenSharedTexture(const ezGALTextureCreationDescription& description, ezGALPlatformSharedHandle hSharedHandle);
 
   // Resource views
   ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
@@ -282,7 +283,7 @@ protected:
   virtual ezGALBuffer* CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData) = 0;
   virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) = 0;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
+  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezGALSharedTextureType sharedType, ezGALPlatformSharedHandle handle) = 0;
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) = 0;
 
   virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) = 0;

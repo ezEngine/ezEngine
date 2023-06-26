@@ -40,7 +40,8 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
       ezThreadUtils::Sleep(ezTime::Milliseconds(1));
     }
 
-    EZ_DEBUG_BREAK;
+    // DO NOT COMMIT
+    //EZ_DEBUG_BREAK;
   }
 
   return EZ_SUCCESS;
