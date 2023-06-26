@@ -416,14 +416,17 @@ const ezDocumentObject* ezEditorTest::DropAsset(ezScene2Document* pDoc, const ch
   return {};
 }
 
-const ezDocumentObject* ezEditorTest::CreateGameObject(ezScene2Document* pDoc)
+const ezDocumentObject* ezEditorTest::CreateGameObject(ezScene2Document* pDoc, const ezDocumentObject* pParent, ezStringView sName)
 {
   auto pAccessor = pDoc->GetObjectAccessor();
   pAccessor->StartTransaction("Add Game Object");
 
   ezUuid guid;
-  EZ_TEST_STATUS(pAccessor->AddObject(pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
+  EZ_TEST_STATUS(pAccessor->AddObject(pParent != nullptr ? pParent : pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
+  const ezDocumentObject* pObject = pAccessor->GetObject(guid);
+  EZ_TEST_STATUS(pAccessor->SetValue(pObject, "Name", sName));
+
   pAccessor->FinishTransaction();
 
-  return pAccessor->GetObject(guid);
+  return pObject;
 }

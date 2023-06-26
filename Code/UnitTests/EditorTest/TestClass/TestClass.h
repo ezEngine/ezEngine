@@ -66,7 +66,7 @@ protected:
   std::unique_ptr<QMimeData> ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects);
   void MoveObjectsToLayer(ezScene2Document* pDoc, const ezDeque<const ezDocumentObject*>& objects, const ezUuid& layer, ezDeque<const ezDocumentObject*>& new_objects);
   const ezDocumentObject* DropAsset(ezScene2Document* pDoc, const char* szAssetGuidOrPath, bool bShift = false, bool bCtrl = false);
-  const ezDocumentObject* CreateGameObject(ezScene2Document* pDoc);
+  const ezDocumentObject* CreateGameObject(ezScene2Document* pDoc, const ezDocumentObject* pParent = nullptr, ezStringView sName = {});
 
 
   ezEditorTestApplication* m_pApplication = nullptr;

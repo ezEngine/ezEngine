@@ -1537,6 +1537,7 @@ void ezAssetCurator::OnAssetFilesEvent(const ezFileChangedEvent& e)
       // If the asset was just added it is not tracked and thus no need to invalidate anything.
       if (e.m_Type == ezFileChangedEvent::Type::FileChanged)
       {
+        EZ_LOCK(m_CuratorMutex);
         ezUuid guid0 = e.m_Status.m_DocumentID;
         if (guid0.IsValid())
           InvalidateAssetTransformState(guid0);
@@ -1579,6 +1580,7 @@ void ezAssetCurator::OnAssetFilesEvent(const ezFileChangedEvent& e)
     break;
     case ezFileChangedEvent::Type::FileRemoved:
     {
+      EZ_LOCK(m_CuratorMutex);
       ezUuid guid0 = e.m_Status.m_DocumentID;
       if (guid0.IsValid())
       {

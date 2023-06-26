@@ -17,6 +17,7 @@ private:
     ST_LayerOperations,
     ST_PrefabOperations,
     ST_ComponentOperations,
+    ST_ObjectPropertyPath,
   };
 
   virtual void SetupSubTests() override;
@@ -29,6 +30,7 @@ private:
   void LayerOperations();
   void PrefabOperations();
   void ComponentOperations();
+  void ObjectPropertyPath();
 
   static void CheckHierarchy(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pRoot, ezDelegate<void(const ezDocumentObject* pChild)> functor);
 

@@ -348,7 +348,7 @@ void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
     return;
 
   auto pTrack = GetTrack(track);
-  FindTrackKeys(pTrack->m_sObjectSearchSequence.GetData(), pTrack->m_sComponentType.GetData(), pTrack->m_sPropertyPath.GetData(), keys);
+  FindTrackKeys(pTrack->m_sObjectSearchSequence.GetData(), pTrack->m_sComponentType.GetData(), pTrack->m_sPropertyPath.GetData(), keys).IgnoreResult();
 
   for (const ezPropertyReference& key : keys)
   {
@@ -367,12 +367,12 @@ void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
 }
 
 
-void ezPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const
+ezStatus ezPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const
 {
   ezObjectPropertyPathContext context = {GetContextObject(), m_pObjectAccessor.Borrow(), "TempObjects"};
 
   keys.Clear();
-  ezObjectPropertyPath::ResolvePath(context, keys, szObjectSearchSequence, szComponentType, szPropertyPath).AssertSuccess();
+  return ezObjectPropertyPath::ResolvePath(context, keys, szObjectSearchSequence, szComponentType, szPropertyPath);
 }
 
 
@@ -600,11 +600,7 @@ ezStatus ezPropertyAnimAssetDocument::CanAnimate(
   }
 
   ezHybridArray<ezPropertyReference, 1> keys;
-  FindTrackKeys(sObjectSearchSequence.GetData(), sComponentType.GetData(), sPropertyPath.GetData(), keys);
-  if (!keys.Contains(key))
-    return ezStatus("No node name set or property is not reachable.");
-
-  return ezStatus(EZ_SUCCESS);
+  return FindTrackKeys(sObjectSearchSequence.GetData(), sComponentType.GetData(), sPropertyPath.GetData(), keys);
 }
 
 ezUuid ezPropertyAnimAssetDocument::FindTrack(
