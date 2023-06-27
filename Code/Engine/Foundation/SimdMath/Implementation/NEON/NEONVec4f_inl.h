@@ -28,7 +28,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float x, float y, float z, float w)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  float EZ_ALIGN_16(values[4]) = {x, y, z, w};
+  alignas(16) float values[4] = {x, y, z, w};
   m_v = vld1q_f32(values);
 }
 
@@ -39,7 +39,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float xyzw)
 
 EZ_ALWAYS_INLINE void ezSimdVec4f::Set(float x, float y, float z, float w)
 {
-  float EZ_ALIGN_16(values[4]) = {x, y, z, w};
+  alignas(16) float values[4] = {x, y, z, w};
   m_v = vld1q_f32(values);
 }
 
@@ -328,6 +328,11 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Abs() const
   return vabsq_f32(m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Round() const
+{
+  return vrndnq_f32(m_v);
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const
 {
   return vrndmq_f32(m_v);
@@ -336,6 +341,11 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Ceil() const
 {
   return vrndpq_f32(m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Trunc() const
+{
+  return vrndq_f32(m_v);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(const ezSimdVec4b& cmp) const

@@ -19,7 +19,7 @@ namespace ezInternal
   EZ_ALWAYS_INLINE uint32_t NeonMoveMask(uint32x4_t x)
   {
     // Isolate the sign bit of each vector element and shift it into its position in the final mask, the horizontally add to combine each element mask.
-    static const EZ_ALIGN_16(int32_t shift[4]) = {0, 1, 2, 3};
+    alignas(16) static const int32_t shift[4] = {0, 1, 2, 3};
     return vaddvq_u32(vshlq_u32(vshrq_n_u32(x, 31), vld1q_s32(shift)));
   }
 

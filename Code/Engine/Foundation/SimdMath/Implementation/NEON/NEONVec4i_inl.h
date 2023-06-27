@@ -20,7 +20,7 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInt32 x, ezInt32 y, ezInt32 z, ezInt
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  int32_t EZ_ALIGN_16(values[4]) = {x, y, z, w};
+  alignas(16) ezInt32 values[4] = {x, y, z, w};
   m_v = vld1q_s32(values);
 }
 
@@ -36,13 +36,62 @@ EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 xyzw)
 
 EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w)
 {
-  int32_t EZ_ALIGN_16(values[4]) = {x, y, z, w};
+  alignas(16) ezInt32 values[4] = {x, y, z, w};
   m_v = vld1q_s32(values);
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4i::SetZero()
 {
   m_v = vmovq_n_s32(0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<1>(const ezInt32* pInts)
+{
+  m_v = vld1q_lane_s32(pInts, vmovq_n_s32(0), 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<2>(const ezInt32* pInts)
+{
+  m_v = vreinterpretq_s32_s64(vld1q_lane_s64(reinterpret_cast<const int64_t*>(pInts), vmovq_n_s64(0), 0));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<3>(const ezInt32* pInts)
+{
+  m_v = vcombine_s32(vld1_s32(pInts), vld1_lane_s32(pInts + 2, vmov_n_s32(0), 0));
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Load<4>(const ezInt32* pInts)
+{
+  m_v = vld1q_s32(pInts);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<1>(ezInt32* pInts) const
+{
+  vst1q_lane_s32(pInts, m_v, 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<2>(ezInt32* pInts) const
+{
+  vst1q_lane_s64(reinterpret_cast<int64_t*>(pInts), vreinterpretq_s64_s32(m_v), 0);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<3>(ezInt32* pInts) const
+{
+  vst1q_lane_s64(reinterpret_cast<int64_t*>(pInts), vreinterpretq_s64_s32(m_v), 0);
+  vst1q_lane_s32(pInts + 2, m_v, 2);
+}
+
+template <>
+EZ_ALWAYS_INLINE void ezSimdVec4i::Store<4>(ezInt32* pInts) const
+{
+  vst1q_s32(pInts, m_v);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ToFloat() const
@@ -108,6 +157,23 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMul(const ezSimdVec4i& v) const
   return vmulq_s32(m_v, v.m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompDiv(const ezSimdVec4i& v) const
+{
+  int a[4];
+  int b[4];
+  Store<4>(a);
+  v.Store<4>(b);
+
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    a[i] = a[i] / b[i];
+  }
+
+  ezSimdVec4i r;
+  r.Load<4>(a);
+  return r;
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator|(const ezSimdVec4i& v) const
 {
   return vorrq_s32(m_v, v.m_v);
@@ -136,6 +202,16 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator<<(ezUInt32 uiShift) const
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(ezUInt32 uiShift) const
 {
   return vshlq_s32(m_v, vmovq_n_s32(-uiShift));
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator<<(const ezSimdVec4i& v) const
+{
+  return vshlq_s32(m_v, v.m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::operator>>(const ezSimdVec4i& v) const
+{
+  return vshlq_s32(m_v, vnegq_s32(v.m_v));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4i& ezSimdVec4i::operator+=(const ezSimdVec4i& v)
@@ -229,6 +305,12 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
 {
   return vmovq_n_s32(0);
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse)
+{
+  return vbslq_s32(vCmp.m_v, vTrue.m_v, vFalse.m_v);
 }
 
 // not needed atm

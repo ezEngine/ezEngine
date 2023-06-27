@@ -20,7 +20,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(ezUInt32 x, ezUInt32 y, ezUInt32 z, ez
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  uint32_t EZ_ALIGN_16(values[4]) = {x, y, z, w};
+  alignas(16) ezUInt32 values[4] = {x, y, z, w};
   m_v = vld1q_u32(values);
 }
 
@@ -36,7 +36,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 xyzw)
 
 EZ_ALWAYS_INLINE void ezSimdVec4u::Set(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w)
 {
-  uint32_t EZ_ALIGN_16(values[4]) = {x, y, z, w};
+  alignas(16) ezUInt32 values[4] = {x, y, z, w};
   m_v = vld1q_u32(values);
 }
 
