@@ -250,7 +250,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*=
   LoadCVarsFromFile(bOnlyNewOnes, bSetAsCurrentValue);
 }
 
-static ezResult ParseLine(const ezString& sLine, ezStringBuilder& VarName, ezStringBuilder& VarValue)
+static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_VarName, ezStringBuilder& out_VarValue)
 {
   const char* szSign = sLine.FindSubString("=");
 
@@ -264,7 +264,7 @@ static ezResult ParseLine(const ezString& sLine, ezStringBuilder& VarName, ezStr
     while (sSubString.EndsWith(" "))
       sSubString.Shrink(0, 1);
 
-    ref_sVarName = sSubString;
+    out_VarName = sSubString;
   }
 
   {
@@ -287,7 +287,7 @@ static ezResult ParseLine(const ezString& sLine, ezStringBuilder& VarName, ezStr
     if (sSubString.EndsWith("\""))
       sSubString.Shrink(0, 1);
 
-    ref_sVarValue = sSubString;
+    out_VarValue = sSubString;
   }
 
   return EZ_SUCCESS;
@@ -295,7 +295,7 @@ static ezResult ParseLine(const ezString& sLine, ezStringBuilder& VarName, ezStr
 
 void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
 {
-  if (s_StorageFolder.IsEmpty())
+  if (s_sStorageFolder.IsEmpty())
     return;
 
   // this command line disables loading and saving CVars to and from files
@@ -333,7 +333,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
     while (it.IsValid())
     {
       // create the plugin specific file
-      sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder, it.Key());
+      sTemp.Format("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
       LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
 
