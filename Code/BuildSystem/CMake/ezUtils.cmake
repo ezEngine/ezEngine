@@ -93,6 +93,10 @@ endmacro()
 # ## ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
 # #####################################
 function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
+	if(EZ_DO_NOT_SET_OUTPUT_DIRS)
+		return()
+	endif()
+
 	ez_pull_output_vars("${LIB_OUTPUT_DIR}" "${DLL_OUTPUT_DIR}")
 
 	# If we can't use generator expressions the non-generator expression version of the
