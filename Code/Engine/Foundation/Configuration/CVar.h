@@ -125,7 +125,7 @@ public:
   /// This function works without setting a storage folder.
   ///
   /// \sa LoadCVarsFromFile()
-  static void SaveCVarsToFile(ezStringView path);
+  static void SaveCVarsToFile(ezStringView sPath);
 
   /// \brief Calls LoadCVarsFromCommandLine() and then LoadCVarsFromFile()
   static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
@@ -167,7 +167,7 @@ public:
   ///
   /// \sa LoadCVarsFromCommandLine()
   /// \sa LoadCVarsFromFile()
-  static void LoadCVarsFromFile(ezStringView path, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr);
+  static void LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr);
 
   /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line
   /// The CVars are loaded into the global system and thus automatically available everywhere after this call.

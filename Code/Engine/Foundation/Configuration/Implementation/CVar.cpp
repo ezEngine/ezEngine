@@ -138,7 +138,7 @@ void ezCVar::SetStorageFolder(ezStringView sFolder)
 
 ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
 
-void ezCVar::SaveCVarsToFile(ezStringView path)
+void ezCVar::SaveCVarsToFile(ezStringView sPath)
 {
   ezHybridArray<ezCVar*, 128> allCVars;
 
@@ -147,7 +147,7 @@ void ezCVar::SaveCVarsToFile(ezStringView path)
     allCVars.PushBack(pCVar);
   }
 
-  SaveCVarsToFileInternal(path, allCVars);
+  SaveCVarsToFileInternal(sPath, allCVars);
 }
 
 void ezCVar::SaveCVars()
@@ -250,7 +250,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes /*= true*/, bool bSetAsCurrentValue /*=
   LoadCVarsFromFile(bOnlyNewOnes, bSetAsCurrentValue);
 }
 
-static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_VarName, ezStringBuilder& out_VarValue)
+static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_sVarName, ezStringBuilder& out_sVarValue)
 {
   const char* szSign = sLine.FindSubString("=");
 
@@ -264,7 +264,7 @@ static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_VarName, e
     while (sSubString.EndsWith(" "))
       sSubString.Shrink(0, 1);
 
-    out_VarName = sSubString;
+    out_sVarName = sSubString;
   }
 
   {
@@ -287,7 +287,7 @@ static ezResult ParseLine(const ezString& sLine, ezStringBuilder& out_VarName, e
     if (sSubString.EndsWith("\""))
       sSubString.Shrink(0, 1);
 
-    out_VarValue = sSubString;
+    out_sVarValue = sSubString;
   }
 
   return EZ_SUCCESS;
@@ -343,7 +343,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
   }
 }
 
-void ezCVar::LoadCVarsFromFile(ezStringView path, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
+void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
 {
   ezHybridArray<ezCVar*, 128> allCVars;
 
@@ -358,7 +358,7 @@ void ezCVar::LoadCVarsFromFile(ezStringView path, bool bOnlyNewOnes, bool bSetAs
     pCVar->m_bHasNeverBeenLoaded = false;
   }
 
-  LoadCVarsFromFileInternal(path, allCVars, bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
+  LoadCVarsFromFileInternal(sPath, allCVars, bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
 }
 
 void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
