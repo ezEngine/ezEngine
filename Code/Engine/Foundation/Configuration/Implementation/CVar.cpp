@@ -196,7 +196,7 @@ void ezCVar::SaveCVars()
   }
 }
 
-void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar *>& vars)
+void ezCVar::SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars)
 {
   ezStringBuilder sTemp;
   ezFileWriter File;

@@ -260,7 +260,7 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& ref_trace, void* pConte
     frame.AddrStack.Offset = context.Esp;
     machine_type = IMAGE_FILE_MACHINE_I386;
 #else
-    #error Unsupported platform
+#  error Unsupported platform
 #endif
 
     for (ezInt32 i = 0; i < (ezInt32)ref_trace.GetCount(); i++)

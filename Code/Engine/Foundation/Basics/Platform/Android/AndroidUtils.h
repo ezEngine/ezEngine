@@ -10,7 +10,7 @@ using JavaVM = _JavaVM;
 struct _JNIEnv;
 using JNIEnv = _JNIEnv;
 class _jobject;
-using jobject =  _jobject*;
+using jobject = _jobject*;
 
 class EZ_FOUNDATION_DLL ezAndroidUtils
 {
