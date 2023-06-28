@@ -84,6 +84,50 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   ezCVar::SetStorageFolder(":output/CVars");
   ezCVar::LoadCVars(); // should do nothing (no settings files available)
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SaveCVarsToFile and LoadCVarsFromFile again")
+  {
+    ezCVarInt testCVarInt("testCVarInt", 0, ezCVarFlags::Default, "Test");
+    ezCVarFloat testCVarFloat("testCVarFloat", 0.0f, ezCVarFlags::Default, "Test");
+    ezCVarBool testCVarBool("testCVarBool", false, ezCVarFlags::Default, "Test");
+    ezCVarString testCVarString("testCVarString", "", ezCVarFlags::Default, "Test");
+
+    testCVarInt = 481516;
+    testCVarFloat = 23.42f;
+    testCVarBool = true;
+    testCVarString = "Hello World!";
+
+    const char* cvarConfigFileDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+    EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
+
+    ezStringView cvarConfigFile(":CVarConfigTempDir/CVars.cfg");
+    ezCVar::SaveCVarsToFile(cvarConfigFile);
+
+    EZ_TEST_BOOL(ezFileSystem::ExistsFile(cvarConfigFile) == EZ_SUCCESS);
+
+    testCVarInt = 0;
+    testCVarFloat = 0;
+    testCVarBool = false;
+    testCVarString = "";
+
+    ezDynamicArray<ezCVar*> outCVars;
+    constexpr bool bOnlyNewOnes = false;
+    constexpr bool bSetAsCurrentValue = true;
+    ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, &outCVars);
+
+    EZ_TEST_INT(testCVarInt, 481516);
+    EZ_TEST_FLOAT(testCVarFloat, 23.42f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_BOOL(testCVarBool == true);
+    EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+
+    EZ_TEST_BOOL(outCVars.Contains(&testCVarInt));
+    EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat));
+    EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+    EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+    ezFileSystem::DeleteFile(cvarConfigFile);
+    EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectory("CVarConfigTempDir"));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded")
   {
     EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == nullptr);

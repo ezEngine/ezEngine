@@ -120,7 +120,7 @@ public:
   /// So it might not be necessary to call this function manually at shutdown.
   static void SaveCVars(); // [tested]
 
-  /// \brief Stores all CVar values into the given file.
+  /// \brief Stores all CVar values into the given file, ignoring the save flag ezCVarFlags::Save.
   ///
   /// This function works without setting a storage folder.
   ///
@@ -131,6 +131,7 @@ public:
   static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
 
   /// \brief Loads the CVars from the settings files in the storage folder.
+  ///
   /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
   /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
   /// loaded in this very step.
@@ -150,7 +151,8 @@ public:
   /// \sa LoadCVarsFromCommandLine()
   static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr); // [tested]
 
-  /// \brief Loads all CVars from the given file. Does not account for any plug-in specific files are save flags.
+  /// \brief Loads all CVars from the given file, ignoring the save flag ezCVarFlags::Save. Does not account for any plug-in specific files.
+  ///
   /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
   /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
   /// loaded in this very step.
@@ -169,7 +171,8 @@ public:
   /// \sa LoadCVarsFromFile()
   static void LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr);
 
-  /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line
+  /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line.
+  ///
   /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
   /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
   /// loaded in this very step.
