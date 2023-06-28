@@ -31,6 +31,7 @@ export class Player extends ez.TickedTypescriptComponent {
     grabObject: ez.JoltGrabObjectComponent = null;
     requireNoShoot: boolean = false;
     blackboard: ez.BlackboardComponent = null;
+    damageIndicatorSpawner: ez.SpawnComponent = null;
 
     OnSimulationStarted(): void {
         let owner = this.GetOwner();
@@ -47,6 +48,9 @@ export class Player extends ez.TickedTypescriptComponent {
         this.guns[_ge.Weapon.PlasmaRifle] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("PlasmaRifle", true));
         this.guns[_ge.Weapon.RocketLauncher] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("RocketLauncher", true));
         this.blackboard = owner.TryGetComponentOfBaseType(ez.BlackboardComponent);
+
+        let damageIndicatorSpawnerObject = owner.FindChildByName("DamageIndicatorSpawner");
+        this.damageIndicatorSpawner = damageIndicatorSpawnerObject.TryGetComponentOfBaseType(ez.SpawnComponent);
 
         this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.JoltGrabObjectComponent);
         this.SetTickInterval(ez.Time.Milliseconds(0));
@@ -282,7 +286,12 @@ export class Player extends ez.TickedTypescriptComponent {
 
         this.health -= msg.Damage * 2;
 
-        if (this.health <= 0) {
+        if (this.damageIndicatorSpawner != null)
+        {
+            this.damageIndicatorSpawner.TriggerManualSpawn(false, ez.Vec3.ZeroVector());
+        }
+		
+		if (this.health <= 0) {
 
             ez.Log.Info("Player died.");
 
