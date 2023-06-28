@@ -51,7 +51,7 @@ EZ_FORCE_INLINE ezHashedString ezRenderData::GetCategoryName(Category category)
 
 EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, const ezCamera& camera) const
 {
-  return s_CategoryData[category.m_uiValue].m_sortingKeyFunc(this, m_uiSortingKey, camera);
+  return s_CategoryData[category.m_uiValue].m_sortingKeyFunc(this, camera);
 }
 
 //////////////////////////////////////////////////////////////////////////

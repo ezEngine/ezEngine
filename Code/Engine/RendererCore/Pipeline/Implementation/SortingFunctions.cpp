@@ -15,18 +15,17 @@ namespace
   EZ_FORCE_INLINE ezUInt32 CalculateDistance(const ezRenderData* pRenderData, const ezCamera& camera)
   {
     ///\todo far-plane is not enough to normalize distance
-    const float fDistance = (camera.GetPosition() - pRenderData->m_GlobalTransform.m_vPosition).GetLength();
+    const float fDistance = (camera.GetPosition() - pRenderData->m_GlobalTransform.m_vPosition).GetLength() + pRenderData->m_fSortingDepthOffset;
     const float fNormalizedDistance = ezMath::Clamp(fDistance / camera.GetFarPlane(), 0.0f, 1.0f);
     return static_cast<ezUInt32>(fNormalizedDistance * 65535.0f);
   }
 } // namespace
 
 // static
-ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(
-  const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderData* pRenderData, const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
-  const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
+  const ezUInt64 uiRenderDataSortingKey64 = pRenderData->m_uiSortingKey;
   const ezUInt64 uiDistance = CalculateDistance(pRenderData, camera);
 
   const ezUInt64 uiSortingKey = (uiTypeHash << 48) | (uiRenderDataSortingKey64 << 16) | uiDistance;
@@ -34,17 +33,15 @@ ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(
 }
 
 // static
-ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(
-  const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderData* pRenderData, const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
-  const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
+  const ezUInt64 uiRenderDataSortingKey64 = pRenderData->m_uiSortingKey;
   const ezUInt64 uiInvDistance = 0xFFFF - CalculateDistance(pRenderData, camera);
 
   const ezUInt64 uiSortingKey = (uiInvDistance << 48) | (uiTypeHash << 32) | uiRenderDataSortingKey64;
   return uiSortingKey;
 }
-
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SortingFunctions);

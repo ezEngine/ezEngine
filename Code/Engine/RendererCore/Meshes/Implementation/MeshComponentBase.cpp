@@ -80,7 +80,7 @@ void ezMeshRenderData::FillBatchIdAndSortingKey()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 2)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 3)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -116,6 +116,7 @@ void ezMeshComponentBase::SerializeComponent(ezWorldWriter& inout_stream) const
   }
 
   s << m_Color;
+  s << m_fSortingDepthOffset;
 }
 
 void ezMeshComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
@@ -144,6 +145,11 @@ void ezMeshComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
   }
 
   s >> m_Color;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fSortingDepthOffset;
+  }
 }
 
 ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -181,6 +187,7 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
     {
       pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform() * pRenderData->m_GlobalTransform;
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
+      pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_Color = m_Color;
@@ -269,6 +276,18 @@ void ezMeshComponentBase::SetColor(const ezColor& color)
 const ezColor& ezMeshComponentBase::GetColor() const
 {
   return m_Color;
+}
+
+void ezMeshComponentBase::SetSortingDepthOffset(float fOffset)
+{
+  m_fSortingDepthOffset = fOffset;
+
+  InvalidateCachedRenderData();
+}
+
+float ezMeshComponentBase::GetSortingDepthOffset() const
+{
+  return m_fSortingDepthOffset;
 }
 
 void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)

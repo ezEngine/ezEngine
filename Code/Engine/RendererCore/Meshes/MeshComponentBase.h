@@ -94,6 +94,9 @@ public:
   void SetColor(const ezColor& color); // [ property ]
   const ezColor& GetColor() const;     // [ property ]
 
+  void SetSortingDepthOffset(float fOffset); // [ property ]
+  float GetSortingDepthOffset() const;       // [ property ]
+
   void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg); // [ msg handler ]
   void OnMsgSetColor(ezMsgSetColor& ref_msg);               // [ msg handler ]
 
@@ -111,4 +114,5 @@ protected:
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
   ezColor m_Color = ezColor::White;
+  float m_fSortingDepthOffset = 0.0f;
 };
