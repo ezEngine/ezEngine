@@ -57,7 +57,7 @@ static PS_GLOBALS G;
 
 uint CalculateCoverage()
 {
-  #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+  #if defined(USE_ALPHA_TEST_SUPER_SAMPLING) && defined(USE_TEXCOORD0)
     uint coverage = 0;
 
     float2 texCoords = G.Input.TexCoord0;
