@@ -62,7 +62,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
       EZ_TEST_BOOL(bf.IsBitSet(i));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount / SetBit / ClearBit / SetCountUninitialized")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount / SetBit / ClearBit / SetBitValue / SetCountUninitialized")
   {
     ezHybridBitfield<512> bf; // using a hybrid array
 
@@ -102,6 +102,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
     {
       EZ_TEST_BOOL(!bf.IsBitSet(i));
       EZ_TEST_BOOL(bf.IsBitSet(i + 1));
+    }
+
+    for (ezUInt32 i = 0; i < bf.GetCount(); ++i)
+    {
+      bf.SetBitValue(i, (i % 3) == 0);
+    }
+
+    for (ezUInt32 i = 0; i < bf.GetCount(); ++i)
+    {
+      EZ_TEST_BOOL(bf.IsBitSet(i) == ((i % 3) == 0));
     }
   }
 
@@ -211,7 +221,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
       EZ_TEST_BOOL(!bf.IsBitSet(i));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetBit / ClearBit")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetBit / ClearBit / SetBitValue")
   {
     ezStaticBitfield32 bf;
 
@@ -237,6 +247,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
     {
       EZ_TEST_BOOL(!bf.IsBitSet(i));
       EZ_TEST_BOOL(bf.IsBitSet(i + 1));
+    }
+
+    for (ezUInt32 i = 0; i < bf.GetNumBits(); ++i)
+    {
+      bf.SetBitValue(i, (i % 3) == 0);
+    }
+
+    for (ezUInt32 i = 0; i < bf.GetNumBits(); ++i)
+    {
+      EZ_TEST_BOOL(bf.IsBitSet(i) == ((i % 3) == 0));
     }
   }
 
