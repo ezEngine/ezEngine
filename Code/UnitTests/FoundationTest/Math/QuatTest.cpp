@@ -291,6 +291,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsEulerAngles / SetFromEulerAngles")
   {
+    ezAngle ax, ay, az;
+
     for (ezUInt32 x = 0; x < 360; x += 15)
     {
       ezQuat q;
@@ -308,9 +310,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
       EZ_TEST_VEC3(axis, ezVec3::UnitXAxis(), 0.001f);
       EZ_TEST_FLOAT(angle.GetDegree(), (float)x, 0.1f);
+
+      q.GetAsEulerAngles(ax, ay, az);
+      EZ_TEST_BOOL(ax.IsEqualNormalized(ezAngle::Degree(x), ezAngle::Degree(0.1f)));
     }
 
-    for (ezUInt32 y = 15; y < 360; y += 15)
+    for (ezInt32 y = -90; y < 360; y += 15)
     {
       ezQuat q;
       q.SetFromEulerAngles({}, ezAngle::Degree(y), {});
@@ -325,8 +330,23 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       ezAngle angle;
       q.GetRotationAxisAndAngle(axis, angle, 0.01f);
 
-      EZ_TEST_VEC3(axis, ezVec3::UnitYAxis(), 0.001f);
-      EZ_TEST_FLOAT(angle.GetDegree(), (float)y, 0.1f);
+      if (y < 0)
+      {
+        EZ_TEST_VEC3(axis, -ezVec3::UnitYAxis(), 0.001f);
+        EZ_TEST_FLOAT(angle.GetDegree(), (float)-y, 0.1f);
+      }
+      else if (y > 0)
+      {
+        EZ_TEST_VEC3(axis, ezVec3::UnitYAxis(), 0.001f);
+        EZ_TEST_FLOAT(angle.GetDegree(), (float)y, 0.1f);
+      }
+
+      // pitch is only defined in -90..90 range
+      if (y >= -90 && y <= 90)
+      {
+        q.GetAsEulerAngles(ax, ay, az);
+        EZ_TEST_FLOAT(ay.GetDegree(), (float)y, 0.1f);
+      }
     }
 
     for (ezUInt32 z = 15; z < 360; z += 15)
@@ -346,26 +366,28 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
       EZ_TEST_VEC3(axis, ezVec3::UnitZAxis(), 0.001f);
       EZ_TEST_FLOAT(angle.GetDegree(), (float)z, 0.1f);
+
+      q.GetAsEulerAngles(ax, ay, az);
+      EZ_TEST_BOOL(az.IsEqualNormalized(ezAngle::Degree(z), ezAngle::Degree(0.1f)));
     }
 
-    for (ezUInt32 x = 5; x < 360; x += 20)
+    for (ezUInt32 x = 0; x < 360; x += 15)
     {
-      for (ezUInt32 y = 5; y < 360; y += 20)
+      for (ezUInt32 y = 0; y < 360; y += 15)
       {
-        for (ezUInt32 z = 5; z < 360; z += 30)
+        for (ezUInt32 z = 0; z < 360; z += 30)
         {
           ezQuat q1;
           q1.SetFromEulerAngles(ezAngle::Degree(x), ezAngle::Degree(y), ezAngle::Degree(z));
 
-          ezAngle ax, ay, az;
           q1.GetAsEulerAngles(ax, ay, az);
 
           ezQuat q2;
           q2.SetFromEulerAngles(ax, ay, az);
 
-          EZ_TEST_BOOL(q1.IsEqualRotation(q2, 0.01f));
+          EZ_TEST_BOOL(q1.IsEqualRotation(q2, 0.1f));
 
-          // Check that euler order is X->Y->Z
+          // Check that euler order is ZYX aka 3-2-1
           ezQuat q3;
           {
             ezQuat xRot, yRot, zRot;

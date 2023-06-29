@@ -436,50 +436,63 @@ EZ_ALWAYS_INLINE bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTem
 template <typename Type>
 void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const
 {
-  /// \test This is new
+  // Taken from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+  // and http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+  // adapted to our convention (yaw->pitch->roll, ZYX order or 3-2-1 order)
 
-  /// Taken from here (roll->pitch->yaw, x->y->z order):
-  /// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   auto& yaw = out_z;
   auto& pitch = out_y;
   auto& roll = out_x;
-  // roll (x-axis rotation)
-  const double sinr = 2.0 * (w * v.x + v.y * v.z);
-  const double cosr = 1.0 - 2.0 * (v.x * v.x + v.y * v.y);
-  roll = ezMath::ATan2((float)sinr, (float)cosr);
 
-  // pitch (y-axis rotation)
-  const double sinp = 2.0 * (w * v.y - v.z * v.x);
-  if (ezMath::Abs(sinp) >= 1.0)
-    pitch = ezAngle::Radian(copysign(ezMath::Pi<float>() / 2.0f, (float)sinp)); // use 90 degrees if out of range
+  const double fSingularityTest = w * v.y - v.z * v.x;
+  const double fSingularityThreshold = 0.499;
+
+  if (fSingularityTest > fSingularityThreshold) // singularity at north pole
+  {
+    yaw = -2.0f * ezMath::ATan2(v.x, w);
+    pitch = ezAngle::Degree(90.0f);
+    roll = ezAngle::Degree(0.0f);
+  }
+  else if (fSingularityTest < -fSingularityThreshold) // singularity at south pole
+  {
+    yaw = 2.0f * ezMath::ATan2(v.x, w);
+    pitch = ezAngle::Degree(-90.0f);
+    roll = ezAngle::Degree(0.0f);
+  }
   else
-    pitch = ezMath::ASin((float)sinp);
+  {
+    // yaw (z-axis rotation)
+    const double siny = 2.0 * (w * v.z + v.x * v.y);
+    const double cosy = 1.0 - 2.0 * (v.y * v.y + v.z * v.z);
+    yaw = ezMath::ATan2((float)siny, (float)cosy);
 
-  // yaw (z-axis rotation)
-  const double siny = 2.0 * (w * v.z + v.x * v.y);
-  const double cosy = 1.0 - 2.0 * (v.y * v.y + v.z * v.z);
-  yaw = ezMath::ATan2((float)siny, (float)cosy);
+    // pitch (y-axis rotation)
+    pitch = ezMath::ASin(2.0f * (float)fSingularityTest);
+
+    // roll (x-axis rotation)
+    const double sinr = 2.0 * (w * v.x + v.y * v.z);
+    const double cosr = 1.0 - 2.0 * (v.x * v.x + v.y * v.y);
+    roll = ezMath::ATan2((float)sinr, (float)cosr);
+  }
 }
 
 template <typename Type>
 void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z)
 {
-  /// \test This is new
-
-  /// Taken from here (roll->pitch->yaw, x->y->z order):
+  /// Taken from here (yaw->pitch->roll, ZYX order or 3-2-1 order):
   /// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   const auto& yaw = z;
   const auto& pitch = y;
   const auto& roll = x;
   const double cy = ezMath::Cos(yaw * 0.5);
   const double sy = ezMath::Sin(yaw * 0.5);
-  const double cr = ezMath::Cos(roll * 0.5);
-  const double sr = ezMath::Sin(roll * 0.5);
   const double cp = ezMath::Cos(pitch * 0.5);
   const double sp = ezMath::Sin(pitch * 0.5);
+  const double cr = ezMath::Cos(roll * 0.5);
+  const double sr = ezMath::Sin(roll * 0.5);
 
-  w = (float)(cy * cr * cp + sy * sr * sp);
-  v.x = (float)(cy * sr * cp - sy * cr * sp);
-  v.y = (float)(cy * cr * sp + sy * sr * cp);
-  v.z = (float)(sy * cr * cp - cy * sr * sp);
+  w = (float)(cy * cp * cr + sy * sp * sr);
+  v.x = (float)(cy * cp * sr - sy * sp * cr);
+  v.y = (float)(cy * sp * cr + sy * cp * sr);
+  v.z = (float)(sy * cp * cr - cy * sp * sr);
 }
