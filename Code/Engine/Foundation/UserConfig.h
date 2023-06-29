@@ -14,7 +14,7 @@
 #  define EZ_COMPILE_ENGINE_AS_DLL EZ_OFF
 #endif
 
-#if defined(BUILDSYSTEM_BUILDTYPE_SHIPPING)
+#if defined(BUILDSYSTEM_BUILDTYPE_Shipping)
 
 // Development checks like assert.
 #  undef EZ_COMPILE_FOR_DEVELOPMENT
