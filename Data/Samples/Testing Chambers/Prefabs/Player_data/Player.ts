@@ -31,7 +31,8 @@ export class Player extends ez.TickedTypescriptComponent {
     grabObject: ez.JoltGrabObjectComponent = null;
     requireNoShoot: boolean = false;
     blackboard: ez.BlackboardComponent = null;
-    damageIndicatorSpawner: ez.SpawnComponent = null;
+    damageIndicator: ez.GameObject = null;
+    damageIndicatorValue: number = 0;
 
     OnSimulationStarted(): void {
         let owner = this.GetOwner();
@@ -49,8 +50,7 @@ export class Player extends ez.TickedTypescriptComponent {
         this.guns[_ge.Weapon.RocketLauncher] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("RocketLauncher", true));
         this.blackboard = owner.TryGetComponentOfBaseType(ez.BlackboardComponent);
 
-        let damageIndicatorSpawnerObject = owner.FindChildByName("DamageIndicatorSpawner");
-        this.damageIndicatorSpawner = damageIndicatorSpawnerObject.TryGetComponentOfBaseType(ez.SpawnComponent);
+        this.damageIndicator = owner.FindChildByName("DamageIndicator");
 
         this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.JoltGrabObjectComponent);
         this.SetTickInterval(ez.Time.Milliseconds(0));
@@ -124,6 +124,21 @@ export class Player extends ez.TickedTypescriptComponent {
 
                 this.headBone.ChangeVerticalRotation(down - up);
             }
+
+            // reduce damage indicator value over time
+            this.damageIndicatorValue = Math.max(this.damageIndicatorValue - ez.Clock.GetTimeDiff(), 0);
+        }
+        else
+        {
+            this.damageIndicatorValue = 3;
+        }
+
+        if (this.damageIndicator != null)
+        {
+            let msg = new ez.MsgSetColor();
+            msg.Color = new ez.Color(1, 1, 1, this.damageIndicatorValue);
+
+            this.damageIndicator.SendMessage(msg);
         }
 
         ez.Debug.DrawInfoText(ez.Debug.ScreenPlacement.TopLeft, "Health: " + Math.ceil(this.health));
@@ -286,11 +301,8 @@ export class Player extends ez.TickedTypescriptComponent {
 
         this.health -= msg.Damage * 2;
 
-        if (this.damageIndicatorSpawner != null)
-        {
-            this.damageIndicatorSpawner.TriggerManualSpawn(false, ez.Vec3.ZeroVector());
-        }
-		
+        this.damageIndicatorValue = Math.min(this.damageIndicatorValue + msg.Damage * 0.2, 2);
+        
 		if (this.health <= 0) {
 
             ez.Log.Info("Player died.");

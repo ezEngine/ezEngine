@@ -51,6 +51,12 @@ VS_OUT main(VS_IN Input)
   
   Output.Position = float4(Input.Position, 1.0);
   
+  // Cull behind farplane if it is completely faded out anyways
+  if (GetInstanceData().Color.a <= 0)
+  {
+    Output.Position.z = 2;
+  } 
+  
   return Output;
 }
 
@@ -66,13 +72,11 @@ float3 GetDiffuseColor()
 
 float GetOpacity()
 {
-  float opacity = 1 - GetInstanceData().Color.a;
-
   float fade = saturate(length(G.Input.TexCoord0.xy - 0.5) - 0.2);
   
   float noise = NoiseTexture.Sample(LinearSampler, G.Input.TexCoord0).r;
-  fade = saturate(fade + (noise + NoiseBias) * NoiseStrength - opacity);
+  fade = saturate(fade + (noise + NoiseBias) * NoiseStrength);
   fade = fade * fade;
   
-  return BaseColor.a * fade;
+  return BaseColor.a * fade * GetInstanceData().Color.a;
 }
