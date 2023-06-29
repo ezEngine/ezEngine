@@ -120,12 +120,13 @@ public:
   /// So it might not be necessary to call this function manually at shutdown.
   static void SaveCVars(); // [tested]
 
-  /// \brief Stores all CVar values into the given file, ignoring the save flag ezCVarFlags::Save.
+  /// \brief Stores all CVar values into the given file.
   ///
   /// This function works without setting a storage folder.
+  /// If bIgnoreSaveFlag is set all CVars are saved whether they have the ezCVarFlags::Save set or not.
   ///
   /// \sa LoadCVarsFromFile()
-  static void SaveCVarsToFile(ezStringView sPath);
+  static void SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag = false);
 
   /// \brief Calls LoadCVarsFromCommandLine() and then LoadCVarsFromFile()
   static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
@@ -151,7 +152,7 @@ public:
   /// \sa LoadCVarsFromCommandLine()
   static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr); // [tested]
 
-  /// \brief Loads all CVars from the given file, ignoring the save flag ezCVarFlags::Save. Does not account for any plug-in specific files.
+  /// \brief Loads all CVars from the given file. Does not account for any plug-in specific files.
   ///
   /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
   /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
@@ -166,10 +167,11 @@ public:
   /// Otherwise their 'Current' value will always stay unchanged and the value from disk will only be
   /// stored in the 'Restart' value.
   /// Independent on the parameter settings, all CVar changes during loading will always trigger change events.
+  /// If bIgnoreSaveFlag is set all CVars are loaded whether they have the ezCVarFlags::Save set or not.
   ///
   /// \sa LoadCVarsFromCommandLine()
   /// \sa LoadCVarsFromFile()
-  static void LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr);
+  static void LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, bool bIgnoreSaveFlag = false, ezDynamicArray<ezCVar*>* pOutCVars = nullptr);
 
   /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line.
   ///

@@ -138,13 +138,16 @@ void ezCVar::SetStorageFolder(ezStringView sFolder)
 
 ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables loading CVar values from the user-specific, persisted configuration file.", false);
 
-void ezCVar::SaveCVarsToFile(ezStringView sPath)
+void ezCVar::SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag)
 {
   ezHybridArray<ezCVar*, 128> allCVars;
 
   for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
-    allCVars.PushBack(pCVar);
+    if (bIgnoreSaveFlag || pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
+    {
+      allCVars.PushBack(pCVar);
+    }
   }
 
   SaveCVarsToFileInternal(sPath, allCVars);
@@ -343,15 +346,18 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
   }
 }
 
-void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
+void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetAsCurrentValue, bool bIgnoreSaveFlag, ezDynamicArray<ezCVar*>* pOutCVars)
 {
   ezHybridArray<ezCVar*, 128> allCVars;
 
   for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
-    if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
+    if (bIgnoreSaveFlag || pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
     {
-      allCVars.PushBack(pCVar);
+      if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
+      {
+        allCVars.PushBack(pCVar);
+      }
     }
 
     // it doesn't matter whether the CVar could be loaded from file, either it works the first time, or it stays at its current value

@@ -86,45 +86,124 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SaveCVarsToFile and LoadCVarsFromFile again")
   {
-    ezCVarInt testCVarInt("testCVarInt", 0, ezCVarFlags::Default, "Test");
-    ezCVarFloat testCVarFloat("testCVarFloat", 0.0f, ezCVarFlags::Default, "Test");
-    ezCVarBool testCVarBool("testCVarBool", false, ezCVarFlags::Default, "Test");
-    ezCVarString testCVarString("testCVarString", "", ezCVarFlags::Default, "Test");
-
-    testCVarInt = 481516;
-    testCVarFloat = 23.42f;
-    testCVarBool = true;
-    testCVarString = "Hello World!";
-
     const char* cvarConfigFileDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
     EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
+    ezStringView cvarConfigFile = ":CVarConfigTempDir/CVars.cfg";
 
-    ezStringView cvarConfigFile(":CVarConfigTempDir/CVars.cfg");
-    ezCVar::SaveCVarsToFile(cvarConfigFile);
+    ezCVarInt testCVarInt("testCVarInt", 0, ezCVarFlags::Default, "Test");
+    ezCVarFloat testCVarFloat("testCVarFloat", 0.0f, ezCVarFlags::Default, "Test");
+    ezCVarBool testCVarBool("testCVarBool", false, ezCVarFlags::Save, "Test");
+    ezCVarString testCVarString("testCVarString", "", ezCVarFlags::Save, "Test");
 
-    EZ_TEST_BOOL(ezFileSystem::ExistsFile(cvarConfigFile) == EZ_SUCCESS);
+    // ignore save flag = false
+    {
+      testCVarInt = 481516;
+      testCVarFloat = 23.42f;
+      testCVarBool = true;
+      testCVarString = "Hello World!";
 
-    testCVarInt = 0;
-    testCVarFloat = 0;
-    testCVarBool = false;
-    testCVarString = "";
+      bool bIgnoreSaveFlag = false;
+      ezCVar::SaveCVarsToFile(cvarConfigFile, bIgnoreSaveFlag);
+      EZ_TEST_BOOL(ezFileSystem::ExistsFile(cvarConfigFile) == EZ_SUCCESS);
 
-    ezDynamicArray<ezCVar*> outCVars;
-    constexpr bool bOnlyNewOnes = false;
-    constexpr bool bSetAsCurrentValue = true;
-    ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, &outCVars);
+      testCVarInt = 0;
+      testCVarFloat = 0.0f;
+      testCVarBool = false;
+      testCVarString = "";
 
-    EZ_TEST_INT(testCVarInt, 481516);
-    EZ_TEST_FLOAT(testCVarFloat, 23.42f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_BOOL(testCVarBool == true);
-    EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+      ezDynamicArray<ezCVar*> outCVars;
+      constexpr bool bOnlyNewOnes = false;
+      constexpr bool bSetAsCurrentValue = true;
+      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
 
-    EZ_TEST_BOOL(outCVars.Contains(&testCVarInt));
-    EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat));
-    EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
-    EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+      EZ_TEST_INT(testCVarInt, 0);
+      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_BOOL(testCVarBool == true);
+      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
 
-    ezFileSystem::DeleteFile(cvarConfigFile);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+      testCVarInt = 0;
+      testCVarFloat = 0.0f;
+      testCVarBool = false;
+      testCVarString = "";
+
+      // Even if we ignore the save flag the result should be same as above since we only stored CVars with the save flag in the file.
+      bIgnoreSaveFlag = true;
+      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+
+      EZ_TEST_INT(testCVarInt, 0);
+      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_BOOL(testCVarBool == true);
+      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+      ezFileSystem::DeleteFile(cvarConfigFile);
+    }
+
+    // ignore save flag = true
+    {
+      testCVarInt = 481516;
+      testCVarFloat = 23.42f;
+      testCVarBool = true;
+      testCVarString = "Hello World!";
+
+      bool bIgnoreSaveFlag = true;
+      ezCVar::SaveCVarsToFile(cvarConfigFile, bIgnoreSaveFlag);
+      EZ_TEST_BOOL(ezFileSystem::ExistsFile(cvarConfigFile) == EZ_SUCCESS);
+
+      testCVarInt = 0;
+      testCVarFloat = 0.0f;
+      testCVarBool = false;
+      testCVarString = "";
+
+      ezDynamicArray<ezCVar*> outCVars;
+      constexpr bool bOnlyNewOnes = false;
+      constexpr bool bSetAsCurrentValue = true;
+      // Check whether the save flag is correctly checked during load now that we have saved all CVars to the file.
+      bIgnoreSaveFlag = false;
+      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+
+      EZ_TEST_INT(testCVarInt, 0);
+      EZ_TEST_FLOAT(testCVarFloat, 0.0f, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_BOOL(testCVarBool == true);
+      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat) == false);
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+      testCVarInt = 0;
+      testCVarFloat = 0.0f;
+      testCVarBool = false;
+      testCVarString = "";
+
+      // Now load all cvars stored in the file.
+      bIgnoreSaveFlag = true;
+      ezCVar::LoadCVarsFromFile(cvarConfigFile, bOnlyNewOnes, bSetAsCurrentValue, bIgnoreSaveFlag, &outCVars);
+
+      EZ_TEST_INT(testCVarInt, 481516);
+      EZ_TEST_FLOAT(testCVarFloat, 23.42f, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_BOOL(testCVarBool == true);
+      EZ_TEST_STRING(testCVarString.GetValue(), "Hello World!");
+
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarInt));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarFloat));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarBool));
+      EZ_TEST_BOOL(outCVars.Contains(&testCVarString));
+
+      ezFileSystem::DeleteFile(cvarConfigFile);
+    }
+
+
     EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectory("CVarConfigTempDir"));
   }
 
