@@ -364,6 +364,18 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
           q2.SetFromEulerAngles(ax, ay, az);
 
           EZ_TEST_BOOL(q1.IsEqualRotation(q2, 0.01f));
+
+          // Check that euler order is X->Y->Z
+          ezQuat q3;
+          {
+            ezQuat xRot, yRot, zRot;
+            xRot.SetFromAxisAndAngle(ezVec3::UnitXAxis(), ezAngle::Degree(x));
+            yRot.SetFromAxisAndAngle(ezVec3::UnitYAxis(), ezAngle::Degree(y));
+            zRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(z));
+
+            q3 = zRot * yRot * xRot;
+          }
+          EZ_TEST_BOOL(q1.IsEqualRotation(q3, 0.01f));
         }
       }
     }
