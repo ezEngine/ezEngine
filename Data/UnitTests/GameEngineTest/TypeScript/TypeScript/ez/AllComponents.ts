@@ -86,6 +86,8 @@ export class AnimationControllerComponent extends Component
   set AnimController(value: string) { __CPP_ComponentProperty_set(this, 1763743819, value); }
   get RootMotionMode(): Enum.RootMotionMode { return __CPP_ComponentProperty_get(this, 1675822524); }
   set RootMotionMode(value: Enum.RootMotionMode) { __CPP_ComponentProperty_set(this, 1675822524, value); }
+  get InvisibleUpdateRate(): Enum.AnimationInvisibleUpdateRate { return __CPP_ComponentProperty_get(this, 984328090); }
+  set InvisibleUpdateRate(value: Enum.AnimationInvisibleUpdateRate) { __CPP_ComponentProperty_set(this, 984328090, value); }
 }
 
 export class AreaDamageComponent extends Component
@@ -428,12 +430,14 @@ export class EventMessageHandlerComponent extends Component
 export class FakeRopeComponent extends Component
 {
   public static GetTypeNameHash(): number { return 823810230; }
-  get Anchor(): string { return __CPP_ComponentProperty_get(this, 2019703115); }
-  set Anchor(value: string) { __CPP_ComponentProperty_set(this, 2019703115, value); }
-  get AttachToOrigin(): boolean { return __CPP_ComponentProperty_get(this, 3630414179); }
-  set AttachToOrigin(value: boolean) { __CPP_ComponentProperty_set(this, 3630414179, value); }
-  get AttachToAnchor(): boolean { return __CPP_ComponentProperty_get(this, 572418253); }
-  set AttachToAnchor(value: boolean) { __CPP_ComponentProperty_set(this, 572418253, value); }
+  get Anchor1(): string { return __CPP_ComponentProperty_get(this, 1946069460); }
+  set Anchor1(value: string) { __CPP_ComponentProperty_set(this, 1946069460, value); }
+  get Anchor2(): string { return __CPP_ComponentProperty_get(this, 741201907); }
+  set Anchor2(value: string) { __CPP_ComponentProperty_set(this, 741201907, value); }
+  get AttachToAnchor1(): boolean { return __CPP_ComponentProperty_get(this, 3568050179); }
+  set AttachToAnchor1(value: boolean) { __CPP_ComponentProperty_set(this, 3568050179, value); }
+  get AttachToAnchor2(): boolean { return __CPP_ComponentProperty_get(this, 1635944042); }
+  set AttachToAnchor2(value: boolean) { __CPP_ComponentProperty_set(this, 1635944042, value); }
   get Pieces(): number { return __CPP_ComponentProperty_get(this, 1912535346); }
   set Pieces(value: number) { __CPP_ComponentProperty_set(this, 1912535346, value); }
   get Slack(): number { return __CPP_ComponentProperty_get(this, 676118123); }
@@ -832,6 +836,15 @@ export class RotorComponent extends TransformComponent
   set Deceleration(value: number) { __CPP_ComponentProperty_set(this, 3503289027, value); }
 }
 
+export class ScriptComponent extends EventMessageHandlerComponent
+{
+  public static GetTypeNameHash(): number { return 1614462437; }
+  get UpdateInterval(): number { return __CPP_ComponentProperty_get(this, 3597189607); }
+  set UpdateInterval(value: number) { __CPP_ComponentProperty_set(this, 3597189607, value); }
+  get ScriptClass(): string { return __CPP_ComponentProperty_get(this, 1184048898); }
+  set ScriptClass(value: string) { __CPP_ComponentProperty_set(this, 1184048898, value); }
+}
+
 export class SensorComponent extends Component
 {
   public static GetTypeNameHash(): number { return 1950355900; }
@@ -892,6 +905,8 @@ export class SimpleAnimationComponent extends Component
   set Speed(value: number) { __CPP_ComponentProperty_set(this, 2330469972, value); }
   get RootMotionMode(): Enum.RootMotionMode { return __CPP_ComponentProperty_get(this, 3939232860); }
   set RootMotionMode(value: Enum.RootMotionMode) { __CPP_ComponentProperty_set(this, 3939232860, value); }
+  get InvisibleUpdateRate(): Enum.AnimationInvisibleUpdateRate { return __CPP_ComponentProperty_get(this, 515439340); }
+  set InvisibleUpdateRate(value: Enum.AnimationInvisibleUpdateRate) { __CPP_ComponentProperty_set(this, 515439340, value); }
 }
 
 export class SimpleWindComponent extends Component

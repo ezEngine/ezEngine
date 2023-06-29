@@ -47,6 +47,7 @@ public:
 
 protected:
   friend class ezAnimGraph;
+  friend class ezAnimGraphBuilder;
   friend class ezAnimGraphResource;
 
   ezHashedString m_sCustomNodeTitle;

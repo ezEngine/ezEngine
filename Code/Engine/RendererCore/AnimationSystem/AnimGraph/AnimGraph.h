@@ -10,6 +10,7 @@
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 
 #include <Foundation/Containers/Blob.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Memory/InstanceDataAllocator.h>
 #include <Foundation/Types/SharedPtr.h>
@@ -63,7 +64,6 @@ public:
 
   const ezSharedPtr<ezBlackboard>& GetBlackboard() { return m_pBlackboard; }
 
-  ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream, ezArrayPtr<ezUniquePtr<ezAnimGraphNode>> allNodes);
 
   ezAnimPoseGenerator& GetPoseGenerator() { return *m_pPoseGenerator; }
@@ -77,7 +77,9 @@ public:
   void SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform);
   void SetRootMotion(const ezVec3& vTranslation, ezAngle rotationX, ezAngle rotationY, ezAngle rotationZ);
 
-  void SetInstanceDataAllocator(ezInstanceDataAllocator& ref_allocator);
+  void AddOutputLocalTransforms(ezAnimGraphPinDataLocalTransforms* pLocalTransforms);
+
+  void SetInstanceDataAllocator(const ezInstanceDataAllocator& allocator);
 
   template <typename T>
   T* GetAnimNodeInstanceData(const ezAnimGraphNode& node)
@@ -85,11 +87,14 @@ public:
     return reinterpret_cast<T*>(ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), node.m_uiInstanceDataOffset));
   }
 
+protected:
+  void GenerateLocalResultProcessors(const ezSkeletonResource* pSkeleton);
+
 private:
   ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
   ezSkeletonResourceHandle m_hSkeleton;
 
-  ezInstanceDataAllocator* m_pInstanceDataAllocator = nullptr;
+  const ezInstanceDataAllocator* m_pInstanceDataAllocator = nullptr;
   ezBlob m_InstanceData;
 
   ezDynamicArray<ezDynamicArray<ezUInt16>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
@@ -134,6 +139,60 @@ private:
   ezHybridArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;
   ezHybridArray<ezAnimGraphPinDataModelTransforms, 2> m_PinDataModelTransforms;
 
+  ezHybridArray<ezAnimGraphPinDataLocalTransforms*, 8> m_CurrentLocalTransformOutputs;
+
   static ezMutex s_SharedDataMutex;
   static ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> s_SharedBoneWeights;
+};
+
+
+class EZ_RENDERERCORE_DLL ezAnimGraphBuilder
+{
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezAnimGraphBuilder);
+
+public:
+  ezAnimGraphBuilder();
+  ~ezAnimGraphBuilder();
+
+  ezAnimGraphNode* AddNode(ezUniquePtr<ezAnimGraphNode>&& pNode);
+  void AddConnection(const ezAnimGraphNode* pSrcNode, ezStringView sSrcPinName, const ezAnimGraphNode* pDstNode, ezStringView sDstPinName);
+
+  ezResult SerializeForUse(ezStreamWriter& inout_stream);
+
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
+
+  const ezInstanceDataAllocator& GetInstanceDataAlloator() { return m_InstanceDataAllocator; }
+  ezArrayPtr<ezUniquePtr<ezAnimGraphNode>> GetNodes() { return m_Nodes; }
+
+
+private:
+  struct ConnectionTo
+  {
+    ezString m_sSrcPinName;
+    const ezAnimGraphNode* m_pDstNode = nullptr;
+    ezString m_sDstPinName;
+    ezAnimGraphPin* m_pSrcPin = nullptr;
+    ezAnimGraphPin* m_pDstPin = nullptr;
+  };
+
+  struct ConnectionsTo
+  {
+    ezHybridArray<ConnectionTo, 2> m_To;
+  };
+
+  void PrepareForUse();
+  void SortNodesByPriority();
+  void PreparePinMapping();
+  void AssignInputPinIndices();
+  void AssignOutputPinIndices();
+  ezUInt16 ComputeNodePriority(const ezAnimGraphNode* pNode, ezMap<const ezAnimGraphNode*, ezUInt16>& inout_Prios, ezUInt16& inout_uiOutputPrio) const;
+
+  bool m_bPreparedForUse = true;
+  ezUInt32 m_uiInputPinCounts[ezAnimGraphPin::Type::ENUM_COUNT];
+  ezMap<const ezAnimGraphNode*, ConnectionsTo> m_From;
+
+  ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
+  ezDynamicArray<ezHybridArray<ezUInt16, 1>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
+  ezInstanceDataAllocator m_InstanceDataAllocator;
 };

@@ -242,7 +242,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const 
     }
     else
     {
-      pState->m_PlaybackTime == avgDuration;
+      pState->m_PlaybackTime = avgDuration;
       pState->m_bPlaying = false;
       m_OutOnFinished.SetTriggered(graph);
     }

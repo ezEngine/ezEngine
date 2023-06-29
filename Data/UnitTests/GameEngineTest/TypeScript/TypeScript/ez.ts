@@ -124,6 +124,7 @@ export import RenderTargetActivatorComponent = __AllComponents.RenderTargetActiv
 export import RopeRenderComponent = __AllComponents.RopeRenderComponent;
 export import TransformComponent = __AllComponents.TransformComponent;
 export import RotorComponent = __AllComponents.RotorComponent;
+export import ScriptComponent = __AllComponents.ScriptComponent;
 export import SensorComponent = __AllComponents.SensorComponent;
 export import SensorConeComponent = __AllComponents.SensorConeComponent;
 export import SensorCylinderComponent = __AllComponents.SensorCylinderComponent;
@@ -202,6 +203,7 @@ export import MsgUpdateLocalBounds = __AllMessages.MsgUpdateLocalBounds;
 
 // AUTO-GENERATED
 import __AllEnums = require("./ez/AllEnums")
+export import AnimationInvisibleUpdateRate = __AllEnums.AnimationInvisibleUpdateRate;
 export import BasisAxis = __AllEnums.BasisAxis;
 export import CameraMode = __AllEnums.CameraMode;
 export import CameraUsageHint = __AllEnums.CameraUsageHint;

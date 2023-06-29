@@ -13,7 +13,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPoseResultAnimNode, 1, ezRTTIDefaultAllocator<
     EZ_MEMBER_PROPERTY("InTargetWeight", m_InTargetWeight)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("InFadeDuration", m_InFadeDuration)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("InWeights", m_InWeights)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("OutPose", m_OutPose)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("OutOnFadedOut", m_OutOnFadedOut)->AddAttributes(new ezHiddenAttribute),
   }
   EZ_END_PROPERTIES;
@@ -43,7 +42,6 @@ ezResult ezPoseResultAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(m_InTargetWeight.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_InFadeDuration.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_InWeights.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutOnFadedOut.Serialize(stream));
 
   return EZ_SUCCESS;
@@ -61,7 +59,6 @@ ezResult ezPoseResultAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(m_InTargetWeight.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_InFadeDuration.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_InWeights.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutPose.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutOnFadedOut.Deserialize(stream));
 
   return EZ_SUCCESS;
@@ -69,7 +66,7 @@ ezResult ezPoseResultAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezPoseResultAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
 {
-  if (!m_InPose.IsConnected() || !m_OutPose.IsConnected())
+  if (!m_InPose.IsConnected())
     return;
 
   InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
@@ -119,7 +116,7 @@ void ezPoseResultAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkelet
       pLocalTransforms->m_bUseRootMotion = pCurrentLocalTransforms->m_bUseRootMotion;
       pLocalTransforms->m_vRootMotion = pCurrentLocalTransforms->m_vRootMotion;
 
-      m_OutPose.SetPose(graph, pLocalTransforms);
+      graph.AddOutputLocalTransforms(pLocalTransforms);
     }
   }
 }
