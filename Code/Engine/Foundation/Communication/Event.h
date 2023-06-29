@@ -140,6 +140,9 @@ public:
   /// \brief Removes all registered event handlers.
   void Clear();
 
+  /// \brief Returns true, if no event handlers are registered.
+  bool IsEmpty() const;
+
   // it would be a problem if the ezEvent moves in memory, for instance the Unsubscriber's would point to invalid memory
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 

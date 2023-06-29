@@ -79,6 +79,8 @@ public:
 #  include <Foundation/SimdMath/Implementation/SSE/SSEFloat_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUFloat_inl.h>
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#  include <Foundation/SimdMath/Implementation/NEON/NEONFloat_inl.h>
 #else
 #  error "Unknown SIMD implementation."
 #endif

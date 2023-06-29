@@ -171,7 +171,15 @@ bool ezEventBase<EventData, MutexType, EventType>::HasEventHandler(const Handler
 template <typename EventData, typename MutexType, ezEventType EventType>
 void ezEventBase<EventData, MutexType, EventType>::Clear()
 {
+  EZ_LOCK(m_Mutex);
   m_EventHandlers.Clear();
+}
+
+template <typename EventData, typename MutexType, ezEventType EventType>
+bool ezEventBase<EventData, MutexType, EventType>::IsEmpty() const
+{
+  EZ_LOCK(m_Mutex);
+  return m_EventHandlers.IsEmpty();
 }
 
 /// The notification is sent to all event handlers in the order that they were registered.

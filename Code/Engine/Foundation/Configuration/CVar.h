@@ -120,13 +120,26 @@ public:
   /// So it might not be necessary to call this function manually at shutdown.
   static void SaveCVars(); // [tested]
 
+  /// \brief Stores all CVar values into the given file.
+  ///
+  /// This function works without setting a storage folder.
+  /// If bIgnoreSaveFlag is set all CVars are saved whether they have the ezCVarFlags::Save set or not.
+  ///
+  /// \sa LoadCVarsFromFile()
+  static void SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag = false);
+
   /// \brief Calls LoadCVarsFromCommandLine() and then LoadCVarsFromFile()
   static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
 
   /// \brief Loads the CVars from the settings files in the storage folder.
   ///
+  /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
+  /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
+  /// loaded in this very step.
+  ///
   /// This function has no effect, if the storage folder has not been set via 'SetStorageFolder' yet
   /// or it has been set to be empty.
+  ///
   /// If \a bOnlyNewOnes is set, only CVars that have never been loaded from file before are loaded.
   /// All other CVars will stay unchanged.
   /// If \a bSetAsCurrentValue is true, variables that are flagged as 'RequiresRestart', will be set
@@ -137,15 +150,38 @@ public:
   ///
   ///
   /// \sa LoadCVarsFromCommandLine()
-  static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
+  static void LoadCVarsFromFile(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr); // [tested]
 
-  /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line
+  /// \brief Loads all CVars from the given file. Does not account for any plug-in specific files.
+  ///
+  /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
+  /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
+  /// loaded in this very step.
+  ///
+  /// This function works without setting a storage folder.
+  ///
+  /// If \a bOnlyNewOnes is set, only CVars that have never been loaded from file before are loaded.
+  /// All other CVars will stay unchanged.
+  /// If \a bSetAsCurrentValue is true, variables that are flagged as 'RequiresRestart', will be set
+  /// to the restart value immediately ('SetToRestartValue' is called on them).
+  /// Otherwise their 'Current' value will always stay unchanged and the value from disk will only be
+  /// stored in the 'Restart' value.
+  /// Independent on the parameter settings, all CVar changes during loading will always trigger change events.
+  /// If bIgnoreSaveFlag is set all CVars are loaded whether they have the ezCVarFlags::Save set or not.
+  ///
+  /// \sa LoadCVarsFromCommandLine()
+  /// \sa LoadCVarsFromFile()
+  static void LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, bool bIgnoreSaveFlag = false, ezDynamicArray<ezCVar*>* pOutCVars = nullptr);
+
+  /// \brief Similar to LoadCVarsFromFile() but tries to get the CVar values from the command line.
+  ///
+  /// The CVars are loaded into the global system and thus automatically available everywhere after this call.
+  /// Optionally they are returned via pOutCVars, so the caller knows which CVars have actually been
+  /// loaded in this very step.
   ///
   /// \note A CVar will only ever be loaded once. This function should be called before LoadCVarsFromFile(),
   /// otherwise it could get flagged as 'already loaded' even if the value was never taken from file or command line.
-  static void LoadCVarsFromCommandLine(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
-
-
+  static void LoadCVarsFromCommandLine(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true, ezDynamicArray<ezCVar*>* pOutCVars = nullptr); // [tested]
 
   /// \brief Copies the 'Restart' value into the 'Current' value.
   ///
@@ -189,6 +225,11 @@ private:
   static void AssignSubSystemPlugin(ezStringView sPluginName);
   static void PluginEventHandler(const ezPluginEvent& EventData);
 
+  /// \brief Loads CVar values for the given vars from the given config file path. Returns the ezCVars which have actually been loaded.
+  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
+
+  /// \brief Stores the values of the given vars to the given config file path.
+  static void SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars);
 
   bool m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
   ezStringView m_sName;

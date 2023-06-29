@@ -146,16 +146,16 @@ void ezStringView::Split(bool bReturnEmptyStrings, Container& ref_output, const 
   while (true)
   {
     const char* szFoundPos = ezUnicodeUtils::GetMaxStringEnd<char>();
-    ezInt32 iFoundSeparator = 0;
+    ezUInt32 uiFoundSeparator = 0;
 
-    for (ezInt32 i = 0; i < uiParams; ++i)
+    for (ezUInt32 i = 0; i < uiParams; ++i)
     {
       const char* szFound = ezStringUtils::FindSubString(szReadPos, seps[i].GetStartPointer(), GetEndPointer(), seps[i].GetEndPointer());
 
       if ((szFound != nullptr) && (szFound < szFoundPos))
       {
         szFoundPos = szFound;
-        iFoundSeparator = i;
+        uiFoundSeparator = i;
       }
     }
 
@@ -173,7 +173,7 @@ void ezStringView::Split(bool bReturnEmptyStrings, Container& ref_output, const 
     if (bReturnEmptyStrings || (szFoundPos > szReadPos))
       ref_output.PushBack(ezStringView(szReadPos, szFoundPos));
 
-    szReadPos = szFoundPos + seps[iFoundSeparator].GetElementCount();
+    szReadPos = szFoundPos + seps[uiFoundSeparator].GetElementCount();
   }
 }
 

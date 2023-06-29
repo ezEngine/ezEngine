@@ -69,7 +69,7 @@ ezJniAttachment::~ezJniAttachment()
 
 ezJniObject ezJniAttachment::GetActivity()
 {
-  return ezJniObject(ezAndroidUtils::GetAndroidApp()->activity->clazz, ezJniOwnerShip::BORROW);
+  return ezJniObject(ezAndroidUtils::GetAndroidNativeActivity(), ezJniOwnerShip::BORROW);
 }
 
 JNIEnv* ezJniAttachment::GetEnv()

@@ -16,6 +16,8 @@ struct ezMathAcc
 #  include <Foundation/SimdMath/Implementation/SSE/SSETypes_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUTypes_inl.h>
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#  include <Foundation/SimdMath/Implementation/NEON/NEONTypes_inl.h>
 #else
 #  error "Unknown SIMD implementation."
 #endif

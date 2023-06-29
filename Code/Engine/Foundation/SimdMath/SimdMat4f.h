@@ -84,6 +84,8 @@ public:
 #  include <Foundation/SimdMath/Implementation/SSE/SSEMat4f_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUMat4f_inl.h>
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+#  include <Foundation/SimdMath/Implementation/NEON/NEONMat4f_inl.h>
 #else
 #  error "Unknown SIMD implementation."
 #endif
