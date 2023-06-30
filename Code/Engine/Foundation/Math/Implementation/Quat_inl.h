@@ -445,7 +445,7 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAn
   auto& roll = out_x;
 
   const double fSingularityTest = w * v.y - v.z * v.x;
-  const double fSingularityThreshold = 0.499;
+  const double fSingularityThreshold = 0.4999995;
 
   if (fSingularityTest > fSingularityThreshold) // singularity at north pole
   {
