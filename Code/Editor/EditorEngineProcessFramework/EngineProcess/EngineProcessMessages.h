@@ -7,6 +7,7 @@
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <RendererCore/Pipeline/Declarations.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
@@ -625,12 +626,6 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewOpenSharedTexturesMsgToEngine : 
   EZ_ADD_DYNAMIC_REFLECTION(ezViewOpenSharedTexturesMsgToEngine, ezEditorEngineViewMsg);
 
 public:
-  ezUInt64 m_SharedHandles0A;
-  ezUInt64 m_SharedHandles0B;
-  ezUInt64 m_SharedHandles1A;
-  ezUInt64 m_SharedHandles1B;
-
-  uint32_t m_Width;
-  uint32_t m_Height;
-  ezGALResourceFormat::Enum m_Format;
+  ezGALTextureCreationDescription m_TextureDesc;
+  ezHybridArray<ezGALPlatformSharedHandle, 2> m_TextureHandles;
 };

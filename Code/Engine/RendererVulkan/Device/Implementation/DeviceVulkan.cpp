@@ -42,6 +42,11 @@
 #  include <GLFW/glfw3.h>
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <unistd.h>
+#  include <errno.h>
+#endif
+
 EZ_DEFINE_AS_POD_TYPE(VkLayerProperties);
 
 namespace
@@ -831,6 +836,33 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
   ezHybridArray<vk::PipelineStageFlags, 2> waitStages;
   ezHybridArray<vk::Semaphore, 2> signalSemaphores;
 
+  ezHybridArray<ezUInt64, 2> waitSemaphoreValues;
+  ezHybridArray<ezUInt64, 2> signalSemaphoreValues;
+  for (const SemaphoreInfo sem : m_waitSemaphores)
+  {
+    waitSemaphores.PushBack(sem.m_semaphore);
+    if (sem.m_type == vk::SemaphoreType::eTimeline)
+    {
+      waitSemaphoreValues.PushBack(sem.m_uiValue);
+    }
+  }
+  waitSemaphores.Clear();
+  for (const SemaphoreInfo sem : m_signalSemaphores)
+  {
+    signalSemaphores.PushBack(sem.m_semaphore);
+    if (sem.m_type == vk::SemaphoreType::eTimeline)
+    {
+      signalSemaphoreValues.PushBack(sem.m_uiValue);
+    }
+  }
+  m_signalSemaphores.Clear();
+  vk::TimelineSemaphoreSubmitInfo timelineInfo;
+  timelineInfo.waitSemaphoreValueCount = waitSemaphoreValues.GetCount();
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == sizeof(uint64_t));
+  timelineInfo.pWaitSemaphoreValues = reinterpret_cast<const uint64_t*>(waitSemaphoreValues.GetData());
+  timelineInfo.signalSemaphoreValueCount = signalSemaphoreValues.GetCount();
+  timelineInfo.pSignalSemaphoreValues = reinterpret_cast<const uint64_t*>(signalSemaphoreValues.GetData());
+
   if (m_lastCommandBufferFinished)
   {
     waitSemaphores.PushBack(m_lastCommandBufferFinished);
@@ -851,6 +883,8 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
   m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
   signalSemaphores.PushBack(m_lastCommandBufferFinished);
 
+  if (timelineInfo.waitSemaphoreValueCount > 0 || timelineInfo.signalSemaphoreValueCount > 0)
+    submitInfo.pNext = &timelineInfo;
   submitInfo.waitSemaphoreCount = waitSemaphores.GetCount();
   submitInfo.pWaitSemaphores = waitSemaphores.GetData();
   submitInfo.pWaitDstStageMask = waitStages.GetData();
@@ -1376,6 +1410,21 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
   {
     switch (deletion.m_type)
     {
+      case vk::ObjectType::eUnknown:
+        if(deletion.m_flags.IsSet(PendingDeletionFlags::IsFileDescriptor))
+        {
+          int fileDescriptor = static_cast<int>(reinterpret_cast<size_t>(deletion.m_pObject));
+          int res = close(fileDescriptor);
+          if (res == -1)
+          {
+            ezLog::Error("close() failed on file descriptor with errno: {}", ezArgErrno(errno));
+          }
+        }
+        else
+        {
+          EZ_REPORT_FAILURE("Unknown pending deletion");
+        }
+        break;
       case vk::ObjectType::eImageView:
         m_device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
         break;
@@ -1409,6 +1458,9 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         break;
       case vk::ObjectType::eSampler:
         m_device.destroySampler(reinterpret_cast<vk::Sampler&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::eSemaphore:
+        m_device.destroySemaphore(reinterpret_cast<vk::Semaphore&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eSwapchainKHR:
         m_device.destroySwapchainKHR(reinterpret_cast<vk::SwapchainKHR&>(deletion.m_pObject));
@@ -1644,6 +1696,24 @@ const ezGALSharedTexture* ezGALDeviceVulkan::GetSharedTexture(ezGALTextureHandle
 
   // Resolve proxy texture if any
   return static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
+}
+
+void ezGALDeviceVulkan::AddWaitSemaphore(const SemaphoreInfo& waitSemaphore)
+{
+  // #TODO_VULKAN Assert is in render pipeline, thread safety
+  if (waitSemaphore.m_type == vk::SemaphoreType::eTimeline)
+    m_waitSemaphores.Insert(waitSemaphore, 0);
+  else
+    m_waitSemaphores.PushBack(waitSemaphore);
+}
+
+void ezGALDeviceVulkan::AddSignalSemaphore(const SemaphoreInfo& signalSemaphore)
+{
+  // #TODO_VULKAN Assert is in render pipeline, thread safety
+  if (signalSemaphore.m_type == vk::SemaphoreType::eTimeline)
+    m_signalSemaphores.Insert(signalSemaphore, 0);
+  else
+    m_signalSemaphores.PushBack(signalSemaphore);
 }
 
 

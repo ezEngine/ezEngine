@@ -134,8 +134,6 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALMSAASampleCount);
-
 struct ezGALTextureType
 {
   using StorageType = ezUInt8;

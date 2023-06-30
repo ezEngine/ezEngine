@@ -48,11 +48,10 @@ public:
     m_pDevice = pDevice;
 
     // TODO Resizing
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(640, 480, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
+    m_SharedTextureDesc.SetAsRenderTarget(640, 480, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
     for(auto& hSharedTexture : m_hSharedTextures)
     {
-      hSharedTexture = pDevice->CreateSharedTexture(desc);
+      hSharedTexture = pDevice->CreateSharedTexture(m_SharedTextureDesc);
     }
   }
 
@@ -158,24 +157,17 @@ public:
 
   ezResult FillMessage(ezViewOpenSharedTexturesMsgToEngine& msg)
   {
-    const ezGALSharedTexture* pSharedTextureA = m_pDevice->GetSharedTexture(m_hSharedTextures[0]);
-    const ezGALSharedTexture* pSharedTextureB = m_pDevice->GetSharedTexture(m_hSharedTextures[1]);
-    if(pSharedTextureA == nullptr || pSharedTextureB == nullptr)
+    msg.m_TextureDesc = m_SharedTextureDesc;
+    for(auto& hSharedTexture : m_hSharedTextures)
     {
-      return EZ_FAILURE;
+      const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(hSharedTexture);
+      if(pSharedTexture == nullptr)
+      {
+       return EZ_FAILURE;
+      }
+
+      msg.m_TextureHandles.PushBack(pSharedTexture->GetSharedHandle());
     }
-
-    ezGALPlatformSharedHandle hHandle0 = pSharedTextureA->GetSharedHandle();
-    ezGALPlatformSharedHandle hHandle1 = pSharedTextureB->GetSharedHandle();
-
-    msg.m_SharedHandles0A = hHandle0.a;
-    msg.m_SharedHandles0B = hHandle0.b;
-    msg.m_SharedHandles1A = hHandle1.a;
-    msg.m_SharedHandles1B = hHandle1.b;
-
-    msg.m_Width = 640;
-    msg.m_Height = 480;
-    msg.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
 
     return EZ_SUCCESS;
   }
@@ -198,6 +190,7 @@ private:
   ezGALDevice* m_pDevice = nullptr;
   ezGALSwapChainHandle m_hSwapchain;
 
+  ezGALTextureCreationDescription m_SharedTextureDesc;
   ezGALTextureHandle m_hSharedTextures[2];
 };
 #endif

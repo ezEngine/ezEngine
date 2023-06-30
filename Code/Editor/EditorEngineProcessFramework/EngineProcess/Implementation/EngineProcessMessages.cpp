@@ -2,6 +2,8 @@
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 
+#include <RendererFoundation/RendererReflection.h>
+
 // clang-format off
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEngine, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEngine>)
@@ -619,14 +621,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewOpenSharedTexturesMsgToEngine, 1, ezRTTIDe
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("SharedHandles0A", m_SharedHandles0A),
-    EZ_MEMBER_PROPERTY("SharedHandles0B", m_SharedHandles0B),
-    EZ_MEMBER_PROPERTY("SharedHandles1A", m_SharedHandles1A),
-    EZ_MEMBER_PROPERTY("SharedHandles1B", m_SharedHandles1B),
-    EZ_MEMBER_PROPERTY("width", m_Width),
-    EZ_MEMBER_PROPERTY("height", m_Height),
-    EZ_ENUM_MEMBER_PROPERTY("format", ezGALResourceFormat, m_Format),
+    EZ_MEMBER_PROPERTY("TextureDesc", m_TextureDesc),
+    EZ_ARRAY_MEMBER_PROPERTY("TextureHandles", m_TextureHandles),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+// clang-format on

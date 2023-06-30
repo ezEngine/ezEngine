@@ -65,7 +65,10 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
+
   virtual ezGALPlatformSharedHandle GetSharedHandle() const override;
+  virtual void WaitSemaphore(ezUInt64 uiValue) const override;
+  virtual void SignalSemaphore(ezUInt64 uiValue) const override;
 
   StagingMode ComputeStagingMode(const vk::ImageCreateInfo& createInfo) const;
   ezResult CreateStagingBuffer(const vk::ImageCreateInfo& createInfo);

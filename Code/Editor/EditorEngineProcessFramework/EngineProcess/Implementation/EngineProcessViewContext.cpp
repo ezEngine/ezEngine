@@ -17,6 +17,10 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 
+#include <sys/syscall.h>
+#include <unistd.h>
+#include <errno.h>
+
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
   : m_pDocumentContext(pContext)
 {
@@ -70,29 +74,19 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   }
   else if(auto msg = ezDynamicCast<const ezViewOpenSharedTexturesMsgToEngine*>(pMsg))
   {
-    ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(msg->m_Width, msg->m_Height, msg->m_Format);
-
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    ezGALPlatformSharedHandle hHandles[2] = {};
-    hHandles[0].a = msg->m_SharedHandles0A;
-    hHandles[0].b = msg->m_SharedHandles0B;
-    hHandles[1].a = msg->m_SharedHandles1A;
-    hHandles[1].b = msg->m_SharedHandles1B;
-
-    ezGALTextureHandle tex1 = pDevice->OpenSharedTexture(desc, hHandles[0]);
-    ezGALTextureHandle tex2 = pDevice->OpenSharedTexture(desc, hHandles[1]);
-
-    if(tex1.IsInvalidated() || tex2.IsInvalidated())
+    for (ezUInt32 i = 0; i < msg->m_TextureHandles.GetCount(); ++i)
     {
-      ezLog::Error("Failed to open shared textures");
+      ezGALPlatformSharedHandle handle = msg->m_TextureHandles[i];
+      ezGALTextureHandle tex1 = pDevice->OpenSharedTexture(msg->m_TextureDesc, handle);
+      if(tex1.IsInvalidated())
+      {
+        ezLog::Error("Failed to open shared texture");
+        return;
+      }
     }
-    else
-    {
-      ezLog::Info("Shared textures opened successfully");
-    }
-    
+    ezLog::Info("Shared textures opened successfully");   
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");

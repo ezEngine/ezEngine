@@ -68,13 +68,14 @@ public:
     enum Enum
     {
       UsesExternalMemory = EZ_BIT(0),
-
+      IsFileDescriptor = EZ_BIT(1),
       Default = 0
     };
 
     struct Bits
     {
       StorageType UsesExternalMemory : 1;
+      StorageType IsFileDescriptor : 1;
     };
   };
 
@@ -252,6 +253,14 @@ public:
 
   virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const override;
 
+  struct SemaphoreInfo
+  {
+    vk::Semaphore m_semaphore;
+    vk::SemaphoreType m_type;
+    ezUInt64 m_uiValue;
+  };
+  void AddWaitSemaphore(const SemaphoreInfo& waitSemaphore);
+  void AddSignalSemaphore(const SemaphoreInfo& signalSemaphore);
 
   // These functions need to be implemented by a render API abstraction
 protected:
@@ -395,6 +404,8 @@ private:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
 #endif
+  ezDynamicArray<SemaphoreInfo> m_waitSemaphores; 
+  ezDynamicArray<SemaphoreInfo> m_signalSemaphores;
 };
 
 #include <RendererVulkan/Device/Implementation/DeviceVulkan_inl.h>
