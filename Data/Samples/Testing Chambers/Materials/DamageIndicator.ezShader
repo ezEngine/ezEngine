@@ -1,0 +1,82 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+BLEND_MODE = BLEND_MODE_TRANSPARENT
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+TWO_SIDED = TRUE
+
+// SYSTEM permutations:
+// all of these are automatically set by the engine 
+FLIP_WINDING
+RENDER_PASS
+FORWARD_PASS_WRITE_DEPTH
+MSAA
+CAMERA_MODE
+SHADING_QUALITY
+VERTEX_SKINNING
+// SYSTEM permutations
+
+[MATERIALPARAMETER]
+Color BaseColor @Default(Color(1.0, 1.0, 1.0));
+
+Texture2D NoiseTexture;
+float NoiseStrength @Default(1.0);
+float NoiseBias;
+
+[MATERIALCONFIG]
+RenderDataCategory = SimpleTransparent;
+
+[RENDERSTATE]
+#include <Shaders/Materials/MaterialState.h>
+
+[SHADER]
+#define USE_TEXCOORD0
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(NoiseStrength);
+  FLOAT1(NoiseBias);
+};
+
+[VERTEXSHADER]
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT Output = FillVertexData(Input);
+  
+  Output.Position = float4(Input.Position, 1.0);
+  
+  // Cull behind farplane if it is completely faded out anyways
+  if (GetInstanceData().Color.a <= 0)
+  {
+    Output.Position.z = 2;
+  } 
+  
+  return Output;
+}
+
+[PIXELSHADER]
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+Texture2D NoiseTexture;
+
+float3 GetDiffuseColor()
+{
+  return BaseColor.rgb * GetInstanceData().Color.rgb;
+}
+
+float GetOpacity()
+{
+  float fade = saturate(length(G.Input.TexCoord0.xy - 0.5) - 0.2);
+  
+  float noise = NoiseTexture.Sample(LinearSampler, G.Input.TexCoord0).r;
+  fade = saturate(fade + (noise + NoiseBias) * NoiseStrength);
+  fade = fade * fade;
+  
+  return BaseColor.a * fade * GetInstanceData().Color.a;
+}

@@ -1,11 +1,11 @@
 Tag
 {
-	string %Name{"AutoColMesh"}
+	string %Name{"CastShadow"}
 	string %Category{"Default"}
 }
 Tag
 {
-	string %Name{"CastShadow"}
+	string %Name{"Exclude From Export"}
 	string %Category{"Default"}
 }
 Tag

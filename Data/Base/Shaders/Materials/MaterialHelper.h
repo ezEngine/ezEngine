@@ -57,25 +57,25 @@ static PS_GLOBALS G;
 
 uint CalculateCoverage()
 {
-  #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
-    uint coverage = 0;
+#if defined(USE_ALPHA_TEST_SUPER_SAMPLING) && defined(USE_TEXCOORD0)
+  uint coverage = 0;
 
-    float2 texCoords = G.Input.TexCoord0;
-    
-    for (uint i = 0; i < NumMsaaSamples; ++i)
-    {
-      G.Input.TexCoord0 = ezEvaluateAttributeAtSample(texCoords, i, NumMsaaSamples);
+  float2 texCoords = G.Input.TexCoord0;
 
-      float opacity = GetOpacity();
-      coverage |= (opacity > 0.0) ? (1U << i) : 0;
-    }
-    
-    G.Input.TexCoord0 = texCoords;
+  for (uint i = 0; i < NumMsaaSamples; ++i)
+  {
+    G.Input.TexCoord0 = ezEvaluateAttributeAtSample(texCoords, i, NumMsaaSamples);
 
-    return coverage;
-  #else
-    return GetOpacity() > 0.0;
-  #endif
+    float opacity = GetOpacity();
+    coverage |= (opacity > 0.0) ? (1U << i) : 0;
+  }
+
+  G.Input.TexCoord0 = texCoords;
+
+  return coverage;
+#else
+  return GetOpacity() > 0.0;
+#endif
 }
 
 ezMaterialData FillMaterialData()

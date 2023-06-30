@@ -173,6 +173,7 @@ ezRenderData::Category ezDefaultRenderDataCategories::LitOpaque = ezRenderData::
 ezRenderData::Category ezDefaultRenderDataCategories::LitMasked = ezRenderData::RegisterCategory("LitMasked", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::LitTransparent = ezRenderData::RegisterCategory("LitTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
 ezRenderData::Category ezDefaultRenderDataCategories::LitForeground = ezRenderData::RegisterCategory("LitForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::LitScreenFX = ezRenderData::RegisterCategory("LitScreenFX", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
 ezRenderData::Category ezDefaultRenderDataCategories::SimpleOpaque = ezRenderData::RegisterCategory("SimpleOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::SimpleTransparent = ezRenderData::RegisterCategory("SimpleTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
 ezRenderData::Category ezDefaultRenderDataCategories::SimpleForeground = ezRenderData::RegisterCategory("SimpleForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);

@@ -95,6 +95,8 @@ void ezTransparentForwardRenderPass::RenderObjects(const ezRenderViewContext& re
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitScreenFX);
 }
 
 void ezTransparentForwardRenderPass::UpdateSceneColorTexture(

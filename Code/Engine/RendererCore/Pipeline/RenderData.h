@@ -36,7 +36,7 @@ public:
   };
 
   /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
-  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, ezUInt32, const ezCamera&);
+  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
   static Category FindCategory(ezTempHashedString sCategoryName);
@@ -49,11 +49,12 @@ public:
 
   ezUInt64 GetCategorySortingKey(Category category, const ezCamera& camera) const;
 
-  ezUInt32 m_uiBatchId = 0; ///< BatchId is used to group render data in batches.
-  ezUInt32 m_uiSortingKey = 0;
-
   ezTransform m_GlobalTransform = ezTransform::IdentityTransform();
   ezBoundingBoxSphere m_GlobalBounds;
+
+  ezUInt32 m_uiBatchId = 0; ///< BatchId is used to group render data in batches.
+  ezUInt32 m_uiSortingKey = 0;
+  float m_fSortingDepthOffset = 0.0f;
 
   ezGameObjectHandle m_hOwner;
 
@@ -99,6 +100,7 @@ struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
   static ezRenderData::Category LitMasked;
   static ezRenderData::Category LitTransparent;
   static ezRenderData::Category LitForeground;
+  static ezRenderData::Category LitScreenFX;
   static ezRenderData::Category SimpleOpaque;
   static ezRenderData::Category SimpleTransparent;
   static ezRenderData::Category SimpleForeground;
