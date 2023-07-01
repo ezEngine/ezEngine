@@ -43,8 +43,8 @@
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <unistd.h>
 #  include <errno.h>
+#  include <unistd.h>
 #endif
 
 EZ_DEFINE_AS_POD_TYPE(VkLayerProperties);
@@ -188,8 +188,10 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
   }
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result
+  {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop)
+      { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -236,8 +238,10 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   }
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result
+  {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop)
+      { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -289,16 +293,18 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 
   AddExtIfSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, m_extensions.m_bTimelineSemaphore);
 
-  if(m_extensions.m_bTimelineSemaphore)
+  if (m_extensions.m_bTimelineSemaphore)
   {
-    deviceCreateInfo.pNext = &m_extensions.m_timelineSemaphoresEXT; 
+    deviceCreateInfo.pNext = &m_extensions.m_timelineSemaphoresEXT;
     m_extensions.m_timelineSemaphoresEXT.timelineSemaphore = true;
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME, m_extensions.m_bExternalMemoryFd);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreFd);
-
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME, m_extensions.m_bExternalMemoryWin32);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreWin32);
 #endif
 
   return vk::Result::eSuccess;
@@ -538,7 +544,9 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
   m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
 
-  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainVulkan, desc); }); });
+  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
+    { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALSwapChainVulkan, desc); }); });
 
   return EZ_SUCCESS;
 }
@@ -587,7 +595,8 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
   const vk::Offset3D imageOffset = {0, 0, 0};
   const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(subResource.mipLevel);
 
-  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange {
+  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange
+  {
     vk::ImageSubresourceRange range;
     range.aspectMask = layers.aspectMask;
     range.baseMipLevel = layers.mipLevel;
@@ -1411,14 +1420,18 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
     switch (deletion.m_type)
     {
       case vk::ObjectType::eUnknown:
-        if(deletion.m_flags.IsSet(PendingDeletionFlags::IsFileDescriptor))
+        if (deletion.m_flags.IsSet(PendingDeletionFlags::IsFileDescriptor))
         {
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
           int fileDescriptor = static_cast<int>(reinterpret_cast<size_t>(deletion.m_pObject));
           int res = close(fileDescriptor);
           if (res == -1)
           {
             ezLog::Error("close() failed on file descriptor with errno: {}", ezArgErrno(errno));
           }
+#else
+          EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
         }
         else
         {
@@ -1432,13 +1445,13 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
       {
         auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);
         OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
-        if(deletion.m_flags.IsSet(PendingDeletionFlags::UsesExternalMemory))
+        if (deletion.m_flags.IsSet(PendingDeletionFlags::UsesExternalMemory))
         {
           m_device.destroyImage(image);
           auto& deviceMemory = reinterpret_cast<vk::DeviceMemory&>(deletion.m_pContext);
           m_device.freeMemory(deviceMemory);
         }
-        else 
+        else
         {
           ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
         }
@@ -1591,7 +1604,8 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
 
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::AUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8Unorm));
 
-  auto SelectDepthFormat = [&](const std::vector<vk::Format>& list) -> vk::Format {
+  auto SelectDepthFormat = [&](const std::vector<vk::Format>& list) -> vk::Format
+  {
     for (auto& format : list)
     {
       vk::FormatProperties formatProperties;
@@ -1602,7 +1616,8 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     return vk::Format::eUndefined;
   };
 
-  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format {
+  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format
+  {
     switch (depthFormat)
     {
       case vk::Format::eD16Unorm:
@@ -1689,7 +1704,7 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
 const ezGALSharedTexture* ezGALDeviceVulkan::GetSharedTexture(ezGALTextureHandle hTexture) const
 {
   auto pTexture = GetTexture(hTexture);
-  if(pTexture == nullptr)
+  if (pTexture == nullptr)
   {
     return nullptr;
   }

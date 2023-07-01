@@ -530,8 +530,9 @@ void ezGALDeviceDX11::DestroyBufferPlatform(ezGALBuffer* pBuffer)
   EZ_DELETE(&m_Allocator, pDX11Buffer);
 }
 
-ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezGALSharedTextureType sharedType, ezGALPlatformSharedHandle handle)
 {
+  EZ_ASSERT_DEV(sharedType == ezGALSharedTextureType::None, "Shared textures not implemented on DX11");
   ezGALTextureDX11* pTexture = EZ_NEW(&m_Allocator, ezGALTextureDX11, Description);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
@@ -926,6 +927,12 @@ void ezGALDeviceDX11::WaitIdlePlatform()
 {
   m_pImmediateContext->Flush();
   DestroyDeadObjects();
+}
+
+const ezGALSharedTexture* ezGALDeviceDX11::GetSharedTexture(ezGALTextureHandle hTexture) const
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return nullptr;
 }
 
 ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)

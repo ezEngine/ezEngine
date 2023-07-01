@@ -245,7 +245,12 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   presentModes.SetCount(uiPresentModes);
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR(m_vulkanSurface, &uiPresentModes, presentModes.GetData()));
 
-  const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
+  vk::SurfaceCapabilitiesKHR surfaceCapabilities;
+  vk::Result res = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface, &surfaceCapabilities);
+  if (res != vk::Result::eSuccess)
+  {
+    return EZ_FAILURE;
+  }
 
   uint32_t uiNumSurfaceFormats = 0;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_vulkanSurface, &uiNumSurfaceFormats, nullptr));

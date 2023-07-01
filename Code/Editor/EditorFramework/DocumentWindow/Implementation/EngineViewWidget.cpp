@@ -17,7 +17,9 @@
 #  include <RendererFoundation/Device/SwapChain.h>
 #  include <RendererFoundation/Resources/Texture.h>
 
-#  include <xcb/xcb.h>
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#    include <xcb/xcb.h>
+#  endif
 #endif
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
@@ -49,7 +51,7 @@ public:
 
     // TODO Resizing
     m_SharedTextureDesc.SetAsRenderTarget(640, 480, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
-    for(auto& hSharedTexture : m_hSharedTextures)
+    for (auto& hSharedTexture : m_hSharedTextures)
     {
       hSharedTexture = pDevice->CreateSharedTexture(m_SharedTextureDesc);
     }
@@ -57,23 +59,26 @@ public:
 
   ~ezEngineViewWindow()
   {
-    if (m_hWnd.type == ezWindowHandle::Type::XCB)
-    {
-      if(!m_hSwapchain.IsInvalidated())
-      {
-        m_pDevice->DestroySwapChain(m_hSwapchain);
-      }
-      m_pDevice->WaitIdle();
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+if (m_hWnd.type == ezWindowHandle::Type::XCB)
+{
+  if (!m_hSwapchain.IsInvalidated())
+  {
+    m_pDevice->DestroySwapChain(m_hSwapchain);
+  }
+  m_pDevice->WaitIdle();
 
-      EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
-      xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
-      m_hWnd.xcbWindow.m_pConnection = nullptr;
-      m_hWnd.type = ezWindowHandle::Type::Invalid;
-    }
+  EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+  xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
+  m_hWnd.xcbWindow.m_pConnection = nullptr;
+  m_hWnd.type = ezWindowHandle::Type::Invalid;
+}
+#endif
   }
 
   ezResult UpdateWindow(ezWindowHandle hParentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight)
   {
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
     if (m_hWnd.type == ezWindowHandle::Type::Invalid)
     {
       // xcb_connect always returns a non-NULL pointer to a xcb_connection_t,
@@ -93,7 +98,11 @@ public:
       }
 
       m_hWnd.xcbWindow.m_Window = hParentWindow.xcbWindow.m_Window;
-
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (m_hWnd == nullptr)
+  {
+      m_hWnd = hParentWindow;
+#endif
       // create output target
       {
         ezGALWindowSwapChainCreationDescription desc = {};
@@ -108,7 +117,7 @@ public:
         ezLog::Info("Creating swapchain at {0}x{1}", uiWidth, uiHeight);
       }
     }
-    else if(m_uiWidth != uiWidth || m_uiHeight != uiHeight)
+    else if (m_uiWidth != uiWidth || m_uiHeight != uiHeight)
     {
       ezLog::Info("Re-creating the swapchain at {0}x{1}", uiWidth, uiHeight);
       // If the size of the window changed, update the swapchain.
@@ -117,9 +126,10 @@ public:
 
     m_uiWidth = uiWidth;
     m_uiHeight = uiHeight;
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
     EZ_ASSERT_DEV(hParentWindow.type == ezWindowHandle::Type::XCB && hParentWindow.xcbWindow.m_Window != 0, "Invalid handle passed");
     EZ_ASSERT_DEV(m_hWnd.xcbWindow.m_Window == hParentWindow.xcbWindow.m_Window, "Remote window handle should never change. Window must be destroyed and recreated.");
-
+#endif
     return EZ_SUCCESS;
   }
 
@@ -152,18 +162,18 @@ public:
 
     m_pDevice->EndFrame();
 
-    //ezTaskSystem::FinishFrameTasks();
+    // ezTaskSystem::FinishFrameTasks();
   }
 
   ezResult FillMessage(ezViewOpenSharedTexturesMsgToEngine& msg)
   {
     msg.m_TextureDesc = m_SharedTextureDesc;
-    for(auto& hSharedTexture : m_hSharedTextures)
+    for (auto& hSharedTexture : m_hSharedTextures)
     {
       const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(hSharedTexture);
-      if(pSharedTexture == nullptr)
+      if (pSharedTexture == nullptr)
       {
-       return EZ_FAILURE;
+        return EZ_FAILURE;
       }
 
       msg.m_TextureHandles.PushBack(pSharedTexture->GetSharedHandle());
@@ -272,7 +282,7 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
 #ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
   ezViewOpenSharedTexturesMsgToEngine msg;
   msg.m_uiViewID = GetViewID();
-  if(m_pWindow->FillMessage(msg).Succeeded())
+  if (m_pWindow->FillMessage(msg).Succeeded())
   {
     m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
   }
@@ -295,7 +305,8 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
 
     // Wait for engine process response
-    auto callback = [&](ezProcessMessage* pMsg) -> bool {
+    auto callback = [&](ezProcessMessage* pMsg) -> bool
+    {
       auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
       return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
     };
@@ -307,9 +318,9 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     }
   }
 
-  #ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
   m_pWindow = nullptr;
-  #endif
+#endif
 
   m_pDocumentWindow->RemoveViewWidget(this);
 }
@@ -317,9 +328,14 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
 void ezQtEngineViewWidget::SyncToEngine()
 {
 #ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
   ezWindowHandle hWindow = {};
   hWindow.type = ezWindowHandle::Type::XCB;
   hWindow.xcbWindow.m_Window = winId();
+#  elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  ezWindowHandle hWindow = {};
+  hWindow = reinterpret_cast<ezWindowHandle>(winId());
+#  endif
 
   // TODO what about s_FixedResolution?
   if (m_pWindow->UpdateWindow(hWindow, width() * this->devicePixelRatio(), height() * this->devicePixelRatio()).Failed())

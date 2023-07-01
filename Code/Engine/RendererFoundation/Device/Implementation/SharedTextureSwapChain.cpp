@@ -51,21 +51,22 @@ ezResult ezGALSharedTextureSwapChain::InitPlatform(ezGALDevice* pDevice)
   for (ezUInt32 i = 0; i < m_Desc.m_Textures.GetCount(); ++i)
   {
     ezGALPlatformSharedHandle handle = m_Desc.m_Textures[i];
-    ezGALTextureHandle tex1 = pDevice->OpenSharedTexture(m_Desc.m_TextureDesc, handle);
-    if(tex1.IsInvalidated())
+    ezGALTextureHandle hTexture = pDevice->OpenSharedTexture(m_Desc.m_TextureDesc, handle);
+    if(hTexture.IsInvalidated())
     {
       ezLog::Error("Failed to open shared texture");
       return EZ_FAILURE;
     }
+    m_hSharedTextures.PushBack(hTexture);
+    const ezGALSharedTexture* pSharedTexture = pDevice->GetSharedTexture(hTexture);
+    if (pSharedTexture == nullptr)
+    {
+      ezLog::Error("Created texture is not a shared texture");
+      return EZ_FAILURE;
+    }
+    m_pSharedTextures.PushBack(pSharedTexture);
+    m_CurrentSemaphoreValue.PushBack(0);
   }
-
-  ezHybridArray<ezGALTextureHandle, 3> m_hSharedTextures;
-  ezHybridArray<const ezGALSharedTexture*, 3> m_pSharedTextures;
-  ezHybridArray<ezUInt64, 3> m_CurrentSemaphoreValue;
-
-  // get interfaces
-
-  // init semaphores
   return EZ_SUCCESS;
 }
 

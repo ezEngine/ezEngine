@@ -17,9 +17,11 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 
-#include <sys/syscall.h>
-#include <unistd.h>
-#include <errno.h>
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <errno.h>
+#  include <sys/syscall.h>
+#  include <unistd.h>
+#endif
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
   : m_pDocumentContext(pContext)
@@ -72,7 +74,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 
     img.SaveTo(msg->m_sOutputFile).IgnoreResult();
   }
-  else if(auto msg = ezDynamicCast<const ezViewOpenSharedTexturesMsgToEngine*>(pMsg))
+  else if (auto msg = ezDynamicCast<const ezViewOpenSharedTexturesMsgToEngine*>(pMsg))
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -80,13 +82,13 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
     {
       ezGALPlatformSharedHandle handle = msg->m_TextureHandles[i];
       ezGALTextureHandle tex1 = pDevice->OpenSharedTexture(msg->m_TextureDesc, handle);
-      if(tex1.IsInvalidated())
+      if (tex1.IsInvalidated())
       {
         ezLog::Error("Failed to open shared texture");
         return;
       }
     }
-    ezLog::Info("Shared textures opened successfully");   
+    ezLog::Info("Shared textures opened successfully");
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
@@ -148,9 +150,8 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
     // create output target
     {
-      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size) {
-        OnSwapChainChanged(hSwapChain, size);
-      });
+      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
+        { OnSwapChainChanged(hSwapChain, size); });
 
       ezGALWindowSwapChainCreationDescription desc;
       desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();

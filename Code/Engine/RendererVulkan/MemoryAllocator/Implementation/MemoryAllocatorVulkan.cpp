@@ -19,7 +19,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
 
 
 //
-//#define VMA_DEBUG_LOG(format, ...)   \
+// #define VMA_DEBUG_LOG(format, ...)   \
 //  do                                 \
 //  {                                  \
 //    ezStringBuilder tmp;             \
@@ -65,7 +65,8 @@ namespace
   struct ExportedSharedPool
   {
     VmaPool m_pool = nullptr;
-    ezUniquePtr<VkExportMemoryAllocateInfo> m_exportInfo; // must outlive the pool and remain at the same address.
+    ezUniquePtr<vk::ExportMemoryAllocateInfo> m_exportInfo; // must outlive the pool and remain at the same address.
+    ezUniquePtr<vk::ExportMemoryWin32HandleInfoKHR> m_exportInfo2;
   };
 } // namespace
 
@@ -135,14 +136,20 @@ vk::Result ezMemoryAllocatorVulkan::CreateImage(const vk::ImageCreateInfo& image
     {
       ExportedSharedPool newPool;
       {
-        VkExportMemoryAllocateInfo exportInfo = {};
-        exportInfo.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO;
+        newPool.m_exportInfo = EZ_DEFAULT_NEW(vk::ExportMemoryAllocateInfo);
+        vk::ExportMemoryAllocateInfo& exportInfo = *newPool.m_exportInfo.Borrow();
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-        exportInfo.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT;
+        exportInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd;
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+        newPool.m_exportInfo2 = EZ_DEFAULT_NEW(vk::ExportMemoryWin32HandleInfoKHR);
+        vk::ExportMemoryWin32HandleInfoKHR& exportInfoWin = *newPool.m_exportInfo2.Borrow();
+        exportInfoWin.dwAccess = GENERIC_ALL;
+
+        exportInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32;
+        exportInfo.pNext = &exportInfoWin;
 #else
         EZ_ASSERT_NOT_IMPLEMENTED
 #endif
-        newPool.m_exportInfo = EZ_DEFAULT_NEW(VkExportMemoryAllocateInfo, exportInfo);
       }
 
       VmaPoolCreateInfo poolCreateInfo = {};
@@ -157,7 +164,7 @@ vk::Result ezMemoryAllocatorVulkan::CreateImage(const vk::ImageCreateInfo& image
       m_pImpl->m_exportedSharedPools.Insert(memoryTypeIndex, std::move(newPool));
       pool = m_pImpl->m_exportedSharedPools.GetValue(memoryTypeIndex);
     }
-    
+
     allocCreateInfo.pool = pool->m_pool;
   }
 

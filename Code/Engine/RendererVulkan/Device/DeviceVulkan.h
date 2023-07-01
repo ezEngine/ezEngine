@@ -124,8 +124,12 @@ public:
     bool m_bImageFormatList = false;
     vk::PhysicalDeviceTimelineSemaphoreFeatures m_timelineSemaphoresEXT;
     bool m_bTimelineSemaphore = false;
+
     bool m_bExternalMemoryFd = false;
     bool m_bExternalSemaphoreFd = false;
+
+    bool m_bExternalMemoryWin32 = false;
+    bool m_bExternalSemaphoreWin32 = false;
   };
 
   struct Queue
