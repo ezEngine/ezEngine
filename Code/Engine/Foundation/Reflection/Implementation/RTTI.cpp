@@ -12,6 +12,8 @@ struct ezTypeData
   ezMutex m_Mutex;
   ezHashTable<ezUInt64, ezRTTI*, ezHashHelper<ezUInt64>, ezStaticAllocatorWrapper> m_TypeNameHashToType;
   ezDynamicArray<ezRTTI*> m_AllTypes;
+
+  bool m_bIterating = false;
 };
 
 ezTypeData* GetTypeData()
@@ -223,6 +225,7 @@ void ezRTTI::UnregisterType()
   EZ_LOCK(pData->m_Mutex);
   pData->m_TypeNameHashToType.Remove(m_uiTypeNameHash);
 
+  EZ_ASSERT_DEV(pData->m_bIterating == false, "Unregistering types while iterating over types might cause unexpected behavior");
   pData->m_AllTypes.RemoveAtAndSwap(m_uiTypeIndex);
   if (m_uiTypeIndex != pData->m_AllTypes.GetCount())
   {
@@ -355,8 +358,11 @@ void ezRTTI::ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options /*
   auto pData = GetTypeData();
   EZ_LOCK(pData->m_Mutex);
 
-  for (const ezRTTI* pRtti : pData->m_AllTypes)
+  pData->m_bIterating = true;
+  // Can't use ranged based for loop here since we might add new types while iterating and the m_AllTypes array might re-allocate.
+  for (ezUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i) 
   {
+    auto pRtti = pData->m_AllTypes.GetData()[i];
     if (options.IsSet(ForEachOptions::ExcludeNonAllocatable) && (pRtti->GetAllocator() == nullptr || pRtti->GetAllocator()->CanAllocate() == false))
       continue;
 
@@ -365,6 +371,7 @@ void ezRTTI::ForEachType(VisitorFunc func, ezBitflags<ForEachOptions> options /*
 
     func(pRtti);
   }
+  pData->m_bIterating = false;
 }
 
 void ezRTTI::ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBitflags<ForEachOptions> options /*= ForEachOptions::Default*/)
@@ -372,8 +379,11 @@ void ezRTTI::ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBit
   auto pData = GetTypeData();
   EZ_LOCK(pData->m_Mutex);
 
-  for (const ezRTTI* pRtti : pData->m_AllTypes)
+  pData->m_bIterating = true;
+  // Can't use ranged based for loop here since we might add new types while iterating and the m_AllTypes array might re-allocate.
+  for (ezUInt32 i = 0; i < pData->m_AllTypes.GetCount(); ++i)
   {
+    auto pRtti = pData->m_AllTypes.GetData()[i];
     if (!pRtti->IsDerivedFrom(pBaseType))
       continue;
 
@@ -385,6 +395,7 @@ void ezRTTI::ForEachDerivedType(const ezRTTI* pBaseType, VisitorFunc func, ezBit
 
     func(pRtti);
   }
+  pData->m_bIterating = false;
 }
 
 void ezRTTI::AssignPlugin(ezStringView sPluginName)
