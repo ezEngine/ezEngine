@@ -66,7 +66,9 @@ namespace
   {
     VmaPool m_pool = nullptr;
     ezUniquePtr<vk::ExportMemoryAllocateInfo> m_exportInfo; // must outlive the pool and remain at the same address.
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezUniquePtr<vk::ExportMemoryWin32HandleInfoKHR> m_exportInfo2;
+    #endif
   };
 } // namespace
 

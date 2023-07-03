@@ -193,6 +193,18 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 
   if (m_pExisitingNativeObject == nullptr)
   {
+    vk::ExternalMemoryImageCreateInfo extMemoryCreateInfo;
+    if (m_sharedType == ezGALSharedTextureType::Exported || m_sharedType == ezGALSharedTextureType::Imported)
+    {
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+      extMemoryCreateInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd;
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+      extMemoryCreateInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32;
+#endif
+      extMemoryCreateInfo.pNext = createInfo.pNext;
+      createInfo.pNext = &extMemoryCreateInfo;
+    }
+
     if (m_sharedType == ezGALSharedTextureType::None || m_sharedType == ezGALSharedTextureType::Exported)
     {
 
@@ -216,16 +228,6 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 
       vk::ImageFormatProperties props2;
       VK_ASSERT_DEBUG(m_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(createInfo.format, createInfo.imageType, createInfo.tiling, createInfo.usage, createInfo.flags, &props2));
-      vk::ExternalMemoryImageCreateInfo extMemoryCreateInfo;
-      if (m_sharedType == ezGALSharedTextureType::Exported)
-      {
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-        extMemoryCreateInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd;
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-        extMemoryCreateInfo.handleTypes = vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32;
-#endif
-        createInfo.pNext = &extMemoryCreateInfo;
-      }
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_image, m_alloc, &m_allocInfo));
 
       if (m_sharedType == ezGALSharedTextureType::Exported)
@@ -342,6 +344,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
           m_sharedHandle.b = 0;
           return EZ_FAILURE;
         }
+        EZ_SCOPE_EXIT(close(processFd));
 
         m_sharedHandle.a = syscall(SYS_pidfd_getfd, processFd, m_sharedHandle.a, 0);
         if (m_sharedHandle.a == -1)

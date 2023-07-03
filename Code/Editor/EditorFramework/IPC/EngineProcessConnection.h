@@ -53,9 +53,6 @@ public:
   ezResult WaitForDocumentMessage(
     const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback = nullptr);
 
-  void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
-  bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }
-
   void SetRenderer(ezStringView sRenderer) { m_sRenderer = sRenderer; }
   const char* GetRenderer() const { return m_sRenderer; }
 
@@ -96,7 +93,6 @@ private:
   bool ConnectToRemoteProcess();
   void ShutdownRemoteProcess();
 
-  bool m_bProcessShouldWaitForDebugger = false;
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;

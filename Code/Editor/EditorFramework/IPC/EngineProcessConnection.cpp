@@ -114,11 +114,8 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
 
   ezStringBuilder tmp;
 
-  QStringList args;
-  if (true /*m_bProcessShouldWaitForDebugger*/)
-  {
-    args << "-WaitForDebugger";
-  }
+  QStringList args = QCoreApplication::arguments();
+  args.pop_front(); // Remove first argument which is the name of the path to the editor executable
 
   if (!m_sRenderer.IsEmpty())
   {
