@@ -55,30 +55,32 @@ public:
     {
       hSharedTexture = pDevice->CreateSharedTexture(m_SharedTextureDesc);
     }
+
+    ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType::CopyImage, m_CopyShader);
   }
 
   ~ezEngineViewWindow()
   {
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
-if (m_hWnd.type == ezWindowHandle::Type::XCB)
-{
-  if (!m_hSwapchain.IsInvalidated())
-  {
-    m_pDevice->DestroySwapChain(m_hSwapchain);
-  }
-  m_pDevice->WaitIdle();
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    if (m_hWnd.type == ezWindowHandle::Type::XCB)
+    {
+      if (!m_hSwapchain.IsInvalidated())
+      {
+        m_pDevice->DestroySwapChain(m_hSwapchain);
+      }
+      m_pDevice->WaitIdle();
 
-  EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
-  xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
-  m_hWnd.xcbWindow.m_pConnection = nullptr;
-  m_hWnd.type = ezWindowHandle::Type::Invalid;
-}
-#endif
+      EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+      xcb_disconnect(m_hWnd.xcbWindow.m_pConnection);
+      m_hWnd.xcbWindow.m_pConnection = nullptr;
+      m_hWnd.type = ezWindowHandle::Type::Invalid;
+    }
+#  endif
   }
 
   ezResult UpdateWindow(ezWindowHandle hParentWindow, ezUInt16 uiWidth, ezUInt16 uiHeight)
   {
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
     if (m_hWnd.type == ezWindowHandle::Type::Invalid)
     {
       // xcb_connect always returns a non-NULL pointer to a xcb_connection_t,
@@ -98,11 +100,11 @@ if (m_hWnd.type == ezWindowHandle::Type::XCB)
       }
 
       m_hWnd.xcbWindow.m_Window = hParentWindow.xcbWindow.m_Window;
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (m_hWnd == nullptr)
-  {
+#  elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    if (m_hWnd == nullptr)
+    {
       m_hWnd = hParentWindow;
-#endif
+#  endif
       // create output target
       {
         ezGALWindowSwapChainCreationDescription desc = {};
@@ -126,18 +128,23 @@ if (m_hWnd.type == ezWindowHandle::Type::XCB)
 
     m_uiWidth = uiWidth;
     m_uiHeight = uiHeight;
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
     EZ_ASSERT_DEV(hParentWindow.type == ezWindowHandle::Type::XCB && hParentWindow.xcbWindow.m_Window != 0, "Invalid handle passed");
     EZ_ASSERT_DEV(m_hWnd.xcbWindow.m_Window == hParentWindow.xcbWindow.m_Window, "Remote window handle should never change. Window must be destroyed and recreated.");
-#endif
+#  endif
     return EZ_SUCCESS;
   }
 
-  void Render()
+  void Render(ezUInt32 uiCurrentTextureIndex, ezUInt64 uiCurrentSemaphoreValue)
   {
     // Begin frame
     m_pDevice->BeginFrame();
     m_pDevice->BeginPipeline("GraphicsTest", m_hSwapchain);
+
+    const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(m_hSharedTextures[uiCurrentTextureIndex]);
+    EZ_ASSERT_DEV(pSharedTexture != nullptr, "Shared texture did not resolve");
+
+    pSharedTexture->WaitSemaphoreGPU(uiCurrentSemaphoreValue);
 
     ezGALPass* pPass = m_pDevice->BeginPass("Clear");
 
@@ -150,12 +157,22 @@ if (m_hWnd.type == ezWindowHandle::Type::XCB)
     setup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
     // TODO might not actually need ezRenderContext here
-    ezGALCommandEncoder* pEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pPass, setup, ezRectFloat(static_cast<float>(m_uiWidth), static_cast<float>(m_uiHeight)));
+    ezGALRenderCommandEncoder* pEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pPass, setup, ezRectFloat(static_cast<float>(m_uiWidth), static_cast<float>(m_uiHeight)));
+
+    pEncoder->SetShader(m_CopyShader.m_hActiveGALShader);
+    pEncoder->SetBlendState(m_CopyShader.m_hBlendState);
+    pEncoder->SetDepthStencilState(m_CopyShader.m_hDepthStencilState);
+    pEncoder->SetRasterizerState(m_CopyShader.m_hRasterizerState);
+
+    //pEncoder->SetResourceView(ezGALShaderStage::PixelShader, 0, m_pDevice->GetDefaultResourceView(m_hSharedTextures[uiCurrentTextureIndex]));
 
     // End Frame
     ezRenderContext::GetDefaultInstance()->EndRendering();
     m_pDevice->EndPass(pPass);
     pPass = nullptr;
+
+    pSharedTexture->SignalSemaphoreGPU(uiCurrentSemaphoreValue + 1);
+    m_uiSharedTextureSemaphoreCount[uiCurrentTextureIndex] = uiCurrentSemaphoreValue + 1;
 
     ezRenderContext::GetDefaultInstance()->ResetContextState();
     m_pDevice->EndPipeline(m_hSwapchain);
@@ -182,6 +199,15 @@ if (m_hWnd.type == ezWindowHandle::Type::XCB)
     return EZ_SUCCESS;
   }
 
+  void FillMessage(ezViewRedrawMsgToEngine& msg)
+  {
+    msg.m_uiSharedTextureIndex = m_uiCurrentSharedTextureIndex;
+    msg.m_uiSemaphoreCurrentValue = m_uiSharedTextureSemaphoreCount[m_uiCurrentSharedTextureIndex];
+
+    // TODO: Make sure we don't catch our tail
+    m_uiCurrentSharedTextureIndex = (m_uiCurrentSharedTextureIndex + 1) % EZ_ARRAY_SIZE(m_uiSharedTextureSemaphoreCount);
+  }
+
   // Inherited via ezWindowBase
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
@@ -202,6 +228,9 @@ private:
 
   ezGALTextureCreationDescription m_SharedTextureDesc;
   ezGALTextureHandle m_hSharedTextures[2];
+  ezUInt64 m_uiSharedTextureSemaphoreCount[2] = {0, 0};
+  ezUInt32 m_uiCurrentSharedTextureIndex = 0;
+  ezShaderUtils::ezBuiltinShader m_CopyShader;
 };
 #endif
 
@@ -305,8 +334,7 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
 
     // Wait for engine process response
-    auto callback = [&](ezProcessMessage* pMsg) -> bool
-    {
+    auto callback = [&](ezProcessMessage* pMsg) -> bool {
       auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
       return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
     };
@@ -342,13 +370,11 @@ void ezQtEngineViewWidget::SyncToEngine()
   {
     ezLog::Error("Failed to update window for ezQtEngineViewWidget");
   }
-
-  m_pWindow->Render();
 #endif
 
 
   // TODO re-enable
-  /*ezViewRedrawMsgToEngine cam;
+  ezViewRedrawMsgToEngine cam;
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
 
   float fov = m_pViewConfig->m_Camera.GetFovOrDim();
@@ -371,7 +397,11 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_ViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
 
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  m_pWindow->FillMessage(cam);
+#else
   cam.m_uiHWND = (ezUInt64)(winId());
+#endif
   cam.m_uiWindowWidth = width() * this->devicePixelRatio();
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
@@ -384,7 +414,7 @@ void ezQtEngineViewWidget::SyncToEngine()
     cam.m_uiWindowHeight = s_FixedResolution.height;
   }
 
-  m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);*/
+  m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
 
 
@@ -544,11 +574,14 @@ void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
     return;
   }
-
-  if (const ezViewMarqueePickingResultMsgToEditor* pFullMsg = ezDynamicCast<const ezViewMarqueePickingResultMsgToEditor*>(pMsg))
+  else if (const ezViewMarqueePickingResultMsgToEditor* pFullMsg = ezDynamicCast<const ezViewMarqueePickingResultMsgToEditor*>(pMsg))
   {
     HandleMarqueePickingResult(pFullMsg);
     return;
+  }
+  else if(const ezViewRenderingDoneMsgToEditor* pFullMsg = ezDynamicCast<const ezViewRenderingDoneMsgToEditor*>(pMsg))
+  {
+    m_pWindow->Render(pFullMsg->m_uiCurrentTextureIndex, pFullMsg->m_uiCurrentSemaphoreValue);
   }
 }
 

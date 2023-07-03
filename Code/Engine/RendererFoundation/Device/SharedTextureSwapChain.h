@@ -9,6 +9,7 @@ struct ezGALSharedTextureSwapChainCreationDescription : public ezHashableStruct<
 {
   ezGALTextureCreationDescription m_TextureDesc;
   ezHybridArray<ezGALPlatformSharedHandle, 3> m_Textures;
+  ezDelegate<void(ezUInt32 uiTextureIndex, ezUInt64 uiSemaphoreValue)> m_OnPresent;
 };
 
 class EZ_RENDERERFOUNDATION_DLL ezGALSharedTextureSwapChain : public ezGALSwapChain
@@ -22,6 +23,8 @@ public:
 public:
   ezGALSharedTextureSwapChain(const ezGALSharedTextureSwapChainCreationDescription& desc);
 
+  void Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurrentSemaphoreValue);
+
   virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) override;
   virtual void PresentRenderTarget(ezGALDevice* pDevice) override;
   virtual ezResult UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode) override;
@@ -33,7 +36,8 @@ protected:
   static Functor s_Factory;
 
 protected:
-  ezUInt32 m_uiCurrentImage = 0;
+  ezUInt32 m_uiCurrentTexture = ezMath::MaxValue<ezUInt32>();
+  ezUInt64 m_uiCurrentSemaphoreValue = 0;
   ezHybridArray<ezGALTextureHandle, 3> m_hSharedTextures;
   ezHybridArray<const ezGALSharedTexture*, 3> m_pSharedTextures;
   ezHybridArray<ezUInt64, 3> m_CurrentSemaphoreValue;

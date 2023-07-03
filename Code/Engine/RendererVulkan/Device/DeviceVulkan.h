@@ -284,6 +284,8 @@ protected:
   virtual ezGALPass* BeginPassPlatform(const char* szName) override;
   virtual void EndPassPlatform(ezGALPass* pPass) override;
 
+  virtual void FlushPlatform() override;
+
 
   // State creation functions
 

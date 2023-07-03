@@ -22,3 +22,8 @@ target_link_libraries(${PROJECT_NAME}
 if(EZ_3RDPARTY_GLFW_SUPPORT AND EZ_CMAKE_PLATFORM_LINUX)
   target_link_libraries(${PROJECT_NAME} PRIVATE xcb)
 endif()
+
+# On linux we need the renderer for the in editor render loop + shared texture setup
+if(EZ_CMAKE_PLATFORM_LINUX)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE)
+endif()

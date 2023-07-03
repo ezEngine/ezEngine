@@ -4,6 +4,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
@@ -114,6 +115,10 @@ ezResult ezGALDevice::Init()
     return EZ_FAILURE;
   }
 
+  ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
+    { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
+
   // Fill the capabilities
   FillCapabilitiesPlatform();
 
@@ -205,6 +210,13 @@ void ezGALDevice::EndPass(ezGALPass* pPass)
   m_bBeginPassCalled = false;
 
   EndPassPlatform(pPass);
+}
+
+void ezGALDevice::Flush()
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  FlushPlatform();
 }
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)

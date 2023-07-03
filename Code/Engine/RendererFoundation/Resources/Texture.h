@@ -54,8 +54,8 @@ protected:
     virtual ezGALPlatformSharedHandle GetSharedHandle() const = 0;
     /// \brief Before the current render pipeline is executed, the GPU will wait for the semaphore to have the given value.  
     /// \param iValue Value the semaphore needs to have before the texture can be used.
-    virtual void WaitSemaphore(ezUInt64 uiValue) const = 0;
+    virtual void WaitSemaphoreGPU(ezUInt64 uiValue) const = 0;
     /// \brief Once the current render pipeline is done on the GPU, the semaphore will be signaled with the given value.
     /// \param iValue Value the semaphore is set to once we are done using the texture (after the current render pipeline).
-    virtual void SignalSemaphore(ezUInt64 uiValue) const = 0;
+    virtual void SignalSemaphoreGPU(ezUInt64 uiValue) const = 0;
 };

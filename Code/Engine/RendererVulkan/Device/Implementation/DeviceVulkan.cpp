@@ -855,7 +855,8 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
       waitSemaphoreValues.PushBack(sem.m_uiValue);
     }
   }
-  waitSemaphores.Clear();
+  m_waitSemaphores.Clear();
+
   for (const SemaphoreInfo sem : m_signalSemaphores)
   {
     signalSemaphores.PushBack(sem.m_semaphore);
@@ -892,6 +893,15 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
   m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
   signalSemaphores.PushBack(m_lastCommandBufferFinished);
 
+  if(waitSemaphoreValues.GetCount() > 0)
+  {
+    waitSemaphoreValues.SetCount(waitSemaphores.GetCount());
+  }
+  if(signalSemaphoreValues.GetCount() > 0)
+  {
+    signalSemaphoreValues.SetCount(signalSemaphores.GetCount());
+  }
+
   if (timelineInfo.waitSemaphoreValueCount > 0 || timelineInfo.signalSemaphoreValueCount > 0)
     submitInfo.pNext = &timelineInfo;
   submitInfo.waitSemaphoreCount = waitSemaphores.GetCount();
@@ -926,6 +936,11 @@ void ezGALDeviceVulkan::EndPassPlatform(ezGALPass* pPass)
 #if EZ_ENABLED(EZ_USE_PROFILING)
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
 #endif
+}
+
+void ezGALDeviceVulkan::FlushPlatform()
+{
+  Submit(nullptr, vk::PipelineStageFlagBits::eColorAttachmentOutput, nullptr);
 }
 
 // State creation functions

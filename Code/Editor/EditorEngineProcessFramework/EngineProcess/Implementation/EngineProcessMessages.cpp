@@ -259,7 +259,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocat
 {
   EZ_BEGIN_PROPERTIES
   {
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+    EZ_MEMBER_PROPERTY("SharedTextureIndex", m_uiSharedTextureIndex),
+    EZ_MEMBER_PROPERTY("SemaphoreCurrentValue", m_uiSemaphoreCurrentValue),
+#else
     EZ_MEMBER_PROPERTY("HWND", m_uiHWND),
+#endif
     EZ_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
     EZ_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
     EZ_MEMBER_PROPERTY("UpdatePickingData", m_bUpdatePickingData),
@@ -623,6 +628,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewOpenSharedTexturesMsgToEngine, 1, ezRTTIDe
   {
     EZ_MEMBER_PROPERTY("TextureDesc", m_TextureDesc),
     EZ_ARRAY_MEMBER_PROPERTY("TextureHandles", m_TextureHandles),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRenderingDoneMsgToEditor, 1, ezRTTIDefaultAllocator<ezViewRenderingDoneMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("CurrentTextureIndex", m_uiCurrentTextureIndex),
+    EZ_MEMBER_PROPERTY("CurrentSemaphoreValue", m_uiCurrentSemaphoreValue),
   }
   EZ_END_PROPERTIES;
 }

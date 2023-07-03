@@ -264,10 +264,11 @@ public:
   // Default sampler state
   static ezGALSamplerStateHandle GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags);
 
+  static void LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererContext);
 
-  static void LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader);
   static void OnEngineShutdown();
 
 private:

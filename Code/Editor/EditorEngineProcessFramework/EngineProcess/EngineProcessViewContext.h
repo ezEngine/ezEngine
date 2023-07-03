@@ -75,6 +75,8 @@ protected:
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
   void OnSwapChainChanged(ezGALSwapChainHandle hSwapChain, ezSizeU32 size);
 
+  void OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue);
+
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
 
   /// \brief Returns the handle to the default render pipeline.
@@ -89,6 +91,7 @@ protected:
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
   ezActor* m_pEditorWndActor = nullptr;
+  ezGALSwapChainHandle m_hSwapChain;
 
 protected:
   ezCamera m_Camera;

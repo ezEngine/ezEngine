@@ -13,6 +13,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
@@ -57,11 +58,16 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
       HandleWindowUpdate(reinterpret_cast<ezWindowHandle>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
 #  else
-      ezWindowHandle windowHandle;
+      auto pSwapChain = const_cast<ezGALSharedTextureSwapChain*>(ezGALDevice::GetDefaultDevice()->GetSwapChain<ezGALSharedTextureSwapChain>(m_hSwapChain));
+      if(pSwapChain)
+      {
+        pSwapChain->Arm(pMsg2->m_uiSharedTextureIndex, pMsg2->m_uiSemaphoreCurrentValue);
+      }
+      /*ezWindowHandle windowHandle;
       windowHandle.type = ezWindowHandle::Type::XCB;
       windowHandle.xcbWindow.m_Window = static_cast<ezUInt32>(pMsg2->m_uiHWND);
       windowHandle.xcbWindow.m_pConnection = nullptr;
-      HandleWindowUpdate(windowHandle, pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+      HandleWindowUpdate(windowHandle, pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);*/
 #  endif
       Redraw(true);
     }
@@ -78,17 +84,28 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    for (ezUInt32 i = 0; i < msg->m_TextureHandles.GetCount(); ++i)
+    if(!m_hSwapChain.IsInvalidated())
     {
-      ezGALPlatformSharedHandle handle = msg->m_TextureHandles[i];
-      ezGALTextureHandle tex1 = pDevice->OpenSharedTexture(msg->m_TextureDesc, handle);
-      if (tex1.IsInvalidated())
-      {
-        ezLog::Error("Failed to open shared texture");
-        return;
-      }
+      pDevice->DestroySwapChain(m_hSwapChain);      
+      m_hSwapChain.Invalidate();
     }
-    ezLog::Info("Shared textures opened successfully");
+
+    ezGALSharedTextureSwapChainCreationDescription desc;
+
+    desc.m_TextureDesc = msg->m_TextureDesc;
+    desc.m_Textures = msg->m_TextureHandles;
+    desc.m_OnPresent = ezMakeDelegate(&ezEngineProcessViewContext::OnPresent, this);
+
+    m_hSwapChain = ezGALSharedTextureSwapChain::Create(desc);
+    if(m_hSwapChain.IsInvalidated())
+    {
+      EZ_REPORT_FAILURE("Failed to create shared texture swapchain");
+    }
+
+    // setup render target
+    {
+      SetupRenderTarget(m_hSwapChain, nullptr, static_cast<ezUInt16>(desc.m_TextureDesc.m_uiWidth), static_cast<ezUInt16>(desc.m_TextureDesc.m_uiHeight));
+    }
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
@@ -150,8 +167,7 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
     // create output target
     {
-      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size)
-        { OnSwapChainChanged(hSwapChain, size); });
+      ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL, [this](ezGALSwapChainHandle hSwapChain, ezSizeU32 size) { OnSwapChainChanged(hSwapChain, size); });
 
       ezGALWindowSwapChainCreationDescription desc;
       desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
@@ -184,6 +200,14 @@ void ezEngineProcessViewContext::OnSwapChainChanged(ezGALSwapChainHandle hSwapCh
     pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
     pView->ForceUpdate();
   }
+}
+
+void ezEngineProcessViewContext::OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue)
+{
+  ezViewRenderingDoneMsgToEditor msg = {};
+  msg.m_uiCurrentSemaphoreValue = uiCurrentSemaphoreValue;
+  msg.m_uiCurrentTextureIndex = uiCurrentTexture;
+  SendViewMessage(&msg);
 }
 
 void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)

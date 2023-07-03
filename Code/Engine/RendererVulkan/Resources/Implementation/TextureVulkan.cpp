@@ -203,6 +203,8 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
 #endif
       extMemoryCreateInfo.pNext = createInfo.pNext;
       createInfo.pNext = &extMemoryCreateInfo;
+
+      m_preferredLayout = vk::ImageLayout::eGeneral;
     }
 
     if (m_sharedType == ezGALSharedTextureType::None || m_sharedType == ezGALSharedTextureType::Exported)
@@ -683,14 +685,16 @@ ezGALPlatformSharedHandle ezGALTextureVulkan::GetSharedHandle() const
   return m_sharedHandle;
 }
 
-void ezGALTextureVulkan::WaitSemaphore(ezUInt64 uiValue) const
+void ezGALTextureVulkan::WaitSemaphoreGPU(ezUInt64 uiValue) const
 {
   m_pDevice->AddWaitSemaphore({m_sharedSemaphore, vk::SemaphoreType::eTimeline, uiValue});
 }
 
-void ezGALTextureVulkan::SignalSemaphore(ezUInt64 uiValue) const
+void ezGALTextureVulkan::SignalSemaphoreGPU(ezUInt64 uiValue) const
 {
   m_pDevice->AddSignalSemaphore({m_sharedSemaphore, vk::SemaphoreType::eTimeline, uiValue});
+  // TODO, transition texture into GENERAL layout
+  m_pDevice->GetCurrentPipelineBarrier().EnsureImageLayout(this, GetPreferredLayout(), GetUsedByPipelineStage(), GetAccessMask());
 }
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Resources_Implementation_TextureVulkan);

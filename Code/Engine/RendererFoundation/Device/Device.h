@@ -35,6 +35,9 @@ public:
   ezGALPass* BeginPass(const char* szName);
   void EndPass(ezGALPass* pPass);
 
+  // Sends the queued up commands to the GPU
+  void Flush(); 
+
   // State creation functions
 
   ezGALBlendStateHandle CreateBlendState(const ezGALBlendStateCreationDescription& description);
@@ -260,6 +263,8 @@ protected:
 
   virtual ezGALPass* BeginPassPlatform(const char* szName) = 0;
   virtual void EndPassPlatform(ezGALPass* pPass) = 0;
+
+  virtual void FlushPlatform() = 0;
 
   // State creation functions
 

@@ -289,6 +289,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();     // writing to the binary directory
     ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                  // app specific data
     ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites).IgnoreResult(); // for writing app user data
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // ":shadercache/" for reading and writing shader files
   }
 
   {
