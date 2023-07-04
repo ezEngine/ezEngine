@@ -81,14 +81,14 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezBlackboardTemplateResource, ezBlackboardTempl
   return res;
 }
 
-ezResult ezBlackboardTemplateResourceDescriptor::Serialize(ezStreamWriter& stream) const
+ezResult ezBlackboardTemplateResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Entries));
+  EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_Entries));
   return EZ_SUCCESS;
 }
 
-ezResult ezBlackboardTemplateResourceDescriptor::Deserialize(ezStreamReader& stream)
+ezResult ezBlackboardTemplateResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Entries));
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Entries));
   return EZ_SUCCESS;
 }

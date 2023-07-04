@@ -5,14 +5,19 @@
 #include <Core/ResourceManager/Resource.h>
 #include <GameEngine/Gameplay/BlackboardComponent.h>
 
+using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
+
 struct EZ_GAMEENGINE_DLL ezBlackboardTemplateResourceDescriptor
 {
-  ezResult Serialize(ezStreamWriter& stream) const;
-  ezResult Deserialize(ezStreamReader& stream);
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
 
   ezDynamicArray<ezBlackboardEntry> m_Entries;
 };
 
+/// \brief Describes the initial state of a blackboard.
+///
+/// Used by ezBlackboardComponent to initialize its blackboard from.
 class EZ_GAMEENGINE_DLL ezBlackboardTemplateResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezBlackboardTemplateResource, ezResource);
@@ -32,5 +37,3 @@ private:
 
   ezBlackboardTemplateResourceDescriptor m_Descriptor;
 };
-
-using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
