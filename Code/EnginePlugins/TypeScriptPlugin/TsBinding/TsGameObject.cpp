@@ -48,7 +48,7 @@ namespace GameObject_X
     GlobalDirForwards,
     GlobalDirRight,
     GlobalDirUp,
-    Velocity,
+    LinearVelocity,
     ActiveFlag,
     Active,
     ChildCount,
@@ -91,7 +91,7 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirForwards", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirForwards);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirRight", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirRight);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirUp", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirUp);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetVelocity", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::Velocity);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLinearVelocity", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::LinearVelocity);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetName", __CPP_GameObject_SetString, 2, 0);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetName", __CPP_GameObject_GetString, 1, 0);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetGlobalKey", __CPP_GameObject_SetString, 2, 1);
@@ -298,7 +298,7 @@ static int __CPP_GameObject_GetX_Vec3(duk_context* pDuk)
       value = pGameObject->GetGlobalDirUp();
       break;
 
-    case GameObject_X::Velocity:
+    case GameObject_X::LinearVelocity:
       value = pGameObject->GetLinearVelocity();
       break;
 

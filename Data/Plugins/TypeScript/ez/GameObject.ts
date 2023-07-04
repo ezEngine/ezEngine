@@ -40,8 +40,7 @@ declare function __CPP_GameObject_GetGlobalDirForwards(_this: GameObject): Vec3;
 declare function __CPP_GameObject_GetGlobalDirRight(_this: GameObject): Vec3;
 declare function __CPP_GameObject_GetGlobalDirUp(_this: GameObject): Vec3;
 
-declare function __CPP_GameObject_SetVelocity(_this: GameObject, value: Vec3): void;
-declare function __CPP_GameObject_GetVelocity(_this: GameObject): Vec3;
+declare function __CPP_GameObject_GetLinearVelocity(_this: GameObject): Vec3;
 
 declare function __CPP_GameObject_SetActiveFlag(_this: GameObject, active: boolean): void;
 declare function __CPP_GameObject_GetActiveFlag(_this: GameObject): boolean;
@@ -287,20 +286,10 @@ export class GameObject {
     }
 
     /**
-     * Sets the velocity value of the GameObject.
-     * The velocity value only has an effect in some scenarios. It does not affect the GameObject's position.
-     * E.g. velocity is used by sound-sources to compute Doppler effects.
-     * By default this value is computed out of position changes.
+     * Returns the linear velocity of the object over the last two world updates.
      */
-    SetVelocity(velocity: Vec3): void { // [tested]
-        __CPP_GameObject_SetVelocity(this, velocity);
-    }
-
-    /**
-     * Returns the velocity of the object over the last two world updates.
-     */
-    GetVelocity(): Vec3 { // [tested]
-        return __CPP_GameObject_GetVelocity(this);
+    GetLinearVelocity(): Vec3 { // [tested]
+        return __CPP_GameObject_GetLinearVelocity(this);
     }
 
     /**
