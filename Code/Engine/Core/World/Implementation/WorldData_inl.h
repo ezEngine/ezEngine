@@ -60,36 +60,36 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, const ezSimdFloat& fInvDeltaSeconds)
   {
-    pData->UpdateGlobalTransformWithoutParent();
-    pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalTransformWithoutParent(uiUpdateCounter);
+    pData->UpdateInvDeltaSeconds(fInvDeltaSeconds);
     pData->UpdateGlobalBounds();
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
-  {
-    pData->UpdateGlobalTransformWithParent();
-    pData->UpdateVelocity(fInvDeltaSeconds);
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, const ezSimdFloat& fInvDeltaSeconds)
+  {    
+    pData->UpdateGlobalTransformWithParent(uiUpdateCounter);
+    pData->UpdateInvDeltaSeconds(fInvDeltaSeconds);
     pData->UpdateGlobalBounds();
   }
 
   // static
   EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformAndSpatialData(
-    ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
+    ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
   {
-    pData->UpdateGlobalTransformWithoutParent();
-    pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalTransformWithoutParent(uiUpdateCounter);
+    pData->UpdateInvDeltaSeconds(fInvDeltaSeconds);
     pData->UpdateGlobalBoundsAndSpatialData(spatialSystem);
   }
 
   // static
   EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(
-    ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
+    ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
   {
-    pData->UpdateGlobalTransformWithParent();
-    pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalTransformWithParent(uiUpdateCounter);
+    pData->UpdateInvDeltaSeconds(fInvDeltaSeconds);
     pData->UpdateGlobalBoundsAndSpatialData(spatialSystem);
   }
 

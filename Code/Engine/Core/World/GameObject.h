@@ -262,6 +262,9 @@ public:
   void SetGlobalTransform(const ezTransform& transform);
   ezTransform GetGlobalTransform() const;
 
+  /// \brief Last frame's global transform (only valid if EZ_GAMEOBJECT_VELOCITY is set, otherwise the same as GetGlobalTransform())
+  ezTransform GetLastGlobalTransform() const;
+
   // Simd variants of above methods
   void SetLocalPosition(const ezSimdVec4f& vPosition, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdVec4f& GetLocalPositionSimd() const;
@@ -289,6 +292,8 @@ public:
   void SetGlobalTransform(const ezSimdTransform& transform);
   const ezSimdTransform& GetGlobalTransformSimd() const;
 
+  const ezSimdTransform& GetLastGlobalTransformSimd() const;
+
   /// \brief Returns the 'forwards' direction of the world's ezCoordinateSystem, rotated into the object's global space
   ezVec3 GetGlobalDirForwards() const;
   /// \brief Returns the 'right' direction of the world's ezCoordinateSystem, rotated into the object's global space
@@ -297,16 +302,16 @@ public:
   ezVec3 GetGlobalDirUp() const;
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  /// \brief Sets the object's velocity.
+  /// \brief The last global transform is used to calculate the object's velocity. By default this is set automatically to the global transform of the last frame.
   ///
-  /// This is used for some rendering techniques or for the computation of sound Doppler effect.
-  /// It has no effect on the object's subsequent position.
-  void SetVelocity(const ezVec3& vVelocity);
+  /// It might make sense to manually override the last global transform to e.g. indicate an object has been teleported instead of moved.
+  void SetLastGlobalTransform(const ezSimdTransform& transform);
 
-  /// \brief Returns the velocity of the object in units per second. This is not only the diff between last frame's position and this
-  /// frame's position, but
-  ///        also the time difference is divided out.
-  ezVec3 GetVelocity() const;
+  /// \brief Returns the linear velocity of the object in units per second. This is only guaranteed to be correct in the PostTransform phase.
+  ezVec3 GetLinearVelocity() const;
+
+  /// \brief Returns the angular velocity of the object in radians per second. This is only guaranteed to be correct in the PostTransform phase.
+  ezVec3 GetAngularVelocity() const;
 #endif
 
   /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
@@ -521,6 +526,7 @@ private:
   void MakeStaticInternal();
 
   void UpdateGlobalTransformAndBoundsRecursive();
+  void UpdateLastGlobalTransform();
 
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
 
@@ -551,8 +557,7 @@ private:
     ezSimdTransform m_globalTransform;
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    ezSimdVec4f m_lastGlobalPosition;
-    ezSimdVec4f m_velocity; // w != 0 indicates custom velocity
+    ezSimdTransform m_lastGlobalTransform; // m_Scale.w = invDeltaSeconds
 #endif
 
     ezSimdBBoxSphere m_localBounds; // m_BoxHalfExtents.w != 0 indicates that the object should be always visible
@@ -563,32 +568,37 @@ private:
 
     ezUInt32 m_uiStableRandomSeed = 0;
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+    ezUInt32 m_uiLastGlobalTransformUpdateCounter = 0;
+#else
     ezUInt32 m_uiPadding2[1];
+#endif
 
     /// \brief Recomputes the local transform from this object's global transform and, if available, the parent's global transform.
     void UpdateLocalTransform();
 
     /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
     /// In case there is a parent transform it also recursively calls itself on the parent transform to ensure everything is up-to-date.
-    void UpdateGlobalTransformRecursive();
+    void UpdateGlobalTransformRecursive(ezUInt32 uiUpdateCounter);
 
     /// \brief Calls UpdateGlobalTransformWithoutParent or UpdateGlobalTransformWithParent depending on whether there is a parent transform.
     /// Assumes that the parent's global transform is already up to date.
-    void UpdateGlobalTransformNonRecursive();
+    void UpdateGlobalTransformNonRecursive(ezUInt32 uiUpdateCounter);
 
     /// \brief Updates the global transform by copying the object's local transform into the global transform.
     /// This is for objects that have no parent.
-    void UpdateGlobalTransformWithoutParent();
+    void UpdateGlobalTransformWithoutParent(ezUInt32 uiUpdateCounter);
 
     /// \brief Updates the global transform by combining the parents global transform with this object's local transform.
     /// Assumes that the parent's global transform is already up to date.
-    void UpdateGlobalTransformWithParent();
+    void UpdateGlobalTransformWithParent(ezUInt32 uiUpdateCounter);
 
     void UpdateGlobalBounds(ezSpatialSystem* pSpatialSystem);
     void UpdateGlobalBounds();
     void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& ref_spatialSystem);
 
-    void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
+    void UpdateLastGlobalTransform(ezUInt32 uiUpdateCounter);
+    void UpdateInvDeltaSeconds(const ezSimdFloat& fInvDeltaSeconds);
 
     void RecreateSpatialData(ezSpatialSystem& ref_spatialSystem);
   };

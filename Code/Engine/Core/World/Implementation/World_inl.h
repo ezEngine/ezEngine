@@ -393,6 +393,11 @@ EZ_ALWAYS_INLINE const ezSharedPtr<ezTask>& ezWorld::GetUpdateTask()
   return m_pUpdateTask;
 }
 
+EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetUpdateCounter() const
+{
+  return m_Data.m_uiUpdateCounter;
+}
+
 EZ_FORCE_INLINE ezSpatialSystem* ezWorld::GetSpatialSystem()
 {
   CheckForWriteAccess();

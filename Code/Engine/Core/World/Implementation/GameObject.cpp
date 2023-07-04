@@ -208,7 +208,7 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
 
   ezSimdTransform oldGlobalTransform = GetGlobalTransformSimd();
 
-  m_pTransformationData->UpdateGlobalTransformNonRecursive();
+  m_pTransformationData->UpdateGlobalTransformNonRecursive(GetWorld()->GetUpdateCounter());
 
   if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
@@ -232,6 +232,11 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
   {
     it->UpdateGlobalTransformAndBoundsRecursive();
   }
+}
+
+void ezGameObject::UpdateLastGlobalTransform()
+{
+  m_pTransformationData->UpdateLastGlobalTransform(GetWorld()->GetUpdateCounter());
 }
 
 void ezGameObject::ConstChildIterator::Next()
@@ -613,6 +618,11 @@ ezVec3 ezGameObject::GetGlobalDirUp() const
   return GetGlobalRotation() * coordinateSystem.m_vUpDir;
 }
 
+void ezGameObject::UpdateGlobalTransform()
+{
+  m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
+}
+
 void ezGameObject::UpdateLocalBounds()
 {
   ezMsgUpdateLocalBounds msg;
@@ -653,7 +663,7 @@ void ezGameObject::UpdateLocalBounds()
 
 void ezGameObject::UpdateGlobalTransformAndBounds()
 {
-  m_pTransformationData->UpdateGlobalTransformRecursive();
+  m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
   m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
 }
 
@@ -1054,28 +1064,28 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
   m_localScaling.SetW(1.0f);
 }
 
-void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive()
+void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive(ezUInt32 uiUpdateCounter)
 {
   if (m_pParentData != nullptr)
   {
-    UpdateGlobalTransformWithParent();
+    UpdateGlobalTransformWithParent(uiUpdateCounter);
   }
   else
   {
-    UpdateGlobalTransformWithoutParent();
+    UpdateGlobalTransformWithoutParent(uiUpdateCounter);
   }
 }
 
-void ezGameObject::TransformationData::UpdateGlobalTransformRecursive()
+void ezGameObject::TransformationData::UpdateGlobalTransformRecursive(ezUInt32 uiUpdateCounter)
 {
   if (m_pParentData != nullptr)
   {
-    m_pParentData->UpdateGlobalTransformRecursive();
-    UpdateGlobalTransformWithParent();
+    m_pParentData->UpdateGlobalTransformRecursive(uiUpdateCounter);
+    UpdateGlobalTransformWithParent(uiUpdateCounter);
   }
   else
   {
-    UpdateGlobalTransformWithoutParent();
+    UpdateGlobalTransformWithoutParent(uiUpdateCounter);
   }
 }
 

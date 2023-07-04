@@ -129,6 +129,78 @@ namespace
       out_coordinateSystem.m_vForwardDir = mTmp.GetRow(2);
     }
   };
+
+  class VelocityTestModule : public ezWorldModule
+  {
+    EZ_ADD_DYNAMIC_REFLECTION(VelocityTestModule, ezWorldModule);
+    EZ_DECLARE_WORLD_MODULE();
+
+  public:
+    VelocityTestModule(ezWorld* pWorld)
+      : ezWorldModule(pWorld)
+    {
+    }
+
+    virtual void Initialize() override
+    {
+      {
+        auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(VelocityTestModule::SetLocalPos, this);
+        RegisterUpdateFunction(desc);
+      }
+
+      {
+        auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(VelocityTestModule::ResetGlobalPos, this);
+        RegisterUpdateFunction(desc);
+      }
+    }
+
+    void SetLocalPos(const UpdateContext&)
+    {
+      if (m_bSetLocalPos == false)
+        return;
+
+      for (auto it = GetWorld()->GetObjects(); it.IsValid(); ++it)
+      {
+        ezUInt32 i = it->GetHandle().GetInternalID().m_InstanceIndex;
+
+        ezVec3 newPos = ezVec3(i * 10, 0, 0);
+        it->SetLocalPosition(newPos);
+
+        ezQuat newRot;
+        newRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(i * 30));
+        it->SetLocalRotation(newRot);
+
+        if (i > 5)
+        {
+          it->UpdateGlobalTransform();
+        }
+        if (i > 8)
+        {
+          it->UpdateGlobalTransformAndBounds();
+        }
+      }
+    }
+
+    void ResetGlobalPos(const UpdateContext&)
+    {
+      if (m_bResetGlobalPos == false)
+        return;
+
+      for (auto it = GetWorld()->GetObjects(); it.IsValid(); ++it)
+      {
+        it->SetGlobalPosition(ezVec3::ZeroVector());
+      }
+    }
+
+    bool m_bSetLocalPos = false;
+    bool m_bResetGlobalPos = false;
+  };
+
+  // clang-format off
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(VelocityTestModule, 1, ezRTTINoAllocator)
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
+  EZ_IMPLEMENT_WORLD_MODULE(VelocityTestModule);
+  // clang-format on
 } // namespace
 
 class ezGameObjectTest
@@ -641,4 +713,58 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
     }
   }
+
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Velocity")
+  {
+    constexpr ezUInt32 numObjects = 10;
+
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    auto pModule = world.GetOrCreateModule<VelocityTestModule>();
+
+    ezGameObjectDesc objectDesc;
+    objectDesc.m_bDynamic = true;
+
+    ezGameObjectHandle hObjects[numObjects];
+    ezGameObject* pObjects[numObjects];
+    for (ezUInt32 i = 0; i < numObjects; ++i)
+    {
+      hObjects[i] = world.CreateObject(objectDesc, pObjects[i]);
+    }
+
+    pModule->m_bSetLocalPos = true;
+    pModule->m_bResetGlobalPos = false;
+
+    world.GetClock().SetFixedTimeStep(ezTime::Milliseconds(100));
+    world.Update();
+
+    for (auto& pObject : pObjects)
+    {
+      ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
+      ezVec3 expectedPos = ezVec3(i * 10, 0, 0);
+      ezVec3 expectedLinearVelocity = ezVec3(i * 100, 0, 0);
+      EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, ezVec3::ZeroVector(), ezMath::DefaultEpsilon<float>());
+      EZ_TEST_VEC3(pObject->GetGlobalPosition(), expectedPos, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
+    }
+
+    pModule->m_bSetLocalPos = false;
+    pModule->m_bResetGlobalPos = true;
+
+    world.Update();
+
+    for (auto& pObject : pObjects)
+    {
+      ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
+      ezVec3 expectedLastPos = ezVec3(i * 10, 0, 0);
+      ezVec3 expectedLinearVelocity = ezVec3(i * -100.0f, 0, 0);
+      EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
+      EZ_TEST_VEC3(pObject->GetGlobalPosition(), ezVec3::ZeroVector(), ezMath::DefaultEpsilon<float>());
+      EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
+    }
+  }
+#endif
 }

@@ -379,7 +379,7 @@ void ezClothSheetComponent::Update()
   --m_uiVisibleCounter;
 
   {
-    ezVec3 acc = -GetOwner()->GetVelocity();
+    ezVec3 acc = -GetOwner()->GetLinearVelocity();
 
     if (const ezPhysicsWorldModuleInterface* pModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>())
     {
