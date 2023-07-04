@@ -41,8 +41,7 @@ namespace ezInternal
 
     ezTaskSystem::ParallelFor(
       blocks.GetArrayPtr(),
-      [pUserData](ezArrayPtr<WorldData::Hierarchy::DataBlock> blocksSlice)
-      {
+      [pUserData](ezArrayPtr<WorldData::Hierarchy::DataBlock> blocksSlice) {
         for (WorldData::Hierarchy::DataBlock& block : blocksSlice)
         {
           ezGameObject::TransformationData* pCurrentData = block.m_pData;
