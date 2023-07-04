@@ -732,6 +732,9 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezGameObject* pObjects[numObjects];
     for (ezUInt32 i = 0; i < numObjects; ++i)
     {
+      objectDesc.m_LocalPosition = ezVec3(0, 0, 5);
+      objectDesc.m_LocalRotation.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(90));
+
       hObjects[i] = world.CreateObject(objectDesc, pObjects[i]);
     }
 
@@ -744,11 +747,16 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (auto& pObject : pObjects)
     {
       ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
+      ezVec3 expectedLastPos = ezVec3(0, 0, 5);
       ezVec3 expectedPos = ezVec3(i * 10, 0, 0);
-      ezVec3 expectedLinearVelocity = ezVec3(i * 100, 0, 0);
-      EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, ezVec3::ZeroVector(), ezMath::DefaultEpsilon<float>());
+      ezVec3 expectedLinearVelocity = ezVec3(i * 100, 0, -50);
+      EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetGlobalPosition(), expectedPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
+
+      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::Degree(i * 30) - ezAngle::Degree(90)).GetRadian() * 10);
+      ezVec3 angularVelocity = pObject->GetAngularVelocity();
+      EZ_TEST_VEC3(angularVelocity, expectedAngularVelocity, ezMath::DefaultEpsilon<float>());
     }
 
     pModule->m_bSetLocalPos = false;

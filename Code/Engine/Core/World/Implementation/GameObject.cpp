@@ -618,6 +618,23 @@ ezVec3 ezGameObject::GetGlobalDirUp() const
   return GetGlobalRotation() * coordinateSystem.m_vUpDir;
 }
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+ezVec3 ezGameObject::GetAngularVelocity() const
+{
+  const ezSimdFloat invDeltaSeconds = m_pTransformationData->m_lastGlobalTransform.m_Scale.w();
+  const ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
+  ezSimdVec4f angularVelocity = ezSimdVec4f::ZeroVector();
+
+  ezSimdVec4f axis;
+  ezSimdFloat angle;
+  if (q.GetRotationAxisAndAngle(axis, angle).Succeeded())
+  {
+    angularVelocity = axis * (angle * invDeltaSeconds);
+  }
+  return ezSimdConversion::ToVec3(angularVelocity);
+}
+#endif
+
 void ezGameObject::UpdateGlobalTransform()
 {
   m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
