@@ -133,13 +133,13 @@ namespace ezInternal
     void TraverseDepthFirst(VisitorFunc& func);
     static ezVisitorExecution::Enum TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
 
-    static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, const ezSimdFloat& fInvDeltaSeconds);
-    static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, const ezSimdFloat& fInvDeltaSeconds);
+    static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
+    static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
 
-    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
-    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem);
 
-    void UpdateGlobalTransforms(float fInvDeltaSeconds);
+    void UpdateGlobalTransforms();
 
     // game object lookups
     ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;

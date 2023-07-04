@@ -557,7 +557,7 @@ private:
     ezSimdTransform m_globalTransform;
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    ezSimdTransform m_lastGlobalTransform; // m_Scale.w = invDeltaSeconds
+    ezSimdTransform m_lastGlobalTransform;
 #endif
 
     ezSimdBBoxSphere m_localBounds; // m_BoxHalfExtents.w != 0 indicates that the object should be always visible
@@ -598,7 +598,6 @@ private:
     void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& ref_spatialSystem);
 
     void UpdateLastGlobalTransform(ezUInt32 uiUpdateCounter);
-    void UpdateInvDeltaSeconds(const ezSimdFloat& fInvDeltaSeconds);
 
     void RecreateSpatialData(ezSpatialSystem& ref_spatialSystem);
   };

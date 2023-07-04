@@ -619,9 +619,22 @@ ezVec3 ezGameObject::GetGlobalDirUp() const
 }
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+void ezGameObject::SetLastGlobalTransform(const ezSimdTransform& transform)
+{
+  m_pTransformationData->m_lastGlobalTransform = transform;
+  m_pTransformationData->m_uiLastGlobalTransformUpdateCounter = GetWorld()->GetUpdateCounter();
+}
+
+ezVec3 ezGameObject::GetLinearVelocity() const
+{
+  const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
+  const ezSimdVec4f linearVelocity = (m_pTransformationData->m_globalTransform.m_Position - m_pTransformationData->m_lastGlobalTransform.m_Position) * invDeltaSeconds;
+  return ezSimdConversion::ToVec3(linearVelocity);
+}
+
 ezVec3 ezGameObject::GetAngularVelocity() const
 {
-  const ezSimdFloat invDeltaSeconds = m_pTransformationData->m_lastGlobalTransform.m_Scale.w();
+  const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
   const ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
   ezSimdVec4f angularVelocity = ezSimdVec4f::ZeroVector();
 

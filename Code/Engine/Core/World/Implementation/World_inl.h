@@ -555,3 +555,15 @@ EZ_ALWAYS_INLINE bool ezWorld::ReportErrorWhenStaticObjectMoves() const
 {
   return m_Data.m_bReportErrorWhenStaticObjectMoves;
 }
+
+EZ_ALWAYS_INLINE float ezWorld::GetInvDeltaSeconds() const
+{
+  const float fDelta = (float)m_Data.m_Clock.GetTimeDiff().GetSeconds();
+  if (fDelta > 0.0f)
+  {
+    return 1.0f / fDelta;
+  }
+
+  // when the clock is paused just use zero
+  return 0.0f;
+}

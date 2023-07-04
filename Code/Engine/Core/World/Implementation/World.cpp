@@ -519,15 +519,8 @@ void ezWorld::Update()
 
   // update transforms
   {
-    float fInvDelta = 0.0f;
-
-    // when the clock is paused just use zero
-    const float fDelta = (float)m_Data.m_Clock.GetTimeDiff().GetSeconds();
-    if (fDelta > 0.0f)
-      fInvDelta = 1.0f / fDelta;
-
     EZ_PROFILE_SCOPE("Update Transforms");
-    m_Data.UpdateGlobalTransforms(fInvDelta);
+    m_Data.UpdateGlobalTransforms();
   }
 
   // post-transform phase

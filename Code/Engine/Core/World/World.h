@@ -400,6 +400,8 @@ private:
 
   bool ReportErrorWhenStaticObjectMoves() const;
 
+  float GetInvDeltaSeconds() const;
+
   ezSharedPtr<ezTask> m_pUpdateTask;
 
   ezInternal::WorldData m_Data;

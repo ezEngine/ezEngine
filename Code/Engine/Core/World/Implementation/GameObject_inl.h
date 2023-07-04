@@ -432,22 +432,6 @@ EZ_ALWAYS_INLINE const ezSimdTransform& ezGameObject::GetLastGlobalTransformSimd
 #endif
 }
 
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-EZ_ALWAYS_INLINE void ezGameObject::SetLastGlobalTransform(const ezSimdTransform& transform)
-{
-  ezSimdFloat invDeltaSeconds = m_pTransformationData->m_lastGlobalTransform.m_Scale.w();
-  m_pTransformationData->m_lastGlobalTransform = transform;
-  m_pTransformationData->m_lastGlobalTransform.m_Scale.SetW(invDeltaSeconds);
-}
-
-EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetLinearVelocity() const
-{
-  const ezSimdFloat invDeltaSeconds = m_pTransformationData->m_lastGlobalTransform.m_Scale.w();
-  const ezSimdVec4f linearVelocity = (m_pTransformationData->m_globalTransform.m_Position - m_pTransformationData->m_lastGlobalTransform.m_Position) * invDeltaSeconds;
-  return ezSimdConversion::ToVec3(linearVelocity);
-}
-#endif
-
 EZ_ALWAYS_INLINE void ezGameObject::EnableStaticTransformChangesNotifications()
 {
   m_Flags.Add(ezObjectFlags::StaticTransformChangesNotifications);
@@ -616,18 +600,8 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateLastGlobalTransfor
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   if (m_uiLastGlobalTransformUpdateCounter != uiUpdateCounter)
   {
-    ezSimdFloat invDeltaSeconds = m_lastGlobalTransform.m_Scale.w();
     m_lastGlobalTransform = m_globalTransform;
-    m_lastGlobalTransform.m_Scale.SetW(invDeltaSeconds);
-
     m_uiLastGlobalTransformUpdateCounter = uiUpdateCounter;
   }
-#endif
-}
-
-EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateInvDeltaSeconds(const ezSimdFloat& fInvDeltaSeconds)
-{
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  m_lastGlobalTransform.m_Scale.SetW(fInvDeltaSeconds);
 #endif
 }
