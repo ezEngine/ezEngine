@@ -208,7 +208,7 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
 
   ezSimdTransform oldGlobalTransform = GetGlobalTransformSimd();
 
-  m_pTransformationData->UpdateGlobalTransformNonRecursive();
+  m_pTransformationData->UpdateGlobalTransformNonRecursive(GetWorld()->GetUpdateCounter());
 
   if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
   {
@@ -232,6 +232,11 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
   {
     it->UpdateGlobalTransformAndBoundsRecursive();
   }
+}
+
+void ezGameObject::UpdateLastGlobalTransform()
+{
+  m_pTransformationData->UpdateLastGlobalTransform(GetWorld()->GetUpdateCounter());
 }
 
 void ezGameObject::ConstChildIterator::Next()
@@ -613,6 +618,41 @@ ezVec3 ezGameObject::GetGlobalDirUp() const
   return GetGlobalRotation() * coordinateSystem.m_vUpDir;
 }
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+void ezGameObject::SetLastGlobalTransform(const ezSimdTransform& transform)
+{
+  m_pTransformationData->m_lastGlobalTransform = transform;
+  m_pTransformationData->m_uiLastGlobalTransformUpdateCounter = GetWorld()->GetUpdateCounter();
+}
+
+ezVec3 ezGameObject::GetLinearVelocity() const
+{
+  const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
+  const ezSimdVec4f linearVelocity = (m_pTransformationData->m_globalTransform.m_Position - m_pTransformationData->m_lastGlobalTransform.m_Position) * invDeltaSeconds;
+  return ezSimdConversion::ToVec3(linearVelocity);
+}
+
+ezVec3 ezGameObject::GetAngularVelocity() const
+{
+  const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
+  const ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
+  ezSimdVec4f angularVelocity = ezSimdVec4f::ZeroVector();
+
+  ezSimdVec4f axis;
+  ezSimdFloat angle;
+  if (q.GetRotationAxisAndAngle(axis, angle).Succeeded())
+  {
+    angularVelocity = axis * (angle * invDeltaSeconds);
+  }
+  return ezSimdConversion::ToVec3(angularVelocity);
+}
+#endif
+
+void ezGameObject::UpdateGlobalTransform()
+{
+  m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
+}
+
 void ezGameObject::UpdateLocalBounds()
 {
   ezMsgUpdateLocalBounds msg;
@@ -653,7 +693,7 @@ void ezGameObject::UpdateLocalBounds()
 
 void ezGameObject::UpdateGlobalTransformAndBounds()
 {
-  m_pTransformationData->UpdateGlobalTransformRecursive();
+  m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());
   m_pTransformationData->UpdateGlobalBounds(GetWorld()->GetSpatialSystem());
 }
 
@@ -1054,28 +1094,28 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
   m_localScaling.SetW(1.0f);
 }
 
-void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive()
+void ezGameObject::TransformationData::UpdateGlobalTransformNonRecursive(ezUInt32 uiUpdateCounter)
 {
   if (m_pParentData != nullptr)
   {
-    UpdateGlobalTransformWithParent();
+    UpdateGlobalTransformWithParent(uiUpdateCounter);
   }
   else
   {
-    UpdateGlobalTransformWithoutParent();
+    UpdateGlobalTransformWithoutParent(uiUpdateCounter);
   }
 }
 
-void ezGameObject::TransformationData::UpdateGlobalTransformRecursive()
+void ezGameObject::TransformationData::UpdateGlobalTransformRecursive(ezUInt32 uiUpdateCounter)
 {
   if (m_pParentData != nullptr)
   {
-    m_pParentData->UpdateGlobalTransformRecursive();
-    UpdateGlobalTransformWithParent();
+    m_pParentData->UpdateGlobalTransformRecursive(uiUpdateCounter);
+    UpdateGlobalTransformWithParent(uiUpdateCounter);
   }
   else
   {
-    UpdateGlobalTransformWithoutParent();
+    UpdateGlobalTransformWithoutParent(uiUpdateCounter);
   }
 }
 

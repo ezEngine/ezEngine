@@ -255,6 +255,8 @@ public:
   /// \brief Returns a task implementation that calls Update on this world.
   const ezSharedPtr<ezTask>& GetUpdateTask();
 
+  /// \brief Returns the number of update calls. Can be used to determine whether an operation has already been done during a frame.
+  ezUInt32 GetUpdateCounter() const;
 
   /// \brief Returns the spatial system that is associated with this world.
   ezSpatialSystem* GetSpatialSystem();
@@ -397,6 +399,8 @@ private:
   void RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic);
 
   bool ReportErrorWhenStaticObjectMoves() const;
+
+  float GetInvDeltaSeconds() const;
 
   ezSharedPtr<ezTask> m_pUpdateTask;
 

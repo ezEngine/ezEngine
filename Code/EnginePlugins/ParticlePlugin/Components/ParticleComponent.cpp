@@ -548,7 +548,7 @@ ezTransform ezParticleComponent::GetPfxTransform() const
 
 void ezParticleComponent::UpdatePfxTransform()
 {
-  m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetVelocity());
+  m_EffectController.SetTransform(GetPfxTransform(), GetOwner()->GetLinearVelocity());
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);

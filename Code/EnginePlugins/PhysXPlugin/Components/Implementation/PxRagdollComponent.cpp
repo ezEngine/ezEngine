@@ -597,7 +597,7 @@ void ezPxRagdollComponent::SetupLimbBodiesAndGeometry(const ezSkeletonResource* 
 
   const auto& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
   const auto srcBoneDir = pSkeleton->GetDescriptor().m_Skeleton.m_BoneDirection;
-  physx::PxVec3 vPxVelocity = ezPxConversionUtils::ToVec3(GetOwner()->GetVelocity());
+  physx::PxVec3 vPxVelocity = ezPxConversionUtils::ToVec3(GetOwner()->GetLinearVelocity());
 
   for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
   {

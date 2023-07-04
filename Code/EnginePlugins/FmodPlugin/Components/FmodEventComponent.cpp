@@ -144,6 +144,8 @@ void ezFmodEventComponentManager::RemoveOcclusionState(ezUInt32 uiIndex)
 
 void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVec3 listenerPos, ezUInt32 uiNumRays, const ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezTime deltaTime)
 {
+  uiNumRays = ezMath::Min(uiNumRays, 32u);
+
   ezVec3 centerPos = state.m_pComponent->GetOwner()->GetGlobalPosition();
   ezUInt8 uiCollisionLayer = state.m_pComponent->m_uiOcclusionCollisionLayer;
   ezPhysicsCastResult hitResult;
@@ -186,7 +188,7 @@ void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateCon
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
     ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
 
-    ezUInt32 uiNumRays = ezMath::Max<int>(cvar_FmodOcclusionNumRays, 1);
+    ezUInt32 uiNumRays = ezMath::Clamp<int>(cvar_FmodOcclusionNumRays, 1, 32);
 
     for (auto& occlusionState : m_OcclusionStates)
     {
@@ -764,9 +766,9 @@ void ezFmodEventComponent::Update()
 void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstance)
 {
   const auto pos = GetOwner()->GetGlobalPosition();
-  const auto vel = GetOwner()->GetVelocity();
-  const auto fwd = GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0);
-  const auto up = GetOwner()->GetGlobalRotation() * ezVec3(0, 0, 1);
+  const auto vel = GetOwner()->GetLinearVelocity();
+  const auto fwd = GetOwner()->GetGlobalRotation() * ezVec3::UnitXAxis();
+  const auto up = GetOwner()->GetGlobalRotation() * ezVec3::UnitZAxis();
 
   FMOD_3D_ATTRIBUTES attr;
   attr.position.x = pos.x;

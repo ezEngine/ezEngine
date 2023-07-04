@@ -685,7 +685,7 @@ void ezJoltRagdollComponent::ConfigureRagdollPart(void* pRagdollSettingsPart, co
 
 void ezJoltRagdollComponent::ApplyPartInitialVelocity()
 {
-  JPH::Vec3 vCommonVelocity = ezJoltConversionUtils::ToVec3(GetOwner()->GetVelocity() * m_fOwnerVelocityScale);
+  JPH::Vec3 vCommonVelocity = ezJoltConversionUtils::ToVec3(GetOwner()->GetLinearVelocity() * m_fOwnerVelocityScale);
   const JPH::Vec3 vCenterPos = ezJoltConversionUtils::ToVec3(GetOwner()->GetGlobalTransform() * m_vCenterPosition);
 
   ezCoordinateSystem coord;

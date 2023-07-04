@@ -133,13 +133,13 @@ namespace ezInternal
     void TraverseDepthFirst(VisitorFunc& func);
     static ezVisitorExecution::Enum TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
 
-    static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
-    static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
+    static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
+    static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter);
 
-    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
-    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem);
 
-    void UpdateGlobalTransforms(float fInvDeltaSeconds);
+    void UpdateGlobalTransforms();
 
     // game object lookups
     ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
@@ -237,6 +237,7 @@ namespace ezInternal
     ezInt32 m_iWriteCounter = 0;
     mutable ezAtomicInteger32 m_iReadCounter;
 
+    ezUInt32 m_uiUpdateCounter = 0;
     bool m_bSimulateWorld = true;
     bool m_bReportErrorWhenStaticObjectMoves = true;
 

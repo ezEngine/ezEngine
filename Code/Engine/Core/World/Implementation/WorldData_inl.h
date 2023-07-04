@@ -60,46 +60,49 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransform(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter)
   {
-    pData->UpdateGlobalTransformWithoutParent();
-    pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalTransformWithoutParent(uiUpdateCounter);
     pData->UpdateGlobalBounds();
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter)
   {
-    pData->UpdateGlobalTransformWithParent();
-    pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalTransformWithParent(uiUpdateCounter);
     pData->UpdateGlobalBounds();
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformAndSpatialData(
-    ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem)
   {
-    pData->UpdateGlobalTransformWithoutParent();
-    pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalTransformWithoutParent(uiUpdateCounter);
     pData->UpdateGlobalBoundsAndSpatialData(spatialSystem);
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(
-    ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, ezUInt32 uiUpdateCounter, ezSpatialSystem& spatialSystem)
   {
-    pData->UpdateGlobalTransformWithParent();
-    pData->UpdateVelocity(fInvDeltaSeconds);
+    pData->UpdateGlobalTransformWithParent(uiUpdateCounter);
     pData->UpdateGlobalBoundsAndSpatialData(spatialSystem);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_ALWAYS_INLINE const ezGameObject& WorldData::ConstObjectIterator::operator*() const { return *m_Iterator; }
+  EZ_ALWAYS_INLINE const ezGameObject& WorldData::ConstObjectIterator::operator*() const
+  {
+    return *m_Iterator;
+  }
 
-  EZ_ALWAYS_INLINE const ezGameObject* WorldData::ConstObjectIterator::operator->() const { return m_Iterator; }
+  EZ_ALWAYS_INLINE const ezGameObject* WorldData::ConstObjectIterator::operator->() const
+  {
+    return m_Iterator;
+  }
 
-  EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::operator const ezGameObject*() const { return m_Iterator; }
+  EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::operator const ezGameObject*() const
+  {
+    return m_Iterator;
+  }
 
   EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::Next()
   {
@@ -111,9 +114,15 @@ namespace ezInternal
     }
   }
 
-  EZ_ALWAYS_INLINE bool WorldData::ConstObjectIterator::IsValid() const { return m_Iterator.IsValid(); }
+  EZ_ALWAYS_INLINE bool WorldData::ConstObjectIterator::IsValid() const
+  {
+    return m_Iterator.IsValid();
+  }
 
-  EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::operator++() { Next(); }
+  EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::operator++()
+  {
+    Next();
+  }
 
   EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::ConstObjectIterator(ObjectStorage::ConstIterator iterator)
     : m_Iterator(iterator)
@@ -126,11 +135,20 @@ namespace ezInternal
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_ALWAYS_INLINE ezGameObject& WorldData::ObjectIterator::operator*() { return *m_Iterator; }
+  EZ_ALWAYS_INLINE ezGameObject& WorldData::ObjectIterator::operator*()
+  {
+    return *m_Iterator;
+  }
 
-  EZ_ALWAYS_INLINE ezGameObject* WorldData::ObjectIterator::operator->() { return m_Iterator; }
+  EZ_ALWAYS_INLINE ezGameObject* WorldData::ObjectIterator::operator->()
+  {
+    return m_Iterator;
+  }
 
-  EZ_ALWAYS_INLINE WorldData::ObjectIterator::operator ezGameObject*() { return m_Iterator; }
+  EZ_ALWAYS_INLINE WorldData::ObjectIterator::operator ezGameObject*()
+  {
+    return m_Iterator;
+  }
 
   EZ_ALWAYS_INLINE void WorldData::ObjectIterator::Next()
   {
@@ -142,9 +160,15 @@ namespace ezInternal
     }
   }
 
-  EZ_ALWAYS_INLINE bool WorldData::ObjectIterator::IsValid() const { return m_Iterator.IsValid(); }
+  EZ_ALWAYS_INLINE bool WorldData::ObjectIterator::IsValid() const
+  {
+    return m_Iterator.IsValid();
+  }
 
-  EZ_ALWAYS_INLINE void WorldData::ObjectIterator::operator++() { Next(); }
+  EZ_ALWAYS_INLINE void WorldData::ObjectIterator::operator++()
+  {
+    Next();
+  }
 
   EZ_ALWAYS_INLINE WorldData::ObjectIterator::ObjectIterator(ObjectStorage::Iterator iterator)
     : m_Iterator(iterator)
@@ -202,7 +226,10 @@ namespace ezInternal
     m_Data.m_iReadCounter.Increment();
   }
 
-  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Unlock() { m_Data.m_iReadCounter.Decrement(); }
+  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Unlock()
+  {
+    m_Data.m_iReadCounter.Decrement();
+  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 

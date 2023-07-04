@@ -497,6 +497,8 @@ export class MeshComponent extends MeshComponentBase
   set Mesh(value: string) { __CPP_ComponentProperty_set(this, 1864394775, value); }
   get Color(): Color { return __CPP_ComponentProperty_get(this, 1079163548); }
   set Color(value: Color) { __CPP_ComponentProperty_set(this, 1079163548, value); }
+  get SortingDepthOffset(): number { return __CPP_ComponentProperty_get(this, 3099356804); }
+  set SortingDepthOffset(value: number) { __CPP_ComponentProperty_set(this, 3099356804, value); }
 }
 
 export class GizmoComponent extends MeshComponent

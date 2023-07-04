@@ -198,7 +198,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localScaling = ezSimdConversion::ToVec4(desc.m_LocalScaling.GetAsVec4(desc.m_LocalUniformScaling));
   pTransformationData->m_globalTransform.SetIdentity();
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  pTransformationData->m_velocity.SetZero();
+  pTransformationData->m_lastGlobalTransform.SetIdentity();
+  pTransformationData->m_uiLastGlobalTransformUpdateCounter = ezInvalidIndex;
 #endif
   pTransformationData->m_localBounds.SetInvalid();
   pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::Zero());
@@ -225,11 +226,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->m_uiStableRandomSeed = GetRandomNumberGenerator().UInt();
   }
 
-  pTransformationData->UpdateGlobalTransformNonRecursive();
-
-#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_Position;
-#endif
+  pTransformationData->UpdateGlobalTransformNonRecursive(0);
 
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
@@ -456,6 +453,8 @@ void ezWorld::Update()
     ezStats::SetStat(sStatName, GetObjectCount());
   }
 
+  ++m_Data.m_uiUpdateCounter;
+
   if (!m_Data.m_bSimulateWorld)
   {
     // only change the pause mode temporarily
@@ -520,15 +519,8 @@ void ezWorld::Update()
 
   // update transforms
   {
-    float fInvDelta = 0.0f;
-
-    // when the clock is paused just use zero
-    const float fDelta = (float)m_Data.m_Clock.GetTimeDiff().GetSeconds();
-    if (fDelta > 0.0f)
-      fInvDelta = 1.0f / fDelta;
-
     EZ_PROFILE_SCOPE("Update Transforms");
-    m_Data.UpdateGlobalTransforms(fInvDelta);
+    m_Data.UpdateGlobalTransforms();
   }
 
   // post-transform phase
@@ -1404,7 +1396,7 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
   {
     // Explicitly trigger transform AND bounds update, otherwise bounds would be outdated for static objects
     // Don't call pObject->UpdateGlobalTransformAndBounds() here since that would recursively update the parent global transform which is already up-to-date.
-    pObject->m_pTransformationData->UpdateGlobalTransformNonRecursive();
+    pObject->m_pTransformationData->UpdateGlobalTransformNonRecursive(GetUpdateCounter());
 
     pObject->m_pTransformationData->UpdateGlobalBounds(GetSpatialSystem());
   }
