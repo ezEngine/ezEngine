@@ -90,6 +90,7 @@
 	<file>ezCameraShakeVolumeSphereComponent.png</file>
 	<file>ezPathNodeComponent.png</file>
 	<file>ezFollowPathComponent.png</file>
+	<file>ezBlackboardComponent.png</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.png</file>

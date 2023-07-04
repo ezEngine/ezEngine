@@ -555,6 +555,28 @@ static void ConfigureStateMachineAsset()
     ezAssetActions::MapToolBarActions("StateMachineAssetToolBar", true);
   }
 }
+static void ConfigureBlackboardTemplateAsset()
+{
+  // Menu Bar
+  {
+    ezActionMapManager::RegisterActionMap("BlackboardTemplateAssetMenuBar").IgnoreResult();
+
+    ezStandardMenus::MapActions("BlackboardTemplateAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezProjectActions::MapActions("BlackboardTemplateAssetMenuBar");
+    ezDocumentActions::MapActions("BlackboardTemplateAssetMenuBar", "Menu.File", false);
+    ezAssetActions::MapMenuActions("BlackboardTemplateAssetMenuBar", "Menu.File");
+    ezCommandHistoryActions::MapActions("BlackboardTemplateAssetMenuBar", "Menu.Edit");
+    ezEditActions::MapActions("BlackboardTemplateAssetMenuBar", "Menu.Edit", false, false);
+  }
+
+  // Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("BlackboardTemplateAssetToolBar").IgnoreResult();
+    ezDocumentActions::MapActions("BlackboardTemplateAssetToolBar", "", true);
+    ezCommandHistoryActions::MapActions("BlackboardTemplateAssetToolBar", "");
+    ezAssetActions::MapToolBarActions("BlackboardTemplateAssetToolBar", true);
+  }
+}
 
 ezVariant CustomAction_CreateShaderFromTemplate(const ezDocument* pDoc)
 {
@@ -598,6 +620,7 @@ void OnLoadPlugin()
   ConfigureAnimatedMeshAsset();
   ConfigureImageDataAsset();
   ConfigureStateMachineAsset();
+  ConfigureBlackboardTemplateAsset();
 
   ezDocumentManager::s_CustomActions["CustomAction_CreateShaderFromTemplate"] = CustomAction_CreateShaderFromTemplate;
 }

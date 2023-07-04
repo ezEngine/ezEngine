@@ -28,6 +28,7 @@
     <file>AnimationController.png</file>
     <file>ImageData.png</file>
     <file>StateMachine.svg</file>
+    <file>BlackboardTemplate.png</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
     <file>VSE_CleanGraph16.png</file>
