@@ -48,7 +48,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStreamZstd)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compress Data")
   {
-    CompressedWriter.SetOutputStream(&MemoryWriter);
+    CompressedWriter.SetOutputStream(&MemoryWriter, 0);
 
     bool bFlush = true;
 

@@ -201,7 +201,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd stream(&inout_stream0, ezCompressedStreamWriterZstd::Compression::Average);
+  ezCompressedStreamWriterZstd stream(&inout_stream0, 0, ezCompressedStreamWriterZstd::Compression::Average);
 #else
   ezStreamWriter& stream = stream0;
 #endif
