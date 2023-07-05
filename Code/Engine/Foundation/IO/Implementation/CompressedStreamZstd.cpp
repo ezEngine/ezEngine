@@ -135,9 +135,9 @@ ezResult ezCompressedStreamReaderZstd::RefillReadCache()
 
 ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd() = default;
 
-ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, Compression ratio)
+ezCompressedStreamWriterZstd::ezCompressedStreamWriterZstd(ezStreamWriter* pOutputStream, ezUInt32 uiMaxNumWorkerThreads, Compression ratio /*= Compression::Default*/, ezUInt32 uiCompressionCacheSizeKB /*= 4*/)
 {
-  SetOutputStream(pOutputStream, ratio);
+  SetOutputStream(pOutputStream, uiMaxNumWorkerThreads, ratio, uiCompressionCacheSizeKB);
 }
 
 ezCompressedStreamWriterZstd::~ezCompressedStreamWriterZstd()
@@ -159,7 +159,7 @@ ezCompressedStreamWriterZstd::~ezCompressedStreamWriterZstd()
   }
 }
 
-void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream, Compression ratio /*= Compression::Default*/, ezUInt32 uiCompressionCacheSizeKB /*= 4*/)
+void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream, ezUInt32 uiMaxNumWorkerThreads, Compression ratio /*= Compression::Default*/, ezUInt32 uiCompressionCacheSizeKB /*= 4*/)
 {
   if (m_pOutputStream == pOutputStream)
     return;
@@ -183,7 +183,7 @@ void ezCompressedStreamWriterZstd::SetOutputStream(ezStreamWriter* pOutputStream
       m_pZstdCStream = ZSTD_createCStream();
     }
 
-    const ezUInt32 uiCoreCount = ezMath::Clamp(ezSystemInformation::Get().GetCPUCoreCount(), 1u, 12u);
+    const ezUInt32 uiCoreCount = (uiMaxNumWorkerThreads > 0) ? ezMath::Clamp(ezSystemInformation::Get().GetCPUCoreCount(), 1u, uiMaxNumWorkerThreads) : 0u;
 
     ZSTD_CCtx_reset(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), ZSTD_reset_session_only);
     ZSTD_CCtx_refCDict(reinterpret_cast<ZSTD_CStream*>(m_pZstdCStream), nullptr);
