@@ -1,8 +1,11 @@
 #pragma once
 
 #include <Core/Messages/EventMessage.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Utils/Blackboard.h>
 #include <GameEngine/GameEngineDLL.h>
+
+using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
 
 struct ezBlackboardEntry
 {
@@ -56,6 +59,7 @@ public:
 protected:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
+  virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezBlackboardComponent
@@ -91,6 +95,9 @@ public:
   void SetEntryValue(const char* szName, const ezVariant& value); // [ scriptable ]
   ezVariant GetEntryValue(const char* szName) const;              // [ scriptable ]
 
+  void SetTemplateFile(const char* szName); // [ property ]
+  const char* GetTemplateFile() const;      // [ property ]
+
 private:
   ezUInt32 Entries_GetCount() const;
   const ezBlackboardEntry& Entries_GetValue(ezUInt32 uiIndex) const;
@@ -103,6 +110,7 @@ private:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnEntryChanged(const ezBlackboard::EntryEvent& e);
+  void InitializeFromTemplate();
 
   ezSharedPtr<ezBlackboard> m_pBoard;
 
@@ -110,4 +118,6 @@ private:
   ezDynamicArray<ezBlackboardEntry> m_InitialEntries;
 
   ezEventMessageSender<ezMsgBlackboardEntryChanged> m_EntryChangedSender; // [ event ]
+
+  ezBlackboardTemplateResourceHandle m_hTemplate;
 };

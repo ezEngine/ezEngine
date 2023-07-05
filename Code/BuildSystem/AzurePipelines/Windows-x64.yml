@@ -72,7 +72,7 @@ jobs:
     displayName: Run CMake
     inputs:
       targetType: filePath
-      filePath: "$(System.DefaultWorkingDirectory)/Generate.ps1"
+      filePath: "$(System.DefaultWorkingDirectory)/RunCMake.ps1"
       arguments: "-Target Win64vs2019 -NoUnityBuild -NoSubmoduleUpdate -SolutionName solution"
   - task: MSBuild@1
     displayName: Build Solution
