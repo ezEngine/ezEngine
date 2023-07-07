@@ -896,6 +896,48 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.IsFloatingPoint() == false);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezHashedString")
+  {
+    ezVariant v(ezMakeHashedString("ABCDE"));
+    TestVariant<ezHashedString>(v, ezVariantType::HashedString);
+
+    EZ_TEST_BOOL(v.Get<ezHashedString>() == ezMakeHashedString("ABCDE"));
+
+    EZ_TEST_BOOL(v == ezVariant(ezMakeHashedString("ABCDE")));
+    EZ_TEST_BOOL(v != ezVariant(ezMakeHashedString("ABCDK")));
+
+    EZ_TEST_BOOL(v == ezMakeHashedString("ABCDE"));
+    EZ_TEST_BOOL(v != ezMakeHashedString("ABCDK"));
+
+    v = ezMakeHashedString("HHH");
+    EZ_TEST_BOOL(v == ezMakeHashedString("HHH"));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsString() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTempHashedString")
+  {
+    ezVariant v(ezTempHashedString("ABCDE"));
+    TestVariant<ezTempHashedString>(v, ezVariantType::TempHashedString);
+
+    EZ_TEST_BOOL(v.Get<ezTempHashedString>() == ezTempHashedString("ABCDE"));
+
+    EZ_TEST_BOOL(v == ezVariant(ezTempHashedString("ABCDE")));
+    EZ_TEST_BOOL(v != ezVariant(ezTempHashedString("ABCDK")));
+
+    EZ_TEST_BOOL(v == ezTempHashedString("ABCDE"));
+    EZ_TEST_BOOL(v != ezTempHashedString("ABCDK"));
+
+    v = ezTempHashedString("HHH");
+    EZ_TEST_BOOL(v == ezTempHashedString("HHH"));
+
+    EZ_TEST_BOOL(v.IsNumber() == false);
+    EZ_TEST_BOOL(v.IsString() == false);
+    EZ_TEST_BOOL(v.IsFloatingPoint() == false);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVariantArray")
   {
     ezVariantArray a, a2;
@@ -1721,6 +1763,36 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Angle).Get<ezAngle>() == t);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "123.0°");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezHashedString)")
+  {
+    ezHashedString s = ezMakeHashedString("UUUU");
+    ezVariant v(s);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::HashedString, ezVariant::Type::TempHashedString);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == s);
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("UUUU"));
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "UUUU");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == s);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("UUUU"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "UUUU");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezTempHashedString)")
+  {
+    ezTempHashedString s("VVVV");
+    ezVariant v(s);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::TempHashedString);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("VVVV"));
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "VVVV");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("VVVV"));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "UUUU");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (VariantArray)")

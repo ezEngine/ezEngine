@@ -140,6 +140,14 @@ auto ezVariant::DispatchTo(Functor& ref_functor, Type::Enum type, Args&&... args
       CALL_FUNCTOR(ref_functor, ezAngle);
       break;
 
+    case Type::HashedString:
+      CALL_FUNCTOR(ref_functor, ezHashedString);
+      break;
+
+    case Type::TempHashedString:
+      CALL_FUNCTOR(ref_functor, ezTempHashedString);
+      break;
+
     case Type::VariantArray:
       CALL_FUNCTOR(ref_functor, ezVariantArray);
       break;

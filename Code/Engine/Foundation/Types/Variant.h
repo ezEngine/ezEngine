@@ -4,6 +4,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Types/TypedPointer.h>
 #include <Foundation/Types/Types.h>
@@ -106,6 +107,8 @@ public:
   ezVariant(const ezUuid& value);
   ezVariant(const ezAngle& value);
   ezVariant(const ezColorGammaUB& value);
+  ezVariant(const ezHashedString& value);
+  ezVariant(const ezTempHashedString& value);
 
   ezVariant(const ezVariantArray& value);
   ezVariant(const ezVariantDictionary& value);

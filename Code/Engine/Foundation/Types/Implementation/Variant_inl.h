@@ -150,6 +150,16 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColorGammaUB& value)
   InitInplace(value);
 }
 
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezHashedString& value)
+{
+  InitInplace(value);
+}
+
+EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezTempHashedString& value)
+{
+  InitInplace(value);
+}
+
 template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::CustomTypeCast, int>>
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const T& value)
 {
@@ -414,7 +424,8 @@ template <typename T>
 EZ_FORCE_INLINE void ezVariant::InitInplace(const T& value)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "value of this type cannot be stored in a Variant");
-  EZ_CHECK_AT_COMPILETIME_MSG(ezIsPodType<T>::value, "in place data needs to be POD");
+  EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<T>::value <= ezTypeIsMemRelocatable::value, "in place data needs to be POD or mem relocatable");
+  EZ_CHECK_AT_COMPILETIME_MSG(sizeof(T) <= sizeof(m_Data), "value of this type is too big to bestored inline in a Variant");
   ezMemoryUtils::CopyConstruct(reinterpret_cast<T*>(&m_Data), value, 1);
 
   m_uiType = TypeDeduction<T>::value;

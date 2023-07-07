@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezEnumBase, ezNoBase, 1, ezRTTINoAllocator)
@@ -365,6 +366,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezStringView, ezNoBase, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezDataBuffer, ezNoBase, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezHashedString, ezNoBase, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTempHashedString, ezNoBase, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAngle, ezNoBase, 1, ezRTTINoAllocator)

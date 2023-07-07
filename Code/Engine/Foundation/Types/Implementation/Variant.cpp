@@ -485,6 +485,8 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
     return true;
   if (type == Type::ColorGamma && m_uiType == Type::Color)
     return true;
+  if (type == Type::TempHashedString && m_uiType == Type::HashedString)
+    return true;
 
   return false;
 }
