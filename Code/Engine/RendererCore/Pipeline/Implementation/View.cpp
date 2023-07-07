@@ -403,8 +403,7 @@ void ezView::ApplyRenderPassProperties()
 
     if (pObject == nullptr)
     {
-      ezLog::Error(
-        "The render pass '{0}' does not exist. Property '{1}' cannot be applied.", propertyValue.m_sObjectName, propertyValue.m_sPropertyName);
+      ezLog::Error("The render pass '{0}' does not exist. Property '{1}' cannot be applied.", propertyValue.m_sObjectName, propertyValue.m_sPropertyName);
 
       propertyValue.m_bIsValid = false;
       continue;

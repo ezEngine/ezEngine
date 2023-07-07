@@ -441,8 +441,8 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
   const char* viewNames[4] = {"DirLightViewC0", "DirLightViewC1", "DirLightViewC2", "DirLightViewC3"};
 
   const ezGameObject* pOwner = pDirLight->GetOwner();
-  ezVec3 vForward = pOwner->GetGlobalDirForwards();
-  ezVec3 vUp = pOwner->GetGlobalDirUp();
+  const ezVec3 vLightDirForwards = pOwner->GetGlobalDirForwards();
+  const ezVec3 vLightDirUp = pOwner->GetGlobalDirUp();
 
   float fAspectRatio = pReferenceView->GetViewport().width / pReferenceView->GetViewport().height;
 
@@ -503,11 +503,11 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       }
 
       float fCameraToCenterDistance = radius + fNearPlaneOffset;
-      ezVec3 shadowCameraPos = center - vForward * fCameraToCenterDistance;
+      ezVec3 shadowCameraPos = center - vLightDirForwards * fCameraToCenterDistance;
       float fFarPlane = radius + fCameraToCenterDistance;
 
       ezCamera& camera = shadowView.m_Camera;
-      camera.LookAt(shadowCameraPos, center, vUp);
+      camera.LookAt(shadowCameraPos, center, vLightDirUp);
       camera.SetCameraMode(ezCameraMode::OrthoFixedWidth, radius * 2.0f, 0.0f, fFarPlane);
 
       // stabilize
