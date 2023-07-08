@@ -39,6 +39,9 @@ public:
   ~ezPostProcessingComponent();
   ezPostProcessingComponent& operator=(ezPostProcessingComponent&& other);
 
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 

@@ -25,8 +25,8 @@ public:
   void SetTemplate(const ezBlackboardTemplateResourceHandle& hResource);
   ezBlackboardTemplateResourceHandle GetTemplate() const { return m_hTemplateResource; }
 
-  void SetSortOrder(float fOrder);
-  float GetSortOrder() const { return m_fSortOrder; }
+  void SetSortOrder(float fOrder);// [ property ]
+  float GetSortOrder() const { return m_fSortOrder; }// [ property ]
 
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;

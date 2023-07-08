@@ -1514,6 +1514,10 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
       return ezVariant(ezUuid());
     case ezVariant::Type::Angle:
       return ezVariant(ezAngle());
+    case ezVariant::Type::HashedString:
+      return ezVariant(ezHashedString());
+    case ezVariant::Type::TempHashedString:
+      return ezVariant(ezTempHashedString());
     case ezVariant::Type::VariantArray:
       return ezVariantArray();
     case ezVariant::Type::VariantDictionary:
