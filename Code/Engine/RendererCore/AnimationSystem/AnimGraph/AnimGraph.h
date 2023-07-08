@@ -148,6 +148,8 @@ public:
   ezAnimGraph();
   ~ezAnimGraph();
 
+  void Clear();
+
   ezAnimGraphNode* AddNode(ezUniquePtr<ezAnimGraphNode>&& pNode);
   void AddConnection(const ezAnimGraphNode* pSrcNode, ezStringView sSrcPinName, const ezAnimGraphNode* pDstNode, ezStringView sDstPinName);
 

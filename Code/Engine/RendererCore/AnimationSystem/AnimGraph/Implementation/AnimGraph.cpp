@@ -215,7 +215,8 @@ void ezAnimGraphInstance::GenerateLocalResultProcessors(const ezSkeletonResource
 
     if (pw.GetCount() > m_uiMaxPoses)
     {
-      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs) { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
+      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs)
+        { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
       pw.SetCount(m_uiMaxPoses);
     }
 
@@ -345,10 +346,25 @@ void ezAnimGraphInstance::GenerateLocalResultProcessors(const ezSkeletonResource
 
 ezAnimGraph::ezAnimGraph()
 {
-  ezMemoryUtils::ZeroFillArray(m_uiInputPinCounts);
+  Clear();
 }
 
 ezAnimGraph::~ezAnimGraph() = default;
+
+void ezAnimGraph::Clear()
+{
+  ezMemoryUtils::ZeroFillArray(m_uiInputPinCounts);
+  ezMemoryUtils::ZeroFillArray(m_uiPinInstanceDataOffset);
+  m_From.Clear();
+  m_Nodes.Clear();
+  m_bPreparedForUse = true;
+  m_InstanceDataAllocator.ClearDescs();
+
+  for (auto& r : m_OutputPinToInputPinMapping)
+  {
+    r.Clear();
+  }
+}
 
 ezAnimGraphNode* ezAnimGraph::AddNode(ezUniquePtr<ezAnimGraphNode>&& pNode)
 {
@@ -489,7 +505,8 @@ void ezAnimGraph::SortNodesByPriority()
     ComputeNodePriority(pNode.Borrow(), prios, uiOutputPrio);
   }
 
-  m_Nodes.Sort([&](const auto& lhs, const auto& rhs) -> bool { return prios[lhs.Borrow()] < prios[rhs.Borrow()]; });
+  m_Nodes.Sort([&](const auto& lhs, const auto& rhs) -> bool
+    { return prios[lhs.Borrow()] < prios[rhs.Borrow()]; });
 }
 
 void ezAnimGraph::PrepareForUse()
@@ -598,6 +615,8 @@ ezResult ezAnimGraph::Serialize(ezStreamWriter& inout_stream) const
 
 ezResult ezAnimGraph::Deserialize(ezStreamReader& inout_stream)
 {
+  Clear();
+
   const ezTypeVersion version = inout_stream.ReadVersion(10);
 
   if (version < 10)
