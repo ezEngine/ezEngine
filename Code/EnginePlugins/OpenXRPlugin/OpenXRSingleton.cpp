@@ -98,10 +98,8 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, extensionProperties.data()));
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> XrResult
-  {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const XrExtensionProperties& prop)
-      { return ezStringUtils::IsEqual(prop.extensionName, extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> XrResult {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const XrExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName, extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -147,10 +145,8 @@ XrResult ezOpenXR::SelectLayers(ezHybridArray<const char*, 6>& layers)
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateApiLayerProperties(layerCount, &layerCount, layerProperties.data()));
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* layerName, bool& enableFlag) -> XrResult
-  {
-    auto it = std::find_if(begin(layerProperties), end(layerProperties), [&](const XrApiLayerProperties& prop)
-      { return ezStringUtils::IsEqual(prop.layerName, layerName); });
+  auto AddExtIfSupported = [&](const char* layerName, bool& enableFlag) -> XrResult {
+    auto it = std::find_if(begin(layerProperties), end(layerProperties), [&](const XrApiLayerProperties& prop) { return ezStringUtils::IsEqual(prop.layerName, layerName); });
     if (it != end(layerProperties))
     {
       layers.PushBack(layerName);
@@ -324,9 +320,7 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
     return {};
   }
 
-  ezGALXRSwapChain::SetFactoryMethod([this, msaaCount](ezXRInterface* pXrInterface) -> ezGALSwapChainHandle
-    { return ezGALDevice::GetDefaultDevice()->CreateSwapChain([this, pXrInterface, msaaCount](ezAllocatorBase* pAllocator) -> ezGALSwapChain*
-        { return EZ_NEW(pAllocator, ezGALOpenXRSwapChain, this, msaaCount); }); });
+  ezGALXRSwapChain::SetFactoryMethod([this, msaaCount](ezXRInterface* pXrInterface) -> ezGALSwapChainHandle { return ezGALDevice::GetDefaultDevice()->CreateSwapChain([this, pXrInterface, msaaCount](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALOpenXRSwapChain, this, msaaCount); }); });
   EZ_SCOPE_EXIT(ezGALXRSwapChain::SetFactoryMethod({}););
 
   m_hSwapChain = ezGALXRSwapChain::Create(this);
@@ -721,8 +715,7 @@ void ezOpenXR::UpdatePoses()
   m_projectionChanged = ezMemoryUtils::Compare(&previousFov[0], &m_views[0].fov, 1) != 0 || ezMemoryUtils::Compare(&previousFov[1], &m_views[1].fov, 1) != 0;
 
   // Needed as workaround for broken XR runtimes.
-  auto FovIsNull = [](const XrFovf& fov)
-  {
+  auto FovIsNull = [](const XrFovf& fov) {
     return fov.angleLeft == 0.0f && fov.angleRight == 0.0f && fov.angleDown == 0.0f && fov.angleUp == 0.0f;
   };
 
@@ -754,8 +747,7 @@ void ezOpenXR::UpdateCamera()
   {
     m_projectionChanged = false;
     const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.width / (float)m_Info.m_vEyeRenderTargetSize.height;
-    auto CreateProjection = [](const XrView& view, ezCamera* cam)
-    {
+    auto CreateProjection = [](const XrView& view, ezCamera* cam) {
       return ezGraphicsUtils::CreatePerspectiveProjectionMatrix(ezMath::Tan(ezAngle::Radian(view.fov.angleLeft)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::Radian(view.fov.angleRight)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::Radian(view.fov.angleDown)) * cam->GetNearPlane(),
         ezMath::Tan(ezAngle::Radian(view.fov.angleUp)) * cam->GetNearPlane(), cam->GetNearPlane(), cam->GetFarPlane());
     };
