@@ -4,7 +4,7 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphPins.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
-class ezAnimGraph;
+class ezAnimGraphInstance;
 class ezAnimGraphNode;
 
 class ezAnimationControllerNodePin : public ezPin

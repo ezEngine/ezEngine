@@ -44,7 +44,7 @@ protected:
   ezEnum<ezRootMotionMode> m_RootMotionMode;
 
   ezAnimGraphResourceHandle m_hAnimationController;
-  ezAnimGraph m_AnimationGraph;
+  ezAnimGraphInstance m_AnimationGraph;
   ezAnimPoseGenerator m_PoseGenerator;
 
   ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();

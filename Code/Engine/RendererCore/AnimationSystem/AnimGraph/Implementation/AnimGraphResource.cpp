@@ -19,20 +19,8 @@ ezAnimGraphResource::ezAnimGraphResource()
 
 ezAnimGraphResource::~ezAnimGraphResource() = default;
 
-void ezAnimGraphResource::DeserializeAnimGraphState(ezAnimGraph& ref_out)
-{
-  ref_out.SetInstanceDataAllocator(m_AnimGraph.GetInstanceDataAlloator());
-
-  ezMemoryStreamContainerWrapperStorage<ezDataBuffer> wrapper(&m_Storage);
-  ezMemoryStreamReader reader(&wrapper);
-  ref_out.Deserialize(reader, m_AnimGraph.GetNodes()).AssertSuccess();
-}
-
 ezResourceLoadDesc ezAnimGraphResource::UnloadData(Unload WhatToUnload)
 {
-  m_Storage.Clear();
-  m_Storage.Compact();
-
   ezResourceLoadDesc d;
   d.m_State = ezResourceState::Unloaded;
   d.m_uiQualityLevelsDiscardable = 0;
@@ -61,19 +49,13 @@ ezResourceLoadDesc ezAnimGraphResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  ezUInt32 uiDateSize = 0;
-  *Stream >> uiDateSize;
-
   if (m_AnimGraph.Deserialize(*Stream).Failed())
   {
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
   }
 
-  ezMemoryStreamContainerWrapperStorage<ezDataBuffer> wrapper(&m_Storage);
-  ezMemoryStreamWriter writer(&wrapper);
-
-  m_AnimGraph.SerializeForUse(writer).AssertSuccess();
+  m_AnimGraph.PrepareForUse();
 
   res.m_State = ezResourceState::Loaded;
 
@@ -83,7 +65,7 @@ ezResourceLoadDesc ezAnimGraphResource::UpdateContent(ezStreamReader* Stream)
 void ezAnimGraphResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = m_Storage.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = 0;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphResource);

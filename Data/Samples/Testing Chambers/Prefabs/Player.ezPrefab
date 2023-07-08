@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{4793083506186659181}
+		u4 %Hash{2306275004533268751}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -82,8 +82,8 @@ o
 			s{"{ 64d3d26c-3e5d-46ab-8072-b9b65e850c77 }"}
 			s{"{ 6fedf421-7c53-4047-80bf-343903e382b8 }"}
 			s{"{ 7941db21-7976-47c5-94d2-2934ef511372 }"}
+			s{"{ a0ec8306-00b6-4187-9966-0a48b3b94db2 }"}
 			s{"{ c545bd5c-582b-4f26-8344-a8460587948c }"}
-			s{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
 			s{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
 			s{"{ e2374f5b-ff29-4d06-8264-12b55f5d0176 }"}
 		}
@@ -94,8 +94,8 @@ o
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ 6fedf421-7c53-4047-80bf-343903e382b8 }"}
 			s{"{ 7941db21-7976-47c5-94d2-2934ef511372 }"}
+			s{"{ a0ec8306-00b6-4187-9966-0a48b3b94db2 }"}
 			s{"{ c545bd5c-582b-4f26-8344-a8460587948c }"}
-			s{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
 			s{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
 			s{"{ e2374f5b-ff29-4d06-8264-12b55f5d0176 }"}
 		}
@@ -253,30 +253,6 @@ o
 	{
 		b %Active{1}
 		f %Radius{0xCDCCCC3D}
-	}
-}
-o
-{
-	Uuid %id{u4{17555721860441694380,4701131948481456580}}
-	s %t{"ezBlackboardEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Flags{""}
-		i3 %InitialValue{0}
-		s %Name{"PointAndShoot"}
-	}
-}
-o
-{
-	Uuid %id{u4{5534964874690617239,4732534952423352730}}
-	s %t{"ezBlackboardEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Flags{""}
-		i3 %InitialValue{0}
-		s %Name{"Aim"}
 	}
 }
 o
@@ -494,7 +470,7 @@ o
 {
 	Uuid %id{u4{14277641826211699617,5139911631931333399}}
 	s %t{"ezBlackboardComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -506,15 +482,10 @@ o
 			Uuid{u4{12874668328556130743,5441141937949938679}}
 			Uuid{u4{4783941425562980750,4734317039344822663}}
 			Uuid{u4{9103731024740285084,4857148106736143345}}
-			Uuid{u4{5534964874690617239,4732534952423352730}}
-			Uuid{u4{17555721860441694380,4701131948481456580}}
-			Uuid{u4{761323742292775863,5220514571660995158}}
-			Uuid{u4{3556389951579233420,5707616468081002774}}
-			Uuid{u4{15655332033405160862,5739470216250030527}}
-			Uuid{u4{7251505446034998686,5209298140678226945}}
 		}
 		b %SendEntryChangedMessage{0}
 		b %ShowDebugInfo{0}
+		s %Template{""}
 	}
 }
 o
@@ -570,18 +541,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7251505446034998686,5209298140678226945}}
-	s %t{"ezBlackboardEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Flags{""}
-		i3 %InitialValue{0}
-		s %Name{"RotateRight"}
-	}
-}
-o
-{
 	Uuid %id{u4{16105979414835921050,5213672510060979649}}
 	s %t{"ezAnimatedMeshComponent"}
 	u3 %v{13}
@@ -603,18 +562,6 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
-	}
-}
-o
-{
-	Uuid %id{u4{761323742292775863,5220514571660995158}}
-	s %t{"ezBlackboardEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Flags{""}
-		i3 %InitialValue{0}
-		s %Name{"Shoot"}
 	}
 }
 o
@@ -831,33 +778,9 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
+		s %AnimController{"{ a0ec8306-00b6-4187-9966-0a48b3b94db2 }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max60FPS"}
 		s %RootMotionMode{"ezRootMotionMode::Ignore"}
-	}
-}
-o
-{
-	Uuid %id{u4{3556389951579233420,5707616468081002774}}
-	s %t{"ezBlackboardEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Flags{""}
-		i3 %InitialValue{0}
-		s %Name{"Use"}
-	}
-}
-o
-{
-	Uuid %id{u4{15655332033405160862,5739470216250030527}}
-	s %t{"ezBlackboardEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Flags{""}
-		i3 %InitialValue{0}
-		s %Name{"RotateLeft"}
 	}
 }
 o
@@ -2238,7 +2161,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBlackboardComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

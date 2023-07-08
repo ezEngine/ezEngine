@@ -59,7 +59,7 @@ public:
 
   struct BoneData
   {
-    ezMat4 m_GlobalInverseBindPoseMatrix;
+    ezMat4 m_GlobalInverseRestPoseMatrix;
     ezUInt16 m_uiBoneIndex = ezInvalidJointIndex;
 
     ezResult Serialize(ezStreamWriter& inout_stream) const;

@@ -26,7 +26,7 @@ namespace ozz::animation
 class EZ_RENDERERCORE_DLL ezSkeletonJoint
 {
 public:
-  const ezTransform& GetBindPoseLocalTransform() const { return m_BindPoseLocal; }
+  const ezTransform& GetRestPoseLocalTransform() const { return m_RestPoseLocal; }
 
   /// \brief Returns ezInvalidJointIndex if no parent
   ezUInt16 GetParentIndex() const { return m_uiParentIndex; }
@@ -54,7 +54,7 @@ private:
   friend ezSkeleton;
   friend ezSkeletonBuilder;
 
-  ezTransform m_BindPoseLocal;
+  ezTransform m_RestPoseLocal;
   ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
   ezHashedString m_sName;
 

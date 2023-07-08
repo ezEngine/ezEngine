@@ -8,9 +8,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicAndAnimNode, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("NegateResult", m_bNegateResult),
-    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("Output", m_OutputPin)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("InBool0", m_InBool0)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("InBool1", m_InBool1)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -32,9 +33,10 @@ ezResult ezLogicAndAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  stream << m_bNegateResult;
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutputPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool0.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool1.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -45,23 +47,81 @@ ezResult ezLogicAndAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  stream >> m_bNegateResult;
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutputPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool0.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool1.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezLogicAndAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezLogicAndAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  bool res = m_ActivePin.AreAllTriggered(graph);
+  bool res = m_InBool0.GetBool(graph, true) && m_InBool1.GetBool(graph, true);
 
-  if (m_bNegateResult)
+  m_OutIsTrue.SetBool(graph, res);
+  m_OutIsFalse.SetBool(graph, !res);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicEventAndAnimNode, 1, ezRTTIDefaultAllocator<ezLogicEventAndAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
   {
-    res = !res;
+    EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutOnActivated", m_OutOnActivated)->AddAttributes(new ezHiddenAttribute),
   }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic"),
+    new ezTitleAttribute("Event AND"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-  m_OutputPin.SetTriggered(graph, res);
+ezLogicEventAndAnimNode::ezLogicEventAndAnimNode() = default;
+ezLogicEventAndAnimNode::~ezLogicEventAndAnimNode() = default;
+
+ezResult ezLogicEventAndAnimNode::SerializeNode(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnActivated.Serialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezLogicEventAndAnimNode::DeserializeNode(ezStreamReader& stream)
+{
+  stream.ReadVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnActivated.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+void ezLogicEventAndAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  if (m_InActivate.IsTriggered(graph) && m_InBool.GetBool(graph))
+  {
+    m_OutOnActivated.SetTriggered(graph);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -73,9 +133,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicOrAnimNode, 1, ezRTTIDefaultAllocator<ezL
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("NegateResult", m_bNegateResult),
-    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("Output", m_OutputPin)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("InBool0", m_InBool0)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("InBool1", m_InBool1)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -97,9 +158,10 @@ ezResult ezLogicOrAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  stream << m_bNegateResult;
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutputPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool0.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool1.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -110,23 +172,20 @@ ezResult ezLogicOrAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  stream >> m_bNegateResult;
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutputPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool0.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool1.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezLogicOrAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezLogicOrAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  bool res = m_ActivePin.IsTriggered(graph);
+  bool res = m_InBool0.GetBool(graph, false) || m_InBool1.GetBool(graph, false);
 
-  if (m_bNegateResult)
-  {
-    res = !res;
-  }
-
-  m_OutputPin.SetTriggered(graph, res);
+  m_OutIsTrue.SetBool(graph, res);
+  m_OutIsFalse.SetBool(graph, !res);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -139,8 +198,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicNotAnimNode, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("Output", m_OutputPin)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutBool", m_OutBool)->AddAttributes(new ezHiddenAttribute),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -162,8 +221,8 @@ ezResult ezLogicNotAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutputPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutBool.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -174,87 +233,17 @@ ezResult ezLogicNotAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OutputPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutBool.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezLogicNotAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezLogicNotAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  bool res = !m_ActivePin.IsTriggered(graph);
+  const bool value = !m_InBool.GetBool(graph);
 
-  m_OutputPin.SetTriggered(graph, res);
+  m_OutBool.SetBool(graph, !value);
 }
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareNumberAnimNode, 1, ezRTTIDefaultAllocator<ezCompareNumberAnimNode>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("ReferenceValue", m_fReferenceValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_ENUM_MEMBER_PROPERTY("Comparison", ezComparisonOperator, m_Comparison),
-
-    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("Number", m_NumberPin)->AddAttributes(new ezHiddenAttribute()),
-  }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Logic"),
-    new ezTitleAttribute("Check: Number {Comparison} {ReferenceValue}"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
-  }
-  EZ_END_ATTRIBUTES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezResult ezCompareNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
-{
-  stream.WriteVersion(1);
-
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
-
-  stream << m_fReferenceValue;
-  stream << m_Comparison;
-
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_NumberPin.Serialize(stream));
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
-{
-  stream.ReadVersion(1);
-
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
-
-  stream >> m_fReferenceValue;
-  stream >> m_Comparison;
-
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_NumberPin.Deserialize(stream));
-
-  return EZ_SUCCESS;
-}
-
-void ezCompareNumberAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
-{
-  if (ezComparisonOperator::Compare<double>(m_Comparison, m_NumberPin.GetNumber(graph), m_fReferenceValue))
-  {
-    m_ActivePin.SetTriggered(graph, true);
-  }
-  else
-  {
-    m_ActivePin.SetTriggered(graph, false);
-  }
-}
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_LogicAnimNodes);

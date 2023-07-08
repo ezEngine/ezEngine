@@ -38,7 +38,7 @@ ezGetBlackboardNumberAnimNode;Blackboard: Get Value
 
 ezLogAnimNode;Log
 
-ezEventAnimNode;Send Event
+ezSendEventAnimNode;Send Event
 
 ezLogicNotAnimNode;Logic NOT
 

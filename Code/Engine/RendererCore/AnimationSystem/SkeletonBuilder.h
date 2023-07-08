@@ -16,7 +16,7 @@ public:
   /// \brief Adds a joint to the skeleton
   /// Since the only way to add a joint with a parent is through this method the order of joints in the array is guaranteed
   /// so that child joints always come after their parent joints
-  ezUInt16 AddJoint(ezStringView sName, const ezTransform& localBindPose, ezUInt16 uiParentIndex = ezInvalidJointIndex);
+  ezUInt16 AddJoint(ezStringView sName, const ezTransform& localRestPose, ezUInt16 uiParentIndex = ezInvalidJointIndex);
 
   void SetJointLimit(ezUInt16 uiJointIndex, const ezQuat& qLocalOrientation, ezSkeletonJointType::Enum jointType, ezAngle halfSwingLimitY, ezAngle halfSwingLimitZ, ezAngle twistLimitHalfAngle, ezAngle twistLimitCenterAngle, float fStiffness);
 
@@ -32,9 +32,9 @@ public:
 protected:
   struct BuilderJoint
   {
-    ezTransform m_BindPoseLocal;
-    ezTransform m_BindPoseGlobal; // this one is temporary and not stored in the final ezSkeleton
-    ezTransform m_InverseBindPoseGlobal;
+    ezTransform m_RestPoseLocal;
+    ezTransform m_RestPoseGlobal; // this one is temporary and not stored in the final ezSkeleton
+    ezTransform m_InverseRestPoseGlobal;
     ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
     ezHashedString m_sName;
     ezEnum<ezSkeletonJointType> m_JointType;

@@ -294,7 +294,7 @@ const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzz
 
       const auto& fallbackJoint = skeleton.GetDescriptor().m_Skeleton.GetJointByIndex(uiFallbackIdx);
 
-      const ezTransform& fallbackTransform = fallbackJoint.GetBindPoseLocalTransform();
+      const ezTransform& fallbackTransform = fallbackJoint.GetRestPoseLocalTransform();
 
       auto& dstT = dstTrack.translations[0];
       auto& dstR = dstTrack.rotations[0];

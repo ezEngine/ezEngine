@@ -80,7 +80,7 @@ void ezJoltDefaultCharacterComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds
 
 void ezJoltDefaultCharacterComponent::OnApplyRootMotion(ezMsgApplyRootMotion& msg)
 {
-  m_vAbsoluteRootMotion = msg.m_vTranslation;
+  m_vAbsoluteRootMotion += msg.m_vTranslation;
   m_InputRotateZ += msg.m_RotationZ;
 }
 
@@ -334,7 +334,7 @@ void ezJoltDefaultCharacterComponent::ClampLateralVelocity()
 
     const float fSpeedAlongRealDir = vRealDirLateral.Dot(m_vVelocityLateral);
 
-    m_vVelocityLateral.SetLength(fSpeedAlongRealDir).IgnoreResult();
+    m_vVelocityLateral = vRealDirLateral * fSpeedAlongRealDir;
   }
   else
     m_vVelocityLateral.SetZero();
@@ -619,11 +619,30 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
       vGroundVelocity.SetZero();
   }
 
-  // AIR: apply 'drag' to the lateral velocity
-  // m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, GetUpdateTimeDelta());
+  const bool bWasOnGround = GetJoltCharacter()->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround;
 
-  ezVec3 vVelocityToApply = cfg.m_vVelocity + vGroundVelocity; // TODO +m_vVelocityLateral.GetAsVec3(0);
-  vVelocityToApply += GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
+  if (bWasOnGround)
+  {
+    m_vVelocityLateral.SetZero();
+  }
+
+  // AIR: apply 'drag' to the lateral velocity
+  m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, GetUpdateTimeDelta());
+
+  ezVec3 vRootVelocity = GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
+
+  if (!m_vVelocityLateral.IsZero())
+  {
+    // remove the lateral velocity component from the root motion
+    // to prevent root motion being amplified when both values are active
+    ezVec3 vLatDir = m_vVelocityLateral.GetNormalized().GetAsVec3(0);
+    float fProj = ezMath::Max(0.0f, vLatDir.Dot(vRootVelocity));
+    vRootVelocity -= vLatDir * fProj;
+  }
+
+  ezVec3 vVelocityToApply = cfg.m_vVelocity + vGroundVelocity;
+  vVelocityToApply += m_vVelocityLateral.GetAsVec3(0);
+  vVelocityToApply += vRootVelocity;
   vVelocityToApply.z = m_fVelocityUp;
 
   RawMoveWithVelocity(vVelocityToApply, cfg.m_fMaxStepUp, cfg.m_fMaxStepDown);
@@ -637,15 +656,21 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     }
   }
 
-  StoreLateralVelocity();
-  // TODO: store or apply+clamp ClampLateralVelocity();
-
   // retrieve the actual up velocity
   float groundVerticalVelocity = GetJoltCharacter()->GetGroundVelocity().GetZ();
   if (GetJoltCharacter()->GetGroundState() == JPH::CharacterVirtual::EGroundState::OnGround // If on ground
-    && (m_fVelocityUp - groundVerticalVelocity) < 0.1f) // And not moving away from ground
+      && (m_fVelocityUp - groundVerticalVelocity) < 0.1f)                                   // And not moving away from ground
   {
     m_fVelocityUp = groundVerticalVelocity;
+  }
+
+  if (bWasOnGround)
+  {
+    StoreLateralVelocity();
+  }
+  else
+  {
+    ClampLateralVelocity();
   }
 
   m_fVelocityUp += GetUpdateTimeDelta() * pModule->GetCharacterGravity().z;
@@ -661,4 +686,3 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltDefaultCharacterComponent);
-

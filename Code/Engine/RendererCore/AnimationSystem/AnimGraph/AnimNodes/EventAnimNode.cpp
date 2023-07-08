@@ -5,27 +5,27 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/EventAnimNode.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventAnimNode, 1, ezRTTIDefaultAllocator<ezEventAnimNode>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSendEventAnimNode, 1, ezRTTIDefaultAllocator<ezSendEventAnimNode>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("EventName", GetEventName, SetEventName),
 
-    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Events"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Orange)),
-    new ezTitleAttribute("Event: '{EventName}'"),
+    new ezTitleAttribute("Send Event: '{EventName}'"),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezEventAnimNode::SerializeNode(ezStreamWriter& stream) const
+ezResult ezSendEventAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
@@ -33,12 +33,12 @@ ezResult ezEventAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   stream << m_sEventName;
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
 
   return EZ_SUCCESS;
 }
 
-ezResult ezEventAnimNode::DeserializeNode(ezStreamReader& stream)
+ezResult ezSendEventAnimNode::DeserializeNode(ezStreamReader& stream)
 {
   stream.ReadVersion(1);
 
@@ -46,24 +46,23 @@ ezResult ezEventAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_sEventName;
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezEventAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezSendEventAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_ActivePin.IsConnected() || m_sEventName.IsEmpty())
+  if (m_sEventName.IsEmpty())
     return;
 
-  if (m_ActivePin.IsTriggered(graph))
-  {
-    ezMsgGenericEvent msg;
-    msg.m_sMessage = m_sEventName;
-    msg.m_Value = ezVariant();
+  if (!m_InActivate.IsTriggered(graph))
+    return;
 
-    pTarget->SendEventMessage(msg, nullptr);
-  }
+  ezMsgGenericEvent msg;
+  msg.m_sMessage = m_sEventName;
+
+  pTarget->SendEventMessage(msg, nullptr);
 }
 
 
