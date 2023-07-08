@@ -215,8 +215,7 @@ void ezAnimGraphInstance::GenerateLocalResultProcessors(const ezSkeletonResource
 
     if (pw.GetCount() > m_uiMaxPoses)
     {
-      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs)
-        { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
+      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs) { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
       pw.SetCount(m_uiMaxPoses);
     }
 
@@ -505,8 +504,7 @@ void ezAnimGraph::SortNodesByPriority()
     ComputeNodePriority(pNode.Borrow(), prios, uiOutputPrio);
   }
 
-  m_Nodes.Sort([&](const auto& lhs, const auto& rhs) -> bool
-    { return prios[lhs.Borrow()] < prios[rhs.Borrow()]; });
+  m_Nodes.Sort([&](const auto& lhs, const auto& rhs) -> bool { return prios[lhs.Borrow()] < prios[rhs.Borrow()]; });
 }
 
 void ezAnimGraph::PrepareForUse()
