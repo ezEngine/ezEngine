@@ -114,4 +114,3 @@ private:
   ezAnimGraphBoolInputPin m_InBool;   // [ property ]
   ezAnimGraphBoolOutputPin m_OutBool; // [ property ]
 };
-
