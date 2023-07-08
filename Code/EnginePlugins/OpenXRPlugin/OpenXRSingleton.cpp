@@ -41,6 +41,28 @@ EZ_IMPLEMENT_SINGLETON(ezOpenXR);
 
 static ezOpenXR g_OpenXRSingleton;
 
+XrBool32 xrDebugCallback(XrDebugUtilsMessageSeverityFlagsEXT messageSeverity, XrDebugUtilsMessageTypeFlagsEXT messageTypes, const XrDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+{
+  switch (messageSeverity)
+  {
+    case XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+      ezLog::Debug("XR: {}", pCallbackData->message);
+      break;
+    case XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+      ezLog::Info("XR: {}", pCallbackData->message);
+      break;
+    case XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+      ezLog::Warning("XR: {}", pCallbackData->message);
+      break;
+    case XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+      ezLog::Error("XR: {}", pCallbackData->message);
+      break;
+    default:
+      break;
+  }
+  // Only layers are allowed to return true here.
+  return XR_FALSE;
+}
 
 ezOpenXR::ezOpenXR()
   : m_SingletonRegistrar(this)
@@ -76,8 +98,10 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, extensionProperties.data()));
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> XrResult {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const XrExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName, extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> XrResult
+  {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const XrExtensionProperties& prop)
+      { return ezStringUtils::IsEqual(prop.extensionName, extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -98,6 +122,10 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   AddExtIfSupported(XR_MSFT_HAND_INTERACTION_EXTENSION_NAME, m_extensions.m_bHandInteraction);
   AddExtIfSupported(XR_MSFT_HAND_TRACKING_MESH_EXTENSION_NAME, m_extensions.m_bHandTrackingMesh);
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  AddExtIfSupported(XR_EXT_DEBUG_UTILS_EXTENSION_NAME, m_extensions.m_bDebugUtils);
+#endif
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   AddExtIfSupported(XR_MSFT_HOLOGRAPHIC_WINDOW_ATTACHMENT_EXTENSION_NAME, m_extensions.m_bHolographicWindowAttachment);
 #endif
@@ -108,6 +136,35 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
 
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
 #endif
+  return XR_SUCCESS;
+}
+
+XrResult ezOpenXR::SelectLayers(ezHybridArray<const char*, 6>& layers)
+{
+  ezUInt32 layerCount;
+  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateApiLayerProperties(0, &layerCount, nullptr));
+  std::vector<XrApiLayerProperties> layerProperties(layerCount, {XR_TYPE_API_LAYER_PROPERTIES});
+  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateApiLayerProperties(layerCount, &layerCount, layerProperties.data()));
+
+  // Add a specific extension to the list of extensions to be enabled, if it is supported.
+  auto AddExtIfSupported = [&](const char* layerName, bool& enableFlag) -> XrResult
+  {
+    auto it = std::find_if(begin(layerProperties), end(layerProperties), [&](const XrApiLayerProperties& prop)
+      { return ezStringUtils::IsEqual(prop.layerName, layerName); });
+    if (it != end(layerProperties))
+    {
+      layers.PushBack(layerName);
+      enableFlag = true;
+      return XR_SUCCESS;
+    }
+    enableFlag = false;
+    return XR_ERROR_EXTENSION_NOT_PRESENT;
+  };
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  AddExtIfSupported("XR_APILAYER_LUNARG_core_validation", m_extensions.m_bValidation);
+#endif
+
   return XR_SUCCESS;
 }
 
@@ -123,10 +180,16 @@ ezResult ezOpenXR::Initialize()
   if (SelectExtensions(enabledExtensions) != XR_SUCCESS)
     return EZ_FAILURE;
 
+  ezHybridArray<const char*, 6> enabledLayers;
+  if (SelectLayers(enabledLayers) != XR_SUCCESS)
+    return EZ_FAILURE;
+
   // Create the instance with desired extensions.
   XrInstanceCreateInfo createInfo{XR_TYPE_INSTANCE_CREATE_INFO};
   createInfo.enabledExtensionCount = (uint32_t)enabledExtensions.GetCount();
   createInfo.enabledExtensionNames = enabledExtensions.GetData();
+  createInfo.enabledApiLayerCount = (uint32_t)enabledLayers.GetCount();
+  createInfo.enabledApiLayerNames = enabledLayers.GetData();
 
   ezStringUtils::Copy(createInfo.applicationInfo.applicationName, EZ_ARRAY_SIZE(createInfo.applicationInfo.applicationName), ezApplication::GetApplicationInstance()->GetApplicationName());
   ezStringUtils::Copy(createInfo.applicationInfo.engineName, EZ_ARRAY_SIZE(createInfo.applicationInfo.engineName), "ezEngine");
@@ -173,6 +236,14 @@ ezResult ezOpenXR::Initialize()
     EZ_GET_INSTANCE_PROC_ADDR(xrCreateHandMeshSpaceMSFT);
     EZ_GET_INSTANCE_PROC_ADDR(xrUpdateHandMeshMSFT);
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (m_extensions.m_bDebugUtils)
+  {
+    EZ_GET_INSTANCE_PROC_ADDR(xrCreateDebugUtilsMessengerEXT);
+    EZ_GET_INSTANCE_PROC_ADDR(xrDestroyDebugUtilsMessengerEXT);
+  }
+#endif
 
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
   if (m_extensions.m_bRemoting)
@@ -253,7 +324,9 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
     return {};
   }
 
-  ezGALXRSwapChain::SetFactoryMethod([this, msaaCount](ezXRInterface* pXrInterface) -> ezGALSwapChainHandle { return ezGALDevice::GetDefaultDevice()->CreateSwapChain([this, pXrInterface, msaaCount](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALOpenXRSwapChain, this, msaaCount); }); });
+  ezGALXRSwapChain::SetFactoryMethod([this, msaaCount](ezXRInterface* pXrInterface) -> ezGALSwapChainHandle
+    { return ezGALDevice::GetDefaultDevice()->CreateSwapChain([this, pXrInterface, msaaCount](ezAllocatorBase* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALOpenXRSwapChain, this, msaaCount); }); });
   EZ_SCOPE_EXIT(ezGALXRSwapChain::SetFactoryMethod({}););
 
   m_hSwapChain = ezGALXRSwapChain::Create(this);
@@ -283,8 +356,6 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   m_hView = pView->GetHandle();
-  m_pWorld = pView->GetWorld();
-  EZ_ASSERT_DEV(m_pWorld != nullptr, "");
 
   pView->SetSwapChain(m_hSwapChain);
 
@@ -300,7 +371,6 @@ void ezOpenXR::OnActorDestroyed()
     return;
 
   m_pCompanion = nullptr;
-  m_pWorld = nullptr;
   SetHMDCamera(nullptr);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -308,7 +378,7 @@ void ezOpenXR::OnActorDestroyed()
   ezRenderWorld::RemoveMainView(m_hView);
   m_hView.Invalidate();
 
-  //#TODO_XR DestroySwapChain will only queue the destruction. We either need to flush it somehow or postpone DeinitSession.
+  // #TODO_XR DestroySwapChain will only queue the destruction. We either need to flush it somehow or postpone DeinitSession.
   ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
   m_hSwapChain.Invalidate();
 
@@ -365,6 +435,7 @@ XrResult ezOpenXR::InitSession()
   m_blendMode = environmentBlendModes[0];
 
   XR_SUCCEED_OR_CLEANUP_LOG(InitGraphicsPlugin(), DeinitSession);
+  XR_SUCCEED_OR_CLEANUP_LOG(InitDebugMessenger(), DeinitSession);
 
   XrSessionCreateInfo sessionCreateInfo{XR_TYPE_SESSION_CREATE_INFO};
   sessionCreateInfo.systemId = m_systemId;
@@ -400,11 +471,13 @@ XrResult ezOpenXR::InitSession()
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSession(m_instance, &sessionCreateInfo, &m_session), DeinitSession);
 
   XrReferenceSpaceCreateInfo spaceCreateInfo{XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   if (m_extensions.m_bUnboundedReferenceSpace)
   {
     spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT;
   }
   else
+#endif
   {
     spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
   }
@@ -464,12 +537,13 @@ void ezOpenXR::DeinitSession()
 
   if (m_session)
   {
-    //#TODO_XR flush command queue
+    // #TODO_XR flush command queue
     xrDestroySession(m_session);
     m_session = XR_NULL_HANDLE;
   }
 
   DeinitGraphicsPlugin();
+  DeinitInitDebugMessenger();
 }
 
 XrResult ezOpenXR::InitGraphicsPlugin()
@@ -491,19 +565,46 @@ void ezOpenXR::DeinitGraphicsPlugin()
   m_xrGraphicsBindingD3D11.device = nullptr;
 }
 
+XrResult ezOpenXR::InitDebugMessenger()
+{
+  XrDebugUtilsMessengerCreateInfoEXT create_info{XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
+  create_info.messageSeverities = XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                                  XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                                  XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                  XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+  create_info.messageTypes = XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                             XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                             XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+  create_info.userCallback = xrDebugCallback;
+
+  XR_SUCCEED_OR_CLEANUP_LOG(m_extensions.pfn_xrCreateDebugUtilsMessengerEXT(m_instance, &create_info, &m_DebugMessenger), DeinitInitDebugMessenger);
+
+  return XrResult::XR_SUCCESS;
+}
+
+void ezOpenXR::DeinitInitDebugMessenger()
+{
+  if (m_DebugMessenger != XR_NULL_HANDLE)
+  {
+    XR_LOG_ERROR(m_extensions.pfn_xrDestroyDebugUtilsMessengerEXT(m_DebugMessenger));
+    m_DebugMessenger = XR_NULL_HANDLE;
+  }
+}
+
 void ezOpenXR::BeforeUpdatePlugins()
 {
   EZ_PROFILE_SCOPE("BeforeUpdatePlugins");
   // Make sure the main camera component is set to stereo mode.
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hView, pView))
+  if (ezWorld* pWorld = GetWorld())
   {
-    if (ezWorld* pWorld = pView->GetWorld())
+    EZ_LOCK(pWorld->GetWriteMarker());
+    auto* pCCM = pWorld->GetComponentManager<ezCameraComponentManager>();
+    if (pCCM)
     {
-      EZ_LOCK(pWorld->GetWriteMarker());
-      ezCameraComponent* pCameraComponent = pWorld->GetComponentManager<ezCameraComponentManager>()->GetCameraByUsageHint(ezCameraUsageHint::MainView);
-      EZ_ASSERT_DEV(pCameraComponent != nullptr, "The world must have a main camera component.");
-      pCameraComponent->SetCameraMode(ezCameraMode::Stereo);
+      if (ezCameraComponent* pCameraComponent = pCCM->GetCameraByUsageHint(ezCameraUsageHint::MainView))
+      {
+        pCameraComponent->SetCameraMode(ezCameraMode::Stereo);
+      }
     }
   }
 
@@ -594,7 +695,7 @@ void ezOpenXR::BeforeUpdatePlugins()
       }
     }
   }
-  //#TODO exit render loop and restart logic not fully implemented.
+  // #TODO exit render loop and restart logic not fully implemented.
 }
 
 void ezOpenXR::UpdatePoses()
@@ -618,7 +719,14 @@ void ezOpenXR::UpdatePoses()
 
   XrResult res = xrLocateViews(m_session, &viewLocateInfo, &viewState, viewCapacityInput, &viewCountOutput, m_views);
   m_projectionChanged = ezMemoryUtils::Compare(&previousFov[0], &m_views[0].fov, 1) != 0 || ezMemoryUtils::Compare(&previousFov[1], &m_views[1].fov, 1) != 0;
-  if (res != XR_SUCCESS)
+
+  // Needed as workaround for broken XR runtimes.
+  auto FovIsNull = [](const XrFovf& fov)
+  {
+    return fov.angleLeft == 0.0f && fov.angleRight == 0.0f && fov.angleDown == 0.0f && fov.angleUp == 0.0f;
+  };
+
+  if (res != XR_SUCCESS || FovIsNull(m_views[0].fov) || FovIsNull(m_views[1].fov))
   {
     m_Input->m_DeviceState[0].m_bGripPoseIsValid = false;
     m_Input->m_DeviceState[0].m_bAimPoseIsValid = false;
@@ -646,7 +754,8 @@ void ezOpenXR::UpdateCamera()
   {
     m_projectionChanged = false;
     const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.width / (float)m_Info.m_vEyeRenderTargetSize.height;
-    auto CreateProjection = [](const XrView& view, ezCamera* cam) {
+    auto CreateProjection = [](const XrView& view, ezCamera* cam)
+    {
       return ezGraphicsUtils::CreatePerspectiveProjectionMatrix(ezMath::Tan(ezAngle::Radian(view.fov.angleLeft)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::Radian(view.fov.angleRight)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::Radian(view.fov.angleDown)) * cam->GetNearPlane(),
         ezMath::Tan(ezAngle::Radian(view.fov.angleUp)) * cam->GetNearPlane(), cam->GetNearPlane(), cam->GetFarPlane());
     };
@@ -749,7 +858,7 @@ void ezOpenXR::BeginFrame()
     }
   }
 
-  //#TODO_XR Swap chain acquire here?
+  // #TODO_XR Swap chain acquire here?
 
   UpdatePoses();
 
@@ -892,6 +1001,16 @@ void ezOpenXR::SetHMDCamera(ezCamera* pCamera)
     m_uiSettingsModificationCounter = m_pCameraToSynchronize->GetSettingsModificationCounter() + 1;
     m_pCameraToSynchronize->SetCameraMode(ezCameraMode::Stereo, m_pCameraToSynchronize->GetFovOrDim(), m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
   }
+}
+
+ezWorld* ezOpenXR::GetWorld()
+{
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView))
+  {
+    return pView->GetWorld();
+  }
+  return nullptr;
 }
 
 XrPosef ezOpenXR::ConvertTransform(const ezTransform& tr)
