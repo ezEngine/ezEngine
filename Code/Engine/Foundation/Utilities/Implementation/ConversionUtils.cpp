@@ -694,6 +694,18 @@ namespace ezConversionUtils
     return out_sResult;
   }
 
+  const ezStringBuilder& ToString(const ezHashedString& value, ezStringBuilder& out_sResult)
+  {
+    out_sResult = value.GetView();
+    return out_sResult;
+  }
+
+  const ezStringBuilder& ToString(const ezTempHashedString& value, ezStringBuilder& out_sResult)
+  {
+    out_sResult.Format("0x{}", ezArgU(value.GetHash(), 16, true, 16));
+    return out_sResult;
+  }
+
   const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_sResult)
   {
     out_sResult.Append("[");
@@ -852,7 +864,8 @@ namespace ezConversionUtils
 
     const ezUInt32 uiLen = sColorName.GetElementCount();
 
-    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult {
+    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult
+    {
       ezInt8 firstChar = HexCharacterToIntValue(szColorChars[0]);
       ezInt8 secondChar = HexCharacterToIntValue(szColorChars[1]);
       if (firstChar < 0 || secondChar < 0)

@@ -1789,10 +1789,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::TempHashedString);
 
     EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("VVVV"));
-    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "VVVV");
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "0x69d489c8b7fa5f47");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("VVVV"));
-    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "UUUU");
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "0x69d489c8b7fa5f47");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (VariantArray)")

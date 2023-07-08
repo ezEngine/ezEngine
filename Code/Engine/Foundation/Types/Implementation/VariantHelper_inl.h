@@ -502,6 +502,19 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezVec4U32& result, bool& bSuccessful) { ToVec4X<ezVec4U32, ezVec4I32, ezVec4>(value, result, bSuccessful); }
 
+  static void To(const ezVariant& value, ezTempHashedString& result, bool& bSuccessful)
+  {
+    bSuccessful = true;
+
+    if (value.GetType() == ezVariant::Type::HashedString)
+      result = value.Get<ezHashedString>();
+    else
+    {
+      EZ_REPORT_FAILURE("Conversion to ezTempHashedString failed");
+      bSuccessful = false;
+    }
+  }
+
   template <typename T>
   static void To(const ezVariant& value, T& result, bool& bSuccessful)
   {
