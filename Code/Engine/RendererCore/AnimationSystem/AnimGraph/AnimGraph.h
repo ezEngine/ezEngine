@@ -89,19 +89,17 @@ protected:
 private:
   const ezAnimGraph* m_pAnimGraph = nullptr;
 
-  // ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
   ezSkeletonResourceHandle m_hSkeleton;
 
-  // const ezInstanceDataAllocator* m_pInstanceDataAllocator = nullptr;
   ezBlob m_InstanceData;
 
   // EXTEND THIS if a new type is introduced
-  ezInt8* m_TriggerInputPinStates = nullptr;
-  double* m_NumberInputPinStates = nullptr;
-  bool* m_BoolInputPinStates = nullptr;
-  ezUInt16* m_BoneWeightInputPinStates = nullptr;
+  ezInt8* m_pTriggerInputPinStates = nullptr;
+  double* m_pNumberInputPinStates = nullptr;
+  bool* m_pBoolInputPinStates = nullptr;
+  ezUInt16* m_pBoneWeightInputPinStates = nullptr;
   ezDynamicArray<ezHybridArray<ezUInt16, 1>> m_LocalPoseInputPinStates;
-  ezUInt16* m_ModelPoseInputPinStates = nullptr;
+  ezUInt16* m_pModelPoseInputPinStates = nullptr;
 
   ezAnimGraphPinDataModelTransforms* m_pCurrentModelTransforms = nullptr;
 

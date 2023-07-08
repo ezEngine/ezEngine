@@ -148,6 +148,8 @@ export class BlackboardComponent extends Component
   GetEntryValue(Name: string): any { return __CPP_ComponentFunction_Call(this, 3444662205, Name); }
   get BlackboardName(): string { return __CPP_ComponentProperty_get(this, 1957444071); }
   set BlackboardName(value: string) { __CPP_ComponentProperty_set(this, 1957444071, value); }
+  get Template(): string { return __CPP_ComponentProperty_get(this, 1395642933); }
+  set Template(value: string) { __CPP_ComponentProperty_set(this, 1395642933, value); }
   get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 3507638090); }
   set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 3507638090, value); }
   get SendEntryChangedMessage(): boolean { return __CPP_ComponentProperty_get(this, 251987862); }

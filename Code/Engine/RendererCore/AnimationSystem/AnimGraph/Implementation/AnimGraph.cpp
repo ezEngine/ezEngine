@@ -29,11 +29,11 @@ void ezAnimGraphInstance::Configure(const ezAnimGraph& animGraph, const ezSkelet
   m_InstanceData = m_pAnimGraph->GetInstanceDataAlloator().AllocateAndConstruct();
 
   // EXTEND THIS if a new type is introduced
-  m_TriggerInputPinStates = (ezInt8*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Trigger]);
-  m_NumberInputPinStates = (double*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Number]);
-  m_BoolInputPinStates = (bool*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Bool]);
-  m_BoneWeightInputPinStates = (ezUInt16*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::BoneWeights]);
-  m_ModelPoseInputPinStates = (ezUInt16*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::ModelPose]);
+  m_pTriggerInputPinStates = (ezInt8*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Trigger]);
+  m_pNumberInputPinStates = (double*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Number]);
+  m_pBoolInputPinStates = (bool*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Bool]);
+  m_pBoneWeightInputPinStates = (ezUInt16*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::BoneWeights]);
+  m_pModelPoseInputPinStates = (ezUInt16*)ezInstanceDataAllocator::GetInstanceData(m_InstanceData.GetByteBlobPtr(), m_pAnimGraph->m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::ModelPose]);
 
   m_LocalPoseInputPinStates.SetCount(animGraph.m_uiInputPinCounts[ezAnimGraphPin::Type::LocalPose]);
 }
@@ -66,11 +66,11 @@ void ezAnimGraphInstance::Update(ezTime diff, ezGameObject* pTarget)
 
     // EXTEND THIS if a new type is introduced
 
-    ezMemoryUtils::ZeroFill(m_TriggerInputPinStates, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::Trigger]);
-    ezMemoryUtils::ZeroFill(m_NumberInputPinStates, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::Number]);
-    ezMemoryUtils::ZeroFill(m_BoolInputPinStates, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::Bool]);
-    ezMemoryUtils::ZeroFill(m_BoneWeightInputPinStates, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::BoneWeights]);
-    ezMemoryUtils::PatternFill(m_ModelPoseInputPinStates, 0xFF, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::ModelPose]);
+    ezMemoryUtils::ZeroFill(m_pTriggerInputPinStates, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::Trigger]);
+    ezMemoryUtils::ZeroFill(m_pNumberInputPinStates, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::Number]);
+    ezMemoryUtils::ZeroFill(m_pBoolInputPinStates, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::Bool]);
+    ezMemoryUtils::ZeroFill(m_pBoneWeightInputPinStates, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::BoneWeights]);
+    ezMemoryUtils::PatternFill(m_pModelPoseInputPinStates, 0xFF, m_pAnimGraph->m_uiInputPinCounts[ezAnimGraphPin::Type::ModelPose]);
 
     for (auto& pins : m_LocalPoseInputPinStates)
     {

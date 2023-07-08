@@ -59,7 +59,7 @@ void ezAnimGraphTriggerOutputPin::SetTriggered(ezAnimGraphInstance& ref_graph) c
   // trigger or reset all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    ref_graph.m_TriggerInputPinStates[idx] += offset;
+    ref_graph.m_pTriggerInputPinStates[idx] += offset;
   }
 }
 
@@ -68,12 +68,12 @@ bool ezAnimGraphTriggerInputPin::IsTriggered(ezAnimGraphInstance& ref_graph) con
   if (m_iPinIndex < 0)
     return false;
 
-  return ref_graph.m_TriggerInputPinStates[m_iPinIndex] > 0;
+  return ref_graph.m_pTriggerInputPinStates[m_iPinIndex] > 0;
 }
 
 bool ezAnimGraphTriggerInputPin::AreAllTriggered(ezAnimGraphInstance& ref_graph) const
 {
-  return ref_graph.m_TriggerInputPinStates[m_iPinIndex] == m_uiNumConnections;
+  return ref_graph.m_pTriggerInputPinStates[m_iPinIndex] == m_uiNumConnections;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ double ezAnimGraphNumberInputPin::GetNumber(ezAnimGraphInstance& ref_graph, doub
   if (m_iPinIndex < 0)
     return fFallback;
 
-  return ref_graph.m_NumberInputPinStates[m_iPinIndex];
+  return ref_graph.m_pNumberInputPinStates[m_iPinIndex];
 }
 
 void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraphInstance& ref_graph, double value) const
@@ -104,7 +104,7 @@ void ezAnimGraphNumberOutputPin::SetNumber(ezAnimGraphInstance& ref_graph, doubl
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    ref_graph.m_NumberInputPinStates[idx] = value;
+    ref_graph.m_pNumberInputPinStates[idx] = value;
   }
 }
 
@@ -123,7 +123,7 @@ bool ezAnimGraphBoolInputPin::GetBool(ezAnimGraphInstance& ref_graph, bool bFall
   if (m_iPinIndex < 0)
     return bFallback;
 
-  return ref_graph.m_BoolInputPinStates[m_iPinIndex];
+  return ref_graph.m_pBoolInputPinStates[m_iPinIndex];
 }
 
 void ezAnimGraphBoolOutputPin::SetBool(ezAnimGraphInstance& ref_graph, bool bValue) const
@@ -136,7 +136,7 @@ void ezAnimGraphBoolOutputPin::SetBool(ezAnimGraphInstance& ref_graph, bool bVal
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    ref_graph.m_BoolInputPinStates[idx] = bValue;
+    ref_graph.m_pBoolInputPinStates[idx] = bValue;
   }
 }
 
@@ -152,10 +152,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimGraphPinDataBoneWeights* ezAnimGraphBoneWeightsInputPin::GetWeights(ezAnimGraphInstance& ref_graph) const
 {
-  if (m_iPinIndex < 0 || ref_graph.m_BoneWeightInputPinStates[m_iPinIndex] == 0xFFFF)
+  if (m_iPinIndex < 0 || ref_graph.m_pBoneWeightInputPinStates[m_iPinIndex] == 0xFFFF)
     return nullptr;
 
-  return &ref_graph.m_PinDataBoneWeights[ref_graph.m_BoneWeightInputPinStates[m_iPinIndex]];
+  return &ref_graph.m_PinDataBoneWeights[ref_graph.m_pBoneWeightInputPinStates[m_iPinIndex]];
 }
 
 void ezAnimGraphBoneWeightsOutputPin::SetWeights(ezAnimGraphInstance& ref_graph, ezAnimGraphPinDataBoneWeights* pWeights) const
@@ -168,7 +168,7 @@ void ezAnimGraphBoneWeightsOutputPin::SetWeights(ezAnimGraphInstance& ref_graph,
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    ref_graph.m_BoneWeightInputPinStates[idx] = pWeights->m_uiOwnIndex;
+    ref_graph.m_pBoneWeightInputPinStates[idx] = pWeights->m_uiOwnIndex;
   }
 }
 
@@ -236,10 +236,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimGraphPinDataModelTransforms* ezAnimGraphModelPoseInputPin::GetPose(ezAnimGraphInstance& ref_graph) const
 {
-  if (m_iPinIndex < 0 || ref_graph.m_ModelPoseInputPinStates[m_iPinIndex] == 0xFFFF)
+  if (m_iPinIndex < 0 || ref_graph.m_pModelPoseInputPinStates[m_iPinIndex] == 0xFFFF)
     return nullptr;
 
-  return &ref_graph.m_PinDataModelTransforms[ref_graph.m_ModelPoseInputPinStates[m_iPinIndex]];
+  return &ref_graph.m_PinDataModelTransforms[ref_graph.m_pModelPoseInputPinStates[m_iPinIndex]];
 }
 
 void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraphInstance& ref_graph, ezAnimGraphPinDataModelTransforms* pPose) const
@@ -252,7 +252,7 @@ void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraphInstance& ref_graph, ezAn
   // set all input pins that are connected to this output pin
   for (ezUInt16 idx : map)
   {
-    ref_graph.m_ModelPoseInputPinStates[idx] = pPose->m_uiOwnIndex;
+    ref_graph.m_pModelPoseInputPinStates[idx] = pPose->m_uiOwnIndex;
   }
 }
 
