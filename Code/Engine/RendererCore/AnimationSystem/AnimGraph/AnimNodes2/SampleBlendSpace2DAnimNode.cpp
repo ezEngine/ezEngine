@@ -42,7 +42,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleBlendSpace2DAnimNode, 1, ezRTTIDefaultAl
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Animation Sampling"),
+      new ezCategoryAttribute("Pose Generation"),
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
       new ezTitleAttribute("BlendSpace 2D: '{CenterClip}'"),
     }

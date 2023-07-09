@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectPoseAnimNode, 1, ezRTTIDefaultAllocator<
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Pose Selection"),
+    new ezCategoryAttribute("Pose Blending"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Yellow)),
     new ezTitleAttribute("Select Pose"),
   }

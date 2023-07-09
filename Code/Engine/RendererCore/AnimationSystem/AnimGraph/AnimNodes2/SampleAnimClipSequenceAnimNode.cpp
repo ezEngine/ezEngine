@@ -31,7 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleAnimClipSequenceAnimNode, 1, ezRTTIDefau
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Animation Sampling"),
+      new ezCategoryAttribute("Pose Generation"),
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
       new ezTitleAttribute("Sample Sequence: '{StartClip}' '{Clip}' '{EndClip}'"),
     }

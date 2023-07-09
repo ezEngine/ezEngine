@@ -16,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRestPoseAnimNode, 1, ezRTTIDefaultAllocator<ez
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Animation Sampling"),
+      new ezCategoryAttribute("Pose Generation"),
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
       new ezTitleAttribute("Rest Pose"),
     }

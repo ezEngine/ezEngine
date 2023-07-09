@@ -35,7 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezControllerInputAnimNode, 1, ezRTTIDefaultAlloc
   {
     new ezCategoryAttribute("Input"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Pink)),
-    new ezTitleAttribute("XBox Controller"),
+    new ezTitleAttribute("Controller"),
   }
   EZ_END_ATTRIBUTES;
 }

@@ -10,45 +10,30 @@ ezAnimationControllerComponent;Animation Controller;;https://ezengine.net/pages/
 
 ezBoneWeightsAnimNode;Bone Weights
 
-ezCheckBlackboardValueAnimNode;Blackboard: Compare Value
-
-ezLogicAndAnimNode;Logic AND
-
-ezPlayClipAnimNode;Play Clip
-
-ezSetBlackboardValueAnimNode;Blackboard: Set Value
-
 ezControllerInputAnimNode;Controller Input
 
-ezCompareNumberAnimNode;Compare Value
+ezCompareNumberAnimNode;Compare Number
 
-ezLogicOrAnimNode;Logic OR
-
-ezMixClips2DAnimNode;Mix Clips 2D
+ezLogicNotAnimNode;NOT
+ezLogicAndAnimNode;AND
+ezLogicOrAnimNode;OR
+ezLogicEventAndAnimNode;Event AND
 
 ezAnimClip2D;Clip 2D
 
-ezModelPoseOutputAnimNode;Model Pose Output
+ezGetBlackboardNumberAnimNode;Blackboard: Get Number
+ezSetBlackboardNumberAnimNode;Blackboard: Set Number
+ezCompareBlackboardNumberAnimNode;Blackboard: Compare Number
+ezGetBlackboardBoolAnimNode;Blackboard: Get Bool
+ezSetBlackboardBoolAnimNode;Blackboard: Set Bool
+ezOnBlackboardValueChangedAnimNode;Blackboard: On Value Changed
 
-ezLocalToModelPoseAnimNode;Local-To-Model Pose
-
-ezCombinePosesAnimNode;Combine Poses
-
-ezGetBlackboardNumberAnimNode;Blackboard: Get Value
-
-ezLogAnimNode;Log
+ezLogInfoAnimNode;Log Info
+ezLogErrorAnimNode;Log Error
 
 ezSendEventAnimNode;Send Event
 
-ezLogicNotAnimNode;Logic NOT
-
 ezMathExpressionAnimNode;Expression
-
-ezMixClips1DAnimNode;Mix Clips 1D
-
-ezPlaySequenceAnimNode;Play Sequence
-
-ezOnBlackboardValueChangedAnimNode;Blackboard: On Value Changed
 
 ezLerpPosesAnimNode;Lerp Poses
 
@@ -59,3 +44,9 @@ ezSelectPoseAnimNode; Select Pose
 ezSampleBlendSpace1DAnimNode;Sample BlendSpace 1D
 ezSampleBlendSpace2DAnimNode;Sample BlendSpace 2D
 ezSwitchBoneWeightsAnimNode;Bone Weights Switch
+ezSampleAnimClipSequenceAnimNode;Sample Clip Sequence
+ezRestPoseAnimNode;Rest Pose
+
+ezBoolToNumberAnimNode;Bool To Number
+
+ezRootRotationAnimNode;Root Rotation
