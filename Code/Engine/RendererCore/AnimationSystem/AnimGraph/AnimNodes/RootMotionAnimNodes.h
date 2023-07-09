@@ -2,9 +2,9 @@
 
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 
-class EZ_RENDERERCORE_DLL ezSendEventAnimNode : public ezAnimGraphNode
+class EZ_RENDERERCORE_DLL ezRootRotationAnimNode : public ezAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSendEventAnimNode, ezAnimGraphNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRootRotationAnimNode, ezAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
   // ezAnimGraphNode
@@ -16,13 +16,14 @@ protected:
   virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSendEventAnimNode
+  // ezRootRotationAnimNode
 
 public:
-  void SetEventName(const char* szSz) { m_sEventName.Assign(szSz); }
-  const char* GetEventName() const { return m_sEventName.GetString(); }
+  ezRootRotationAnimNode();
+  ~ezRootRotationAnimNode();
 
 private:
-  ezHashedString m_sEventName;             // [ property ]
-  ezAnimGraphTriggerInputPin m_InActivate; // [ property ]
+  ezAnimGraphNumberInputPin m_InRotateX; // [ property ]
+  ezAnimGraphNumberInputPin m_InRotateY; // [ property ]
+  ezAnimGraphNumberInputPin m_InRotateZ; // [ property ]
 };

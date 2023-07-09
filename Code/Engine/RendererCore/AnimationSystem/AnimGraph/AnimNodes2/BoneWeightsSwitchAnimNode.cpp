@@ -60,14 +60,14 @@ ezResult ezSwitchBoneWeightsAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSwitchBoneWeightsAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezSwitchBoneWeightsAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutWeights.IsConnected() || !m_InIndex.IsConnected())
     return;
 
   const ezInt32 iIndex = ezMath::Clamp((ezInt32)m_InIndex.GetNumber(graph), 0, 3);
 
-  ezAnimGraphBoneWeightsInputPin* pPin[4] = {&m_InWeights0, &m_InWeights1, &m_InWeights2, &m_InWeights3};
+  const ezAnimGraphBoneWeightsInputPin* pPin[4] = {&m_InWeights0, &m_InWeights1, &m_InWeights2, &m_InWeights3};
 
   if (!pPin[iIndex]->IsConnected())
     return;

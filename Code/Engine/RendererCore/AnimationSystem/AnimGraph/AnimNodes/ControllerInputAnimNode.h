@@ -13,27 +13,30 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezControllerInputAnimNode
 
 private:
-  ezAnimGraphTriggerOutputPin m_ButtonA; // [ property ]
-  ezAnimGraphTriggerOutputPin m_ButtonB; // [ property ]
-  ezAnimGraphTriggerOutputPin m_ButtonX; // [ property ]
-  ezAnimGraphTriggerOutputPin m_ButtonY; // [ property ]
+  ezAnimGraphNumberOutputPin m_OutLeftStickX;  // [ property ]
+  ezAnimGraphNumberOutputPin m_OutLeftStickY;  // [ property ]
+  ezAnimGraphNumberOutputPin m_OutRightStickX; // [ property ]
+  ezAnimGraphNumberOutputPin m_OutRightStickY; // [ property ]
 
-  ezAnimGraphNumberOutputPin m_LeftStickX;  // [ property ]
-  ezAnimGraphNumberOutputPin m_LeftStickY;  // [ property ]
-  ezAnimGraphNumberOutputPin m_RightStickX; // [ property ]
-  ezAnimGraphNumberOutputPin m_RightStickY; // [ property ]
+  ezAnimGraphNumberOutputPin m_OutLeftTrigger;  // [ property ]
+  ezAnimGraphNumberOutputPin m_OutRightTrigger; // [ property ]
 
-  ezAnimGraphNumberOutputPin m_LeftTrigger;  // [ property ]
-  ezAnimGraphNumberOutputPin m_RightTrigger; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutButtonA; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutButtonB; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutButtonX; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutButtonY; // [ property ]
 
-  ezAnimGraphTriggerOutputPin m_LeftShoulder;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_RightShoulder; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutLeftShoulder;  // [ property ]
+  ezAnimGraphBoolOutputPin m_OutRightShoulder; // [ property ]
 
-  ezAnimGraphTriggerOutputPin m_PadLeft;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_PadRight; // [ property ]
-  ezAnimGraphTriggerOutputPin m_PadUp;    // [ property ]
-  ezAnimGraphTriggerOutputPin m_PadDown;  // [ property ]
+  ezAnimGraphBoolOutputPin m_OutPadLeft;  // [ property ]
+  ezAnimGraphBoolOutputPin m_OutPadRight; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutPadUp;    // [ property ]
+  ezAnimGraphBoolOutputPin m_OutPadDown;  // [ property ]
 };

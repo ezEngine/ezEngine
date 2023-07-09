@@ -72,23 +72,12 @@ ezResult ezMathExpressionAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezMathExpressionAnimNode::Initialize(ezAnimGraph& graph, const ezSkeletonResource* pSkeleton)
-{
-  ezMathExpression expr;
-  expr.Reset(m_sExpression);
-
-  if (!expr.IsValid() && m_ResultPin.IsConnected())
-  {
-    ezLog::Error("Math expression '{}' is invalid.", m_sExpression);
-  }
-}
-
 static ezHashedString s_sA = ezMakeHashedString("a");
 static ezHashedString s_sB = ezMakeHashedString("b");
 static ezHashedString s_sC = ezMakeHashedString("c");
 static ezHashedString s_sD = ezMakeHashedString("d");
 
-void ezMathExpressionAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezMathExpressionAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
@@ -120,5 +109,138 @@ bool ezMathExpressionAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc)
   out_desc.FillFromType<InstanceData>();
   return true;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareNumberAnimNode, 1, ezRTTIDefaultAllocator<ezCompareNumberAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ReferenceValue", m_fReferenceValue),
+    EZ_ENUM_MEMBER_PROPERTY("Comparison", ezComparisonOperator, m_Comparison),
+
+    EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("InNumber", m_InNumber)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("InReference", m_InReference)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic"),
+    new ezTitleAttribute("Compare: Number {Comparison} {ReferenceValue}"),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezResult ezCompareNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+
+  stream << m_fReferenceValue;
+  stream << m_Comparison;
+
+  EZ_SUCCEED_OR_RETURN(m_InNumber.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InReference.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
+{
+  stream.ReadVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+
+  stream >> m_fReferenceValue;
+  stream >> m_Comparison;
+
+  EZ_SUCCEED_OR_RETURN(m_InNumber.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InReference.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+void ezCompareNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  const bool bIsTrue = ezComparisonOperator::Compare<double>(m_Comparison, m_InNumber.GetNumber(graph), m_InReference.GetNumber(graph, m_fReferenceValue));
+
+  m_OutIsTrue.SetBool(graph, bIsTrue);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoolToNumberAnimNode, 1, ezRTTIDefaultAllocator<ezBoolToNumberAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("FalseValue", m_fFalseValue)->AddAttributes(new ezDefaultValueAttribute(0.0)),
+    EZ_MEMBER_PROPERTY("TrueValue", m_fTrueValue)->AddAttributes(new ezDefaultValueAttribute(1.0)),
+    EZ_MEMBER_PROPERTY("InValue", m_InValue)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutNumber", m_OutNumber)->AddAttributes(new ezHiddenAttribute),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic"),
+    new ezTitleAttribute("Bool To Number"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezBoolToNumberAnimNode::ezBoolToNumberAnimNode() = default;
+ezBoolToNumberAnimNode::~ezBoolToNumberAnimNode() = default;
+
+ezResult ezBoolToNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+
+  stream << m_fFalseValue;
+  stream << m_fTrueValue;
+
+  EZ_SUCCEED_OR_RETURN(m_InValue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutNumber.Serialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezBoolToNumberAnimNode::DeserializeNode(ezStreamReader& stream)
+{
+  stream.ReadVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+
+  stream >> m_fFalseValue;
+  stream >> m_fTrueValue;
+
+  EZ_SUCCEED_OR_RETURN(m_InValue.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutNumber.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+void ezBoolToNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  m_OutNumber.SetNumber(graph, m_InValue.GetBool(graph) ? m_fTrueValue : m_fFalseValue);
+}
+
+
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MathAnimNodes);

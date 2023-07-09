@@ -8,7 +8,7 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 
-class ezAnimGraph;
+class ezAnimGraphInstance;
 class ezAnimGraphNode;
 
 //////////////////////////////////////////////////////////////////////////
@@ -24,13 +24,12 @@ public:
   ezAnimGraphResource();
   ~ezAnimGraphResource();
 
-  void DeserializeAnimGraphState(ezAnimGraph& ref_out);
+  const ezAnimGraph& GetAnimationGraph() const { return m_AnimGraph; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  ezDataBuffer m_Storage;
-  ezAnimGraphBuilder m_AnimGraph;
+  ezAnimGraph m_AnimGraph;
 };

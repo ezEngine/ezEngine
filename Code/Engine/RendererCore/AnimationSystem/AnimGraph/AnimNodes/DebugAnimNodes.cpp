@@ -4,17 +4,17 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/DebugAnimNodes.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogAnimNode, 1, ezRTTIDefaultAllocator<ezLogAnimNode>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogAnimNode, 1, ezRTTINoAllocator)
   {
     EZ_BEGIN_PROPERTIES
     {
-      EZ_MEMBER_PROPERTY("Text", m_sText),
+      EZ_MEMBER_PROPERTY("Text", m_sText)->AddAttributes(new ezDefaultValueAttribute("Values: {0}/{1}-{3}/{4}")),
 
-      EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("Input0", m_Input0)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("Input1", m_Input1)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("Input2", m_Input2)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("Input3", m_Input3)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("InNumber0", m_InNumber0)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("InNumber1", m_InNumber1)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("InNumber2", m_InNumber2)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("InNumber3", m_InNumber3)->AddAttributes(new ezHiddenAttribute()),
     }
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
@@ -36,11 +36,11 @@ ezResult ezLogAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   stream << m_sText;
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_Input0.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_Input1.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_Input2.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_Input3.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber0.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber1.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber2.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber3.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -54,21 +54,61 @@ ezResult ezLogAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_sText;
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_Input0.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_Input1.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_Input2.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_Input3.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber0.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber1.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber2.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber3.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezLogAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogInfoAnimNode, 1, ezRTTIDefaultAllocator<ezLogInfoAnimNode>)
 {
-  if (!m_ActivePin.IsTriggered(graph))
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Log Info: '{Text}'"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+void ezLogInfoAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  if (!m_InActivate.IsTriggered(graph))
     return;
 
-  ezLog::Dev(m_sText, m_Input0.IsTriggered(graph), m_Input1.IsTriggered(graph), m_Input2.GetNumber(graph), m_Input3.GetNumber(graph));
+  ezLog::Info(m_sText, m_InNumber0.GetNumber(graph), m_InNumber1.GetNumber(graph), m_InNumber2.GetNumber(graph), m_InNumber3.GetNumber(graph));
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogErrorAnimNode, 1, ezRTTIDefaultAllocator<ezLogErrorAnimNode>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Log Error: '{Text}'"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+void ezLogErrorAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  if (!m_InActivate.IsTriggered(graph))
+    return;
+
+  ezLog::Error(m_sText, m_InNumber0.GetNumber(graph), m_InNumber1.GetNumber(graph), m_InNumber2.GetNumber(graph), m_InNumber3.GetNumber(graph));
 }
 
 

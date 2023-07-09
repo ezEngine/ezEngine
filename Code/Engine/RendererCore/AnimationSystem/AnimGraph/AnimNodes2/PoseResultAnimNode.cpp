@@ -64,7 +64,7 @@ ezResult ezPoseResultAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezPoseResultAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezPoseResultAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_InPose.IsConnected())
     return;

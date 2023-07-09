@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectPoseAnimNode, 1, ezRTTIDefaultAllocator<
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Pose Selection"),
+    new ezCategoryAttribute("Pose Blending"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Yellow)),
     new ezTitleAttribute("Select Pose"),
   }
@@ -67,7 +67,7 @@ ezResult ezSelectPoseAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSelectPoseAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezSelectPoseAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || !m_InIndex.IsConnected())
     return;

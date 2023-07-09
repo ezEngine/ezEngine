@@ -10,7 +10,7 @@
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationControllerAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationControllerAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationControllerNodePin, 1, ezRTTINoAllocator)
@@ -239,7 +239,7 @@ ezTransformStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezS
   if (allNodes.IsEmpty())
     return ezStatus(EZ_SUCCESS);
 
-  ezAnimGraphBuilder builder;
+  ezAnimGraph animGraph;
 
   ezMap<const ezDocumentObject*, const ezAnimGraphNode*> docNodeToRuntimeNode;
 
@@ -247,7 +247,7 @@ ezTransformStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezS
   {
     for (const ezDocumentObject* pNode : allNodes)
     {
-      ezAnimGraphNode* pNewNode = builder.AddNode(pNode->GetType()->GetAllocator()->Allocate<ezAnimGraphNode>());
+      ezAnimGraphNode* pNewNode = animGraph.AddNode(pNode->GetType()->GetAllocator()->Allocate<ezAnimGraphNode>());
 
       // copy all the non-hidden properties
       ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
@@ -271,19 +271,15 @@ ezTransformStatus ezAnimationControllerAssetDocument::InternalTransformAsset(ezS
           const ezAnimGraphNode* pSrcNode = docNodeToRuntimeNode[pCon->GetSourcePin().GetParent()];
           const ezAnimGraphNode* pDstNode = docNodeToRuntimeNode[pCon->GetTargetPin().GetParent()];
 
-          builder.AddConnection(pSrcNode, pCon->GetSourcePin().GetName(), pDstNode, pCon->GetTargetPin().GetName());
+          animGraph.AddConnection(pSrcNode, pCon->GetSourcePin().GetName(), pDstNode, pCon->GetTargetPin().GetName());
         }
       }
     }
   }
 
-  ezDefaultMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
+  EZ_SUCCEED_OR_RETURN(animGraph.Serialize(stream));
 
-  EZ_SUCCEED_OR_RETURN(builder.Serialize(writer));
-
-  stream << storage.GetStorageSize32();
-  return storage.CopyToStream(stream);
+  return ezTransformStatus(EZ_SUCCESS);
 }
 
 void ezAnimationControllerAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const

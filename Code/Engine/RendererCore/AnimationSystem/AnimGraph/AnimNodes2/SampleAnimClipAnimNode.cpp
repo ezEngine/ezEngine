@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleAnimClipAnimNode, 1, ezRTTIDefaultAlloca
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Animation Sampling"),
+      new ezCategoryAttribute("Pose Generation"),
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
       new ezTitleAttribute("Sample Clip: '{Clip}'"),
     }
@@ -81,14 +81,14 @@ ezResult ezSampleAnimClipAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleAnimClipAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezSampleAnimClipAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_hClip.IsValid() || !m_OutPose.IsConnected())
     return;
 
   InstanceState* pState = graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if (m_InStart.IsTriggered(graph))
+  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(graph))
   {
     pState->m_PlaybackTime = ezTime::Zero();
     pState->m_bPlaying = true;

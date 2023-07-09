@@ -11,13 +11,12 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12847930402705578174,5226840514406773140}}
-		u4 %Hash{18094697539131554048}
+		u4 %Hash{12809585158122189213}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 009efe5f-1b03-4ec4-862e-990bd04922ed }"}
-			s{"{ 04aa12d4-424a-4b41-ba13-933e3dd82140 }"}
 			s{"{ 0b119394-1fa2-433a-90b3-35c329ab4f13 }"}
 			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
 			s{"{ 60523281-7472-4f56-9d0f-daf6fa8dadc8 }"}
@@ -25,19 +24,20 @@ o
 			s{"{ 75fc3a46-9e7d-443c-8620-3cf850cfcad6 }"}
 			s{"{ 7715bf64-f2b1-4446-96a7-1fdaa5f296d9 }"}
 			s{"{ 83b78284-22ab-43f2-b971-d44a838147f6 }"}
+			s{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		}
 		VarArray %References
 		{
 			s{"{ 009efe5f-1b03-4ec4-862e-990bd04922ed }"}
-			s{"{ 04aa12d4-424a-4b41-ba13-933e3dd82140 }"}
 			s{"{ 0b119394-1fa2-433a-90b3-35c329ab4f13 }"}
 			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
 			s{"{ 60523281-7472-4f56-9d0f-daf6fa8dadc8 }"}
 			s{"{ 736eb11f-dca5-4db4-83ec-21e6636a41ee }"}
 			s{"{ 75fc3a46-9e7d-443c-8620-3cf850cfcad6 }"}
 			s{"{ 83b78284-22ab-43f2-b971-d44a838147f6 }"}
+			s{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		}
@@ -311,6 +311,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 0b119394-1fa2-433a-90b3-35c329ab4f13 }"}
+		f %SortingDepthOffset{0}
 	}
 }
 o
@@ -370,7 +371,7 @@ o
 {
 	Uuid %id{u4{12210888286877817265,5033182638839647723}}
 	s %t{"ezBlackboardComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -386,6 +387,7 @@ o
 		}
 		b %SendEntryChangedMessage{0}
 		b %ShowDebugInfo{0}
+		s %Template{""}
 	}
 }
 o
@@ -420,7 +422,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ 04aa12d4-424a-4b41-ba13-933e3dd82140 }"}
+		s %AnimController{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -746,7 +748,7 @@ o
 {
 	Uuid %id{u4{3415249745074217571,9766174659355221707}}
 	s %t{"ezBlackboardComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -762,6 +764,7 @@ o
 		}
 		b %SendEntryChangedMessage{0}
 		b %ShowDebugInfo{0}
+		s %Template{""}
 	}
 }
 o
@@ -772,7 +775,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ 04aa12d4-424a-4b41-ba13-933e3dd82140 }"}
+		s %AnimController{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -934,7 +937,7 @@ o
 {
 	Uuid %id{u4{8366835002997001499,14593468976114128491}}
 	s %t{"ezBlackboardComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -950,6 +953,7 @@ o
 		}
 		b %SendEntryChangedMessage{0}
 		b %ShowDebugInfo{0}
+		s %Template{""}
 	}
 }
 o
@@ -960,7 +964,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ 04aa12d4-424a-4b41-ba13-933e3dd82140 }"}
+		s %AnimController{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -1013,7 +1017,7 @@ o
 {
 	Uuid %id{u4{6927543966679754507,15385613456717700457}}
 	s %t{"ezBlackboardComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -1029,6 +1033,7 @@ o
 		}
 		b %SendEntryChangedMessage{0}
 		b %ShowDebugInfo{0}
+		s %Template{""}
 	}
 }
 o
@@ -1039,7 +1044,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ 04aa12d4-424a-4b41-ba13-933e3dd82140 }"}
+		s %AnimController{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
 		s %RootMotionMode{"ezRootMotionMode::Ignore"}
 	}
@@ -1293,7 +1298,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBlackboardComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -1344,7 +1349,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o

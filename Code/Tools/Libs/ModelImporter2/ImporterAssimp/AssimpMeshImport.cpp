@@ -182,7 +182,7 @@ namespace ezModelImporter2
           if (bone.Value().m_uiBoneIndex == uiBoneId[b])
           {
             // move the vertex into local space of the bone, then determine how far it is away from the bone
-            const ezVec3 vOffPos = bone.Value().m_GlobalInverseBindPoseMatrix * vVertexPos;
+            const ezVec3 vOffPos = bone.Value().m_GlobalInverseRestPoseMatrix * vVertexPos;
             const float length = vOffPos.GetLength();
 
             if (length > inout_fMaxBoneOffset)
@@ -330,7 +330,7 @@ namespace ezModelImporter2
       EZ_VERIFY(invPose.Invert(0.0f).Succeeded(), "Inverting the bind pose matrix failed");
 
       hs.Assign(pBone->mName.C_Str());
-      ref_mrd.m_Bones[hs].m_GlobalInverseBindPoseMatrix = invPose;
+      ref_mrd.m_Bones[hs].m_GlobalInverseRestPoseMatrix = invPose;
     }
   }
 

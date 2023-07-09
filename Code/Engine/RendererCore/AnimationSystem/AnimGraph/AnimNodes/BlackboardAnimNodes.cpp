@@ -3,25 +3,25 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/BlackboardAnimNodes.h>
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardValueAnimNode, 1, ezRTTIDefaultAllocator<ezSetBlackboardValueAnimNode>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardNumberAnimNode, 1, ezRTTIDefaultAllocator<ezSetBlackboardNumberAnimNode>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
-    EZ_MEMBER_PROPERTY("SetOnActivation", m_bSetOnActivation)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ActivationValue", m_fOnActivatedValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("SetOnHold", m_bSetOnHold)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("HoldValue", m_fOnHoldValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("SetOnDeactivation", m_bSetOnDeactivation)->AddAttributes(new ezDefaultValueAttribute(false)),
-    EZ_MEMBER_PROPERTY("DeactivationValue", m_fOnDeactivatedValue)->AddAttributes(new ezDefaultValueAttribute(0.0f)),
+    EZ_MEMBER_PROPERTY("Number", m_fNumber),
 
-    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("InNumber", m_InNumber)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezTitleAttribute("Set: '{BlackboardEntry}' '{ActivationValue}''"),
+    new ezTitleAttribute("Set Number: '{BlackboardEntry}'"),
     new ezCategoryAttribute("Blackboard"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
   }
@@ -30,232 +30,64 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardValueAnimNode, 1, ezRTTIDefaultAl
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezSetBlackboardValueAnimNode::SerializeNode(ezStreamWriter& stream) const
+ezResult ezSetBlackboardNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_sBlackboardEntry;
-  stream << m_fOnActivatedValue;
-  stream << m_fOnHoldValue;
-  stream << m_fOnDeactivatedValue;
-  stream << m_bSetOnActivation;
-  stream << m_bSetOnHold;
-  stream << m_bSetOnDeactivation;
+  stream << m_fNumber;
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber.Serialize(stream));
 
   return EZ_SUCCESS;
 }
 
-ezResult ezSetBlackboardValueAnimNode::DeserializeNode(ezStreamReader& stream)
+ezResult ezSetBlackboardNumberAnimNode::DeserializeNode(ezStreamReader& stream)
 {
   stream.ReadVersion(1);
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_sBlackboardEntry;
-  stream >> m_fOnActivatedValue;
-  stream >> m_fOnHoldValue;
-  stream >> m_fOnDeactivatedValue;
-  stream >> m_bSetOnActivation;
-  stream >> m_bSetOnHold;
-  stream >> m_bSetOnDeactivation;
+  stream >> m_fNumber;
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InNumber.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezSetBlackboardValueAnimNode::SetBlackboardEntry(const char* szFile)
+void ezSetBlackboardNumberAnimNode::SetBlackboardEntry(const char* szFile)
 {
   m_sBlackboardEntry.Assign(szFile);
 }
 
-const char* ezSetBlackboardValueAnimNode::GetBlackboardEntry() const
+const char* ezSetBlackboardNumberAnimNode::GetBlackboardEntry() const
 {
   return m_sBlackboardEntry.GetData();
 }
 
-bool ezSetBlackboardValueAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+void ezSetBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  out_desc.FillFromType<InstanceData>();
-  return true;
-}
+  if (!m_InActivate.IsTriggered(graph))
+    return;
 
-void ezSetBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
-{
   auto pBlackboard = graph.GetBlackboard();
   if (pBlackboard == nullptr)
-  {
-    ezLog::Warning("No blackboard available for the animation controller graph to use.");
     return;
-  }
 
-  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
-
-  const bool bIsActiveNow = m_ActivePin.IsTriggered(graph);
-
-  if (bIsActiveNow != pInstance->m_bLastActiveState)
+  if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InNumber.GetNumber(graph, m_fNumber)).Failed())
   {
-    pInstance->m_bLastActiveState = bIsActiveNow;
-
-    if (bIsActiveNow)
-    {
-      if (m_bSetOnActivation)
-      {
-        if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_fOnActivatedValue).Failed())
-        {
-          ezLog::Warning("Can't set blackboard value '{}', it isn't known.", m_sBlackboardEntry);
-        }
-      }
-    }
-    else
-    {
-      if (m_bSetOnDeactivation)
-      {
-        if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_fOnDeactivatedValue).Failed())
-        {
-          ezLog::Warning("Can't set blackboard value '{}', it isn't known.", m_sBlackboardEntry);
-        }
-      }
-    }
-  }
-  else if (bIsActiveNow && m_bSetOnHold)
-  {
-    if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_fOnHoldValue).Failed())
-    {
-      ezLog::Warning("Can't set blackboard value '{}', it isn't known.", m_sBlackboardEntry);
-    }
+    ezLog::Warning("AnimController::SetBlackboardNumber: '{}' doesn't exist.", m_sBlackboardEntry);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCheckBlackboardValueAnimNode, 1, ezRTTIDefaultAllocator<ezCheckBlackboardValueAnimNode>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
-    EZ_MEMBER_PROPERTY("ReferenceValue", m_fReferenceValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_ENUM_MEMBER_PROPERTY("Comparison", ezComparisonOperator, m_Comparison),
-
-    EZ_MEMBER_PROPERTY("Active", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("OnActived", m_OnActivedPin)->AddAttributes(new ezHiddenAttribute()),
-  }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Blackboard"),
-    new ezTitleAttribute("Compare: '{BlackboardEntry}' {Comparison} {ReferenceValue}"),
-    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
-  }
-  EZ_END_ATTRIBUTES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezResult ezCheckBlackboardValueAnimNode::SerializeNode(ezStreamWriter& stream) const
-{
-  stream.WriteVersion(2);
-
-  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
-
-  stream << m_sBlackboardEntry;
-  stream << m_fReferenceValue;
-  stream << m_Comparison;
-
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_OnActivedPin.Serialize(stream));
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezCheckBlackboardValueAnimNode::DeserializeNode(ezStreamReader& stream)
-{
-  const auto version = stream.ReadVersion(2);
-
-  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
-
-  stream >> m_sBlackboardEntry;
-  stream >> m_fReferenceValue;
-  stream >> m_Comparison;
-
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
-
-  if (version >= 2)
-  {
-    EZ_SUCCEED_OR_RETURN(m_OnActivedPin.Deserialize(stream));
-  }
-
-  return EZ_SUCCESS;
-}
-
-void ezCheckBlackboardValueAnimNode::SetBlackboardEntry(const char* szFile)
-{
-  m_sBlackboardEntry.Assign(szFile);
-}
-
-const char* ezCheckBlackboardValueAnimNode::GetBlackboardEntry() const
-{
-  return m_sBlackboardEntry.GetData();
-}
-
-void ezCheckBlackboardValueAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
-{
-  auto pBlackboard = graph.GetBlackboard();
-  if (pBlackboard == nullptr)
-  {
-    ezLog::Warning("No blackboard available for the animation controller graph to use.");
-    return;
-  }
-
-  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
-
-  float fValue = 0.0f;
-  if (!m_sBlackboardEntry.IsEmpty())
-  {
-    ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
-
-    if (value.IsValid() && value.IsNumber())
-    {
-      fValue = value.ConvertTo<float>();
-    }
-    else
-    {
-      ezLog::Warning("Blackboard entry '{}' doesn't exist.", m_sBlackboardEntry);
-      return;
-    }
-  }
-
-  const bool bIsActiveNow = ezComparisonOperator::Compare(m_Comparison, fValue, m_fReferenceValue);
-
-  if (bIsActiveNow)
-  {
-    m_ActivePin.SetTriggered(graph);
-  }
-
-  if (pInstance->m_bIsActive != bIsActiveNow)
-  {
-    pInstance->m_bIsActive = bIsActiveNow;
-
-    if (pInstance->m_bIsActive)
-    {
-      m_OnActivedPin.SetTriggered(graph);
-    }
-  }
-}
-
-bool ezCheckBlackboardValueAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
-{
-  out_desc.FillFromType<InstanceData>();
-  return true;
-}
-
 //////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGetBlackboardNumberAnimNode, 1, ezRTTIDefaultAllocator<ezGetBlackboardNumberAnimNode>)
@@ -264,13 +96,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGetBlackboardNumberAnimNode, 1, ezRTTIDefaultA
   {
     EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
 
-    EZ_MEMBER_PROPERTY("Number", m_NumberPin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutNumber", m_OutNumber)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Blackboard"),
-    new ezTitleAttribute("Get: '{BlackboardEntry}'"),
+    new ezTitleAttribute("Get Number: '{BlackboardEntry}'"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
   }
   EZ_END_ATTRIBUTES;
@@ -286,7 +118,7 @@ ezResult ezGetBlackboardNumberAnimNode::SerializeNode(ezStreamWriter& stream) co
 
   stream << m_sBlackboardEntry;
 
-  EZ_SUCCEED_OR_RETURN(m_NumberPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutNumber.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -299,7 +131,7 @@ ezResult ezGetBlackboardNumberAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_sBlackboardEntry;
 
-  EZ_SUCCEED_OR_RETURN(m_NumberPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutNumber.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -314,37 +146,231 @@ const char* ezGetBlackboardNumberAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezGetBlackboardNumberAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezGetBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   auto pBlackboard = graph.GetBlackboard();
   if (pBlackboard == nullptr)
+    return;
+
+  if (m_sBlackboardEntry.IsEmpty())
+    return;
+
+  ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
+
+  if (!value.IsValid() || !value.IsNumber())
   {
-    ezLog::Warning("No blackboard available for the animation controller graph to use.");
+    ezLog::Warning("AnimController::GetBlackboardNumber: '{}' doesn't exist or isn't a number type.", m_sBlackboardEntry);
     return;
   }
 
-  double fValue = 0.0f;
-
-  if (!m_sBlackboardEntry.IsEmpty())
-  {
-    ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
-
-    if (value.IsValid() && value.IsNumber())
-    {
-      fValue = value.ConvertTo<double>();
-    }
-    else
-    {
-      ezLog::Warning("Blackboard entry '{}' doesn't exist or isn't a number type.", m_sBlackboardEntry);
-      return;
-    }
-  }
-
-  m_NumberPin.SetNumber(graph, fValue);
+  m_OutNumber.SetNumber(graph, value.ConvertTo<double>());
 }
 
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareBlackboardNumberAnimNode, 1, ezRTTIDefaultAllocator<ezCompareBlackboardNumberAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_MEMBER_PROPERTY("ReferenceValue", m_fReferenceValue),
+    EZ_ENUM_MEMBER_PROPERTY("Comparison", ezComparisonOperator, m_Comparison),
+
+    EZ_MEMBER_PROPERTY("OutOnTrue", m_OutOnTrue)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutOnFalse", m_OutOnFalse)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Blackboard"),
+    new ezTitleAttribute("Compare: '{BlackboardEntry}' {Comparison} {ReferenceValue}"),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezResult ezCompareBlackboardNumberAnimNode::SerializeNode(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(2);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+
+  stream << m_sBlackboardEntry;
+  stream << m_fReferenceValue;
+  stream << m_Comparison;
+
+  EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezCompareBlackboardNumberAnimNode::DeserializeNode(ezStreamReader& stream)
+{
+  const auto version = stream.ReadVersion(2);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+
+  stream >> m_sBlackboardEntry;
+  stream >> m_fReferenceValue;
+  stream >> m_Comparison;
+
+  EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+void ezCompareBlackboardNumberAnimNode::SetBlackboardEntry(const char* szFile)
+{
+  m_sBlackboardEntry.Assign(szFile);
+}
+
+const char* ezCompareBlackboardNumberAnimNode::GetBlackboardEntry() const
+{
+  return m_sBlackboardEntry.GetData();
+}
+
+void ezCompareBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  auto pBlackboard = graph.GetBlackboard();
+  if (pBlackboard == nullptr)
+    return;
+
+  if (m_sBlackboardEntry.IsEmpty())
+    return;
+
+  const ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
+
+  if (!value.IsValid() || !value.IsNumber())
+  {
+    ezLog::Warning("AnimController::CompareBlackboardNumber: '{}' doesn't exist or isn't a number type.", m_sBlackboardEntry);
+    return;
+  }
+
+  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+
+  const double fValue = value.ConvertTo<double>();
+  const bool bIsTrueNow = ezComparisonOperator::Compare(m_Comparison, fValue, m_fReferenceValue);
+  const ezInt8 iIsTrueNow = bIsTrueNow ? 1 : 0;
+
+  m_OutIsTrue.SetBool(graph, bIsTrueNow);
+
+  // we use a tri-state bool here to ensure that OnTrue or OnFalse get fired right away
+  if (pInstance->m_iIsTrue != iIsTrueNow)
+  {
+    pInstance->m_iIsTrue = iIsTrueNow;
+
+    if (bIsTrueNow)
+    {
+      m_OutOnTrue.SetTriggered(graph);
+    }
+    else
+    {
+      m_OutOnFalse.SetTriggered(graph);
+    }
+  }
+}
+
+bool ezCompareBlackboardNumberAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+{
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardBoolAnimNode, 1, ezRTTIDefaultAllocator<ezSetBlackboardBoolAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+    EZ_MEMBER_PROPERTY("Bool", m_bBool),
+
+    EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Set Bool: '{BlackboardEntry}'"),
+    new ezCategoryAttribute("Blackboard"),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezResult ezSetBlackboardBoolAnimNode::SerializeNode(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+
+  stream << m_sBlackboardEntry;
+  stream << m_bBool;
+
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool.Serialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezSetBlackboardBoolAnimNode::DeserializeNode(ezStreamReader& stream)
+{
+  stream.ReadVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+
+  stream >> m_sBlackboardEntry;
+  stream >> m_bBool;
+
+  EZ_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_InBool.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+void ezSetBlackboardBoolAnimNode::SetBlackboardEntry(const char* szFile)
+{
+  m_sBlackboardEntry.Assign(szFile);
+}
+
+const char* ezSetBlackboardBoolAnimNode::GetBlackboardEntry() const
+{
+  return m_sBlackboardEntry.GetData();
+}
+
+void ezSetBlackboardBoolAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  if (!m_InActivate.IsTriggered(graph))
+    return;
+
+  auto pBlackboard = graph.GetBlackboard();
+  if (pBlackboard == nullptr)
+    return;
+
+  if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InBool.GetBool(graph, m_bBool)).Failed())
+  {
+    ezLog::Warning("AnimController::SetBlackboardBool: '{}' doesn't exist.", m_sBlackboardEntry);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGetBlackboardBoolAnimNode, 1, ezRTTIDefaultAllocator<ezGetBlackboardBoolAnimNode>)
@@ -353,13 +379,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGetBlackboardBoolAnimNode, 1, ezRTTIDefaultAll
   {
     EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
 
-    EZ_MEMBER_PROPERTY("Bool", m_BoolPin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutBool", m_OutBool)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Blackboard"),
-    new ezTitleAttribute("Get: '{BlackboardEntry}'"),
+    new ezTitleAttribute("Get Bool: '{BlackboardEntry}'"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
   }
   EZ_END_ATTRIBUTES;
@@ -375,7 +401,7 @@ ezResult ezGetBlackboardBoolAnimNode::SerializeNode(ezStreamWriter& stream) cons
 
   stream << m_sBlackboardEntry;
 
-  EZ_SUCCEED_OR_RETURN(m_BoolPin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutBool.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -388,7 +414,7 @@ ezResult ezGetBlackboardBoolAnimNode::DeserializeNode(ezStreamReader& stream)
 
   stream >> m_sBlackboardEntry;
 
-  EZ_SUCCEED_OR_RETURN(m_BoolPin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutBool.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -403,37 +429,30 @@ const char* ezGetBlackboardBoolAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezGetBlackboardBoolAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezGetBlackboardBoolAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   auto pBlackboard = graph.GetBlackboard();
   if (pBlackboard == nullptr)
+    return;
+
+  if (m_sBlackboardEntry.IsEmpty())
+    return;
+
+  ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
+
+  if (!value.IsValid() || !value.CanConvertTo<bool>())
   {
-    ezLog::Warning("No blackboard available for the animation controller graph to use.");
+    ezLog::Warning("AnimController::GetBlackboardBool: '{}' doesn't exist or can't be converted to bool.", m_sBlackboardEntry);
     return;
   }
 
-  bool bValue = false;
-
-  if (!m_sBlackboardEntry.IsEmpty())
-  {
-    ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
-
-    if (value.IsValid() && value.IsA<bool>())
-    {
-      bValue = value.Get<bool>();
-    }
-    else
-    {
-      ezLog::Warning("Blackboard entry '{}' doesn't exist or isn't of type bool.", m_sBlackboardEntry);
-      return;
-    }
-  }
-
-  m_BoolPin.SetBool(graph, bValue);
+  m_OutBool.SetBool(graph, value.ConvertTo<bool>());
 }
 
-
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOnBlackboardValueChangedAnimNode, 1, ezRTTIDefaultAllocator<ezOnBlackboardValueChangedAnimNode>)
@@ -442,7 +461,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOnBlackboardValueChangedAnimNode, 1, ezRTTIDef
   {
     EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
 
-    EZ_MEMBER_PROPERTY("OnActived", m_ActivePin)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutOnValueChanged", m_OutOnValueChanged)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -464,7 +483,7 @@ ezResult ezOnBlackboardValueChangedAnimNode::SerializeNode(ezStreamWriter& strea
 
   stream << m_sBlackboardEntry;
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnValueChanged.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -477,7 +496,7 @@ ezResult ezOnBlackboardValueChangedAnimNode::DeserializeNode(ezStreamReader& str
 
   stream >> m_sBlackboardEntry;
 
-  EZ_SUCCEED_OR_RETURN(m_ActivePin.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnValueChanged.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -492,14 +511,11 @@ const char* ezOnBlackboardValueChangedAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezOnBlackboardValueChangedAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezOnBlackboardValueChangedAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   auto pBlackboard = graph.GetBlackboard();
   if (pBlackboard == nullptr)
-  {
-    ezLog::Warning("No blackboard available for the animation controller graph to use.");
     return;
-  }
 
   if (m_sBlackboardEntry.IsEmpty())
     return;
@@ -508,26 +524,21 @@ void ezOnBlackboardValueChangedAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, 
 
   if (pEntry == nullptr)
   {
-    ezLog::Warning("Blackboard entry '{}' doesn't exist.", m_sBlackboardEntry);
+    ezLog::Warning("AnimController::OnBlackboardValueChanged: '{}' doesn't exist.", m_sBlackboardEntry);
     return;
   }
 
   InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
-  if (pInstance->m_uiChangeCounter == ezInvalidIndex)
+  if (pInstance->m_uiChangeCounter == pEntry->m_uiChangeCounter)
+    return;
+
+  if (pInstance->m_uiChangeCounter != ezInvalidIndex)
   {
-    pInstance->m_uiChangeCounter = pEntry->m_uiChangeCounter;
+    m_OutOnValueChanged.SetTriggered(graph);
   }
 
-  if (pInstance->m_uiChangeCounter != pEntry->m_uiChangeCounter)
-  {
-    pInstance->m_uiChangeCounter = pEntry->m_uiChangeCounter;
-    m_ActivePin.SetTriggered(graph, true);
-  }
-  else
-  {
-    m_ActivePin.SetTriggered(graph, false);
-  }
+  pInstance->m_uiChangeCounter = pEntry->m_uiChangeCounter;
 }
 
 bool ezOnBlackboardValueChangedAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const

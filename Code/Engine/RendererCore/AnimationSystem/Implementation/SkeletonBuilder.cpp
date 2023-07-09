@@ -7,23 +7,23 @@
 ezSkeletonBuilder::ezSkeletonBuilder() = default;
 ezSkeletonBuilder::~ezSkeletonBuilder() = default;
 
-ezUInt16 ezSkeletonBuilder::AddJoint(ezStringView sName, const ezTransform& localBindPose, ezUInt16 uiParentIndex /*= ezInvalidJointIndex*/)
+ezUInt16 ezSkeletonBuilder::AddJoint(ezStringView sName, const ezTransform& localRestPose, ezUInt16 uiParentIndex /*= ezInvalidJointIndex*/)
 {
   EZ_ASSERT_DEV(uiParentIndex == ezInvalidJointIndex || uiParentIndex < m_Joints.GetCount(), "Invalid parent index for joint");
 
   auto& joint = m_Joints.ExpandAndGetRef();
 
-  joint.m_BindPoseLocal = localBindPose;
-  joint.m_BindPoseGlobal = localBindPose;
+  joint.m_RestPoseLocal = localRestPose;
+  joint.m_RestPoseGlobal = localRestPose;
   joint.m_sName.Assign(sName);
   joint.m_uiParentIndex = uiParentIndex;
 
   if (uiParentIndex != ezInvalidJointIndex)
   {
-    joint.m_BindPoseGlobal = m_Joints[joint.m_uiParentIndex].m_BindPoseGlobal * joint.m_BindPoseLocal;
+    joint.m_RestPoseGlobal = m_Joints[joint.m_uiParentIndex].m_RestPoseGlobal * joint.m_RestPoseLocal;
   }
 
-  joint.m_InverseBindPoseGlobal = joint.m_BindPoseGlobal.GetInverse();
+  joint.m_InverseRestPoseGlobal = joint.m_RestPoseGlobal.GetInverse();
 
   return static_cast<ezUInt16>(m_Joints.GetCount() - 1);
 }
@@ -66,7 +66,7 @@ void ezSkeletonBuilder::BuildSkeleton(ezSkeleton& ref_skeleton) const
   {
     ref_skeleton.m_Joints[i].m_sName = m_Joints[i].m_sName;
     ref_skeleton.m_Joints[i].m_uiParentIndex = m_Joints[i].m_uiParentIndex;
-    ref_skeleton.m_Joints[i].m_BindPoseLocal = m_Joints[i].m_BindPoseLocal;
+    ref_skeleton.m_Joints[i].m_RestPoseLocal = m_Joints[i].m_RestPoseLocal;
 
     ref_skeleton.m_Joints[i].m_JointType = m_Joints[i].m_JointType;
     ref_skeleton.m_Joints[i].m_qLocalJointOrientation = m_Joints[i].m_qLocalJointOrientation;

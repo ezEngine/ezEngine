@@ -2,9 +2,9 @@
 
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 
-class EZ_RENDERERCORE_DLL ezSetBlackboardValueAnimNode : public ezAnimGraphNode
+class EZ_RENDERERCORE_DLL ezSetBlackboardNumberAnimNode : public ezAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSetBlackboardValueAnimNode, ezAnimGraphNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSetBlackboardNumberAnimNode, ezAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
   // ezAnimGraphNode
@@ -13,70 +13,21 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSetBlackboardValueAnimNode
+  // ezSetBlackboardNumberAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
-  float m_fOnActivatedValue = 1.0f;   // [ property ]
-  float m_fOnHoldValue = 1.0f;        // [ property ]
-  float m_fOnDeactivatedValue = 0.0f; // [ property ]
-  bool m_bSetOnActivation = true;     // [ property ]
-  bool m_bSetOnHold = false;          // [ property ]
-  bool m_bSetOnDeactivation = false;  // [ property ]
+  double m_fNumber = 0.0f; // [ property ]
 
 private:
-  ezAnimGraphTriggerInputPin m_ActivePin; // [ property ]
-  ezHashedString m_sBlackboardEntry;      // [ property ]
-
-  struct InstanceData
-  {
-    bool m_bLastActiveState = false;
-  };
-};
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_RENDERERCORE_DLL ezCheckBlackboardValueAnimNode : public ezAnimGraphNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCheckBlackboardValueAnimNode, ezAnimGraphNode);
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezAnimGraphNode
-
-protected:
-  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
-  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
-
-  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
-  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezCheckBlackboardValueAnimNode
-
-public:
-  void SetBlackboardEntry(const char* szEntry); // [ property ]
-  const char* GetBlackboardEntry() const;       // [ property ]
-
-  float m_fReferenceValue = 1.0f;            // [ property ]
-  ezEnum<ezComparisonOperator> m_Comparison; // [ property ]
-
-private:
-  ezAnimGraphTriggerOutputPin m_ActivePin;    // [ property ]
-  ezAnimGraphTriggerOutputPin m_OnActivedPin; // [ property ]
-  ezHashedString m_sBlackboardEntry;          // [ property ]
-
-  struct InstanceData
-  {
-    bool m_bIsActive = false;
-  };
+  ezAnimGraphTriggerInputPin m_InActivate; // [ property ]
+  ezAnimGraphNumberInputPin m_InNumber;    // [ property ]
+  ezHashedString m_sBlackboardEntry;       // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -94,18 +45,90 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCheckBlackboardValueAnimNode
+  // ezGetBlackboardNumberAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezAnimGraphNumberOutputPin m_NumberPin; // [ property ]
   ezHashedString m_sBlackboardEntry;      // [ property ]
+  ezAnimGraphNumberOutputPin m_OutNumber; // [ property ]
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_RENDERERCORE_DLL ezCompareBlackboardNumberAnimNode : public ezAnimGraphNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCompareBlackboardNumberAnimNode, ezAnimGraphNode);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezAnimGraphNode
+
+protected:
+  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
+  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+
+  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezCompareBlackboardNumberAnimNode
+
+public:
+  void SetBlackboardEntry(const char* szEntry); // [ property ]
+  const char* GetBlackboardEntry() const;       // [ property ]
+
+  double m_fReferenceValue = 0.0;            // [ property ]
+  ezEnum<ezComparisonOperator> m_Comparison; // [ property ]
+
+private:
+  ezHashedString m_sBlackboardEntry;        // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnTrue;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFalse; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsTrue;     // [ property ]
+
+  struct InstanceData
+  {
+    ezInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
+  };
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_RENDERERCORE_DLL ezSetBlackboardBoolAnimNode : public ezAnimGraphNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSetBlackboardBoolAnimNode, ezAnimGraphNode);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezAnimGraphNode
+
+protected:
+  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
+  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+
+  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSetBlackboardBoolAnimNode
+
+public:
+  void SetBlackboardEntry(const char* szEntry); // [ property ]
+  const char* GetBlackboardEntry() const;       // [ property ]
+
+  bool m_bBool = false; // [ property ]
+
+private:
+  ezHashedString m_sBlackboardEntry;       // [ property ]
+  ezAnimGraphTriggerInputPin m_InActivate; // [ property ]
+  ezAnimGraphBoolInputPin m_InBool;        // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -123,18 +146,18 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCheckBlackboardValueAnimNode
+  // ezGetBlackboardBoolAnimNode
 
 public:
   void SetBlackboardEntry(const char* szEntry); // [ property ]
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezAnimGraphBoolOutputPin m_BoolPin; // [ property ]
   ezHashedString m_sBlackboardEntry;  // [ property ]
+  ezAnimGraphBoolOutputPin m_OutBool; // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -152,7 +175,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) override;
+  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -163,8 +186,8 @@ public:
   const char* GetBlackboardEntry() const;       // [ property ]
 
 private:
-  ezAnimGraphTriggerOutputPin m_ActivePin; // [ property ]
-  ezHashedString m_sBlackboardEntry;       // [ property ]
+  ezHashedString m_sBlackboardEntry;               // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnValueChanged; // [ property ]
 
   struct InstanceData
   {

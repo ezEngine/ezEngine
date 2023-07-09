@@ -534,7 +534,7 @@ void ezMeshResourceDescriptor::ComputeBounds()
 
 ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream << m_GlobalInverseBindPoseMatrix;
+  inout_stream << m_GlobalInverseRestPoseMatrix;
   inout_stream << m_uiBoneIndex;
 
   return EZ_SUCCESS;
@@ -542,7 +542,7 @@ ezResult ezMeshResourceDescriptor::BoneData::Serialize(ezStreamWriter& inout_str
 
 ezResult ezMeshResourceDescriptor::BoneData::Deserialize(ezStreamReader& inout_stream)
 {
-  inout_stream >> m_GlobalInverseBindPoseMatrix;
+  inout_stream >> m_GlobalInverseRestPoseMatrix;
   inout_stream >> m_uiBoneIndex;
 
   return EZ_SUCCESS;

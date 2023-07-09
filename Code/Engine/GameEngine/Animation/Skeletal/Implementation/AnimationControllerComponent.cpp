@@ -98,9 +98,7 @@ void ezAnimationControllerComponent::OnSimulationStarted()
   if (pAnimController.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  pAnimController->DeserializeAnimGraphState(m_AnimationGraph);
-
-  m_AnimationGraph.Configure(msg.m_hSkeleton, m_PoseGenerator, ezBlackboardComponent::FindBlackboard(GetOwner()));
+  m_AnimationGraph.Configure(pAnimController->GetAnimationGraph(), msg.m_hSkeleton, m_PoseGenerator, ezBlackboardComponent::FindBlackboard(GetOwner()));
 }
 
 void ezAnimationControllerComponent::Update()

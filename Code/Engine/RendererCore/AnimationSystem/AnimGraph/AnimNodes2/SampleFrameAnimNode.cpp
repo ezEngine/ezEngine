@@ -22,7 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleFrameAnimNode, 1, ezRTTIDefaultAllocator
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Animation Sampling"),
+      new ezCategoryAttribute("Pose Generation"),
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
       new ezTitleAttribute("Sample Frame: '{Clip}'"),
     }
@@ -63,43 +63,62 @@ ezResult ezSampleFrameAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleFrameAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezSampleFrameAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_hClip.IsValid() || !m_OutPose.IsConnected())
+  if (!m_OutPose.IsConnected())
     return;
 
-  ezResourceLock<ezAnimationClipResource> pAnimClip(m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
-
-  float fNormPos = fNormPos = m_InNormalizedSamplePosition.GetNumber(graph, m_fNormalizedSamplePosition);
-
-  if (m_InAbsoluteSamplePosition.IsConnected())
+  if (m_hClip.IsValid())
   {
-    const ezTime tDuration = pAnimClip->GetDescriptor().GetDuration();
-    const float fInvDuration = 1.0f / tDuration.AsFloatInSeconds();
-    fNormPos = m_InAbsoluteSamplePosition.GetNumber(graph) * fInvDuration;
+    ezResourceLock<ezAnimationClipResource> pAnimClip(m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
+      return;
+
+    float fNormPos = fNormPos = m_InNormalizedSamplePosition.GetNumber(graph, m_fNormalizedSamplePosition);
+
+    if (m_InAbsoluteSamplePosition.IsConnected())
+    {
+      const ezTime tDuration = pAnimClip->GetDescriptor().GetDuration();
+      const float fInvDuration = 1.0f / tDuration.AsFloatInSeconds();
+      fNormPos = m_InAbsoluteSamplePosition.GetNumber(graph) * fInvDuration;
+    }
+
+    fNormPos = ezMath::Clamp(fNormPos, 0.0f, 1.0f);
+
+    const void* pThis = this;
+    auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
+
+    cmd.m_hAnimationClip = m_hClip;
+    cmd.m_fPreviousNormalizedSamplePos = fNormPos;
+    cmd.m_fNormalizedSamplePos = fNormPos;
+    cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
+
+    {
+      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+
+      pLocalTransforms->m_pWeights = nullptr;
+      pLocalTransforms->m_bUseRootMotion = false;
+      pLocalTransforms->m_fOverallWeight = 1.0f;
+      pLocalTransforms->m_CommandID = cmd.GetCommandID();
+
+      m_OutPose.SetPose(graph, pLocalTransforms);
+    }
   }
-
-  fNormPos = ezMath::Clamp(fNormPos, 0.0f, 1.0f);
-
-  const void* pThis = this;
-  auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
-
-  cmd.m_hAnimationClip = m_hClip;
-  cmd.m_fPreviousNormalizedSamplePos = fNormPos;
-  cmd.m_fNormalizedSamplePos = fNormPos;
-  cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
-
+  else
   {
-    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+    const void* pThis = this;
+    auto& cmd = graph.GetPoseGenerator().AllocCommandRestPose();
 
-    pLocalTransforms->m_pWeights = nullptr;
-    pLocalTransforms->m_bUseRootMotion = false;
-    pLocalTransforms->m_fOverallWeight = 1.0f;
-    pLocalTransforms->m_CommandID = cmd.GetCommandID();
+    {
+      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
 
-    m_OutPose.SetPose(graph, pLocalTransforms);
+      pLocalTransforms->m_pWeights = nullptr;
+      pLocalTransforms->m_bUseRootMotion = false;
+      pLocalTransforms->m_fOverallWeight = 1.0f;
+      pLocalTransforms->m_CommandID = cmd.GetCommandID();
+
+      m_OutPose.SetPose(graph, pLocalTransforms);
+    }
   }
 }
 

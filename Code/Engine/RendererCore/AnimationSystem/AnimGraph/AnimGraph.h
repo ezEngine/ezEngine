@@ -3,19 +3,19 @@
 #include <RendererCore/RendererCoreDLL.h>
 
 #include <Core/Utils/Blackboard.h>
+#include <Foundation/Containers/Blob.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Memory/InstanceDataAllocator.h>
 #include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 
-#include <Foundation/Containers/Blob.h>
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Containers/HashTable.h>
-#include <Foundation/Memory/InstanceDataAllocator.h>
-#include <Foundation/Types/SharedPtr.h>
-
 class ezGameObject;
+class ezAnimGraph;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
@@ -49,22 +49,20 @@ struct ezAnimGraphPinDataModelTransforms
   bool m_bUseRootMotion = false;
 };
 
-class EZ_RENDERERCORE_DLL ezAnimGraph
+class EZ_RENDERERCORE_DLL ezAnimGraphInstance
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezAnimGraph);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezAnimGraphInstance);
 
 public:
-  ezAnimGraph();
-  ~ezAnimGraph();
+  ezAnimGraphInstance();
+  ~ezAnimGraphInstance();
 
-  void Configure(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard = nullptr);
+  void Configure(const ezAnimGraph& animGraph, const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard = nullptr);
 
   void Update(ezTime diff, ezGameObject* pTarget);
   void GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rotationX, ezAngle& ref_rotationY, ezAngle& ref_rotationZ) const;
 
   const ezSharedPtr<ezBlackboard>& GetBlackboard() { return m_pBlackboard; }
-
-  ezResult Deserialize(ezStreamReader& inout_stream, ezArrayPtr<ezUniquePtr<ezAnimGraphNode>> allNodes);
 
   ezAnimPoseGenerator& GetPoseGenerator() { return *m_pPoseGenerator; }
 
@@ -79,8 +77,6 @@ public:
 
   void AddOutputLocalTransforms(ezAnimGraphPinDataLocalTransforms* pLocalTransforms);
 
-  void SetInstanceDataAllocator(const ezInstanceDataAllocator& allocator);
-
   template <typename T>
   T* GetAnimNodeInstanceData(const ezAnimGraphNode& node)
   {
@@ -91,21 +87,19 @@ protected:
   void GenerateLocalResultProcessors(const ezSkeletonResource* pSkeleton);
 
 private:
-  ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
+  const ezAnimGraph* m_pAnimGraph = nullptr;
+
   ezSkeletonResourceHandle m_hSkeleton;
 
-  const ezInstanceDataAllocator* m_pInstanceDataAllocator = nullptr;
   ezBlob m_InstanceData;
 
-  ezDynamicArray<ezDynamicArray<ezUInt16>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
-
   // EXTEND THIS if a new type is introduced
-  ezDynamicArray<ezInt8> m_TriggerInputPinStates;
-  ezDynamicArray<double> m_NumberInputPinStates;
-  ezDynamicArray<bool> m_BoolInputPinStates;
-  ezDynamicArray<ezUInt16> m_BoneWeightInputPinStates;
+  ezInt8* m_pTriggerInputPinStates = nullptr;
+  double* m_pNumberInputPinStates = nullptr;
+  bool* m_pBoolInputPinStates = nullptr;
+  ezUInt16* m_pBoneWeightInputPinStates = nullptr;
   ezDynamicArray<ezHybridArray<ezUInt16, 1>> m_LocalPoseInputPinStates;
-  ezDynamicArray<ezUInt16> m_ModelPoseInputPinStates;
+  ezUInt16* m_pModelPoseInputPinStates = nullptr;
 
   ezAnimGraphPinDataModelTransforms* m_pCurrentModelTransforms = nullptr;
 
@@ -130,7 +124,7 @@ private:
   friend class ezAnimGraphBoolInputPin;
   friend class ezAnimGraphBoolOutputPin;
 
-  bool m_bInitialized = false;
+  ezDynamicArray<ozz::math::SimdFloat4, ezAlignedAllocatorWrapper> m_BlendMask;
 
   ezAnimPoseGenerator* m_pPoseGenerator = nullptr;
   ezSharedPtr<ezBlackboard> m_pBlackboard = nullptr;
@@ -139,34 +133,37 @@ private:
   ezHybridArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;
   ezHybridArray<ezAnimGraphPinDataModelTransforms, 2> m_PinDataModelTransforms;
 
-  ezHybridArray<ezAnimGraphPinDataLocalTransforms*, 8> m_CurrentLocalTransformOutputs;
+  ezHybridArray<ezUInt32, 8> m_CurrentLocalTransformOutputs;
 
   static ezMutex s_SharedDataMutex;
   static ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> s_SharedBoneWeights;
 };
 
 
-class EZ_RENDERERCORE_DLL ezAnimGraphBuilder
+class EZ_RENDERERCORE_DLL ezAnimGraph
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezAnimGraphBuilder);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezAnimGraph);
 
 public:
-  ezAnimGraphBuilder();
-  ~ezAnimGraphBuilder();
+  ezAnimGraph();
+  ~ezAnimGraph();
+
+  void Clear();
 
   ezAnimGraphNode* AddNode(ezUniquePtr<ezAnimGraphNode>&& pNode);
   void AddConnection(const ezAnimGraphNode* pSrcNode, ezStringView sSrcPinName, const ezAnimGraphNode* pDstNode, ezStringView sDstPinName);
 
-  ezResult SerializeForUse(ezStreamWriter& inout_stream);
-
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
 
-  const ezInstanceDataAllocator& GetInstanceDataAlloator() { return m_InstanceDataAllocator; }
-  ezArrayPtr<ezUniquePtr<ezAnimGraphNode>> GetNodes() { return m_Nodes; }
+  const ezInstanceDataAllocator& GetInstanceDataAlloator() const { return m_InstanceDataAllocator; }
+  ezArrayPtr<const ezUniquePtr<ezAnimGraphNode>> GetNodes() const { return m_Nodes; }
 
+  void PrepareForUse();
 
 private:
+  friend class ezAnimGraphInstance;
+
   struct ConnectionTo
   {
     ezString m_sSrcPinName;
@@ -181,7 +178,6 @@ private:
     ezHybridArray<ConnectionTo, 2> m_To;
   };
 
-  void PrepareForUse();
   void SortNodesByPriority();
   void PreparePinMapping();
   void AssignInputPinIndices();
@@ -190,9 +186,17 @@ private:
 
   bool m_bPreparedForUse = true;
   ezUInt32 m_uiInputPinCounts[ezAnimGraphPin::Type::ENUM_COUNT];
+  ezUInt32 m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::ENUM_COUNT];
   ezMap<const ezAnimGraphNode*, ConnectionsTo> m_From;
 
   ezDynamicArray<ezUniquePtr<ezAnimGraphNode>> m_Nodes;
   ezDynamicArray<ezHybridArray<ezUInt16, 1>> m_OutputPinToInputPinMapping[ezAnimGraphPin::ENUM_COUNT];
   ezInstanceDataAllocator m_InstanceDataAllocator;
+
+  friend class ezAnimGraphTriggerOutputPin;
+  friend class ezAnimGraphNumberOutputPin;
+  friend class ezAnimGraphBoolOutputPin;
+  friend class ezAnimGraphBoneWeightsOutputPin;
+  friend class ezAnimGraphLocalPoseOutputPin;
+  friend class ezAnimGraphModelPoseOutputPin;
 };

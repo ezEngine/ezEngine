@@ -40,7 +40,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleBlendSpace1DAnimNode, 1, ezRTTIDefaultAl
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
-      new ezCategoryAttribute("Animation Sampling"),
+      new ezCategoryAttribute("Pose Generation"),
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue)),
       new ezTitleAttribute("BlendSpace 1D: '{Clips[0]}' '{Clips[1]}' '{Clips[2]}'"),
     }
@@ -134,14 +134,14 @@ ezResult ezSampleBlendSpace1DAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget)
+void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || !m_InLerp.IsConnected() || m_Clips.IsEmpty())
     return;
 
   InstanceState* pState = graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if (m_InStart.IsTriggered(graph))
+  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(graph))
   {
     pState->m_PlaybackTime = ezTime::Zero();
     pState->m_bPlaying = true;

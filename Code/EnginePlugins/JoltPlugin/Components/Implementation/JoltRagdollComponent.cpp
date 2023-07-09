@@ -260,7 +260,7 @@ void ezJoltRagdollComponent::CreateLimbsFromBindPose()
 
   auto ComputeFullJointTransform = [&](ezUInt32 uiJointIdx, auto self) -> ezMat4 {
     const auto& joint = desc.m_Skeleton.GetJointByIndex(uiJointIdx);
-    const ezMat4 jointTransform = joint.GetBindPoseLocalTransform().GetAsMat4();
+    const ezMat4 jointTransform = joint.GetRestPoseLocalTransform().GetAsMat4();
 
     if (joint.GetParentIndex() != ezInvalidJointIndex)
     {

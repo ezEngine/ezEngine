@@ -53,7 +53,7 @@ void ezSkeleton::Save(ezStreamWriter& inout_stream) const
   {
     inout_stream << m_Joints[i].m_sName;
     inout_stream << m_Joints[i].m_uiParentIndex;
-    inout_stream << m_Joints[i].m_BindPoseLocal;
+    inout_stream << m_Joints[i].m_RestPoseLocal;
 
     inout_stream << m_Joints[i].m_qLocalJointOrientation;
     inout_stream << m_Joints[i].m_HalfSwingLimitZ;
@@ -89,7 +89,7 @@ void ezSkeleton::Load(ezStreamReader& inout_stream)
 
     inout_stream >> joint.m_sName;
     inout_stream >> joint.m_uiParentIndex;
-    inout_stream >> joint.m_BindPoseLocal;
+    inout_stream >> joint.m_RestPoseLocal;
 
     if (version >= 5)
     {
@@ -152,7 +152,7 @@ static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedP
   for (ezUInt16 i = 0; i < children.GetCount(); ++i)
   {
     const auto& srcJoint = skeleton.GetJointByIndex(children[i]);
-    const auto& srcTransform = srcJoint.GetBindPoseLocalTransform();
+    const auto& srcTransform = srcJoint.GetRestPoseLocalTransform();
     auto& dstJoint = ref_dstBones[i];
 
     dstJoint.name = srcJoint.GetName().GetData();

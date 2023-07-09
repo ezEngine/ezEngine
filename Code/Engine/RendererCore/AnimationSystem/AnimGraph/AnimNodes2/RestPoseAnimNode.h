@@ -1,10 +1,12 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
-class EZ_RENDERERCORE_DLL ezSendEventAnimNode : public ezAnimGraphNode
+class EZ_RENDERERCORE_DLL ezRestPoseAnimNode : public ezAnimGraphNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSendEventAnimNode, ezAnimGraphNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRestPoseAnimNode, ezAnimGraphNode);
 
   //////////////////////////////////////////////////////////////////////////
   // ezAnimGraphNode
@@ -16,13 +18,8 @@ protected:
   virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezSendEventAnimNode
-
-public:
-  void SetEventName(const char* szSz) { m_sEventName.Assign(szSz); }
-  const char* GetEventName() const { return m_sEventName.GetString(); }
+  // ezRestPoseAnimNode
 
 private:
-  ezHashedString m_sEventName;             // [ property ]
-  ezAnimGraphTriggerInputPin m_InActivate; // [ property ]
+  ezAnimGraphLocalPoseOutputPin m_OutPose; // [ property ]
 };

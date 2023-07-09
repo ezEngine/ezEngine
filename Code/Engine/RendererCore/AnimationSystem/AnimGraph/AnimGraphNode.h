@@ -6,7 +6,7 @@
 
 class ezSkeletonResource;
 class ezGameObject;
-class ezAnimGraph;
+class ezAnimGraphInstance;
 class ezStreamWriter;
 class ezStreamReader;
 struct ezAnimGraphPinDataLocalTransforms;
@@ -24,7 +24,7 @@ namespace ozz
   }
 } // namespace ozz
 
-/// \brief Base class for all nodes in an ezAnimGraph
+/// \brief Base class for all nodes in an ezAnimGraphInstance
 ///
 /// These nodes are used to configure which skeletal animations can be played on an object,
 /// and how they would be played back exactly.
@@ -46,8 +46,8 @@ public:
   void SetCustomNodeTitle(const char* szSz) { m_sCustomNodeTitle.Assign(szSz); }
 
 protected:
+  friend class ezAnimGraphInstance;
   friend class ezAnimGraph;
-  friend class ezAnimGraphBuilder;
   friend class ezAnimGraphResource;
 
   ezHashedString m_sCustomNodeTitle;
@@ -56,8 +56,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const = 0;
   virtual ezResult DeserializeNode(ezStreamReader& stream) = 0;
 
-  virtual void Initialize(ezAnimGraph& graph, const ezSkeletonResource* pSkeleton) {}
-  virtual void Step(ezAnimGraph& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) = 0;
+  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const = 0;
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const { return false; }
 };
 
