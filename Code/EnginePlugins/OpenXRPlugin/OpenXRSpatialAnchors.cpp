@@ -29,12 +29,13 @@ ezOpenXRSpatialAnchors::~ezOpenXRSpatialAnchors()
 
 ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& globalTransform)
 {
-  if (m_pOpenXR->m_pWorld == nullptr)
+  ezWorld* pWorld = m_pOpenXR->GetWorld();
+  if (pWorld == nullptr)
     return ezXRSpatialAnchorID();
 
   ezTransform globalStageTransform;
   globalStageTransform.SetIdentity();
-  if (const ezStageSpaceComponentManager* pStageMan = m_pOpenXR->m_pWorld->GetComponentManager<ezStageSpaceComponentManager>())
+  if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
   {
     if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
     {
@@ -80,6 +81,10 @@ ezResult ezOpenXRSpatialAnchors::DestroyAnchor(ezXRSpatialAnchorID id)
 
 ezResult ezOpenXRSpatialAnchors::TryGetAnchorTransform(ezXRSpatialAnchorID id, ezTransform& out_globalTransform)
 {
+  ezWorld* pWorld = m_pOpenXR->GetWorld();
+  if (!pWorld)
+    return EZ_FAILURE;
+
   AnchorData anchorData;
   if (!m_Anchors.TryGetValue(id, anchorData))
     return EZ_FAILURE;
@@ -95,7 +100,7 @@ ezResult ezOpenXRSpatialAnchors::TryGetAnchorTransform(ezXRSpatialAnchorID id, e
   {
     ezTransform globalStageTransform;
     globalStageTransform.SetIdentity();
-    if (const ezStageSpaceComponentManager* pStageMan = m_pOpenXR->m_pWorld->GetComponentManager<ezStageSpaceComponentManager>())
+    if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
     {
       if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
       {

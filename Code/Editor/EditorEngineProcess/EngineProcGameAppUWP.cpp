@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcess/EngineProcGameAppUWP.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessAppUWP.h>
+#include <GameEngine/XR/XRInputDevice.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
@@ -23,7 +24,7 @@ void ezEngineProcessGameApplicationUWP::Init_ConfigureInput()
   // Set Anchor
   {
     ezInputActionConfig cfg;
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_Spatial_Hand0_Pressed;
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_XR_Hand_Left_Trigger;
     cfg.m_bApplyTimeScaling = false;
     ezInputManager::SetInputActionConfig("RemoteProcess", "AirTap", cfg, true);
   }

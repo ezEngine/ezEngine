@@ -24,9 +24,6 @@
 #define ezInputSlot_XR_Hand_Left_Secondary_Analog_Stick_Click "xr_hand_left_secondary_analog_stick_click"
 #define ezInputSlot_XR_Hand_Left_Secondary_Analog_Stick_Touch "xr_hand_left_secondary_analog_stick_touch"
 
-#define ezInputSlot_XR_Hand_Left_Grip_Pose "xr_hand_left_grip_pose"
-#define ezInputSlot_XR_Hand_Left_Aim_Pose "xr_hand_left_aim_pose"
-
 
 #define ezInputSlot_XR_Hand_Right_Trigger "xr_hand_right_trigger"
 #define ezInputSlot_XR_Hand_Right_Select_Click "xr_hand_right_select_click"
@@ -47,8 +44,6 @@
 #define ezInputSlot_XR_Hand_Right_Secondary_Analog_Stick_Click "xr_hand_right_secondary_analog_stick_click"
 #define ezInputSlot_XR_Hand_Right_Secondary_Analog_Stick_Touch "xr_hand_right_secondary_analog_stick_touch"
 
-#define ezInputSlot_XR_Hand_Right_Grip_Pose "xr_hand_right_grip_pose"
-#define ezInputSlot_XR_Hand_Right_Aim_Pose "xr_hand_right_aim_pose"
 
 class EZ_GAMEENGINE_DLL ezXRInputDevice : public ezInputDevice
 {

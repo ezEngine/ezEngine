@@ -59,13 +59,15 @@ public:
 
 private:
   XrResult SelectExtensions(ezHybridArray<const char*, 6>& extensions);
+  XrResult SelectLayers(ezHybridArray<const char*, 6>& layers);
   XrResult InitSystem();
   void DeinitSystem();
   XrResult InitSession();
   void DeinitSession();
   XrResult InitGraphicsPlugin();
   void DeinitGraphicsPlugin();
-
+  XrResult InitDebugMessenger();
+  void DeinitInitDebugMessenger();
 
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);
@@ -77,6 +79,8 @@ private:
 
   void SetStageSpace(ezXRStageSpace::Enum space);
   void SetHMDCamera(ezCamera* pCamera);
+
+  ezWorld* GetWorld();
 
 public:
   static XrPosef ConvertTransform(const ezTransform& tr);
@@ -96,6 +100,11 @@ private:
 
   struct Extensions
   {
+    bool m_bValidation = false;
+    bool m_bDebugUtils = false;
+    PFN_xrCreateDebugUtilsMessengerEXT pfn_xrCreateDebugUtilsMessengerEXT;
+    PFN_xrDestroyDebugUtilsMessengerEXT pfn_xrDestroyDebugUtilsMessengerEXT;
+
     bool m_bD3D11 = false;
     PFN_xrGetD3D11GraphicsRequirementsKHR pfn_xrGetD3D11GraphicsRequirementsKHR;
 
@@ -147,6 +156,7 @@ private:
   ezEventSubscriptionID m_executionEventsId = 0;
   ezEventSubscriptionID m_beginRenderEventsId = 0;
   ezEventSubscriptionID m_GALdeviceEventsId = 0;
+  XrDebugUtilsMessengerEXT m_DebugMessenger = XR_NULL_HANDLE;
 
   // Graphics plugin
   XrEnvironmentBlendMode m_blendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
@@ -180,7 +190,6 @@ private:
   ezUniquePtr<ezOpenXRSpatialAnchors> m_Anchors;
   ezUniquePtr<ezOpenXRHandTracking> m_HandTracking;
 
-  ezWorld* m_pWorld = nullptr;
   ezCamera* m_pCameraToSynchronize = nullptr;
   ezEnum<ezXRStageSpace> m_StageSpace;
   ezUInt32 m_uiSettingsModificationCounter = 0;

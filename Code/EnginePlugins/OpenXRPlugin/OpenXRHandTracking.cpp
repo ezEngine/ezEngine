@@ -114,7 +114,10 @@ ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBon
 
   if (space == ezXRTransformSpace::Global)
   {
-    const ezWorld* pWorld = m_pOpenXR->m_pWorld;
+    ezWorld* pWorld = m_pOpenXR->GetWorld();
+    if (!pWorld)
+      return ezXRHandTrackingInterface::HandPartTrackingState::NotSupported;
+
     if (const ezStageSpaceComponentManager* pStageMan = pWorld->GetComponentManager<ezStageSpaceComponentManager>())
     {
       if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
