@@ -189,6 +189,9 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
 
   for (auto& mapping : m_Mappings)
   {
+    if (mapping.m_sRenderPassName.IsEmpty() || mapping.m_sPropertyName.IsEmpty() || mapping.m_sVolumeValueName.IsEmpty())
+      continue;
+
     ezVariant value = m_pSampler->GetValue(mapping.m_sVolumeValueName);
     pView->SetRenderPassProperty(mapping.m_sRenderPassName, mapping.m_sPropertyName, value);
   }

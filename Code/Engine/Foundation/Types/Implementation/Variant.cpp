@@ -368,6 +368,12 @@ bool ezVariant::operator==(const ezVariant& other) const
     const ezStringView b = other.IsA<ezStringView>() ? other.Get<ezStringView>() : ezStringView(other.Get<ezString>().GetData());
     return a.IsEqual(b);
   }
+  else if (IsHashedString() && other.IsHashedString())
+  {
+    const ezTempHashedString a = IsA<ezTempHashedString>() ? Get<ezTempHashedString>() : ezTempHashedString(Get<ezHashedString>());
+    const ezTempHashedString b = other.IsA<ezTempHashedString>() ? other.Get<ezTempHashedString>() : ezTempHashedString(other.Get<ezHashedString>());
+    return a == b;
+  }
   else if (m_uiType == other.m_uiType)
   {
     CompareFunc compareFunc;
@@ -456,20 +462,24 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (type == Type::Invalid)
     return false;
 
-  if (type == Type::String && m_uiType == Type::Invalid)
+  const bool bTargetIsString = (type == Type::String) || (type == Type::HashedString) || (type == Type::TempHashedString);
+
+  if (bTargetIsString && m_uiType == Type::Invalid)
     return true;
 
-  if (type == Type::String && (m_uiType > Type::FirstStandardType && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer))
+  if (bTargetIsString && (m_uiType > Type::FirstStandardType && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer && m_uiType != Type::TempHashedString))
     return true;
-  if (type == Type::String && (m_uiType == Type::VariantArray || m_uiType == Type::VariantDictionary))
+  if (bTargetIsString && (m_uiType == Type::VariantArray || m_uiType == Type::VariantDictionary))
     return true;
-  if (type == Type::StringView && m_uiType == Type::String)
+  if (type == Type::StringView && (m_uiType == Type::String || m_uiType == Type::HashedString))
+    return true;
+  if (type == Type::TempHashedString && m_uiType == Type::HashedString)
     return true;
 
   if (!IsValid())
     return false;
 
-  if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String))
+  if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String || m_uiType == Type::HashedString))
     return true;
 
   if (IsVector2Static(type) && (IsVector2Static(m_uiType)))
@@ -484,8 +494,6 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (type == Type::Color && m_uiType == Type::ColorGamma)
     return true;
   if (type == Type::ColorGamma && m_uiType == Type::Color)
-    return true;
-  if (type == Type::TempHashedString && m_uiType == Type::HashedString)
     return true;
 
   return false;

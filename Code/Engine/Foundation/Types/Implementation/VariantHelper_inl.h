@@ -176,30 +176,6 @@ class ezVariantHelper
   friend class ezVariant;
   friend struct ConvertFunc;
 
-  template <typename T>
-  EZ_ALWAYS_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<1>)
-  {
-    return v.ConvertNumber<double>() == static_cast<double>(other);
-  }
-
-  template <typename T>
-  EZ_ALWAYS_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<0>)
-  {
-    return false;
-  }
-
-  template <typename T>
-  EZ_ALWAYS_INLINE static bool CompareNumber(const ezVariant& v, const T& other, ezTraitInt<1>)
-  {
-    return v.ConvertNumber<ezInt64>() == static_cast<ezInt64>(other);
-  }
-
-  template <typename T>
-  EZ_ALWAYS_INLINE static bool CompareNumber(const ezVariant& v, const T& other, ezTraitInt<0>)
-  {
-    return false;
-  }
-
   static void To(const ezVariant& value, bool& result, bool& bSuccessful)
   {
     bSuccessful = true;
@@ -502,16 +478,37 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, ezVec4U32& result, bool& bSuccessful) { ToVec4X<ezVec4U32, ezVec4I32, ezVec4>(value, result, bSuccessful); }
 
+  static void To(const ezVariant& value, ezHashedString& result, bool& bSuccessful)
+  {
+    bSuccessful = true;
+
+    if (value.GetType() == ezVariantType::String)
+      result.Assign(value.Get<ezString>());
+    else if (value.GetType() == ezVariantType::StringView)
+      result.Assign(value.Get<ezStringView>());
+    else
+    {
+      ezString s;
+      To(value, s, bSuccessful);
+      result.Assign(s.GetView());
+    }
+  }
+
   static void To(const ezVariant& value, ezTempHashedString& result, bool& bSuccessful)
   {
     bSuccessful = true;
 
-    if (value.GetType() == ezVariant::Type::HashedString)
+    if (value.GetType() == ezVariantType::String)
+      result = value.Get<ezString>();
+    else if (value.GetType() == ezVariantType::StringView)
+      result = value.Get<ezStringView>();
+    else if (value.GetType() == ezVariant::Type::HashedString)
       result = value.Get<ezHashedString>();
     else
     {
-      EZ_REPORT_FAILURE("Conversion to ezTempHashedString failed");
-      bSuccessful = false;
+      ezString s;
+      To(value, s, bSuccessful);
+      result = s.GetView();
     }
   }
 

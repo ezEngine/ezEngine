@@ -219,24 +219,41 @@ EZ_ALWAYS_INLINE bool ezVariant::operator!=(const ezVariant& other) const
 template <typename T>
 EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
 {
-  using StorageType = typename TypeDeduction<T>::StorageType;
-  struct TypeInfo
-  {
-    enum
-    {
-      isNumber = TypeDeduction<T>::value > Type::Invalid&& TypeDeduction<T>::value <= Type::Double
-    };
-  };
-
   if (IsFloatingPoint())
   {
-    return ezVariantHelper::CompareFloat(*this, other, ezTraitInt<TypeInfo::isNumber>());
+    if constexpr (TypeDeduction<T>::value > Type::Invalid && TypeDeduction<T>::value <= Type::Double)
+    {
+      return ConvertNumber<double>() == static_cast<double>(other);
+    }
+
+    return false;
   }
   else if (IsNumber())
   {
-    return ezVariantHelper::CompareNumber(*this, other, ezTraitInt<TypeInfo::isNumber>());
+    if constexpr (TypeDeduction<T>::value > Type::Invalid && TypeDeduction<T>::value <= Type::Double)
+    {
+      return ConvertNumber<ezInt64>() == static_cast<ezInt64>(other);
+    }
+
+    return false;
   }
 
+  if constexpr (std::is_same_v<T, ezHashedString>)
+  {
+    if (m_uiType == Type::TempHashedString)
+    {
+      return Cast<ezTempHashedString>() == other;
+    }
+  }
+  else if constexpr (std::is_same_v<T, ezTempHashedString>)
+  {
+    if (m_uiType == Type::HashedString)
+    {
+      return Cast<ezHashedString>() == other;
+    }
+  }
+
+  using StorageType = typename TypeDeduction<T>::StorageType;
   EZ_ASSERT_DEV(IsA<StorageType>(), "Stored type '{0}' does not match comparison type '{1}'", m_uiType, TypeDeduction<T>::value);
   return Cast<StorageType>() == other;
 }
@@ -265,6 +282,11 @@ EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPoint() const
 EZ_ALWAYS_INLINE bool ezVariant::IsString() const
 {
   return IsStringStatic(m_uiType);
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsHashedString() const
+{
+  return IsHashedStringStatic(m_uiType);
 }
 
 template <typename T, typename std::enable_if_t<ezVariantTypeDeduction<T>::classification == ezVariantClass::DirectCast, int>>
@@ -551,6 +573,11 @@ EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPointStatic(ezUInt32 type)
 EZ_ALWAYS_INLINE bool ezVariant::IsStringStatic(ezUInt32 type)
 {
   return type == Type::String || type == Type::StringView;
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsHashedStringStatic(ezUInt32 type)
+{
+  return type == Type::HashedString || type == Type::TempHashedString;
 }
 
 EZ_ALWAYS_INLINE bool ezVariant::IsVector2Static(ezUInt32 type)

@@ -948,6 +948,8 @@ void ezQtPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtScopedBlockSignals b(m_pWidget);
 
+  m_OriginalType = value.GetType();
+
   if (!value.IsValid())
   {
     m_pWidget->setPlaceholderText(QStringLiteral("<Multiple Values>"));
@@ -961,12 +963,12 @@ void ezQtPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
 
 void ezQtPropertyEditorLineEditWidget::on_TextChanged_triggered(const QString& value)
 {
-  BroadcastValueChanged(value.toUtf8().data());
+  BroadcastValueChanged(ezVariant(value.toUtf8().data()).ConvertTo(m_OriginalType));
 }
 
 void ezQtPropertyEditorLineEditWidget::on_TextFinished_triggered()
 {
-  BroadcastValueChanged(m_pWidget->text().toUtf8().data());
+  BroadcastValueChanged(ezVariant(m_pWidget->text().toUtf8().data()).ConvertTo(m_OriginalType));
 }
 
 

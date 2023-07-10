@@ -191,6 +191,7 @@ protected:
 protected:
   QHBoxLayout* m_pLayout;
   QLineEdit* m_pWidget;
+  ezEnum<ezVariantType> m_OriginalType;
 };
 
 

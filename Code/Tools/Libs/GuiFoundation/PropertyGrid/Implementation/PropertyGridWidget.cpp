@@ -100,6 +100,8 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
     case ezVariant::Type::Angle:
       return new ezQtPropertyEditorAngleWidget();
 
+    case ezVariant::Type::HashedString:
+      return new ezQtPropertyEditorLineEditWidget();
 
     default:
       EZ_REPORT_FAILURE("No default property widget available for type: {0}", pRtti->GetTypeName());
@@ -169,6 +171,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColorGammaUB>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAngle>(), StandardTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVariant>(), StandardTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezHashedString>(), StandardTypeCreator);
 
     // TODO: ezMat3, ezMat4, ezTransform, ezUuid, ezVariant
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezEnumBase>(), EnumCreator);

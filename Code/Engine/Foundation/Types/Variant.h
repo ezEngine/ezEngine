@@ -179,6 +179,9 @@ public:
   /// \brief Returns whether the stored type is a string (ezString or ezStringView).
   bool IsString() const; // [tested]
 
+  /// \brief Returns whether the stored type is a hashed string (ezHashedString or ezTempHashedString).
+  bool IsHashedString() const;
+
   /// \brief Returns whether the stored type is exactly the given type.
   ///
   /// \note This explicitly also differentiates between the different integer types.
@@ -386,6 +389,7 @@ private:
   static bool IsNumberStatic(ezUInt32 type);
   static bool IsFloatingPointStatic(ezUInt32 type);
   static bool IsStringStatic(ezUInt32 type);
+  static bool IsHashedStringStatic(ezUInt32 type);
   static bool IsVector2Static(ezUInt32 type);
   static bool IsVector3Static(ezUInt32 type);
   static bool IsVector4Static(ezUInt32 type);

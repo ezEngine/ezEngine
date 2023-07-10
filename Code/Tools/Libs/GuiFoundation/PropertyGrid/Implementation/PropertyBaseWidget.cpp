@@ -1836,7 +1836,8 @@ void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
 
 ezResult ezQtVariantPropertyWidget::GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const
 {
-  if (type == ezVariantType::FirstStandardType || type == ezVariantType::StringView || type == ezVariantType::DataBuffer || type >= ezVariantType::LastStandardType)
+  if (type == ezVariantType::FirstStandardType || type >= ezVariantType::LastStandardType ||
+    type == ezVariantType::StringView || type == ezVariantType::DataBuffer || type == ezVariantType::TempHashedString)
     return EZ_FAILURE;
 
   const ezRTTI* pVariantEnum = ezGetStaticRTTI<ezVariantType>();
