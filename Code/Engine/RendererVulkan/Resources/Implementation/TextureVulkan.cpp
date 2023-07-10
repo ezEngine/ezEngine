@@ -293,7 +293,9 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
         m_sharedHandle.m_uiMemoryTypeIndex = m_allocInfo.m_memoryType;
         m_sharedHandle.m_uiSize = m_allocInfo.m_size;
 
-        vk::ExportSemaphoreCreateInfoKHR exportInfo{vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueWin32};
+        vk::ExportSemaphoreWin32HandleInfoKHR exportInfoWin32;
+        exportInfoWin32.dwAccess = GENERIC_ALL;
+        vk::ExportSemaphoreCreateInfoKHR exportInfo{vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueWin32, &exportInfoWin32};
         vk::SemaphoreTypeCreateInfoKHR semTypeCreateInfo{vk::SemaphoreType::eTimeline, 0, &exportInfo};
         vk::SemaphoreCreateInfo semCreateInfo{{}, &semTypeCreateInfo};
         m_sharedSemaphore = device.createSemaphore(semCreateInfo);
@@ -435,7 +437,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
         }
 
         HANDLE duplicateA = 0;
-        BOOL res = DuplicateHandle(hProcess, reinterpret_cast<HANDLE>(m_sharedHandle.a), GetCurrentProcess(), &duplicateA, DUPLICATE_SAME_ACCESS, FALSE, 0);
+        BOOL res = DuplicateHandle(hProcess, reinterpret_cast<HANDLE>(m_sharedHandle.a), GetCurrentProcess(), &duplicateA, 0, FALSE, DUPLICATE_SAME_ACCESS);
         m_sharedHandle.a = reinterpret_cast<ezUInt64>(duplicateA);
         if (res == FALSE)
         {
@@ -446,7 +448,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
         }
 
         HANDLE duplicateB = 0;
-        res = DuplicateHandle(hProcess, reinterpret_cast<HANDLE>(m_sharedHandle.b), GetCurrentProcess(), &duplicateB, DUPLICATE_SAME_ACCESS, FALSE, 0);
+        res = DuplicateHandle(hProcess, reinterpret_cast<HANDLE>(m_sharedHandle.b), GetCurrentProcess(), &duplicateB, 0, FALSE, DUPLICATE_SAME_ACCESS);
         m_sharedHandle.b = reinterpret_cast<ezUInt64>(duplicateB);
         if (res == FALSE)
         {

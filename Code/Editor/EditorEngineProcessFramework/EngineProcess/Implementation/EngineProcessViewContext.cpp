@@ -55,7 +55,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  ifndef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
       HandleWindowUpdate(reinterpret_cast<ezWindowHandle>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
 #  else
       auto pSwapChain = const_cast<ezGALSharedTextureSwapChain*>(ezGALDevice::GetDefaultDevice()->GetSwapChain<ezGALSharedTextureSwapChain>(m_hSwapChain));
@@ -86,7 +86,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 
     if(!m_hSwapChain.IsInvalidated())
     {
-      pDevice->DestroySwapChain(m_hSwapChain);      
+      pDevice->DestroySwapChain(m_hSwapChain);
       m_hSwapChain.Invalidate();
     }
 

@@ -13,7 +13,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
-ezCVarBool cvar_RenderingMultithreading("Rendering.Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
+ezCVarBool cvar_RenderingMultithreading("Rendering.Multithreading", false, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 ezCVarBool cvar_RenderingCachingStaticObjects("Rendering.Caching.StaticObjects", true, ezCVarFlags::Default, "Enables render data caching of static objects");
 
 ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewCreatedEvent;

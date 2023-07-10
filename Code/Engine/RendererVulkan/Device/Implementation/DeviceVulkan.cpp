@@ -285,6 +285,7 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
     AddExtIfSupported(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, m_extensions.m_bBorderColorFloat);
     if (m_extensions.m_bBorderColorFloat)
     {
+      m_extensions.m_borderColorEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
       deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
     }
   }
@@ -295,6 +296,7 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 
   if (m_extensions.m_bTimelineSemaphore)
   {
+    m_extensions.m_timelineSemaphoresEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
     deviceCreateInfo.pNext = &m_extensions.m_timelineSemaphoresEXT;
     m_extensions.m_timelineSemaphoresEXT.timelineSemaphore = true;
   }
@@ -854,6 +856,7 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
     {
       waitSemaphoreValues.PushBack(sem.m_uiValue);
     }
+    waitStages.PushBack(vk::PipelineStageFlagBits::eAllCommands);
   }
   m_waitSemaphores.Clear();
 
@@ -866,12 +869,6 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
     }
   }
   m_signalSemaphores.Clear();
-  vk::TimelineSemaphoreSubmitInfo timelineInfo;
-  timelineInfo.waitSemaphoreValueCount = waitSemaphoreValues.GetCount();
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == sizeof(uint64_t));
-  timelineInfo.pWaitSemaphoreValues = reinterpret_cast<const uint64_t*>(waitSemaphoreValues.GetData());
-  timelineInfo.signalSemaphoreValueCount = signalSemaphoreValues.GetCount();
-  timelineInfo.pSignalSemaphoreValues = reinterpret_cast<const uint64_t*>(signalSemaphoreValues.GetData());
 
   if (m_lastCommandBufferFinished)
   {
@@ -902,8 +899,22 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
     signalSemaphoreValues.SetCount(signalSemaphores.GetCount());
   }
 
+  vk::TimelineSemaphoreSubmitInfo timelineInfo;
+  timelineInfo.waitSemaphoreValueCount = waitSemaphoreValues.GetCount();
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == sizeof(uint64_t));
+  timelineInfo.pWaitSemaphoreValues = reinterpret_cast<const uint64_t*>(waitSemaphoreValues.GetData());
+  timelineInfo.signalSemaphoreValueCount = signalSemaphoreValues.GetCount();
+  timelineInfo.pSignalSemaphoreValues = reinterpret_cast<const uint64_t*>(signalSemaphoreValues.GetData());
+
   if (timelineInfo.waitSemaphoreValueCount > 0 || timelineInfo.signalSemaphoreValueCount > 0)
+  {
     submitInfo.pNext = &timelineInfo;
+
+    EZ_ASSERT_DEBUG(timelineInfo.waitSemaphoreValueCount == 0 || waitSemaphores.GetCount() == waitSemaphoreValues.GetCount(), "");
+    EZ_ASSERT_DEBUG(timelineInfo.signalSemaphoreValueCount == 0 || signalSemaphores.GetCount() == signalSemaphoreValues.GetCount(), "");
+  }
+  EZ_ASSERT_DEBUG(waitSemaphores.GetCount() == waitStages.GetCount(), "");
+
   submitInfo.waitSemaphoreCount = waitSemaphores.GetCount();
   submitInfo.pWaitSemaphores = waitSemaphores.GetData();
   submitInfo.pWaitDstStageMask = waitStages.GetData();

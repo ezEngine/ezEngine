@@ -63,6 +63,8 @@ void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiSer
   {
     if (!IsProcessCrashed())
     {
+      ezLog::Warning("AAA ezSyncWithProcessMsgToEngine");
+
       ezSyncWithProcessMsgToEngine sm;
       sm.m_uiRedrawCount = m_uiRedrawCountSent + 1;
       SendMessage(&sm);

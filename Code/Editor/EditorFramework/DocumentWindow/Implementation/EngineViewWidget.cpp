@@ -5,6 +5,7 @@
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 
@@ -51,6 +52,7 @@ public:
 
     // TODO Resizing
     m_SharedTextureDesc.SetAsRenderTarget(640, 480, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
+
     for (auto& hSharedTexture : m_hSharedTextures)
     {
       hSharedTexture = pDevice->CreateSharedTexture(m_SharedTextureDesc);
@@ -121,6 +123,11 @@ public:
     }
     else if (m_uiWidth != uiWidth || m_uiHeight != uiHeight)
     {
+      // HACK to prevent Nvidia driver crash in case we resize twice before rendering.
+      // Rendering flushes queued layout changes. If we resize twice, we still have layout changes queued for the first resize. These are textures that are invalidated by the second resize and trigger a crash if referenced.
+      m_pDevice->BeginFrame();
+      m_pDevice->EndFrame();
+
       ezLog::Info("Re-creating the swapchain at {0}x{1}", uiWidth, uiHeight);
       // If the size of the window changed, update the swapchain.
       m_pDevice->UpdateSwapChain(m_hSwapchain, ezGALPresentMode::VSync).AssertSuccess("Failed to resize swapchain");
@@ -132,6 +139,8 @@ public:
     EZ_ASSERT_DEV(hParentWindow.type == ezWindowHandle::Type::XCB && hParentWindow.xcbWindow.m_Window != 0, "Invalid handle passed");
     EZ_ASSERT_DEV(m_hWnd.xcbWindow.m_Window == hParentWindow.xcbWindow.m_Window, "Remote window handle should never change. Window must be destroyed and recreated.");
 #  endif
+
+
     return EZ_SUCCESS;
   }
 
@@ -150,36 +159,48 @@ public:
 
     const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapchain);
 
+
     ezGALRenderingSetup setup;
 
     setup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
     setup.m_ClearColor = ezColor(1.0f, 0.0f, 0.0f, 1.0f);
     setup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
-    // TODO might not actually need ezRenderContext here
+    ezRenderContext* m_pRenderContext = ezRenderContext::GetDefaultInstance();
+
     ezGALRenderCommandEncoder* pEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pPass, setup, ezRectFloat(static_cast<float>(m_uiWidth), static_cast<float>(m_uiHeight)));
 
-    pEncoder->SetShader(m_CopyShader.m_hActiveGALShader);
-    pEncoder->SetBlendState(m_CopyShader.m_hBlendState);
-    pEncoder->SetDepthStencilState(m_CopyShader.m_hDepthStencilState);
-    pEncoder->SetRasterizerState(m_CopyShader.m_hRasterizerState);
+    ezShaderResourceHandle m_hCompanionShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Copy.ezShader");
+    m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    m_pRenderContext->BindShader(m_hCompanionShader);
+    m_pRenderContext->BindTexture2D("Input", m_pDevice->GetDefaultResourceView(m_hSharedTextures[uiCurrentTextureIndex]));
+    m_pRenderContext->DrawMeshBuffer().AssertSuccess("bla");
 
-    //pEncoder->SetResourceView(ezGALShaderStage::PixelShader, 0, m_pDevice->GetDefaultResourceView(m_hSharedTextures[uiCurrentTextureIndex]));
+    // Low level render code does not work :-/
+    /* pEncoder->SetShader(m_CopyShader.m_hActiveGALShader);
+     pEncoder->SetBlendState(m_CopyShader.m_hBlendState);
+     pEncoder->SetDepthStencilState(m_CopyShader.m_hDepthStencilState);
+     pEncoder->SetRasterizerState(m_CopyShader.m_hRasterizerState);
+
+     pEncoder->SetResourceView(ezGALShaderStage::PixelShader, 0, m_pDevice->GetDefaultResourceView(m_hSharedTextures[uiCurrentTextureIndex]));
+     pEncoder->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
+     pEncoder->SetViewport(ezRectFloat(m_uiWidth, m_uiHeight));
+
+     pEncoder->Draw(2, 0);*/
 
     // End Frame
     ezRenderContext::GetDefaultInstance()->EndRendering();
     m_pDevice->EndPass(pPass);
     pPass = nullptr;
-
     pSharedTexture->SignalSemaphoreGPU(uiCurrentSemaphoreValue + 1);
-    m_uiSharedTextureSemaphoreCount[uiCurrentTextureIndex] = uiCurrentSemaphoreValue + 1;
-
     ezRenderContext::GetDefaultInstance()->ResetContextState();
     m_pDevice->EndPipeline(m_hSwapchain);
 
     m_pDevice->EndFrame();
 
-    // ezTaskSystem::FinishFrameTasks();
+    m_uiSharedTextureSemaphoreCount[uiCurrentTextureIndex] = uiCurrentSemaphoreValue + 1;
+    m_uiSharedTextureSemaphoreInUse[uiCurrentTextureIndex] = false;
+    ezTaskSystem::FinishFrameTasks();
   }
 
   ezResult FillMessage(ezViewOpenSharedTexturesMsgToEngine& msg)
@@ -195,17 +216,30 @@ public:
 
       msg.m_TextureHandles.PushBack(pSharedTexture->GetSharedHandle());
     }
-
     return EZ_SUCCESS;
   }
 
-  void FillMessage(ezViewRedrawMsgToEngine& msg)
+  ezResult FillMessage(ezQtEngineDocumentWindow* pWindow, ezViewRedrawMsgToEngine& msg)
   {
+    // We ran out of shared textures, wait.
+    if (m_uiSharedTextureSemaphoreInUse[m_uiCurrentSharedTextureIndex])
+    {
+      ezStopwatch sw;
+      if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(pWindow->GetDocument()->GetGuid(), ezViewRenderingDoneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
+      {
+        ezLog::Error("Failed waiting for stuff");
+        return EZ_FAILURE;
+      }
+      ezLog::Warning("AAA Waited for shared texture response: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
+
+    }
+
     msg.m_uiSharedTextureIndex = m_uiCurrentSharedTextureIndex;
     msg.m_uiSemaphoreCurrentValue = m_uiSharedTextureSemaphoreCount[m_uiCurrentSharedTextureIndex];
+    m_uiSharedTextureSemaphoreInUse[m_uiCurrentSharedTextureIndex] = true;
 
-    // TODO: Make sure we don't catch our tail
     m_uiCurrentSharedTextureIndex = (m_uiCurrentSharedTextureIndex + 1) % EZ_ARRAY_SIZE(m_uiSharedTextureSemaphoreCount);
+    return EZ_SUCCESS;
   }
 
   // Inherited via ezWindowBase
@@ -229,6 +263,7 @@ private:
   ezGALTextureCreationDescription m_SharedTextureDesc;
   ezGALTextureHandle m_hSharedTextures[2];
   ezUInt64 m_uiSharedTextureSemaphoreCount[2] = {0, 0};
+  bool m_uiSharedTextureSemaphoreInUse[2] = {false, false};
   ezUInt32 m_uiCurrentSharedTextureIndex = 0;
   ezShaderUtils::ezBuiltinShader m_CopyShader;
 };
@@ -334,7 +369,8 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
 
     // Wait for engine process response
-    auto callback = [&](ezProcessMessage* pMsg) -> bool {
+    auto callback = [&](ezProcessMessage* pMsg) -> bool
+    {
       auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
       return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
     };
@@ -398,7 +434,11 @@ void ezQtEngineViewWidget::SyncToEngine()
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
 
 #ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
-  m_pWindow->FillMessage(cam);
+  if (m_pWindow->FillMessage(m_pDocumentWindow, cam).Failed())
+  {
+    return;
+  }
+  ezLog::Warning("AAA FillMessage: {}, {}", cam.m_uiSharedTextureIndex, cam.m_uiSemaphoreCurrentValue);
 #else
   cam.m_uiHWND = (ezUInt64)(winId());
 #endif
@@ -579,8 +619,9 @@ void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     HandleMarqueePickingResult(pFullMsg);
     return;
   }
-  else if(const ezViewRenderingDoneMsgToEditor* pFullMsg = ezDynamicCast<const ezViewRenderingDoneMsgToEditor*>(pMsg))
+  else if (const ezViewRenderingDoneMsgToEditor* pFullMsg = ezDynamicCast<const ezViewRenderingDoneMsgToEditor*>(pMsg))
   {
+    ezLog::Warning("AAA Response: {}, {}", pFullMsg->m_uiCurrentTextureIndex, pFullMsg->m_uiCurrentSemaphoreValue);
     m_pWindow->Render(pFullMsg->m_uiCurrentTextureIndex, pFullMsg->m_uiCurrentSemaphoreValue);
   }
 }

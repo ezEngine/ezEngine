@@ -30,28 +30,49 @@ ezGALSharedTextureSwapChain::ezGALSharedTextureSwapChain(const ezGALSharedTextur
 {
 }
 
+#define USE_SHARED_TEXTURE
+
 void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurrentSemaphoreValue)
 {
+  ezLog::Warning("AAA Arm {}, {}", uiTextureIndex, uiCurrentSemaphoreValue);
+  EZ_ASSERT_DEV(m_uiCurrentTexture == ezMath::MaxValue<ezUInt32>(), "Arm called before AcquireNextRenderTarget + PresentRenderTarget.");
   m_uiCurrentTexture = uiTextureIndex;
   m_uiCurrentSemaphoreValue = uiCurrentSemaphoreValue;
 
-  m_RenderTargets.m_hRTs[0] = m_hSharedTextures[uiTextureIndex];
+#ifdef USE_SHARED_TEXTURE
+  m_RenderTargets.m_hRTs[0] = m_hSharedTextures[m_uiCurrentTexture];
+#else
+  m_RenderTargets.m_hRTs[0] = m_DUMMY;
+#endif
 }
 
 void ezGALSharedTextureSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
+  ezLog::Warning("AAA AcquireNextRenderTarget {}, {}", m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
   EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Acquire called without calling Arm first.");
 
+#ifdef USE_SHARED_TEXTURE
+  m_RenderTargets.m_hRTs[0] = m_hSharedTextures[m_uiCurrentTexture];
   m_pSharedTextures[m_uiCurrentTexture]->WaitSemaphoreGPU(m_uiCurrentSemaphoreValue);
+#else
+  m_RenderTargets.m_hRTs[0] = m_DUMMY;
+#endif
 }
 
 void ezGALSharedTextureSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
 {
+  m_RenderTargets.m_hRTs[0].Invalidate();
+  ezLog::Warning("AAA PresentRenderTarget {}, {}", m_uiCurrentTexture, m_uiCurrentSemaphoreValue + 1);
+
   EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Present called without calling Arm first.");
+#ifdef USE_SHARED_TEXTURE
   m_pSharedTextures[m_uiCurrentTexture]->SignalSemaphoreGPU(m_uiCurrentSemaphoreValue + 1);
+  m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue + 1);
+#else
+  m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue + 0);
+#endif
   pDevice->Flush();
 
-  m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue + 1);
   m_uiCurrentTexture = ezMath::MaxValue<ezUInt32>();
 }
 
@@ -63,6 +84,7 @@ ezResult ezGALSharedTextureSwapChain::UpdateSwapChain(ezGALDevice* pDevice, ezEn
 ezResult ezGALSharedTextureSwapChain::InitPlatform(ezGALDevice* pDevice)
 {
   // Create textures
+#ifdef USE_SHARED_TEXTURE
   for (ezUInt32 i = 0; i < m_Desc.m_Textures.GetCount(); ++i)
   {
     ezGALPlatformSharedHandle handle = m_Desc.m_Textures[i];
@@ -82,7 +104,11 @@ ezResult ezGALSharedTextureSwapChain::InitPlatform(ezGALDevice* pDevice)
     m_pSharedTextures.PushBack(pSharedTexture);
     m_CurrentSemaphoreValue.PushBack(0);
   }
-
+  m_RenderTargets.m_hRTs[0] = m_hSharedTextures[0];
+#else
+  m_DUMMY = pDevice->CreateTexture(m_Desc.m_TextureDesc);
+  m_RenderTargets.m_hRTs[0] = m_DUMMY;
+#endif
   m_CurrentSize = {m_Desc.m_TextureDesc.m_uiWidth, m_Desc.m_TextureDesc.m_uiHeight};
   return EZ_SUCCESS;
 }

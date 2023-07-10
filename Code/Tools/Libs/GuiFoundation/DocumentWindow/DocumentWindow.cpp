@@ -102,7 +102,7 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
   if (m_bIsVisibleInContainer)
   {
     // if the window is now visible, immediately do a redraw and trigger the timers
-    SlotRedraw();
+    //SlotRedraw();
     // Make sure the window gains focus as well when it becomes visible so that shortcuts will immediately work.
     setFocus();
   }
@@ -115,13 +115,13 @@ void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
 
   m_iTargetFramerate = iTargetFPS;
 
-  if (m_iTargetFramerate != 0)
-    SlotRedraw();
+  //if (m_iTargetFramerate != 0)
+  //  SlotRedraw();
 }
 
 void ezQtDocumentWindow::TriggerRedraw()
 {
-  SlotRedraw();
+  //SlotRedraw();
 }
 
 void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)

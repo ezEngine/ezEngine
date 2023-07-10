@@ -42,5 +42,7 @@ protected:
   ezHybridArray<const ezGALSharedTexture*, 3> m_pSharedTextures;
   ezHybridArray<ezUInt64, 3> m_CurrentSemaphoreValue;
   ezGALSharedTextureSwapChainCreationDescription m_Desc = {};
+
+  ezGALTextureHandle m_DUMMY;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALSharedTextureSwapChain);

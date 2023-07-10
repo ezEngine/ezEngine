@@ -115,7 +115,6 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 
 ezApplication::Execution ezEngineProcessGameApplication::Run()
 {
-  ezRenderWorld::ClearMainViews();
   bool bPendingOpInProgress = false;
   do
   {
@@ -127,7 +126,12 @@ ezApplication::Execution ezEngineProcessGameApplication::Run()
   } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
 
   m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
-  return SUPER::Run();
+
+  // We must clear the main views after rendering so that if the editor runs in lock step with the engine we don't render a view twice or request update again without rendering being done.
+  ezLog::Warning("AAA Main render");
+  ezApplication::Execution res = SUPER::Run();
+  ezRenderWorld::ClearMainViews();
+  return res;
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
@@ -226,6 +230,12 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     ezSyncWithProcessMsgToEditor msg;
     msg.m_uiRedrawCount = pMsg->m_uiRedrawCount;
     m_uiRedrawCountReceived = msg.m_uiRedrawCount;
+
+    // We must clear the main views after rendering so that if the editor runs in lock step with the engine we don't render a view twice or request update again without rendering being done.
+    ezLog::Warning("AAA RENDER");
+    SUPER::Run();
+    ezRenderWorld::ClearMainViews();
+
     m_IPC.SendMessage(&msg);
     return;
   }
@@ -348,6 +358,9 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
         response.m_sProfilingFile = sAbsPath;
       }
       m_IPC.SendMessage(&response);
+
+      // Also capture RenderDoc for the next frame if loaded.
+      CaptureFrame();
     }
     else
       ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '{0}'", pMsg1->m_sWhatToDo);

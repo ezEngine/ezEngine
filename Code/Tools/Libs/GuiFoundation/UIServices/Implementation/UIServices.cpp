@@ -13,6 +13,10 @@
 #include <QSettings>
 #include <QUrl>
 
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Threading/TaskSystem.h>
+#include <Core/ResourceManager/ResourceManager.h>
+
 EZ_IMPLEMENT_SINGLETON(ezQtUiServices);
 
 ezEvent<const ezQtUiServices::Event&> ezQtUiServices::s_Events;
@@ -202,6 +206,13 @@ void ezQtUiServices::TickEventHandler()
 
   s_LastTickEvent.m_Type = TickEvent::Type::EndFrame;
   s_TickEvent.Broadcast(s_LastTickEvent);
+
+  ezTelemetry::PerFrameUpdate();
+  ezResourceManager::PerFrameUpdate();
+  ezTaskSystem::FinishFrameTasks();
+  ezFrameAllocator::Swap();
+  ezProfilingSystem::StartNewFrame();
+
   m_bIsDrawingATM = false;
 
   const ezTime endTime = ezTime::Now();

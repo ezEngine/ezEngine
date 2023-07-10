@@ -173,7 +173,7 @@ ezCommandLineOptionBool opt_NoRecent("_Editor", "-noRecent", "Disables automatic
 
 void ezQtEditorApp::StartupEditor()
 {
-  {
+  /*{
     ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
     sTemp.AppendPath("ezEditorCrashIndicator");
 
@@ -187,7 +187,7 @@ void ezQtEditorApp::StartupEditor()
         ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(sTemp);
       }
     }
-  }
+  }*/
 
   ezBitflags<StartupFlags> startupFlags;
 

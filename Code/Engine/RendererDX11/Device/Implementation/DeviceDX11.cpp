@@ -397,6 +397,11 @@ void ezGALDeviceDX11::EndPassPlatform(ezGALPass* pPass)
   m_pDefaultPass->EndPass();
 }
 
+void ezGALDeviceDX11::FlushPlatform()
+{
+  m_pImmediateContext->Flush();
+}
+
 // State creation functions
 
 ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendStateCreationDescription& Description)
