@@ -182,9 +182,10 @@ class ezVariantHelper
 
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt32>() != 0;
-    else if (value.GetType() == ezVariant::Type::String)
+    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
     {
-      if (ezConversionUtils::StringToBool(value.Cast<ezString>().GetData(), result) == EZ_FAILURE)
+      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
+      if (ezConversionUtils::StringToBool(s, result) == EZ_FAILURE)
       {
         result = false;
         bSuccessful = false;
@@ -228,9 +229,10 @@ class ezVariantHelper
 
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt32>();
-    else if (value.GetType() == ezVariant::Type::String)
+    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
     {
-      if (ezConversionUtils::StringToInt(value.Cast<ezString>().GetData(), result) == EZ_FAILURE)
+      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
+      if (ezConversionUtils::StringToInt(s, result) == EZ_FAILURE)
       {
         result = 0;
         bSuccessful = false;
@@ -246,10 +248,11 @@ class ezVariantHelper
 
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezUInt32>();
-    else if (value.GetType() == ezVariant::Type::String)
+    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
     {
+      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
       ezInt64 tmp = result;
-      if (ezConversionUtils::StringToInt64(value.Cast<ezString>().GetData(), tmp) == EZ_FAILURE)
+      if (ezConversionUtils::StringToInt64(s, tmp) == EZ_FAILURE)
       {
         result = 0;
         bSuccessful = false;
@@ -267,9 +270,10 @@ class ezVariantHelper
 
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt64>();
-    else if (value.GetType() == ezVariant::Type::String)
+    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
     {
-      if (ezConversionUtils::StringToInt64(value.Cast<ezString>().GetData(), result) == EZ_FAILURE)
+      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
+      if (ezConversionUtils::StringToInt64(s, result) == EZ_FAILURE)
       {
         result = 0;
         bSuccessful = false;
@@ -285,10 +289,11 @@ class ezVariantHelper
 
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezUInt64>();
-    else if (value.GetType() == ezVariant::Type::String)
+    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
     {
+      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
       ezInt64 tmp = result;
-      if (ezConversionUtils::StringToInt64(value.Cast<ezString>().GetData(), tmp) == EZ_FAILURE)
+      if (ezConversionUtils::StringToInt64(s, tmp) == EZ_FAILURE)
       {
         result = 0;
         bSuccessful = false;
@@ -306,10 +311,11 @@ class ezVariantHelper
 
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<float>();
-    else if (value.GetType() == ezVariant::Type::String)
+    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
     {
+      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
       double tmp = result;
-      if (ezConversionUtils::StringToFloat(value.Cast<ezString>().GetData(), tmp) == EZ_FAILURE)
+      if (ezConversionUtils::StringToFloat(s, tmp) == EZ_FAILURE)
       {
         result = 0.0f;
         bSuccessful = false;
@@ -327,9 +333,10 @@ class ezVariantHelper
 
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<double>();
-    else if (value.GetType() == ezVariant::Type::String)
+    else if (value.GetType() == ezVariant::Type::String || value.GetType() == ezVariant::Type::HashedString)
     {
-      if (ezConversionUtils::StringToFloat(value.Cast<ezString>().GetData(), result) == EZ_FAILURE)
+      ezStringView s = value.IsA<ezString>() ? value.Cast<ezString>().GetView() : value.Cast<ezHashedString>().GetView();
+      if (ezConversionUtils::StringToFloat(s, result) == EZ_FAILURE)
       {
         result = 0.0;
         bSuccessful = false;
@@ -360,14 +367,14 @@ class ezVariantHelper
   {
     bSuccessful = true;
 
-    result = value.Get<ezString>().GetView();
+    result = value.IsA<ezString>() ? value.Get<ezString>().GetView() : value.Get<ezHashedString>().GetView();
   }
 
   static void To(const ezVariant& value, ezTypedPointer& result, bool& bSuccessful)
   {
     bSuccessful = true;
     EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::TypedPointer, "Only ptr can be converted to void*!");
-    result = value.Get<ezTypedPointer>();
+    result = value.Cast<ezTypedPointer>();
   }
 
   static void To(const ezVariant& value, ezColor& result, bool& bSuccessful)
@@ -375,7 +382,7 @@ class ezVariantHelper
     bSuccessful = true;
 
     if (value.GetType() == ezVariant::Type::ColorGamma)
-      result = value.Get<ezColorGammaUB>();
+      result = value.Cast<ezColorGammaUB>();
     else
       EZ_REPORT_FAILURE("Conversion to ezColor failed");
   }
@@ -385,7 +392,7 @@ class ezVariantHelper
     bSuccessful = true;
 
     if (value.GetType() == ezVariant::Type::Color)
-      result = value.Get<ezColor>();
+      result = value.Cast<ezColor>();
     else
       EZ_REPORT_FAILURE("Conversion to ezColorGammaUB failed");
   }
@@ -397,12 +404,12 @@ class ezVariantHelper
 
     if (value.IsA<V1>())
     {
-      const V1& v = value.Get<V1>();
+      const V1& v = value.Cast<V1>();
       result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y));
     }
     else if (value.IsA<V2>())
     {
-      const V2& v = value.Get<V2>();
+      const V2& v = value.Cast<V2>();
       result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y));
     }
     else
@@ -425,15 +432,13 @@ class ezVariantHelper
 
     if (value.IsA<V1>())
     {
-      const V1& v = value.Get<V1>();
-      result =
-        T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
+      const V1& v = value.Cast<V1>();
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
     }
     else if (value.IsA<V2>())
     {
-      const V2& v = value.Get<V2>();
-      result =
-        T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
+      const V2& v = value.Cast<V2>();
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
     }
     else
     {
@@ -455,15 +460,13 @@ class ezVariantHelper
 
     if (value.IsA<V1>())
     {
-      const V1& v = value.Get<V1>();
-      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y),
-        static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
+      const V1& v = value.Cast<V1>();
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
     }
     else if (value.IsA<V2>())
     {
-      const V2& v = value.Get<V2>();
-      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y),
-        static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
+      const V2& v = value.Cast<V2>();
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
     }
     else
     {
@@ -483,9 +486,9 @@ class ezVariantHelper
     bSuccessful = true;
 
     if (value.GetType() == ezVariantType::String)
-      result.Assign(value.Get<ezString>());
+      result.Assign(value.Cast<ezString>());
     else if (value.GetType() == ezVariantType::StringView)
-      result.Assign(value.Get<ezStringView>());
+      result.Assign(value.Cast<ezStringView>());
     else
     {
       ezString s;
@@ -499,11 +502,11 @@ class ezVariantHelper
     bSuccessful = true;
 
     if (value.GetType() == ezVariantType::String)
-      result = value.Get<ezString>();
+      result = value.Cast<ezString>();
     else if (value.GetType() == ezVariantType::StringView)
-      result = value.Get<ezStringView>();
+      result = value.Cast<ezStringView>();
     else if (value.GetType() == ezVariant::Type::HashedString)
-      result = value.Get<ezHashedString>();
+      result = value.Cast<ezHashedString>();
     else
     {
       ezString s;

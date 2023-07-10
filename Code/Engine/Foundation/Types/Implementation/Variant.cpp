@@ -467,7 +467,7 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (bTargetIsString && m_uiType == Type::Invalid)
     return true;
 
-  if (bTargetIsString && (m_uiType > Type::FirstStandardType && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer && m_uiType != Type::TempHashedString))
+  if (bTargetIsString && (m_uiType > Type::FirstStandardType && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer))
     return true;
   if (bTargetIsString && (m_uiType == Type::VariantArray || m_uiType == Type::VariantDictionary))
     return true;
