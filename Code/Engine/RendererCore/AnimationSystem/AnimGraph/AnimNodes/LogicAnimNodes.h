@@ -13,7 +13,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezLogicAndAnimNode
@@ -23,10 +23,10 @@ public:
   ~ezLogicAndAnimNode();
 
 private:
-  ezAnimGraphBoolInputPin m_InBool0;     // [ property ]
-  ezAnimGraphBoolInputPin m_InBool1;     // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;  // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsFalse; // [ property ]
+  ezUInt8 m_uiBoolCount = 2;                          // [ property ]
+  ezHybridArray<ezAnimGraphBoolInputPin, 2> m_InBool; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsTrue;               // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsFalse;              // [ property ]
 };
 
 class EZ_RENDERERCORE_DLL ezLogicEventAndAnimNode : public ezAnimGraphNode
@@ -40,7 +40,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezLogicEventAndAnimNode
@@ -70,7 +70,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezLogicOrAnimNode
@@ -80,10 +80,10 @@ public:
   ~ezLogicOrAnimNode();
 
 private:
-  ezAnimGraphBoolInputPin m_InBool0;     // [ property ]
-  ezAnimGraphBoolInputPin m_InBool1;     // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsTrue;  // [ property ]
-  ezAnimGraphBoolOutputPin m_OutIsFalse; // [ property ]
+  ezUInt8 m_uiBoolCount = 2;                          // [ property ]
+  ezHybridArray<ezAnimGraphBoolInputPin, 2> m_InBool; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsTrue;               // [ property ]
+  ezAnimGraphBoolOutputPin m_OutIsFalse;              // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezLogicNotAnimNode

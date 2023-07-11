@@ -17,12 +17,10 @@ protected:
   // ezLogAnimNode
 
 protected:
-  ezString m_sText;                        // [ property ]
-  ezAnimGraphTriggerInputPin m_InActivate; // [ property ]
-  ezAnimGraphNumberInputPin m_InNumber0;   // [ property ]
-  ezAnimGraphNumberInputPin m_InNumber1;   // [ property ]
-  ezAnimGraphNumberInputPin m_InNumber2;   // [ property ]
-  ezAnimGraphNumberInputPin m_InNumber3;   // [ property ]
+  ezString m_sText;                                        // [ property ]
+  ezAnimGraphTriggerInputPin m_InActivate;                 // [ property ]
+  ezUInt8 m_uiNumberCount = 1;                             // [ property ]
+  ezHybridArray<ezAnimGraphNumberInputPin, 2> m_InNumbers; // [ property ]
 };
 
 class EZ_RENDERERCORE_DLL ezLogInfoAnimNode : public ezLogAnimNode
@@ -33,7 +31,7 @@ class EZ_RENDERERCORE_DLL ezLogInfoAnimNode : public ezLogAnimNode
   // ezLogAnimNode
 
 protected:
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 };
 
 class EZ_RENDERERCORE_DLL ezLogErrorAnimNode : public ezLogAnimNode
@@ -44,5 +42,5 @@ class EZ_RENDERERCORE_DLL ezLogErrorAnimNode : public ezLogAnimNode
   // ezLogAnimNode
 
 protected:
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 };

@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/BoneWeightsAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
@@ -91,7 +93,7 @@ ezResult ezBoneWeightsAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezBoneWeightsAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_WeightsPin.IsConnected() && !m_InverseWeightsPin.IsConnected())
     return;
@@ -116,7 +118,8 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const
       name.AppendFormat("-{}", rootBone);
     }
 
-    pInstance->m_pSharedBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw) {
+    pInstance->m_pSharedBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pOzzSkeleton](ezAnimGraphSharedBoneWeights& ref_bw)
+      {
       for (const auto& rootBone : m_RootBones)
       {
         int iRootBone = -1;
@@ -146,7 +149,8 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const
     {
       name.Append("-inv");
 
-      pInstance->m_pSharedInverseBoneWeights = graph.CreateBoneWeights(name, *pSkeleton, [this, pInstance](ezAnimGraphSharedBoneWeights& ref_bw) {
+      pInstance->m_pSharedInverseBoneWeights = ref_controller.CreateBoneWeights(name, *pSkeleton, [this, pInstance](ezAnimGraphSharedBoneWeights& ref_bw)
+        {
         const ozz::math::SimdFloat4 oneBone = ozz::math::simd_float4::one();
 
         for (ezUInt32 b = 0; b < ref_bw.m_Weights.GetCount(); ++b)
@@ -163,7 +167,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const
 
   if (m_WeightsPin.IsConnected())
   {
-    ezAnimGraphPinDataBoneWeights* pPinData = graph.AddPinDataBoneWeights();
+    ezAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
     pPinData->m_fOverallWeight = m_fWeight;
     pPinData->m_pSharedBoneWeights = pInstance->m_pSharedBoneWeights.Borrow();
 
@@ -172,7 +176,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const
 
   if (m_InverseWeightsPin.IsConnected())
   {
-    ezAnimGraphPinDataBoneWeights* pPinData = graph.AddPinDataBoneWeights();
+    ezAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
     pPinData->m_fOverallWeight = m_fWeight;
     pPinData->m_pSharedBoneWeights = pInstance->m_pSharedInverseBoneWeights.Borrow();
 

@@ -32,26 +32,26 @@
 #include <GuiFoundation/Action/EditActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 
-static void ConfigureAnimationControllerAsset()
+static void ConfigureAnimationGraphAsset()
 {
   // Menu Bar
   {
-    ezActionMapManager::RegisterActionMap("AnimationControllerAssetMenuBar").IgnoreResult();
+    ezActionMapManager::RegisterActionMap("AnimationGraphAssetMenuBar").IgnoreResult();
 
-    ezStandardMenus::MapActions("AnimationControllerAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-    ezProjectActions::MapActions("AnimationControllerAssetMenuBar");
-    ezDocumentActions::MapActions("AnimationControllerAssetMenuBar", "Menu.File", false);
-    ezAssetActions::MapMenuActions("AnimationControllerAssetMenuBar", "Menu.File");
-    ezCommandHistoryActions::MapActions("AnimationControllerAssetMenuBar", "Menu.Edit");
-    ezEditActions::MapActions("AnimationControllerAssetMenuBar", "Menu.Edit", false, false);
+    ezStandardMenus::MapActions("AnimationGraphAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezProjectActions::MapActions("AnimationGraphAssetMenuBar");
+    ezDocumentActions::MapActions("AnimationGraphAssetMenuBar", "Menu.File", false);
+    ezAssetActions::MapMenuActions("AnimationGraphAssetMenuBar", "Menu.File");
+    ezCommandHistoryActions::MapActions("AnimationGraphAssetMenuBar", "Menu.Edit");
+    ezEditActions::MapActions("AnimationGraphAssetMenuBar", "Menu.Edit", false, false);
   }
 
   // Tool Bar
   {
-    ezActionMapManager::RegisterActionMap("AnimationControllerAssetToolBar").IgnoreResult();
-    ezDocumentActions::MapActions("AnimationControllerAssetToolBar", "", true);
-    ezCommandHistoryActions::MapActions("AnimationControllerAssetToolBar", "");
-    ezAssetActions::MapToolBarActions("AnimationControllerAssetToolBar", true);
+    ezActionMapManager::RegisterActionMap("AnimationGraphAssetToolBar").IgnoreResult();
+    ezDocumentActions::MapActions("AnimationGraphAssetToolBar", "", true);
+    ezCommandHistoryActions::MapActions("AnimationGraphAssetToolBar", "");
+    ezAssetActions::MapToolBarActions("AnimationGraphAssetToolBar", true);
   }
 }
 
@@ -601,7 +601,7 @@ ezVariant CustomAction_CreateShaderFromTemplate(const ezDocument* pDoc)
 
 void OnLoadPlugin()
 {
-  ConfigureAnimationControllerAsset();
+  ConfigureAnimationGraphAsset();
   ConfigureTexture2DAsset();
   ConfigureTextureCubeAsset();
   ConfigureLUTAsset();

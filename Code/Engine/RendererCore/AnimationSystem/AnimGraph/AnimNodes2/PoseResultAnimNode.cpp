@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/PoseResultAnimNode.h>
 
 // clang-format off
@@ -14,13 +16,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPoseResultAnimNode, 1, ezRTTIDefaultAllocator<
     EZ_MEMBER_PROPERTY("InFadeDuration", m_InFadeDuration)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("InWeights", m_InWeights)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("OutOnFadedOut", m_OutOnFadedOut)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutOnFadedIn", m_OutOnFadedIn)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("OutCurrentWeight", m_OutCurrentWeight)->AddAttributes(new ezHiddenAttribute),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Output"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Grape)),
-    new ezTitleAttribute("Local Result"),
+    new ezTitleAttribute("Pose Result"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -43,6 +47,8 @@ ezResult ezPoseResultAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(m_InFadeDuration.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_InWeights.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutOnFadedOut.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnFadedIn.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutCurrentWeight.Serialize(stream));
 
   return EZ_SUCCESS;
 }
@@ -60,11 +66,13 @@ ezResult ezPoseResultAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(m_InFadeDuration.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_InWeights.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutOnFadedOut.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnFadedIn.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutCurrentWeight.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezPoseResultAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_InPose.IsConnected())
     return;
@@ -84,6 +92,10 @@ void ezPoseResultAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const 
     {
       m_OutOnFadedOut.SetTriggered(graph);
     }
+    if (bWasInterpolating && fCurrentWeight >= 1.0f)
+    {
+      m_OutOnFadedIn.SetTriggered(graph);
+    }
   }
   else
   {
@@ -101,22 +113,24 @@ void ezPoseResultAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const 
     pInstance->m_EndTime = ezTime::Seconds(m_InFadeDuration.GetNumber(graph, m_FadeDuration.GetSeconds()));
   }
 
+  m_OutCurrentWeight.SetNumber(graph, fCurrentWeight);
+
   if (fCurrentWeight <= 0.0f)
     return;
 
-  if (auto pCurrentLocalTransforms = m_InPose.GetPose(graph))
+  if (auto pCurrentLocalTransforms = m_InPose.GetPose(ref_controller, graph))
   {
     if (pCurrentLocalTransforms->m_CommandID != ezInvalidIndex)
     {
-      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
       pLocalTransforms->m_CommandID = pCurrentLocalTransforms->m_CommandID;
-      pLocalTransforms->m_pWeights = m_InWeights.GetWeights(graph);
+      pLocalTransforms->m_pWeights = m_InWeights.GetWeights(ref_controller, graph);
       pLocalTransforms->m_fOverallWeight = pCurrentLocalTransforms->m_fOverallWeight * fCurrentWeight;
       pLocalTransforms->m_bUseRootMotion = pCurrentLocalTransforms->m_bUseRootMotion;
       pLocalTransforms->m_vRootMotion = pCurrentLocalTransforms->m_vRootMotion;
 
-      graph.AddOutputLocalTransforms(pLocalTransforms);
+      ref_controller.AddOutputLocalTransforms(pLocalTransforms);
     }
   }
 }

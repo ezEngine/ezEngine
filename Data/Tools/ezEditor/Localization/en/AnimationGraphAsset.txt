@@ -40,7 +40,7 @@ ezLerpPosesAnimNode;Lerp Poses
 ezSampleFrameAnimNode;Sample Frame
 ezSampleAnimClipAnimNode; Sample Clip
 ezPoseResultAnimNode; Pose Result
-ezSelectPoseAnimNode; Select Pose
+ezSwitchPoseAnimNode; Switch Pose
 ezSampleBlendSpace1DAnimNode;Sample BlendSpace 1D
 ezSampleBlendSpace2DAnimNode;Sample BlendSpace 2D
 ezSwitchBoneWeightsAnimNode;Bone Weights Switch

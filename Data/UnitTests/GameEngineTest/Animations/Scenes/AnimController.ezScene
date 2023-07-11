@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12847930402705578174,5226840514406773140}}
-		u4 %Hash{12809585158122189213}
+		u4 %Hash{15464348287645419922}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -24,7 +24,7 @@ o
 			s{"{ 75fc3a46-9e7d-443c-8620-3cf850cfcad6 }"}
 			s{"{ 7715bf64-f2b1-4446-96a7-1fdaa5f296d9 }"}
 			s{"{ 83b78284-22ab-43f2-b971-d44a838147f6 }"}
-			s{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
+			s{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		}
@@ -37,7 +37,7 @@ o
 			s{"{ 736eb11f-dca5-4db4-83ec-21e6636a41ee }"}
 			s{"{ 75fc3a46-9e7d-443c-8620-3cf850cfcad6 }"}
 			s{"{ 83b78284-22ab-43f2-b971-d44a838147f6 }"}
-			s{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
+			s{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		}
@@ -422,7 +422,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
+		s %AnimGraph{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -775,7 +775,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
+		s %AnimGraph{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -964,7 +964,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
+		s %AnimGraph{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
 		s %RootMotionMode{"ezRootMotionMode::ApplyToOwner"}
 	}
@@ -1044,7 +1044,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ 8bec5a6e-d5d8-465e-9a51-2503475e814a }"}
+		s %AnimGraph{"{ 9f9fc0fa-4c8a-4b06-93b1-b7a36f97787d }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
 		s %RootMotionMode{"ezRootMotionMode::Ignore"}
 	}

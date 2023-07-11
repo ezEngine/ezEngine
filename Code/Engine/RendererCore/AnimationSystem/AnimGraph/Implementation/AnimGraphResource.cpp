@@ -6,11 +6,42 @@
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipMapping, 1, ezRTTIDefaultAllocator<ezAnimationClipMapping>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("ClipName", GetClipName, SetClipName)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+    EZ_ACCESSOR_PROPERTY("Clip", GetClip, SetClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+  }
+    EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphResource, 1, ezRTTIDefaultAllocator<ezAnimGraphResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezAnimGraphResource);
 // clang-format on
+
+const char* ezAnimationClipMapping::GetClip() const
+{
+  if (m_hClip.IsValid())
+    return m_hClip.GetResourceID();
+
+  return "";
+}
+
+void ezAnimationClipMapping::SetClip(const char* szName)
+{
+  ezAnimationClipResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szName))
+  {
+    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szName);
+  }
+
+  m_hClip = hResource;
+}
 
 ezAnimGraphResource::ezAnimGraphResource()
   : ezResource(ezResource::DoUpdate::OnAnyThread, 0)
@@ -47,7 +78,25 @@ ezResourceLoadDesc ezAnimGraphResource::UpdateContent(ezStreamReader* Stream)
   }
 
   ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream).IgnoreResult();
+  AssetHash.Read(*Stream).AssertSuccess();
+
+  {
+    const auto uiVersion = Stream->ReadVersion(2);
+    Stream->ReadArray(m_IncludeGraphs).AssertSuccess();
+
+    if (uiVersion >= 2)
+    {
+      ezUInt32 uiNum = 0;
+      *Stream >> uiNum;
+
+      m_AnimationClipMapping.SetCount(uiNum);
+      for (ezUInt32 i = 0; i < uiNum; ++i)
+      {
+        *Stream >> m_AnimationClipMapping[i].m_sClipName;
+        *Stream >> m_AnimationClipMapping[i].m_hClip;
+      }
+    }
+  }
 
   if (m_AnimGraph.Deserialize(*Stream).Failed())
   {

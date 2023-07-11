@@ -77,7 +77,7 @@ static ezHashedString s_sB = ezMakeHashedString("b");
 static ezHashedString s_sC = ezMakeHashedString("c");
 static ezHashedString s_sD = ezMakeHashedString("d");
 
-void ezMathExpressionAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezMathExpressionAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
@@ -170,7 +170,7 @@ ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezCompareNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezCompareNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   const bool bIsTrue = ezComparisonOperator::Compare<double>(m_Comparison, m_InNumber.GetNumber(graph), m_InReference.GetNumber(graph, m_fReferenceValue));
 
@@ -236,7 +236,7 @@ ezResult ezBoolToNumberAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezBoolToNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezBoolToNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   m_OutNumber.SetNumber(graph, m_InValue.GetBool(graph) ? m_fTrueValue : m_fFalseValue);
 }

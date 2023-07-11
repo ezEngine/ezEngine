@@ -22,7 +22,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Log, ezNoBase, 1, ezRTTINo
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStringView BuildFormattedText(ezStringView sText, const ezVariantArray& params, ezStringBuilder& ref_sStorage)
+static ezStringView BuildFormattedText(ezStringView sText, const ezVariantArray& params, ezStringBuilder& ref_sStorage)
 {
   ezHybridArray<ezString, 12> stringStorage;
   stringStorage.Reserve(params.GetCount());

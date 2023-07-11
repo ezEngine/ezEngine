@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{2306275004533268751}
+		u4 %Hash{13060980397134686859}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -82,7 +82,7 @@ o
 			s{"{ 64d3d26c-3e5d-46ab-8072-b9b65e850c77 }"}
 			s{"{ 6fedf421-7c53-4047-80bf-343903e382b8 }"}
 			s{"{ 7941db21-7976-47c5-94d2-2934ef511372 }"}
-			s{"{ a0ec8306-00b6-4187-9966-0a48b3b94db2 }"}
+			s{"{ bcc4c94a-a2d5-4809-a8a5-717195e17e6e }"}
 			s{"{ c545bd5c-582b-4f26-8344-a8460587948c }"}
 			s{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
 			s{"{ e2374f5b-ff29-4d06-8264-12b55f5d0176 }"}
@@ -94,7 +94,7 @@ o
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ 6fedf421-7c53-4047-80bf-343903e382b8 }"}
 			s{"{ 7941db21-7976-47c5-94d2-2934ef511372 }"}
-			s{"{ a0ec8306-00b6-4187-9966-0a48b3b94db2 }"}
+			s{"{ bcc4c94a-a2d5-4809-a8a5-717195e17e6e }"}
 			s{"{ c545bd5c-582b-4f26-8344-a8460587948c }"}
 			s{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
 			s{"{ e2374f5b-ff29-4d06-8264-12b55f5d0176 }"}
@@ -778,7 +778,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ a0ec8306-00b6-4187-9966-0a48b3b94db2 }"}
+		s %AnimGraph{"{ bcc4c94a-a2d5-4809-a8a5-717195e17e6e }"}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max60FPS"}
 		s %RootMotionMode{"ezRootMotionMode::Ignore"}
 	}

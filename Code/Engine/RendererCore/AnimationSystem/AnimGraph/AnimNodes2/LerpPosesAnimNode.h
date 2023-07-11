@@ -13,7 +13,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezLerpPosesAnimNode
@@ -25,10 +25,8 @@ public:
   float m_fLerp = 0.5f; // [ property ]
 
 private:
-  ezAnimGraphNumberInputPin m_InLerp;      // [ property ]
-  ezAnimGraphLocalPoseInputPin m_InPose0;  // [ property ]
-  ezAnimGraphLocalPoseInputPin m_InPose1;  // [ property ]
-  ezAnimGraphLocalPoseInputPin m_InPose2;  // [ property ]
-  ezAnimGraphLocalPoseInputPin m_InPose3;  // [ property ]
-  ezAnimGraphLocalPoseOutputPin m_OutPose; // [ property ]
+  ezUInt8 m_uiPosesCount = 0;                               // [ property ]
+  ezHybridArray<ezAnimGraphLocalPoseInputPin, 2> m_InPoses; // [ property ]
+  ezAnimGraphNumberInputPin m_InLerp;                       // [ property ]
+  ezAnimGraphLocalPoseOutputPin m_OutPose;                  // [ property ]
 };

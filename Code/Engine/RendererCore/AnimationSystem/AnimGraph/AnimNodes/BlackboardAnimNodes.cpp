@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/BlackboardAnimNodes.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -70,12 +72,12 @@ const char* ezSetBlackboardNumberAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezSetBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSetBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_InActivate.IsTriggered(graph))
     return;
 
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -146,9 +148,9 @@ const char* ezGetBlackboardNumberAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezGetBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezGetBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -239,9 +241,9 @@ const char* ezCompareBlackboardNumberAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezCompareBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezCompareBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -353,12 +355,12 @@ const char* ezSetBlackboardBoolAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezSetBlackboardBoolAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSetBlackboardBoolAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_InActivate.IsTriggered(graph))
     return;
 
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -429,9 +431,9 @@ const char* ezGetBlackboardBoolAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezGetBlackboardBoolAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezGetBlackboardBoolAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -511,9 +513,9 @@ const char* ezOnBlackboardValueChangedAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezOnBlackboardValueChangedAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezOnBlackboardValueChangedAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 

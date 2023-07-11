@@ -9,10 +9,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSwitchBoneWeightsAnimNode, 1, ezRTTIDefaultAll
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("InIndex", m_InIndex)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("InWeights0", m_InWeights0)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("InWeights1", m_InWeights1)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("InWeights2", m_InWeights2)->AddAttributes(new ezHiddenAttribute()),
-    EZ_MEMBER_PROPERTY("InWeights3", m_InWeights3)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("WeightsCount", m_uiWeightsCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(2)),
+    EZ_ARRAY_MEMBER_PROPERTY("InWeights", m_InWeights)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("WeightsCount")),
     EZ_MEMBER_PROPERTY("OutWeights", m_OutWeights)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
@@ -33,11 +31,10 @@ ezResult ezSwitchBoneWeightsAnimNode::SerializeNode(ezStreamWriter& stream) cons
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
+  stream << m_uiWeightsCount;
+
   EZ_SUCCEED_OR_RETURN(m_InIndex.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights0.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights1.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights2.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights3.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InWeights));
   EZ_SUCCEED_OR_RETURN(m_OutWeights.Serialize(stream));
 
   return EZ_SUCCESS;
@@ -50,27 +47,24 @@ ezResult ezSwitchBoneWeightsAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
+  stream >> m_uiWeightsCount;
+
   EZ_SUCCEED_OR_RETURN(m_InIndex.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights0.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights1.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights2.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InWeights3.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InWeights));
   EZ_SUCCEED_OR_RETURN(m_OutWeights.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezSwitchBoneWeightsAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_OutWeights.IsConnected() || !m_InIndex.IsConnected())
+  if (!m_OutWeights.IsConnected() || !m_InIndex.IsConnected() || m_InWeights.IsEmpty())
     return;
 
-  const ezInt32 iIndex = ezMath::Clamp((ezInt32)m_InIndex.GetNumber(graph), 0, 3);
+  const ezInt32 iIndex = ezMath::Clamp((ezInt32)m_InIndex.GetNumber(graph), 0, (ezInt32)m_InWeights.GetCount() - 1);
 
-  const ezAnimGraphBoneWeightsInputPin* pPin[4] = {&m_InWeights0, &m_InWeights1, &m_InWeights2, &m_InWeights3};
-
-  if (!pPin[iIndex]->IsConnected())
+  if (!m_InWeights[iIndex].IsConnected())
     return;
 
-  m_OutWeights.SetWeights(graph, pPin[iIndex]->GetWeights(graph));
+  m_OutWeights.SetWeights(graph, m_InWeights[iIndex].GetWeights(ref_controller, graph));
 }

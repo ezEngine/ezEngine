@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleFrameAnimNode, 1, ezRTTIDefaultAllocator
   {
     EZ_BEGIN_PROPERTIES
     {
-      EZ_ACCESSOR_PROPERTY("Clip", GetClip, SetClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+      EZ_ACCESSOR_PROPERTY("Clip", GetClip, SetClip)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
       EZ_MEMBER_PROPERTY("NormPos", m_fNormalizedSamplePosition)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 1.0f)),
 
       EZ_MEMBER_PROPERTY("InNormPos", m_InNormalizedSamplePosition)->AddAttributes(new ezHiddenAttribute()),
@@ -37,7 +37,7 @@ ezResult ezSampleFrameAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  stream << m_hClip;
+  stream << m_sClip;
   stream << m_fNormalizedSamplePosition;
 
   EZ_SUCCEED_OR_RETURN(m_InNormalizedSamplePosition.Serialize(stream));
@@ -53,7 +53,7 @@ ezResult ezSampleFrameAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  stream >> m_hClip;
+  stream >> m_sClip;
   stream >> m_fNormalizedSamplePosition;
 
   EZ_SUCCEED_OR_RETURN(m_InNormalizedSamplePosition.Deserialize(stream));
@@ -63,14 +63,16 @@ ezResult ezSampleFrameAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleFrameAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSampleFrameAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected())
     return;
 
-  if (m_hClip.IsValid())
+  const auto& clip = ref_controller.GetAnimationClipInfo(m_sClip);
+
+  if (clip.m_hClip.IsValid())
   {
-    ezResourceLock<ezAnimationClipResource> pAnimClip(m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    ezResourceLock<ezAnimationClipResource> pAnimClip(clip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
     if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
       return;
 
@@ -86,15 +88,15 @@ void ezSampleFrameAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const
     fNormPos = ezMath::Clamp(fNormPos, 0.0f, 1.0f);
 
     const void* pThis = this;
-    auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
+    auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
 
-    cmd.m_hAnimationClip = m_hClip;
+    cmd.m_hAnimationClip = clip.m_hClip;
     cmd.m_fPreviousNormalizedSamplePos = fNormPos;
     cmd.m_fNormalizedSamplePos = fNormPos;
     cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::None;
 
     {
-      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
       pLocalTransforms->m_pWeights = nullptr;
       pLocalTransforms->m_bUseRootMotion = false;
@@ -107,10 +109,10 @@ void ezSampleFrameAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const
   else
   {
     const void* pThis = this;
-    auto& cmd = graph.GetPoseGenerator().AllocCommandRestPose();
+    auto& cmd = ref_controller.GetPoseGenerator().AllocCommandRestPose();
 
     {
-      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
       pLocalTransforms->m_pWeights = nullptr;
       pLocalTransforms->m_bUseRootMotion = false;
@@ -124,20 +126,10 @@ void ezSampleFrameAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const
 
 void ezSampleFrameAnimNode::SetClip(const char* szClip)
 {
-  ezAnimationClipResourceHandle hClip;
-
-  if (!ezStringUtils::IsNullOrEmpty(szClip))
-  {
-    hClip = ezResourceManager::LoadResource<ezAnimationClipResource>(szClip);
-  }
-
-  m_hClip = hClip;
+  m_sClip.Assign(szClip);
 }
 
 const char* ezSampleFrameAnimNode::GetClip() const
 {
-  if (!m_hClip.IsValid())
-    return "";
-
-  return m_hClip.GetResourceID();
+  return m_sClip.GetData();
 }

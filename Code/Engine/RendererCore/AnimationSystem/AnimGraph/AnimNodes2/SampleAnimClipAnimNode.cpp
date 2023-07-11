@@ -2,7 +2,9 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SampleAnimClipAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
@@ -14,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleAnimClipAnimNode, 1, ezRTTIDefaultAlloca
       EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
       EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
-      EZ_ACCESSOR_PROPERTY("Clip", GetClip, SetClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+      EZ_ACCESSOR_PROPERTY("Clip", GetClip, SetClip)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
 
       EZ_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new ezHiddenAttribute()),
       EZ_MEMBER_PROPERTY("InLoop", m_InLoop)->AddAttributes(new ezHiddenAttribute()),
@@ -45,7 +47,7 @@ ezResult ezSampleAnimClipAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  stream << m_hClip;
+  stream << m_sClip;
   stream << m_bLoop;
   stream << m_bApplyRootMotion;
   stream << m_fPlaybackSpeed;
@@ -66,7 +68,7 @@ ezResult ezSampleAnimClipAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  stream >> m_hClip;
+  stream >> m_sClip;
   stream >> m_bLoop;
   stream >> m_bApplyRootMotion;
   stream >> m_fPlaybackSpeed;
@@ -81,9 +83,11 @@ ezResult ezSampleAnimClipAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleAnimClipAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_hClip.IsValid() || !m_OutPose.IsConnected())
+  const auto& clipInfo = ref_controller.GetAnimationClipInfo(m_sClip);
+
+  if (!clipInfo.m_hClip.IsValid() || !m_OutPose.IsConnected())
     return;
 
   InstanceState* pState = graph.GetAnimNodeInstanceData<InstanceState>(*this);
@@ -99,7 +103,7 @@ void ezSampleAnimClipAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, co
   if (!pState->m_bPlaying)
     return;
 
-  ezResourceLock<ezAnimationClipResource> pAnimClip(m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  ezResourceLock<ezAnimationClipResource> pAnimClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
@@ -115,7 +119,7 @@ void ezSampleAnimClipAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, co
   const bool bLoop = m_InLoop.GetBool(graph, m_bLoop);
 
   const void* pThis = this;
-  auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
+  auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
   cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
 
   if (bLoop && pState->m_PlaybackTime > tDuration)
@@ -125,12 +129,12 @@ void ezSampleAnimClipAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, co
     m_OutOnStarted.SetTriggered(graph);
   }
 
-  cmd.m_hAnimationClip = m_hClip;
+  cmd.m_hAnimationClip = clipInfo.m_hClip;
   cmd.m_fPreviousNormalizedSamplePos = ezMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
   cmd.m_fNormalizedSamplePos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
 
   {
-    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
     pLocalTransforms->m_pWeights = nullptr;
     pLocalTransforms->m_bUseRootMotion = m_bApplyRootMotion;
@@ -150,22 +154,12 @@ void ezSampleAnimClipAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, co
 
 void ezSampleAnimClipAnimNode::SetClip(const char* szClip)
 {
-  ezAnimationClipResourceHandle hClip;
-
-  if (!ezStringUtils::IsNullOrEmpty(szClip))
-  {
-    hClip = ezResourceManager::LoadResource<ezAnimationClipResource>(szClip);
-  }
-
-  m_hClip = hClip;
+  m_sClip.Assign(szClip);
 }
 
 const char* ezSampleAnimClipAnimNode::GetClip() const
 {
-  if (!m_hClip.IsValid())
-    return "";
-
-  return m_hClip.GetResourceID();
+  return m_sClip.GetData();
 }
 
 bool ezSampleAnimClipAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const

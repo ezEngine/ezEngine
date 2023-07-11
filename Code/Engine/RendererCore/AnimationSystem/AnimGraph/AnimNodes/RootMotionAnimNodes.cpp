@@ -53,14 +53,14 @@ ezResult ezRootRotationAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezRootRotationAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezRootRotationAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   ezVec3 vRootMotion = ezVec3::ZeroVector();
   ezAngle rootRotationX;
   ezAngle rootRotationY;
   ezAngle rootRotationZ;
 
-  graph.GetRootMotion(vRootMotion, rootRotationX, rootRotationY, rootRotationZ);
+  ref_controller.GetRootMotion(vRootMotion, rootRotationX, rootRotationY, rootRotationZ);
 
   if (m_InRotateX.IsConnected())
   {
@@ -75,7 +75,7 @@ void ezRootRotationAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, cons
     rootRotationZ += ezAngle::Degree(static_cast<float>(m_InRotateZ.GetNumber(graph)));
   }
 
-  graph.SetRootMotion(vRootMotion, rootRotationX, rootRotationY, rootRotationZ);
+  ref_controller.SetRootMotion(vRootMotion, rootRotationX, rootRotationY, rootRotationZ);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_ModelPoseOutputAnimNode);

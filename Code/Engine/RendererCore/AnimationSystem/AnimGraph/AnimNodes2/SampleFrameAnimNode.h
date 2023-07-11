@@ -15,7 +15,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezSampleFrameAnimNode
@@ -24,7 +24,7 @@ public:
   void SetClip(const char* szClip);
   const char* GetClip() const;
 
-  ezAnimationClipResourceHandle m_hClip;    // [ property ]
+  ezHashedString m_sClip;                   // [ property ]
   float m_fNormalizedSamplePosition = 0.0f; // [ property ]
 
 private:

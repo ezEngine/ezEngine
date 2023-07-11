@@ -1,0 +1,7 @@
+Action_Wave
+Gun_Point
+Gun_Shoot
+Run_Fwd
+Walk_Fwd
+Walk_Left
+Walk_Right

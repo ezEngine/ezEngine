@@ -1,0 +1,12 @@
+Action_Wave
+Gun_Point
+Gun_Shoot
+Idle
+Jump_End
+Jump_Loop
+Jump_Start
+Run_Fwd
+Walk_Back
+Walk_Fwd
+Walk_Left
+Walk_Right
