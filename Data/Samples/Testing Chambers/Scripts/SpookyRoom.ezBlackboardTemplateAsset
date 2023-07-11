@@ -11,7 +11,7 @@ o
 		s %AssetType{"BlackboardTemplate"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6483898052508378242,4872236789633655366}}
-		u4 %Hash{15446124952527113901}
+		u4 %Hash{4143724915924086083}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -29,7 +29,7 @@ o
 	p
 	{
 		s %Flags{""}
-		Color %InitialValue{f{0x0000803F,0,0x0000803F,0x0000803F}}
+		Color %InitialValue{f{0xDB3CE53D,0,0x0000803F,0x0000803F}}
 		s %Name{"MoodColor"}
 	}
 }

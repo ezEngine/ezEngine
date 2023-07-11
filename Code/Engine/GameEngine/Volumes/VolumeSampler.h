@@ -19,9 +19,9 @@ public:
 
   ezVariant GetValue(ezTempHashedString sName) const
   {
-    if (const Value* pValue = m_CurrentValues.GetValue(sName))
+    if (const Value* pValue = m_Values.GetValue(sName))
     {
-      return pValue->m_Value;
+      return pValue->m_CurrentValue;
     }
 
     return ezVariant();
@@ -30,9 +30,11 @@ public:
 private:
   struct Value
   {
-    ezVariant m_Value;
+    ezVariant m_DefaultValue;
+    ezVariant m_CurrentValue;
     ezTime m_InterpolationDuration;
   };
 
-  ezHashTable<ezHashedString, Value> m_CurrentValues;
+  ezHashTable<ezHashedString, Value> m_Values;
+  ezHashTable<ezHashedString, ezVariant> m_TargetValues;
 };

@@ -179,7 +179,7 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
   if (pView == nullptr)
     return;
 
-  const ezVec3 vSamplePos = GetOwner()->GetGlobalPosition();
+  const ezVec3 vSamplePos = pView->GetCullingCamera()->GetCenterPosition();
 
   ezTime deltaTime;
   if (pWorld->GetWorldSimulationEnabled())

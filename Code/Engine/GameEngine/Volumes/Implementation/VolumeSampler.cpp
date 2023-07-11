@@ -10,23 +10,26 @@ ezVolumeSampler::~ezVolumeSampler() = default;
 
 void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue, ezTime interpolationDuration /*= ezTime::Zero()*/)
 {
-  auto& value = m_CurrentValues[sName];
-  value.m_Value = defaultValue;
+  auto& value = m_Values[sName];
+  value.m_DefaultValue = defaultValue;
+  value.m_CurrentValue = defaultValue;
   value.m_InterpolationDuration = interpolationDuration;
 }
 
 void ezVolumeSampler::DeregisterValue(ezHashedString sName)
 {
-  m_CurrentValues.Remove(sName);
+  m_Values.Remove(sName);
 }
 
 void ezVolumeSampler::DeregisterAllValues()
 {
-  m_CurrentValues.Clear();
+  m_Values.Clear();
 }
 
 void ezVolumeSampler::SampleAtPosition(ezWorld& world, const ezVec3& vGlobalPosition, ezTime deltaTime)
 {
+  m_TargetValues.Clear();
+
   ezBoundingSphere sphere(vGlobalPosition, 0.01f);
 
   ezSpatialSystem::QueryParams queryParams;
@@ -45,15 +48,15 @@ void ezVolumeSampler::SampleAtPosition(ezWorld& world, const ezVec3& vGlobalPosi
     });
 
   // TODO: sorting
-  // TODO: fade over time
-
+  
   auto vPos = ezSimdConversion::ToVec3(vGlobalPosition);
 
   for (auto pVolumeComponent : volumeComponents)
   {
     ezSimdTransform scaledTransform = pVolumeComponent->GetOwner()->GetGlobalTransformSimd();
     float fAlpha = 0.0f;
-    
+
+    // TODO:  sphere
     if (auto pBoxVolume = ezDynamicCast<const ezVolumeBoxComponent*>(pVolumeComponent))
     {      
       scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(pBoxVolume->GetExtents())) * 0.5f;
@@ -78,12 +81,24 @@ void ezVolumeSampler::SampleAtPosition(ezWorld& world, const ezVec3& vGlobalPosi
     auto& desc = blackboardTemplate->GetDescriptor();
     for (auto& entry : desc.m_Entries)
     {
-      auto pCurrentValue = m_CurrentValues.GetValue(entry.m_sName);
+      auto pCurrentValue = m_Values.GetValue(entry.m_sName);
       if (pCurrentValue == nullptr)
         continue;
 
       // TODO: interpolate
-      pCurrentValue->m_Value = entry.m_InitialValue;
+      m_TargetValues[entry.m_sName] = entry.m_InitialValue;
     }
+  }
+
+  for (auto& it : m_Values)
+  {
+    ezVariant targetValue;
+    if (m_TargetValues.TryGetValue(it.Key(), targetValue) == false)
+    {
+      targetValue = it.Value().m_DefaultValue;
+    }
+
+    // TODO: fade over time
+    it.Value().m_CurrentValue = targetValue;
   }
 }
