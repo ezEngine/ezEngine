@@ -157,10 +157,16 @@ void ezPostProcessingComponent::Mappings_Remove(ezUInt32 uiIndex)
 
 void ezPostProcessingComponent::RegisterSamplerValues()
 {
+  if (m_pSampler == nullptr)
+    return;
+
   m_pSampler->DeregisterAllValues();
 
   for (auto& mapping : m_Mappings)
   {
+    if (mapping.m_sVolumeValueName.IsEmpty())
+      continue;
+
     m_pSampler->RegisterValue(mapping.m_sVolumeValueName, mapping.m_DefaultValue, mapping.m_InterpolationDuration);
   }
 }
@@ -189,10 +195,19 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
 
   for (auto& mapping : m_Mappings)
   {
-    if (mapping.m_sRenderPassName.IsEmpty() || mapping.m_sPropertyName.IsEmpty() || mapping.m_sVolumeValueName.IsEmpty())
+    if (mapping.m_sRenderPassName.IsEmpty() || mapping.m_sPropertyName.IsEmpty())
       continue;
 
-    ezVariant value = m_pSampler->GetValue(mapping.m_sVolumeValueName);
+    ezVariant value;
+    if (mapping.m_sVolumeValueName.IsEmpty())
+    {
+      value = mapping.m_DefaultValue;
+    }
+    else
+    {
+      value = m_pSampler->GetValue(mapping.m_sVolumeValueName);
+    }
+
     pView->SetRenderPassProperty(mapping.m_sRenderPassName, mapping.m_sPropertyName, value);
   }
 }

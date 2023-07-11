@@ -124,14 +124,26 @@ namespace ezOpenDdlUtils
   /// \brief Converts the data that \a pElement points to to an ezAngle.
   ///
   /// \a pElement maybe be a primitives list of exactly 1 float.
-  /// The value is assumed to be in degree.
+  /// The value is assumed to be in radians.
   /// It may also be a group that contains such a primitives list as the only child.
   EZ_FOUNDATION_DLL ezResult ConvertToAngle(const ezOpenDdlReaderElement* pElement, ezAngle& out_result); // [tested]
+
+  /// \brief Converts the data that \a pElement points to to an ezHashedString.
+  ///
+  /// \a pElement maybe be a primitives list of exactly 1 string.
+  /// It may also be a group that contains such a primitives list as the only child.
+  EZ_FOUNDATION_DLL ezResult ConvertToHashedString(const ezOpenDdlReaderElement* pElement, ezHashedString& out_result); // [tested]
+
+  /// \brief Converts the data that \a pElement points to to an ezTempHashedString.
+  ///
+  /// \a pElement maybe be a primitives list of exactly 1 uint64.
+  /// It may also be a group that contains such a primitives list as the only child.
+  EZ_FOUNDATION_DLL ezResult ConvertToTempHashedString(const ezOpenDdlReaderElement* pElement, ezTempHashedString& out_result); // [tested]
 
   /// \brief Uses the elements custom type name to infer which type the object holds and reads it into the ezVariant.
   ///
   /// Depending on the custom type name, one of the other ConvertToXY functions is called and the respective conditions to the data format apply.
-  /// Supported type names are: "Color", "ColorGamma", "Time", "Vec2", "Vec3", "Vec4", "Mat3", "Mat4", "Transform", "Quat", "Uuid", "Angle"
+  /// Supported type names are: "Color", "ColorGamma", "Time", "Vec2", "Vec3", "Vec4", "Mat3", "Mat4", "Transform", "Quat", "Uuid", "Angle", "HashedString", "TempHashedString"
   /// Type names are case sensitive.
   EZ_FOUNDATION_DLL ezResult ConvertToVariant(const ezOpenDdlReaderElement* pElement, ezVariant& out_result); // [tested]
 
@@ -192,6 +204,12 @@ namespace ezOpenDdlUtils
 
   /// \brief Writes an ezAngle to DDL such that the type can be reconstructed.
   EZ_FOUNDATION_DLL void StoreAngle(ezOpenDdlWriter& ref_writer, const ezAngle& value, ezStringView sName = {}, bool bGlobalName = false); // [tested]
+
+  /// \brief Writes an ezHashedString to DDL such that the type can be reconstructed.
+  EZ_FOUNDATION_DLL void StoreHashedString(ezOpenDdlWriter& ref_writer, const ezHashedString& value, ezStringView sName = {}, bool bGlobalName = false); // [tested]
+
+  /// \brief Writes an ezTempHashedString to DDL such that the type can be reconstructed.
+  EZ_FOUNDATION_DLL void StoreTempHashedString(ezOpenDdlWriter& ref_writer, const ezTempHashedString& value, ezStringView sName = {}, bool bGlobalName = false); // [tested]
 
   /// \brief Writes an ezVariant to DDL such that the type can be reconstructed.
   EZ_FOUNDATION_DLL void StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& value, ezStringView sName = {}, bool bGlobalName = false); // [tested]

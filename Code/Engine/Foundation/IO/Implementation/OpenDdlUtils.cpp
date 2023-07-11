@@ -618,6 +618,64 @@ ezResult ezOpenDdlUtils::ConvertToAngle(const ezOpenDdlReaderElement* pElement, 
   return EZ_FAILURE;
 }
 
+ezResult ezOpenDdlUtils::ConvertToHashedString(const ezOpenDdlReaderElement* pElement, ezHashedString& out_result)
+{
+  if (pElement == nullptr)
+    return EZ_FAILURE;
+
+  // go into the element, if we are at the group level
+  if (pElement->IsCustomType())
+  {
+    if (pElement->GetNumChildObjects() != 1)
+      return EZ_FAILURE;
+
+    pElement = pElement->GetFirstChild();
+  }
+
+  if (pElement->GetNumPrimitives() != 1)
+    return EZ_FAILURE;
+
+  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::String)
+  {
+    const ezStringView* pValues = pElement->GetPrimitivesString();
+
+    out_result.Assign(pValues[0]);
+
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezOpenDdlUtils::ConvertToTempHashedString(const ezOpenDdlReaderElement* pElement, ezTempHashedString& out_result)
+{
+  if (pElement == nullptr)
+    return EZ_FAILURE;
+
+  // go into the element, if we are at the group level
+  if (pElement->IsCustomType())
+  {
+    if (pElement->GetNumChildObjects() != 1)
+      return EZ_FAILURE;
+
+    pElement = pElement->GetFirstChild();
+  }
+
+  if (pElement->GetNumPrimitives() != 1)
+    return EZ_FAILURE;
+
+  if (pElement->GetPrimitivesType() == ezOpenDdlPrimitiveType::UInt64)
+  {
+    const ezUInt64* pValues = pElement->GetPrimitivesUInt64();
+
+    out_result = ezTempHashedString(pValues[0]);
+
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
 ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement, ezVariant& out_result)
 {
   if (pElement == nullptr)
@@ -864,6 +922,26 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
     {
       ezAngle value;
       if (ConvertToAngle(pElement, value).Failed())
+        return EZ_FAILURE;
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
+    if (pElement->GetCustomType() == "HashedString")
+    {
+      ezHashedString value;
+      if (ConvertToHashedString(pElement, value).Failed())
+        return EZ_FAILURE;
+
+      out_result = value;
+      return EZ_SUCCESS;
+    }
+
+    if (pElement->GetCustomType() == "TempHashedString")
+    {
+      ezTempHashedString value;
+      if (ConvertToTempHashedString(pElement, value).Failed())
         return EZ_FAILURE;
 
       out_result = value;
@@ -1211,6 +1289,30 @@ void ezOpenDdlUtils::StoreAngle(ezOpenDdlWriter& ref_writer, const ezAngle& valu
   ref_writer.EndObject();
 }
 
+void ezOpenDdlUtils::StoreHashedString(ezOpenDdlWriter& ref_writer, const ezHashedString& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+{
+  ref_writer.BeginObject("HashedString", sName, bGlobalName, true);
+  {
+    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::String);
+    ref_writer.WriteString(value.GetView());
+    ref_writer.EndPrimitiveList();
+  }
+  ref_writer.EndObject();
+}
+
+void ezOpenDdlUtils::StoreTempHashedString(ezOpenDdlWriter& ref_writer, const ezTempHashedString& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
+{
+  ref_writer.BeginObject("TempHashedString", sName, bGlobalName, true);
+  {
+    const ezUInt64 uiHash = value.GetHash();
+
+    ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::UInt64);
+    ref_writer.WriteUInt64(&uiHash);
+    ref_writer.EndPrimitiveList();
+  }
+  ref_writer.EndObject();
+}
+
 void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& value, ezStringView sName /*= {}*/, bool bGlobalName /*= false*/)
 {
   switch (value.GetType())
@@ -1341,6 +1443,14 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
 
     case ezVariant::Type::ColorGamma:
       StoreColorGamma(ref_writer, value.Get<ezColorGammaUB>(), sName, bGlobalName);
+      return;
+
+    case ezVariant::Type::HashedString:
+      StoreHashedString(ref_writer, value.Get<ezHashedString>(), sName, bGlobalName);
+      return;
+
+    case ezVariant::Type::TempHashedString:
+      StoreTempHashedString(ref_writer, value.Get<ezTempHashedString>(), sName, bGlobalName);
       return;
 
     case ezVariant::Type::VariantArray:

@@ -333,6 +333,42 @@ Data $v1 { float { 45.23 } }\
     EZ_TEST_FLOAT(v1.GetRadian(), 45.23f, 0.0001f);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToHashedString")
+  {
+    const char* szTestData = "\
+Data $v1 { string { \"Hello World\" } }\
+";
+
+    StringStream stream(szTestData);
+    ezOpenDdlReader doc;
+    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
+
+    ezHashedString v0, v1;
+
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToHashedString(doc.FindElement("v0"), v0).Failed());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToHashedString(doc.FindElement("v1"), v1).Succeeded());
+
+    EZ_TEST_STRING(v1.GetView(), "Hello World");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToTempHashedString")
+  {
+    const char* szTestData = "\
+Data $v1 { uint64 { 2720389094277464445 } }\
+";
+
+    StringStream stream(szTestData);
+    ezOpenDdlReader doc;
+    EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
+
+    ezTempHashedString v0, v1;
+
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToTempHashedString(doc.FindElement("v0"), v0).Failed());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToTempHashedString(doc.FindElement("v1"), v1).Succeeded());
+
+    EZ_TEST_BOOL(v1 == ezTempHashedString("GHIJK"));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToVariant")
   {
     const char* szTestData = "\
@@ -348,55 +384,63 @@ Transform $v9 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } }\
 Quat $v10 { float { 0.1, 2, 3.2, 44.5 } }\
 Uuid $v11 { unsigned_int64 { 12345678910, 10987654321 } }\
 Angle $v12 { float { 45.23 } }\
+HashedString $v13 { string { \"Soo much string\" } }\
+TempHashedString $v14 { uint64 { 2720389094277464445 } }\
 ";
 
     StringStream stream(szTestData);
     ezOpenDdlReader doc;
     EZ_TEST_BOOL(doc.ParseDocument(stream).Succeeded());
 
-    ezVariant v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12;
+    ezVariant v[15];
 
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v0"), v0).Failed());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v1"), v1).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v2"), v2).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v3"), v3).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v4"), v4).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v5"), v5).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v6"), v6).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v7"), v7).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v8"), v8).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v9"), v9).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v10"), v10).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v11"), v11).Succeeded());
-    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v12"), v12).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v0"), v[0]).Failed());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v1"), v[1]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v2"), v[2]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v3"), v[3]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v4"), v[4]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v5"), v[5]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v6"), v[6]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v7"), v[7]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v8"), v[8]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v9"), v[9]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v10"), v[10]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v11"), v[11]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v12"), v[12]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v13"), v[13]).Succeeded());
+    EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToVariant(doc.FindElement("v14"), v[14]).Succeeded());
 
-    EZ_TEST_BOOL(v1.IsA<ezColor>());
-    EZ_TEST_BOOL(v2.IsA<ezColorGammaUB>());
-    EZ_TEST_BOOL(v3.IsA<ezTime>());
-    EZ_TEST_BOOL(v4.IsA<ezVec2>());
-    EZ_TEST_BOOL(v5.IsA<ezVec3>());
-    EZ_TEST_BOOL(v6.IsA<ezVec4>());
-    EZ_TEST_BOOL(v7.IsA<ezMat3>());
-    EZ_TEST_BOOL(v8.IsA<ezMat4>());
-    EZ_TEST_BOOL(v9.IsA<ezTransform>());
-    EZ_TEST_BOOL(v10.IsA<ezQuat>());
-    EZ_TEST_BOOL(v11.IsA<ezUuid>());
-    EZ_TEST_BOOL(v12.IsA<ezAngle>());
+    EZ_TEST_BOOL(v[1].IsA<ezColor>());
+    EZ_TEST_BOOL(v[2].IsA<ezColorGammaUB>());
+    EZ_TEST_BOOL(v[3].IsA<ezTime>());
+    EZ_TEST_BOOL(v[4].IsA<ezVec2>());
+    EZ_TEST_BOOL(v[5].IsA<ezVec3>());
+    EZ_TEST_BOOL(v[6].IsA<ezVec4>());
+    EZ_TEST_BOOL(v[7].IsA<ezMat3>());
+    EZ_TEST_BOOL(v[8].IsA<ezMat4>());
+    EZ_TEST_BOOL(v[9].IsA<ezTransform>());
+    EZ_TEST_BOOL(v[10].IsA<ezQuat>());
+    EZ_TEST_BOOL(v[11].IsA<ezUuid>());
+    EZ_TEST_BOOL(v[12].IsA<ezAngle>());
+    EZ_TEST_BOOL(v[13].IsA<ezHashedString>());
+    EZ_TEST_BOOL(v[14].IsA<ezTempHashedString>());
 
-    EZ_TEST_BOOL(v1.Get<ezColor>() == ezColor(1, 0, 0.5));
-    EZ_TEST_BOOL(v2.Get<ezColorGammaUB>() == ezColorGammaUB(128, 0, 32, 64));
-    EZ_TEST_FLOAT(v3.Get<ezTime>().GetSeconds(), 0.1, 0.0001f);
-    EZ_TEST_VEC2(v4.Get<ezVec2>(), ezVec2(0.1f, 2.0f), 0.0001f);
-    EZ_TEST_VEC3(v5.Get<ezVec3>(), ezVec3(0.1f, 2.0f, 3.2f), 0.0001f);
-    EZ_TEST_VEC4(v6.Get<ezVec4>(), ezVec4(0.1f, 2.0f, 3.2f, 44.5f), 0.0001f);
-    EZ_TEST_BOOL(v7.Get<ezMat3>().IsEqual(ezMat3(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
-    EZ_TEST_BOOL(v8.Get<ezMat4>().IsEqual(ezMat4(1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16), 0.0001f));
-    EZ_TEST_BOOL(v9.Get<ezTransform>().m_qRotation == ezQuat(4, 5, 6, 7));
-    EZ_TEST_VEC3(v9.Get<ezTransform>().m_vPosition, ezVec3(1, 2, 3), 0.0001f);
-    EZ_TEST_VEC3(v9.Get<ezTransform>().m_vScale, ezVec3(8, 9, 10), 0.0001f);
-    EZ_TEST_BOOL(v10.Get<ezQuat>() == ezQuat(0.1f, 2.0f, 3.2f, 44.5f));
-    EZ_TEST_BOOL(v11.Get<ezUuid>() == ezUuid(12345678910, 10987654321));
-    EZ_TEST_FLOAT(v12.Get<ezAngle>().GetRadian(), 45.23f, 0.0001f);
+    EZ_TEST_BOOL(v[1].Get<ezColor>() == ezColor(1, 0, 0.5));
+    EZ_TEST_BOOL(v[2].Get<ezColorGammaUB>() == ezColorGammaUB(128, 0, 32, 64));
+    EZ_TEST_FLOAT(v[3].Get<ezTime>().GetSeconds(), 0.1, 0.0001f);
+    EZ_TEST_VEC2(v[4].Get<ezVec2>(), ezVec2(0.1f, 2.0f), 0.0001f);
+    EZ_TEST_VEC3(v[5].Get<ezVec3>(), ezVec3(0.1f, 2.0f, 3.2f), 0.0001f);
+    EZ_TEST_VEC4(v[6].Get<ezVec4>(), ezVec4(0.1f, 2.0f, 3.2f, 44.5f), 0.0001f);
+    EZ_TEST_BOOL(v[7].Get<ezMat3>().IsEqual(ezMat3(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
+    EZ_TEST_BOOL(v[8].Get<ezMat4>().IsEqual(ezMat4(1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16), 0.0001f));
+    EZ_TEST_BOOL(v[9].Get<ezTransform>().m_qRotation == ezQuat(4, 5, 6, 7));
+    EZ_TEST_VEC3(v[9].Get<ezTransform>().m_vPosition, ezVec3(1, 2, 3), 0.0001f);
+    EZ_TEST_VEC3(v[9].Get<ezTransform>().m_vScale, ezVec3(8, 9, 10), 0.0001f);
+    EZ_TEST_BOOL(v[10].Get<ezQuat>() == ezQuat(0.1f, 2.0f, 3.2f, 44.5f));
+    EZ_TEST_BOOL(v[11].Get<ezUuid>() == ezUuid(12345678910, 10987654321));
+    EZ_TEST_FLOAT(v[12].Get<ezAngle>().GetRadian(), 45.23f, 0.0001f);
+    EZ_TEST_STRING(v[13].Get<ezHashedString>().GetView(), "Soo much string");
+    EZ_TEST_BOOL(v[14].Get<ezTempHashedString>() == ezTempHashedString("GHIJK"));
 
 
     /// \test Test primitive types in ezVariant
@@ -537,6 +581,26 @@ Angle $v12 { float { 45.23 } }\
     ezOpenDdlUtils::StoreAngle(js, ezAngle::Radian(2.3f), "v1", true);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreHashedString")
+  {
+    StreamComparer sc("HashedString $v1{string{\"ABCDE\"}}\n");
+
+    ezOpenDdlWriter js;
+    js.SetOutputStream(&sc);
+
+    ezOpenDdlUtils::StoreHashedString(js, ezMakeHashedString("ABCDE"), "v1", true);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreTempHashedString")
+  {
+    StreamComparer sc("TempHashedString $v1{uint64{2720389094277464445}}\n");
+
+    ezOpenDdlWriter js;
+    js.SetOutputStream(&sc);
+
+    ezOpenDdlUtils::StoreTempHashedString(js, ezTempHashedString("GHIJK"), "v1", true);
+  }
+
   // this test also covers all the types that Variant supports
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVariant")
   {
@@ -544,7 +608,7 @@ Angle $v12 { float { 45.23 } }\
 
     for (ezUInt8 i = 0; i < EZ_ARRAY_SIZE(rawData); ++i)
     {
-      rawData[i] = i + 1;
+      rawData[i] = i + 33;
     }
 
     rawData[EZ_ARRAY_SIZE(rawData) - 1] = 0; // string terminator
@@ -581,7 +645,7 @@ static ezVariant CreateVariant(ezVariant::Type::Enum t, const void* pData)
   switch (t)
   {
     case ezVariant::Type::Bool:
-      return ezVariant(*((bool*)pData));
+      return ezVariant(*(ezInt8*)pData != 0);
     case ezVariant::Type::Int8:
       return ezVariant(*((ezInt8*)pData));
     case ezVariant::Type::UInt8:
@@ -650,6 +714,14 @@ static ezVariant CreateVariant(ezVariant::Type::Enum t, const void* pData)
       return ezVariant(*((ezAngle*)pData));
     case ezVariant::Type::ColorGamma:
       return ezVariant(*((ezColorGammaUB*)pData));
+    case ezVariant::Type::HashedString:
+    {
+      ezHashedString s;
+      s.Assign((const char*)pData);
+      return ezVariant(s);
+    }
+    case ezVariant::Type::TempHashedString:
+      return ezVariant(ezTempHashedString((const char*)pData));
 
     default:
       EZ_REPORT_FAILURE("Unknown type");
