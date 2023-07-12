@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{4964769900164861852}
+		u4 %Hash{11226509181554419220}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -4083,7 +4083,7 @@ o
 	p
 	{
 		Color %DefaultValue{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
-		Time %InterpolationDuration{d{0}}
+		Time %InterpolationDuration{d{0x0000000000000040}}
 		HashedString %Property{s{"MoodColor"}}
 		HashedString %RenderPass{s{"TonemapPass"}}
 		HashedString %VolumeValue{s{"MoodColor"}}
@@ -10590,11 +10590,11 @@ o
 	u3 %v{1}
 	p
 	{
-		f %DefaultValue{0x0000803F}
-		Time %InterpolationDuration{d{0}}
+		f %DefaultValue{0x3333333F}
+		Time %InterpolationDuration{d{0x0000000000000040}}
 		HashedString %Property{s{"MoodStrength"}}
 		HashedString %RenderPass{s{"TonemapPass"}}
-		HashedString %VolumeValue{s{""}}
+		HashedString %VolumeValue{s{"MoodStrength"}}
 	}
 }
 o
@@ -10844,7 +10844,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Post Processing"}
+		s %Name{""}
 		VarArray %Tags{}
 	}
 }
@@ -12624,7 +12624,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %DefaultValue{0x9A99993E}
+		f %DefaultValue{0xCDCCCC3D}
 		Time %InterpolationDuration{d{0}}
 		HashedString %Property{s{"Contrast"}}
 		HashedString %RenderPass{s{"TonemapPass"}}
@@ -13681,6 +13681,8 @@ o
 		{
 			Uuid{u4{13081308201213958791,4956457019869618818}}
 			Uuid{u4{15741144884394227859,4720260600600687772}}
+			Uuid{u4{9502862582959885452,5455098071768528297}}
+			Uuid{u4{17443559227708978604,5251155433340285596}}
 			Uuid{u4{5055258833408452529,5146335676450753171}}
 			Uuid{u4{18170066670284776885,5008384678393569805}}
 			Uuid{u4{748096004204538520,5732316671819998732}}
@@ -14099,8 +14101,6 @@ o
 			Uuid{u4{15434444333761839540,5439193331223485380}}
 			Uuid{u4{10504616665288994651,10117902771041046448}}
 			Uuid{u4{10595549673359017909,4675334478204792320}}
-			Uuid{u4{9502862582959885452,5455098071768528297}}
-			Uuid{u4{17443559227708978604,5251155433340285596}}
 		}
 		Uuid %Settings{u4{11204937990389899402,5417500911553874876}}
 	}

@@ -11,7 +11,7 @@ o
 		s %AssetType{"BlackboardTemplate"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6483898052508378242,4872236789633655366}}
-		u4 %Hash{4143724915924086083}
+		u4 %Hash{2594695969357338432}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -29,7 +29,7 @@ o
 	p
 	{
 		s %Flags{""}
-		Color %InitialValue{f{0xDB3CE53D,0,0x0000803F,0x0000803F}}
+		Color %InitialValue{f{0xA209AF3F,0,0x6DC98140,0x0000803F}}
 		s %Name{"MoodColor"}
 	}
 }
@@ -44,7 +44,20 @@ o
 		VarArray %Entries
 		{
 			Uuid{u4{14389182567127596958,4773233214930412515}}
+			Uuid{u4{13530811018716787598,4902161392828277591}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{13530811018716787598,4902161392828277591}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		f %InitialValue{0x9A99993F}
+		s %Name{"MoodStrength"}
 	}
 }
 o

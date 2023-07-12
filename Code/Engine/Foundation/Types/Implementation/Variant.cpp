@@ -625,4 +625,44 @@ ezStringView ezVariant::GetTypeName(const ezRTTI* pType)
   return pType->GetTypeName();
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+struct LerpFunc
+{
+  constexpr static bool CanInterpolate(ezVariantType::Enum variantType)
+  {
+    return variantType >= ezVariantType::Int8 && variantType <= ezVariantType::Vector4;
+  }
+
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, double x, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezQuat>)
+    {
+      ezQuat q;
+      q.SetSlerp(a.Get<ezQuat>(), b.Get<ezQuat>(), static_cast<float>(x));
+      out_res = q;
+    }
+    else if constexpr (CanInterpolate(static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<T>::value)))
+    {
+      out_res = ezMath::Lerp(a.Get<T>(), b.Get<T>(), static_cast<float>(x));
+    }
+    else
+    {
+      out_res = (x < 0.5) ? a : b;
+    }
+  }
+};
+
+namespace ezMath
+{
+  ezVariant Lerp(const ezVariant& a, const ezVariant& b, double fFactor)
+  {
+    LerpFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, fFactor, result);
+    return result;
+  }
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);

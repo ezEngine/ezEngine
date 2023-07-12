@@ -41,7 +41,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPostProcessingValueMapping, ezNoBase, 1, ezRTTI
     EZ_MEMBER_PROPERTY("RenderPass", m_sRenderPassName),
     EZ_MEMBER_PROPERTY("Property", m_sPropertyName),
     EZ_MEMBER_PROPERTY("VolumeValue", m_sVolumeValueName),
-    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(0)),
+    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("InterpolationDuration", m_InterpolationDuration),
   }
   EZ_END_PROPERTIES;

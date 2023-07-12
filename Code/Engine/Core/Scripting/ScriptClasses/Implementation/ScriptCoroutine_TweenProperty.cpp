@@ -4,33 +4,6 @@
 #include <Core/World/World.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
-namespace
-{
-  constexpr bool CanInterpolate(ezVariantType::Enum variantType)
-  {
-    return (variantType >= ezVariantType::Int8 && variantType <= ezVariantType::Vector4) || variantType == ezVariantType::Quaternion;
-  }
-
-  struct LerpFunc
-  {
-    template <typename T>
-    EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, float x, ezVariant& out_res)
-    {
-      if constexpr (std::is_same_v<T, ezQuat>)
-      {
-        ezQuat q;
-        q.SetSlerp(a.Get<ezQuat>(), b.Get<ezQuat>(), x);
-        out_res = q;
-      }
-      else if constexpr (CanInterpolate(static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<T>::value)))
-      {
-        out_res = ezMath::Lerp(a.Get<T>(), b.Get<T>(), x);
-      }
-    }
-  };
-
-} // namespace
-
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptCoroutine_TweenProperty, ezScriptCoroutine, 1, ezRTTIDefaultAllocator<ezScriptCoroutine_TweenProperty>)
 {
@@ -66,7 +39,7 @@ void ezScriptCoroutine_TweenProperty::Start(ezComponentHandle hComponent, ezStri
   }
 
   ezVariantType::Enum variantType = pProp->GetSpecificType()->GetVariantType();
-  if (variantType == ezVariantType::Invalid || CanInterpolate(variantType) == false)
+  if (variantType == ezVariantType::Invalid)
   {
     ezLog::Error("TweenProperty: Can't tween property '{}' of type '{}'.", sPropertyName, pProp->GetSpecificType()->GetTypeName());
     return;
@@ -109,11 +82,8 @@ ezScriptCoroutine::Result ezScriptCoroutine_TweenProperty::Update(ezTime deltaTi
     const double fDuration = m_Duration.GetSeconds();
     double fCurrentX = ezMath::Min(fDuration > 0 ? m_TimePassed.GetSeconds() / fDuration : 1.0, 1.0);
     fCurrentX = ezCurveFunction::GetValue(m_Easing, fCurrentX);
-
-    LerpFunc func;
-    ezVariant currentValue;
-    ezVariant::DispatchTo(func, m_TargetValue.GetType(), m_SourceValue, m_TargetValue, static_cast<float>(fCurrentX), currentValue);
-
+    ezVariant currentValue = ezMath::Lerp(m_SourceValue, m_TargetValue, fCurrentX);
+    
     ezReflectionUtils::SetMemberPropertyValue(m_pProperty, pComponent, currentValue);
   }
 

@@ -188,7 +188,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezVolumeBoxComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::LimeGreen),
+    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Cyan)),
   }
   EZ_END_ATTRIBUTES;
 }

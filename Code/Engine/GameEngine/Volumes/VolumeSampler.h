@@ -27,12 +27,14 @@ public:
     return ezVariant();
   }
 
+  static ezUInt32 ComputeSortingKey(float fSortOrder, float fMaxScale);
+
 private:
   struct Value
   {
     ezVariant m_DefaultValue;
     ezVariant m_CurrentValue;
-    ezTime m_InterpolationDuration;
+    double m_fInterpolationFactor = -1.0;
   };
 
   ezHashTable<ezHashedString, Value> m_Values;

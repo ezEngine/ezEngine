@@ -417,6 +417,14 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
   return nullptr;
 }
 
+namespace ezMath
+{
+  /// \brief An overload of ezMath::Lerp to interpolate variants. A and b must have the same type.
+  ///
+  /// If the type can't be interpolated like e.g. strings, a is returned for a fFactor less than 0.5, b is returned for a fFactor greater or equal to 0.5.
+  EZ_FOUNDATION_DLL ezVariant Lerp(const ezVariant& a, const ezVariant& b, double fFactor);
+}
+
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>
 
 #include <Foundation/Types/Implementation/Variant_inl.h>
