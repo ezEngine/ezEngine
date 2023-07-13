@@ -22,7 +22,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5626082822448812211,4990603051938895891}}
-		u4 %Hash{8919408946338670866}
+		u4 %Hash{8502195012330901426}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7031288620226640771,10500390495068248024}}
@@ -198,6 +198,7 @@ o
 			s{"{ 3dcd468c-57a7-4cde-9f7f-63b549fffcee }"}
 		}
 		s %Mesh{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
+		f %SortingDepthOffset{0}
 	}
 }
 o
@@ -246,7 +247,7 @@ o
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xF4DC6F3E,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x6666663F,0x6666663F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x666666BF,0x6666663F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Display"}
@@ -271,6 +272,7 @@ o
 			s{"{ 6c56721b-d71a-4795-88ac-39cae26c39f1 }"}
 		}
 		s %Mesh{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
+		f %SortingDepthOffset{0}
 	}
 }
 }
@@ -375,7 +377,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o

@@ -87,7 +87,8 @@ public:
   float GetOrthoDimension() const { return m_fOrthoDimension; } // [ property ]
   void SetOrthoDimension(float fVal);                           // [ property ]
 
-  ezRenderPipelineResourceHandle GetRenderPipeline() const; // [ property ]
+  ezRenderPipelineResourceHandle GetRenderPipeline() const;
+  ezViewHandle GetRenderTargetView() const;
 
   const char* GetRenderPipelineEnum() const;      // [ property ]
   void SetRenderPipelineEnum(const char* szFile); // [ property ]

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{11226509181554419220}
+		u4 %Hash{7703980406872919790}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -4760,8 +4760,8 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{2147602544131859632,5728523532043417762}}
 			Uuid{u4{403518270606319033,5612746856916842960}}
+			Uuid{u4{3930349619982266804,4739713657226695897}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x00000040}}
@@ -4772,7 +4772,6 @@ o
 		s %Name{""}
 		VarArray %Tags
 		{
-			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
 	}
@@ -4955,6 +4954,29 @@ o
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
 		b %UseAsOccluder{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3930349619982266804,4739713657226695897}}
+	s %t{"ezSkyLightComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		s %CubeMap{""}
+		VarArray %ExcludeTags{}
+		f %FarPlane{0x0000C842}
+		VarArray %IncludeTags
+		{
+			s{"SkyLight"}
+		}
+		f %Intensity{0x0000803E}
+		f %NearPlane{0}
+		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
+		f %Saturation{0xCDCC4C3F}
+		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
 	}
 }
 o
@@ -6689,8 +6711,8 @@ o
 		s %Name{""}
 		VarArray %Tags
 		{
-			s{"CastShadow"}
 			s{"AutoColMesh"}
+			s{"SkyLight"}
 		}
 	}
 }
@@ -6845,6 +6867,21 @@ o
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00007041}
 		f %SlopeBias{0x0000803E}
+	}
+}
+o
+{
+	Uuid %id{u4{3632286616354147752,4993207729049940024}}
+	s %t{"ezPostProcessingComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Mappings
+		{
+			Uuid{u4{16570669015473823106,5528518874280039215}}
+			Uuid{u4{4097864705009347472,5017752797156897871}}
+		}
 	}
 }
 o
@@ -7166,6 +7203,20 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{4097864705009347472,5017752797156897871}}
+	s %t{"ezPostProcessingValueMapping"}
+	u3 %v{1}
+	p
+	{
+		f %DefaultValue{0x00008040}
+		Time %InterpolationDuration{d{0}}
+		HashedString %Property{s{"MoodStrength"}}
+		HashedString %RenderPass{s{"TonemapPass"}}
+		HashedString %VolumeValue{s{""}}
 	}
 }
 o
@@ -9571,6 +9622,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{15416684804433933185,4882811130761641720}}
+			Uuid{u4{3632286616354147752,4993207729049940024}}
 			Uuid{u4{10520240358678061731,5267623913918568667}}
 		}
 		s %GlobalKey{""}
@@ -10839,7 +10891,7 @@ o
 			Uuid{u4{13733991660780769426,5585025714308045762}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
+		Vec3 %LocalPosition{f{0,0,0x0000C03F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -11534,6 +11586,20 @@ o
 }
 o
 {
+	Uuid %id{u4{16570669015473823106,5528518874280039215}}
+	s %t{"ezPostProcessingValueMapping"}
+	u3 %v{1}
+	p
+	{
+		Color %DefaultValue{f{0x0000803F,0,0,0x0000803F}}
+		Time %InterpolationDuration{d{0}}
+		HashedString %Property{s{"MoodColor"}}
+		HashedString %RenderPass{s{"TonemapPass"}}
+		HashedString %VolumeValue{s{""}}
+	}
+}
+o
+{
 	Uuid %id{u4{10035995686865939584,5532042553256123164}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -12022,14 +12088,12 @@ o
 	p
 	{
 		b %Active{1}
-		s %AlternativeUsageHint{"ezCameraUsageHint::EditorView"}
 		VarArray %Mappings
 		{
 			Uuid{u4{14697461357033298823,4614707846192188290}}
 			Uuid{u4{14861961278534461611,5429287421616888847}}
 			Uuid{u4{4675024263073621918,5653410995292447235}}
 		}
-		s %UsageHint{"ezCameraUsageHint::MainView"}
 	}
 }
 o
@@ -13182,19 +13246,6 @@ o
 	p
 	{
 		b %Active{1}
-	}
-}
-o
-{
-	Uuid %id{u4{2147602544131859632,5728523532043417762}}
-	s %t{"ezAmbientLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		ColorGamma %BottomColor{u1{89,89,108,255}}
-		f %Intensity{0x00000040}
-		ColorGamma %TopColor{u1{124,124,149,255}}
 	}
 }
 o
@@ -32635,6 +32686,23 @@ o
 }
 o
 {
+	Uuid %id{u4{12741513019009579696,2118083688060841630}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectionProbeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{953262915051745881,2141373605625162620}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -35289,6 +35357,23 @@ o
 }
 o
 {
+	Uuid %id{u4{9327907810903036587,14925289355879257238}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSettingsComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkyLightComponent"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
 	Uuid %id{u4{4495898370693907312,14987256926314717349}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
@@ -35527,23 +35612,6 @@ o
 	p
 	{
 		s %DynamicEnum{"PhysicsCollisionLayer"}
-	}
-}
-o
-{
-	Uuid %id{u4{11081527203184866822,15735316544108576551}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAmbientLightComponent"}
-		u3 %TypeVersion{2}
 	}
 }
 o

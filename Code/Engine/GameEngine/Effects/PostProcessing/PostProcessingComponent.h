@@ -42,6 +42,9 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
@@ -55,8 +58,7 @@ private:
   void RegisterSamplerValues();
   void SampleAndSetViewProperties();
 
-  ezEnum<ezCameraUsageHint> m_UsageHint = ezCameraUsageHint::MainView;              // [ property ]
-  ezEnum<ezCameraUsageHint> m_AlternativeUsageHint = ezCameraUsageHint::EditorView; // [ property ]
+  ezComponentHandle m_hCameraComponent;
   ezDynamicArray<ezPostProcessingValueMapping> m_Mappings;
   ezUniquePtr<ezVolumeSampler> m_pSampler;
 };

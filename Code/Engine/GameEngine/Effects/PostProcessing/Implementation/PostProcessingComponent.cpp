@@ -3,6 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Effects/PostProcessing/PostProcessingComponent.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
@@ -78,8 +79,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezPostProcessingComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("UsageHint", ezCameraUsageHint, m_UsageHint)->AddAttributes(new ezDefaultValueAttribute(ezCameraUsageHint::MainView)),
-    EZ_ENUM_MEMBER_PROPERTY("AlternativeUsageHint", ezCameraUsageHint, m_AlternativeUsageHint)->AddAttributes(new ezDefaultValueAttribute(ezCameraUsageHint::EditorView)),
     EZ_ARRAY_ACCESSOR_PROPERTY("Mappings", Mappings_GetCount, Mappings_GetMapping, Mappings_SetMapping, Mappings_Insert, Mappings_Remove),
   }
   EZ_END_PROPERTIES;
@@ -103,8 +102,6 @@ void ezPostProcessingComponent::SerializeComponent(ezWorldWriter& inout_stream) 
 
   ezStreamWriter& s = inout_stream.GetStream();
 
-  s << m_UsageHint;
-  s << m_AlternativeUsageHint;
   s.WriteArray(m_Mappings).IgnoreResult();
 }
 
@@ -114,8 +111,6 @@ void ezPostProcessingComponent::DeserializeComponent(ezWorldReader& inout_stream
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
-  s >> m_UsageHint;
-  s >> m_AlternativeUsageHint;
   s.ReadArray(m_Mappings).IgnoreResult();
 }
 
@@ -131,6 +126,20 @@ void ezPostProcessingComponent::Initialize()
 void ezPostProcessingComponent::Deinitialize()
 {
   m_pSampler = nullptr;
+}
+
+void ezPostProcessingComponent::OnActivated()
+{
+  ezCameraComponent* pCameraComponent = nullptr;
+  if (GetOwner()->TryGetComponentOfBaseType(pCameraComponent))
+  {
+    m_hCameraComponent = pCameraComponent->GetHandle();
+  }
+}
+
+void ezPostProcessingComponent::OnDeactivated()
+{
+  m_hCameraComponent.Invalidate();
 }
 
 void ezPostProcessingComponent::Mappings_SetMapping(ezUInt32 i, const ezPostProcessingValueMapping& mapping)
@@ -175,7 +184,20 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
 {
   ezWorld* pWorld = GetWorld();
 
-  ezView* pView = ezRenderWorld::GetViewByUsageHint(m_UsageHint, m_AlternativeUsageHint, pWorld);
+  ezView* pView = nullptr;
+  {
+    ezCameraComponent* pCameraComponent = nullptr;
+    if (pWorld->TryGetComponent(m_hCameraComponent, pCameraComponent) && pCameraComponent->GetUsageHint() == ezCameraUsageHint::RenderTarget)
+    {
+      ezRenderWorld::TryGetView(pCameraComponent->GetRenderTargetView(), pView);
+    }
+
+    if (pView == nullptr)
+    {
+      pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, pWorld);
+    }
+  }
+
   if (pView == nullptr)
     return;
 
