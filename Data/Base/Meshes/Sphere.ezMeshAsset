@@ -11,16 +11,16 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2103140589558521791,5741224228062947139}}
-		u4 %Hash{6908445495254490435}
+		u4 %Hash{10648100822210172388}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"{ 0ff17408-ff78-4ad3-bbac-0f2bc5da7612 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		VarArray %References
 		{
-			s{"{ 0ff17408-ff78-4ad3-bbac-0f2bc5da7612 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 	}
 }
@@ -35,7 +35,7 @@ o
 	p
 	{
 		s %Label{"Default"}
-		s %Resource{"{ 0ff17408-ff78-4ad3-bbac-0f2bc5da7612 }"}
+		s %Resource{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 	}
 }
 o
