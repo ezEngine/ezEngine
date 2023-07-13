@@ -306,8 +306,7 @@ ezTransformStatus ezAnimationGraphAssetDocument::InternalTransformAsset(ezStream
       ezAnimGraphNode* pNewNode = animGraph.AddNode(pNode->GetType()->GetAllocator()->Allocate<ezAnimGraphNode>());
 
       // copy all the non-hidden properties
-      ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p)
-        { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
+      ezToolsSerializationUtils::CopyProperties(pNode, GetObjectManager(), pNewNode, pNewNode->GetDynamicRTTI(), [](const ezAbstractProperty* p) { return p->GetAttributeByType<ezHiddenAttribute>() == nullptr; });
 
       docNodeToRuntimeNode[pNode] = pNewNode;
     }

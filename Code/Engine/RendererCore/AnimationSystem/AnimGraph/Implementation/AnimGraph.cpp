@@ -187,8 +187,7 @@ void ezAnimGraph::SortNodesByPriority()
     ComputeNodePriority(pNode.Borrow(), prios, uiOutputPrio);
   }
 
-  m_Nodes.Sort([&](const auto& lhs, const auto& rhs) -> bool
-    { return prios[lhs.Borrow()] < prios[rhs.Borrow()]; });
+  m_Nodes.Sort([&](const auto& lhs, const auto& rhs) -> bool { return prios[lhs.Borrow()] < prios[rhs.Borrow()]; });
 }
 
 void ezAnimGraph::PrepareForUse()
