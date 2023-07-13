@@ -31,7 +31,7 @@ class EZ_RENDERERCORE_DLL ezLogInfoAnimNode : public ezLogAnimNode
   // ezLogAnimNode
 
 protected:
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 };
 
 class EZ_RENDERERCORE_DLL ezLogErrorAnimNode : public ezLogAnimNode
@@ -42,5 +42,5 @@ class EZ_RENDERERCORE_DLL ezLogErrorAnimNode : public ezLogAnimNode
   // ezLogAnimNode
 
 protected:
-  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
 };

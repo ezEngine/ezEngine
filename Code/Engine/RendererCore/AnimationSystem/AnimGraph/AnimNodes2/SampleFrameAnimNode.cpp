@@ -2,8 +2,12 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SampleFrameAnimNode.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
@@ -63,7 +67,7 @@ ezResult ezSampleFrameAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleFrameAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSampleFrameAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected())
     return;
@@ -76,13 +80,13 @@ void ezSampleFrameAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
     if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
       return;
 
-    float fNormPos = fNormPos = m_InNormalizedSamplePosition.GetNumber(graph, m_fNormalizedSamplePosition);
+    float fNormPos = fNormPos = m_InNormalizedSamplePosition.GetNumber(ref_graph, m_fNormalizedSamplePosition);
 
     if (m_InAbsoluteSamplePosition.IsConnected())
     {
       const ezTime tDuration = pAnimClip->GetDescriptor().GetDuration();
       const float fInvDuration = 1.0f / tDuration.AsFloatInSeconds();
-      fNormPos = m_InAbsoluteSamplePosition.GetNumber(graph) * fInvDuration;
+      fNormPos = m_InAbsoluteSamplePosition.GetNumber(ref_graph) * fInvDuration;
     }
 
     fNormPos = ezMath::Clamp(fNormPos, 0.0f, 1.0f);
@@ -103,7 +107,7 @@ void ezSampleFrameAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
       pLocalTransforms->m_fOverallWeight = 1.0f;
       pLocalTransforms->m_CommandID = cmd.GetCommandID();
 
-      m_OutPose.SetPose(graph, pLocalTransforms);
+      m_OutPose.SetPose(ref_graph, pLocalTransforms);
     }
   }
   else
@@ -119,7 +123,7 @@ void ezSampleFrameAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
       pLocalTransforms->m_fOverallWeight = 1.0f;
       pLocalTransforms->m_CommandID = cmd.GetCommandID();
 
-      m_OutPose.SetPose(graph, pLocalTransforms);
+      m_OutPose.SetPose(ref_graph, pLocalTransforms);
     }
   }
 }

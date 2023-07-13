@@ -2,8 +2,11 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SampleBlendSpace1DAnimNode.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
@@ -122,30 +125,30 @@ ezResult ezSampleBlendSpace1DAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || !m_InLerp.IsConnected() || m_Clips.IsEmpty())
     return;
 
-  InstanceState* pState = graph.GetAnimNodeInstanceData<InstanceState>(*this);
+  InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(graph))
+  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
   {
     pState->m_PlaybackTime = ezTime::Zero();
     pState->m_bPlaying = true;
 
-    m_OutOnStarted.SetTriggered(graph);
+    m_OutOnStarted.SetTriggered(ref_graph);
   }
 
   if (!pState->m_bPlaying)
     return;
 
-  const bool bLoop = m_InLoop.GetBool(graph, m_bLoop);
+  const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
 
   ezUInt32 uiClip1 = 0;
   ezUInt32 uiClip2 = 0;
 
-  const float fLerpPos = (float)m_InLerp.GetNumber(graph);
+  const float fLerpPos = (float)m_InLerp.GetNumber(ref_graph);
 
   if (m_Clips.GetCount() > 1)
   {
@@ -210,7 +213,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     return;
 
   const float fAvgClipSpeed = ezMath::Lerp(m_Clips[uiClip1].m_fSpeed, m_Clips[uiClip2].m_fSpeed, fLerpFactor);
-  const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(graph, m_fPlaybackSpeed)) * fAvgClipSpeed;
+  const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed)) * fAvgClipSpeed;
 
   const auto& animDesc1 = pAnimClip1->GetDescriptor();
   const auto& animDesc2 = pAnimClip2->GetDescriptor();
@@ -229,13 +232,13 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
     {
       pState->m_PlaybackTime -= avgDuration;
       eventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
-      m_OutOnStarted.SetTriggered(graph);
+      m_OutOnStarted.SetTriggered(ref_graph);
     }
     else
     {
       pState->m_PlaybackTime = avgDuration;
       pState->m_bPlaying = false;
-      m_OutOnFinished.SetTriggered(graph);
+      m_OutOnFinished.SetTriggered(ref_graph);
     }
   }
 
@@ -295,7 +298,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnim
       pOutputTransform->m_vRootMotion = ezMath::Lerp(animDesc1.m_vConstantRootMotion, animDesc2.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * fSpeed;
     }
 
-    m_OutPose.SetPose(graph, pOutputTransform);
+    m_OutPose.SetPose(ref_graph, pOutputTransform);
   }
 }
 

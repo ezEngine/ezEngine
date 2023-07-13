@@ -66,7 +66,7 @@ ezResult ezLerpPosesAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected())
     return;
@@ -95,12 +95,12 @@ void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
     return;
   }
 
-  const float fIndex = ezMath::Clamp((float)m_InLerp.GetNumber(graph, m_fLerp), 0.0f, (float)pPins.GetCount() - 1.0f);
+  const float fIndex = ezMath::Clamp((float)m_InLerp.GetNumber(ref_graph, m_fLerp), 0.0f, (float)pPins.GetCount() - 1.0f);
 
   if (ezMath::Fraction(fIndex) == 0.0f)
   {
     const ezAnimGraphLocalPoseInputPin* pPinToForward = pPins[(ezInt32)ezMath::Trunc(fIndex)];
-    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, graph);
+    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, ref_graph);
 
     ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
     pLocalTransforms->m_CommandID = pDataToForward->m_CommandID;
@@ -109,7 +109,7 @@ void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
     pLocalTransforms->m_vRootMotion = pDataToForward->m_vRootMotion;
     pLocalTransforms->m_bUseRootMotion = pDataToForward->m_bUseRootMotion;
 
-    m_OutPose.SetPose(graph, pLocalTransforms);
+    m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
   else
   {
@@ -117,8 +117,8 @@ void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
 
     const float fLerp = ezMath::Fraction(fIndex);
 
-    auto pPose0 = pPins[(ezInt32)ezMath::Trunc(fIndex)]->GetPose(ref_controller, graph);
-    auto pPose1 = pPins[(ezInt32)ezMath::Trunc(fIndex) + 1]->GetPose(ref_controller, graph);
+    auto pPose0 = pPins[(ezInt32)ezMath::Trunc(fIndex)]->GetPose(ref_controller, ref_graph);
+    auto pPose1 = pPins[(ezInt32)ezMath::Trunc(fIndex) + 1]->GetPose(ref_controller, ref_graph);
 
     auto& cmd = ref_controller.GetPoseGenerator().AllocCommandCombinePoses();
     cmd.m_InputWeights.SetCount(2);
@@ -132,6 +132,6 @@ void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
     pPinData->m_bUseRootMotion = pPose0->m_bUseRootMotion || pPose1->m_bUseRootMotion;
     pPinData->m_vRootMotion = ezMath::Lerp(pPose0->m_vRootMotion, pPose1->m_vRootMotion, fLerp);
 
-    m_OutPose.SetPose(graph, pPinData);
+    m_OutPose.SetPose(ref_graph, pPinData);
   }
 }

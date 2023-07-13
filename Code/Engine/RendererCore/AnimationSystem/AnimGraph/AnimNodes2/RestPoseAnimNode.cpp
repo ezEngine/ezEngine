@@ -49,7 +49,7 @@ ezResult ezRestPoseAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected())
     return;
@@ -65,6 +65,6 @@ void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInsta
     pLocalTransforms->m_fOverallWeight = 1.0f;
     pLocalTransforms->m_CommandID = cmd.GetCommandID();
 
-    m_OutPose.SetPose(graph, pLocalTransforms);
+    m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
 }

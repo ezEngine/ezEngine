@@ -2,8 +2,11 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SampleBlendSpace2DAnimNode.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
@@ -140,27 +143,27 @@ const char* ezSampleBlendSpace2DAnimNode::GetCenterClipFile() const
   return m_sCenterClip;
 }
 
-void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || (!m_InCoordX.IsConnected() && !m_InCoordY.IsConnected()) || m_Clips.IsEmpty())
     return;
 
-  InstanceState* pState = graph.GetAnimNodeInstanceData<InstanceState>(*this);
+  InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(graph))
+  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
   {
     pState->m_CenterPlaybackTime = ezTime::Zero();
     pState->m_fOtherPlaybackPosNorm = 0.0f;
     pState->m_bPlaying = true;
 
-    m_OutOnStarted.SetTriggered(graph);
+    m_OutOnStarted.SetTriggered(ref_graph);
   }
 
   if (!pState->m_bPlaying)
     return;
 
-  const float x = static_cast<float>(m_InCoordX.GetNumber(graph));
-  const float y = static_cast<float>(m_InCoordY.GetNumber(graph));
+  const float x = static_cast<float>(m_InCoordX.GetNumber(ref_graph));
+  const float y = static_cast<float>(m_InCoordY.GetNumber(ref_graph));
 
   if (m_InputResponse.IsZeroOrNegative())
   {
@@ -180,7 +183,7 @@ void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnim
   ezHybridArray<ClipToPlay, 8> clips;
   ComputeClipsAndWeights(centerInfo, ezVec2(pState->m_fLastValueX, pState->m_fLastValueY), clips, uiMaxWeightClip);
 
-  PlayClips(ref_controller, centerInfo, pState, graph, tDiff, clips, uiMaxWeightClip);
+  PlayClips(ref_controller, centerInfo, pState, ref_graph, tDiff, clips, uiMaxWeightClip);
 }
 
 void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(const ezAnimController::AnimClipInfo& centerInfo, const ezVec2& p, ezDynamicArray<ClipToPlay>& clips, ezUInt32& out_uiMaxWeightClip) const
@@ -290,10 +293,10 @@ void ezSampleBlendSpace2DAnimNode::ComputeClipsAndWeights(const ezAnimController
   }
 }
 
-void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, InstanceState* pState, ezAnimGraphInstance& graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips, ezUInt32 uiMaxWeightClip) const
+void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, const ezAnimController::AnimClipInfo& centerInfo, InstanceState* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezArrayPtr<ClipToPlay> clips, ezUInt32 uiMaxWeightClip) const
 {
-  const bool bLoop = m_InLoop.GetBool(graph, m_bLoop);
-  const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(graph, m_fPlaybackSpeed));
+  const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
+  const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed));
 
   ezTime tAvgDuration = ezTime::Zero();
 
@@ -351,18 +354,18 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     if (bLoop)
     {
       pState->m_fOtherPlaybackPosNorm -= 1.0f;
-      m_OutOnStarted.SetTriggered(graph);
+      m_OutOnStarted.SetTriggered(ref_graph);
       eventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
     }
     else
     {
       pState->m_fOtherPlaybackPosNorm = 1.0f;
       pState->m_bPlaying = false;
-      m_OutOnFinished.SetTriggered(graph);
+      m_OutOnFinished.SetTriggered(ref_graph);
     }
   }
 
-  UpdateCenterClipPlaybackTime(centerInfo, pState, graph, tDiff, eventSamplingCenter);
+  UpdateCenterClipPlaybackTime(centerInfo, pState, ref_graph, tDiff, eventSamplingCenter);
 
   for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
   {
@@ -386,7 +389,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
   {
     pOutputTransform->m_bUseRootMotion = true;
 
-    const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(graph, m_fPlaybackSpeed));
+    const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed));
 
     pOutputTransform->m_vRootMotion = tDiff.AsFloatInSeconds() * vRootMotion * fSpeed;
   }
@@ -410,12 +413,12 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     }
   }
 
-  m_OutPose.SetPose(graph, pOutputTransform);
+  m_OutPose.SetPose(ref_graph, pOutputTransform);
 }
 
-void ezSampleBlendSpace2DAnimNode::UpdateCenterClipPlaybackTime(const ezAnimController::AnimClipInfo& centerInfo, InstanceState* pState, ezAnimGraphInstance& graph, ezTime tDiff, ezAnimPoseEventTrackSampleMode& out_eventSamplingCenter) const
+void ezSampleBlendSpace2DAnimNode::UpdateCenterClipPlaybackTime(const ezAnimController::AnimClipInfo& centerInfo, InstanceState* pState, ezAnimGraphInstance& ref_graph, ezTime tDiff, ezAnimPoseEventTrackSampleMode& out_eventSamplingCenter) const
 {
-  const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(graph, m_fPlaybackSpeed));
+  const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed));
 
   if (centerInfo.m_hClip.IsValid())
   {

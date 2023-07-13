@@ -93,15 +93,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogInfoAnimNode, 1, ezRTTIDefaultAllocator<ezL
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLogInfoAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLogInfoAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_InActivate.IsTriggered(graph))
+  if (!m_InActivate.IsTriggered(ref_graph))
     return;
 
   ezVariantArray params;
   for (auto& n : m_InNumbers)
   {
-    params.PushBack(n.GetNumber(graph));
+    params.PushBack(n.GetNumber(ref_graph));
   }
 
   ezStringBuilder sStorage;
@@ -124,15 +124,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogErrorAnimNode, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLogErrorAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLogErrorAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_InActivate.IsTriggered(graph))
+  if (!m_InActivate.IsTriggered(ref_graph))
     return;
 
   ezVariantArray params;
   for (auto& n : m_InNumbers)
   {
-    params.PushBack(n.GetNumber(graph));
+    params.PushBack(n.GetNumber(ref_graph));
   }
 
   ezStringBuilder sStorage;

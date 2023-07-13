@@ -83,21 +83,21 @@ ezResult ezSampleAnimClipAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   const auto& clipInfo = ref_controller.GetAnimationClipInfo(m_sClip);
 
   if (!clipInfo.m_hClip.IsValid() || !m_OutPose.IsConnected())
     return;
 
-  InstanceState* pState = graph.GetAnimNodeInstanceData<InstanceState>(*this);
+  InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(graph))
+  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
   {
     pState->m_PlaybackTime = ezTime::Zero();
     pState->m_bPlaying = true;
 
-    m_OutOnStarted.SetTriggered(graph);
+    m_OutOnStarted.SetTriggered(ref_graph);
   }
 
   if (!pState->m_bPlaying)
@@ -111,12 +111,12 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
   const float fInvDuration = 1.0f / tDuration.AsFloatInSeconds();
 
   // currently we only support playing clips forwards
-  const float fPlaySpeed = ezMath::Max(0.0f, static_cast<float>(m_InSpeed.GetNumber(graph, m_fPlaybackSpeed)));
+  const float fPlaySpeed = ezMath::Max(0.0f, static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed)));
 
   const ezTime tPrevSamplePos = pState->m_PlaybackTime;
   pState->m_PlaybackTime += tDiff * fPlaySpeed;
 
-  const bool bLoop = m_InLoop.GetBool(graph, m_bLoop);
+  const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
 
   const void* pThis = this;
   auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
@@ -126,7 +126,7 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
   {
     pState->m_PlaybackTime -= tDuration;
     cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
-    m_OutOnStarted.SetTriggered(graph);
+    m_OutOnStarted.SetTriggered(ref_graph);
   }
 
   cmd.m_hAnimationClip = clipInfo.m_hClip;
@@ -142,12 +142,12 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
     pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed;
     pLocalTransforms->m_CommandID = cmd.GetCommandID();
 
-    m_OutPose.SetPose(graph, pLocalTransforms);
+    m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
 
   if (cmd.m_fNormalizedSamplePos >= 1.0f && !bLoop)
   {
-    m_OutOnFinished.SetTriggered(graph);
+    m_OutOnFinished.SetTriggered(ref_graph);
     pState->m_bPlaying = false;
   }
 }

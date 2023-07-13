@@ -2,8 +2,11 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipMapping, 1, ezRTTIDefaultAllocator<ezAnimationClipMapping>)

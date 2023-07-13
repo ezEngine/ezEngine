@@ -93,7 +93,7 @@ ezResult ezBoneWeightsAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_WeightsPin.IsConnected() && !m_InverseWeightsPin.IsConnected())
     return;
@@ -104,7 +104,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
     return;
   }
 
-  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+  InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
   if (pInstance->m_pSharedBoneWeights == nullptr && pInstance->m_pSharedInverseBoneWeights == nullptr)
   {
@@ -169,7 +169,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
     pPinData->m_fOverallWeight = m_fWeight;
     pPinData->m_pSharedBoneWeights = pInstance->m_pSharedBoneWeights.Borrow();
 
-    m_WeightsPin.SetWeights(graph, pPinData);
+    m_WeightsPin.SetWeights(ref_graph, pPinData);
   }
 
   if (m_InverseWeightsPin.IsConnected())
@@ -178,7 +178,7 @@ void ezBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIn
     pPinData->m_fOverallWeight = m_fWeight;
     pPinData->m_pSharedBoneWeights = pInstance->m_pSharedInverseBoneWeights.Borrow();
 
-    m_InverseWeightsPin.SetWeights(graph, pPinData);
+    m_InverseWeightsPin.SetWeights(ref_graph, pPinData);
   }
 }
 

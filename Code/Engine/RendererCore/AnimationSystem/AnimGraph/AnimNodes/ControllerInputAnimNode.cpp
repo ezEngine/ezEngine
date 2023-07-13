@@ -94,7 +94,7 @@ ezResult ezControllerInputAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezControllerInputAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezControllerInputAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   {
     float fValue1 = 0.0f;
@@ -102,58 +102,58 @@ void ezControllerInputAnimNode::Step(ezAnimController& ref_controller, ezAnimGra
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_NegX, &fValue1);
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_PosX, &fValue2);
-    m_OutLeftStickX.SetNumber(graph, -fValue1 + fValue2);
+    m_OutLeftStickX.SetNumber(ref_graph, -fValue1 + fValue2);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_NegY, &fValue1);
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftStick_PosY, &fValue2);
-    m_OutLeftStickY.SetNumber(graph, -fValue1 + fValue2);
+    m_OutLeftStickY.SetNumber(ref_graph, -fValue1 + fValue2);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_NegX, &fValue1);
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_PosX, &fValue2);
-    m_OutRightStickX.SetNumber(graph, -fValue1 + fValue2);
+    m_OutRightStickX.SetNumber(ref_graph, -fValue1 + fValue2);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_NegY, &fValue1);
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightStick_PosY, &fValue2);
-    m_OutRightStickY.SetNumber(graph, -fValue1 + fValue2);
+    m_OutRightStickY.SetNumber(ref_graph, -fValue1 + fValue2);
   }
 
   {
     float fValue = 0.0f;
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonA, &fValue);
-    m_OutButtonA.SetBool(graph, fValue > 0);
+    m_OutButtonA.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonB, &fValue);
-    m_OutButtonB.SetBool(graph, fValue > 0);
+    m_OutButtonB.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonX, &fValue);
-    m_OutButtonX.SetBool(graph, fValue > 0);
+    m_OutButtonX.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_ButtonY, &fValue);
-    m_OutButtonY.SetBool(graph, fValue > 0);
+    m_OutButtonY.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftShoulder, &fValue);
-    m_OutLeftShoulder.SetBool(graph, fValue > 0);
+    m_OutLeftShoulder.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_LeftTrigger, &fValue);
-    m_OutLeftTrigger.SetNumber(graph, fValue);
+    m_OutLeftTrigger.SetNumber(ref_graph, fValue);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightShoulder, &fValue);
-    m_OutRightShoulder.SetBool(graph, fValue > 0);
+    m_OutRightShoulder.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_RightTrigger, &fValue);
-    m_OutRightTrigger.SetNumber(graph, fValue);
+    m_OutRightTrigger.SetNumber(ref_graph, fValue);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadLeft, &fValue);
-    m_OutPadLeft.SetBool(graph, fValue > 0);
+    m_OutPadLeft.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadRight, &fValue);
-    m_OutPadRight.SetBool(graph, fValue > 0);
+    m_OutPadRight.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadUp, &fValue);
-    m_OutPadUp.SetBool(graph, fValue > 0);
+    m_OutPadUp.SetBool(ref_graph, fValue > 0);
 
     ezInputManager::GetInputSlotState(ezInputSlot_Controller0_PadDown, &fValue);
-    m_OutPadDown.SetBool(graph, fValue > 0);
+    m_OutPadDown.SetBool(ref_graph, fValue > 0);
   }
 }
 

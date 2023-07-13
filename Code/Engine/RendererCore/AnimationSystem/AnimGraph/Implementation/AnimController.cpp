@@ -3,9 +3,11 @@
 #include <Core/World/GameObject.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphPins.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <ozz/animation/runtime/skeleton.h>
 
 ezMutex ezAnimController::s_SharedDataMutex;
@@ -166,7 +168,8 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
 
     if (pw.GetCount() > m_uiMaxPoses)
     {
-      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs) { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
+      pw.Sort([](const PinWeight& lhs, const PinWeight& rhs)
+        { return lhs.m_fPinWeight > rhs.m_fPinWeight; });
       pw.SetCount(m_uiMaxPoses);
     }
 

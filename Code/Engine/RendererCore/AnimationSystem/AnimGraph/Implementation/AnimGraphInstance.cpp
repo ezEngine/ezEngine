@@ -2,9 +2,9 @@
 
 #include <Core/World/GameObject.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
-#include <RendererCore/AnimationSystem/SkeletonResource.h>
-
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/runtime/skeleton.h>
 
 ezAnimGraphInstance::ezAnimGraphInstance() = default;
