@@ -4,6 +4,7 @@
 #include <Core/World/World.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SampleBlendSpace2DAnimNode.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>

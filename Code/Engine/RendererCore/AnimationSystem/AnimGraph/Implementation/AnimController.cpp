@@ -14,10 +14,7 @@ ezMutex ezAnimController::s_SharedDataMutex;
 ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> ezAnimController::s_SharedBoneWeights;
 
 ezAnimController::ezAnimController() = default;
-
-ezAnimController::~ezAnimController()
-{
-}
+ezAnimController::~ezAnimController() = default;
 
 void ezAnimController::Initialize(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard /*= nullptr*/)
 {
