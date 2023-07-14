@@ -388,7 +388,7 @@ void ezFallbackGameState::AfterWorldUpdate()
   // Setting the camera transform in ProcessInput introduces one frame delay.
   if (const ezCameraComponent* pCamComp = FindActiveCameraComponent())
   {
-    if (pCamComp->GetCameraMode() != ezCameraMode::Stereo)
+    if (pCamComp->GetCameraMode() != ezCameraMode::Stereo && m_MainCamera.GetCameraMode() != ezCameraMode::Stereo)
     {
       const ezGameObject* pOwner = pCamComp->GetOwner();
       ezVec3 vPosition = pOwner->GetGlobalPosition();
