@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SwitchPoseAnimNode.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
@@ -61,7 +63,7 @@ ezResult ezSwitchPoseAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || !m_InIndex.IsConnected())
     return;
@@ -90,9 +92,9 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     return;
   }
 
-  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+  InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
-  const ezInt8 iDstIdx = ezMath::Clamp<ezInt8>((ezInt8)m_InIndex.GetNumber(graph, 0), 0, pPins.GetCount() - 1);
+  const ezInt8 iDstIdx = ezMath::Clamp<ezInt8>((ezInt8)m_InIndex.GetNumber(ref_graph, 0), 0, pPins.GetCount() - 1);
 
   if (pInstance->m_iTransitionToIndex < 0)
   {
@@ -120,7 +122,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   ezInt8 iTransitionFromIndex = pInstance->m_iTransitionFromIndex;
   ezInt8 iTransitionToIndex = pInstance->m_iTransitionToIndex;
 
-  if (pPins[iTransitionFromIndex]->GetPose(ref_controller, graph) == nullptr)
+  if (pPins[iTransitionFromIndex]->GetPose(ref_controller, ref_graph) == nullptr)
   {
     // if the 'from' pose already stopped, just jump to the 'to' pose
     iTransitionFromIndex = iTransitionToIndex;
@@ -129,7 +131,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   if (iTransitionFromIndex == iTransitionToIndex)
   {
     const ezAnimGraphLocalPoseInputPin* pPinToForward = pPins[iTransitionToIndex];
-    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, graph);
+    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, ref_graph);
 
     if (pDataToForward == nullptr)
       return;
@@ -141,12 +143,12 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     pLocalTransforms->m_vRootMotion = pDataToForward->m_vRootMotion;
     pLocalTransforms->m_bUseRootMotion = pDataToForward->m_bUseRootMotion;
 
-    m_OutPose.SetPose(graph, pLocalTransforms);
+    m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
   else
   {
-    auto pPose0 = pPins[iTransitionFromIndex]->GetPose(ref_controller, graph);
-    auto pPose1 = pPins[iTransitionToIndex]->GetPose(ref_controller, graph);
+    auto pPose0 = pPins[iTransitionFromIndex]->GetPose(ref_controller, ref_graph);
+    auto pPose1 = pPins[iTransitionToIndex]->GetPose(ref_controller, ref_graph);
 
     if (pPose0 == nullptr || pPose1 == nullptr)
       return;
@@ -167,7 +169,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     pPinData->m_bUseRootMotion = pPose0->m_bUseRootMotion || pPose1->m_bUseRootMotion;
     pPinData->m_vRootMotion = ezMath::Lerp(pPose0->m_vRootMotion, pPose1->m_vRootMotion, fLerp);
 
-    m_OutPose.SetPose(graph, pPinData);
+    m_OutPose.SetPose(ref_graph, pPinData);
   }
 }
 
