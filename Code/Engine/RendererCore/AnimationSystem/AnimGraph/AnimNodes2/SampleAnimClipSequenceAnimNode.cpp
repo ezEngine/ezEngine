@@ -2,8 +2,11 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SampleAnimClipSequenceAnimNode.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
@@ -14,9 +17,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleAnimClipSequenceAnimNode, 1, ezRTTIDefau
       EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
       EZ_MEMBER_PROPERTY("Loop", m_bLoop),
       //EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
-      EZ_ACCESSOR_PROPERTY("StartClip", GetStartClip, SetStartClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
-      EZ_ARRAY_ACCESSOR_PROPERTY("MiddleClips", Clips_GetCount, Clips_GetValue, Clips_SetValue, Clips_Insert, Clips_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
-      EZ_ACCESSOR_PROPERTY("EndClip", GetEndClip, SetEndClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+      EZ_ACCESSOR_PROPERTY("StartClip", GetStartClip, SetStartClip)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+      EZ_ARRAY_ACCESSOR_PROPERTY("MiddleClips", Clips_GetCount, Clips_GetValue, Clips_SetValue, Clips_Insert, Clips_Remove)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
+      EZ_ACCESSOR_PROPERTY("EndClip", GetEndClip, SetEndClip)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
 
       EZ_MEMBER_PROPERTY("InStart", m_InStart)->AddAttributes(new ezHiddenAttribute()),
       EZ_MEMBER_PROPERTY("InLoop", m_InLoop)->AddAttributes(new ezHiddenAttribute()),
@@ -49,9 +52,9 @@ ezResult ezSampleAnimClipSequenceAnimNode::SerializeNode(ezStreamWriter& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  stream << m_hStartClip;
+  stream << m_sStartClip;
   EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Clips));
-  stream << m_hEndClip;
+  stream << m_sEndClip;
   stream << m_bApplyRootMotion;
   stream << m_bLoop;
   stream << m_fPlaybackSpeed;
@@ -74,9 +77,9 @@ ezResult ezSampleAnimClipSequenceAnimNode::DeserializeNode(ezStreamReader& strea
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  stream >> m_hStartClip;
+  stream >> m_sStartClip;
   EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Clips));
-  stream >> m_hEndClip;
+  stream >> m_sEndClip;
   stream >> m_bApplyRootMotion;
   stream >> m_bLoop;
   stream >> m_fPlaybackSpeed;
@@ -100,32 +103,19 @@ ezUInt32 ezSampleAnimClipSequenceAnimNode::Clips_GetCount() const
 
 const char* ezSampleAnimClipSequenceAnimNode::Clips_GetValue(ezUInt32 uiIndex) const
 {
-  const auto& hMat = m_Clips[uiIndex];
-
-  if (!hMat.IsValid())
-    return "";
-
-  return hMat.GetResourceID();
+  return m_Clips[uiIndex];
 }
 
-void ezSampleAnimClipSequenceAnimNode::Clips_SetValue(ezUInt32 uiIndex, const char* value)
+void ezSampleAnimClipSequenceAnimNode::Clips_SetValue(ezUInt32 uiIndex, const char* szValue)
 {
-  if (ezStringUtils::IsNullOrEmpty(value))
-    m_Clips[uiIndex] = ezAnimationClipResourceHandle();
-  else
-  {
-    m_Clips[uiIndex] = ezResourceManager::LoadResource<ezAnimationClipResource>(value);
-  }
+  m_Clips[uiIndex].Assign(szValue);
 }
 
-void ezSampleAnimClipSequenceAnimNode::Clips_Insert(ezUInt32 uiIndex, const char* value)
+void ezSampleAnimClipSequenceAnimNode::Clips_Insert(ezUInt32 uiIndex, const char* szValue)
 {
-  ezAnimationClipResourceHandle hMat;
-
-  if (!ezStringUtils::IsNullOrEmpty(value))
-    hMat = ezResourceManager::LoadResource<ezAnimationClipResource>(value);
-
-  m_Clips.Insert(hMat, uiIndex);
+  ezHashedString s;
+  s.Assign(szValue);
+  m_Clips.Insert(s, uiIndex);
 }
 
 void ezSampleAnimClipSequenceAnimNode::Clips_Remove(ezUInt32 uiIndex)
@@ -133,14 +123,14 @@ void ezSampleAnimClipSequenceAnimNode::Clips_Remove(ezUInt32 uiIndex)
   m_Clips.RemoveAtAndCopy(uiIndex);
 }
 
-void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected())
     return;
 
-  InstanceState* pState = graph.GetAnimNodeInstanceData<InstanceState>(*this);
+  InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && pState->m_uiState == 0) || m_InStart.IsTriggered(graph))
+  if ((!m_InStart.IsConnected() && pState->m_uiState == 0) || m_InStart.IsTriggered(ref_graph))
   {
     pState->m_PlaybackTime = ezTime::Zero();
     pState->m_uiState = 1;
@@ -149,10 +139,10 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
   if (pState->m_uiState == 0)
     return;
 
-  const bool bLoop = m_InLoop.GetBool(graph, m_bLoop);
+  const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
 
   // currently we only support playing clips forwards
-  const float fPlaySpeed = ezMath::Max(0.0f, static_cast<float>(m_InSpeed.GetNumber(graph, m_fPlaybackSpeed)));
+  const float fPlaySpeed = ezMath::Max(0.0f, static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed)));
 
   ezTime tPrevSamplePos = pState->m_PlaybackTime;
   pState->m_PlaybackTime += tDiff * fPlaySpeed;
@@ -164,11 +154,13 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
   {
     if (pState->m_uiState == 1)
     {
-      if (!m_hStartClip.IsValid())
+      const auto& startClip = ref_controller.GetAnimationClipInfo(m_sStartClip);
+
+      if (!startClip.m_hClip.IsValid())
       {
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(graph, 0xFF);
+          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -176,16 +168,16 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
         }
 
         pState->m_uiState = 2;
-        m_OutOnMiddleStarted.SetTriggered(graph);
+        m_OutOnMiddleStarted.SetTriggered(ref_graph);
         continue;
       }
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(m_hStartClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      ezResourceLock<ezAnimationClipResource> pAnimClip(startClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
       if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
       {
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(graph, 0xFF);
+          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -193,7 +185,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
         }
 
         pState->m_uiState = 2;
-        m_OutOnMiddleStarted.SetTriggered(graph);
+        m_OutOnMiddleStarted.SetTriggered(ref_graph);
         continue;
       }
 
@@ -203,14 +195,14 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
       if (pState->m_PlaybackTime >= tCurDuration)
       {
         // TODO: sample anim events of previous clip
-        m_OutOnMiddleStarted.SetTriggered(graph);
+        m_OutOnMiddleStarted.SetTriggered(ref_graph);
         tPrevSamplePos = ezTime::Zero();
         pState->m_PlaybackTime -= tCurDuration;
         pState->m_uiState = 2;
 
         if (!m_Clips.IsEmpty())
         {
-          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(graph, 0xFF);
+          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -219,24 +211,26 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
         continue;
       }
 
-      hCurClip = m_hStartClip;
+      hCurClip = startClip.m_hClip;
       break;
     }
 
     if (pState->m_uiState == 2)
     {
-      if (m_Clips.IsEmpty() || !m_Clips[pState->m_uiMiddleClipIdx].IsValid())
+      const auto& clipInfo = ref_controller.GetAnimationClipInfo(m_Clips[pState->m_uiMiddleClipIdx]);
+
+      if (m_Clips.IsEmpty() || !clipInfo.m_hClip.IsValid())
       {
         pState->m_uiState = 3;
-        m_OutOnEndStarted.SetTriggered(graph);
+        m_OutOnEndStarted.SetTriggered(ref_graph);
         continue;
       }
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(m_Clips[pState->m_uiMiddleClipIdx], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      ezResourceLock<ezAnimationClipResource> pAnimClip(clipInfo.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
       if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
       {
         pState->m_uiState = 3;
-        m_OutOnEndStarted.SetTriggered(graph);
+        m_OutOnEndStarted.SetTriggered(ref_graph);
         continue;
       }
 
@@ -251,10 +245,10 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
 
         if (bLoop)
         {
-          m_OutOnMiddleStarted.SetTriggered(graph);
+          m_OutOnMiddleStarted.SetTriggered(ref_graph);
           pState->m_uiState = 2;
 
-          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(graph, 0xFF);
+          pState->m_uiMiddleClipIdx = m_ClipIndexPin.GetNumber(ref_graph, 0xFF);
           if (pState->m_uiMiddleClipIdx >= m_Clips.GetCount())
           {
             pState->m_uiMiddleClipIdx = pTarget->GetWorld()->GetRandomNumberGenerator().UIntInRange(m_Clips.GetCount());
@@ -262,30 +256,32 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
         }
         else
         {
-          m_OutOnEndStarted.SetTriggered(graph);
+          m_OutOnEndStarted.SetTriggered(ref_graph);
           pState->m_uiState = 3;
         }
         continue;
       }
 
-      hCurClip = m_Clips[pState->m_uiMiddleClipIdx];
+      hCurClip = clipInfo.m_hClip;
       break;
     }
 
     if (pState->m_uiState == 3)
     {
-      if (!m_hEndClip.IsValid())
+      const auto& endClip = ref_controller.GetAnimationClipInfo(m_sEndClip);
+
+      if (!endClip.m_hClip.IsValid())
       {
         pState->m_uiState = 0;
-        m_OutOnFinished.SetTriggered(graph);
+        m_OutOnFinished.SetTriggered(ref_graph);
         continue;
       }
 
-      ezResourceLock<ezAnimationClipResource> pAnimClip(m_hEndClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      ezResourceLock<ezAnimationClipResource> pAnimClip(endClip.m_hClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
       if (pAnimClip.GetAcquireResult() != ezResourceAcquireResult::Final)
       {
         pState->m_uiState = 0;
-        m_OutOnFinished.SetTriggered(graph);
+        m_OutOnFinished.SetTriggered(ref_graph);
         continue;
       }
 
@@ -295,12 +291,12 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
       if (pState->m_PlaybackTime >= tCurDuration)
       {
         // TODO: sample anim events of previous clip
-        m_OutOnFinished.SetTriggered(graph);
+        m_OutOnFinished.SetTriggered(ref_graph);
         pState->m_uiState = 0;
         continue;
       }
 
-      hCurClip = m_hEndClip;
+      hCurClip = endClip.m_hClip;
       break;
     }
   }
@@ -311,7 +307,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
   const float fInvDuration = 1.0f / tCurDuration.AsFloatInSeconds();
 
   const void* pThis = this;
-  auto& cmd = graph.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
+  auto& cmd = ref_controller.GetPoseGenerator().AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis)));
   cmd.m_EventSampling = ezAnimPoseEventTrackSampleMode::OnlyBetween;
 
   cmd.m_hAnimationClip = hCurClip;
@@ -319,7 +315,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
   cmd.m_fNormalizedSamplePos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
 
   {
-    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
     pLocalTransforms->m_pWeights = nullptr;
     pLocalTransforms->m_bUseRootMotion = false; // m_bApplyRootMotion;
@@ -327,48 +323,28 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimGraphInstance& graph, ezTime t
     // pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed;
     pLocalTransforms->m_CommandID = cmd.GetCommandID();
 
-    m_OutPose.SetPose(graph, pLocalTransforms);
+    m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
 }
 
 void ezSampleAnimClipSequenceAnimNode::SetStartClip(const char* szClip)
 {
-  ezAnimationClipResourceHandle hClip;
-
-  if (!ezStringUtils::IsNullOrEmpty(szClip))
-  {
-    hClip = ezResourceManager::LoadResource<ezAnimationClipResource>(szClip);
-  }
-
-  m_hStartClip = hClip;
+  m_sStartClip.Assign(szClip);
 }
 
 const char* ezSampleAnimClipSequenceAnimNode::GetStartClip() const
 {
-  if (!m_hStartClip.IsValid())
-    return "";
-
-  return m_hStartClip.GetResourceID();
+  return m_sStartClip;
 }
 
 void ezSampleAnimClipSequenceAnimNode::SetEndClip(const char* szClip)
 {
-  ezAnimationClipResourceHandle hClip;
-
-  if (!ezStringUtils::IsNullOrEmpty(szClip))
-  {
-    hClip = ezResourceManager::LoadResource<ezAnimationClipResource>(szClip);
-  }
-
-  m_hEndClip = hClip;
+  m_sEndClip.Assign(szClip);
 }
 
 const char* ezSampleAnimClipSequenceAnimNode::GetEndClip() const
 {
-  if (!m_hEndClip.IsValid())
-    return "";
-
-  return m_hEndClip.GetResourceID();
+  return m_sEndClip;
 }
 
 bool ezSampleAnimClipSequenceAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const

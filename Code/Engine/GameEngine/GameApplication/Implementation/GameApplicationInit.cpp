@@ -59,7 +59,7 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Curve1D", ezGetStaticRTTI<ezCurve1DResource>());
   ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
   ezResourceManager::RegisterResourceForAssetType("Animation Clip", ezGetStaticRTTI<ezAnimationClipResource>());
-  ezResourceManager::RegisterResourceForAssetType("Animation Controller", ezGetStaticRTTI<ezAnimGraphResource>());
+  ezResourceManager::RegisterResourceForAssetType("Animation Graph", ezGetStaticRTTI<ezAnimGraphResource>());
   ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
   ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
   ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());

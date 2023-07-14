@@ -51,7 +51,7 @@
 //  return EZ_SUCCESS;
 //}
 //
-// void ezLocalToModelPoseAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+// void ezLocalToModelPoseAnimNode::Step(ezAnimGraphExecutor& executor, ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 //{
 //  if (!m_LocalPosePin.IsConnected() || !m_ModelPosePin.IsConnected())
 //    return;

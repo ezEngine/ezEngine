@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphPins.h>
 
 // clang-format off
@@ -150,12 +152,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphBoneWeightsOutputPin, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimGraphPinDataBoneWeights* ezAnimGraphBoneWeightsInputPin::GetWeights(ezAnimGraphInstance& ref_graph) const
+ezAnimGraphPinDataBoneWeights* ezAnimGraphBoneWeightsInputPin::GetWeights(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const
 {
   if (m_iPinIndex < 0 || ref_graph.m_pBoneWeightInputPinStates[m_iPinIndex] == 0xFFFF)
     return nullptr;
 
-  return &ref_graph.m_PinDataBoneWeights[ref_graph.m_pBoneWeightInputPinStates[m_iPinIndex]];
+  return &ref_controller.m_PinDataBoneWeights[ref_graph.m_pBoneWeightInputPinStates[m_iPinIndex]];
 }
 
 void ezAnimGraphBoneWeightsOutputPin::SetWeights(ezAnimGraphInstance& ref_graph, ezAnimGraphPinDataBoneWeights* pWeights) const
@@ -185,7 +187,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphLocalPoseOutputPin, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimGraphPinDataLocalTransforms* ezAnimGraphLocalPoseInputPin::GetPose(ezAnimGraphInstance& ref_graph) const
+ezAnimGraphPinDataLocalTransforms* ezAnimGraphLocalPoseInputPin::GetPose(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const
 {
   if (m_iPinIndex < 0)
     return nullptr;
@@ -193,10 +195,10 @@ ezAnimGraphPinDataLocalTransforms* ezAnimGraphLocalPoseInputPin::GetPose(ezAnimG
   if (ref_graph.m_LocalPoseInputPinStates[m_iPinIndex].IsEmpty())
     return nullptr;
 
-  return &ref_graph.m_PinDataLocalTransforms[ref_graph.m_LocalPoseInputPinStates[m_iPinIndex][0]];
+  return &ref_controller.m_PinDataLocalTransforms[ref_graph.m_LocalPoseInputPinStates[m_iPinIndex][0]];
 }
 
-void ezAnimGraphLocalPoseMultiInputPin::GetPoses(ezAnimGraphInstance& ref_graph, ezDynamicArray<ezAnimGraphPinDataLocalTransforms*>& out_poses) const
+void ezAnimGraphLocalPoseMultiInputPin::GetPoses(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezDynamicArray<ezAnimGraphPinDataLocalTransforms*>& out_poses) const
 {
   out_poses.Clear();
 
@@ -206,7 +208,7 @@ void ezAnimGraphLocalPoseMultiInputPin::GetPoses(ezAnimGraphInstance& ref_graph,
   out_poses.SetCountUninitialized(ref_graph.m_LocalPoseInputPinStates[m_iPinIndex].GetCount());
   for (ezUInt32 i = 0; i < ref_graph.m_LocalPoseInputPinStates[m_iPinIndex].GetCount(); ++i)
   {
-    out_poses[i] = &ref_graph.m_PinDataLocalTransforms[ref_graph.m_LocalPoseInputPinStates[m_iPinIndex][i]];
+    out_poses[i] = &ref_controller.m_PinDataLocalTransforms[ref_graph.m_LocalPoseInputPinStates[m_iPinIndex][i]];
   }
 }
 
@@ -234,12 +236,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphModelPoseOutputPin, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAnimGraphPinDataModelTransforms* ezAnimGraphModelPoseInputPin::GetPose(ezAnimGraphInstance& ref_graph) const
+ezAnimGraphPinDataModelTransforms* ezAnimGraphModelPoseInputPin::GetPose(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const
 {
   if (m_iPinIndex < 0 || ref_graph.m_pModelPoseInputPinStates[m_iPinIndex] == 0xFFFF)
     return nullptr;
 
-  return &ref_graph.m_PinDataModelTransforms[ref_graph.m_pModelPoseInputPinStates[m_iPinIndex]];
+  return &ref_controller.m_PinDataModelTransforms[ref_graph.m_pModelPoseInputPinStates[m_iPinIndex]];
 }
 
 void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraphInstance& ref_graph, ezAnimGraphPinDataModelTransforms* pPose) const

@@ -2,7 +2,9 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/RestPoseAnimNode.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
@@ -47,22 +49,22 @@ ezResult ezRestPoseAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezRestPoseAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected())
     return;
 
   const void* pThis = this;
-  auto& cmd = graph.GetPoseGenerator().AllocCommandRestPose();
+  auto& cmd = ref_controller.GetPoseGenerator().AllocCommandRestPose();
 
   {
-    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = graph.AddPinDataLocalTransforms();
+    ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
     pLocalTransforms->m_pWeights = nullptr;
     pLocalTransforms->m_bUseRootMotion = false;
     pLocalTransforms->m_fOverallWeight = 1.0f;
     pLocalTransforms->m_CommandID = cmd.GetCommandID();
 
-    m_OutPose.SetPose(graph, pLocalTransforms);
+    m_OutPose.SetPose(ref_graph, pLocalTransforms);
   }
 }

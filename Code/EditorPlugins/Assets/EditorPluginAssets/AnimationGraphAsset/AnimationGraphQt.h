@@ -6,10 +6,10 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 
-class ezQtAnimationControllerNode : public ezQtNode
+class ezQtAnimationGraphNode : public ezQtNode
 {
 public:
-  ezQtAnimationControllerNode();
+  ezQtAnimationGraphNode();
 
   virtual void UpdateState() override;
 };

@@ -5,6 +5,7 @@
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
@@ -33,8 +34,8 @@ public:
   ezAnimationControllerComponent();
   ~ezAnimationControllerComponent();
 
-  void SetAnimationControllerFile(const char* szFile); // [ property ]
-  const char* GetAnimationControllerFile() const;      // [ property ]
+  void SetAnimGraphFile(const char* szFile); // [ property ]
+  const char* GetAnimGraphFile() const;      // [ property ]
 
   ezEnum<ezAnimationInvisibleUpdateRate> m_InvisibleUpdateRate; // [ property ]
 
@@ -43,8 +44,8 @@ protected:
 
   ezEnum<ezRootMotionMode> m_RootMotionMode;
 
-  ezAnimGraphResourceHandle m_hAnimationController;
-  ezAnimGraphInstance m_AnimationGraph;
+  ezAnimGraphResourceHandle m_hAnimGraph;
+  ezAnimController m_AnimController;
   ezAnimPoseGenerator m_PoseGenerator;
 
   ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();

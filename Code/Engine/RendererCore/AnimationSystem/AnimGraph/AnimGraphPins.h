@@ -9,6 +9,7 @@
 #include <ozz/base/maths/soa_transform.h>
 
 class ezAnimGraphInstance;
+class ezAnimController;
 class ezStreamWriter;
 class ezStreamReader;
 struct ezAnimGraphPinDataBoneWeights;
@@ -154,7 +155,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphBoneWeightsInputPin : public ezAnimGraphInp
 public:
   virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::BoneWeights; }
 
-  ezAnimGraphPinDataBoneWeights* GetWeights(ezAnimGraphInstance& ref_graph) const;
+  ezAnimGraphPinDataBoneWeights* GetWeights(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphBoneWeightsOutputPin : public ezAnimGraphOutputPin
@@ -176,7 +177,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseInputPin : public ezAnimGraphInput
 public:
   virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::LocalPose; }
 
-  ezAnimGraphPinDataLocalTransforms* GetPose(ezAnimGraphInstance& ref_graph) const;
+  ezAnimGraphPinDataLocalTransforms* GetPose(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseMultiInputPin : public ezAnimGraphInputPin
@@ -186,7 +187,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseMultiInputPin : public ezAnimGraph
 public:
   virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::LocalPose; }
 
-  void GetPoses(ezAnimGraphInstance& ref_graph, ezDynamicArray<ezAnimGraphPinDataLocalTransforms*>& out_poses) const;
+  void GetPoses(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezDynamicArray<ezAnimGraphPinDataLocalTransforms*>& out_poses) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphLocalPoseOutputPin : public ezAnimGraphOutputPin
@@ -208,7 +209,7 @@ class EZ_RENDERERCORE_DLL ezAnimGraphModelPoseInputPin : public ezAnimGraphInput
 public:
   virtual ezAnimGraphPin::Type GetPinType() const override { return ezAnimGraphPin::ModelPose; }
 
-  ezAnimGraphPinDataModelTransforms* GetPose(ezAnimGraphInstance& ref_graph) const;
+  ezAnimGraphPinDataModelTransforms* GetPose(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const;
 };
 
 class EZ_RENDERERCORE_DLL ezAnimGraphModelPoseOutputPin : public ezAnimGraphOutputPin

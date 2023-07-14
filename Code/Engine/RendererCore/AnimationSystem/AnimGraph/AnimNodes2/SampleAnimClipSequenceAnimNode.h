@@ -15,7 +15,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -28,22 +28,22 @@ public:
   void SetStartClip(const char* szClip);
   const char* GetStartClip() const;
 
-  ezUInt32 Clips_GetCount() const;                          // [ property ]
-  const char* Clips_GetValue(ezUInt32 uiIndex) const;       // [ property ]
-  void Clips_SetValue(ezUInt32 uiIndex, const char* value); // [ property ]
-  void Clips_Insert(ezUInt32 uiIndex, const char* value);   // [ property ]
-  void Clips_Remove(ezUInt32 uiIndex);                      // [ property ]
+  ezUInt32 Clips_GetCount() const;                            // [ property ]
+  const char* Clips_GetValue(ezUInt32 uiIndex) const;         // [ property ]
+  void Clips_SetValue(ezUInt32 uiIndex, const char* szValue); // [ property ]
+  void Clips_Insert(ezUInt32 uiIndex, const char* szValue);   // [ property ]
+  void Clips_Remove(ezUInt32 uiIndex);                        // [ property ]
 
   void SetEndClip(const char* szClip);
   const char* GetEndClip() const;
 
 private:
-  ezAnimationClipResourceHandle m_hStartClip;              // [ property ]
-  ezHybridArray<ezAnimationClipResourceHandle, 1> m_Clips; // [ property ]
-  ezAnimationClipResourceHandle m_hEndClip;                // [ property ]
-  bool m_bApplyRootMotion = false;                         // [ property ]
-  bool m_bLoop = false;                                    // [ property ]
-  float m_fPlaybackSpeed = 1.0f;                           // [ property ]
+  ezHashedString m_sStartClip;              // [ property ]
+  ezHybridArray<ezHashedString, 1> m_Clips; // [ property ]
+  ezHashedString m_sEndClip;                // [ property ]
+  bool m_bApplyRootMotion = false;          // [ property ]
+  bool m_bLoop = false;                     // [ property ]
+  float m_fPlaybackSpeed = 1.0f;            // [ property ]
 
   ezAnimGraphTriggerInputPin m_InStart;     // [ property ]
   ezAnimGraphBoolInputPin m_InLoop;         // [ property ]

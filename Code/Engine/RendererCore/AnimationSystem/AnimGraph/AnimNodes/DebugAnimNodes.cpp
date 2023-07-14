@@ -11,10 +11,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogAnimNode, 1, ezRTTINoAllocator)
       EZ_MEMBER_PROPERTY("Text", m_sText)->AddAttributes(new ezDefaultValueAttribute("Values: {0}/{1}-{3}/{4}")),
 
       EZ_MEMBER_PROPERTY("InActivate", m_InActivate)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InNumber0", m_InNumber0)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InNumber1", m_InNumber1)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InNumber2", m_InNumber2)->AddAttributes(new ezHiddenAttribute()),
-      EZ_MEMBER_PROPERTY("InNumber3", m_InNumber3)->AddAttributes(new ezHiddenAttribute()),
+      EZ_MEMBER_PROPERTY("NumberCount", m_uiNumberCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(1)),
+      EZ_ARRAY_MEMBER_PROPERTY("InNumbers", m_InNumbers)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("NumberCount")),
     }
     EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
@@ -35,12 +33,10 @@ ezResult ezLogAnimNode::SerializeNode(ezStreamWriter& stream) const
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
   stream << m_sText;
+  stream << m_uiNumberCount;
 
   EZ_SUCCEED_OR_RETURN(m_InActivate.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InNumber0.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InNumber1.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InNumber2.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InNumber3.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InNumbers));
 
   return EZ_SUCCESS;
 }
@@ -53,14 +49,32 @@ ezResult ezLogAnimNode::DeserializeNode(ezStreamReader& stream)
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
   stream >> m_sText;
+  stream >> m_uiNumberCount;
 
   EZ_SUCCEED_OR_RETURN(m_InActivate.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InNumber0.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InNumber1.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InNumber2.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InNumber3.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InNumbers));
 
   return EZ_SUCCESS;
+}
+
+static ezStringView BuildFormattedText(ezStringView sText, const ezVariantArray& params, ezStringBuilder& ref_sStorage)
+{
+  ezHybridArray<ezString, 12> stringStorage;
+  stringStorage.Reserve(params.GetCount());
+  for (auto& param : params)
+  {
+    stringStorage.PushBack(param.ConvertTo<ezString>());
+  }
+
+  ezHybridArray<ezStringView, 12> stringViews;
+  stringViews.Reserve(stringStorage.GetCount());
+  for (auto& s : stringStorage)
+  {
+    stringViews.PushBack(s);
+  }
+
+  ezFormatString fs(sText);
+  return fs.BuildFormattedText(ref_sStorage, stringViews.GetData(), stringViews.GetCount());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -79,12 +93,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogInfoAnimNode, 1, ezRTTIDefaultAllocator<ezL
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLogInfoAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLogInfoAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_InActivate.IsTriggered(graph))
+  if (!m_InActivate.IsTriggered(ref_graph))
     return;
 
-  ezLog::Info(m_sText, m_InNumber0.GetNumber(graph), m_InNumber1.GetNumber(graph), m_InNumber2.GetNumber(graph), m_InNumber3.GetNumber(graph));
+  ezVariantArray params;
+  for (auto& n : m_InNumbers)
+  {
+    params.PushBack(n.GetNumber(ref_graph));
+  }
+
+  ezStringBuilder sStorage;
+  ezLog::Info(BuildFormattedText(m_sText, params, sStorage));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -103,12 +124,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogErrorAnimNode, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLogErrorAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLogErrorAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_InActivate.IsTriggered(graph))
+  if (!m_InActivate.IsTriggered(ref_graph))
     return;
 
-  ezLog::Error(m_sText, m_InNumber0.GetNumber(graph), m_InNumber1.GetNumber(graph), m_InNumber2.GetNumber(graph), m_InNumber3.GetNumber(graph));
+  ezVariantArray params;
+  for (auto& n : m_InNumbers)
+  {
+    params.PushBack(n.GetNumber(ref_graph));
+  }
+
+  ezStringBuilder sStorage;
+  ezLog::Error(BuildFormattedText(m_sText, params, sStorage));
 }
 
 

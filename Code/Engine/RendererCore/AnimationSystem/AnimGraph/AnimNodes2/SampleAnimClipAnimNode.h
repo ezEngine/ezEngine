@@ -15,7 +15,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -29,10 +29,10 @@ public:
   ~ezSampleAnimClipAnimNode();
 
 private:
-  ezAnimationClipResourceHandle m_hClip; // [ property ]
-  bool m_bLoop = true;                   // [ property ]
-  bool m_bApplyRootMotion = false;       // [ property ]
-  float m_fPlaybackSpeed = 1.0f;         // [ property ]
+  ezHashedString m_sClip;          // [ property ]
+  bool m_bLoop = true;             // [ property ]
+  bool m_bApplyRootMotion = false; // [ property ]
+  float m_fPlaybackSpeed = 1.0f;   // [ property ]
 
   ezAnimGraphTriggerInputPin m_InStart; // [ property ]
   ezAnimGraphBoolInputPin m_InLoop;     // [ property ]

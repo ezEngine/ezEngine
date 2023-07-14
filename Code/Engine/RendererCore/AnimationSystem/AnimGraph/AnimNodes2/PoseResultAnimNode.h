@@ -13,7 +13,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -26,11 +26,13 @@ public:
 private:
   ezTime m_FadeDuration = ezTime::Milliseconds(200); // [ property ]
 
-  ezAnimGraphLocalPoseInputPin m_InPose;       // [ property ]
-  ezAnimGraphNumberInputPin m_InTargetWeight;  // [ property ]
-  ezAnimGraphNumberInputPin m_InFadeDuration;  // [ property ]
-  ezAnimGraphBoneWeightsInputPin m_InWeights;  // [ property ]
-  ezAnimGraphTriggerOutputPin m_OutOnFadedOut; // [ property ]
+  ezAnimGraphLocalPoseInputPin m_InPose;         // [ property ]
+  ezAnimGraphNumberInputPin m_InTargetWeight;    // [ property ]
+  ezAnimGraphNumberInputPin m_InFadeDuration;    // [ property ]
+  ezAnimGraphBoneWeightsInputPin m_InWeights;    // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFadedOut;   // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFadedIn;    // [ property ]
+  ezAnimGraphNumberOutputPin m_OutCurrentWeight; // [ property ]
 
   struct InstanceData
   {

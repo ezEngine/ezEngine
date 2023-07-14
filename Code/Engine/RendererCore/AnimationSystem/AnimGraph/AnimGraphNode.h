@@ -7,6 +7,7 @@
 class ezSkeletonResource;
 class ezGameObject;
 class ezAnimGraphInstance;
+class ezAnimController;
 class ezStreamWriter;
 class ezStreamReader;
 struct ezAnimGraphPinDataLocalTransforms;
@@ -56,7 +57,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const = 0;
   virtual ezResult DeserializeNode(ezStreamReader& stream) = 0;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const = 0;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const = 0;
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const { return false; }
 };
 

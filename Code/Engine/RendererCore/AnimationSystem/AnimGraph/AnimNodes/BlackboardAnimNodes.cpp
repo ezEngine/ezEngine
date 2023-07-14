@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/BlackboardAnimNodes.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -70,16 +72,16 @@ const char* ezSetBlackboardNumberAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezSetBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSetBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_InActivate.IsTriggered(graph))
+  if (!m_InActivate.IsTriggered(ref_graph))
     return;
 
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
-  if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InNumber.GetNumber(graph, m_fNumber)).Failed())
+  if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InNumber.GetNumber(ref_graph, m_fNumber)).Failed())
   {
     ezLog::Warning("AnimController::SetBlackboardNumber: '{}' doesn't exist.", m_sBlackboardEntry);
   }
@@ -146,9 +148,9 @@ const char* ezGetBlackboardNumberAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezGetBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezGetBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -163,7 +165,7 @@ void ezGetBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDif
     return;
   }
 
-  m_OutNumber.SetNumber(graph, value.ConvertTo<double>());
+  m_OutNumber.SetNumber(ref_graph, value.ConvertTo<double>());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -239,9 +241,9 @@ const char* ezCompareBlackboardNumberAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezCompareBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezCompareBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -256,13 +258,13 @@ void ezCompareBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime 
     return;
   }
 
-  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+  InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
   const double fValue = value.ConvertTo<double>();
   const bool bIsTrueNow = ezComparisonOperator::Compare(m_Comparison, fValue, m_fReferenceValue);
   const ezInt8 iIsTrueNow = bIsTrueNow ? 1 : 0;
 
-  m_OutIsTrue.SetBool(graph, bIsTrueNow);
+  m_OutIsTrue.SetBool(ref_graph, bIsTrueNow);
 
   // we use a tri-state bool here to ensure that OnTrue or OnFalse get fired right away
   if (pInstance->m_iIsTrue != iIsTrueNow)
@@ -271,11 +273,11 @@ void ezCompareBlackboardNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime 
 
     if (bIsTrueNow)
     {
-      m_OutOnTrue.SetTriggered(graph);
+      m_OutOnTrue.SetTriggered(ref_graph);
     }
     else
     {
-      m_OutOnFalse.SetTriggered(graph);
+      m_OutOnFalse.SetTriggered(ref_graph);
     }
   }
 }
@@ -353,16 +355,16 @@ const char* ezSetBlackboardBoolAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezSetBlackboardBoolAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSetBlackboardBoolAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (!m_InActivate.IsTriggered(graph))
+  if (!m_InActivate.IsTriggered(ref_graph))
     return;
 
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
-  if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InBool.GetBool(graph, m_bBool)).Failed())
+  if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InBool.GetBool(ref_graph, m_bBool)).Failed())
   {
     ezLog::Warning("AnimController::SetBlackboardBool: '{}' doesn't exist.", m_sBlackboardEntry);
   }
@@ -429,9 +431,9 @@ const char* ezGetBlackboardBoolAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezGetBlackboardBoolAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezGetBlackboardBoolAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -446,7 +448,7 @@ void ezGetBlackboardBoolAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff,
     return;
   }
 
-  m_OutBool.SetBool(graph, value.ConvertTo<bool>());
+  m_OutBool.SetBool(ref_graph, value.ConvertTo<bool>());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -511,9 +513,9 @@ const char* ezOnBlackboardValueChangedAnimNode::GetBlackboardEntry() const
   return m_sBlackboardEntry.GetData();
 }
 
-void ezOnBlackboardValueChangedAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezOnBlackboardValueChangedAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  auto pBlackboard = graph.GetBlackboard();
+  auto pBlackboard = ref_controller.GetBlackboard();
   if (pBlackboard == nullptr)
     return;
 
@@ -528,14 +530,14 @@ void ezOnBlackboardValueChangedAnimNode::Step(ezAnimGraphInstance& graph, ezTime
     return;
   }
 
-  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+  InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
   if (pInstance->m_uiChangeCounter == pEntry->m_uiChangeCounter)
     return;
 
   if (pInstance->m_uiChangeCounter != ezInvalidIndex)
   {
-    m_OutOnValueChanged.SetTriggered(graph);
+    m_OutOnValueChanged.SetTriggered(ref_graph);
   }
 
   pInstance->m_uiChangeCounter = pEntry->m_uiChangeCounter;

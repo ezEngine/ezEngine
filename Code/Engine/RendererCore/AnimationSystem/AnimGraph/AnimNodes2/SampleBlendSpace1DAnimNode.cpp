@@ -2,8 +2,11 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SampleBlendSpace1DAnimNode.h>
+#include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
@@ -11,7 +14,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAnimationClip1D, ezNoBase, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+    EZ_ACCESSOR_PROPERTY("Clip", GetAnimationFile, SetAnimationFile)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
     EZ_MEMBER_PROPERTY("Position", m_fPosition),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
@@ -51,24 +54,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezAnimationClip1D::SetAnimationFile(const char* szFile)
 {
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  m_hAnimation = hResource;
+  m_sClip.Assign(szFile);
 }
 
 const char* ezAnimationClip1D::GetAnimationFile() const
 {
-  if (m_hAnimation.IsValid())
-  {
-    return m_hAnimation.GetResourceID();
-  }
-
-  return "";
+  return m_sClip;
 }
 
 ezSampleBlendSpace1DAnimNode::ezSampleBlendSpace1DAnimNode() = default;
@@ -83,7 +74,7 @@ ezResult ezSampleBlendSpace1DAnimNode::SerializeNode(ezStreamWriter& stream) con
   stream << m_Clips.GetCount();
   for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
   {
-    stream << m_Clips[i].m_hAnimation;
+    stream << m_Clips[i].m_sClip;
     stream << m_Clips[i].m_fPosition;
     stream << m_Clips[i].m_fSpeed;
   }
@@ -114,7 +105,7 @@ ezResult ezSampleBlendSpace1DAnimNode::DeserializeNode(ezStreamReader& stream)
   m_Clips.SetCount(num);
   for (ezUInt32 i = 0; i < m_Clips.GetCount(); ++i)
   {
-    stream >> m_Clips[i].m_hAnimation;
+    stream >> m_Clips[i].m_sClip;
     stream >> m_Clips[i].m_fPosition;
     stream >> m_Clips[i].m_fSpeed;
   }
@@ -134,30 +125,30 @@ ezResult ezSampleBlendSpace1DAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezSampleBlendSpace1DAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
   if (!m_OutPose.IsConnected() || !m_InLerp.IsConnected() || m_Clips.IsEmpty())
     return;
 
-  InstanceState* pState = graph.GetAnimNodeInstanceData<InstanceState>(*this);
+  InstanceState* pState = ref_graph.GetAnimNodeInstanceData<InstanceState>(*this);
 
-  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(graph))
+  if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
   {
     pState->m_PlaybackTime = ezTime::Zero();
     pState->m_bPlaying = true;
 
-    m_OutOnStarted.SetTriggered(graph);
+    m_OutOnStarted.SetTriggered(ref_graph);
   }
 
   if (!pState->m_bPlaying)
     return;
 
-  const bool bLoop = m_InLoop.GetBool(graph, m_bLoop);
+  const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
 
   ezUInt32 uiClip1 = 0;
   ezUInt32 uiClip2 = 0;
 
-  const float fLerpPos = (float)m_InLerp.GetNumber(graph);
+  const float fLerpPos = (float)m_InLerp.GetNumber(ref_graph);
 
   if (m_Clips.GetCount() > 1)
   {
@@ -189,7 +180,10 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff
     }
   }
 
-  if (!m_Clips[uiClip1].m_hAnimation.IsValid() || !m_Clips[uiClip2].m_hAnimation.IsValid())
+  const auto& clip1 = ref_controller.GetAnimationClipInfo(m_Clips[uiClip1].m_sClip);
+  const auto& clip2 = ref_controller.GetAnimationClipInfo(m_Clips[uiClip2].m_sClip);
+
+  if (!clip1.m_hClip.IsValid() || !clip2.m_hClip.IsValid())
     return;
 
   float fLerpFactor = 0.0f;
@@ -212,14 +206,14 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff
     }
   }
 
-  ezResourceLock<ezAnimationClipResource> pAnimClip1(m_Clips[uiClip1].m_hAnimation, ezResourceAcquireMode::BlockTillLoaded);
-  ezResourceLock<ezAnimationClipResource> pAnimClip2(m_Clips[uiClip2].m_hAnimation, ezResourceAcquireMode::BlockTillLoaded);
+  ezResourceLock<ezAnimationClipResource> pAnimClip1(clip1.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
+  ezResourceLock<ezAnimationClipResource> pAnimClip2(clip2.m_hClip, ezResourceAcquireMode::BlockTillLoaded);
 
   if (pAnimClip1.GetAcquireResult() != ezResourceAcquireResult::Final || pAnimClip2.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
   const float fAvgClipSpeed = ezMath::Lerp(m_Clips[uiClip1].m_fSpeed, m_Clips[uiClip2].m_fSpeed, fLerpFactor);
-  const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(graph, m_fPlaybackSpeed)) * fAvgClipSpeed;
+  const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed)) * fAvgClipSpeed;
 
   const auto& animDesc1 = pAnimClip1->GetDescriptor();
   const auto& animDesc2 = pAnimClip2->GetDescriptor();
@@ -238,25 +232,25 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff
     {
       pState->m_PlaybackTime -= avgDuration;
       eventSampling = ezAnimPoseEventTrackSampleMode::LoopAtEnd;
-      m_OutOnStarted.SetTriggered(graph);
+      m_OutOnStarted.SetTriggered(ref_graph);
     }
     else
     {
       pState->m_PlaybackTime = avgDuration;
       pState->m_bPlaying = false;
-      m_OutOnFinished.SetTriggered(graph);
+      m_OutOnFinished.SetTriggered(ref_graph);
     }
   }
 
-  ezAnimGraphPinDataLocalTransforms* pOutputTransform = graph.AddPinDataLocalTransforms();
+  ezAnimGraphPinDataLocalTransforms* pOutputTransform = ref_controller.AddPinDataLocalTransforms();
 
-  auto& poseGen = graph.GetPoseGenerator();
+  auto& poseGen = ref_controller.GetPoseGenerator();
 
-  if (m_Clips[uiClip1].m_hAnimation == m_Clips[uiClip2].m_hAnimation)
+  if (clip1.m_hClip == clip2.m_hClip)
   {
     const void* pThis = this;
     auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
-    cmd.m_hAnimationClip = m_Clips[uiClip1].m_hAnimation;
+    cmd.m_hAnimationClip = clip1.m_hClip;
     cmd.m_fPreviousNormalizedSamplePos = tPrevPlayback.AsFloatInSeconds() * fInvDuration;
     cmd.m_fNormalizedSamplePos = pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration;
     cmd.m_EventSampling = eventSampling;
@@ -272,7 +266,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff
     {
       const void* pThis = this;
       auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 0));
-      cmd.m_hAnimationClip = m_Clips[uiClip1].m_hAnimation;
+      cmd.m_hAnimationClip = clip1.m_hClip;
       cmd.m_fPreviousNormalizedSamplePos = tPrevPlayback.AsFloatInSeconds() * fInvDuration;
       cmd.m_fNormalizedSamplePos = pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration;
       cmd.m_EventSampling = fLerpFactor <= 0.5f ? eventSampling : ezAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
@@ -285,7 +279,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff
     {
       const void* pThis = this;
       auto& cmd = poseGen.AllocCommandSampleTrack(ezHashingUtils::xxHash32(&pThis, sizeof(pThis), 1));
-      cmd.m_hAnimationClip = m_Clips[uiClip2].m_hAnimation;
+      cmd.m_hAnimationClip = clip2.m_hClip;
       cmd.m_fPreviousNormalizedSamplePos = tPrevPlayback.AsFloatInSeconds() * fInvDuration;
       cmd.m_fNormalizedSamplePos = pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration;
       cmd.m_EventSampling = fLerpFactor > 0.5f ? eventSampling : ezAnimPoseEventTrackSampleMode::None; // only the stronger influence will trigger events
@@ -304,7 +298,7 @@ void ezSampleBlendSpace1DAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff
       pOutputTransform->m_vRootMotion = ezMath::Lerp(animDesc1.m_vConstantRootMotion, animDesc2.m_vConstantRootMotion, fLerpFactor) * tDiff.AsFloatInSeconds() * fSpeed;
     }
 
-    m_OutPose.SetPose(graph, pOutputTransform);
+    m_OutPose.SetPose(ref_graph, pOutputTransform);
   }
 }
 

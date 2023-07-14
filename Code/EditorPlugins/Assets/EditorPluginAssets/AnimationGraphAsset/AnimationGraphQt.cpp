@@ -1,11 +1,11 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorPluginAssets/AnimationControllerAsset/AnimationControllerGraphQt.h>
+#include <EditorPluginAssets/AnimationGraphAsset/AnimationGraphQt.h>
 
-ezQtAnimationControllerNode::ezQtAnimationControllerNode() = default;
+ezQtAnimationGraphNode::ezQtAnimationGraphNode() = default;
 
-void ezQtAnimationControllerNode::UpdateState()
+void ezQtAnimationGraphNode::UpdateState()
 {
   ezQtNode::UpdateState();
 

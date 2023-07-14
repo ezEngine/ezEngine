@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4063831808526479806,5002292852126062766}}
-		u4 %Hash{10057287644522358492}
+		u4 %Hash{10122823855414585942}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5302902712215008652,16789820488192224536}}
@@ -24,14 +24,14 @@ o
 			s{"{ 3f6199bc-149e-4bc5-9cd7-cb5ecea988d9 }"}
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
 			s{"{ 65f61ecb-a35b-42b6-8149-b3555d8ab417 }"}
+			s{"{ 7cdef900-60f6-42a0-b1f9-0dfe4dbb555e }"}
 			s{"{ a23314a9-b6dd-4d21-adce-ff4ed20974c6 }"}
-			s{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
 			s{"{ d1b36926-5cdf-4c22-84e6-2fdad1e8935d }"}
 		}
 		VarArray %References
 		{
 			s{"{ 6240a925-6584-48c5-8559-6981f5d9bedd }"}
-			s{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
+			s{"{ 7cdef900-60f6-42a0-b1f9-0dfe4dbb555e }"}
 			s{"{ d1b36926-5cdf-4c22-84e6-2fdad1e8935d }"}
 		}
 	}
@@ -57,8 +57,8 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimController{"{ cafa4b79-ec8b-4bb1-adc5-ed3dda728c01 }"}
-		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
+		s %AnimGraph{"{ 7cdef900-60f6-42a0-b1f9-0dfe4dbb555e }"}
+		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::FullUpdate"}
 		s %RootMotionMode{"ezRootMotionMode::SendMoveCharacterMsg"}
 	}
 }

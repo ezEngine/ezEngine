@@ -6,7 +6,7 @@
 
 struct EZ_RENDERERCORE_DLL ezAnimationClip1D
 {
-  ezAnimationClipResourceHandle m_hAnimation;
+  ezHashedString m_sClip;
   float m_fPosition = 0.0f;
   float m_fSpeed = 1.0f;
 
@@ -27,7 +27,7 @@ protected:
   virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
   virtual ezResult DeserializeNode(ezStreamReader& stream) override;
 
-  virtual void Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
 
   //////////////////////////////////////////////////////////////////////////

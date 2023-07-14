@@ -3,13 +3,13 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
 
-class ezAnimationControllerAssetManager : public ezAssetDocumentManager
+class ezAnimationGraphAssetManager : public ezAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationControllerAssetManager, ezAssetDocumentManager);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphAssetManager, ezAssetDocumentManager);
 
 public:
-  ezAnimationControllerAssetManager();
-  ~ezAnimationControllerAssetManager();
+  ezAnimationGraphAssetManager();
+  ~ezAnimationGraphAssetManager();
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);

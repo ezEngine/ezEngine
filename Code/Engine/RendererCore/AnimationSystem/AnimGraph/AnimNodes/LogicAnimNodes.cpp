@@ -8,8 +8,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicAndAnimNode, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InBool0", m_InBool0)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("InBool1", m_InBool1)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("BoolCount", m_uiBoolCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(2)),
+    EZ_ARRAY_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("BoolCount")),
     EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute),
   }
@@ -33,8 +33,8 @@ ezResult ezLogicAndAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InBool0.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InBool1.Serialize(stream));
+  stream << m_uiBoolCount;
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InBool));
   EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
@@ -47,20 +47,29 @@ ezResult ezLogicAndAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InBool0.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InBool1.Deserialize(stream));
+  stream >> m_uiBoolCount;
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InBool));
   EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezLogicAndAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLogicAndAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  bool res = m_InBool0.GetBool(graph, true) && m_InBool1.GetBool(graph, true);
+  bool res = true;
 
-  m_OutIsTrue.SetBool(graph, res);
-  m_OutIsFalse.SetBool(graph, !res);
+  for (const auto& pin : m_InBool)
+  {
+    if (!pin.GetBool(ref_graph, true))
+    {
+      res = false;
+      break;
+    }
+  }
+
+  m_OutIsTrue.SetBool(ref_graph, res);
+  m_OutIsFalse.SetBool(ref_graph, !res);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -116,11 +125,11 @@ ezResult ezLogicEventAndAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezLogicEventAndAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLogicEventAndAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  if (m_InActivate.IsTriggered(graph) && m_InBool.GetBool(graph))
+  if (m_InActivate.IsTriggered(ref_graph) && m_InBool.GetBool(ref_graph))
   {
-    m_OutOnActivated.SetTriggered(graph);
+    m_OutOnActivated.SetTriggered(ref_graph);
   }
 }
 
@@ -133,8 +142,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogicOrAnimNode, 1, ezRTTIDefaultAllocator<ezL
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("InBool0", m_InBool0)->AddAttributes(new ezHiddenAttribute),
-    EZ_MEMBER_PROPERTY("InBool1", m_InBool1)->AddAttributes(new ezHiddenAttribute),
+    EZ_MEMBER_PROPERTY("BoolCount", m_uiBoolCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(2)),
+    EZ_ARRAY_MEMBER_PROPERTY("InBool", m_InBool)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("BoolCount")),
     EZ_MEMBER_PROPERTY("OutIsTrue", m_OutIsTrue)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("OutIsFalse", m_OutIsFalse)->AddAttributes(new ezHiddenAttribute),
   }
@@ -158,8 +167,8 @@ ezResult ezLogicOrAnimNode::SerializeNode(ezStreamWriter& stream) const
 
   EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InBool0.Serialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InBool1.Serialize(stream));
+  stream << m_uiBoolCount;
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_InBool));
   EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Serialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Serialize(stream));
 
@@ -172,20 +181,29 @@ ezResult ezLogicOrAnimNode::DeserializeNode(ezStreamReader& stream)
 
   EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
 
-  EZ_SUCCEED_OR_RETURN(m_InBool0.Deserialize(stream));
-  EZ_SUCCEED_OR_RETURN(m_InBool1.Deserialize(stream));
+  stream >> m_uiBoolCount;
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_InBool));
   EZ_SUCCEED_OR_RETURN(m_OutIsTrue.Deserialize(stream));
   EZ_SUCCEED_OR_RETURN(m_OutIsFalse.Deserialize(stream));
 
   return EZ_SUCCESS;
 }
 
-void ezLogicOrAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLogicOrAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  bool res = m_InBool0.GetBool(graph, false) || m_InBool1.GetBool(graph, false);
+  bool res = false;
 
-  m_OutIsTrue.SetBool(graph, res);
-  m_OutIsFalse.SetBool(graph, !res);
+  for (const auto& pin : m_InBool)
+  {
+    if (!pin.GetBool(ref_graph, true))
+    {
+      res = true;
+      break;
+    }
+  }
+
+  m_OutIsTrue.SetBool(ref_graph, res);
+  m_OutIsFalse.SetBool(ref_graph, !res);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -239,11 +257,11 @@ ezResult ezLogicNotAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezLogicNotAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezLogicNotAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  const bool value = !m_InBool.GetBool(graph);
+  const bool value = !m_InBool.GetBool(ref_graph);
 
-  m_OutBool.SetBool(graph, !value);
+  m_OutBool.SetBool(ref_graph, !value);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_LogicAnimNodes);

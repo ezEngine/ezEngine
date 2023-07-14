@@ -1,6 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/AnimationSystem/AnimGraph/AnimController.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
+#include <RendererCore/AnimationSystem/AnimGraph/AnimGraphInstance.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimNodes/MathAnimNodes.h>
 
 // clang-format off
@@ -77,9 +79,9 @@ static ezHashedString s_sB = ezMakeHashedString("b");
 static ezHashedString s_sC = ezMakeHashedString("c");
 static ezHashedString s_sD = ezMakeHashedString("d");
 
-void ezMathExpressionAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezMathExpressionAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  InstanceData* pInstance = graph.GetAnimNodeInstanceData<InstanceData>(*this);
+  InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
 
   if (pInstance->m_mExpression.GetExpressionString().IsEmpty())
   {
@@ -88,20 +90,20 @@ void ezMathExpressionAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, co
 
   if (!pInstance->m_mExpression.IsValid())
   {
-    m_ResultPin.SetNumber(graph, 0);
+    m_ResultPin.SetNumber(ref_graph, 0);
     return;
   }
 
   ezMathExpression::Input inputs[] =
     {
-      {s_sA, static_cast<float>(m_ValueAPin.GetNumber(graph))},
-      {s_sB, static_cast<float>(m_ValueBPin.GetNumber(graph))},
-      {s_sC, static_cast<float>(m_ValueCPin.GetNumber(graph))},
-      {s_sD, static_cast<float>(m_ValueDPin.GetNumber(graph))},
+      {s_sA, static_cast<float>(m_ValueAPin.GetNumber(ref_graph))},
+      {s_sB, static_cast<float>(m_ValueBPin.GetNumber(ref_graph))},
+      {s_sC, static_cast<float>(m_ValueCPin.GetNumber(ref_graph))},
+      {s_sD, static_cast<float>(m_ValueDPin.GetNumber(ref_graph))},
     };
 
   float result = pInstance->m_mExpression.Evaluate(inputs);
-  m_ResultPin.SetNumber(graph, result);
+  m_ResultPin.SetNumber(ref_graph, result);
 }
 
 bool ezMathExpressionAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
@@ -170,11 +172,11 @@ ezResult ezCompareNumberAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezCompareNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezCompareNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  const bool bIsTrue = ezComparisonOperator::Compare<double>(m_Comparison, m_InNumber.GetNumber(graph), m_InReference.GetNumber(graph, m_fReferenceValue));
+  const bool bIsTrue = ezComparisonOperator::Compare<double>(m_Comparison, m_InNumber.GetNumber(ref_graph), m_InReference.GetNumber(ref_graph, m_fReferenceValue));
 
-  m_OutIsTrue.SetBool(graph, bIsTrue);
+  m_OutIsTrue.SetBool(ref_graph, bIsTrue);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -236,9 +238,9 @@ ezResult ezBoolToNumberAnimNode::DeserializeNode(ezStreamReader& stream)
   return EZ_SUCCESS;
 }
 
-void ezBoolToNumberAnimNode::Step(ezAnimGraphInstance& graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+void ezBoolToNumberAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  m_OutNumber.SetNumber(graph, m_InValue.GetBool(graph) ? m_fTrueValue : m_fFalseValue);
+  m_OutNumber.SetNumber(ref_graph, m_InValue.GetBool(ref_graph) ? m_fTrueValue : m_fFalseValue);
 }
 
 
