@@ -26,6 +26,7 @@ ezQtNodeScene::ezQtNodeScene(QObject* pParent)
 
 ezQtNodeScene::~ezQtNodeScene()
 {
+  disconnect(this, &QGraphicsScene::selectionChanged, this, &ezQtNodeScene::OnSelectionChanged);
   SetDocumentNodeManager(nullptr);
 }
 
@@ -58,7 +59,10 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
       {
         CreateQtNode(pObject);
       }
-      else if (pManager->IsConnection(pObject))
+    }
+    for (const auto& pObject : rootObjects)
+    {
+      if (pManager->IsConnection(pObject))
       {
         CreateQtConnection(pObject);
       }

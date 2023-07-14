@@ -697,7 +697,7 @@ void ezOpenXR::UpdatePoses()
   EZ_ASSERT_DEV(IsInitialized(), "Need to call 'Initialize' first.");
 
   EZ_PROFILE_SCOPE("UpdatePoses");
-  XrViewState viewState{XR_TYPE_VIEW_STATE};
+  m_viewState = XrViewState{XR_TYPE_VIEW_STATE};
   ezUInt32 viewCapacityInput = 2;
   ezUInt32 viewCountOutput;
 
@@ -711,19 +711,46 @@ void ezOpenXR::UpdatePoses()
   previousFov[0] = m_views[0].fov;
   previousFov[1] = m_views[1].fov;
 
-  XrResult res = xrLocateViews(m_session, &viewLocateInfo, &viewState, viewCapacityInput, &viewCountOutput, m_views);
-  m_projectionChanged = ezMemoryUtils::Compare(&previousFov[0], &m_views[0].fov, 1) != 0 || ezMemoryUtils::Compare(&previousFov[1], &m_views[1].fov, 1) != 0;
+  XrResult res = xrLocateViews(m_session, &viewLocateInfo, &m_viewState, viewCapacityInput, &viewCountOutput, m_views);
+
+  if (res == XR_SUCCESS)
+  {
+    m_Input->m_DeviceState[0].m_bGripPoseIsValid = ((m_viewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT) && (m_viewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT));
+    m_Input->m_DeviceState[0].m_bAimPoseIsValid = m_Input->m_DeviceState[0].m_bGripPoseIsValid;
+  }
+  else
+  {
+    m_Input->m_DeviceState[0].m_bGripPoseIsValid = false;
+    m_Input->m_DeviceState[0].m_bAimPoseIsValid = false;
+  }
 
   // Needed as workaround for broken XR runtimes.
   auto FovIsNull = [](const XrFovf& fov) {
     return fov.angleLeft == 0.0f && fov.angleRight == 0.0f && fov.angleDown == 0.0f && fov.angleUp == 0.0f;
   };
 
-  if (res != XR_SUCCESS || FovIsNull(m_views[0].fov) || FovIsNull(m_views[1].fov))
+  auto IdentityFov = [](XrFovf& fov) {
+    fov.angleLeft = -ezAngle::Degree(45.0f).GetRadian();
+    fov.angleRight = ezAngle::Degree(45.0f).GetRadian();
+    fov.angleUp = ezAngle::Degree(45.0f).GetRadian();
+    fov.angleDown = -ezAngle::Degree(45.0f).GetRadian();
+  };
+
+  if (FovIsNull(m_views[0].fov) || FovIsNull(m_views[1].fov))
   {
-    m_Input->m_DeviceState[0].m_bGripPoseIsValid = false;
-    m_Input->m_DeviceState[0].m_bAimPoseIsValid = false;
-    return;
+    IdentityFov(m_views[0].fov);
+    IdentityFov(m_views[1].fov);
+  }
+
+  m_projectionChanged = ezMemoryUtils::Compare(&previousFov[0], &m_views[0].fov, 1) != 0 || ezMemoryUtils::Compare(&previousFov[1], &m_views[1].fov, 1) != 0;
+
+  for (ezUInt32 uiEyeIndex : {0, 1})
+  {
+    ezQuat rot = ConvertOrientation(m_views[uiEyeIndex].pose.orientation);
+    if (!rot.IsValid())
+    {
+      m_views[uiEyeIndex].pose.orientation = XrQuaternionf{0, 0, 0, 1};
+    }
   }
 
   UpdateCamera();
@@ -738,8 +765,6 @@ void ezOpenXR::UpdateCamera()
 {
   if (!m_pCameraToSynchronize)
   {
-    m_Input->m_DeviceState[0].m_bGripPoseIsValid = false;
-    m_Input->m_DeviceState[0].m_bDeviceIsConnected = false;
     return;
   }
   // Update camera projection
@@ -783,6 +808,7 @@ void ezOpenXR::UpdateCamera()
       }
     }
 
+    if (m_Input->m_DeviceState[0].m_bGripPoseIsValid)
     {
       // Update device state (average of both eyes).
       ezQuat rot;
@@ -801,6 +827,7 @@ void ezOpenXR::UpdateCamera()
     }
 
     // Set view matrix
+    if (m_Input->m_DeviceState[0].m_bGripPoseIsValid)
     {
       const ezMat4 mStageTransform = add.GetAsMat4();
       const ezMat4 poseLeft = mStageTransform * ConvertPoseToMatrix(m_views[0].pose);

@@ -167,6 +167,7 @@ private:
   ezGALSwapChainHandle m_hSwapChain;
 
   // Views
+  XrViewState m_viewState{XR_TYPE_VIEW_STATE};
   XrView m_views[2];
   bool m_projectionChanged = true;
   XrCompositionLayerProjection m_layer{XR_TYPE_COMPOSITION_LAYER_PROJECTION};
