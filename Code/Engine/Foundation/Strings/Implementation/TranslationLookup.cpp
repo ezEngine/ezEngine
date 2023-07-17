@@ -289,7 +289,7 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
       continue;
     }
 
-    if (IsNumber(uiPrev) != IsNumber(uiCur))
+    if (uiPrev != '[' && uiCur != ']' && IsNumber(uiPrev) != IsNumber(uiCur))
     {
       result.Append(" ");
       result.Append(uiCur);
