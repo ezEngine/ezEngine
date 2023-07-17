@@ -72,7 +72,7 @@ namespace ezModelImporter2
     }
   }
 
-  static void SetMeshBoneData(ezMeshBufferResourceDescriptor& ref_mb, ezMeshResourceDescriptor& ref_mrd, float& inout_fMaxBoneOffset, const aiMesh* pMesh, ezUInt32 uiVertexIndexOffset, const StreamIndices& streams, bool b8BitBoneIndices, ezMeshBoneWeigthPrecision::Enum weightsPrecision)
+  static void SetMeshBoneData(ezMeshBufferResourceDescriptor& ref_mb, ezMeshResourceDescriptor& ref_mrd, float& inout_fMaxBoneOffset, const aiMesh* pMesh, ezUInt32 uiVertexIndexOffset, const StreamIndices& streams, bool b8BitBoneIndices, ezMeshBoneWeigthPrecision::Enum weightsPrecision, bool bNormalizeWeights)
   {
     if (!pMesh->HasBones())
       return;
@@ -129,27 +129,32 @@ namespace ezModelImporter2
       }
     }
 
-    // normalize the bone weights
-    // NOTE: This is absolutely crucial for some meshes to work right
-    // On the other hand, it is also possible that some meshes don't like this
-    // if we come across meshes where normalization breaks them, we may need to add a user-option to select whether bone weights should be normalized
     for (ezUInt32 vtx = 0; vtx < ref_mb.GetVertexCount(); ++vtx)
     {
-      const ezVec3 vVertexPos = *reinterpret_cast<const ezVec3*>(ref_mb.GetVertexData(streams.uiPositions, vtx).GetPtr());
-      const ezUInt8* pBoneIndices8 = reinterpret_cast<const ezUInt8*>(ref_mb.GetVertexData(streams.uiBoneIdx, vtx).GetPtr());
-      const ezUInt16* pBoneIndices16 = reinterpret_cast<const ezUInt16*>(ref_mb.GetVertexData(streams.uiBoneIdx, vtx).GetPtr());
       ezByteArrayPtr pBoneWeights = ref_mb.GetVertexData(streams.uiBoneWgt, vtx);
 
       ezVec4 wgt;
       ezMeshBufferUtils::DecodeToVec4(pBoneWeights, ezMeshBoneWeigthPrecision::ToResourceFormat(weightsPrecision), wgt).AssertSuccess();
 
-      const float len = wgt.x + wgt.y + wgt.z + wgt.w;
-      if (len > 1.0f)
+      // normalize the bone weights
+      if (bNormalizeWeights)
       {
-        wgt.Normalize();
+        // NOTE: This is absolutely crucial for some meshes to work right
+        // On the other hand, it is also possible that some meshes don't like this
+        // if we come across meshes where normalization breaks them, we may need to add a user-option to select whether bone weights should be normalized
 
-        //ezMeshBufferUtils::EncodeBoneWeights(wgt, pBoneWeights, weightsPrecision).AssertSuccess();
+        const float len = wgt.x + wgt.y + wgt.z + wgt.w;
+        if (len > 1.0f)
+        {
+          wgt /= len;
+
+          ezMeshBufferUtils::EncodeBoneWeights(wgt, pBoneWeights, weightsPrecision).AssertSuccess();
+        }
       }
+
+      const ezVec3 vVertexPos = *reinterpret_cast<const ezVec3*>(ref_mb.GetVertexData(streams.uiPositions, vtx).GetPtr());
+      const ezUInt8* pBoneIndices8 = reinterpret_cast<const ezUInt8*>(ref_mb.GetVertexData(streams.uiBoneIdx, vtx).GetPtr());
+      const ezUInt16* pBoneIndices16 = reinterpret_cast<const ezUInt16*>(ref_mb.GetVertexData(streams.uiBoneIdx, vtx).GetPtr());
 
       // also find the maximum distance of any vertex to its influencing bones
       // this is used to adjust the bounding box for culling at runtime
@@ -565,7 +570,7 @@ namespace ezModelImporter2
 
         if (m_Options.m_bImportSkinningData)
         {
-          SetMeshBoneData(mb, *m_Options.m_pMeshOutput, m_Options.m_pMeshOutput->m_fMaxBoneVertexOffset, mi.m_pMesh, uiMeshCurVertexIdx, streams, b8BitBoneIndices, m_Options.m_MeshBoneWeightPrecision);
+          SetMeshBoneData(mb, *m_Options.m_pMeshOutput, m_Options.m_pMeshOutput->m_fMaxBoneVertexOffset, mi.m_pMesh, uiMeshCurVertexIdx, streams, b8BitBoneIndices, m_Options.m_MeshBoneWeightPrecision, m_Options.m_bNormalizeWeights);
         }
 
         SetMeshTriangleIndices(mb, mi.m_pMesh, uiMeshCurTriangleIdx, uiMeshCurVertexIdx, bFlipTriangles);

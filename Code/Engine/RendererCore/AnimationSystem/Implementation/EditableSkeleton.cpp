@@ -181,7 +181,11 @@ void ezEditableSkeleton::CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkel
     geo.m_TriangleIndices = shape.m_TriangleIndices;
   }
 
-  //EZ_ASSERT_DEBUG(pThisJoint->m_LocalTransform.m_vScale.IsEqual(ezVec3(1), 0.1f), "fuck");
+  const ezVec3 s = pThisJoint->m_LocalTransform.m_vScale;
+  if (!s.IsEqual(ezVec3(1), 0.1f))
+  {
+    // ezLog::Warning("Mesh bone '{}' has scaling values of {}/{}/{} - this is not supported.", pThisJoint->m_sName, s.x, s.y, s.z);
+  }
 
   const ezQuat qThisAccuRot = qParentAccuRot * pThisJoint->m_LocalTransform.m_qRotation;
   ezQuat qParentGlobalRot;
