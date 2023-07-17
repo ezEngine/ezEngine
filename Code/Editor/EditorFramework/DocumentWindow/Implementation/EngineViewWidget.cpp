@@ -146,6 +146,14 @@ public:
 
   void Render(ezUInt32 uiCurrentTextureIndex, ezUInt64 uiCurrentSemaphoreValue)
   {
+    if(m_uiSharedTextureSemaphoreCount[uiCurrentTextureIndex] >= uiCurrentSemaphoreValue)
+    {
+      // If the semaphore count did not change, the engine did not actually render.
+      m_uiSharedTextureSemaphoreInUse[uiCurrentTextureIndex] = false;
+      ezLog::Warning("AAA Skipping Frame {} - {}", uiCurrentTextureIndex, uiCurrentSemaphoreValue);
+      return;
+    }
+
     // Begin frame
     m_pDevice->BeginFrame();
     m_pDevice->BeginPipeline("GraphicsTest", m_hSwapchain);

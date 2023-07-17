@@ -35,7 +35,12 @@ ezGALSharedTextureSwapChain::ezGALSharedTextureSwapChain(const ezGALSharedTextur
 void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurrentSemaphoreValue)
 {
   ezLog::Warning("AAA Arm {}, {}", uiTextureIndex, uiCurrentSemaphoreValue);
-  EZ_ASSERT_DEV(m_uiCurrentTexture == ezMath::MaxValue<ezUInt32>(), "Arm called before AcquireNextRenderTarget + PresentRenderTarget.");
+  if(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>())
+  {
+    // We did not use the previous texture index.
+    m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
+    ezLog::Warning("AAA skipping frame {} {}", m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
+  }
   m_uiCurrentTexture = uiTextureIndex;
   m_uiCurrentSemaphoreValue = uiCurrentSemaphoreValue;
 

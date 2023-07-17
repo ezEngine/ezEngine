@@ -267,7 +267,7 @@ class ezEnumSynthProvider:
             logger >> enum_name
             enum_type = self.valobj.GetTarget().FindTypes(enum_name).GetTypeAtIndex(0)
             logger >> str(enum_type)
-            value = self.valobj.GetChildMemberWithName("m_value").GetValueAsUnsigned()
+            value = self.valobj.GetChildMemberWithName("m_Value").GetValueAsUnsigned()
             self.value = "? ({})".format(value)
             for v in enum_type.GetEnumMembers():
                 if value == v.GetValueAsUnsigned():

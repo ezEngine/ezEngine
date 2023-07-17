@@ -63,11 +63,14 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
       {
         pSwapChain->Arm(pMsg2->m_uiSharedTextureIndex, pMsg2->m_uiSemaphoreCurrentValue);
       }
-      /*ezWindowHandle windowHandle;
-      windowHandle.type = ezWindowHandle::Type::XCB;
-      windowHandle.xcbWindow.m_Window = static_cast<ezUInt32>(pMsg2->m_uiHWND);
-      windowHandle.xcbWindow.m_pConnection = nullptr;
-      HandleWindowUpdate(windowHandle, pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);*/
+
+      // setup render target
+      if(m_bSwapChainDirty)
+      {
+        ezSizeU32 swapChainSize = pSwapChain->GetCurrentSize();
+        SetupRenderTarget(m_hSwapChain, nullptr, static_cast<ezUInt16>(swapChainSize.width), static_cast<ezUInt16>(swapChainSize.height));
+        m_bSwapChainDirty = false;
+      }
 #  endif
       Redraw(true);
     }
@@ -102,10 +105,8 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
       EZ_REPORT_FAILURE("Failed to create shared texture swapchain");
     }
 
-    // setup render target
-    {
-      SetupRenderTarget(m_hSwapChain, nullptr, static_cast<ezUInt16>(desc.m_TextureDesc.m_uiWidth), static_cast<ezUInt16>(desc.m_TextureDesc.m_uiHeight));
-    }
+    m_bSwapChainDirty = true;
+
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");

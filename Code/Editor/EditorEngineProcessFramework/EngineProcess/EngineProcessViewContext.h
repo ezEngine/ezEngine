@@ -92,6 +92,7 @@ private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
   ezActor* m_pEditorWndActor = nullptr;
   ezGALSwapChainHandle m_hSwapChain;
+  bool m_bSwapChainDirty = false;
 
 protected:
   ezCamera m_Camera;
