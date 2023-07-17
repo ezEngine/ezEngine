@@ -189,7 +189,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCompareBlackboardNumberAnimNode, 1, ezRTTIDefa
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Blackboard"),
-    new ezTitleAttribute("Compare: '{BlackboardEntry}' {Comparison} {ReferenceValue}"),
+    new ezTitleAttribute("Check: '{BlackboardEntry}' {Comparison} {ReferenceValue}"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
   }
   EZ_END_ATTRIBUTES;
@@ -287,6 +287,121 @@ bool ezCompareBlackboardNumberAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& 
   out_desc.FillFromType<InstanceData>();
   return true;
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCheckBlackboardBoolAnimNode, 1, ezRTTIDefaultAllocator<ezCheckBlackboardBoolAnimNode>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("BlackboardEntry", GetBlackboardEntry, SetBlackboardEntry),
+
+    EZ_MEMBER_PROPERTY("OutOnTrue", m_OutOnTrue)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutOnFalse", m_OutOnFalse)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("OutBool", m_OutBool)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Blackboard"),
+    new ezTitleAttribute("Check Bool: '{BlackboardEntry}'"),
+    new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Lime)),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezResult ezCheckBlackboardBoolAnimNode::SerializeNode(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::SerializeNode(stream));
+
+  stream << m_sBlackboardEntry;
+
+  EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Serialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutBool.Serialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezCheckBlackboardBoolAnimNode::DeserializeNode(ezStreamReader& stream)
+{
+  const auto version = stream.ReadVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(SUPER::DeserializeNode(stream));
+
+  stream >> m_sBlackboardEntry;
+
+  EZ_SUCCEED_OR_RETURN(m_OutOnTrue.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutOnFalse.Deserialize(stream));
+  EZ_SUCCEED_OR_RETURN(m_OutBool.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+void ezCheckBlackboardBoolAnimNode::SetBlackboardEntry(const char* szFile)
+{
+  m_sBlackboardEntry.Assign(szFile);
+}
+
+const char* ezCheckBlackboardBoolAnimNode::GetBlackboardEntry() const
+{
+  return m_sBlackboardEntry.GetData();
+}
+
+void ezCheckBlackboardBoolAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
+{
+  auto pBlackboard = ref_controller.GetBlackboard();
+  if (pBlackboard == nullptr)
+    return;
+
+  if (m_sBlackboardEntry.IsEmpty())
+    return;
+
+  const ezVariant value = pBlackboard->GetEntryValue(m_sBlackboardEntry);
+
+  if (!value.IsValid() || !value.CanConvertTo<bool>())
+  {
+    ezLog::Warning("AnimController::CheckBlackboardBool: '{}' doesn't exist or isn't a bool type.", m_sBlackboardEntry);
+    return;
+  }
+
+  InstanceData* pInstance = ref_graph.GetAnimNodeInstanceData<InstanceData>(*this);
+
+  const bool bValue = value.ConvertTo<bool>();
+  const ezInt8 iIsTrueNow = bValue ? 1 : 0;
+
+  m_OutBool.SetBool(ref_graph, bValue);
+
+  // we use a tri-state bool here to ensure that OnTrue or OnFalse get fired right away
+  if (pInstance->m_iIsTrue != iIsTrueNow)
+  {
+    pInstance->m_iIsTrue = iIsTrueNow;
+
+    if (bValue)
+    {
+      m_OutOnTrue.SetTriggered(ref_graph);
+    }
+    else
+    {
+      m_OutOnFalse.SetTriggered(ref_graph);
+    }
+  }
+}
+
+bool ezCheckBlackboardBoolAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
+{
+  out_desc.FillFromType<InstanceData>();
+  return true;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

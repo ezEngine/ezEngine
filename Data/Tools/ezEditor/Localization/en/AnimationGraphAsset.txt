@@ -23,7 +23,8 @@ ezAnimClip2D;Clip 2D
 
 ezGetBlackboardNumberAnimNode;Blackboard: Get Number
 ezSetBlackboardNumberAnimNode;Blackboard: Set Number
-ezCompareBlackboardNumberAnimNode;Blackboard: Compare Number
+ezCompareBlackboardNumberAnimNode;Blackboard: Check Number
+ezCheckBlackboardBoolAnimNode;Blackboard: Check Bool
 ezGetBlackboardBoolAnimNode;Blackboard: Get Bool
 ezSetBlackboardBoolAnimNode;Blackboard: Set Bool
 ezOnBlackboardValueChangedAnimNode;Blackboard: On Value Changed
