@@ -24,6 +24,7 @@ namespace ezModelImporter2
     ezMeshResourceDescriptor* m_pMeshOutput = nullptr;
     ezEnum<ezMeshNormalPrecision> m_MeshNormalsPrecision = ezMeshNormalPrecision::Default;
     ezEnum<ezMeshTexCoordPrecision> m_MeshTexCoordsPrecision = ezMeshTexCoordPrecision::Default;
+    ezEnum<ezMeshBoneWeigthPrecision> m_MeshBoneWeightPrecision = ezMeshBoneWeigthPrecision::Default;
 
     ezEditableSkeleton* m_pSkeletonOutput = nullptr;
 

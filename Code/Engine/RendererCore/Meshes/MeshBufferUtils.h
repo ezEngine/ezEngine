@@ -46,15 +46,37 @@ struct ezMeshTexCoordPrecision
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshTexCoordPrecision);
 
+struct ezMeshBoneWeigthPrecision
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    _8Bit,
+    _10Bit,
+    _16Bit,
+    _32Bit,
+
+    Default = _8Bit
+  };
+
+  /// \brief Convert mesh texcoord precision to actual resource format
+  static ezGALResourceFormat::Enum ToResourceFormat(Enum value);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezMeshBoneWeigthPrecision);
+
 struct EZ_RENDERERCORE_DLL ezMeshBufferUtils
 {
   static ezResult EncodeNormal(const ezVec3& vNormal, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum normalPrecision);
   static ezResult EncodeTangent(const ezVec3& vTangent, float fTangentSign, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum tangentPrecision);
   static ezResult EncodeTexCoord(const ezVec2& vTexCoord, ezArrayPtr<ezUInt8> dest, ezMeshTexCoordPrecision::Enum texCoordPrecision);
+  static ezResult EncodeBoneWeights(const ezVec4& vWeights, ezArrayPtr<ezUInt8> dest, ezMeshBoneWeigthPrecision::Enum precision);
 
   static ezResult EncodeNormal(const ezVec3& vNormal, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
   static ezResult EncodeTangent(const ezVec3& vTangent, float fTangentSign, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
   static ezResult EncodeTexCoord(const ezVec2& vTexCoord, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
+  static ezResult EncodeBoneWeights(const ezVec4& vWeights, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat);
 
   static ezResult DecodeNormal(ezArrayPtr<const ezUInt8> source, ezVec3& ref_vDestNormal, ezMeshNormalPrecision::Enum normalPrecision);
   static ezResult DecodeTangent(

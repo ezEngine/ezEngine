@@ -20,6 +20,7 @@ public:
 
   ezEnum<ezMeshNormalPrecision> m_NormalPrecision;
   ezEnum<ezMeshTexCoordPrecision> m_TexCoordPrecision;
+  ezEnum<ezMeshBoneWeigthPrecision> m_BoneWeightPrecision;
 
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
 };

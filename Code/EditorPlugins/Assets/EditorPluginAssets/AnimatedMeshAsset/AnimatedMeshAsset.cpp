@@ -74,7 +74,8 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   opt.m_pMeshOutput = &desc;
   opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
   opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
-  //opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+  opt.m_MeshBoneWeightPrecision = pProp->m_BoneWeightPrecision;
+  // opt.m_RootTransform = CalculateTransformationMatrix(pProp);
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");

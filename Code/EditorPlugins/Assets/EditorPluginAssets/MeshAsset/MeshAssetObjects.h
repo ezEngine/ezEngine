@@ -57,7 +57,7 @@ public:
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveZ;
   bool m_bFlipForwardDir = false;
 
-  ezMeshPrimitive::Enum m_PrimitiveType;
+  ezMeshPrimitive::Enum m_PrimitiveType = ezMeshPrimitive::Default;
 
   bool m_bRecalculateNormals = false;
   bool m_bRecalculateTrangents = true;
