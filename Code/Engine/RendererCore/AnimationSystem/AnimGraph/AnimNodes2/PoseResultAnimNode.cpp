@@ -133,6 +133,26 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
       ref_controller.AddOutputLocalTransforms(pLocalTransforms);
     }
   }
+  else
+  {
+    // if we are active, but the incoming pose isn't valid (anymore), use a rest pose as placeholder
+    // this assumes that many animations return to the rest pose and if they are played up to the very end before fading out
+    // they can be faded out by using the rest pose
+
+    const void* pThis = this;
+    auto& cmd = ref_controller.GetPoseGenerator().AllocCommandRestPose();
+
+    {
+      ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
+
+      pLocalTransforms->m_CommandID = cmd.GetCommandID();
+      pLocalTransforms->m_pWeights = m_InWeights.GetWeights(ref_controller, ref_graph);
+      pLocalTransforms->m_fOverallWeight = fCurrentWeight;
+      pLocalTransforms->m_bUseRootMotion = false;
+
+      ref_controller.AddOutputLocalTransforms(pLocalTransforms);
+    }
+  }
 }
 
 bool ezPoseResultAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const
