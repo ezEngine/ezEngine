@@ -29,8 +29,6 @@ inline ezHashedString::~ezHashedString()
     m_Data.Value().m_iRefCount.Decrement();
   }
 }
-#else
-EZ_FORCE_INLINE ezHashedString::~ezHashedString() = default;
 #endif
 
 inline void ezHashedString::operator=(const ezHashedString& rhs)

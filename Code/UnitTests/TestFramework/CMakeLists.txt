@@ -26,6 +26,9 @@ target_link_libraries(${PROJECT_NAME}
   Foundation
 )
 
+if (MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE "/wd4702")
+endif()
 
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets COPY_DLLS)
 

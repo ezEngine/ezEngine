@@ -44,7 +44,7 @@ EZ_END_STATIC_REFLECTED_TYPE;
 ezWorld::ezWorld(ezWorldDesc& ref_desc)
   : m_Data(ref_desc)
 {
-  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezWorld::UpdateFromThread, this));
+  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "WorldUpdate", ezTaskNesting::Never, ezMakeDelegate(&ezWorld::UpdateFromThread, this));
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
   ezStringBuilder sb = ref_desc.m_sName.GetString();

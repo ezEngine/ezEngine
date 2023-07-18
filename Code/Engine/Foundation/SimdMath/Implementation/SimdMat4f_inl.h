@@ -60,11 +60,26 @@ EZ_ALWAYS_INLINE void ezSimdMat4f::SetIdentity()
   m_col3.Set(0, 0, 0, 1);
 }
 
+EZ_ALWAYS_INLINE void ezSimdMat4f::SetZero()
+{
+  m_col0.SetZero();
+  m_col1.SetZero();
+  m_col2.SetZero();
+  m_col3.SetZero();
+}
+
 // static
 EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::IdentityMatrix()
 {
   ezSimdMat4f result;
   result.SetIdentity();
+  return result;
+}
+
+EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::ZeroMatrix()
+{
+  ezSimdMat4f result;
+  result.SetZero();
   return result;
 }
 

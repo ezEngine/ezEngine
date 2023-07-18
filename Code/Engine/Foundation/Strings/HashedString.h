@@ -60,8 +60,10 @@ public:
   /// \brief Moves the given ezHashedString.
   ezHashedString(ezHashedString&& rhs); // [tested]
 
+#if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   /// \brief Releases the reference to the internal data. Does NOT deallocate any data, even if this held the last reference to some string.
   ~ezHashedString();
+#endif
 
   /// \brief Copies the given ezHashedString.
   void operator=(const ezHashedString& rhs); // [tested]

@@ -372,6 +372,8 @@ template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsPod)
 {
   // Nothing to do here. See Construct of for more info.
+
+  static_assert(std::is_trivially_destructible<T>::value != 0, "Class is declared as POD but has a non-trivial destructor. Remove the destructor or don't declare it as POD.");
 }
 
 template <typename T>
