@@ -135,17 +135,20 @@ namespace ezModelImporter2
 
     if (m_pScene->mNumTextures > 0 && m_pScene->mTextures)
     {
+      ezStringBuilder refName;
+
       for (ezUInt32 i = 0; i < m_pScene->mNumTextures; ++i)
       {
         const auto& st = *m_pScene->mTextures[i];
-        ezStringBuilder fileName = st.mFilename.C_Str();
 
-        if (fileName.IsEmpty())
+        refName.Format("*{}", i);
+
+        auto& tex = m_OutputTextures[refName];
+        tex.m_sFilename = st.mFilename.C_Str();
+        if (tex.m_sFilename.IsEmpty())
         {
-          fileName.Format("*{}", i);
+          tex.m_sFilename = refName;
         }
-
-        auto& tex = m_OutputTextures[fileName];
 
         if (st.mHeight == 0 && st.mWidth > 0)
         {
@@ -275,7 +278,7 @@ namespace ezModelImporter2
           }
           else
           {
-            //ezLog::Error("TODO: error message");
+            // ezLog::Error("TODO: error message");
           }
         }
       }

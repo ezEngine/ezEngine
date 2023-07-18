@@ -63,8 +63,11 @@ namespace ezModelImporter2
 
   struct EZ_MODELIMPORTER2_DLL OutputTexture
   {
+    ezString m_sFilename;
     ezString m_sFileFormatExtension;
     ezConstByteArrayPtr m_RawData;
+
+    void GenerateFileName(ezStringBuilder& out_sName) const;
   };
 
   struct EZ_MODELIMPORTER2_DLL OutputMaterial

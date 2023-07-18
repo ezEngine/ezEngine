@@ -36,4 +36,12 @@ namespace ezModelImporter2
     return res;
   }
 
+  void OutputTexture::GenerateFileName(ezStringBuilder& out_sName) const
+  {
+    ezStringBuilder tmp("Embedded_", m_sFilename);
+
+    ezPathUtils::MakeValidFilename(tmp.GetFileName(), '_', out_sName);
+    out_sName.ChangeFileExtension(m_sFileFormatExtension);
+  }
+
 } // namespace ezModelImporter2
