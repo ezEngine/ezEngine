@@ -128,7 +128,7 @@ private:
   ezHashedString m_sBlackboardEntry;        // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnTrue;  // [ property ]
   ezAnimGraphTriggerOutputPin m_OutOnFalse; // [ property ]
-  ezAnimGraphBoolOutputPin m_OutBool;     // [ property ]
+  ezAnimGraphBoolOutputPin m_OutBool;       // [ property ]
 
   struct InstanceData
   {

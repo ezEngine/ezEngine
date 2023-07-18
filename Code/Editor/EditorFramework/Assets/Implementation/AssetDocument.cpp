@@ -124,7 +124,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
     {
       ezUuid docGuid = GetGuid();
 
-      ezSharedPtr<ezDelegateTask<void>> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "TransformAfterSaveDocument", [docGuid]() {
+      ezSharedPtr<ezDelegateTask<void>> pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "TransformAfterSaveDocument", ezTaskNesting::Never, [docGuid]() {
         ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(docGuid);
         if (pDoc == nullptr)
           return;

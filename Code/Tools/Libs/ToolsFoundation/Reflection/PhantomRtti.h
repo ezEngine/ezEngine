@@ -11,7 +11,7 @@ public:
   ~ezPhantomRTTI();
 
 private:
-  ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+  ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
     ezBitflags<ezTypeFlags> flags, const char* szPluginName);
 
   void SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>& properties);

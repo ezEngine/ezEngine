@@ -36,8 +36,10 @@ EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshBoneWeigthPrecision::ToResource
       return ezGALResourceFormat::RGBAUShortNormalized;
     case _32Bit:
       return ezGALResourceFormat::RGBAFloat;
-      break;
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
+
+  return ezGALResourceFormat::RGBAUByteNormalized;
 }
 
 //////////////////////////////////////////////////////////////////////////

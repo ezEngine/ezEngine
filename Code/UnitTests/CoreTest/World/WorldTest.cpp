@@ -163,11 +163,11 @@ namespace
       {
         ezUInt32 i = it->GetHandle().GetInternalID().m_InstanceIndex;
 
-        ezVec3 newPos = ezVec3(i * 10, 0, 0);
+        ezVec3 newPos = ezVec3(i * 10.0f, 0, 0);
         it->SetLocalPosition(newPos);
 
         ezQuat newRot;
-        newRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(i * 30));
+        newRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(i * 30.0f));
         it->SetLocalRotation(newRot);
 
         if (i > 5)

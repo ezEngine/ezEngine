@@ -35,7 +35,7 @@ ezJoltWorldModule::ezJoltWorldModule(ezWorld* pWorld)
   : ezPhysicsWorldModuleInterface(pWorld)
 //, m_FreeObjectFilterIDs(ezJolt::GetSingleton()->GetAllocator()) // could use a proxy allocator to bin those
 {
-  m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezJoltWorldModule::Simulate, this));
+  m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Jolt::Simulate", ezTaskNesting::Never, ezMakeDelegate(&ezJoltWorldModule::Simulate, this));
   m_pSimulateTask->ConfigureTask("Jolt Simulate", ezTaskNesting::Maybe);
 }
 

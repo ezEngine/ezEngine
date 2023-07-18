@@ -20,7 +20,7 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   ezJoltUserData() = default;
-  ~ezJoltUserData() { Invalidate(); }
+  ~ezJoltUserData() = default;
 
   EZ_ALWAYS_INLINE void Init(ezJoltDynamicActorComponent* pObject)
   {
@@ -142,13 +142,13 @@ public:
     return nullptr;
   }
 
-  //EZ_FORCE_INLINE static ezJoltShapeComponent* GetShapeComponent(const void* pUserData)
+  // EZ_FORCE_INLINE static ezJoltShapeComponent* GetShapeComponent(const void* pUserData)
   //{
-  //  const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
-  //  if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::ShapeComponent)
-  //  {
-  //    return static_cast<ezJoltShapeComponent*>(pJoltUserData->m_pObject);
-  //  }
+  //   const ezJoltUserData* pJoltUserData = static_cast<const ezJoltUserData*>(pUserData);
+  //   if (pJoltUserData != nullptr && pJoltUserData->m_Type == Type::ShapeComponent)
+  //   {
+  //     return static_cast<ezJoltShapeComponent*>(pJoltUserData->m_pObject);
+  //   }
 
   //  return nullptr;
   //}
