@@ -53,7 +53,7 @@ ezTestAppRun ezGameEngineTestAnimations::RunSubTest(ezInt32 iIdentifier, ezUInt3
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
+    EZ_TEST_IMAGE(m_uiImgCompIdx, 300);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
