@@ -25,8 +25,14 @@ public:
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
   void SetIdentity(); // [tested]
 
+  /// \brief Sets all elements to zero.
+  void SetZero(); // [tested]
+
   /// \brief Returns an Identity Matrix.
   static ezSimdMat4f IdentityMatrix(); // [tested]
+
+  /// \brief Returns a Matrix where all elements are zero.
+  static ezSimdMat4f ZeroMatrix(); // [tested]
 
 public:
   /// \brief Transposes this matrix.

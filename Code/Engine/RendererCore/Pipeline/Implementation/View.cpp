@@ -36,7 +36,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezView::ezView()
 {
-  m_pExtractTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezView::ExtractData, this));
+  m_pExtractTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezTaskNesting::Never, ezMakeDelegate(&ezView::ExtractData, this));
 }
 
 ezView::~ezView() = default;

@@ -44,6 +44,13 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshTexCoordPrecision, 1)
   EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_16Bit),
   EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_32Bit),
 EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshBoneWeigthPrecision, 1)
+  EZ_ENUM_CONSTANT(ezMeshBoneWeigthPrecision::_8Bit),
+  EZ_ENUM_CONSTANT(ezMeshBoneWeigthPrecision::_10Bit),
+  EZ_ENUM_CONSTANT(ezMeshBoneWeigthPrecision::_16Bit),
+  EZ_ENUM_CONSTANT(ezMeshBoneWeigthPrecision::_32Bit),
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 // static

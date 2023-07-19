@@ -103,6 +103,43 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_RENDERERCORE_DLL ezCheckBlackboardBoolAnimNode : public ezAnimGraphNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCheckBlackboardBoolAnimNode, ezAnimGraphNode);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezAnimGraphNode
+
+protected:
+  virtual ezResult SerializeNode(ezStreamWriter& stream) const override;
+  virtual ezResult DeserializeNode(ezStreamReader& stream) override;
+
+  virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const override;
+  virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezCheckBlackboardBoolAnimNode
+
+public:
+  void SetBlackboardEntry(const char* szEntry); // [ property ]
+  const char* GetBlackboardEntry() const;       // [ property ]
+
+private:
+  ezHashedString m_sBlackboardEntry;        // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnTrue;  // [ property ]
+  ezAnimGraphTriggerOutputPin m_OutOnFalse; // [ property ]
+  ezAnimGraphBoolOutputPin m_OutBool;       // [ property ]
+
+  struct InstanceData
+  {
+    ezInt8 m_iIsTrue = -1; // -1 == undefined, 0 == false, 1 == true
+  };
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_RENDERERCORE_DLL ezSetBlackboardBoolAnimNode : public ezAnimGraphNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSetBlackboardBoolAnimNode, ezAnimGraphNode);

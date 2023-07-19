@@ -72,7 +72,7 @@ namespace ezModelImporter2
     }
   }
 
-  static void SetMeshBoneData(ezMeshBufferResourceDescriptor& ref_mb, ezMeshResourceDescriptor& ref_mrd, float& inout_fMaxBoneOffset, const aiMesh* pMesh, ezUInt32 uiVertexIndexOffset, const StreamIndices& streams, bool b8BitBoneIndices)
+  static void SetMeshBoneData(ezMeshBufferResourceDescriptor& ref_mb, ezMeshResourceDescriptor& ref_mrd, float& inout_fMaxBoneOffset, const aiMesh* pMesh, ezUInt32 uiVertexIndexOffset, const StreamIndices& streams, bool b8BitBoneIndices, ezMeshBoneWeigthPrecision::Enum weightsPrecision, bool bNormalizeWeights)
   {
     if (!pMesh->HasBones())
       return;
@@ -93,24 +93,33 @@ namespace ezModelImporter2
         const ezUInt32 finalVertIdx = uiVertexIndexOffset + weight.mVertexId;
 
         ezUInt8* pBoneIndices8 = reinterpret_cast<ezUInt8*>(ref_mb.GetVertexData(streams.uiBoneIdx, finalVertIdx).GetPtr());
-        ezUInt16* pBoneIndices16 = reinterpret_cast<ezUInt16*>(ref_mb.GetVertexData(streams.uiBoneIdx, finalVertIdx).GetPtr());
-        ezUInt8* pBoneWeights = reinterpret_cast<ezUInt8*>(ref_mb.GetVertexData(streams.uiBoneWgt, finalVertIdx).GetPtr());
+        ezUInt16* pBoneIndices16 = reinterpret_cast<ezUInt16*>(pBoneIndices8);
+        ezByteArrayPtr pBoneWeights = ref_mb.GetVertexData(streams.uiBoneWgt, finalVertIdx);
+
+        ezVec4 wgt;
+        ezMeshBufferUtils::DecodeToVec4(pBoneWeights, ezMeshBoneWeigthPrecision::ToResourceFormat(weightsPrecision), wgt).AssertSuccess();
+
+        // pBoneWeights are initialized with 0
+        // so for the first 4 bones we always assign to one slot that is 0 (least weight)
+        // if we have 5 bones or more, we then replace the currently lowest value each time
 
         ezUInt32 uiLeastWeightIdx = 0;
 
         for (int i = 1; i < 4; ++i)
         {
-          if (pBoneWeights[i] < pBoneWeights[uiLeastWeightIdx])
+          if (wgt.GetData()[i] < wgt.GetData()[uiLeastWeightIdx])
           {
             uiLeastWeightIdx = i;
           }
         }
 
-        const ezUInt8 uiEncodedWeight = ezMath::ColorFloatToByte(weight.mWeight);
+        const float fEncodedWeight = weight.mWeight;
 
-        if (pBoneWeights[uiLeastWeightIdx] < uiEncodedWeight)
+        if (wgt.GetData()[uiLeastWeightIdx] < fEncodedWeight)
         {
-          pBoneWeights[uiLeastWeightIdx] = uiEncodedWeight;
+          wgt.GetData()[uiLeastWeightIdx] = fEncodedWeight;
+
+          ezMeshBufferUtils::EncodeBoneWeights(wgt, pBoneWeights, ezMeshBoneWeigthPrecision::ToResourceFormat(weightsPrecision)).AssertSuccess();
 
           if (b8BitBoneIndices)
             pBoneIndices8[uiLeastWeightIdx] = static_cast<ezUInt8>(uiBoneIndex);
@@ -120,34 +129,32 @@ namespace ezModelImporter2
       }
     }
 
-    // normalize the bone weights
-    // NOTE: This is absolutely crucial for some meshes to work right
-    // On the other hand, it is also possible that some meshes don't like this
-    // if we come across meshes where normalization breaks them, we may need to add a user-option to select whether bone weights should be normalized
     for (ezUInt32 vtx = 0; vtx < ref_mb.GetVertexCount(); ++vtx)
     {
+      ezByteArrayPtr pBoneWeights = ref_mb.GetVertexData(streams.uiBoneWgt, vtx);
+
+      ezVec4 wgt;
+      ezMeshBufferUtils::DecodeToVec4(pBoneWeights, ezMeshBoneWeigthPrecision::ToResourceFormat(weightsPrecision), wgt).AssertSuccess();
+
+      // normalize the bone weights
+      if (bNormalizeWeights)
+      {
+        // NOTE: This is absolutely crucial for some meshes to work right
+        // On the other hand, it is also possible that some meshes don't like this
+        // if we come across meshes where normalization breaks them, we may need to add a user-option to select whether bone weights should be normalized
+
+        const float len = wgt.x + wgt.y + wgt.z + wgt.w;
+        if (len > 1.0f)
+        {
+          wgt /= len;
+
+          ezMeshBufferUtils::EncodeBoneWeights(wgt, pBoneWeights, weightsPrecision).AssertSuccess();
+        }
+      }
+
       const ezVec3 vVertexPos = *reinterpret_cast<const ezVec3*>(ref_mb.GetVertexData(streams.uiPositions, vtx).GetPtr());
       const ezUInt8* pBoneIndices8 = reinterpret_cast<const ezUInt8*>(ref_mb.GetVertexData(streams.uiBoneIdx, vtx).GetPtr());
       const ezUInt16* pBoneIndices16 = reinterpret_cast<const ezUInt16*>(ref_mb.GetVertexData(streams.uiBoneIdx, vtx).GetPtr());
-      ezUInt8* pBoneWeights = reinterpret_cast<ezUInt8*>(ref_mb.GetVertexData(streams.uiBoneWgt, vtx).GetPtr());
-
-      const ezUInt32 len = pBoneWeights[0] + pBoneWeights[1] + pBoneWeights[2] + pBoneWeights[3];
-
-      ezVec4 wgt;
-      wgt.x = ezMath::ColorByteToFloat(pBoneWeights[0]);
-      wgt.y = ezMath::ColorByteToFloat(pBoneWeights[1]);
-      wgt.z = ezMath::ColorByteToFloat(pBoneWeights[2]);
-      wgt.w = ezMath::ColorByteToFloat(pBoneWeights[3]);
-
-      if (len > 255)
-      {
-        wgt /= (len / 255.0f);
-
-        pBoneWeights[0] = ezMath::ColorFloatToByte(wgt.x);
-        pBoneWeights[1] = ezMath::ColorFloatToByte(wgt.y);
-        pBoneWeights[2] = ezMath::ColorFloatToByte(wgt.z);
-        pBoneWeights[3] = ezMath::ColorFloatToByte(wgt.w);
-      }
 
       // also find the maximum distance of any vertex to its influencing bones
       // this is used to adjust the bounding box for culling at runtime
@@ -265,7 +272,7 @@ namespace ezModelImporter2
   }
 
   static void AllocateMeshStreams(ezMeshBufferResourceDescriptor& ref_mb, ezArrayPtr<aiMesh*> referenceMeshes, StreamIndices& inout_streams, ezUInt32 uiTotalMeshVertices, ezUInt32 uiTotalMeshTriangles, ezEnum<ezMeshNormalPrecision> meshNormalsPrecision, ezEnum<ezMeshTexCoordPrecision> meshTexCoordsPrecision,
-    bool bImportSkinningData, bool b8BitBoneIndices)
+    bool bImportSkinningData, bool b8BitBoneIndices, ezEnum<ezMeshBoneWeigthPrecision> meshWeightsPrecision)
   {
     inout_streams.uiPositions = ref_mb.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     inout_streams.uiNormals = ref_mb.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(meshNormalsPrecision));
@@ -279,7 +286,7 @@ namespace ezModelImporter2
       else
         inout_streams.uiBoneIdx = ref_mb.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUShort);
 
-      inout_streams.uiBoneWgt = ref_mb.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAUByteNormalized);
+      inout_streams.uiBoneWgt = ref_mb.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezMeshBoneWeigthPrecision::ToResourceFormat(meshWeightsPrecision));
     }
 
     bool bTexCoords1 = false;
@@ -538,7 +545,7 @@ namespace ezModelImporter2
     // TODO: m_uiTotalMeshTriangles and m_uiTotalMeshVertices are too high if we skip non-skinned meshes
 
     StreamIndices streams;
-    AllocateMeshStreams(mb, ezArrayPtr<aiMesh*>(m_pScene->mMeshes, m_pScene->mNumMeshes), streams, m_uiTotalMeshVertices, m_uiTotalMeshTriangles, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision, m_Options.m_bImportSkinningData, b8BitBoneIndices);
+    AllocateMeshStreams(mb, ezArrayPtr<aiMesh*>(m_pScene->mMeshes, m_pScene->mNumMeshes), streams, m_uiTotalMeshVertices, m_uiTotalMeshTriangles, m_Options.m_MeshNormalsPrecision, m_Options.m_MeshTexCoordsPrecision, m_Options.m_bImportSkinningData, b8BitBoneIndices, m_Options.m_MeshBoneWeightPrecision);
 
     ezUInt32 uiMeshPrevTriangleIdx = 0;
     ezUInt32 uiMeshCurVertexIdx = 0;
@@ -563,7 +570,7 @@ namespace ezModelImporter2
 
         if (m_Options.m_bImportSkinningData)
         {
-          SetMeshBoneData(mb, *m_Options.m_pMeshOutput, m_Options.m_pMeshOutput->m_fMaxBoneVertexOffset, mi.m_pMesh, uiMeshCurVertexIdx, streams, b8BitBoneIndices);
+          SetMeshBoneData(mb, *m_Options.m_pMeshOutput, m_Options.m_pMeshOutput->m_fMaxBoneVertexOffset, mi.m_pMesh, uiMeshCurVertexIdx, streams, b8BitBoneIndices, m_Options.m_MeshBoneWeightPrecision, m_Options.m_bNormalizeWeights);
         }
 
         SetMeshTriangleIndices(mb, mi.m_pMesh, uiMeshCurTriangleIdx, uiMeshCurVertexIdx, bFlipTriangles);

@@ -121,6 +121,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     EZ_TEST_BOOL((m.m_col3 == ezSimdVec4f(0, 0, 0, 1)).AllSet());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetZero")
+  {
+    ezSimdMat4f m;
+    m.SetZero();
+
+    EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col2 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col3 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityMatrix")
   {
     ezSimdMat4f m = ezSimdMat4f::IdentityMatrix();
@@ -129,6 +140,16 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(0, 1, 0, 0)).AllSet());
     EZ_TEST_BOOL((m.m_col2 == ezSimdVec4f(0, 0, 1, 0)).AllSet());
     EZ_TEST_BOOL((m.m_col3 == ezSimdVec4f(0, 0, 0, 1)).AllSet());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroMatrix")
+  {
+    ezSimdMat4f m = ezSimdMat4f::ZeroMatrix();
+
+    EZ_TEST_BOOL((m.m_col0 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col1 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col2 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
+    EZ_TEST_BOOL((m.m_col3 == ezSimdVec4f(0, 0, 0, 0)).AllSet());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transpose")

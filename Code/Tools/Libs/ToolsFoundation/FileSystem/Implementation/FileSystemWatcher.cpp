@@ -47,7 +47,7 @@ void ezFileSystemWatcher::Initialize()
     m_Watchers.PushBack(pWatcher);
   }
 
-  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Changes", [this]() {
+  m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Changes", ezTaskNesting::Never, [this]() {
     ezHybridArray<WatcherResult, 16> watcherResults;
     for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
@@ -59,7 +59,7 @@ void ezFileSystemWatcher::Initialize()
     } //
   });
   // This is a separate task as these trigger callbacks which can potentially take a long time and we can't have the watcher changes task be blocked for so long or notifications might get lost.
-  m_pNotifyTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Notify", [this]() { NotifyChanges(); });
+  m_pNotifyTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Notify", ezTaskNesting::Never, [this]() { NotifyChanges(); });
 }
 
 void ezFileSystemWatcher::Deinitialize()

@@ -416,7 +416,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
       for (const CPUScope& e : sortedScopes)
       {
         writer.BeginObject();
-        writer.AddVariableString("name", e.m_szName);
+        writer.AddVariableString("name", static_cast<const char*>(e.m_szName));
         writer.AddVariableUInt32("pid", m_uiProcessID);
         writer.AddVariableUInt64("tid", uiThreadId);
         writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_BeginTime.GetMicroseconds()));
@@ -434,7 +434,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
         if (e.m_EndTime.IsPositive())
         {
           writer.BeginObject();
-          writer.AddVariableString("name", e.m_szName);
+          writer.AddVariableString("name", static_cast<const char*>(e.m_szName));
           writer.AddVariableUInt32("pid", m_uiProcessID);
           writer.AddVariableUInt64("tid", uiThreadId);
           writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_EndTime.GetMicroseconds()));
@@ -499,7 +499,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
           const auto& e = sortedGpuScopes[i];
 
           writer.BeginObject();
-          writer.AddVariableString("name", e.m_szName);
+          writer.AddVariableString("name", static_cast<const char*>(e.m_szName));
           writer.AddVariableUInt32("pid", m_uiProcessID);
           writer.AddVariableUInt64("tid", gpuIndex);
           writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_BeginTime.GetMicroseconds()));
@@ -507,7 +507,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& ref_outputStrea
           writer.EndObject();
 
           writer.BeginObject();
-          writer.AddVariableString("name", e.m_szName);
+          writer.AddVariableString("name", static_cast<const char*>(e.m_szName));
           writer.AddVariableUInt32("pid", m_uiProcessID);
           writer.AddVariableUInt64("tid", gpuIndex);
           writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_EndTime.GetMicroseconds()));

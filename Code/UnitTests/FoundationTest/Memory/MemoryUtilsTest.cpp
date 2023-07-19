@@ -2,6 +2,11 @@
 
 #include <Foundation/Containers/HybridArray.h>
 
+static ezInt32 iCallPodConstructor = 0;
+static ezInt32 iCallPodDestructor = 0;
+static ezInt32 iCallNonPodConstructor = 0;
+static ezInt32 iCallNonPodDestructor = 0;
+
 struct ezConstructTest
 {
 public:
@@ -401,6 +406,121 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
       pData = ezMemoryUtils::AlignForwards(pData, 4);
       EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(4));
       EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "POD")
+  {
+    struct Trivial
+    {
+      EZ_DECLARE_POD_TYPE();
+
+      ~Trivial() = default;
+
+      ezUInt32 a;
+      ezUInt32 b;
+    };
+
+    static_assert(std::is_trivial<Trivial>::value != 0);
+    static_assert(ezIsPodType<Trivial>::value == 1);
+    static_assert(std::is_trivially_destructible<Trivial>::value != 0);
+
+    struct POD
+    {
+      EZ_DECLARE_POD_TYPE();
+
+      ezUInt32 a = 2;
+      ezUInt32 b = 4;
+
+      POD()
+      {
+        iCallPodConstructor++;
+      }
+
+      // this isn't allowed anymore in types that use EZ_DECLARE_POD_TYPE
+      // unfortunately that means we can't do this kind of check either
+      //~POD()
+      //{
+      //  iCallPodDestructor++;
+      //}
+    };
+
+    static_assert(std::is_trivial<POD>::value == 0);
+    static_assert(ezIsPodType<POD>::value == 1);
+
+    struct NonPOD
+    {
+      ezUInt32 a = 3;
+      ezUInt32 b = 5;
+
+      NonPOD()
+      {
+        iCallNonPodConstructor++;
+      }
+
+      ~NonPOD()
+      {
+        iCallNonPodDestructor++;
+      }
+    };
+
+    static_assert(std::is_trivial<NonPOD>::value == 0);
+    static_assert(ezIsPodType<NonPOD>::value == 0);
+
+    struct NonPOD2
+    {
+      ezUInt32 a;
+      ezUInt32 b;
+
+      ~NonPOD2()
+      {
+        iCallNonPodDestructor++;
+      }
+    };
+
+    static_assert(std::is_trivial<NonPOD2>::value == 0); // destructor makes it non-trivial
+    static_assert(ezIsPodType<NonPOD2>::value == 0);
+    static_assert(std::is_trivially_destructible<NonPOD2>::value == 0);
+
+    // check that ezMemoryUtils::Construct and ezMemoryUtils::Destruct ignore POD types
+    {
+      ezUInt8 mem[sizeof(POD) * 2];
+
+      EZ_TEST_INT(iCallPodConstructor, 0);
+      EZ_TEST_INT(iCallPodDestructor, 0);
+
+      ezMemoryUtils::Construct<POD>((POD*)mem, 1);
+
+      EZ_TEST_INT(iCallPodConstructor, 1);
+      EZ_TEST_INT(iCallPodDestructor, 0);
+
+      ezMemoryUtils::Destruct<POD>((POD*)mem, 1);
+      EZ_TEST_INT(iCallPodConstructor, 1);
+      EZ_TEST_INT(iCallPodDestructor, 0);
+
+      iCallPodConstructor = 0;
+    }
+
+    // check that ezMemoryUtils::Destruct calls the destructor of a non-trivial type
+    {
+      ezUInt8 mem[sizeof(NonPOD2) * 2];
+
+      EZ_TEST_INT(iCallNonPodDestructor, 0);
+      ezMemoryUtils::Destruct<NonPOD2>((NonPOD2*)mem, 1);
+
+      EZ_TEST_INT(iCallNonPodDestructor, 1);
+
+      iCallNonPodDestructor = 0;
+    }
+
+    {
+      // make sure ezMemoryUtils::Construct and ezMemoryUtils::Destruct don't touch built-in types
+
+      ezInt32 a = 42;
+      ezMemoryUtils::Construct<ezInt32>(&a, 1);
+      EZ_TEST_INT(a, 42);
+      ezMemoryUtils::Destruct<ezInt32>(&a, 1);
+      EZ_TEST_INT(a, 42);
     }
   }
 }

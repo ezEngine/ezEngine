@@ -11,7 +11,7 @@ o
 		s %AssetType{"Animation Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9041142757690159507,5406092560972103930}}
-		u4 %Hash{13902383767596262770}
+		u4 %Hash{14813210468022648652}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -131,6 +131,17 @@ o
 {
 	Uuid %id{u4{4488327919061097665,1553685987011645432}}
 	s %t{"ezAnimGraphNumberInputPin"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumConnections{0}
+		i2 %PinIdx{0}
+	}
+}
+o
+{
+	Uuid %id{u4{658348723485828927,1630902397293105435}}
+	s %t{"ezAnimGraphNumberOutputPin"}
 	u3 %v{1}
 	p
 	{
@@ -411,6 +422,19 @@ o
 }
 o
 {
+	Uuid %id{u4{4246004384094376323,4948061613129286185}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{16827341486823010639,11075575050593287264}}
+		s %Connection::SourcePin{"OutNumber"}
+		Uuid %Connection::Target{u4{5665621495205124697,10728461506754075680}}
+		s %Connection::TargetPin{"InTargetWeight"}
+	}
+}
+o
+{
 	Uuid %id{u4{3234355243362737836,4976965114166064265}}
 	s %t{"ezAnimationClipMapping"}
 	u3 %v{1}
@@ -451,7 +475,7 @@ o
 		{
 			s{"Gun_Shoot"}
 		}
-		Vec2 %Node::Pos{f{0x5CA46E43,0x58DB2044}}
+		Vec2 %Node::Pos{f{0xD8ED6443,0x80CF3644}}
 		Uuid %OutOnEndStarted{u4{7729989697750491302,2393648693133578743}}
 		Uuid %OutOnFinished{u4{15974587635785542276,14508121112689325695}}
 		Uuid %OutOnMiddleStarted{u4{14270419595399482120,10723554285648887969}}
@@ -510,6 +534,19 @@ o
 }
 o
 {
+	Uuid %id{u4{7937488002930428348,5327521812976946341}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{9393639771473794228,5403981312630275260}}
+		s %Connection::SourcePin{"OutNumber"}
+		Uuid %Connection::Target{u4{13495060636728298346,11345815851099436459}}
+		s %Connection::TargetPin{"InTargetWeight"}
+	}
+}
+o
+{
 	Uuid %id{u4{16296944093158487864,5354180661941364043}}
 	s %t{"ezAnimGraphNumberOutputPin"}
 	u3 %v{1}
@@ -534,6 +571,32 @@ o
 }
 o
 {
+	Uuid %id{u4{9393639771473794228,5403981312630275260}}
+	s %t{"ezBoolToNumberAnimNode"}
+	u3 %v{1}
+	p
+	{
+		s %CustomTitle{""}
+		d %FalseValue{0}
+		Uuid %InValue{u4{13399494641910784803,5419216501984491438}}
+		Vec2 %Node::Pos{f{0x872B8243,0x1FFE1744}}
+		Uuid %OutNumber{u4{658348723485828927,1630902397293105435}}
+		d %TrueValue{0x000000000000F03F}
+	}
+}
+o
+{
+	Uuid %id{u4{13399494641910784803,5419216501984491438}}
+	s %t{"ezAnimGraphBoolInputPin"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumConnections{0}
+		i2 %PinIdx{0}
+	}
+}
+o
+{
 	Uuid %id{u4{2155776238972141982,5439216674034514297}}
 	s %t{"DocumentNodeManager_DefaultConnection"}
 	u3 %v{1}
@@ -543,6 +606,19 @@ o
 		s %Connection::SourcePin{"OutIsTrue"}
 		Uuid %Connection::Target{u4{12272367678213312144,4882623836147606401}}
 		s %Connection::TargetPin{"InLoop"}
+	}
+}
+o
+{
+	Uuid %id{u4{13339755731340024192,5458543679640985456}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{906746973007163529,5680515533113134779}}
+		s %Connection::SourcePin{"OutIsTrue"}
+		Uuid %Connection::Target{u4{9393639771473794228,5403981312630275260}}
+		s %Connection::TargetPin{"InValue"}
 	}
 }
 o
@@ -627,6 +703,19 @@ o
 }
 o
 {
+	Uuid %id{u4{8662425019582713018,5634598848066336728}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{17052466092866694876,15513724239771343851}}
+		s %Connection::SourcePin{"OutIsTrue"}
+		Uuid %Connection::Target{u4{16827341486823010639,11075575050593287264}}
+		s %Connection::TargetPin{"InValue"}
+	}
+}
+o
+{
 	Uuid %id{u4{7310487120425048473,5654784861825885509}}
 	s %t{"ezAnimationClip2D"}
 	u3 %v{1}
@@ -645,7 +734,7 @@ o
 	{
 		s %CustomTitle{""}
 		Uuid %InverseWeights{u4{7112897869704354649,8923392550174662841}}
-		Vec2 %Node::Pos{f{0x4B801144,0x32BDFC43}}
+		Vec2 %Node::Pos{f{0x50F80C44,0xC2380D44}}
 		VarArray %RootBones
 		{
 			s{"Belly"}
@@ -681,6 +770,19 @@ o
 		Uuid %Connection::Source{u4{906746973007163529,5680515533113134779}}
 		s %Connection::SourcePin{"OutIsTrue"}
 		Uuid %Connection::Target{u4{16358997643348702374,4666360232236261252}}
+		s %Connection::TargetPin{"InLoop"}
+	}
+}
+o
+{
+	Uuid %id{u4{11294017612040752546,5717633337112254212}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{17052466092866694876,15513724239771343851}}
+		s %Connection::SourcePin{"OutIsTrue"}
+		Uuid %Connection::Target{u4{17946265719388803006,5025127736660962055}}
 		s %Connection::TargetPin{"InLoop"}
 	}
 }
@@ -755,7 +857,25 @@ o
 			Uuid{u4{737542974979528121,4999129538741573486}}
 			Uuid{u4{8419135057642110873,5064215720957143377}}
 			Uuid{u4{18298143462972838543,5525840506864483856}}
+			Uuid{u4{9393639771473794228,5403981312630275260}}
+			Uuid{u4{13339755731340024192,5458543679640985456}}
+			Uuid{u4{7937488002930428348,5327521812976946341}}
+			Uuid{u4{16827341486823010639,11075575050593287264}}
+			Uuid{u4{8662425019582713018,5634598848066336728}}
+			Uuid{u4{4246004384094376323,4948061613129286185}}
+			Uuid{u4{11294017612040752546,5717633337112254212}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{138448832373324380,6455402528883748684}}
+	s %t{"ezAnimGraphNumberOutputPin"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumConnections{0}
+		i2 %PinIdx{0}
 	}
 }
 o
@@ -966,7 +1086,7 @@ o
 		Uuid %InPose{u4{15275393942674531690,3066331296637706142}}
 		Uuid %InTargetWeight{u4{7559309448780928181,14387896822686546430}}
 		Uuid %InWeights{u4{11841440244751611586,17027311488046444056}}
-		Vec2 %Node::Pos{f{0x95F35244,0x3D181F44}}
+		Vec2 %Node::Pos{f{0x98555344,0xBFDA3144}}
 		Uuid %OutCurrentWeight{u4{686643497410442723,9007467310469060671}}
 		Uuid %OutOnFadedIn{u4{12514700429019249733,14994177146653671261}}
 		Uuid %OutOnFadedOut{u4{5727587148800370884,15077923630969189950}}
@@ -983,6 +1103,21 @@ o
 		s %CustomTitle{""}
 		Vec2 %Node::Pos{f{0xA3FD0FC3,0x05270344}}
 		Uuid %OutNumber{u4{3948552574517647739,11115455757147504253}}
+	}
+}
+o
+{
+	Uuid %id{u4{16827341486823010639,11075575050593287264}}
+	s %t{"ezBoolToNumberAnimNode"}
+	u3 %v{1}
+	p
+	{
+		s %CustomTitle{""}
+		d %FalseValue{0}
+		Uuid %InValue{u4{1171852242024636890,17842946447363163838}}
+		Vec2 %Node::Pos{f{0xFC875E43,0xDC4C6144}}
+		Uuid %OutNumber{u4{138448832373324380,6455402528883748684}}
+		d %TrueValue{0x000000000000F03F}
 	}
 }
 o
@@ -1254,6 +1389,17 @@ o
 }
 o
 {
+	Uuid %id{u4{1171852242024636890,17842946447363163838}}
+	s %t{"ezAnimGraphBoolInputPin"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumConnections{0}
+		i2 %PinIdx{0}
+	}
+}
+o
+{
 	Uuid %id{u4{10343656710209463373,18313561290336384620}}
 	s %t{"ezAnimGraphTriggerOutputPin"}
 	u3 %v{1}
@@ -1308,6 +1454,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimGraphOutputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{816545921890274684,1997645206873544511}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezAnimGraphNode"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBoolToNumberAnimNode"}
 		u3 %TypeVersion{1}
 	}
 }

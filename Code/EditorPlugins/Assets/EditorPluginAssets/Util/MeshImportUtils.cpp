@@ -41,22 +41,14 @@ namespace ezMeshImportUtils
         return ezString();
       }
 
-      sFinalTextureName.Prepend("Embedded");
+      itTex.Value().GenerateFileName(sFinalTextureName);
 
       ezStringBuilder sEmbededFile;
       sEmbededFile = szImportTargetFolder;
       sEmbededFile.AppendPath(sFinalTextureName);
-      sEmbededFile.ChangeFileExtension(itTex.Value().m_sFileFormatExtension);
-
-      // ezFileWriter out;
-      // if (out.Open(sEmbededFile).Succeeded())
-      //{
-      //   out.WriteBytes(itTex.Value().m_RawData.GetPtr(), itTex.Value().m_RawData.GetCount()).AssertSuccess();
-      // }
 
       relTexturePath = sEmbededFile;
     }
-
 
     ezStringBuilder newAssetPathAbs = szImportTargetFolder;
     newAssetPathAbs.AppendPath(sFinalTextureName);
@@ -376,7 +368,9 @@ namespace ezMeshImportUtils
   {
     EZ_PROFILE_SCOPE("ImportMeshAssetMaterials");
 
-    const ezStringBuilder targetDirectory(szDocumentDirectory, "_data/");
+    ezStringBuilder targetDirectory = szDocumentDirectory;
+    targetDirectory.RemoveFileExtension();
+    targetDirectory.Append("_data/");
     const ezStringBuilder sourceDirectory = ezPathUtils::GetFileDirectory(pImporter->GetImportOptions().m_sSourceFile);
 
     ezStringBuilder tmp;
@@ -411,13 +405,11 @@ namespace ezMeshImportUtils
       }
 
       ezStringBuilder sFinalTextureName;
-      ezPathUtils::MakeValidFilename(itTex.Key().GetFileName(), '_', sFinalTextureName);
-      sFinalTextureName.Prepend("Embedded");
+      itTex.Value().GenerateFileName(sFinalTextureName);
 
       ezStringBuilder sEmbededFile;
       sEmbededFile = targetDirectory;
       sEmbededFile.AppendPath(sFinalTextureName);
-      sEmbededFile.ChangeFileExtension(itTex.Value().m_sFileFormatExtension);
 
       ezDeferredFileWriter out;
       out.SetOutput(sEmbededFile, true);

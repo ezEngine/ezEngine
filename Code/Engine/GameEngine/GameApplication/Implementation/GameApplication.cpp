@@ -38,7 +38,7 @@ ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjec
   : ezGameApplicationBase(szAppName)
   , m_sAppProjectPath(szProjectPath)
 {
-  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this));
+  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "UpdateWorldsAndExtractViews", ezTaskNesting::Never, ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this));
   m_pUpdateTask->ConfigureTask("GameApplication.Update", ezTaskNesting::Maybe);
 
   s_pGameApplicationInstance = this;
