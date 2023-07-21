@@ -148,7 +148,7 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
     ezSimdVec4f pos;
     ezSimdTransform transform;
     transform.m_Position.Load<3>(&ownerTransform.m_vPosition.x);
-    transform.m_Rotation.m_v.Load<4>(&ownerTransform.m_qRotation.v.x);
+    transform.m_Rotation.m_v.Load<4>(&ownerTransform.m_qRotation.x);
     transform.m_Scale.Load<3>(&ownerTransform.m_vScale.x);
 
     float p0[4];

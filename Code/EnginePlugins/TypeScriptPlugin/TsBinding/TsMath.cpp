@@ -366,9 +366,9 @@ void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
   duk.PushGlobalObject();                                   // [ global ]
   EZ_VERIFY(duk.PushLocalObject("__Quat").Succeeded(), ""); // [ global __Quat ]
   duk_get_prop_string(duk, -1, "Quat");                     // [ global __Quat Quat ]
-  duk_push_number(duk, value.v.x);                          // [ global __Quat Quat x ]
-  duk_push_number(duk, value.v.y);                          // [ global __Quat Quat x y ]
-  duk_push_number(duk, value.v.z);                          // [ global __Quat Quat x y z ]
+  duk_push_number(duk, value.x);                          // [ global __Quat Quat x ]
+  duk_push_number(duk, value.y);                          // [ global __Quat Quat x y ]
+  duk_push_number(duk, value.z);                          // [ global __Quat Quat x y z ]
   duk_push_number(duk, value.w);                            // [ global __Quat Quat x y z w ]
   duk_new(duk, 4);                                          // [ global __Quat result ]
   duk_remove(duk, -2);                                      // [ global result ]
@@ -381,9 +381,9 @@ void ezTypeScriptBinding::SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQu
 {
   ezDuktapeHelper duk(pDuk);
 
-  duk.SetNumberProperty("x", value.v.x, iObjIdx);
-  duk.SetNumberProperty("y", value.v.y, iObjIdx);
-  duk.SetNumberProperty("z", value.v.z, iObjIdx);
+  duk.SetNumberProperty("x", value.x, iObjIdx);
+  duk.SetNumberProperty("y", value.y, iObjIdx);
+  duk.SetNumberProperty("z", value.z, iObjIdx);
   duk.SetNumberProperty("w", value.w, iObjIdx);
 }
 
@@ -406,13 +406,13 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat q
   ezQuat res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.v.x = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.x));
+  res.x = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.x));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.v.y = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.y));
+  res.y = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.y));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.v.z = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.v.z));
+  res.z = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.z));
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "w"), "");
   res.w = static_cast<float>(duk_get_number_default(pDuk, -1, qFallback.w));

@@ -235,9 +235,9 @@ static void BuildOzzRawSkeleton(const ezEditableSkeletonJoint& srcJoint, ozz::an
   ref_dstJoint.transform.translation.x = srcJoint.m_LocalTransform.m_vPosition.x;
   ref_dstJoint.transform.translation.y = srcJoint.m_LocalTransform.m_vPosition.y;
   ref_dstJoint.transform.translation.z = srcJoint.m_LocalTransform.m_vPosition.z;
-  ref_dstJoint.transform.rotation.x = srcJoint.m_LocalTransform.m_qRotation.v.x;
-  ref_dstJoint.transform.rotation.y = srcJoint.m_LocalTransform.m_qRotation.v.y;
-  ref_dstJoint.transform.rotation.z = srcJoint.m_LocalTransform.m_qRotation.v.z;
+  ref_dstJoint.transform.rotation.x = srcJoint.m_LocalTransform.m_qRotation.x;
+  ref_dstJoint.transform.rotation.y = srcJoint.m_LocalTransform.m_qRotation.y;
+  ref_dstJoint.transform.rotation.z = srcJoint.m_LocalTransform.m_qRotation.z;
   ref_dstJoint.transform.rotation.w = srcJoint.m_LocalTransform.m_qRotation.w;
   ref_dstJoint.transform.scale.x = srcJoint.m_LocalTransform.m_vScale.x;
   ref_dstJoint.transform.scale.y = srcJoint.m_LocalTransform.m_vScale.y;

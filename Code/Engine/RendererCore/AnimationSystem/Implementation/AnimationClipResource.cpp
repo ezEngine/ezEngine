@@ -250,9 +250,9 @@ EZ_FORCE_INLINE void ez2ozz(const ezVec3& vIn, ozz::math::Float3& ref_out)
 
 EZ_FORCE_INLINE void ez2ozz(const ezQuat& qIn, ozz::math::Quaternion& ref_out)
 {
-  ref_out.x = qIn.v.x;
-  ref_out.y = qIn.v.y;
-  ref_out.z = qIn.v.z;
+  ref_out.x = qIn.x;
+  ref_out.y = qIn.y;
+  ref_out.z = qIn.z;
   ref_out.w = qIn.w;
 }
 

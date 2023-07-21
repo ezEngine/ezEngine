@@ -323,7 +323,7 @@ namespace JSONReaderTestDetail
       case ezVariant::Type::Quaternion:
       {
         ezStringBuilder sTemp;
-        sTemp.Format("quat ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezQuat>().v.x, 4), ezArgF(var.Get<ezQuat>().v.y, 4), ezArgF(var.Get<ezQuat>().v.z, 4), ezArgF(var.Get<ezQuat>().w, 4));
+        sTemp.Format("quat ({0}, {1}, {2}, {3})", ezArgF(var.Get<ezQuat>().x, 4), ezArgF(var.Get<ezQuat>().y, 4), ezArgF(var.Get<ezQuat>().z, 4), ezArgF(var.Get<ezQuat>().w, 4));
         // ezLog::Printf("Expect: %s - Is: %s\n", sTemp.GetData(), Compare.PeekFront().GetData());
         EZ_TEST_STRING(ref_compare.PeekFront().GetData(), sTemp.GetData());
         ref_compare.PopFront();

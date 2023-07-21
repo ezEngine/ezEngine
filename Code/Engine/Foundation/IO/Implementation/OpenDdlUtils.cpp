@@ -516,9 +516,9 @@ ezResult ezOpenDdlUtils::ConvertToTransform(const ezOpenDdlReaderElement* pEleme
     out_result.m_vPosition.x = pValues[0];
     out_result.m_vPosition.y = pValues[1];
     out_result.m_vPosition.z = pValues[2];
-    out_result.m_qRotation.v.x = pValues[3];
-    out_result.m_qRotation.v.y = pValues[4];
-    out_result.m_qRotation.v.z = pValues[5];
+    out_result.m_qRotation.x = pValues[3];
+    out_result.m_qRotation.y = pValues[4];
+    out_result.m_qRotation.z = pValues[5];
     out_result.m_qRotation.w = pValues[6];
     out_result.m_vScale.x = pValues[7];
     out_result.m_vScale.y = pValues[8];
@@ -1235,9 +1235,9 @@ void ezOpenDdlUtils::StoreTransform(ezOpenDdlWriter& ref_writer, const ezTransfo
     f[1] = value.m_vPosition.y;
     f[2] = value.m_vPosition.z;
 
-    f[3] = value.m_qRotation.v.x;
-    f[4] = value.m_qRotation.v.y;
-    f[5] = value.m_qRotation.v.z;
+    f[3] = value.m_qRotation.x;
+    f[4] = value.m_qRotation.y;
+    f[5] = value.m_qRotation.z;
     f[6] = value.m_qRotation.w;
 
     f[7] = value.m_vScale.x;
@@ -1255,7 +1255,7 @@ void ezOpenDdlUtils::StoreQuat(ezOpenDdlWriter& ref_writer, const ezQuat& value,
   ref_writer.BeginObject("Quat", sName, bGlobalName, true);
   {
     ref_writer.BeginPrimitiveList(ezOpenDdlPrimitiveType::Float);
-    ref_writer.WriteFloat(value.v.GetData(), 4);
+    ref_writer.WriteFloat(&value.x, 4);
     ref_writer.EndPrimitiveList();
   }
   ref_writer.EndObject();

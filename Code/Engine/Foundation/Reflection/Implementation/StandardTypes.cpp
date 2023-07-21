@@ -299,7 +299,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezQuat, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("v", v),
+    EZ_MEMBER_PROPERTY("x", x),
+    EZ_MEMBER_PROPERTY("y", y),
+    EZ_MEMBER_PROPERTY("z", z),
     EZ_MEMBER_PROPERTY("w", w),
   }
   EZ_END_PROPERTIES;

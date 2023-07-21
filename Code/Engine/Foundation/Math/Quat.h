@@ -25,7 +25,9 @@ public:
 
   // *** Data ***
 public:
-  ezVec3Template<Type> v;
+  Type x;
+  Type y;
+  Type z;
   Type w;
 
   // *** Constructors ***
@@ -95,6 +97,9 @@ public:
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
   void GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+
+  /// \brief Returns the x,y,z components as a vector.
+  ezVec3Template<Type> GetVectorPart() const { return ezVec3Template<Type>(x, y, z); }
 
   /// \brief Returns the Quaternion as a matrix.
   const ezMat3Template<Type> GetAsMat3() const; // [tested]

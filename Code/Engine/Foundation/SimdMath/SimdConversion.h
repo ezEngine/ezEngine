@@ -40,14 +40,14 @@ namespace ezSimdConversion
   EZ_ALWAYS_INLINE ezQuat ToQuat(const ezSimdQuat& q)
   {
     ezQuat tmp;
-    q.m_v.Store<4>(&tmp.v.x);
+    q.m_v.Store<4>(&tmp.x);
     return tmp;
   }
 
   EZ_ALWAYS_INLINE ezSimdQuat ToQuat(const ezQuat& q)
   {
     ezSimdVec4f tmp;
-    tmp.Load<4>(&q.v.x);
+    tmp.Load<4>(&q.x);
     return ezSimdQuat(tmp);
   }
 
