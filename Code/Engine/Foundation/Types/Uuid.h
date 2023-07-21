@@ -34,14 +34,16 @@ public:
   /// \brief Returns true if this is a valid Uuid.
   EZ_ALWAYS_INLINE bool IsValid() const;
 
-  /// \brief Sets the Uuid to be invalid
-  EZ_ALWAYS_INLINE void SetInvalid();
+  /// \brief Returns an invalid UUID.
+  EZ_ALWAYS_INLINE static ezUuid MakeInvalid() { return ezUuid(0, 0); }
+  /*[[deprecated("Use ezUuid::MakeInvalid() instead.")]]*/ EZ_ALWAYS_INLINE void SetInvalid();
 
   /// \brief Creates a new Uuid and stores is it in this object.
-  void CreateNewUuid();
+  /*[[deprecated("Use ezUuid::MakeUuid() instead.")]]*/ void CreateNewUuid();
 
   /// \brief Returns a new Uuid.
-  EZ_ALWAYS_INLINE static ezUuid CreateUuid();
+  EZ_ALWAYS_INLINE static ezUuid MakeUuid();
+  /*[[deprecated("Use ezUuid::MakeUuid() instead.")]]*/ EZ_ALWAYS_INLINE static ezUuid CreateUuid() { return MakeUuid(); }
 
   /// \brief Returns the internal 128 Bit of data
   void GetValues(ezUInt64& ref_uiLow, ezUInt64& ref_uiHigh) const
@@ -51,10 +53,12 @@ public:
   }
 
   /// \brief Creates a uuid from a string. The result is always the same for the same string.
-  static ezUuid StableUuidForString(ezStringView sString);
+  static ezUuid MakeStableUuidFromString(ezStringView sString);
+  /*[[deprecated("Use ezUuid::MakeStableUuidFromString() instead.")]]*/ static ezUuid StableUuidForString(ezStringView sString) { return MakeStableUuidFromString(sString); }
 
   /// \brief Creates a uuid from an integer. The result is always the same for the same input.
-  static ezUuid StableUuidForInt(ezInt64 iInt);
+  static ezUuid MakeStableUuidFromInt(ezInt64 iInt);
+  /*[[deprecated("Use ezUuid::MakeStableUuidFromInt() instead.")]]*/ static ezUuid StableUuidForInt(ezInt64 iInt) { return MakeStableUuidFromInt(iInt); }
 
   /// \brief Adds the given seed value to this guid, creating a new guid. The process is reversible.
   EZ_ALWAYS_INLINE void CombineWithSeed(const ezUuid& seed);

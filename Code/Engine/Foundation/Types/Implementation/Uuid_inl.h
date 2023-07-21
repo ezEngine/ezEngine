@@ -11,7 +11,7 @@ void ezUuid::SetInvalid()
   m_uiLow = 0;
 }
 
-ezUuid ezUuid::CreateUuid()
+ezUuid ezUuid::MakeUuid()
 {
   ezUuid guid;
   guid.CreateNewUuid();
