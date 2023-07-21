@@ -205,8 +205,12 @@ public:
 
   // *** Static Functions ***
 public:
+  /// \brief Returns a color with all four RGBA components set to Not-A-Number (NaN).
+  static ezColor MakeNaN();
+
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
-  static ezColor ZeroColor();
+  static ezColor MakeZero();
+  /*[[deprecated("Use ezColor::MakeZero() instead.")]]*/ static ezColor ZeroColor() { return MakeZero(); }
 
   // *** Constructors ***
 public:
@@ -226,7 +230,7 @@ public:
 
   /// \brief Initializes this color from a ezColorGammaUB object.
   ///
-  /// This should be the preferred method when hardcoding colors in source code.
+  /// This should be the preferred method when hard-coding colors in source code.
   ezColor(const ezColorGammaUB& cc); // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
@@ -244,14 +248,15 @@ public:
   void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
   /// \brief Sets all four RGBA components to zero.
-  void SetZero();
+  /*[[deprecated("Use ezColor::MakeZero() instead.")]]*/ void SetZero();
 
   // *** Conversion Operators/Functions ***
 public:
   /// \brief Sets this color from a HSV (hue, saturation, value) format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
-  void SetHSV(float fHue, float fSat, float fVal); // [tested]
+  static ezColor MakeHSV(float fHue, float fSat, float fVal); // [tested]
+  /*[[deprecated("Use ezColor::MakeHSV() instead.")]]*/ void SetHSV(float fHue, float fSat, float fVal) { *this = MakeHSV(fHue, fSat, fVal); }
 
   /// \brief Converts the color part to HSV format.
   ///
