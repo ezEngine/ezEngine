@@ -9,6 +9,8 @@
 class EZ_FOUNDATION_DLL ezAngle
 {
 public:
+  EZ_DECLARE_POD_TYPE();
+
   /// \brief Returns the constant to multiply with an angle in degree to convert it to radians.
   template <typename Type>
   constexpr static EZ_ALWAYS_INLINE Type DegToRadMultiplier(); // [tested]
@@ -25,15 +27,16 @@ public:
   template <typename Type>
   constexpr static Type RadToDeg(Type f); // [tested]
 
+  /// \brief Returns a zero initialized angle. Same as a default constructed object.
+  constexpr static ezAngle MakeZero(float fDegree) { return ezAngle(); }
+
   /// \brief Creates an instance of ezAngle that was initialized from degree. (Performs a conversion)
-  constexpr static ezAngle Degree(float fDegree); // [tested]
+  constexpr static ezAngle MakeFromDegree(float fDegree); // [tested]
+  /*[[deprecated("Use ezAngle::MakeFromDegree() instead.")]]*/ constexpr static ezAngle Degree(float fDegree) { return MakeFromDegree(fDegree); }
 
   /// \brief Creates an instance of ezAngle that was initialized from radian. (No need for any conversion)
-  constexpr static ezAngle Radian(float fRadian); // [tested]
-
-
-
-  EZ_DECLARE_POD_TYPE();
+  constexpr static ezAngle MakeFromRadian(float fRadian); // [tested]
+  /*[[deprecated("Use ezAngle::MakeFromRadian() instead.")]]*/ constexpr static ezAngle Radian(float fRadian) { return MakeFromRadian(fRadian); }
 
   /// \brief Standard constructor, initializing with 0.
   constexpr ezAngle()
