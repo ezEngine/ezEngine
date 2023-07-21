@@ -37,8 +37,12 @@ public:
 
   // no copy-constructor and operator= since the default-generated ones will be faster
 
+  /// \brief Returns a vector with all components set to Not-a-Number (NaN).
+  static const ezVec2Template<Type> MakeNaN() { return ezVec2Template<Type>(ezMath::NaN<Type>()); }
+
   /// \brief Static function that returns a zero-vector.
-  static const ezVec2Template<Type> ZeroVector() { return ezVec2Template(0); } // [tested]
+  static const ezVec2Template<Type> MakeZero() { return ezVec2Template(0); } // [tested]
+  /*[[deprecated("Use ezVec2::MakeZero() instead.")]]*/ static const ezVec2Template<Type> ZeroVector() { return ezVec2Template(0); }
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -71,7 +75,7 @@ public:
   void Set(Type x, Type y); // [tested]
 
   /// \brief Sets the vector to all zero.
-  void SetZero(); // [tested]
+  /*[[deprecated("Use ezVec2::MakeZero() instead.")]]*/ void SetZero(); // [tested]
 
   // *** Functions dealing with length ***
 public:
@@ -98,8 +102,7 @@ public:
 
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
   /// fallback value.
-  ezResult NormalizeIfNotZero(
-    const ezVec2Template<Type>& vFallback = ezVec2Template<Type>(1, 0), Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
+  ezResult NormalizeIfNotZero(const ezVec2Template<Type>& vFallback = ezVec2Template<Type>(1, 0), Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
   /// \brief Returns, whether this vector is (0, 0).
   bool IsZero() const; // [tested]
