@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Bounds, 1, ezRTTIDefau
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxVisualizerAttribute("BoxExtents", 1.0f, ezColor::LightGreen, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset")
+    new ezBoxVisualizerAttribute("BoxExtents", 1.0f, ezColor::LightGreen, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "PositionOffset")
   }
   EZ_END_ATTRIBUTES;
 }
