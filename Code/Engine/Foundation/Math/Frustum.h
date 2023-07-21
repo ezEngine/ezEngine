@@ -64,22 +64,23 @@ public:
   /// \brief Sets the frustum manually by specifying the planes directly.
   ///
   /// \note Make sure to pass in the planes in the order of the PlaneType enum, otherwise ezFrustum may not always work as expected.
-  void SetFrustum(const ezPlane* pPlanes); // [tested]
+  static ezFrustum MakeFromPlanes(const ezPlane* pPlanes); // [tested]
+  /*[[deprecated("Use ezFrustum::MakeFromPlanes() instead.")]]*/ void SetFrustum(const ezPlane* pPlanes) { *this = MakeFromPlanes(pPlanes); }
 
   /// \brief Creates the frustum by extracting the planes from the given (model-view / projection) matrix.
   ///
   /// If the matrix is just the projection matrix, the frustum will be in local space. Pass the full ModelViewProjection
   /// matrix to create the frustum in world-space. If the projection matrix contained in ModelViewProjection is an infinite
   /// plane projection matrix, the resulting frustum will yield a far plane with infinite distance.
-  void SetFrustum(const ezMat4& mModelViewProjection, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default,
-    ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  static ezFrustum MakeFromMVP(const ezMat4& mModelViewProjection, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  /*[[deprecated("Use ezFrustum::MakeFromMVP() instead.")]]*/ void SetFrustum(const ezMat4& mModelViewProjection, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default, ezHandedness::Enum handedness = ezHandedness::Default) { *this = MakeFromMVP(mModelViewProjection, depthRange, handedness); }
 
   /// \brief Creates a frustum from the given camera position, direction vectors and the field-of-view along X and Y.
   ///
   /// The up vector does not need to be exactly orthogonal to the forwards vector, it will get recomputed properly.
   /// FOV X and Y define the entire field-of-view, so a FOV of 180 degree would mean the entire half-space in front of the camera.
-  void SetFrustum(
-    const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane); // [tested]
+  static ezFrustum MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane); // [tested]
+  /*[[deprecated("Use ezFrustum::MakeFromFOV() instead.")]]*/ void SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane) { *this = MakeFromFOV(vPosition, vForwards, vUp, fovX, fovY, fNearPlane, fFarPlane); }
 
   /// \brief Returns the n-th plane of the frustum.
   const ezPlane& GetPlane(ezUInt8 uiPlane) const; // [tested]
