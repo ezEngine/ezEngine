@@ -21,16 +21,15 @@ EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate(Type x, Type y, Type z, Ty
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::IdentityQuaternion()
+EZ_ALWAYS_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeIdentity()
 {
   return ezQuatTemplate(0, 0, 0, 1);
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetElements(Type inX, Type inY, Type inZ, Type inW)
+EZ_ALWAYS_INLINE ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromElements(Type inX, Type inY, Type inZ, Type inW)
 {
-  v.Set(inX, inY, inZ);
-  w = inW;
+  return ezQuatTemplate<Type>(inX, inY, inZ, inW);
 }
 
 template <typename Type>
@@ -41,12 +40,14 @@ EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetIdentity()
 }
 
 template <typename Type>
-void ezQuatTemplate<Type>::SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle)
+ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle)
 {
   const ezAngle halfAngle = angle * 0.5f;
 
-  v = static_cast<Type>(ezMath::Sin(halfAngle)) * vRotationAxis;
-  w = ezMath::Cos(halfAngle);
+  ezVec3 v = static_cast<Type>(ezMath::Sin(halfAngle)) * vRotationAxis;
+  float w = ezMath::Cos(halfAngle);
+
+  return ezQuatTemplate<Type>(v.x, v.y, v.z, w);
 }
 
 template <typename Type>
@@ -241,7 +242,7 @@ const ezMat4Template<Type> ezQuatTemplate<Type>::GetAsMat4() const
 }
 
 template <typename Type>
-void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
+ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromMat3(const ezMat3Template<Type>& m)
 {
   EZ_NAN_ASSERT(&m);
 
@@ -284,10 +285,12 @@ void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
     val[k] = (m.Element(i, k) + m.Element(k, i)) * t;
   }
 
-  v.x = val[0];
-  v.y = val[1];
-  v.z = val[2];
-  w = val[3];
+  ezQuatTemplate<Type> q;
+  q.v.x = val[0];
+  q.v.y = val[1];
+  q.v.z = val[2];
+  q.w = val[3];
+  return q;
 }
 
 template <typename Type>
@@ -327,7 +330,7 @@ void ezQuatTemplate<Type>::ReconstructFromMat4(const ezMat4Template<Type>& mMat)
   such a rotation with other means.
 */
 template <typename Type>
-void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo)
+ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo)
 {
   const ezVec3Template<Type> v0 = vDirFrom.GetNormalized();
   const ezVec3Template<Type> v1 = vDirTo.GetNormalized();
@@ -337,18 +340,15 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
   // if both vectors are identical -> no rotation needed
   if (ezMath::IsEqual(fDot, (Type)1, (Type)0.0000001))
   {
-    SetIdentity();
-    return;
+    return MakeIdentity();
   }
   else if (ezMath::IsEqual(fDot, (Type)-1, (Type)0.0000001)) // if both vectors are opposing
   {
     // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
     if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type)0.8)
-      SetFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::Pi<float>()));
+      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::Pi<float>()));
     else
-      SetFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::Pi<float>()));
-
-    return;
+      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::Pi<float>()));
   }
 
   const ezVec3Template<Type> c = v0.CrossRH(v1);
@@ -357,14 +357,16 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
 
   EZ_ASSERT_DEBUG(c.IsValid(), "SetShortestRotation failed.");
 
-  v = c / s;
-  w = s / (Type)2;
+  ezQuatTemplate<Type> q;
+  q.v = c / s;
+  q.w = s / (Type)2;
+  q.Normalize();
 
-  Normalize();
+  return q;
 }
 
 template <typename Type>
-void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQuatTemplate<Type>& qTo, Type t)
+ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeSlerp(const ezQuatTemplate<Type>& qFrom, const ezQuatTemplate<Type>& qTo, Type t)
 {
   EZ_ASSERT_DEBUG((t >= (Type)0) && (t <= (Type)1), "Invalid lerp factor.");
 
@@ -408,17 +410,21 @@ void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQ
   if (bFlipSign)
     t1 = -t1;
 
-  v.x = t0 * qFrom.v.x;
-  v.y = t0 * qFrom.v.y;
-  v.z = t0 * qFrom.v.z;
-  w = t0 * qFrom.w;
+  ezQuatTemplate<Type> q;
 
-  v.x += t1 * qTo.v.x;
-  v.y += t1 * qTo.v.y;
-  v.z += t1 * qTo.v.z;
-  w += t1 * qTo.w;
+  q.v.x = t0 * qFrom.v.x;
+  q.v.y = t0 * qFrom.v.y;
+  q.v.z = t0 * qFrom.v.z;
+  q.w = t0 * qFrom.w;
 
-  Normalize();
+  q.v.x += t1 * qTo.v.x;
+  q.v.y += t1 * qTo.v.y;
+  q.v.z += t1 * qTo.v.z;
+  q.w += t1 * qTo.w;
+
+  q.Normalize();
+
+  return q;
 }
 
 template <typename Type>
@@ -477,7 +483,7 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAn
 }
 
 template <typename Type>
-void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z)
+ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z)
 {
   /// Taken from here (yaw->pitch->roll, ZYX order or 3-2-1 order):
   /// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
@@ -491,8 +497,10 @@ void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& x, const ezAngle& y
   const double cr = ezMath::Cos(roll * 0.5);
   const double sr = ezMath::Sin(roll * 0.5);
 
-  w = (float)(cy * cp * cr + sy * sp * sr);
-  v.x = (float)(cy * cp * sr - sy * sp * cr);
-  v.y = (float)(cy * sp * cr + sy * cp * sr);
-  v.z = (float)(sy * cp * cr - cy * sp * sr);
+  ezQuatTemplate<Type> q;
+  q.w = (float)(cy * cp * cr + sy * sp * sr);
+  q.v.x = (float)(cy * cp * sr - sy * sp * cr);
+  q.v.y = (float)(cy * sp * cr + sy * cp * sr);
+  q.v.z = (float)(sy * cp * cr - cy * sp * sr);
+  return q;
 }
