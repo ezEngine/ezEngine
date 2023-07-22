@@ -105,17 +105,25 @@ void ezQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
 
   if (m_FillColor.isValid())
   {
+    QLinearGradient colorGradient(wr.topLeft(), wr.bottomLeft());
+    colorGradient.setColorAt(0.0f, m_FillColor);
+
+    if(m_bCollapsed)
+      colorGradient.setColorAt(1.0f, m_FillColor);
+    else
+      colorGradient.setColorAt(0.5f, pal.alternateBase().color());
+
     QRectF wrAdjusted = wr;
     wrAdjusted.adjust(0.5, 0.5, Rounding, -0.5);
     QPainterPath oPath;
     oPath.addRoundedRect(wrAdjusted, Rounding, Rounding);
-    p.fillPath(oPath, pal.alternateBase());
+    p.fillPath(oPath, colorGradient);
 
     QRectF crAdjusted = cr;
     crAdjusted.adjust(0.5, 0.5, Rounding, -0.5);
     QPainterPath path;
     path.addRoundedRect(crAdjusted, Rounding, Rounding);
-    p.fillPath(path, m_FillColor);
+    p.fillPath(path, colorGradient);
   }
 
   if (!Header->isHidden())
