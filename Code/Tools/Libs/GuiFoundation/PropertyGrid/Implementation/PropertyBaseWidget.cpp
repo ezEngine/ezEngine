@@ -1216,7 +1216,6 @@ void ezQtPropertyContainerWidget::OnCustomElementContextMenu(const QPoint& pt)
 ezQtGroupBoxBase* ezQtPropertyContainerWidget::CreateElement(QWidget* pParent)
 {
   auto pBox = new ezQtCollapsibleGroupBox(pParent);
-  pBox->SetFillColor(palette().window().color());
   return pBox;
 }
 
@@ -1233,7 +1232,7 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
   connect(pSubGroup, &QWidget::customContextMenuRequested, this, &ezQtPropertyContainerWidget::OnCustomElementContextMenu);
 
   QVBoxLayout* pSubLayout = new QVBoxLayout(nullptr);
-  pSubLayout->setContentsMargins(5, 0, 0, 0);
+  pSubLayout->setContentsMargins(5, 0, 5, 0);
   pSubLayout->setSpacing(1);
   pSubGroup->GetContent()->setLayout(pSubLayout);
 
@@ -1387,7 +1386,7 @@ void ezQtPropertyContainerWidget::UpdatePropertyMetaState()
       element.m_pSubGroup->SetBoldTitle(!bIsDefault);
 
       // If the fill color is invalid that means no border is drawn and we don't want to change the color then.
-      if (element.m_pSubGroup->GetFillColor().isValid())
+      if (!element.m_pSubGroup->GetFillColor().isValid())
       {
         element.m_pSubGroup->SetFillColor(qColor);
       }
@@ -1645,6 +1644,17 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
       ezStringBuilder sIconName;
       sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName());
       elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
+    }
+
+    const ezColorAttribute* pColorAttrib = pCommonType->GetAttributeByType<ezColorAttribute>();
+    if(pColorAttrib)
+    {
+      elem.m_pSubGroup->SetFillColor(ezToQtColor(pColorAttrib->GetColor()).darker(300));
+    }
+    else
+    {
+      const QPalette& pal = palette();
+      elem.m_pSubGroup->SetFillColor(pal.alternateBase().color());
     }
 
     // help URL
