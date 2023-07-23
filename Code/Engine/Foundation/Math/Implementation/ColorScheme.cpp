@@ -217,4 +217,39 @@ ezColor ezColorScheme::GetColor(float fIndex, ezUInt8 uiBrightness, float fSatur
 }
 
 
+ezColor ezColorScheme::GetGroupColor(ColorGroup group)
+{
+  switch (group)
+  {
+    case General:
+      break;
+    case Construction:
+      return ezColor::GreenYellow;
+    case Lighting:
+      break;
+    case Physics:
+      break;
+    case Ai:
+      break;
+    case Gameplay:
+      break;
+    case Animation:
+      break;
+    case Utilities:
+      break;
+    case Effects:
+      break;
+    case Input:
+      break;
+    case Rendering:
+      break;
+    case Sound:
+      break;
+    default:
+      break;
+  }
+
+  return ezColor::ZeroColor();
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_ColorScheme);

@@ -77,6 +77,24 @@ public:
     return ezMath::Lerp(s_LightUIColors[uiIndexA], s_LightUIColors[uiIndexB], fFrac);
   }
 
+  enum ColorGroup
+  {
+    General,
+    Construction,
+    Lighting,
+    Physics,
+    Ai,
+    Gameplay,
+    Animation,
+    Utilities,
+    Effects,
+    Input,
+    Rendering,
+    Sound,
+  };
+
+  static ezColor GetGroupColor(ColorGroup group);
+
 private:
   EZ_ALWAYS_INLINE constexpr static void GetInterpolation(float fIndex, ezUInt32& out_uiIndexA, ezUInt32& out_uiIndexB, float& out_fFrac)
   {
