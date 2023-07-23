@@ -33,9 +33,9 @@ enum class ezGALSharedTextureType : ezUInt8
 // Typically holds a platform specific handle for the texture and it's synchronisation primitive
 struct ezGALPlatformSharedHandle
 {
-  ezUInt32 m_uiProcessId;
   ezUInt64 a = 0;
   ezUInt64 b = 0;
+  ezUInt32 m_uiProcessId;
   ezUInt32 m_uiMemoryTypeIndex;
   ezUInt64 m_uiSize;
 };

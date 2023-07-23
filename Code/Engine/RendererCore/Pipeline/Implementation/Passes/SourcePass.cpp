@@ -46,6 +46,26 @@ bool ezSourcePass::GetRenderTargetDescriptions(
   desc.m_bCreateRenderTarget = true;
   desc.m_uiArraySize = view.GetCamera()->IsStereoscopic() ? 2 : 1;
 
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
+  if (const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]))
+  {
+    const ezGALTextureCreationDescription& descRT = pTexture->GetDescription();
+    if (descRT.m_Format != desc.m_Format)
+    {
+      if (descRT.m_Format == ezGALResourceFormat::BGRAUByteNormalized && desc.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
+        desc.m_Format = ezGALResourceFormat::BGRAUByteNormalized;
+      else if (descRT.m_Format == ezGALResourceFormat::BGRAUByteNormalizedsRGB && desc.m_Format == ezGALResourceFormat::RGBAUByteNormalizedsRGB)
+        desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+      else if (descRT.m_Format == ezGALResourceFormat::RGBAUByteNormalized && desc.m_Format == ezGALResourceFormat::BGRAUByteNormalized)
+        desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      else if (descRT.m_Format == ezGALResourceFormat::RGBAUByteNormalizedsRGB && desc.m_Format == ezGALResourceFormat::BGRAUByteNormalizedsRGB)
+        desc.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+
+      m_Format = desc.m_Format;
+    }
+  }
+
   outputs[m_PinOutput.m_uiOutputIndex] = desc;
 
   return true;
@@ -88,8 +108,8 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezSourcePassPatch_1_2 : public ezGraphPatch
 {

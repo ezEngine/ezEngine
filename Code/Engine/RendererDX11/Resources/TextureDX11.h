@@ -5,7 +5,7 @@
 
 struct ID3D11Resource;
 
-class ezGALTextureDX11 : public ezGALTexture
+class ezGALTextureDX11 : public ezGALTexture, public ezGALSharedTexture
 {
 public:
   EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
@@ -16,7 +16,7 @@ protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
-  ezGALTextureDX11(const ezGALTextureCreationDescription& Description);
+  ezGALTextureDX11(const ezGALTextureCreationDescription& Description, ezGALSharedTextureType sharedType, ezGALPlatformSharedHandle hSharedHandle);
 
   ~ezGALTextureDX11();
 
@@ -25,6 +25,10 @@ protected:
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
+  virtual ezGALPlatformSharedHandle GetSharedHandle() const override;
+  virtual void WaitSemaphoreGPU(ezUInt64 uiValue) const override;
+  virtual void SignalSemaphoreGPU(ezUInt64 uiValue) const override;
+
   ezResult CreateStagingTexture(ezGALDeviceDX11* pDevice);
 
   ID3D11Resource* m_pDXTexture = nullptr;
@@ -32,6 +36,9 @@ protected:
   ID3D11Resource* m_pDXStagingTexture = nullptr;
 
   void* m_pExisitingNativeObject = nullptr;
+
+  ezGALSharedTextureType m_sharedType = ezGALSharedTextureType::None;
+  ezGALPlatformSharedHandle m_sharedHandle;
 };
 
 #include <RendererDX11/Resources/Implementation/TextureDX11_inl.h>
