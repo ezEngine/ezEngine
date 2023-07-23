@@ -34,6 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input/RmlUi"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Input)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -374,7 +375,8 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
       ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
 
       pResource->m_ResourceEvents.AddEventHandler(
-        [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
+        [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e)
+        {
           if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
           {
             pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::MakeZero());

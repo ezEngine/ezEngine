@@ -31,6 +31,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); 
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
+      new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Rendering)),
   }
   EZ_END_ATTRIBUTES;
 

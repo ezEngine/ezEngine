@@ -79,18 +79,22 @@ public:
 
   enum ColorGroup
   {
-    General,
-    Construction,
-    Lighting,
-    Physics,
     Ai,
-    Gameplay,
     Animation,
-    Utilities,
+    Construction,
+    Custom,
     Effects,
+    Gameplay,
     Input,
+    Lighting,
+    Logic,
+    Physics,
+    Prefab,
     Rendering,
+    Scripting,
     Sound,
+    Utilities,
+    XR,
   };
 
   static ezColor GetGroupColor(ColorGroup group);

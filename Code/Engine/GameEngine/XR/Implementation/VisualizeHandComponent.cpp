@@ -14,6 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualizeHandComponent, 1, ezComponentMode::Static)
   {
     new ezCategoryAttribute("XR"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::XR)),
   }
   EZ_END_ATTRIBUTES;
 }

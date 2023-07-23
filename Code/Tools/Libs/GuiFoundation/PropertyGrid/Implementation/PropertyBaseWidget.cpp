@@ -1649,7 +1649,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     const ezColorAttribute* pColorAttrib = pCommonType->GetAttributeByType<ezColorAttribute>();
     if (pColorAttrib && pColorAttrib->GetColor() != ezColor::ZeroColor())
     {
-      elem.m_pSubGroup->SetFillColor(ezToQtColor(pColorAttrib->GetColor()).darker(300));
+      elem.m_pSubGroup->SetFillColor(ezToQtColor(pColorAttrib->GetColor()));
     }
     else
     {

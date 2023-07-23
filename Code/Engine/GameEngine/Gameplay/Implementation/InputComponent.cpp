@@ -40,6 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 3, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Input)),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGESENDERS

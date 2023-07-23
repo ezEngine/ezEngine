@@ -35,6 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltBoneColliderComponent, 1, ezComponentMode::Dynamic
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Animation"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Physics)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -248,4 +249,3 @@ void ezJoltBoneColliderComponent::DestroyPhysicsShapes()
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltBoneColliderComponent);
-

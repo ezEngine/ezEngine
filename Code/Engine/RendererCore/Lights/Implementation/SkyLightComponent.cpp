@@ -49,6 +49,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 3, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering/Lighting"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Lighting)),
   }
   EZ_END_ATTRIBUTES;
 }

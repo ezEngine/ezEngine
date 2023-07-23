@@ -28,6 +28,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonPoseComponent, 4, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Animation"),
     new ezBoneManipulatorAttribute("Bones", "EditBones"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Animation)),
   }
   EZ_END_ATTRIBUTES;
 }

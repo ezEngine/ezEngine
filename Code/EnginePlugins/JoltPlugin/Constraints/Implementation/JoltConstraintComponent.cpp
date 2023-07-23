@@ -26,6 +26,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltConstraintComponent, 1)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Constraints"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Physics)),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

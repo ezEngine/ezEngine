@@ -102,6 +102,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBlackboardComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Logic)),
   }
   EZ_END_ATTRIBUTES;
 }

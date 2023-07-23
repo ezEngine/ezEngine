@@ -29,6 +29,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 3, ezComponentMode::Static)
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColorScheme::LightUI(ezColorScheme::Lime)),
     new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Deviation", 0.5f, nullptr, ezColorScheme::LightUI(ezColorScheme::Lime)),
     new ezConeAngleManipulatorAttribute("Deviation", 0.5f),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Gameplay)),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

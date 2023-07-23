@@ -13,6 +13,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezNpcComponent, 1)
   {
     new ezCategoryAttribute("AI/Experimental"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Alpha),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Ai)),
   }
   EZ_END_ATTRIBUTES;
 }

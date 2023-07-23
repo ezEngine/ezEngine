@@ -321,6 +321,9 @@ public:
   /// \brief If this is an HDR color, the largest component value is used to normalize RGB to LDR range. Alpha is unaffected.
   void NormalizeToLdrRange();
 
+  /// \brief Returns a darker color by converting the color to HSV, dividing the *value* by fFactor and converting it back.
+  ezColor GetDarker(float fFactor = 2.0f) const;
+
   // *** Numeric properties ***
 public:
   /// \brief Returns true, if any of \a r, \a g, \a b or \a a is NaN.

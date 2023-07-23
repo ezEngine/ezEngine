@@ -19,6 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLineToComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Debug"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Utilities)),
   }
   EZ_END_ATTRIBUTES;
 }

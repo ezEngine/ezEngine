@@ -29,7 +29,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new ezCategoryAttribute("Effects"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Effects)),
   }
   EZ_END_ATTRIBUTES;
 }

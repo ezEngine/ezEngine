@@ -33,6 +33,11 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
     EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged)
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Construction)),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on

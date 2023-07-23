@@ -32,7 +32,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezGrabbableItemComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new ezCategoryAttribute("Input"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Input)),
   }
   EZ_END_ATTRIBUTES;
 }

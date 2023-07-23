@@ -25,7 +25,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
     EZ_BEGIN_ATTRIBUTES
     {
       new ezCategoryAttribute("Animation"),
-    } EZ_END_ATTRIBUTES;
+      new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Animation)),
+    }
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
     {
       EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),

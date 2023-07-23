@@ -19,6 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Scripting"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Alpha),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Scripting)),
   }
   EZ_END_ATTRIBUTES;
 }

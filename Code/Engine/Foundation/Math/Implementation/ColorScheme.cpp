@@ -216,37 +216,44 @@ ezColor ezColorScheme::GetColor(float fIndex, ezUInt8 uiBrightness, float fSatur
   return ezMath::Lerp(ezColor(l, l, l), c, fSaturation).WithAlpha(fAlpha);
 }
 
-
 ezColor ezColorScheme::GetGroupColor(ColorGroup group)
 {
   switch (group)
   {
-    case General:
-      break;
-    case Construction:
-      return ezColor::GreenYellow;
-    case Lighting:
-      break;
-    case Physics:
-      break;
     case Ai:
-      break;
-    case Gameplay:
-      break;
+      return ezColorScheme::DarkUI(ezColorScheme::Cyan).GetDarker();
     case Animation:
-      break;
-    case Utilities:
-      break;
+      return ezColorScheme::DarkUI(ezColorScheme::Pink).GetDarker();
+    case Construction:
+      return ezColorScheme::DarkUI(ezColorScheme::Orange).GetDarker();
+    case Custom:
+      return ezColorScheme::DarkUI(ezColorScheme::Red).GetDarker();
     case Effects:
-      break;
+      return ezColorScheme::DarkUI(ezColorScheme::Grape).GetDarker();
+    case Gameplay:
+      return ezColorScheme::DarkUI(ezColorScheme::Indigo).GetDarker();
     case Input:
-      break;
+      return ezColorScheme::DarkUI(ezColorScheme::Red).GetDarker();
+    case Lighting:
+      return ezColorScheme::DarkUI(ezColorScheme::Yellow);
+    case Logic:
+      return ezColorScheme::DarkUI(ezColorScheme::Teal).GetDarker();
+    case Physics:
+      return ezColorScheme::DarkUI(ezColorScheme::Blue).GetDarker();
+    case Prefab:
+      return ezColorScheme::DarkUI(ezColorScheme::Orange).GetDarker();
     case Rendering:
-      break;
+      return ezColorScheme::DarkUI(ezColorScheme::Lime).GetDarker();
+    case Scripting:
+      return ezColorScheme::DarkUI(ezColorScheme::Yellow).GetDarker();
     case Sound:
-      break;
-    default:
-      break;
+      return ezColorScheme::DarkUI(ezColorScheme::Blue).GetDarker();
+    case Utilities:
+      return ezColorScheme::DarkUI(ezColorScheme::Gray).GetDarker();
+    case XR:
+      return ezColorScheme::DarkUI(ezColorScheme::Cyan).GetDarker();
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   return ezColor::ZeroColor();

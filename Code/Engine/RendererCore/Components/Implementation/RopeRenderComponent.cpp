@@ -40,6 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRopeRenderComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects/Ropes"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Rendering)),
   }
   EZ_END_ATTRIBUTES;
 }

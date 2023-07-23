@@ -21,6 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezColorAnimationComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Animation)),
   }
   EZ_END_ATTRIBUTES;
 }

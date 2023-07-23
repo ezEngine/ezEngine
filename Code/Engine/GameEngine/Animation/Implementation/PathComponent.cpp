@@ -66,6 +66,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPathComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation/Paths"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Animation)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -737,6 +738,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPathNodeComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation/Paths"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Animation)),
   }
   EZ_END_ATTRIBUTES;
 }

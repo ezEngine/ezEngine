@@ -42,6 +42,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Constraints"),
+    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Physics)),
   }
   EZ_END_ATTRIBUTES;
 }
