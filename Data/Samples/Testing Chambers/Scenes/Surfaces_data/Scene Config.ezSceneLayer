@@ -11,7 +11,7 @@ o
 		s %AssetType{"Layer"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3872236734607355539,5264883800516172798}}
-		u4 %Hash{3535116014701357982}
+		u4 %Hash{6506249891443652633}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -71,6 +71,42 @@ o
 	{
 		b %Active{1}
 		s %StageSpace{"ezXRStageSpace::Standing"}
+	}
+}
+o
+{
+	Uuid %id{u4{17885882858618202016,4877938718706073346}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10496391662960978621,4919054832232190222}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00001CC1,0x12D789C1,0x1ACBAC40}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10496391662960978621,4919054832232190222}}
+	s %t{"ezShapeIconComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
 	}
 }
 o
@@ -318,6 +354,7 @@ o
 			Uuid{u4{17014852798084899692,9738596472919736742}}
 			Uuid{u4{8879419160969702863,16011214671175622890}}
 			Uuid{u4{8660032542305141384,5613653219092725934}}
+			Uuid{u4{17885882858618202016,4877938718706073346}}
 		}
 		Uuid %Settings{u4{11107344262128903097,4992207398067766230}}
 	}

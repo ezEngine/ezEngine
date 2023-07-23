@@ -57,7 +57,7 @@
           </property>
           <property name="icon">
            <iconset resource="../QtResources/resources.qrc">
-            <normaloff>:/GuiFoundation/Icons/ZoomOut16.png</normaloff>:/GuiFoundation/Icons/ZoomOut16.png</iconset>
+            <normaloff>:/GuiFoundation/Icons/ZoomOut.svg</normaloff>:/GuiFoundation/Icons/ZoomOut.svg</iconset>
           </property>
          </widget>
         </item>
@@ -68,7 +68,7 @@
           </property>
           <property name="icon">
            <iconset resource="../QtResources/resources.qrc">
-            <normaloff>:/GuiFoundation/Icons/ZoomReset16.png</normaloff>:/GuiFoundation/Icons/ZoomReset16.png</iconset>
+            <normaloff>:/GuiFoundation/Icons/ZoomReset.svg</normaloff>:/GuiFoundation/Icons/ZoomReset.svg</iconset>
           </property>
          </widget>
         </item>
@@ -79,7 +79,7 @@
           </property>
           <property name="icon">
            <iconset resource="../QtResources/resources.qrc">
-            <normaloff>:/GuiFoundation/Icons/ZoomIn16.png</normaloff>:/GuiFoundation/Icons/ZoomIn16.png</iconset>
+            <normaloff>:/GuiFoundation/Icons/ZoomIn.svg</normaloff>:/GuiFoundation/Icons/ZoomIn.svg</iconset>
           </property>
          </widget>
         </item>

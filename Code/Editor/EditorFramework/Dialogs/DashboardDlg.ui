@@ -143,7 +143,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-             <normaloff>:/GuiFoundation/Icons/OpenFolder16.png</normaloff>:/GuiFoundation/Icons/OpenFolder16.png</iconset>
+             <normaloff>:/GuiFoundation/Icons/OpenFolder.svg</normaloff>:/GuiFoundation/Icons/OpenFolder.svg</iconset>
            </property>
            <property name="autoDefault">
             <bool>false</bool>
@@ -160,7 +160,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-             <normaloff>:/GuiFoundation/Icons/Add16.png</normaloff>:/GuiFoundation/Icons/Add16.png</iconset>
+             <normaloff>:/GuiFoundation/Icons/Add.svg</normaloff>:/GuiFoundation/Icons/Add.svg</iconset>
            </property>
            <property name="autoDefault">
             <bool>false</bool>
@@ -266,7 +266,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-             <normaloff>:/GuiFoundation/Icons/Project16.png</normaloff>:/GuiFoundation/Icons/Project16.png</iconset>
+             <normaloff>:/GuiFoundation/Icons/Project.svg</normaloff>:/GuiFoundation/Icons/Project.svg</iconset>
            </property>
            <property name="default">
             <bool>true</bool>
@@ -336,7 +336,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-             <normaloff>:/GuiFoundation/Icons/Project16.png</normaloff>:/GuiFoundation/Icons/Project16.png</iconset>
+             <normaloff>:/GuiFoundation/Icons/Project.svg</normaloff>:/GuiFoundation/Icons/Project.svg</iconset>
            </property>
            <property name="default">
             <bool>true</bool>

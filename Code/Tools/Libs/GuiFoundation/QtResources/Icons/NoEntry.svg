@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg width="800px" height="800px" viewBox="0 0 60.601004 60.601004" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs/>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:title>進入禁止; No entry</dc:title>
+        <dc:source>http://www.ecomo.or.jp/barrierfree/pictogram/data/zukigo_panfu_jis110.pdf</dc:source>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <path d="m 8.4286277,35.764253 0,-10.9275 43.7450003,0 0,10.9275 -43.7450003,0 z M 30.299878,2.9592527 c -15.1,0 -27.3400003,12.2412503 -27.3400003,27.3412503 0,15.09875 12.2400003,27.34125 27.3400003,27.34125 15.1,0 27.34125,-12.2425 27.34125,-27.34125 0,-15.1 -12.24125,-27.3412503 -27.34125,-27.3412503" style="fill:#ff4b00;fill-opacity:1;fill-rule:nonzero;stroke:none"/>
+</svg>

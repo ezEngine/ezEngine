@@ -13,7 +13,7 @@ ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Curve1D";
   m_DocTypeDesc.m_sFileExtension = "ezCurve1DAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Curve1D.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Curve1D.svg";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCurve1DAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_Curve");

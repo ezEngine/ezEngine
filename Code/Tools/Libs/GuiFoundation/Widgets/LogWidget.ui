@@ -63,7 +63,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../QtResources/resources.qrc">
-          <normaloff>:/GuiFoundation/Icons/Flag_Pink16.png</normaloff>:/GuiFoundation/Icons/Flag_Pink16.png</iconset>
+          <normaloff>:/GuiFoundation/Icons/Flag_Pink.svg</normaloff>:/GuiFoundation/Icons/Flag_Pink.svg</iconset>
         </property>
        </item>
        <item>
@@ -72,7 +72,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../QtResources/resources.qrc">
-          <normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</iconset>
+          <normaloff>:/GuiFoundation/Icons/Flag_Purple.svg</normaloff>:/GuiFoundation/Icons/Flag_Purple.svg</iconset>
         </property>
        </item>
        <item>
@@ -81,7 +81,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../QtResources/resources.qrc">
-          <normaloff>:/GuiFoundation/Icons/Flag_Blue16.png</normaloff>:/GuiFoundation/Icons/Flag_Blue16.png</iconset>
+          <normaloff>:/GuiFoundation/Icons/Flag_Blue.svg</normaloff>:/GuiFoundation/Icons/Flag_Blue.svg</iconset>
         </property>
        </item>
        <item>
@@ -90,7 +90,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../QtResources/resources.qrc">
-          <normaloff>:/GuiFoundation/Icons/Flag_Green16.png</normaloff>:/GuiFoundation/Icons/Flag_Green16.png</iconset>
+          <normaloff>:/GuiFoundation/Icons/Flag_Green.svg</normaloff>:/GuiFoundation/Icons/Flag_Green.svg</iconset>
         </property>
        </item>
        <item>
@@ -99,7 +99,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../QtResources/resources.qrc">
-          <normaloff>:/GuiFoundation/Icons/Flag_Yellow16.png</normaloff>:/GuiFoundation/Icons/Flag_Yellow16.png</iconset>
+          <normaloff>:/GuiFoundation/Icons/Flag_Yellow.svg</normaloff>:/GuiFoundation/Icons/Flag_Yellow.svg</iconset>
         </property>
        </item>
        <item>
@@ -108,7 +108,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../QtResources/resources.qrc">
-          <normaloff>:/GuiFoundation/Icons/Flag_Orange16.png</normaloff>:/GuiFoundation/Icons/Flag_Orange16.png</iconset>
+          <normaloff>:/GuiFoundation/Icons/Flag_Orange.svg</normaloff>:/GuiFoundation/Icons/Flag_Orange.svg</iconset>
         </property>
        </item>
        <item>
@@ -117,7 +117,7 @@
         </property>
         <property name="icon">
          <iconset resource="../../QtResources/resources.qrc">
-          <normaloff>:/GuiFoundation/Icons/Flag_Red16.png</normaloff>:/GuiFoundation/Icons/Flag_Red16.png</iconset>
+          <normaloff>:/GuiFoundation/Icons/Flag_Red.svg</normaloff>:/GuiFoundation/Icons/Flag_Red.svg</iconset>
         </property>
        </item>
       </widget>
@@ -129,7 +129,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/Delete.svg</normaloff>:/GuiFoundation/Icons/Delete.svg</iconset>
        </property>
       </widget>
      </item>

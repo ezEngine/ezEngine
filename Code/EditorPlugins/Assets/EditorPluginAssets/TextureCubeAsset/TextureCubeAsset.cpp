@@ -253,7 +253,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sParentDir
       info.m_Priority = isCubemap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::Undecided;
       info.m_sName = "CubemapImport.SkyboxHDR";
       info.m_sOutputFileParentRelative = baseOutputFile;
-      info.m_sIcon = ":/AssetIcons/Texture_Cube.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Cube.svg";
     }
   }
   else
@@ -263,7 +263,7 @@ void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sParentDir
       info.m_Priority = isCubemap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::Undecided;
       info.m_sName = "CubemapImport.Skybox";
       info.m_sOutputFileParentRelative = baseOutputFile;
-      info.m_sIcon = ":/AssetIcons/Texture_Cube.png";
+      info.m_sIcon = ":/AssetIcons/Texture_Cube.svg";
     }
   }
 }

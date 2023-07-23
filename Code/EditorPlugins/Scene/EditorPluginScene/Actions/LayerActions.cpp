@@ -76,14 +76,14 @@ ezLayerAction::ezLayerAction(const ezActionContext& context, const char* szName,
   switch (m_Type)
   {
     case ActionType::CreateLayer:
-      SetIconPath(":/GuiFoundation/Icons/Add16.png");
+      SetIconPath(":/GuiFoundation/Icons/Add.svg");
       break;
     case ActionType::DeleteLayer:
-      SetIconPath(":/GuiFoundation/Icons/Delete16.png");
+      SetIconPath(":/GuiFoundation/Icons/Delete.svg");
       break;
     case ActionType::SaveLayer:
     case ActionType::SaveActiveLayer:
-      SetIconPath(":/GuiFoundation/Icons/Save16.png");
+      SetIconPath(":/GuiFoundation/Icons/Save.svg");
       break;
     case ActionType::LayerLoaded:
       SetCheckable(true);

@@ -203,38 +203,38 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   switch (m_Type)
   {
     case ActionType::ExportAndRunScene:
-      SetIconPath(":/EditorPluginScene/Icons/SceneExport16.png");
+      SetIconPath(":/EditorPluginScene/Icons/SceneExport.svg");
       break;
 
     case ActionType::StartGameModeSimulate:
       SetCheckable(true);
-      SetIconPath(":/EditorPluginScene/Icons/ScenePlay16.png");
+      SetIconPath(":/EditorPluginScene/Icons/ScenePlay.svg");
       SetChecked(m_pSceneDocument->GetGameMode() == GameMode::Simulate);
       SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Play);
       break;
 
     case ActionType::StartGameModePlay:
-      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame16.png");
+      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame.svg");
       break;
 
     case ActionType::StartGameModePlayFromHere:
-      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame16.png"); // TODO: icon
+      SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame.svg"); // TODO: icon
       break;
 
     case ActionType::StopGameMode:
-      SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png");
+      SetIconPath(":/EditorPluginScene/Icons/SceneStop.svg");
       break;
 
     case ActionType::ExportSceneToOBJ:
-      // SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png"); // TODO: icon
+      // SetIconPath(":/EditorPluginScene/Icons/SceneStop.svg"); // TODO: icon
       break;
 
     case ActionType::KeepSimulationChanges:
-      SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png");
+      SetIconPath(":/EditorPluginScene/Icons/PullObjectState.svg");
       break;
 
     case ActionType::CreateThumbnail:
-      // SetIconPath(":/EditorPluginScene/Icons/PullObjectState16.png"); // TODO: icon
+      // SetIconPath(":/EditorPluginScene/Icons/PullObjectState.svg"); // TODO: icon
       break;
 
     case ActionType::JumpToCamera0:
@@ -247,7 +247,7 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     case ActionType::JumpToCamera7:
     case ActionType::JumpToCamera8:
     case ActionType::JumpToCamera9:
-      SetIconPath(":/TypeIcons/ezCameraComponent.png");
+      SetIconPath(":/TypeIcons/ezCameraComponent.svg");
       break;
 
     default:

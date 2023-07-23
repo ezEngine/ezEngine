@@ -15,6 +15,8 @@ ezQtReflectionWidget::ezQtReflectionWidget(QWidget* pParent)
   setupUi(this);
   setWidget(ReflectionWidgetFrame);
 
+  setIcon(QIcon(":/Icons/Icons/Type.svg"));
+
   ResetStats();
 }
 
@@ -133,7 +135,7 @@ bool ezQtReflectionWidget::UpdateTree()
       pItem->setText(2, sText.GetData());
       pItem->setText(3, it.Value().m_sPlugin.GetData());
 
-      pItem->setIcon(0, QIcon(":/Icons/Icons/Type.png"));
+      pItem->setIcon(0, QIcon(":/Icons/Icons/Type.svg"));
 
       if (pParent)
       {
@@ -154,27 +156,27 @@ bool ezQtReflectionWidget::UpdateTree()
         {
           case -1:
             pProperty->setText(0, "Message");
-            pProperty->setIcon(0, QIcon(":/Icons/Icons/Message.png"));
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Message.svg"));
             break;
           case ezPropertyCategory::Member:
             pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
-            pProperty->setIcon(0, QIcon(":/Icons/Icons/Member.png"));
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Member.svg"));
             break;
           case ezPropertyCategory::Function:
             pProperty->setText(0, "Function");
-            pProperty->setIcon(0, QIcon(":/Icons/Icons/Function.png"));
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Function.svg"));
             break;
           case ezPropertyCategory::Array:
             pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
-            pProperty->setIcon(0, QIcon(":/Icons/Icons/Array.png"));
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Array.svg"));
             break;
           case ezPropertyCategory::Set:
             pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
-            pProperty->setIcon(0, QIcon(":/Icons/Icons/Set.png"));
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Set.svg"));
             break;
           case ezPropertyCategory::Map:
             pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
-            pProperty->setIcon(0, QIcon(":/Icons/Icons/Map.png"));
+            pProperty->setIcon(0, QIcon(":/Icons/Icons/Map.svg"));
             break;
         }
 

@@ -12,7 +12,7 @@ ezRmlUiAssetDocumentManager::ezRmlUiAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "RmlUi";
   m_DocTypeDesc.m_sFileExtension = "ezRmlUiAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RmlUi.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RmlUi.svg";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRmlUiAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Rml_UI");

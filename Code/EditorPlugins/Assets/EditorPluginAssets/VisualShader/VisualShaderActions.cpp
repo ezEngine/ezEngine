@@ -31,7 +31,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezVisualShaderAction::ezVisualShaderAction(const ezActionContext& context, const char* szName)
   : ezButtonAction(context, szName, false, "")
 {
-  SetIconPath(":/EditorPluginAssets/VSE_CleanGraph16.png");
+  SetIconPath(":/EditorPluginAssets/Cleanup.svg");
 }
 
 ezVisualShaderAction::~ezVisualShaderAction() = default;

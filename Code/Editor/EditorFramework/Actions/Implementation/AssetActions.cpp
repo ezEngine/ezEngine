@@ -78,19 +78,19 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
   switch (m_ButtonType)
   {
     case ezAssetAction::ButtonType::TransformAsset:
-      SetIconPath(":/EditorFramework/Icons/TransformAssets16.png");
+      SetIconPath(":/EditorFramework/Icons/TransformAsset.svg");
       break;
     case ezAssetAction::ButtonType::TransformAllAssets:
-      SetIconPath(":/EditorFramework/Icons/TransformAllAssets16.png");
+      SetIconPath(":/EditorFramework/Icons/TransformAllAssets.svg");
       break;
     case ezAssetAction::ButtonType::ResaveAllAssets:
-      SetIconPath(":/EditorFramework/Icons/ResavAllAssets16.png");
+      SetIconPath(":/EditorFramework/Icons/ResavAllAssets.svg");
       break;
     case ezAssetAction::ButtonType::CheckFileSystem:
-      SetIconPath(":/EditorFramework/Icons/CheckFileSystem16.png");
+      SetIconPath(":/EditorFramework/Icons/CheckFileSystem.svg");
       break;
     case ezAssetAction::ButtonType::WriteLookupTable:
-      SetIconPath(":/EditorFramework/Icons/WriteLookupTable16.png");
+      SetIconPath(":/EditorFramework/Icons/WriteLookupTable.svg");
       break;
     case ezAssetAction::ButtonType::WriteDependencyDGML:
       break;

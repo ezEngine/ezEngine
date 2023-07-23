@@ -66,27 +66,27 @@ ezSkeletonAction::ezSkeletonAction(const ezActionContext& context, const char* s
   switch (m_Type)
   {
     case ActionType::RenderBones:
-      SetIconPath(":/EditorPluginAssets/SkeletonBones.png");
+      SetIconPath(":/EditorPluginAssets/SkeletonBones.svg");
       break;
 
     case ActionType::RenderColliders:
-      SetIconPath(":/EditorPluginAssets/SkeletonColliders.png");
+      SetIconPath(":/EditorPluginAssets/SkeletonColliders.svg");
       break;
 
     case ActionType::RenderJoints:
-      SetIconPath(":/EditorPluginAssets/SkeletonJoints.png");
+      SetIconPath(":/EditorPluginAssets/SkeletonJoints.svg");
       break;
 
     case ActionType::RenderSwingLimits:
-      SetIconPath(":/EditorPluginAssets/JointSwingLimits.png");
+      SetIconPath(":/EditorPluginAssets/JointSwingLimits.svg");
       break;
 
     case ActionType::RenderTwistLimits:
-      SetIconPath(":/EditorPluginAssets/JointTwistLimits.png");
+      SetIconPath(":/EditorPluginAssets/JointTwistLimits.svg");
       break;
 
     case ActionType::RenderPreviewMesh:
-      SetIconPath(":/EditorPluginAssets/PreviewMesh.png");
+      SetIconPath(":/EditorPluginAssets/PreviewMesh.svg");
       break;
   }
 

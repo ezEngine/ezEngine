@@ -12,7 +12,7 @@ ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Particle Effect";
   m_DocTypeDesc.m_sFileExtension = "ezParticleEffectAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Particle_Effect.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Particle_Effect.svg";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezParticleEffectAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Particle_Effect");

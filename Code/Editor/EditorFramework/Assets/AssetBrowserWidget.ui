@@ -126,7 +126,7 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normaloff>:/EditorFramework/Icons/ListView16.png</normaloff>:/EditorFramework/Icons/ListView16.png</iconset>
+             <normaloff>:/EditorFramework/Icons/ListView.svg</normaloff>:/EditorFramework/Icons/ListView.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -143,7 +143,7 @@
            </property>
            <property name="icon">
             <iconset resource="../QtResources/resources.qrc">
-             <normaloff>:/EditorFramework/Icons/IconView16.png</normaloff>:/EditorFramework/Icons/IconView16.png</iconset>
+             <normaloff>:/EditorFramework/Icons/IconView.svg</normaloff>:/EditorFramework/Icons/IconView.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>

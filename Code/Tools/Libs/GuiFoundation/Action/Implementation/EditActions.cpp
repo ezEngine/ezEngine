@@ -104,19 +104,19 @@ ezEditAction::ezEditAction(const ezActionContext& context, const char* szName, B
   switch (m_ButtonType)
   {
     case ezEditAction::ButtonType::Copy:
-      SetIconPath(":/GuiFoundation/Icons/Copy16.png");
+      SetIconPath(":/GuiFoundation/Icons/Copy.svg");
       break;
     case ezEditAction::ButtonType::Paste:
-      SetIconPath(":/GuiFoundation/Icons/Paste16.png");
+      SetIconPath(":/GuiFoundation/Icons/Paste.svg");
       break;
     case ezEditAction::ButtonType::PasteAsChild:
-      SetIconPath(":/GuiFoundation/Icons/Paste16.png"); /// \todo Icon
+      SetIconPath(":/GuiFoundation/Icons/Paste.svg"); /// \todo Icon
       break;
     case ezEditAction::ButtonType::PasteAtOriginalLocation:
-      SetIconPath(":/GuiFoundation/Icons/Paste16.png");
+      SetIconPath(":/GuiFoundation/Icons/Paste.svg");
       break;
     case ezEditAction::ButtonType::Delete:
-      SetIconPath(":/GuiFoundation/Icons/Delete16.png");
+      SetIconPath(":/GuiFoundation/Icons/Delete.svg");
       break;
   }
 

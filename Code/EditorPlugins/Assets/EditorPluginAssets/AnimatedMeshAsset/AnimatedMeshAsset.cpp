@@ -138,7 +138,7 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDi
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "AnimatedMeshImport.WithMaterials";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
+    info.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
   }
 
   {
@@ -146,7 +146,7 @@ void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sParentDi
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "AnimatedMeshImport.NoMaterials";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
+    info.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
   }
 }
 

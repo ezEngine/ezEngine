@@ -93,7 +93,7 @@
               </property>
               <property name="icon">
                <iconset resource="resources.qrc">
-                <normaloff>:/Icons/Icons/monitor.png</normaloff>:/Icons/Icons/monitor.png</iconset>
+                <normaloff>:/Icons/Icons/Monitor.svg</normaloff>:/Icons/Icons/Monitor.svg</iconset>
               </property>
              </widget>
             </item>
@@ -107,7 +107,7 @@
               </property>
               <property name="icon">
                <iconset resource="resources.qrc">
-                <normaloff>:/Icons/Icons/Save.png</normaloff>:/Icons/Icons/Save.png</iconset>
+                <normaloff>:/Icons/Icons/Save.svg</normaloff>:/Icons/Icons/Save.svg</iconset>
               </property>
              </widget>
             </item>
@@ -118,7 +118,7 @@
               </property>
               <property name="icon">
                <iconset resource="resources.qrc">
-                <normaloff>:/Icons/Icons/database_refresh.png</normaloff>:/Icons/Icons/database_refresh.png</iconset>
+                <normaloff>:/Icons/Icons/database_refresh.svg</normaloff>:/Icons/Icons/database_refresh.svg</iconset>
               </property>
              </widget>
             </item>

@@ -43,7 +43,7 @@ ezVisualScriptAction::ezVisualScriptAction(const ezActionContext& context, const
   switch (m_Type)
   {
     case ActionType::PickDebugTarget:
-      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      SetIconPath(":/EditorPluginAssets/PickTarget.svg");
       break;
   }
 }

@@ -24,7 +24,7 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
   pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
   setWidget(pDummy);
-  setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
+  setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Background.svg"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.LongOps")));
 
   // setup table

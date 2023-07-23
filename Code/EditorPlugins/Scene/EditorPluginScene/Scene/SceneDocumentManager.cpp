@@ -20,7 +20,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     auto& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
     docTypeDesc.m_sDocumentTypeName = "Scene";
     docTypeDesc.m_sFileExtension = "ezScene";
-    docTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Scene.svg";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezScene2Document>();
     docTypeDesc.m_pManager = this;
     docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene");
@@ -35,7 +35,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
 
     docTypeDesc.m_sDocumentTypeName = "Prefab";
     docTypeDesc.m_sFileExtension = "ezPrefab";
-    docTypeDesc.m_sIcon = ":/AssetIcons/Prefab.png";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Prefab.svg";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     docTypeDesc.m_pManager = this;
     docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Prefab");
@@ -49,7 +49,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     auto& docTypeDesc = m_DocTypeDescs.ExpandAndGetRef();
     docTypeDesc.m_sDocumentTypeName = "Layer";
     docTypeDesc.m_sFileExtension = "ezSceneLayer";
-    docTypeDesc.m_sIcon = ":/AssetIcons/Layer.png";
+    docTypeDesc.m_sIcon = ":/AssetIcons/Layer.svg";
     docTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLayerDocument>();
     docTypeDesc.m_pManager = this;
     docTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Scene_Layer");

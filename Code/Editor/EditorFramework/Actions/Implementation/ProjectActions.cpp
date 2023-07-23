@@ -382,67 +382,67 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   switch (m_ButtonType)
   {
     case ezProjectAction::ButtonType::CreateDocument:
-      SetIconPath(":/GuiFoundation/Icons/DocumentAdd16.png");
+      SetIconPath(":/GuiFoundation/Icons/DocumentAdd.svg");
       break;
     case ezProjectAction::ButtonType::OpenDocument:
-      SetIconPath(":/GuiFoundation/Icons/Document16.png");
+      SetIconPath(":/GuiFoundation/Icons/Document.svg");
       break;
     case ezProjectAction::ButtonType::OpenDashboard:
-      SetIconPath(":/GuiFoundation/Icons/Project16.png");
+      SetIconPath(":/GuiFoundation/Icons/Project.svg");
       break;
     case ezProjectAction::ButtonType::CreateProject:
-      SetIconPath(":/GuiFoundation/Icons/ProjectAdd16.png");
+      SetIconPath(":/GuiFoundation/Icons/ProjectAdd.svg");
       break;
     case ezProjectAction::ButtonType::OpenProject:
-      SetIconPath(":/GuiFoundation/Icons/Project16.png");
+      SetIconPath(":/GuiFoundation/Icons/Project.svg");
       break;
     case ezProjectAction::ButtonType::CloseProject:
-      SetIconPath(":/GuiFoundation/Icons/ProjectClose16.png");
+      SetIconPath(":/GuiFoundation/Icons/ProjectClose.svg");
       break;
     case ezProjectAction::ButtonType::ReloadResources:
-      SetIconPath(":/GuiFoundation/Icons/ReloadResources16.png");
+      SetIconPath(":/GuiFoundation/Icons/ReloadResources.svg");
       break;
     case ezProjectAction::ButtonType::LaunchFileserve:
-      SetIconPath(":/EditorFramework/Icons/Fileserve16.png");
+      SetIconPath(":/EditorFramework/Icons/Fileserve.svg");
       break;
     case ezProjectAction::ButtonType::LaunchInspector:
-      SetIconPath(":/EditorFramework/Icons/Inspector16.png");
+      SetIconPath(":/EditorFramework/Icons/Inspector.svg");
       break;
     case ezProjectAction::ButtonType::ReloadEngine:
-      SetIconPath(":/GuiFoundation/Icons/ReloadEngine16.png");
+      SetIconPath(":/GuiFoundation/Icons/ReloadEngine.svg");
       break;
     case ezProjectAction::ButtonType::DataDirectories:
-      SetIconPath(":/EditorFramework/Icons/DataDirectories16.png");
+      SetIconPath(":/EditorFramework/Icons/DataDirectory.svg");
       break;
     case ezProjectAction::ButtonType::WindowConfig:
-      SetIconPath(":/EditorFramework/Icons/WindowConfig16.png");
+      SetIconPath(":/EditorFramework/Icons/WindowConfig.svg");
       break;
     case ezProjectAction::ButtonType::ImportAsset:
-      SetIconPath(":/GuiFoundation/Icons/DocumentImport16.png");
+      SetIconPath(":/GuiFoundation/Icons/Import.svg");
       break;
     case ezProjectAction::ButtonType::InputConfig:
-      SetIconPath(":/EditorFramework/Icons/Input16.png");
+      SetIconPath(":/EditorFramework/Icons/Input.svg");
       break;
     case ezProjectAction::ButtonType::PluginSelection:
-      SetIconPath(":/EditorFramework/Icons/Plugins16.png");
+      SetIconPath(":/EditorFramework/Icons/Plugins.svg");
       break;
     case ezProjectAction::ButtonType::PreferencesDialog:
-      SetIconPath(":/EditorFramework/Icons/StoredSettings16.png");
+      SetIconPath(":/EditorFramework/Icons/StoredSettings.svg");
       break;
     case ezProjectAction::ButtonType::TagsDialog:
-      SetIconPath(":/EditorFramework/Icons/Tag16.png");
+      SetIconPath(":/EditorFramework/Icons/Tag.svg");
       break;
     case ezProjectAction::ButtonType::ExportProject:
-      // TODO: SetIconPath(":/EditorFramework/Icons/Tag16.png");
+      // TODO: SetIconPath(":/EditorFramework/Icons/Tag.svg");
       break;
     case ezProjectAction::ButtonType::Shortcuts:
-      SetIconPath(":/GuiFoundation/Icons/Shortcuts16.png");
+      SetIconPath(":/GuiFoundation/Icons/Shortcuts.svg");
       break;
     case ezProjectAction::ButtonType::AssetProfiles:
-      SetIconPath(":/EditorFramework/Icons/AssetProfiles16.png");
+      SetIconPath(":/EditorFramework/Icons/AssetProfile.svg");
       break;
     case ezProjectAction::ButtonType::OpenVsCode:
-      SetIconPath(":/GuiFoundation/Icons/vscode16.png");
+      SetIconPath(":/GuiFoundation/Icons/vscode.svg");
       break;
     case ezProjectAction::ButtonType::SaveProfiling:
       // no icon
@@ -457,10 +457,10 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       // SetIconPath(":/EditorFramework/Icons/VisualStudio.svg"); // TODO
       break;
     case ezProjectAction::ButtonType::ShowDocsAndCommunity:
-      // SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
+      // SetIconPath(":/GuiFoundation/Icons/Project.svg"); // TODO
       break;
     case ezProjectAction::ButtonType::ClearAssetCaches:
-      // SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
+      // SetIconPath(":/GuiFoundation/Icons/Project.svg"); // TODO
       break;
   }
 
@@ -755,7 +755,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezStringBuilder sEngineProfilingFile;
       {
         // Wait for engine process response
-        auto callback = [&](ezProcessMessage* pMsg) -> bool {
+        auto callback = [&](ezProcessMessage* pMsg) -> bool
+        {
           auto pSimpleCfg = static_cast<ezSaveProfilingResponseToEditor*>(pMsg);
           sEngineProfilingFile = pSimpleCfg->m_sProfilingFile;
           return true;

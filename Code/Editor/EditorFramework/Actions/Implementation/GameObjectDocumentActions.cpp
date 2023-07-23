@@ -150,19 +150,19 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
   {
     case ActionType::RenderSelectionOverlay:
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/Selection16.png");
+      SetIconPath(":/EditorFramework/Icons/Selection.svg");
       SetChecked(m_pGameObjectDocument->GetRenderSelectionOverlay());
       break;
 
     case ActionType::RenderVisualizers:
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/Visualizers16.png");
+      SetIconPath(":/EditorFramework/Icons/Visualizers.svg");
       SetChecked(m_pGameObjectDocument->GetRenderVisualizers());
       break;
 
     case ActionType::RenderShapeIcons:
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/ShapeIcons16.png");
+      SetIconPath(":/EditorFramework/Icons/ShapeIcons.svg");
       SetChecked(m_pGameObjectDocument->GetRenderShapeIcons());
       break;
 
@@ -172,14 +172,14 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
       pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezGameObjectDocumentAction::OnPreferenceChange, this));
 
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/Grid16.png");
+      SetIconPath(":/EditorFramework/Icons/Grid.svg");
       SetChecked(pPreferences->GetShowGrid());
     }
     break;
 
     case ActionType::AddAmbientLight:
       SetCheckable(true);
-      // SetIconPath(":/EditorPluginScene/Icons/ShapeIcons16.png"); // TODO icon
+      // SetIconPath(":/EditorPluginScene/Icons/ShapeIcons.svg"); // TODO icon
       SetChecked(m_pGameObjectDocument->GetAddAmbientLight());
       break;
 
@@ -190,7 +190,7 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(
 
     case ActionType::PickTransparent:
       SetCheckable(true);
-      // SetIconPath(":/EditorFramework/Icons/Visualizers16.png"); // TODO icon
+      // SetIconPath(":/EditorFramework/Icons/Visualizers.svg"); // TODO icon
       SetChecked(m_pGameObjectDocument->GetPickTransparent());
       break;
   }

@@ -13,7 +13,7 @@ ezAnimationGraphAssetManager::ezAnimationGraphAssetManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Animation Graph";
   m_DocTypeDesc.m_sFileExtension = "ezAnimationGraphAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/AnimationGraph.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/AnimationGraph.svg";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationGraphAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Keyframe_Graph");
@@ -21,7 +21,7 @@ ezAnimationGraphAssetManager::ezAnimationGraphAssetManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezAnimGraphBin";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Graph", QPixmap(":/AssetIcons/AnimationGraph.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Graph", QPixmap(":/AssetIcons/AnimationGraph.svg"));
 }
 
 ezAnimationGraphAssetManager::~ezAnimationGraphAssetManager()

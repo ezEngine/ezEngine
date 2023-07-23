@@ -76,8 +76,8 @@ void ezQtGroupBoxBase::DrawHeader(QPainter& p, const QRect& rect)
     QRect iconRect = remainingRect;
     iconRect.setWidth(iconRect.height() / 2);
     bool bCollapsed = GetCollapseState();
-    QIcon collapseIcon = bCollapsed ? ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/groupClosed.png")
-                                    : ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/groupOpen.png");
+    QIcon collapseIcon = bCollapsed ? ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/GroupClosed.svg")
+                                    : ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/GroupOpen.svg");
     collapseIcon.paint(&p, iconRect);
     remainingRect.adjust(iconRect.width() + Spacing, 0, 0, 0);
   }

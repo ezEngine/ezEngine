@@ -44,10 +44,10 @@ ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, c
   switch (m_ButtonType)
   {
     case ezCommandHistoryAction::ButtonType::Undo:
-      SetIconPath(":/GuiFoundation/Icons/Undo16.png");
+      SetIconPath(":/GuiFoundation/Icons/Undo.svg");
       break;
     case ezCommandHistoryAction::ButtonType::Redo:
-      SetIconPath(":/GuiFoundation/Icons/Redo16.png");
+      SetIconPath(":/GuiFoundation/Icons/Redo.svg");
       break;
   }
 

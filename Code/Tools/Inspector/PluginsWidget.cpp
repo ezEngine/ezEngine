@@ -3,8 +3,8 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/PluginsWidget.moc.h>
 
 ezQtPluginsWidget* ezQtPluginsWidget::s_pWidget = nullptr;
 
@@ -15,6 +15,8 @@ ezQtPluginsWidget::ezQtPluginsWidget(QWidget* pParent)
 
   setupUi(this);
   setWidget(TablePlugins);
+
+  setIcon(QIcon(":/Icons/Icons/Plugin.svg"));
 
   ResetStats();
 }
@@ -61,7 +63,7 @@ void ezQtPluginsWidget::UpdatePlugins()
     for (ezMap<ezString, PluginsData>::Iterator it = m_Plugins.GetIterator(); it.IsValid(); ++it)
     {
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/Plugin.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/Plugin.svg"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TablePlugins->setCellWidget(iRow, 0, pIcon);
 

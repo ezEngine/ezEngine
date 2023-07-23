@@ -12,8 +12,8 @@ ezActionDescriptorHandle ezViewActions::s_hLinkDeviceCamera;
 
 void ezViewActions::RegisterActions()
 {
-  s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
-  s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
+  s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.svg");
+  s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.svg");
   s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1(
     "View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
   s_hLinkDeviceCamera =
@@ -124,10 +124,10 @@ ezViewAction::ezViewAction(const ezActionContext& context, const char* szName, B
   switch (m_ButtonType)
   {
     case ezViewAction::ButtonType::ActivateRemoteProcess:
-      SetIconPath(":/EditorFramework/Icons/SwitchToRemoteProcess16.png");
+      SetIconPath(":/EditorFramework/Icons/SwitchToRemoteProcess.svg");
       break;
     case ezViewAction::ButtonType::LinkDeviceCamera:
-      SetIconPath(":/EditorFramework/Icons/LinkDeviceCamera16.png");
+      SetIconPath(":/EditorFramework/Icons/LinkDeviceCamera.svg");
       SetCheckable(true);
       SetChecked(pView->m_pViewConfig->m_bUseCameraTransformOnDevice);
       break;

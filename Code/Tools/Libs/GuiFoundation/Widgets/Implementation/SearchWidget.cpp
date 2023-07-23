@@ -18,7 +18,7 @@ ezQtSearchWidget::ezQtSearchWidget(QWidget* pParent)
     m_pClearButton->setAutoDefault(false);
     m_pClearButton->setDefault(false);
     m_pClearButton->setEnabled(false);
-    m_pClearButton->setIcon(QIcon(":/GuiFoundation/Icons/Delete16.png"));
+    m_pClearButton->setIcon(QIcon(":/GuiFoundation/Icons/Delete.svg"));
   }
 
   {

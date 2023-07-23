@@ -21,16 +21,16 @@ ezLUTAssetDocumentManager::ezLUTAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "LUT";
   m_DocTypeDesc.m_sFileExtension = "ezLUTAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/LUT.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/LUT.svg";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLUTAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezLUT";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_3D");
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/LUT.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/LUT.svg"));
 
-  // ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/Render_Target.png"));
+  // ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/Render_Target.svg"));
 }
 
 ezLUTAssetDocumentManager::~ezLUTAssetDocumentManager()

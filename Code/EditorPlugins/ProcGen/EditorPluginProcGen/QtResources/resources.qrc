@@ -1,13 +1,13 @@
 <RCC>
   <qresource prefix="AssetIcons">
-        <file>ProcGen_Graph.png</file>
+        <file>ProcGen_Graph.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezProcPlacementComponent.png</file>
-    <file>ezProcVolumeBoxComponent.png</file>
-    <file>ezProcVolumeSphereComponent.png</file>
-    <file>ezProcVolumeImageComponent.png</file>
-    <file>ezProcVertexColorComponent.png</file>
+    <file>ezProcPlacementComponent.svg</file>
+    <file>ezProcVolumeBoxComponent.svg</file>
+    <file>ezProcVolumeSphereComponent.svg</file>
+    <file>ezProcVolumeImageComponent.svg</file>
+    <file>ezProcVertexColorComponent.svg</file>
   </qresource>
   <qresource prefix="Icons">
   </qresource>

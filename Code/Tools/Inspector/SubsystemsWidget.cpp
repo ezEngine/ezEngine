@@ -16,6 +16,8 @@ ezQtSubsystemsWidget::ezQtSubsystemsWidget(QWidget* pParent)
   setupUi(this);
   setWidget(TableSubsystems);
 
+  setIcon(QIcon(":/Icons/Icons/Subsystem.svg"));
+
   ResetStats();
 }
 
@@ -64,7 +66,7 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
       const SubsystemData& ssd = it.Value();
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/Subsystem.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/Subsystem.svg"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableSubsystems->setCellWidget(iRow, 0, pIcon);
 

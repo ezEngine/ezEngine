@@ -126,7 +126,7 @@ void ezLUTAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelative
   info.m_sOutputFileParentRelative = baseOutputFile;
 
   info.m_sName = "LUTImport.Cube";
-  info.m_sIcon = ":/AssetIcons/LUT.png";
+  info.m_sIcon = ":/AssetIcons/LUT.svg";
 }
 
 ezStatus ezLUTAssetDocumentGenerator::Generate(ezStringView sDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)

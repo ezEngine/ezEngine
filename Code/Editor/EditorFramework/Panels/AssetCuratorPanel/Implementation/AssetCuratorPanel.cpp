@@ -76,7 +76,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 
   // using pDummy instead of 'this' breaks auto-connect for slots
   setWidget(pDummy);
-  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
+  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/AssetCurator.svg"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetCurator")));
 
   connect(ListAssets, &QTreeView::doubleClicked, this, &ezQtAssetCuratorPanel::onListAssetsDoubleClicked);

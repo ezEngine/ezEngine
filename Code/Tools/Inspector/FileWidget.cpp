@@ -14,6 +14,8 @@ ezQtFileWidget::ezQtFileWidget(QWidget* pParent)
 {
   s_pWidget = this;
 
+  setIcon(QIcon(":/Icons/Icons/File.svg"));
+
   setupUi(this);
   setWidget(Frame);
 

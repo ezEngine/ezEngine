@@ -13,7 +13,7 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Surface";
   m_DocTypeDesc.m_sFileExtension = "ezSurfaceAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.svg";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Surface");
@@ -21,7 +21,7 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezSurface";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.svg"));
 }
 
 ezSurfaceAssetDocumentManager::~ezSurfaceAssetDocumentManager()

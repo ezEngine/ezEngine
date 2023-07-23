@@ -41,6 +41,8 @@ ezQtMemoryWidget::ezQtMemoryWidget(QWidget* pParent)
 {
   s_pWidget = this;
 
+  setIcon(QIcon(":/Icons/Icons/Memory.svg"));
+
   setupUi(this);
   setWidget(MemoryWidgetFrame);
 

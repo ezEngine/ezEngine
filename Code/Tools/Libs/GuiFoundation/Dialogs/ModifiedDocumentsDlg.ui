@@ -100,7 +100,7 @@
        </property>
        <property name="icon">
         <iconset resource="../QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/Delete.svg</normaloff>:/GuiFoundation/Icons/Delete.svg</iconset>
        </property>
        <property name="shortcut">
         <string>Ctrl+Q</string>
@@ -142,7 +142,7 @@
        </property>
        <property name="icon">
         <iconset resource="../QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/SaveAll16.png</normaloff>:/GuiFoundation/Icons/SaveAll16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/SaveAll.svg</normaloff>:/GuiFoundation/Icons/SaveAll.svg</iconset>
        </property>
        <property name="shortcut">
         <string>Ctrl+Shift+S</string>

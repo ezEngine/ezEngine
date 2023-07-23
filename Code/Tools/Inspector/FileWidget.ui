@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>464</width>
     <height>300</height>
    </rect>
   </property>
@@ -25,16 +25,6 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="resources.qrc">:/Icons/Icons/File.png</pixmap>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QLabel" name="label_2">
           <property name="toolTip">
@@ -110,7 +100,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/Icons/Icons/AllThreads.png</normaloff>:/Icons/Icons/AllThreads.png</iconset>
+             <normaloff>:/Icons/Icons/AllThreads.svg</normaloff>:/Icons/Icons/AllThreads.svg</iconset>
            </property>
           </item>
           <item>
@@ -119,7 +109,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/Icons/Icons/MainThread.png</normaloff>:/Icons/Icons/MainThread.png</iconset>
+             <normaloff>:/Icons/Icons/MainThread.svg</normaloff>:/Icons/Icons/MainThread.svg</iconset>
            </property>
           </item>
           <item>
@@ -128,7 +118,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/Icons/Icons/LoadingThread.png</normaloff>:/Icons/Icons/LoadingThread.png</iconset>
+             <normaloff>:/Icons/Icons/LoadingThread.svg</normaloff>:/Icons/Icons/LoadingThread.svg</iconset>
            </property>
           </item>
           <item>
@@ -137,7 +127,7 @@
            </property>
            <property name="icon">
             <iconset resource="resources.qrc">
-             <normaloff>:/Icons/Icons/OtherThread.png</normaloff>:/Icons/Icons/OtherThread.png</iconset>
+             <normaloff>:/Icons/Icons/OtherThread.svg</normaloff>:/Icons/Icons/OtherThread.svg</iconset>
            </property>
           </item>
          </widget>

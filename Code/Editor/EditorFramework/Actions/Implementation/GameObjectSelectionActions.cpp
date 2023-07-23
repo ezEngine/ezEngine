@@ -94,22 +94,22 @@ ezGameObjectSelectionAction::ezGameObjectSelectionAction(
   switch (m_Type)
   {
     case ActionType::ShowInScenegraph:
-      SetIconPath(":/EditorFramework/Icons/Scenegraph16.png");
+      SetIconPath(":/EditorFramework/Icons/Scenegraph.svg");
       break;
     case ActionType::FocusOnSelection:
-      SetIconPath(":/EditorFramework/Icons/FocusOnSelection16.png");
+      SetIconPath(":/EditorFramework/Icons/FocusOnSelection.svg");
       break;
     case ActionType::FocusOnSelectionAllViews:
-      SetIconPath(":/EditorFramework/Icons/FocusOnSelectionAllViews16.png");
+      SetIconPath(":/EditorFramework/Icons/FocusOnSelectionAllViews.svg");
       break;
     case ActionType::SnapCameraToObject:
-      // SetIconPath(":/EditorFramework/Icons/Duplicate16.png"); // TODO Icon
+      // SetIconPath(":/EditorFramework/Icons/Duplicate.svg"); // TODO Icon
       break;
     case ActionType::MoveCameraHere:
-      // SetIconPath(":/EditorFramework/Icons/Duplicate16.png"); // TODO Icon
+      // SetIconPath(":/EditorFramework/Icons/Duplicate.svg"); // TODO Icon
       break;
     case ActionType::CreateGameObjectHere:
-      SetIconPath(":/EditorFramework/Icons/CreateEmpty16.png");
+      SetIconPath(":/EditorFramework/Icons/CreateEmpty.svg");
       break;
   }
 

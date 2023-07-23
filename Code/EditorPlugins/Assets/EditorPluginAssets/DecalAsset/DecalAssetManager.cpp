@@ -27,7 +27,7 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Decal";
   m_DocTypeDesc.m_sFileExtension = "ezDecalAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.svg";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Decal");

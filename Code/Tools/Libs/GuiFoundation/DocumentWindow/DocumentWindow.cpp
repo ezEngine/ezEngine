@@ -237,17 +237,17 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
         switch (e.m_TextType)
         {
           case ezQtUiServices::Event::Info:
-            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Log.png"));
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Log.svg"));
             break;
 
           case ezQtUiServices::Event::Warning:
             pal.setColor(QPalette::WindowText, QColor(255, 100, 0));
-            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Warning16.png"));
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Warning.svg"));
             break;
 
           case ezQtUiServices::Event::Error:
             pal.setColor(QPalette::WindowText, QColor(Qt::red));
-            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Error16.png"));
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Error.svg"));
             break;
         }
 

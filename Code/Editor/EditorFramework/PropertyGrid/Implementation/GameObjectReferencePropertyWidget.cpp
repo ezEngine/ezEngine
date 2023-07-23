@@ -22,7 +22,7 @@ ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
   m_pButton = new QToolButton(this);
   m_pButton->setText(QStringLiteral("..."));
   m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonIconOnly);
-  m_pButton->setIcon(QIcon(":/GuiFoundation/Icons/Cursor16.png"));
+  m_pButton->setIcon(QIcon(":/GuiFoundation/Icons/Cursor.svg"));
   m_pButton->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   m_pButton->setCursor(Qt::WhatsThisCursor);
 
@@ -63,14 +63,14 @@ void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
     menu.addSeparator();
 
   menu.setDefaultAction(
-    menu.addAction(QIcon(":/GuiFoundation/Icons/Cursor16.png"), QLatin1String("Pick Object"), this, SLOT(on_PickObject_clicked())));
+    menu.addAction(QIcon(":/GuiFoundation/Icons/Cursor.svg"), QLatin1String("Pick Object"), this, SLOT(on_PickObject_clicked())));
   QAction* pCopyAction =
-    menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Copy16.png")), QLatin1String("Copy Object Reference"), this, SLOT(OnCopyReference()));
-  menu.addAction(QIcon(":/GuiFoundation/Icons/Paste16.png"), QLatin1String("Paste Object Reference"), this, SLOT(OnPasteReference()));
+    menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Copy.svg")), QLatin1String("Copy Object Reference"), this, SLOT(OnCopyReference()));
+  menu.addAction(QIcon(":/GuiFoundation/Icons/Paste.svg"), QLatin1String("Paste Object Reference"), this, SLOT(OnPasteReference()));
   QAction* pSelectAction =
-    menu.addAction(QIcon(":/GuiFoundation/Icons/Go16.png"), QLatin1String("Select Referenced Object"), this, SLOT(OnSelectReferencedObject()));
+    menu.addAction(QIcon(":/GuiFoundation/Icons/Go.svg"), QLatin1String("Select Referenced Object"), this, SLOT(OnSelectReferencedObject()));
   QAction* pClearAction =
-    menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
+    menu.addAction(QIcon(":/GuiFoundation/Icons/Delete.svg"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
   EZ_IGNORE_UNUSED(pClearAction);
 
   pCopyAction->setEnabled(!m_sInternalValue.isEmpty());

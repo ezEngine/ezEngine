@@ -1,33 +1,33 @@
 <RCC>
   <qresource prefix="AssetIcons">
-    <file>Jolt_Collision_Mesh.png</file>
-    <file>Jolt_Collision_Mesh_Convex.png</file>
+    <file>Jolt_Collision_Mesh.svg</file>
+    <file>Jolt_Collision_Mesh_Convex.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezJoltShapeCapsuleComponent.png</file>
-    <file>ezJoltShapeBoxComponent.png</file>
-    <file>ezJoltShapeSphereComponent.png</file>
-    <file>ezJoltStaticActorComponent.png</file>
-    <file>ezJoltDynamicActorComponent.png</file>
-    <file>ezJoltDistanceConstraintComponent.png</file>
-    <file>ezJoltFixedConstraintComponent.png</file>
-    <file>ezJoltCenterOfMassComponent.png</file>
-    <file>ezJoltShapeConvexHullComponent.png</file>
-    <file>ezJoltCharacterControllerComponent.png</file>
-    <file>ezJoltSettingsComponent.png</file>
-    <file>ezJoltTriggerComponent.png</file>
-	<file>ezJoltVisColMeshComponent.png</file>
-	<file>ezJolt6DOFConstraintComponent.png</file>
-	<file>ezJoltHingeConstraintComponent.png</file>
-	<file>ezJoltPointConstraintComponent.png</file>
-	<file>ezJoltDefaultCharacterComponent.png</file>
-	<file>ezJoltSliderConstraintComponent.png</file>
-	<file>ezJoltBoneColliderComponent.png</file>
-	<file>ezJoltRopeComponent.png</file>
-	<file>ezJoltShapeCylinderComponent.png</file>
-	<file>ezJoltRagdollComponent.png</file>
-	<file>ezJoltSwingTwistConstraintComponent.png</file>
-	<file>ezJoltConeConstraintComponent.png</file>
+    <file>ezJoltShapeCapsuleComponent.svg</file>
+    <file>ezJoltShapeBoxComponent.svg</file>
+    <file>ezJoltShapeSphereComponent.svg</file>
+    <file>ezJoltStaticActorComponent.svg</file>
+    <file>ezJoltDynamicActorComponent.svg</file>
+    <file>ezJoltDistanceConstraintComponent.svg</file>
+    <file>ezJoltFixedConstraintComponent.svg</file>
+    <file>ezJoltCenterOfMassComponent.svg</file>
+    <file>ezJoltShapeConvexHullComponent.svg</file>
+    <file>ezJoltCharacterControllerComponent.svg</file>
+    <file>ezJoltSettingsComponent.svg</file>
+    <file>ezJoltTriggerComponent.svg</file>
+	<file>ezJoltVisColMeshComponent.svg</file>
+	<file>ezJolt6DOFConstraintComponent.svg</file>
+	<file>ezJoltHingeConstraintComponent.svg</file>
+	<file>ezJoltPointConstraintComponent.svg</file>
+	<file>ezJoltDefaultCharacterComponent.svg</file>
+	<file>ezJoltSliderConstraintComponent.svg</file>
+	<file>ezJoltBoneColliderComponent.svg</file>
+	<file>ezJoltRopeComponent.svg</file>
+	<file>ezJoltShapeCylinderComponent.svg</file>
+	<file>ezJoltRagdollComponent.svg</file>
+	<file>ezJoltSwingTwistConstraintComponent.svg</file>
+	<file>ezJoltConeConstraintComponent.svg</file>
   </qresource>  
 </RCC>
 

@@ -17,7 +17,7 @@ ezImageDataAssetDocumentManager::ezImageDataAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Image Data";
   m_DocTypeDesc.m_sFileExtension = "ezImageDataAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ImageData.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ImageData.svg";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezImageDataAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezImageData";

@@ -142,7 +142,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="resources.qrc">:/Icons/Icons/StatHistory.png</pixmap>
+             <pixmap resource="resources.qrc">:/Icons/Icons/StatHistory.svg</pixmap>
             </property>
            </widget>
           </item>
@@ -170,7 +170,7 @@
             </property>
             <property name="icon">
              <iconset resource="resources.qrc">
-              <normaloff>:/Icons/Icons/ClearList.png</normaloff>:/Icons/Icons/ClearList.png</iconset>
+              <normaloff>:/Icons/Icons/ClearList.svg</normaloff>:/Icons/Icons/ClearList.svg</iconset>
             </property>
            </widget>
           </item>

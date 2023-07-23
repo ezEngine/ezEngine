@@ -43,10 +43,10 @@ ezQuadViewAction::ezQuadViewAction(const ezActionContext& context, const char* s
   switch (m_ButtonType)
   {
     case ButtonType::ToggleViews:
-      SetIconPath(":/EditorFramework/Icons/ToggleViews16.png");
+      SetIconPath(":/EditorFramework/Icons/ToggleViews.svg");
       break;
     case ButtonType::SpawnView:
-      SetIconPath(":/EditorFramework/Icons/SpawnView16.png");
+      SetIconPath(":/EditorFramework/Icons/SpawnView.svg");
       break;
   }
 }

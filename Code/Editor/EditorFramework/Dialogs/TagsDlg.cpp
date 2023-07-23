@@ -34,7 +34,7 @@ void ezQtTagsDlg::on_ButtonNewCategory_clicked()
     auto* pItem = new QTreeWidgetItem(TreeTags);
     pItem->setText(0, sResult);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
+    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag.svg"));
 
     m_CategoryToItem[sName] = pItem;
   }
@@ -178,7 +178,7 @@ void ezQtTagsDlg::FillList()
     auto* pItem = new QTreeWidgetItem(TreeTags);
     pItem->setText(0, it.Key().GetData());
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
+    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag.svg"));
 
     m_CategoryToItem[it.Key()] = pItem;
   }

@@ -298,7 +298,7 @@ void ezQtExposedParametersPropertyWidget::OnInit()
     m_pFixMeButton = new QToolButton();
     m_pFixMeButton->setAutoRaise(true);
     m_pFixMeButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
-    m_pFixMeButton->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Attention16.png"));
+    m_pFixMeButton->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Attention.svg"));
     auto sp = m_pFixMeButton->sizePolicy();
     sp.setVerticalPolicy(QSizePolicy::Ignored);
     m_pFixMeButton->setSizePolicy(sp);

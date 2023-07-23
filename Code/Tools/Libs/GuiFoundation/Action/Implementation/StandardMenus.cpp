@@ -151,7 +151,7 @@ ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName,
 
   if (button == ButtonType::ReportProblem)
   {
-    SetIconPath(":/EditorFramework/Icons/GitHub-Light.png");
+    SetIconPath(":/EditorFramework/Icons/GitHub-Light.svg");
   }
 }
 
