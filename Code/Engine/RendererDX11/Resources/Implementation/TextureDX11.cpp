@@ -46,6 +46,8 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       ezLog::Error("Failed to open shared texture: {}", ezArgErrorCode(hr));
       return EZ_FAILURE;
     }
+    EZ_SCOPE_EXIT(d3d11ResPtr->Release());
+
     hr = d3d11ResPtr->QueryInterface(__uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&m_pDXTexture));
     if (FAILED(hr))
     {
@@ -53,7 +55,13 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       return EZ_FAILURE;
     }
 
-    d3d11ResPtr->Release();
+    hr = d3d11ResPtr->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
+    if (FAILED(hr))
+    {
+      ezLog::Error("Failed to query keyed mutex interface: {}", ezArgErrorCode(hr));
+      return EZ_FAILURE;
+    }
+    
     return EZ_SUCCESS;
   }
 
@@ -102,7 +110,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
         Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
 
       if (m_sharedType == ezGALSharedTextureType::Exported)
-        Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_SHARED;
+        Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;// | D3D11_RESOURCE_MISC_SHARED_NTHANDLE;
 
       Tex2DDesc.SampleDesc.Count = m_Description.m_SampleCount;
       Tex2DDesc.SampleDesc.Quality = 0;
@@ -136,14 +144,21 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
           HRESULT hr = m_pDXTexture->QueryInterface(__uuidof(IDXGIResource), (void**)&pDXGIResource);
           if (FAILED(hr))
           {
-            ezLog::Error("Failed to get shared texture handle: {}", ezArgErrorCode(hr));
+            ezLog::Error("Failed to get shared texture resource interface: {}", ezArgErrorCode(hr));
             return EZ_FAILURE;
           }
+          EZ_SCOPE_EXIT(pDXGIResource->Release());
           HANDLE hTexture = 0;
           hr = pDXGIResource->GetSharedHandle(&hTexture);
-          pDXGIResource->Release();
           if (FAILED(hr))
           {
+            ezLog::Error("Failed to get shared handle: {}", ezArgErrorCode(hr));
+            return EZ_FAILURE;
+          }
+          hr = pDXGIResource->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&m_pKeyedMutex);
+          if (FAILED(hr))
+          {
+            ezLog::Error("Failed to query keyed mutex interface: {}", ezArgErrorCode(hr));
             return EZ_FAILURE;
           }
           m_sharedHandle.a = (ezUInt64)hTexture;
@@ -241,6 +256,7 @@ ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
   EZ_GAL_DX11_RELEASE(m_pDXTexture);
   EZ_GAL_DX11_RELEASE(m_pDXStagingTexture);
+  EZ_GAL_DX11_RELEASE(m_pKeyedMutex);
   return EZ_SUCCESS;
 }
 
@@ -262,10 +278,12 @@ ezGALPlatformSharedHandle ezGALTextureDX11::GetSharedHandle() const
 
 void ezGALTextureDX11::WaitSemaphoreGPU(ezUInt64 uiValue) const
 {
+  m_pKeyedMutex->AcquireSync(uiValue, INFINITE);
 }
 
 void ezGALTextureDX11::SignalSemaphoreGPU(ezUInt64 uiValue) const
 {
+  m_pKeyedMutex->ReleaseSync(uiValue);
 }
 
 ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)

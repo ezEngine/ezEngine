@@ -39,6 +39,7 @@ protected:
 
   ezGALSharedTextureType m_sharedType = ezGALSharedTextureType::None;
   ezGALPlatformSharedHandle m_sharedHandle;
+  IDXGIKeyedMutex* m_pKeyedMutex = nullptr;
 };
 
 #include <RendererDX11/Resources/Implementation/TextureDX11_inl.h>
