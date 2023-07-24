@@ -236,8 +236,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   m_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  m_pEngineViewProcess->SetRenderer(pCmd->GetStringOption("-renderer", 0, ""));
-
   m_LongOpControllerManager.Startup(&m_pEngineViewProcess->GetCommunicationChannel());
 
   if (!IsInHeadlessMode())

@@ -2,6 +2,27 @@
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
+struct ezSourceFormat
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Color4Channel8BitNormalized_sRGB,
+    Color4Channel8BitNormalized,
+    Color4Channel16BitFloat,
+    Color4Channel32BitFloat,
+    Color3Channel11_11_10BitFloat,
+    Depth16Bit,
+    Depth24BitStencil8Bit,
+    Depth32BitFloat,
+
+    Default = Color4Channel8BitNormalized_sRGB
+  };
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSourceFormat);
+
+
 class EZ_RENDERERCORE_DLL ezSourcePass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSourcePass, ezRenderPipelinePass);
@@ -16,7 +37,7 @@ public:
 protected:
   ezRenderPipelineNodeOutputPin m_PinOutput;
 
-  ezGALResourceFormat::Enum m_Format;
+  ezSourceFormat::Enum m_Format;
   ezGALMSAASampleCount::Enum m_MsaaMode;
   ezColor m_ClearColor;
   bool m_bClear;

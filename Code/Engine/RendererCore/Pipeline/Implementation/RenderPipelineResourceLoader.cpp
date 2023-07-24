@@ -114,8 +114,8 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
 
   ezRawMemoryStreamReader memoryReader(desc.m_SerializedPipeline);
 
-  ezAbstractObjectGraph graph;
-  ezAbstractGraphBinarySerializer::Read(memoryReader, &graph);
+  ezAbstractObjectGraph graph, typeGraph;
+  ezAbstractGraphBinarySerializer::Read(memoryReader, &graph, &typeGraph, true);
 
   ezRttiConverterReader rttiConverter(&graph, &context);
 
@@ -247,8 +247,9 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
 
   ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&ref_desc.m_SerializedPipeline);
 
+  ezAbstractObjectGraph typeGraph; // empty type graph required for binary compatibility
   ezMemoryStreamWriter memoryWriter(&storage);
-  ezAbstractGraphBinarySerializer::Write(memoryWriter, &graph);
+  ezAbstractGraphBinarySerializer::Write(memoryWriter, &graph, &typeGraph);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);

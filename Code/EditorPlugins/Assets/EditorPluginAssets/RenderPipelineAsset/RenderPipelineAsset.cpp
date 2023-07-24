@@ -6,8 +6,9 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
@@ -97,27 +98,32 @@ ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStream
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
 
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   stream << uiVersion;
 
   ezAbstractObjectGraph graph;
+  ezAbstractObjectGraph typeGraph;
   ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager());
 
   auto& children = GetObjectManager()->GetRootObject()->GetChildren();
+  ezSet<const ezRTTI*> types;
   for (ezDocumentObject* pObject : children)
   {
     auto pType = pObject->GetTypeAccessor().GetType();
     if (pType->IsDerivedFrom<ezRenderPipelinePass>())
     {
       objectConverter.AddObjectToGraph(pObject, "Pass");
+      ezToolsReflectionUtils::GatherObjectTypes(pObject, types);
     }
     else if (pType->IsDerivedFrom<ezExtractor>())
     {
       objectConverter.AddObjectToGraph(pObject, "Extractor");
+      ezToolsReflectionUtils::GatherObjectTypes(pObject, types);
     }
     else if (pManager->IsConnection(pObject))
     {
       objectConverter.AddObjectToGraph(pObject, "Connection");
+      ezToolsReflectionUtils::GatherObjectTypes(pObject, types);
     }
   }
 
@@ -125,7 +131,8 @@ ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStream
 
   ezDefaultMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
-  ezAbstractGraphBinarySerializer::Write(writer, &graph);
+  ezToolsSerializationUtils::SerializeTypes(types, typeGraph);
+  ezAbstractGraphBinarySerializer::Write(writer, &graph, &typeGraph);
 
   ezUInt32 uiSize = storage.GetStorageSize32();
   stream << uiSize;

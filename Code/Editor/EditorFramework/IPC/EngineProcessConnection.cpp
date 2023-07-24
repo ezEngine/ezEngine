@@ -114,17 +114,8 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
 
   ezStringBuilder tmp;
 
-  QStringList args;
-  if (m_bProcessShouldWaitForDebugger)
-  {
-    args << "-WaitForDebugger";
-  }
-
-  if (!m_sRenderer.IsEmpty())
-  {
-    args << "-renderer";
-    args << m_sRenderer.GetData();
-  }
+  QStringList args = QCoreApplication::arguments();
+  args.pop_front();
 
   {
     ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();

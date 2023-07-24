@@ -72,4 +72,6 @@ protected:
   ezEditorTestApplication* m_pApplication = nullptr;
   ezString m_sProjectPath;
   ezImage m_CapturedImage;
+  ezDynamicArray<ezString> m_commandLineArguments;
+  ezDynamicArray<const char*> m_commandLineArgumentPointers;
 };

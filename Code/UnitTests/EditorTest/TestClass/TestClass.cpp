@@ -84,7 +84,20 @@ ezEditorTest::~ezEditorTest() = default;
 
 ezEditorTestApplication* ezEditorTest::CreateApplication()
 {
-  return EZ_DEFAULT_NEW(ezEditorTestApplication);
+  ezEditorTestApplication* pTestApplication = EZ_DEFAULT_NEW(ezEditorTestApplication);
+
+  m_commandLineArguments = ezCommandLineUtils::GetGlobalInstance()->GetCommandLineArray();
+  EZ_ASSERT_DEV(m_commandLineArguments.GetCount() > 0, "There should always be at least 1 command line argument (the executable name)");
+
+  m_commandLineArgumentPointers.Clear();
+  for (auto& s : m_commandLineArguments)
+  {
+    m_commandLineArgumentPointers.PushBack(s.GetData());
+  }
+
+  pTestApplication->SetCommandLineArguments(m_commandLineArgumentPointers.GetCount(), m_commandLineArgumentPointers.GetData());
+
+  return pTestApplication;
 }
 
 ezResult ezEditorTest::GetImage(ezImage& ref_img)

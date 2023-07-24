@@ -107,11 +107,6 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
 
     AttachmentDesc& depthAttachment = out_desc.attachments.ExpandAndGetRef();
     depthAttachment.format = formatInfo.m_format;
-    if (pTex->GetFormatOverrideEnabled())
-    {
-      depthAttachment.format = pTex->GetImageFormat();
-    }
-
     depthAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
     if (renderingSetup.m_bDiscardDepth && !renderingSetup.m_bClearDepth)
@@ -152,11 +147,6 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
 
     AttachmentDesc& colorAttachment = out_desc.attachments.ExpandAndGetRef();
     colorAttachment.format = formatInfo.m_format;
-    if (pTex->GetFormatOverrideEnabled())
-    {
-      colorAttachment.format = pTex->GetImageFormat();
-    }
-
     colorAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
     if (renderingSetup.m_bDiscardColor && !(renderingSetup.m_uiRenderTargetClearMask & (1u << i)))
