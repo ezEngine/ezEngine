@@ -55,7 +55,9 @@ private:
   void Mappings_Insert(ezUInt32 uiIndex, const ezPostProcessingValueMapping& mapping);                // [ property ]
   void Mappings_Remove(ezUInt32 uiIndex);                                                             // [ property ]
 
+  ezView* FindView() const;
   void RegisterSamplerValues();
+  void ResetViewProperties();
   void SampleAndSetViewProperties();
 
   ezComponentHandle m_hCameraComponent;

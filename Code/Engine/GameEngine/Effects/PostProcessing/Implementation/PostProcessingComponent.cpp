@@ -130,6 +130,8 @@ void ezPostProcessingComponent::Deinitialize()
 
 void ezPostProcessingComponent::OnActivated()
 {
+  SUPER::OnActivated();
+
   ezCameraComponent* pCameraComponent = nullptr;
   if (GetOwner()->TryGetComponentOfBaseType(pCameraComponent))
   {
@@ -139,7 +141,11 @@ void ezPostProcessingComponent::OnActivated()
 
 void ezPostProcessingComponent::OnDeactivated()
 {
+  ResetViewProperties();
+
   m_hCameraComponent.Invalidate();
+
+  SUPER::OnDeactivated();
 }
 
 void ezPostProcessingComponent::Mappings_SetMapping(ezUInt32 i, const ezPostProcessingValueMapping& mapping)
@@ -161,7 +167,27 @@ void ezPostProcessingComponent::Mappings_Remove(ezUInt32 uiIndex)
 {
   m_Mappings.RemoveAtAndCopy(uiIndex);
 
+  ResetViewProperties();
   RegisterSamplerValues();
+}
+
+ezView* ezPostProcessingComponent::FindView() const
+{
+  const ezWorld* pWorld = GetWorld();
+  ezView* pView = nullptr;
+
+  const ezCameraComponent* pCameraComponent = nullptr;
+  if (pWorld->TryGetComponent(m_hCameraComponent, pCameraComponent) && pCameraComponent->GetUsageHint() == ezCameraUsageHint::RenderTarget)
+  {
+    ezRenderWorld::TryGetView(pCameraComponent->GetRenderTargetView(), pView);
+  }
+
+  if (pView == nullptr)
+  {
+    pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, pWorld);
+  }
+
+  return pView;
 }
 
 void ezPostProcessingComponent::RegisterSamplerValues()
@@ -180,30 +206,24 @@ void ezPostProcessingComponent::RegisterSamplerValues()
   }
 }
 
+void ezPostProcessingComponent::ResetViewProperties()
+{
+  if (ezView* pView = FindView())
+  {
+    pView->ResetRenderPassProperties();
+  }
+}
+
 void ezPostProcessingComponent::SampleAndSetViewProperties()
 {
-  ezWorld* pWorld = GetWorld();
-
-  ezView* pView = nullptr;
-  {
-    ezCameraComponent* pCameraComponent = nullptr;
-    if (pWorld->TryGetComponent(m_hCameraComponent, pCameraComponent) && pCameraComponent->GetUsageHint() == ezCameraUsageHint::RenderTarget)
-    {
-      ezRenderWorld::TryGetView(pCameraComponent->GetRenderTargetView(), pView);
-    }
-
-    if (pView == nullptr)
-    {
-      pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, pWorld);
-    }
-  }
-
+  ezView* pView = FindView();
   if (pView == nullptr)
     return;
 
   const ezVec3 vSamplePos = pView->GetCullingCamera()->GetCenterPosition();
 
-  ezTime deltaTime;
+  ezWorld* pWorld = GetWorld();
+  ezTime deltaTime;  
   if (pWorld->GetWorldSimulationEnabled())
   {
     deltaTime = pWorld->GetClock().GetTimeDiff();
