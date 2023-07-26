@@ -138,8 +138,8 @@ struct ezPropertyCategory
     Member,   ///< The property is a 'member property', i.e. it represents some accessible value. Cast to ezAbstractMemberProperty.
     Function, ///< The property is a function which can be called. Cast to ezAbstractFunctionProperty.
     Array,    ///< The property is actually an array of values. The array dimensions might be changeable. Cast to ezAbstractArrayProperty.
-    Set,      ///< The property is actually a set of values. Cast to ezAbstractArrayProperty.
-    Map,      ///< The property is actually a map from string to values. Cast to ezAbstractArrayProperty.
+    Set,      ///< The property is actually a set of values. Cast to ezAbstractSetProperty.
+    Map,      ///< The property is actually a map from string to values. Cast to ezAbstractMapProperty.
     Default = Member
   };
 };

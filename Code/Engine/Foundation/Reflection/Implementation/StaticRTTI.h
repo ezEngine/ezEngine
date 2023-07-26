@@ -385,7 +385,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   Range has to be an object that a ranged based for-loop can iterate over containing the keys
 ///   implicitly convertible to Type / ezString.
 /// \param GetValue
-///   Function signature: bool GetValue(const char* szKey, Type& value);
+///   Function signature: bool GetValue(const char* szKey, Type& value) const;
 ///   Returns whether the the key existed. value must be a non const ref as it is written to.
 /// \param Insert
 ///   Function signature: void Insert(const char* szKey, Type value);

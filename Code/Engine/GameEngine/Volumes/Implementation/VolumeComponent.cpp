@@ -15,10 +15,18 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezVolumeComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Template", GetTemplateFile, SetTemplateFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
+    EZ_ACCESSOR_PROPERTY("Template", GetTemplateFile, SetTemplateFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
+    EZ_MAP_ACCESSOR_PROPERTY("Values", Reflection_GetKeys, Reflection_GetValue, Reflection_InsertValue, Reflection_RemoveValue),
   }
   EZ_END_PROPERTIES;
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetValue, In, "Name", In, "Value"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetValue, In, "Name"),
+  }
+  EZ_END_FUNCTIONS;
 
   EZ_BEGIN_ATTRIBUTES
   {
@@ -35,6 +43,8 @@ ezVolumeComponent::~ezVolumeComponent() = default;
 void ezVolumeComponent::OnActivated()
 {
   SUPER::OnActivated();
+
+  InitializeFromTemplate();
 
   GetOwner()->UpdateLocalBounds();
 }
@@ -69,6 +79,11 @@ const char* ezVolumeComponent::GetTemplateFile() const
 void ezVolumeComponent::SetTemplate(const ezBlackboardTemplateResourceHandle& hResource)
 {
   m_hTemplateResource = hResource;
+
+  if (IsActiveAndInitialized())
+  {
+    ReloadTemplate();
+  }
 }
 
 void ezVolumeComponent::SetSortOrder(float fOrder)
@@ -77,14 +92,34 @@ void ezVolumeComponent::SetSortOrder(float fOrder)
   m_fSortOrder = fOrder;
 }
 
+void ezVolumeComponent::SetValue(const ezHashedString& sName, const ezVariant& value)
+{
+  m_Values.Insert(sName, value);
+}
+
 void ezVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
   ezStreamWriter& s = inout_stream.GetStream();
 
-  s << m_hTemplateResource;
   s << m_fSortOrder;
+  s << m_hTemplateResource;
+
+  // Only serialize overwritten values so a template change doesn't require a re-save of all volumes
+  ezUInt32 numValues = m_OverwrittenValues.GetCount();
+  s << numValues;
+  for (auto& sName : m_OverwrittenValues)
+  {
+    ezHashedString sNameHashed;
+    sNameHashed.Assign(sName);
+
+    ezVariant value;
+    m_Values.TryGetValue(sNameHashed, value);
+
+    s << sNameHashed;
+    s << value;
+  }
 }
 
 void ezVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -93,8 +128,81 @@ void ezVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
-  s >> m_hTemplateResource;
   s >> m_fSortOrder;
+  s >> m_hTemplateResource;
+
+  // m_OverwrittenValues is only used in editor so we don't write to it here
+  ezUInt32 numValues = 0;
+  s >> numValues;
+  for (ezUInt32 i = 0; i < numValues; ++i)
+  {
+    ezHashedString sName;
+    ezVariant value;
+    s >> sName;
+    s >> value;
+
+    m_Values.Insert(sName, value);
+  }
+}
+
+bool ezVolumeComponent::Reflection_GetValue(const char* szName, ezVariant& value) const
+{
+  return m_Values.TryGetValue(ezTempHashedString(szName), value);
+}
+
+void ezVolumeComponent::Reflection_InsertValue(const char* szName, const ezVariant& value)
+{
+  // Only needed in editor
+  if (GetUniqueID() != ezInvalidIndex && m_OverwrittenValues.Contains(szName) == false)
+  {
+    m_OverwrittenValues.PushBack(szName);
+  }
+
+  ezHashedString sName;
+  sName.Assign(szName);
+
+  m_Values.Insert(sName, value);
+}
+
+void ezVolumeComponent::Reflection_RemoveValue(const char* szName)
+{
+  m_OverwrittenValues.RemoveAndCopy(szName);
+
+  m_Values.Remove(ezTempHashedString(szName));
+}
+
+void ezVolumeComponent::InitializeFromTemplate()
+{
+  if (!m_hTemplateResource.IsValid())
+    return;
+
+  ezResourceLock<ezBlackboardTemplateResource> pTemplate(m_hTemplateResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pTemplate.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  for (const auto& entry : pTemplate->GetDescriptor().m_Entries)
+  {
+    if (m_Values.Contains(entry.m_sName) == false)
+    {
+      m_Values.Insert(entry.m_sName, entry.m_InitialValue);
+    }
+  }
+}
+
+void ezVolumeComponent::ReloadTemplate()
+{
+  // Remove all values that are not overwritten
+  ezHashTable<ezHashedString, ezVariant> overwrittenValues;
+  for (auto& sName : m_OverwrittenValues)
+  {
+    ezHashedString sNameHashed;
+    sNameHashed.Assign(sName);
+
+    overwrittenValues.Insert(sNameHashed, m_Values[sNameHashed]);
+  }
+  m_Values.Swap(overwrittenValues);
+
+  InitializeFromTemplate();
 }
 
 //////////////////////////////////////////////////////////////////////////

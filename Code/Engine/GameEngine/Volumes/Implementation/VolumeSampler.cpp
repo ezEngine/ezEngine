@@ -12,6 +12,7 @@ void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue
 {
   auto& value = m_Values[sName];
   value.m_DefaultValue = defaultValue;
+  value.m_TargetValue = defaultValue;
   value.m_CurrentValue = defaultValue;
 
   if (interpolationDuration.IsPositive())
@@ -52,8 +53,6 @@ void ezVolumeSampler::SampleAtPosition(ezWorld& world, const ezVec3& vGlobalPosi
       return m_uiSortingKey < other.m_uiSortingKey;
     }
   };
-
-  m_TargetValues.Clear();
 
   auto vPos = ezSimdConversion::ToVec3(vGlobalPosition);
   ezBoundingSphere sphere(vGlobalPosition, 0.01f);
@@ -117,57 +116,39 @@ void ezVolumeSampler::SampleAtPosition(ezWorld& world, const ezVec3& vGlobalPosi
     componentInfos.Sort();
   }
 
-  for (auto& info : componentInfos)
-  {
-    ezResourceLock<ezBlackboardTemplateResource> blackboardTemplate(info.m_pComponent->GetTemplate(), ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (blackboardTemplate.GetAcquireResult() != ezResourceAcquireResult::Final)
-      continue;
-
-    auto& desc = blackboardTemplate->GetDescriptor();
-    for (auto& entry : desc.m_Entries)
-    {
-      auto pValue = m_Values.GetValue(entry.m_sName);
-      if (pValue == nullptr)
-        continue;
-
-      ezVariant currentValue;
-      if (m_TargetValues.TryGetValue(entry.m_sName, currentValue) == false)
-      {
-        currentValue = pValue->m_DefaultValue;
-      }
-
-      ezEnum<ezVariantType> targetType = currentValue.GetType();
-
-      ezResult conversionStatus = EZ_SUCCESS;
-      ezVariant targetValue = entry.m_InitialValue.ConvertTo(targetType, &conversionStatus);
-      if (conversionStatus.Failed())
-      {
-        ezLog::Error("VolumeSampler: Can't convert template value '{}' to '{}'.", entry.m_sName, targetType);
-        continue;
-      }      
-
-      m_TargetValues[entry.m_sName] = ezMath::Lerp(currentValue, targetValue, double(info.m_fAlpha));
-    }
-  }
-
   for (auto& it : m_Values)
   {
+    auto& sName = it.Key();
     auto& value = it.Value();
 
-    ezVariant targetValue;
-    if (m_TargetValues.TryGetValue(it.Key(), targetValue) == false)
+    value.m_TargetValue = value.m_DefaultValue;
+
+    for (auto& info : componentInfos)
     {
-      targetValue = value.m_DefaultValue;
+      ezVariant volumeValue = info.m_pComponent->GetValue(sName);
+      if (volumeValue.IsValid() == false)
+        continue;
+
+      ezResult conversionStatus = EZ_SUCCESS;
+      ezEnum<ezVariantType> targetType = value.m_TargetValue.GetType();
+      ezVariant newTargetValue = volumeValue.ConvertTo(targetType, &conversionStatus);
+      if (conversionStatus.Failed())
+      {
+        ezLog::Error("VolumeSampler: Can't convert volume value '{}' to '{}'.", sName, targetType);
+        continue;
+      }
+
+      value.m_TargetValue = ezMath::Lerp(value.m_TargetValue, newTargetValue, double(info.m_fAlpha));
     }
 
     if (value.m_fInterpolationFactor > 0.0)
     {
       double f = 1.0 - ezMath::Pow(1.0 - value.m_fInterpolationFactor, deltaTime.GetSeconds());
-      value.m_CurrentValue = ezMath::Lerp(value.m_CurrentValue, targetValue, f);
+      value.m_CurrentValue = ezMath::Lerp(value.m_CurrentValue, value.m_TargetValue, f);
     }
     else
     {
-      value.m_CurrentValue = targetValue;
+      value.m_CurrentValue = value.m_TargetValue;
     }
   }
 }

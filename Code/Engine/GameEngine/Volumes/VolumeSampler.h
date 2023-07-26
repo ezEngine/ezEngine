@@ -33,10 +33,10 @@ private:
   struct Value
   {
     ezVariant m_DefaultValue;
+    ezVariant m_TargetValue;
     ezVariant m_CurrentValue;
     double m_fInterpolationFactor = -1.0;
   };
 
   ezHashTable<ezHashedString, Value> m_Values;
-  ezHashTable<ezHashedString, ezVariant> m_TargetValues;
 };

@@ -28,11 +28,29 @@ public:
   void SetSortOrder(float fOrder);// [ property ]
   float GetSortOrder() const { return m_fSortOrder; }// [ property ]
 
+  void SetValue(const ezHashedString& sName, const ezVariant& value); // [ scriptable ]
+  ezVariant GetValue(ezTempHashedString sName) const // [ scriptable ]
+  {
+    ezVariant v;
+    m_Values.TryGetValue(sName, v);
+    return v;
+  }
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
+  const ezDynamicArray<ezString>& Reflection_GetKeys() const { return m_OverwrittenValues; }
+  bool Reflection_GetValue(const char* szName, ezVariant& value) const;
+  void Reflection_InsertValue(const char* szName, const ezVariant& value);
+  void Reflection_RemoveValue(const char* szName);
+
+  void InitializeFromTemplate();
+  void ReloadTemplate();
+
   ezBlackboardTemplateResourceHandle m_hTemplateResource;
+  ezHashTable<ezHashedString, ezVariant> m_Values;
+  ezDynamicArray<ezString> m_OverwrittenValues; // only used in editor
   float m_fSortOrder = 0.0f;
 };
 
