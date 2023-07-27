@@ -47,11 +47,13 @@ protected:
 
   void InitializeFromTemplate();
   void ReloadTemplate();
+  void RemoveReloadFunction();
 
   ezBlackboardTemplateResourceHandle m_hTemplateResource;
   ezHashTable<ezHashedString, ezVariant> m_Values;
   ezDynamicArray<ezString> m_OverwrittenValues; // only used in editor
   float m_fSortOrder = 0.0f;
+  bool m_bReloadFunctionAdded = false;
 };
 
 //////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,8 @@
 ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWindow(ezDocument* pDocument)
   : ezQtDocumentWindow(pDocument)
 {
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler, this));
+
   // Menu Bar
   {
     ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
@@ -45,7 +47,64 @@ ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWi
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
+  UpdatePreview();
+
   FinishWindowCreation();
 }
 
-ezQtBlackboardTemplateAssetDocumentWindow::~ezQtBlackboardTemplateAssetDocumentWindow() = default;
+ezQtBlackboardTemplateAssetDocumentWindow::~ezQtBlackboardTemplateAssetDocumentWindow()
+{
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler, this));
+
+  RestoreResource();
+}
+
+void ezQtBlackboardTemplateAssetDocumentWindow::UpdatePreview()
+{
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    return;
+
+  auto pDocument = static_cast<ezBlackboardTemplateAssetDocument*>(GetDocument());
+
+  ezResourceUpdateMsgToEngine msg;
+  msg.m_sResourceType = "BlackboardTemplate";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezContiguousMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+
+  // Write Path
+  ezStringBuilder sAbsFilePath = GetDocument()->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("ezBlackboardTemplate");
+  // Write Header
+  memoryWriter << sAbsFilePath;
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetDocument()->GetGuid());
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.SetFileHashAndVersion(uiHash, pDocument->GetAssetTypeVersion());
+  AssetHeader.Write(memoryWriter).IgnoreResult();
+  // Write Asset Data
+  if (pDocument->WriteAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile()).Succeeded())
+  {
+    msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
+
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  }
+}
+
+void ezQtBlackboardTemplateAssetDocumentWindow::RestoreResource()
+{
+  ezRestoreResourceMsgToEngine msg;
+  msg.m_sResourceType = "BlackboardTemplate";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+}
+
+void ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  UpdatePreview();
+}

@@ -25,7 +25,16 @@ ezBlackboardTemplateAssetDocument::ezBlackboardTemplateAssetDocument(const char*
 {
 }
 
-ezStatus ezBlackboardTemplateAssetDocument::RetrieveState(const ezBlackboardTemplateAssetObject* pProp, ezBlackboardTemplateResourceDescriptor& inout_Desc)
+ezStatus ezBlackboardTemplateAssetDocument::WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile) const
+{
+  ezBlackboardTemplateResourceDescriptor desc;
+  EZ_SUCCEED_OR_RETURN(RetrieveState(GetProperties(), desc));
+  EZ_SUCCEED_OR_RETURN(desc.Serialize(inout_stream));
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezBlackboardTemplateAssetDocument::RetrieveState(const ezBlackboardTemplateAssetObject* pProp, ezBlackboardTemplateResourceDescriptor& inout_Desc) const
 {
   for (const ezString& sTempl : pProp->m_BaseTemplates)
   {
@@ -68,16 +77,7 @@ ezStatus ezBlackboardTemplateAssetDocument::RetrieveState(const ezBlackboardTemp
   return ezStatus(EZ_SUCCESS);
 }
 
-ezTransformStatus ezBlackboardTemplateAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezBlackboardTemplateAssetDocument::InternalTransformAsset(ezStreamWriter& inout_stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezBlackboardTemplateResourceDescriptor desc;
-  const ezStatus s = RetrieveState(GetProperties(), desc);
-  if (s.Failed())
-  {
-    return ezTransformStatus(s);
-  }
-
-  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
-
-  return ezStatus(EZ_SUCCESS);
+  return WriteAsset(inout_stream, pAssetProfile);
 }

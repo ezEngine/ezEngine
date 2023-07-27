@@ -53,7 +53,7 @@ void ezVolumeComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  GetWorld()->RemoveResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr);
+  RemoveReloadFunction();
 
   GetOwner()->UpdateLocalBounds();
 }
@@ -80,7 +80,7 @@ const char* ezVolumeComponent::GetTemplateFile() const
 
 void ezVolumeComponent::SetTemplate(const ezBlackboardTemplateResourceHandle& hResource)
 {
-  GetWorld()->RemoveResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr);
+  RemoveReloadFunction();
 
   m_hTemplateResource = hResource;
 
@@ -192,11 +192,16 @@ void ezVolumeComponent::InitializeFromTemplate()
     }
   }
 
-  GetWorld()->AddResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr,
-    [](ezWorld::ResourceReloadContext& context)
-    {
-      ezStaticCast<ezVolumeComponent*>(context.m_pComponent)->ReloadTemplate();
-    });
+  if (m_bReloadFunctionAdded == false)
+  {
+    GetWorld()->AddResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr,
+      [](ezWorld::ResourceReloadContext& context)
+      {
+        ezStaticCast<ezVolumeComponent*>(context.m_pComponent)->ReloadTemplate();
+      });
+
+    m_bReloadFunctionAdded = true;
+  }
 }
 
 void ezVolumeComponent::ReloadTemplate()
@@ -213,6 +218,16 @@ void ezVolumeComponent::ReloadTemplate()
   m_Values.Swap(overwrittenValues);
 
   InitializeFromTemplate();
+}
+
+void ezVolumeComponent::RemoveReloadFunction()
+{
+  if (m_bReloadFunctionAdded)
+  {
+    GetWorld()->RemoveResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr);
+
+    m_bReloadFunctionAdded = false;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
