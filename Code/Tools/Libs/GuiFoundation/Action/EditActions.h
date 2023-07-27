@@ -10,9 +10,9 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath, bool bDeleteAction, bool bAdvancedPasteActions);
-  static void MapContextMenuActions(const char* szMapping, const char* szPath);
-  static void MapViewContextMenuActions(const char* szMapping, const char* szPath);
+  static void MapActions(ezStringView sMapping, bool bDeleteAction, bool bAdvancedPasteActions);
+  static void MapContextMenuActions(ezStringView sMapping);
+  static void MapViewContextMenuActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hEditCategory;
   static ezActionDescriptorHandle s_hCopy;

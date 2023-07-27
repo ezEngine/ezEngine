@@ -21,17 +21,16 @@ Panel.LongOps;Background Operations
 
 # Menus
 
-Menu.Editor;&Editor
-Menu.File;&File
-Menu.Edit;E&dit
-Menu.Panels;&Panels
-Menu.Project;Pr&oject
-Menu.Scene;&Scene
-Menu.Tools;&Tools
-Menu.View;&View
-Menu.Help;&Help
-Menu.ProjectSettings;Project Settings
-Menu.EditorSettings;Editor Settings
+G.Project;&Project
+G.File;&File
+G.Edit;E&dit
+G.Panels;P&anels
+G.Scene;&Scene
+G.Tools;&Tools
+G.View;&View
+G.Help;&Help
+G.Project.Settings;Project Settings
+G.Plugins.Settings;Plugin Settings
 
 # Engine
 
@@ -44,7 +43,7 @@ Engine.Tags;Tags...;Opens the tags configuration dialog
 Project.ImportAsset;Import &Assets...
 Project.RecentDocuments.Menu;Recent &Documents
 Project.Close;Close Project
-Project.Cpp;C++ Project
+G.Project.Cpp;C++ Project
 Project.SetupCppProject;&Setup C++ Plugin...
 Project.OpenCppProject;&Open Solution
 Project.CompileCppProject;&Compile Plugin
@@ -58,8 +57,8 @@ Project.ClearAssetCaches;Clear Asset Caches...
 
 # Document
 
-Document.Create;&Create Document...
-Document.Open;&Open Document...
+Document.Create;&Create...
+Document.Open;&Open...
 Document.Save;&Save
 Document.SaveAll;Save All
 Document.SaveAs;Save &As...
@@ -170,7 +169,7 @@ ezTextureAssetProfileConfig;Texture Assets
 
 # Gizmo
 
-Gizmo.Menu;Edit Mode
+G.Gizmos;Edit Mode
 Gizmo.Mode.Select;Select
 Gizmo.Mode.Translate;Translate
 Gizmo.Mode.Rotate;Rotate

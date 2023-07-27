@@ -18,7 +18,7 @@ void ezLUTAssetActions::RegisterActions() {}
 
 void ezLUTAssetActions::UnregisterActions() {}
 
-void ezLUTAssetActions::MapActions(const char* szMapping, const char* szPath) {}
+void ezLUTAssetActions::MapActions(ezStringView sMapping) {}
 
 
 //////////////////////////////////////////////////////////////////////////

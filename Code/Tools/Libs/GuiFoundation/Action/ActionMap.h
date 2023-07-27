@@ -9,9 +9,8 @@ class ezDocument;
 struct EZ_GUIFOUNDATION_DLL ezActionMapDescriptor
 {
   ezActionDescriptorHandle m_hAction; ///< Action to be mapped
-  ezString
-    m_sPath; ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
-  float m_fOrder; ///< Ordering key to sort actions in the mapping path.
+  ezString m_sPath;                   ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
+  float m_fOrder;                     ///< Ordering key to sort actions in the mapping path.
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezActionMapDescriptor);
 
@@ -90,19 +89,24 @@ public:
   ezActionMap();
   ~ezActionMap();
 
-  void MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fM_fOrder);
+  void MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, float fOrder);
+  void MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder);
+
   ezUuid MapAction(const ezActionMapDescriptor& desc);
-  ezResult UnmapAction(ezActionDescriptorHandle hAction, const char* szPath);
+  ezResult UnmapAction(ezActionDescriptorHandle hAction, ezStringView sPath);
   ezResult UnmapAction(const ezActionMapDescriptor& desc);
   ezResult UnmapAction(const ezUuid& guid);
+
+  ezResult SearchPathForAction(ezStringView sUniqueName, ezStringBuilder& out_sPath) const;
 
   const TreeNode* GetRootObject() const { return &m_Root; }
   const ezActionMapDescriptor* GetDescriptor(const ezUuid& guid) const;
   const ezActionMapDescriptor* GetDescriptor(const ezTreeNode<ezActionMapDescriptor>* pObject) const;
 
 private:
-  bool FindObjectByPath(const ezStringView& sPath, ezUuid& out_guid) const;
-  const ezTreeNode<ezActionMapDescriptor>* GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, const ezStringView& sName) const;
+  bool FindObjectByPath(ezStringView sPath, ezUuid& out_guid) const;
+  bool FindObjectPathByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName, ezStringBuilder& out_sPath) const;
+  const ezTreeNode<ezActionMapDescriptor>* GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName) const;
 
 private:
   TreeNode m_Root;

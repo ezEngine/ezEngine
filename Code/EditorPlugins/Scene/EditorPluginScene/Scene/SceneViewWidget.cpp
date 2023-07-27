@@ -53,10 +53,10 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
 
     ezActionMapManager::RegisterActionMap("SceneViewContextMenu").IgnoreResult();
 
-    ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
-    ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
-    ezEditActions::MapViewContextMenuActions("SceneViewContextMenu", "");
-    ezSceneActions::MapViewContextMenuActions("SceneViewContextMenu", "");
+    ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
+    ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
+    ezEditActions::MapViewContextMenuActions("SceneViewContextMenu");
+    ezSceneActions::MapViewContextMenuActions("SceneViewContextMenu");
   }
 
   {

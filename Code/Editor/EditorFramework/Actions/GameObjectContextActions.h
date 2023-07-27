@@ -10,8 +10,8 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapToolbarActions(const char* szMapping, const char* szPath);
-  static void MapContextMenuActions(const char* szMapping, const char* szPath);
+  static void MapToolbarActions(ezStringView sMapping);
+  static void MapContextMenuActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hCategory;
   static ezActionDescriptorHandle s_hPickContextScene;

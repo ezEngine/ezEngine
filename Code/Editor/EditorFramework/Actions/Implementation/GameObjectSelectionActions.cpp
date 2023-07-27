@@ -18,7 +18,7 @@ ezActionDescriptorHandle ezGameObjectSelectionActions::s_hCreateEmptyGameObjectH
 
 void ezGameObjectSelectionActions::RegisterActions()
 {
-  s_hSelectionCategory = EZ_REGISTER_CATEGORY("SelectionCategory");
+  s_hSelectionCategory = EZ_REGISTER_CATEGORY("G.Selection");
   s_hShowInScenegraph = EZ_REGISTER_ACTION_1("Selection.ShowInScenegraph", ezActionScope::Document, "Scene - Selection", "Ctrl+T",
     ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::ShowInScenegraph);
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("Selection.FocusSingleView", ezActionScope::Document, "Scene - Selection", "F",
@@ -45,47 +45,42 @@ void ezGameObjectSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCreateEmptyGameObjectHere);
 }
 
-void ezGameObjectSelectionActions::MapActions(const char* szMapping, const char* szPath)
+void ezGameObjectSelectionActions::MapActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SelectionCategory");
+  pMap->MapAction(s_hSelectionCategory, "G.Edit", 5.0f);
 
-  pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
-
-  pMap->MapAction(s_hShowInScenegraph, sSubPath, 2.0f);
-  pMap->MapAction(s_hFocusOnSelection, sSubPath, 3.0f);
-  pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 3.5f);
-  pMap->MapAction(s_hSnapCameraToObject, sSubPath, 8.0f);
-  pMap->MapAction(s_hMoveCameraHere, sSubPath, 10.0f);
+  pMap->MapAction(s_hShowInScenegraph, "G.Selection", 2.0f);
+  pMap->MapAction(s_hFocusOnSelection, "G.Selection", 3.0f);
+  pMap->MapAction(s_hFocusOnSelectionAllViews, "G.Selection", 3.5f);
+  pMap->MapAction(s_hSnapCameraToObject, "G.Selection", 8.0f);
+  pMap->MapAction(s_hMoveCameraHere, "G.Selection", 10.0f);
 }
 
-void ezGameObjectSelectionActions::MapContextMenuActions(const char* szMapping, const char* szPath)
+void ezGameObjectSelectionActions::MapContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SelectionCategory");
+  pMap->MapAction(s_hSelectionCategory, "", 5.0f);
 
-  pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
-  pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
+  pMap->MapAction(s_hFocusOnSelectionAllViews, "G.Selection", 1.0f);
 }
 
 
-void ezGameObjectSelectionActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
+void ezGameObjectSelectionActions::MapViewContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SelectionCategory");
+  pMap->MapAction(s_hSelectionCategory, "", 5.0f);
 
-  pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
-
-  pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
-  pMap->MapAction(s_hSnapCameraToObject, sSubPath, 4.0f);
-  pMap->MapAction(s_hMoveCameraHere, sSubPath, 6.0f);
-  pMap->MapAction(s_hCreateEmptyGameObjectHere, sSubPath, 1.0f);
+  pMap->MapAction(s_hFocusOnSelectionAllViews, "G.Selection", 1.0f);
+  pMap->MapAction(s_hSnapCameraToObject, "G.Selection", 4.0f);
+  pMap->MapAction(s_hMoveCameraHere, "G.Selection", 6.0f);
+  pMap->MapAction(s_hCreateEmptyGameObjectHere, "G.Selection", 1.0f);
 }
 
 ezGameObjectSelectionAction::ezGameObjectSelectionAction(

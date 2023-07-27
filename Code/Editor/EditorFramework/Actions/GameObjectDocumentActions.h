@@ -14,10 +14,10 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(const char* szMapping, const char* szPath);
-  static void MapMenuSimulationSpeed(const char* szMapping, const char* szPath);
+  static void MapMenuActions(ezStringView sMapping);
+  static void MapMenuSimulationSpeed(ezStringView sMapping);
 
-  static void MapToolbarActions(const char* szMapping, const char* szPath);
+  static void MapToolbarActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hGameObjectCategory;
   static ezActionDescriptorHandle s_hRenderSelectionOverlay;

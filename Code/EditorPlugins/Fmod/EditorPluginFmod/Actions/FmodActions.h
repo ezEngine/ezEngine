@@ -13,8 +13,8 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(const char* szMapping);
-  static void MapToolbarActions(const char* szMapping);
+  static void MapMenuActions(ezStringView sMapping);
+  static void MapToolbarActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hCategoryFmod;
   static ezActionDescriptorHandle s_hProjectSettings;

@@ -33,23 +33,21 @@ void ezAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hWriteDependencyDGML);
 }
 
-
-void ezAssetActions::MapMenuActions(const char* szMapping, const char* szPath)
+void ezAssetActions::MapMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", szMapping);
+  const ezStringView sTargetMenu = "G.AssetDoc";
 
-  pMap->MapAction(s_hAssetCategory, szPath, 1.5f);
-  ezStringBuilder sSubPath(szPath, "/AssetCategory");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
 
-  pMap->MapAction(s_hTransformAsset, sSubPath, 1.0f);
-  pMap->MapAction(s_hWriteDependencyDGML, sSubPath, 2.0f);
+  pMap->MapAction(s_hTransformAsset, sTargetMenu, 1.0f);
+  pMap->MapAction(s_hWriteDependencyDGML, sTargetMenu, 10.0f);
 }
 
-void ezAssetActions::MapToolBarActions(const char* szMapping, bool bDocument)
+void ezAssetActions::MapToolBarActions(ezStringView sMapping, bool bDocument)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hAssetCategory, "", 10.0f);
 
@@ -59,10 +57,9 @@ void ezAssetActions::MapToolBarActions(const char* szMapping, bool bDocument)
   }
   else
   {
-    pMap->MapAction(s_hCheckFileSystem, "AssetCategory", 0.0f);
-    pMap->MapAction(s_hTransformAllAssets, "AssetCategory", 3.0f);
-    pMap->MapAction(s_hResaveAllAssets, "AssetCategory", 4.0f);
-    // pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 5.0f);
+    pMap->MapAction(s_hCheckFileSystem, "AssetCategory", 1.0f);
+    pMap->MapAction(s_hTransformAllAssets, "AssetCategory", 2.0f);
+    pMap->MapAction(s_hResaveAllAssets, "AssetCategory", 3.0f);
   }
 }
 

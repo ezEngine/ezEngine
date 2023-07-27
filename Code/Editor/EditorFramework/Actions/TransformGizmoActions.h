@@ -16,8 +16,8 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(const char* szMapping, const char* szPath);
-  static void MapToolbarActions(const char* szMapping, const char* szPath);
+  static void MapMenuActions(ezStringView sMapping);
+  static void MapToolbarActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hGizmoCategory;
   static ezActionDescriptorHandle s_hGizmoMenu;
@@ -93,7 +93,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath);
+  static void MapActions(ezStringView sMapping);
 
 private:
   static ezActionDescriptorHandle s_hSnappingValueMenu;

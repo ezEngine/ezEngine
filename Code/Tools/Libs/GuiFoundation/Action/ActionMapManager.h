@@ -7,9 +7,9 @@
 class EZ_GUIFOUNDATION_DLL ezActionMapManager
 {
 public:
-  static ezResult RegisterActionMap(const char* szMapping);
-  static ezResult UnregisterActionMap(const char* szMapping);
-  static ezActionMap* GetActionMap(const char* szMapping);
+  static ezResult RegisterActionMap(ezStringView sMapping);
+  static ezResult UnregisterActionMap(ezStringView sMapping);
+  static ezActionMap* GetActionMap(ezStringView sMapping);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, ActionMapManager);

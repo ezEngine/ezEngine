@@ -20,15 +20,41 @@ ezActionMap::ezActionMap() = default;
 
 ezActionMap::~ezActionMap() = default;
 
-void ezActionMap::MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fOrder)
+void ezActionMap::MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder)
 {
-  ezStringBuilder sPath = szPath;
-  sPath.MakeCleanPath();
-  sPath.Trim("/");
+  ezStringBuilder sFullPath = sPath;
+
+  if (!sPath.IsEmpty() && sPath.FindSubString("/") == nullptr)
+  {
+    if (SearchPathForAction(sPath, sFullPath).Failed())
+    {
+      sFullPath = sPath;
+    }
+  }
+
+  sFullPath.AppendPath(sSubPath);
+
+  MapAction(hAction, sFullPath, fOrder);
+}
+
+void ezActionMap::MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, float fOrder)
+{
+  ezStringBuilder sCleanPath = sPath;
+  sCleanPath.MakeCleanPath();
+  sCleanPath.Trim("/");
   ezActionMapDescriptor d;
   d.m_hAction = hAction;
-  d.m_sPath = sPath;
+  d.m_sPath = sCleanPath;
   d.m_fOrder = fOrder;
+
+  if (!d.m_sPath.IsEmpty() && d.m_sPath.FindSubString("/") == nullptr)
+  {
+    ezStringBuilder sFullPath;
+    if (SearchPathForAction(d.m_sPath, sFullPath).Succeeded())
+    {
+      d.m_sPath = sFullPath;
+    }
+  }
 
   EZ_VERIFY(MapAction(d).IsValid(), "Mapping Failed");
 }
@@ -87,6 +113,7 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
   return pChild->GetGuid();
 }
 
+
 ezResult ezActionMap::UnmapAction(const ezUuid& guid)
 {
   auto it = m_Descriptors.Find(guid);
@@ -102,15 +129,25 @@ ezResult ezActionMap::UnmapAction(const ezUuid& guid)
   return EZ_SUCCESS;
 }
 
-ezResult ezActionMap::UnmapAction(ezActionDescriptorHandle hAction, const char* szPath)
+ezResult ezActionMap::UnmapAction(ezActionDescriptorHandle hAction, ezStringView sPath)
 {
-  ezStringBuilder sPath = szPath;
-  sPath.MakeCleanPath();
-  sPath.Trim("/");
+  ezStringBuilder sCleanPath = sPath;
+  sCleanPath.MakeCleanPath();
+  sCleanPath.Trim("/");
   ezActionMapDescriptor d;
   d.m_hAction = hAction;
-  d.m_sPath = sPath;
+  d.m_sPath = sCleanPath;
   d.m_fOrder = 0.0f; // unused.
+
+  if (!d.m_sPath.IsEmpty() && d.m_sPath.FindSubString("/") == nullptr)
+  {
+    ezStringBuilder sFullPath;
+    if (SearchPathForAction(d.m_sPath, sFullPath).Succeeded())
+    {
+      d.m_sPath = sFullPath;
+    }
+  }
+
   return UnmapAction(d);
 }
 
@@ -141,7 +178,7 @@ ezResult ezActionMap::UnmapAction(const ezActionMapDescriptor& desc)
   return EZ_FAILURE;
 }
 
-bool ezActionMap::FindObjectByPath(const ezStringView& sPath, ezUuid& out_guid) const
+bool ezActionMap::FindObjectByPath(ezStringView sPath, ezUuid& out_guid) const
 {
   out_guid = ezUuid();
   if (sPath.IsEmpty())
@@ -163,6 +200,44 @@ bool ezActionMap::FindObjectByPath(const ezStringView& sPath, ezUuid& out_guid) 
   return true;
 }
 
+ezResult ezActionMap::SearchPathForAction(ezStringView sUniqueName, ezStringBuilder& out_sPath) const
+{
+  out_sPath.Clear();
+
+  if (FindObjectPathByName(&m_Root, sUniqueName, out_sPath))
+  {
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+bool ezActionMap::FindObjectPathByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName, ezStringBuilder& out_sPath) const
+{
+  ezStringView sObjectName;
+
+  if (!pObject->m_Data.m_hAction.IsInvalidated())
+  {
+    sObjectName = pObject->m_Data.m_hAction.GetDescriptor()->m_sActionName;
+  }
+
+  out_sPath.AppendPath(sObjectName);
+
+  if (sObjectName == sName)
+    return true;
+
+  for (const ezTreeNode<ezActionMapDescriptor>* pChild : pObject->GetChildren())
+  {
+    const ezActionMapDescriptor& pDesc = pChild->m_Data;
+
+    if (FindObjectPathByName(pChild, sName, out_sPath))
+      return true;
+  }
+
+  out_sPath.PathParentDirectory();
+  return false;
+}
+
 const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezUuid& guid) const
 {
   auto it = m_Descriptors.Find(guid);
@@ -179,8 +254,7 @@ const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezTreeNode<ezActio
   return &pObject->m_Data;
 }
 
-const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(
-  const ezTreeNode<ezActionMapDescriptor>* pObject, const ezStringView& sName) const
+const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName) const
 {
   for (const ezTreeNode<ezActionMapDescriptor>* pChild : pObject->GetChildren())
   {

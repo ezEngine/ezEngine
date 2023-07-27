@@ -76,13 +76,13 @@ void ezTextureAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hLodSlider);
 }
 
-void ezTextureAssetActions::MapActions(const char* szMapping, const char* szPath)
+void ezTextureAssetActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hLodSlider, szPath, 14.0f);
-  pMap->MapAction(s_hTextureChannelMode, szPath, 15.0f);
+  pMap->MapAction(s_hLodSlider, "", 14.0f);
+  pMap->MapAction(s_hTextureChannelMode, "", 15.0f);
 }
 
 

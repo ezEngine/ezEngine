@@ -102,77 +102,70 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCopyReference);
 }
 
-void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
+void ezSelectionActions::MapActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SelectionCategory");
+  pMap->MapAction(s_hCreateEmptyChildObject, "G.Selection", 1.0f);
+  pMap->MapAction(s_hCreateEmptyObjectAtPosition, "G.Selection", 1.1f);
+  pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 3.7f);
+  pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 4.0f);
+  pMap->MapAction(s_hHideUnselectedObjects, "G.Selection", 5.0f);
+  pMap->MapAction(s_hShowHiddenObjects, "G.Selection", 6.0f);
+  pMap->MapAction(s_hDuplicateSpecial, "G.Selection", 7.0f);
+  pMap->MapAction(s_hDeltaTransform, "G.Selection", 7.1f);
+  pMap->MapAction(s_hAttachToObject, "G.Selection", 7.2f);
+  pMap->MapAction(s_hDetachFromParent, "G.Selection", 7.3f);
+  pMap->MapAction(s_hSnapObjectToCamera, "G.Selection", 9.0f);
+  pMap->MapAction(s_hCopyReference, "G.Selection", 10.0f);
 
-  pMap->MapAction(s_hCreateEmptyChildObject, sSubPath, 1.0f);
-  pMap->MapAction(s_hCreateEmptyObjectAtPosition, sSubPath, 1.1f);
-  pMap->MapAction(s_hGroupSelectedItems, sSubPath, 3.7f);
-  pMap->MapAction(s_hHideSelectedObjects, sSubPath, 4.0f);
-  pMap->MapAction(s_hHideUnselectedObjects, sSubPath, 5.0f);
-  pMap->MapAction(s_hShowHiddenObjects, sSubPath, 6.0f);
-  pMap->MapAction(s_hDuplicateSpecial, sSubPath, 7.0f);
-  pMap->MapAction(s_hDeltaTransform, sSubPath, 7.1f);
-  pMap->MapAction(s_hAttachToObject, sSubPath, 7.2f);
-  pMap->MapAction(s_hDetachFromParent, sSubPath, 7.3f);
-  pMap->MapAction(s_hSnapObjectToCamera, sSubPath, 9.0f);
-  pMap->MapAction(s_hCopyReference, sSubPath, 10.0f);
-
-  MapPrefabActions(szMapping, sSubPath, 0.0f);
+  MapPrefabActions(sMapping, 0.0f);
 }
 
-void ezSelectionActions::MapPrefabActions(const char* szMapping, const char* szPath, float fPriority)
+void ezSelectionActions::MapPrefabActions(ezStringView sMapping, float fPriority)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sPrefabSubPath(szPath, "/Prefabs.Menu");
-  pMap->MapAction(s_hPrefabMenu, szPath, fPriority);
+  pMap->MapAction(s_hPrefabMenu, "G.Selection", fPriority);
 
-  pMap->MapAction(s_hOpenPrefabDocument, sPrefabSubPath, 1.0f);
-  pMap->MapAction(s_hRevertPrefab, sPrefabSubPath, 2.0f);
-  pMap->MapAction(s_hCreatePrefab, sPrefabSubPath, 3.0f);
-  pMap->MapAction(s_hUnlinkFromPrefab, sPrefabSubPath, 4.0f);
-  pMap->MapAction(s_hConvertToEditorPrefab, sPrefabSubPath, 5.0f);
-  pMap->MapAction(s_hConvertToEnginePrefab, sPrefabSubPath, 6.0f);
+  pMap->MapAction(s_hOpenPrefabDocument, "G.Selection", "Prefabs.Menu", 1.0f);
+  pMap->MapAction(s_hRevertPrefab, "G.Selection", "Prefabs.Menu", 2.0f);
+  pMap->MapAction(s_hCreatePrefab, "G.Selection", "Prefabs.Menu", 3.0f);
+  pMap->MapAction(s_hUnlinkFromPrefab, "G.Selection", "Prefabs.Menu", 4.0f);
+  pMap->MapAction(s_hConvertToEditorPrefab, "G.Selection", "Prefabs.Menu", 5.0f);
+  pMap->MapAction(s_hConvertToEnginePrefab, "G.Selection", "Prefabs.Menu", 6.0f);
 }
 
-void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char* szPath)
+void ezSelectionActions::MapContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SelectionCategory");
+  pMap->MapAction(s_hCreateEmptyChildObject, "G.Selection", 0.5f);
+  pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 2.0f);
+  pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 3.0f);
+  pMap->MapAction(s_hDetachFromParent, "G.Selection", 3.2f);
+  pMap->MapAction(s_hCopyReference, "G.Selection", 4.0f);
 
-  pMap->MapAction(s_hCreateEmptyChildObject, sSubPath, 0.5f);
-  pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
-  pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
-  pMap->MapAction(s_hDetachFromParent, sSubPath, 3.2f);
-  pMap->MapAction(s_hCopyReference, sSubPath, 4.0f);
-
-  MapPrefabActions(szMapping, sSubPath, 4.0f);
+  MapPrefabActions(sMapping, 4.0f);
 }
 
 
-void ezSelectionActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
+void ezSelectionActions::MapViewContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SelectionCategory");
+  pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 2.0f);
+  pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 3.0f);
+  pMap->MapAction(s_hAttachToObject, "G.Selection", 3.1f);
+  pMap->MapAction(s_hDetachFromParent, "G.Selection", 3.2f);
+  pMap->MapAction(s_hSnapObjectToCamera, "G.Selection", 5.0f);
+  pMap->MapAction(s_hCopyReference, "G.Selection", 6.0f);
 
-  pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
-  pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
-  pMap->MapAction(s_hAttachToObject, sSubPath, 3.1f);
-  pMap->MapAction(s_hDetachFromParent, sSubPath, 3.2f);
-  pMap->MapAction(s_hSnapObjectToCamera, sSubPath, 5.0f);
-  pMap->MapAction(s_hCopyReference, sSubPath, 6.0f);
-
-  MapPrefabActions(szMapping, sSubPath, 7.0f);
+  MapPrefabActions(sMapping, 7.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type)
