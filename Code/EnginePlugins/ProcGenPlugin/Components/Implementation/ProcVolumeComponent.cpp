@@ -165,7 +165,7 @@ void ezProcVolumeComponent::InvalidateArea(const ezBoundingBox& box)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -231,11 +231,16 @@ void ezProcVolumeSphereComponent::SerializeComponent(ezWorldWriter& inout_stream
 void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fRadius;
   s >> m_fFalloff;
+
+  if (uiVersion < 2)
+  {
+    m_fFalloff = 1.0f - m_fFalloff;
+  }
 }
 
 void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
@@ -251,7 +256,7 @@ void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -317,11 +322,16 @@ void ezProcVolumeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) c
 void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
   s >> m_vFalloff;
+
+  if (uiVersion < 2)
+  {
+    m_vFalloff = ezVec3(1.0f) - m_vFalloff;
+  }
 }
 
 void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
@@ -403,3 +413,49 @@ void ezProcVolumeImageComponent::SetImage(const ezImageDataResourceHandle& hReso
 {
   m_hImage = hResource;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezProcVolumeSphereComponent_1_2 : public ezGraphPatch
+{
+public:
+  ezProcVolumeSphereComponent_1_2()
+    : ezGraphPatch("ezProcVolumeSphereComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pFadeOutStart = pNode->FindProperty("FadeOutStart");
+    if (pFadeOutStart && pFadeOutStart->m_Value.IsA<float>())
+    {
+      float fFalloff = 1.0f - pFadeOutStart->m_Value.Get<float>();
+      pNode->AddProperty("Falloff", fFalloff);
+    }
+  }
+};
+
+ezProcVolumeSphereComponent_1_2 g_ezProcVolumeSphereComponent_1_2;
+
+class ezProcVolumeBoxComponent_1_2 : public ezGraphPatch
+{
+public:
+  ezProcVolumeBoxComponent_1_2()
+    : ezGraphPatch("ezProcVolumeBoxComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pFadeOutStart = pNode->FindProperty("FadeOutStart");
+    if (pFadeOutStart && pFadeOutStart->m_Value.IsA<ezVec3>())
+    {
+      ezVec3 vFalloff = ezVec3(1.0f) - pFadeOutStart->m_Value.Get<ezVec3>();
+      pNode->AddProperty("Falloff", vFalloff);
+    }
+  }
+};
+
+ezProcVolumeBoxComponent_1_2 g_ezProcVolumeBoxComponent_1_2;
