@@ -111,6 +111,14 @@ private:
   friend class ezResourceHandleStreamOperations;
 };
 
+template <>
+struct ezHashHelper<ezTypelessResourceHandle>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezTypelessResourceHandle& value) { return ezHashingUtils::StringHashTo32(value.GetResourceIDHash()); }
+
+  EZ_ALWAYS_INLINE static bool Equal(const ezTypelessResourceHandle& a, const ezTypelessResourceHandle& b) { return a == b; }
+};
+
 /// \brief The ezTypedResourceHandle controls access to an ezResource.
 ///
 /// All resources must be referenced using ezTypedResourceHandle instances (instantiated with the proper resource type as the template
