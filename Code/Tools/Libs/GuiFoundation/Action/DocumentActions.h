@@ -24,7 +24,6 @@ public:
   static ezActionDescriptorHandle s_hCopyAssetGuid;
 
   static ezActionDescriptorHandle s_hUpdatePrefabs;
-  
 };
 
 
