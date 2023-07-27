@@ -41,7 +41,7 @@ Engine.Tags;Tags...;Opens the tags configuration dialog
 # Project
 
 Project.ImportAsset;Import &Assets...
-Project.RecentDocuments.Menu;Recent &Documents
+Project.RecentDocuments.Menu;&Recently Opened
 Project.Close;Close Project
 G.Project.Cpp;C++ Project
 Project.SetupCppProject;&Setup C++ Plugin...

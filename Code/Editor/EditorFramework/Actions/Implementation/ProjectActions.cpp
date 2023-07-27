@@ -153,8 +153,6 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCatFileSpecial);
   ezActionManager::UnregisterAction(s_hCatAssetDoc);
 
-
-
   ezActionManager::UnregisterAction(s_hCreateDocument);
   ezActionManager::UnregisterAction(s_hOpenDocument);
   ezActionManager::UnregisterAction(s_hRecentDocuments);
