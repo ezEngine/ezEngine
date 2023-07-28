@@ -55,22 +55,23 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   return timestamp;
 }
 
-bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
+ezDateTime ezDateTime::MakeFromTimestamp(ezTimestamp timestamp, ezTimestamp fallback)
 {
   FILETIME fileTime = EpochToFileTime(timestamp.GetInt64(ezSIUnitOfTime::Microsecond));
 
   SYSTEMTIME st;
   BOOL res = FileTimeToSystemTime(&fileTime, &st);
   if (res == 0)
-    return false;
+    return fallback;
 
-  m_iYear = (ezInt16)st.wYear;
-  m_uiMonth = (ezUInt8)st.wMonth;
-  m_uiDay = (ezUInt8)st.wDay;
-  m_uiDayOfWeek = (ezUInt8)st.wDayOfWeek;
-  m_uiHour = (ezUInt8)st.wHour;
-  m_uiMinute = (ezUInt8)st.wMinute;
-  m_uiSecond = (ezUInt8)st.wSecond;
-  m_uiMicroseconds = ezUInt32(st.wMilliseconds * 1000);
-  return true;
+  ezDateTime ts;
+  ts.m_iYear = (ezInt16)st.wYear;
+  ts.m_uiMonth = (ezUInt8)st.wMonth;
+  ts.m_uiDay = (ezUInt8)st.wDay;
+  ts.m_uiDayOfWeek = (ezUInt8)st.wDayOfWeek;
+  ts.m_uiHour = (ezUInt8)st.wHour;
+  ts.m_uiMinute = (ezUInt8)st.wMinute;
+  ts.m_uiSecond = (ezUInt8)st.wSecond;
+  ts.m_uiMicroseconds = ezUInt32(st.wMilliseconds * 1000);
+  return ts;
 }
