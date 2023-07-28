@@ -38,10 +38,10 @@ public:
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   /// \brief Returns a vector with all components set to Not-a-Number (NaN).
-  static const ezVec2Template<Type> MakeNaN() { return ezVec2Template<Type>(ezMath::NaN<Type>()); }
+  [[nodiscard]] static const ezVec2Template<Type> MakeNaN() { return ezVec2Template<Type>(ezMath::NaN<Type>()); }
 
   /// \brief Static function that returns a zero-vector.
-  static const ezVec2Template<Type> MakeZero() { return ezVec2Template(0); } // [tested]
+  [[nodiscard]] static const ezVec2Template<Type> MakeZero() { return ezVec2Template(0); } // [tested]
   /*[[deprecated("Use ezVec2::MakeZero() instead.")]]*/ static const ezVec2Template<Type> ZeroVector() { return ezVec2Template(0); }
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)

@@ -28,14 +28,14 @@ public:
   constexpr static Type RadToDeg(Type f); // [tested]
 
   /// \brief Returns a zero initialized angle. Same as a default constructed object.
-  constexpr static ezAngle MakeZero(float fDegree) { return ezAngle(); }
+  [[nodiscard]] constexpr static ezAngle MakeZero(float fDegree) { return ezAngle(); }
 
   /// \brief Creates an instance of ezAngle that was initialized from degree. (Performs a conversion)
-  constexpr static ezAngle MakeFromDegree(float fDegree); // [tested]
+  [[nodiscard]] constexpr static ezAngle MakeFromDegree(float fDegree); // [tested]
   /*[[deprecated("Use ezAngle::MakeFromDegree() instead.")]]*/ constexpr static ezAngle Degree(float fDegree) { return MakeFromDegree(fDegree); }
 
   /// \brief Creates an instance of ezAngle that was initialized from radian. (No need for any conversion)
-  constexpr static ezAngle MakeFromRadian(float fRadian); // [tested]
+  [[nodiscard]] constexpr static ezAngle MakeFromRadian(float fRadian); // [tested]
   /*[[deprecated("Use ezAngle::MakeFromRadian() instead.")]]*/ constexpr static ezAngle Radian(float fRadian) { return MakeFromRadian(fRadian); }
 
   /// \brief Standard constructor, initializing with 0.

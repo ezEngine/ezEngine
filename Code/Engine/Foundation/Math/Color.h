@@ -206,10 +206,10 @@ public:
   // *** Static Functions ***
 public:
   /// \brief Returns a color with all four RGBA components set to Not-A-Number (NaN).
-  static ezColor MakeNaN();
+  [[nodiscard]] static ezColor MakeNaN();
 
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
-  static ezColor MakeZero();
+  [[nodiscard]] static ezColor MakeZero();
   /*[[deprecated("Use ezColor::MakeZero() instead.")]]*/ static ezColor ZeroColor() { return MakeZero(); }
 
   // *** Constructors ***
@@ -255,7 +255,7 @@ public:
   /// \brief Sets this color from a HSV (hue, saturation, value) format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
-  static ezColor MakeHSV(float fHue, float fSat, float fVal); // [tested]
+  [[nodiscard]] static ezColor MakeHSV(float fHue, float fSat, float fVal); // [tested]
   /*[[deprecated("Use ezColor::MakeHSV() instead.")]]*/ void SetHSV(float fHue, float fSat, float fVal) { *this = MakeHSV(fHue, fSat, fVal); }
 
   /// \brief Converts the color part to HSV format.

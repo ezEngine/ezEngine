@@ -47,10 +47,10 @@ public:
   /*[[deprecated("Use ezTimestamp::MakeFromInt() instead.")]]*/ ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime); // [tested]
 
   /// \brief Returns an invalid timestamp
-  static ezTimestamp MakeInvalid() { return ezTimestamp(); }
+  [[nodiscard]] static ezTimestamp MakeInvalid() { return ezTimestamp(); }
 
   /// \brief Returns a timestamp initialized from 'iTimeValue' in 'unitOfTime' since Unix epoch.
-  static ezTimestamp MakeFromInt(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime);
+  [[nodiscard]] static ezTimestamp MakeFromInt(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime);
 
   // *** Public Functions ***
 public:
@@ -121,7 +121,7 @@ public:
   bool IsValid() const;
 
   /// \brief Returns a date time that is all zero.
-  static ezDateTime MakeZero() { return ezDateTime(); }
+  [[nodiscard]] static ezDateTime MakeZero() { return ezDateTime(); }
 
   /// \brief Creates a date time instance from the given timestamp.
   /*[[deprecated("Use ezDateTime::MakeFromTimestamp() instead.")]]*/ ezDateTime(ezTimestamp timestamp); // [tested]
@@ -131,14 +131,14 @@ public:
   /// The conversion is done via the OS and will fail for invalid dates and values outside the supported range,
   /// in which case the return timestamp will be the fallback value.
   /// Anything after 1970 and before the not so distant future should be safe.
-  static ezDateTime MakeFromTimestamp(ezTimestamp timestamp, ezTimestamp fallback = {});
+  [[nodiscard]] static ezDateTime MakeFromTimestamp(ezTimestamp timestamp, ezTimestamp fallback = {});
 
   /// \brief Converts this instance' values into a ezTimestamp.
   ///
   /// The conversion is done via the OS and can fail for values that are outside the supported range.
   /// In this case, the returned value will be invalid. Anything after 1970 and before the
   /// not so distant future should be safe.
-  const ezTimestamp GetTimestamp() const; // [tested]
+  [[nodiscard]] const ezTimestamp GetTimestamp() const; // [tested]
 
   /*[[deprecated("Use ezDateTime::MakeFromTimestamp() instead.")]]*/ void SetTimestamp(ezTimestamp timestamp) { *this = MakeFromTimestamp(timestamp); }
 
