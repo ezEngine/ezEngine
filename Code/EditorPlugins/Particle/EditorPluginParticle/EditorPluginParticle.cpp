@@ -20,27 +20,27 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
       ezProjectActions::MapActions("ParticleEffectAssetMenuBar");
-      ezDocumentActions::MapActions("ParticleEffectAssetMenuBar", "Menu.File", false);
-      ezAssetActions::MapMenuActions("ParticleEffectAssetMenuBar", "Menu.File");
-      ezCommandHistoryActions::MapActions("ParticleEffectAssetMenuBar", "Menu.Edit");
+      ezDocumentActions::MapMenuActions("ParticleEffectAssetMenuBar");
+      ezAssetActions::MapMenuActions("ParticleEffectAssetMenuBar");
+      ezCommandHistoryActions::MapActions("ParticleEffectAssetMenuBar");
     }
 
     // Tool Bar
     {
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapActions("ParticleEffectAssetToolBar", "", true);
+      ezDocumentActions::MapToolbarActions("ParticleEffectAssetToolBar");
       ezCommandHistoryActions::MapActions("ParticleEffectAssetToolBar", "");
       ezAssetActions::MapToolBarActions("ParticleEffectAssetToolBar", true);
-      ezParticleActions::MapActions("ParticleEffectAssetToolBar", "");
+      ezParticleActions::MapActions("ParticleEffectAssetToolBar");
     }
 
     // View Tool Bar
     {
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar").IgnoreResult();
-      ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
-      ezViewLightActions::MapActions("ParticleEffectAssetViewToolBar", "");
+      ezViewActions::MapToolbarActions("ParticleEffectAssetViewToolBar", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+      ezViewLightActions::MapToolbarActions("ParticleEffectAssetViewToolBar");
     }
 
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);

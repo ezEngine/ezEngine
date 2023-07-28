@@ -16,10 +16,10 @@ void ezVisualShaderActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCleanGraph);
 }
 
-void ezVisualShaderActions::MapActions(const char* szMapping)
+void ezVisualShaderActions::MapActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCleanGraph, "", 30.0f);
 }

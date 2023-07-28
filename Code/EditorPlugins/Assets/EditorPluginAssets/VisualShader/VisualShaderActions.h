@@ -9,7 +9,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping);
+  static void MapActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hCleanGraph;
 };

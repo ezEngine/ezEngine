@@ -51,10 +51,10 @@ void ezCommonAssetActions::UnregisterActions()
     ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
 }
 
-void ezCommonAssetActions::MapActions(const char* szMapping, const char* szPath, ezUInt32 uiStateMask)
+void ezCommonAssetActions::MapToolbarActions(ezStringView sMapping, ezUInt32 uiStateMask)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 11.0f);
 

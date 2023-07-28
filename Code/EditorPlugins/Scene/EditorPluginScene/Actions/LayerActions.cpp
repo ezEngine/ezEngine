@@ -50,14 +50,15 @@ void ezLayerActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hLayerVisible);
 }
 
-void ezLayerActions::MapContextMenuActions(const char* szMapping, const char* szPath)
+void ezLayerActions::MapContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
 
   pMap->MapAction(s_hLayerCategory, "", 0.0f);
-  ezStringBuilder sSubPath(szPath, "/LayerCategory");
+
+  const ezStringView sSubPath = "LayerCategory";
   pMap->MapAction(s_hCreateLayer, sSubPath, 1.0f);
   pMap->MapAction(s_hDeleteLayer, sSubPath, 2.0f);
   pMap->MapAction(s_hSaveLayer, sSubPath, 3.0f);

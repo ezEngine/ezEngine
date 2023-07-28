@@ -132,22 +132,22 @@ void ezSceneActions::UnregisterActions()
   }
 }
 
-void ezSceneActions::MapMenuActions(const char* szMapping)
+void ezSceneActions::MapMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
-    const char* szSubPath = "Menu.Scene/SceneCategory";
-    const char* szUtilsSubPath = "Menu.Scene/Scene.Utils.Menu";
+    const char* szSubPath = "G.Scene/SceneCategory";
+    const char* szUtilsSubPath = "G.Scene/Scene.Utils.Menu";
 
-    pMap->MapAction(s_hSceneUtilsMenu, "Menu.Scene", 2.0f);
+    pMap->MapAction(s_hSceneUtilsMenu, "G.Scene", 2.0f);
     // pMap->MapAction(s_hCreateThumbnail, szUtilsSubPath, 0.0f); // now available through the export scene dialog
     pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
-    pMap->MapAction(s_hFavoriteCamsMenu, "Menu.Scene", 3.0f);
-    const char* szFavCamsSubPath = "Menu.Scene/Scene.FavoriteCams.Menu";
+    pMap->MapAction(s_hFavoriteCamsMenu, "G.Scene", 3.0f);
+    const char* szFavCamsSubPath = "G.Scene/Scene.FavoriteCams.Menu";
 
     for (ezUInt32 i = 0; i < 10; ++i)
     {
@@ -157,7 +157,7 @@ void ezSceneActions::MapMenuActions(const char* szMapping)
       pMap->MapAction(s_hCreateLevelCamera[i], szFavCamsSubPath, 40.0f + i);
     }
 
-    pMap->MapAction(s_hSceneCategory, "Menu.Scene", 4.0f);
+    pMap->MapAction(s_hSceneCategory, "G.Scene", 4.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 1.0f);
     pMap->MapAction(s_hGameModeStop, szSubPath, 4.0f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 5.0f);
@@ -166,9 +166,9 @@ void ezSceneActions::MapMenuActions(const char* szMapping)
   }
 }
 
-void ezSceneActions::MapToolbarActions(const char* szMapping)
+void ezSceneActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   {
@@ -184,14 +184,12 @@ void ezSceneActions::MapToolbarActions(const char* szMapping)
   }
 }
 
-void ezSceneActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
+void ezSceneActions::MapViewContextMenuActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SceneCategory");
-
-  pMap->MapAction(s_hGameModePlayFromHere, szPath, 1.0f);
+  pMap->MapAction(s_hGameModePlayFromHere, "", 1.0f);
 }
 
 ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName, ezSceneAction::ActionType type)

@@ -11,10 +11,8 @@ ezActionDescriptorHandle ezProcGenActions::s_hDumpDisassembly;
 void ezProcGenActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("ProcGen");
-  s_hDumpAST =
-    EZ_REGISTER_ACTION_1("ProcGen.DumpAST", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpAST);
-  s_hDumpDisassembly = EZ_REGISTER_ACTION_1(
-    "ProcGen.DumpDisassembly", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpDisassembly);
+  s_hDumpAST = EZ_REGISTER_ACTION_1("ProcGen.DumpAST", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpAST);
+  s_hDumpDisassembly = EZ_REGISTER_ACTION_1("ProcGen.DumpDisassembly", ezActionScope::Document, "ProcGen Graph", "", ezProcGenAction, ezProcGenAction::ActionType::DumpDisassembly);
 }
 
 void ezProcGenActions::UnregisterActions()
@@ -29,16 +27,16 @@ void ezProcGenActions::MapMenuActions()
   ezActionMap* pMap = ezActionMapManager::GetActionMap("ProcGenAssetMenuBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
-  pMap->MapAction(s_hCategory, "Menu.Tools", 9.0f);
-  pMap->MapAction(s_hDumpAST, "Menu.Tools", 10.0f);
-  pMap->MapAction(s_hDumpDisassembly, "Menu.Tools", 11.0f);
+  pMap->MapAction(s_hCategory, "G.Tools.Document", 10.0f);
+  pMap->MapAction(s_hDumpAST, "G.Tools.Document", "ProcGen", 1.0f);
+  pMap->MapAction(s_hDumpDisassembly, "G.Tools.Document", "ProcGen", 2.0f);
 
   pMap = ezActionMapManager::GetActionMap("ProcGenAssetToolBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
-  pMap->MapAction(s_hCategory, "", 12.0f);
-  pMap->MapAction(s_hDumpAST, "ProcGen", 0.0f);
-  pMap->MapAction(s_hDumpDisassembly, "ProcGen", 0.0f);
+  pMap->MapAction(s_hCategory, "", 10.0f);
+  pMap->MapAction(s_hDumpAST, "ProcGen", 1.0f);
+  pMap->MapAction(s_hDumpDisassembly, "ProcGen", 2.0f);
 }
 
 //////////////////////////////////////////////////////////////////////////

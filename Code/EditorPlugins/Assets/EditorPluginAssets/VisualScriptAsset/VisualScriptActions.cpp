@@ -23,10 +23,10 @@ void ezVisualScriptActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hPickDebugTarget);
 }
 
-void ezVisualScriptActions::MapActions(const char* szMapping, const char* szPath)
+void ezVisualScriptActions::MapActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
   pMap->MapAction(s_hCategory, "", 10.0f);
 

@@ -69,13 +69,13 @@ void ezViewLightActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSetAsDefault);
 }
 
-void ezViewLightActions::MapActions(const char* szMapping, const char* szPath)
+void ezViewLightActions::MapToolbarActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hLightMenu, szPath, 2.5f);
-  ezStringBuilder sSubPath(szPath, "/View.LightMenu");
+  pMap->MapAction(s_hLightMenu, "", 2.5f);
+  const ezStringView sSubPath = "View.LightMenu";
   pMap->MapAction(s_hSkyBox, sSubPath, 1.0f);
   pMap->MapAction(s_hSkyLight, sSubPath, 1.0f);
   pMap->MapAction(s_hSkyLightCubeMap, sSubPath, 2.0f);

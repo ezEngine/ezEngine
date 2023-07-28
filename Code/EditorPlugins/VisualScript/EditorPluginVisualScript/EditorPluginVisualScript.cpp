@@ -15,18 +15,18 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("VisualScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("VisualScriptAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
       ezProjectActions::MapActions("VisualScriptAssetMenuBar");
-      ezDocumentActions::MapActions("VisualScriptAssetMenuBar", "Menu.File", false);
-      ezAssetActions::MapMenuActions("VisualScriptAssetMenuBar", "Menu.File");
-      ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit");
-      ezEditActions::MapActions("VisualScriptAssetMenuBar", "Menu.Edit", false, false);
+      ezDocumentActions::MapMenuActions("VisualScriptAssetMenuBar");
+      ezAssetActions::MapMenuActions("VisualScriptAssetMenuBar");
+      ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar");
+      ezEditActions::MapActions("VisualScriptAssetMenuBar", false, false);
     }
 
     // Tool Bar
     {
       ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapActions("VisualScriptAssetToolBar", "", true);
+      ezDocumentActions::MapToolbarActions("VisualScriptAssetToolBar");
       ezCommandHistoryActions::MapActions("VisualScriptAssetToolBar", "");
       ezAssetActions::MapToolBarActions("VisualScriptAssetToolBar", true);
     }

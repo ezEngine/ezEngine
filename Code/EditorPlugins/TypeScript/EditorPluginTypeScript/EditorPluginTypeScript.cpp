@@ -25,20 +25,20 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("TypeScriptAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("TypeScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("TypeScriptAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
       ezProjectActions::MapActions("TypeScriptAssetMenuBar");
-      ezDocumentActions::MapActions("TypeScriptAssetMenuBar", "Menu.File", false);
-      ezAssetActions::MapMenuActions("TypeScriptAssetMenuBar", "Menu.File");
-      ezCommandHistoryActions::MapActions("TypeScriptAssetMenuBar", "Menu.Edit");
+      ezDocumentActions::MapMenuActions("TypeScriptAssetMenuBar");
+      ezAssetActions::MapMenuActions("TypeScriptAssetMenuBar");
+      ezCommandHistoryActions::MapActions("TypeScriptAssetMenuBar");
     }
 
     // Tool Bar
     {
       ezActionMapManager::RegisterActionMap("TypeScriptAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapActions("TypeScriptAssetToolBar", "", true);
+      ezDocumentActions::MapToolbarActions("TypeScriptAssetToolBar");
       ezCommandHistoryActions::MapActions("TypeScriptAssetToolBar", "");
       ezAssetActions::MapToolBarActions("TypeScriptAssetToolBar", true);
-      ezTypeScriptActions::MapActions("TypeScriptAssetToolBar", "");
+      ezTypeScriptActions::MapActions("TypeScriptAssetToolBar");
     }
   }
 }

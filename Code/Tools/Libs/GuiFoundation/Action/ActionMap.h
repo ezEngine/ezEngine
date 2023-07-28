@@ -9,9 +9,8 @@ class ezDocument;
 struct EZ_GUIFOUNDATION_DLL ezActionMapDescriptor
 {
   ezActionDescriptorHandle m_hAction; ///< Action to be mapped
-  ezString
-    m_sPath; ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
-  float m_fOrder; ///< Ordering key to sort actions in the mapping path.
+  ezString m_sPath;                   ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
+  float m_fOrder;                     ///< Ordering key to sort actions in the mapping path.
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezActionMapDescriptor);
 
@@ -82,7 +81,23 @@ private:
   ezHybridArray<ezTreeNode<T>*, 8> m_Children;
 };
 
-
+/// \brief Defines the structure of how actions are organized in a particular context.
+///
+/// Actions are usually commands that are exposed through UI.
+/// For instance a button in a toolbar or a menu entry.
+///
+/// Actions are unique. Each action only exists once in ezActionManager.
+///
+/// An action map defines where in a menu an action shows up.
+/// Actions are usually grouped by categories. So for example all actions related to opening, closing
+/// or saving a document may be in one group. Their position within that group is defined through
+/// an 'order' value. This allows plugins to insert actions easily.
+///
+/// A window might use multiple action maps to build different structures.
+/// For example, usually there is one action map for a window menu, and another map for a toolbar.
+/// These will contain different actions, and they are organized differently.
+///
+/// Action maps are created through ezActionMapManager and are simply identified by name.
 class EZ_GUIFOUNDATION_DLL ezActionMap
 {
 public:
@@ -90,21 +105,57 @@ public:
   ezActionMap();
   ~ezActionMap();
 
-  void MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fM_fOrder);
-  ezUuid MapAction(const ezActionMapDescriptor& desc);
-  ezResult UnmapAction(ezActionDescriptorHandle hAction, const char* szPath);
-  ezResult UnmapAction(const ezActionMapDescriptor& desc);
-  ezResult UnmapAction(const ezUuid& guid);
+  /// \brief Adds the given action to into the category or menu identified by sPath.
+  ///
+  /// All actions added to the same path will be sorted by 'fOrder' and the ones with the smaller values show up at the top.
+  ///
+  /// sPath must either be a fully qualified path OR the name of a uniquely named category or menu.
+  /// If sPath is empty, the action (which may be a category itself) will be mapped into the root.
+  /// This is common for top-level menus and for toolbars.
+  ///
+  /// If sPath is a fully qualified path, the segments are separated by slashes (/)
+  /// and each segment must name either a category (see EZ_REGISTER_CATEGORY) or a menu (see EZ_REGISTER_MENU).
+  ///
+  /// sPath may also name a category or menu WITHOUT it being a full path. In this case the name must be unique.
+  /// If sPath isn't empty and doesn't contain a slash, the system searches all available actions that are already in the action map.
+  /// This allows you to insert an action into a category, without knowing the full path to that category.
+  /// By convention, categories that are meant to be used that way are named "G.Something". The idea is, that where that category
+  /// really shows up (and whether it is its own menu or just an area somewhere) may change in the future, or may be different
+  /// in different contexts.
+  ///
+  /// To make it easier to use 'global' category names combined with an additional relative path, there is an overload of this function
+  /// that takes an additional sSubPath argument.
+  void MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, float fOrder);
+
+  /// \brief An overload of MapAction that takes a dedicated sPath and sSubPath argument for convenience.
+  ///
+  /// If sPath is a 'global' name of a category, it is searched for (see SearchPathForAction()).
+  /// Afterwards sSubPath is appended and the result is forwarded to MapAction() as a single path string.
+  void MapAction(ezActionDescriptorHandle hAction, ezStringView sPath, ezStringView sSubPath, float fOrder);
+
+  /// \brief Removes the named action from the action map. The same rules for 'global' names apply as for MapAction().
+  ezResult UnmapAction(ezActionDescriptorHandle hAction, ezStringView sPath);
+
+  /// \brief Searches for an action with the given name and returns the full path to it.
+  ///
+  /// This is mainly meant to be used with (unique) names to categories (or menus).
+  ezResult SearchPathForAction(ezStringView sUniqueName, ezStringBuilder& out_sPath) const;
 
   const TreeNode* GetRootObject() const { return &m_Root; }
-  const ezActionMapDescriptor* GetDescriptor(const ezUuid& guid) const;
+
   const ezActionMapDescriptor* GetDescriptor(const ezTreeNode<ezActionMapDescriptor>* pObject) const;
 
 private:
-  bool FindObjectByPath(const ezStringView& sPath, ezUuid& out_guid) const;
-  const ezTreeNode<ezActionMapDescriptor>* GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, const ezStringView& sName) const;
+  ezUuid MapAction(const ezActionMapDescriptor& desc);
+  ezResult UnmapAction(const ezActionMapDescriptor& desc);
+  ezResult UnmapAction(const ezUuid& guid);
 
-private:
+  const ezActionMapDescriptor* GetDescriptor(const ezUuid& guid) const;
+
+  bool FindObjectByPath(ezStringView sPath, ezUuid& out_guid) const;
+  bool FindObjectPathByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName, ezStringBuilder& out_sPath) const;
+  const ezTreeNode<ezActionMapDescriptor>* GetChildByName(const ezTreeNode<ezActionMapDescriptor>* pObject, ezStringView sName) const;
+
   TreeNode m_Root;
   ezMap<ezUuid, ezTreeNode<ezActionMapDescriptor>*> m_Descriptors;
 };

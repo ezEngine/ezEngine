@@ -11,7 +11,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath);
+  static void MapActions(ezStringView sMapping, ezStringView sTargetMenu = "G.Edit");
 
   static ezActionDescriptorHandle s_hCommandHistoryCategory;
   static ezActionDescriptorHandle s_hUndo;

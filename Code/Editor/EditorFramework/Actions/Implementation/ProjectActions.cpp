@@ -19,14 +19,20 @@
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 
-ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
+ezActionDescriptorHandle ezProjectActions::s_hCatProjectGeneral;
+ezActionDescriptorHandle ezProjectActions::s_hCatProjectAssets;
+ezActionDescriptorHandle ezProjectActions::s_hCatProjectConfig;
+ezActionDescriptorHandle ezProjectActions::s_hCatProjectExternal;
 
-ezActionDescriptorHandle ezProjectActions::s_hDocumentCategory;
+ezActionDescriptorHandle ezProjectActions::s_hCatFilesGeneral;
+ezActionDescriptorHandle ezProjectActions::s_hCatFileCommon;
+ezActionDescriptorHandle ezProjectActions::s_hCatFileSpecial;
+ezActionDescriptorHandle ezProjectActions::s_hCatAssetDoc;
+
 ezActionDescriptorHandle ezProjectActions::s_hCreateDocument;
 ezActionDescriptorHandle ezProjectActions::s_hOpenDocument;
 ezActionDescriptorHandle ezProjectActions::s_hRecentDocuments;
 
-ezActionDescriptorHandle ezProjectActions::s_hProjectCategory;
 ezActionDescriptorHandle ezProjectActions::s_hOpenDashboard;
 ezActionDescriptorHandle ezProjectActions::s_hCreateProject;
 ezActionDescriptorHandle ezProjectActions::s_hOpenProject;
@@ -34,23 +40,24 @@ ezActionDescriptorHandle ezProjectActions::s_hRecentProjects;
 ezActionDescriptorHandle ezProjectActions::s_hCloseProject;
 ezActionDescriptorHandle ezProjectActions::s_hDocsAndCommunity;
 
-ezActionDescriptorHandle ezProjectActions::s_hSettingsCategory;
-ezActionDescriptorHandle ezProjectActions::s_hEditorSettingsMenu;
-ezActionDescriptorHandle ezProjectActions::s_hProjectSettingsMenu;
+ezActionDescriptorHandle ezProjectActions::s_hCatProjectSettings;
+ezActionDescriptorHandle ezProjectActions::s_hCatPluginSettings;
 ezActionDescriptorHandle ezProjectActions::s_hShortcutEditor;
 ezActionDescriptorHandle ezProjectActions::s_hDataDirectories;
 ezActionDescriptorHandle ezProjectActions::s_hWindowConfig;
 ezActionDescriptorHandle ezProjectActions::s_hInputConfig;
 ezActionDescriptorHandle ezProjectActions::s_hPreferencesDlg;
-ezActionDescriptorHandle ezProjectActions::s_hTagsDlg;
+ezActionDescriptorHandle ezProjectActions::s_hTagsConfig;
 ezActionDescriptorHandle ezProjectActions::s_hImportAsset;
 ezActionDescriptorHandle ezProjectActions::s_hAssetProfiles;
 ezActionDescriptorHandle ezProjectActions::s_hExportProject;
 ezActionDescriptorHandle ezProjectActions::s_hPluginSelection;
 ezActionDescriptorHandle ezProjectActions::s_hClearAssetCaches;
 
-ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
-ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
+ezActionDescriptorHandle ezProjectActions::s_hCatToolsExternal;
+ezActionDescriptorHandle ezProjectActions::s_hCatToolsEditor;
+ezActionDescriptorHandle ezProjectActions::s_hCatToolsDocument;
+ezActionDescriptorHandle ezProjectActions::s_hCatEditorSettings;
 ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
 ezActionDescriptorHandle ezProjectActions::s_hReloadEngine;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchFileserve;
@@ -65,39 +72,63 @@ ezActionDescriptorHandle ezProjectActions::s_hCompileCppProject;
 
 void ezProjectActions::RegisterActions()
 {
-  s_hEditorMenu = EZ_REGISTER_MENU("Menu.Editor");
+  s_hCatProjectGeneral = EZ_REGISTER_CATEGORY("G.Project.General");
+  s_hCatProjectAssets = EZ_REGISTER_CATEGORY("G.Project.Assets");
+  s_hCatProjectExternal = EZ_REGISTER_CATEGORY("G.Project.External");
+  s_hCatProjectConfig = EZ_REGISTER_CATEGORY("G.Project.Config");
+  s_hCatEditorSettings = EZ_REGISTER_CATEGORY("G.Editor.Settings");
 
-  s_hDocumentCategory = EZ_REGISTER_CATEGORY("DocumentCategory");
+  s_hCatFilesGeneral = EZ_REGISTER_CATEGORY("G.Files.General");
+  s_hCatFileCommon = EZ_REGISTER_CATEGORY("G.File.Common");
+  s_hCatFileSpecial = EZ_REGISTER_CATEGORY("G.File.Special");
+  s_hCatAssetDoc = EZ_REGISTER_CATEGORY("G.AssetDoc");
+
+
+  s_hOpenDashboard = EZ_REGISTER_ACTION_1("Editor.OpenDashboard", ezActionScope::Global, "Editor", "Ctrl+Shift+D", ezProjectAction, ezProjectAction::ButtonType::OpenDashboard);
+
+  s_hCreateProject = EZ_REGISTER_ACTION_1("Project.Create", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
+
+  s_hOpenProject = EZ_REGISTER_ACTION_1("Project.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
+
+  s_hRecentProjects = EZ_REGISTER_DYNAMIC_MENU("Project.RecentProjects.Menu", ezRecentProjectsMenuAction, "");
+  s_hCloseProject = EZ_REGISTER_ACTION_1("Project.Close", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
+
+  s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction, ezProjectAction::ButtonType::ImportAsset);
+  s_hClearAssetCaches = EZ_REGISTER_ACTION_1("Project.ClearAssetCaches", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ClearAssetCaches);
+
+  s_hExportProject = EZ_REGISTER_ACTION_1("Project.ExportProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ExportProject);
+
+  s_hCppProjectMenu = EZ_REGISTER_MENU("G.Project.Cpp");
+  {
+    s_hSetupCppProject = EZ_REGISTER_ACTION_1("Project.SetupCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::SetupCppProject);
+    s_hOpenCppProject = EZ_REGISTER_ACTION_1("Project.OpenCppProject", ezActionScope::Global, "Project", "Ctrl+Shift+O", ezProjectAction, ezProjectAction::ButtonType::OpenCppProject);
+    s_hCompileCppProject = EZ_REGISTER_ACTION_1("Project.CompileCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CompileCppProject);
+  }
+
+  s_hCatProjectSettings = EZ_REGISTER_MENU("G.Project.Settings");
+
+  s_hPluginSelection = EZ_REGISTER_ACTION_1("Project.PluginSelection", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::PluginSelection);
+  s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
+  s_hTagsConfig = EZ_REGISTER_ACTION_1("Engine.Tags", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::TagsDialog);
+  s_hInputConfig = EZ_REGISTER_ACTION_1("Project.InputConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::InputConfig);
+  s_hWindowConfig = EZ_REGISTER_ACTION_1("Project.WindowConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::WindowConfig);
+  s_hAssetProfiles = EZ_REGISTER_ACTION_1("Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::AssetProfiles);
+
+  s_hCatPluginSettings = EZ_REGISTER_MENU("G.Plugins.Settings");
+
+  //////////////////////////////////////////////////////////////////////////
+
   s_hCreateDocument = EZ_REGISTER_ACTION_1("Document.Create", ezActionScope::Global, "Project", "Ctrl+N", ezProjectAction, ezProjectAction::ButtonType::CreateDocument);
   s_hOpenDocument = EZ_REGISTER_ACTION_1("Document.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenDocument);
   s_hRecentDocuments = EZ_REGISTER_DYNAMIC_MENU("Project.RecentDocuments.Menu", ezRecentDocumentsMenuAction, "");
 
-  s_hProjectCategory = EZ_REGISTER_CATEGORY("ProjectCategory");
-  s_hOpenDashboard = EZ_REGISTER_ACTION_1("Editor.OpenDashboard", ezActionScope::Global, "Editor", "Ctrl+Shift+D", ezProjectAction, ezProjectAction::ButtonType::OpenDashboard);
-  s_hCreateProject = EZ_REGISTER_ACTION_1("Project.Create", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
-  s_hOpenProject = EZ_REGISTER_ACTION_1("Project.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
-  s_hRecentProjects = EZ_REGISTER_DYNAMIC_MENU("Project.RecentProjects.Menu", ezRecentProjectsMenuAction, "");
-  s_hCloseProject = EZ_REGISTER_ACTION_1("Project.Close", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
-
-  s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
-  s_hEditorSettingsMenu = EZ_REGISTER_MENU_WITH_ICON("Menu.EditorSettings", ":/GuiFoundation/Icons/Settings16.png");
-  s_hProjectSettingsMenu = EZ_REGISTER_MENU("Menu.ProjectSettings");
-
   s_hShortcutEditor = EZ_REGISTER_ACTION_1("Editor.Shortcuts", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::Shortcuts);
   s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.Preferences", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::PreferencesDialog);
-  s_hTagsDlg = EZ_REGISTER_ACTION_1("Engine.Tags", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::TagsDialog);
-  s_hPluginSelection = EZ_REGISTER_ACTION_1("Project.PluginSelection", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::PluginSelection);
 
-  s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
-  s_hInputConfig = EZ_REGISTER_ACTION_1("Project.InputConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::InputConfig);
-  s_hWindowConfig = EZ_REGISTER_ACTION_1("Project.WindowConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::WindowConfig);
-  s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction, ezProjectAction::ButtonType::ImportAsset);
-  s_hAssetProfiles = EZ_REGISTER_ACTION_1("Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::AssetProfiles);
-  s_hExportProject = EZ_REGISTER_ACTION_1("Project.ExportProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ExportProject);
-  s_hClearAssetCaches = EZ_REGISTER_ACTION_1("Project.ClearAssetCaches", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ClearAssetCaches);
+  s_hCatToolsExternal = EZ_REGISTER_CATEGORY("G.Tools.External");
+  s_hCatToolsEditor = EZ_REGISTER_CATEGORY("G.Tools.Editor");
+  s_hCatToolsDocument = EZ_REGISTER_CATEGORY("G.Tools.Document");
 
-  s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
-  s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
   s_hReloadResources = EZ_REGISTER_ACTION_1("Engine.ReloadResources", ezActionScope::Global, "Engine", "F4", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
   s_hReloadEngine = EZ_REGISTER_ACTION_1("Engine.ReloadEngine", ezActionScope::Global, "Engine", "Ctrl+Shift+F4", ezProjectAction, ezProjectAction::ButtonType::ReloadEngine);
   s_hLaunchFileserve = EZ_REGISTER_ACTION_1("Editor.LaunchFileserve", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchFileserve);
@@ -105,33 +136,38 @@ void ezProjectActions::RegisterActions()
   s_hSaveProfiling = EZ_REGISTER_ACTION_1("Editor.SaveProfiling", ezActionScope::Global, "Engine", "Ctrl+Alt+P", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
   s_hOpenVsCode = EZ_REGISTER_ACTION_1("Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
 
-  s_hCppProjectMenu = EZ_REGISTER_MENU("Project.Cpp");
-  s_hSetupCppProject = EZ_REGISTER_ACTION_1("Project.SetupCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::SetupCppProject);
-  s_hOpenCppProject = EZ_REGISTER_ACTION_1("Project.OpenCppProject", ezActionScope::Global, "Project", "Ctrl+Shift+O", ezProjectAction, ezProjectAction::ButtonType::OpenCppProject);
-  s_hCompileCppProject = EZ_REGISTER_ACTION_1("Project.CompileCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CompileCppProject);
+
 
   s_hDocsAndCommunity = EZ_REGISTER_ACTION_1("Editor.DocsAndCommunity", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::ShowDocsAndCommunity);
 }
 
 void ezProjectActions::UnregisterActions()
 {
-  ezActionManager::UnregisterAction(s_hEditorMenu);
-  ezActionManager::UnregisterAction(s_hDocumentCategory);
+  ezActionManager::UnregisterAction(s_hCatProjectGeneral);
+  ezActionManager::UnregisterAction(s_hCatProjectAssets);
+  ezActionManager::UnregisterAction(s_hCatProjectConfig);
+  ezActionManager::UnregisterAction(s_hCatProjectExternal);
+
+  ezActionManager::UnregisterAction(s_hCatFilesGeneral);
+  ezActionManager::UnregisterAction(s_hCatFileCommon);
+  ezActionManager::UnregisterAction(s_hCatFileSpecial);
+  ezActionManager::UnregisterAction(s_hCatAssetDoc);
+
   ezActionManager::UnregisterAction(s_hCreateDocument);
   ezActionManager::UnregisterAction(s_hOpenDocument);
   ezActionManager::UnregisterAction(s_hRecentDocuments);
-  ezActionManager::UnregisterAction(s_hProjectCategory);
   ezActionManager::UnregisterAction(s_hOpenDashboard);
   ezActionManager::UnregisterAction(s_hDocsAndCommunity);
   ezActionManager::UnregisterAction(s_hCreateProject);
   ezActionManager::UnregisterAction(s_hOpenProject);
   ezActionManager::UnregisterAction(s_hRecentProjects);
   ezActionManager::UnregisterAction(s_hCloseProject);
-  ezActionManager::UnregisterAction(s_hSettingsCategory);
-  ezActionManager::UnregisterAction(s_hEditorSettingsMenu);
-  ezActionManager::UnregisterAction(s_hProjectSettingsMenu);
-  ezActionManager::UnregisterAction(s_hToolsMenu);
-  ezActionManager::UnregisterAction(s_hToolsCategory);
+  ezActionManager::UnregisterAction(s_hCatProjectSettings);
+  ezActionManager::UnregisterAction(s_hCatPluginSettings);
+  ezActionManager::UnregisterAction(s_hCatToolsExternal);
+  ezActionManager::UnregisterAction(s_hCatToolsEditor);
+  ezActionManager::UnregisterAction(s_hCatToolsDocument);
+  ezActionManager::UnregisterAction(s_hCatEditorSettings);
   ezActionManager::UnregisterAction(s_hReloadResources);
   ezActionManager::UnregisterAction(s_hReloadEngine);
   ezActionManager::UnregisterAction(s_hLaunchFileserve);
@@ -140,7 +176,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hOpenVsCode);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
   ezActionManager::UnregisterAction(s_hPreferencesDlg);
-  ezActionManager::UnregisterAction(s_hTagsDlg);
+  ezActionManager::UnregisterAction(s_hTagsConfig);
   ezActionManager::UnregisterAction(s_hDataDirectories);
   ezActionManager::UnregisterAction(s_hWindowConfig);
   ezActionManager::UnregisterAction(s_hImportAsset);
@@ -155,57 +191,81 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hPluginSelection);
 }
 
-void ezProjectActions::MapActions(const char* szMapping)
+void ezProjectActions::MapActions(ezStringView sMapping)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hEditorMenu, "", -1000000000.0f);
+  ezStringBuilder sPath;
 
-  pMap->MapAction(s_hDocumentCategory, "Menu.Editor", 1.0f);
-  pMap->MapAction(s_hCreateDocument, "Menu.Editor/DocumentCategory", 1.0f);
-  pMap->MapAction(s_hOpenDocument, "Menu.Editor/DocumentCategory", 2.0f);
-  pMap->MapAction(s_hImportAsset, "Menu.Editor/DocumentCategory", 3.0f);
-  pMap->MapAction(s_hRecentDocuments, "Menu.Editor/DocumentCategory", 4.0f);
+  // Add categories
+  pMap->MapAction(s_hCatProjectGeneral, "G.Project", 1.0f);
+  pMap->MapAction(s_hCatProjectConfig, "G.Project", 2.0f);
+  pMap->MapAction(s_hCatProjectAssets, "G.Project", 4.0f);
+  pMap->MapAction(s_hCatProjectExternal, "G.Project", 5.0f);
 
-  pMap->MapAction(s_hProjectCategory, "Menu.Editor", 2.0f);
-  pMap->MapAction(s_hOpenDashboard, "Menu.Editor/ProjectCategory", 0.5f);
-  // pMap->MapAction(s_hCreateProject, "Menu.Editor/ProjectCategory", 1.0f); // use dashboard
-  // pMap->MapAction(s_hOpenProject, "Menu.Editor/ProjectCategory", 2.0f);   // use dashboard
-  // pMap->MapAction(s_hRecentProjects, "Menu.Editor/ProjectCategory", 3.0f);// use dashboard
-  pMap->MapAction(s_hCloseProject, "Menu.Editor/ProjectCategory", 4.0f);
-  pMap->MapAction(s_hExportProject, "Menu.Editor/ProjectCategory", 6.0f);
-  pMap->MapAction(s_hProjectSettingsMenu, "Menu.Editor/ProjectCategory", 1000.0f);
+  pMap->MapAction(s_hCatToolsExternal, "G.Tools", 1.0f);
+  pMap->MapAction(s_hCatToolsEditor, "G.Tools", 2.0f);
+  pMap->MapAction(s_hCatToolsDocument, "G.Tools", 3.0f);
+  pMap->MapAction(s_hCatEditorSettings, "G.Tools", 1000.0f);
 
-  pMap->MapAction(s_hCppProjectMenu, "Menu.Editor/ProjectCategory", 5.0f);
-  pMap->MapAction(s_hSetupCppProject, "Menu.Editor/ProjectCategory/Project.Cpp", 1.0f);
-  pMap->MapAction(s_hOpenCppProject, "Menu.Editor/ProjectCategory/Project.Cpp", 2.0f);
-  pMap->MapAction(s_hCompileCppProject, "Menu.Editor/ProjectCategory/Project.Cpp", 3.0f);
+  pMap->MapAction(s_hCatProjectSettings, "G.Project.Config", 1.0f);
+  pMap->MapAction(s_hCatPluginSettings, "G.Project.Config", 1.0f);
 
-  pMap->MapAction(s_hSettingsCategory, "Menu.Editor", 3.0f);
-  pMap->MapAction(s_hEditorSettingsMenu, "Menu.Editor/SettingsCategory", 1.0f);
+  if (pMap->SearchPathForAction("G.File", sPath).Succeeded())
+  {
+    pMap->MapAction(s_hCatFilesGeneral, sPath, 1.0f);
+    pMap->MapAction(s_hCatFileCommon, sPath, 2.0f);
+    pMap->MapAction(s_hCatAssetDoc, sPath, 3.0f);
+    pMap->MapAction(s_hCatFileSpecial, sPath, 4.0f);
+  }
 
-  pMap->MapAction(s_hToolsMenu, "", 4.5f);
-  pMap->MapAction(s_hToolsCategory, "Menu.Tools", 1.0f);
-  pMap->MapAction(s_hReloadResources, "Menu.Tools/ToolsCategory", 1.0f);
-  pMap->MapAction(s_hReloadEngine, "Menu.Tools/ToolsCategory", 2.0f);
-  pMap->MapAction(s_hLaunchFileserve, "Menu.Tools/ToolsCategory", 3.0f);
-  pMap->MapAction(s_hLaunchInspector, "Menu.Tools/ToolsCategory", 3.5f);
-  pMap->MapAction(s_hSaveProfiling, "Menu.Tools/ToolsCategory", 4.0f);
-  pMap->MapAction(s_hOpenVsCode, "Menu.Tools/ToolsCategory", 5.0f);
-  pMap->MapAction(s_hClearAssetCaches, "Menu.Tools/ToolsCategory", 6.0f);
+  // Add actions
+  pMap->MapAction(s_hOpenDashboard, "G.Project.General", 1.0f);
+  // pMap->MapAction(s_hCreateProject, "G.Project.General", 2.0f); // use dashboard
+  // pMap->MapAction(s_hOpenProject, "G.Project.General", 3.0f);   // use dashboard
+  // pMap->MapAction(s_hRecentProjects, "G.Project.General", 4.0f);// use dashboard
+  pMap->MapAction(s_hCloseProject, "G.Project.General", 5.0f);
 
-  pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
-  pMap->MapAction(s_hPreferencesDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
+  pMap->MapAction(s_hImportAsset, "G.Project.Assets", 1.0f);
+  pMap->MapAction(s_hClearAssetCaches, "G.Project.Assets", 5.0f);
 
-  pMap->MapAction(s_hPluginSelection, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 0.5f);
-  pMap->MapAction(s_hDataDirectories, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
-  pMap->MapAction(s_hInputConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 3.0f);
-  pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
-  pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
-  pMap->MapAction(s_hAssetProfiles, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
+  pMap->MapAction(s_hDataDirectories, "G.Project.Settings", 1.0f);
+  pMap->MapAction(s_hInputConfig, "G.Project.Settings", 2.0f);
+  pMap->MapAction(s_hWindowConfig, "G.Project.Settings", 3.0f);
+  pMap->MapAction(s_hTagsConfig, "G.Project.Settings", 4.0f);
+  pMap->MapAction(s_hAssetProfiles, "G.Project.Settings", 5.0f);
 
-  pMap->MapAction(s_hDocsAndCommunity, "Menu.Help", 0.0f);
+  pMap->MapAction(s_hPluginSelection, "G.Plugins.Settings", -1000.0f);
+
+  pMap->MapAction(s_hCppProjectMenu, "G.Project.External", 1.0f);
+  pMap->MapAction(s_hSetupCppProject, "G.Project.Cpp", 1.0f);
+  pMap->MapAction(s_hOpenCppProject, "G.Project.Cpp", 2.0f);
+  pMap->MapAction(s_hCompileCppProject, "G.Project.Cpp", 3.0f);
+  pMap->MapAction(s_hExportProject, "G.Project.External", 10.0f);
+
+  pMap->MapAction(s_hOpenVsCode, "G.Tools.External", 1.0f);
+  pMap->MapAction(s_hLaunchInspector, "G.Tools.External", 2.0f);
+  pMap->MapAction(s_hLaunchFileserve, "G.Tools.External", 3.0f);
+
+  pMap->MapAction(s_hReloadResources, "G.Tools.Editor", 1.0f);
+  pMap->MapAction(s_hReloadEngine, "G.Tools.Editor", 2.0f);
+  pMap->MapAction(s_hSaveProfiling, "G.Tools.Editor", 3.0f);
+
+  pMap->MapAction(s_hShortcutEditor, "G.Editor.Settings", 1.0f);
+  pMap->MapAction(s_hPreferencesDlg, "G.Editor.Settings", 2.0f);
+
+  if (pMap->SearchPathForAction("G.Help", sPath).Succeeded())
+  {
+    pMap->MapAction(s_hDocsAndCommunity, sPath, 0.0f);
+  }
+
+  if (pMap->SearchPathForAction("G.File.Common", sPath).Succeeded())
+  {
+    pMap->MapAction(s_hCreateDocument, sPath, 1.0f);
+    pMap->MapAction(s_hOpenDocument, sPath, 2.0f);
+    pMap->MapAction(s_hRecentDocuments, sPath, 3.0f);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////

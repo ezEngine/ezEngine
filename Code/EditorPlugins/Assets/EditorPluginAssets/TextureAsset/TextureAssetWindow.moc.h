@@ -57,7 +57,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath);
+  static void MapToolbarActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hTextureChannelMode;
   static ezActionDescriptorHandle s_hLodSlider;

@@ -13,8 +13,7 @@ ezActionDescriptorHandle ezJoltActions::s_hProjectSettings;
 void ezJoltActions::RegisterActions()
 {
   s_hCategoryJolt = EZ_REGISTER_CATEGORY("Jolt");
-  s_hProjectSettings =
-    EZ_REGISTER_ACTION_1("Jolt.Settings.Project", ezActionScope::Document, "Jolt", "", ezJoltAction, ezJoltAction::ActionType::ProjectSettings);
+  s_hProjectSettings = EZ_REGISTER_ACTION_1("Jolt.Settings.Project", ezActionScope::Document, "Jolt", "", ezJoltAction, ezJoltAction::ActionType::ProjectSettings);
 }
 
 void ezJoltActions::UnregisterActions()
@@ -29,8 +28,8 @@ void ezJoltActions::MapMenuActions()
   ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_Scene2MenuBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
-  pMap->MapAction(s_hCategoryJolt, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 10.0f);
-  pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/Jolt", 1.0f);
+  pMap->MapAction(s_hCategoryJolt, "G.Plugins.Settings", 10.0f);
+  pMap->MapAction(s_hProjectSettings, "G.Plugins.Settings", "Jolt", 1.0f);
 }
 
 ezJoltAction::ezJoltAction(const ezActionContext& context, const char* szName, ActionType type)
