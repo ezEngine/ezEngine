@@ -184,8 +184,9 @@ Type ezPlaneTemplate<Type>::GetMaximumDistanceTo(const ezBoundingBoxTemplate<Typ
   return GetDistanceTo(vPos);
 }
 
+
 template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
+ezMat3Template<Type> ezMat3Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle)
 {
   EZ_ASSERT_DEBUG(vAxis.IsNormalized(0.1f), "vAxis must be normalized.");
 
@@ -205,20 +206,30 @@ void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, 
   const Type onecos_xz = oneminuscos * xz;
   const Type onecos_yz = oneminuscos * yz;
 
+  ezMat3Template<Type> res;
+
   // Column 1
-  Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
-  Element(0, 1) = onecos_xy + zsin;
-  Element(0, 2) = onecos_xz - ysin;
+  res.Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
+  res.Element(0, 1) = onecos_xy + zsin;
+  res.Element(0, 2) = onecos_xz - ysin;
 
   // Column 2  )
-  Element(1, 0) = onecos_xy - zsin;
-  Element(1, 1) = cos + (oneminuscos * (vAxis.y * vAxis.y));
-  Element(1, 2) = onecos_yz + xsin;
+  res.Element(1, 0) = onecos_xy - zsin;
+  res.Element(1, 1) = cos + (oneminuscos * (vAxis.y * vAxis.y));
+  res.Element(1, 2) = onecos_yz + xsin;
 
   // Column 3  )
-  Element(2, 0) = onecos_xz + ysin;
-  Element(2, 1) = onecos_yz - xsin;
-  Element(2, 2) = cos + (oneminuscos * (vAxis.z * vAxis.z));
+  res.Element(2, 0) = onecos_xz + ysin;
+  res.Element(2, 1) = onecos_yz - xsin;
+  res.Element(2, 2) = cos + (oneminuscos * (vAxis.z * vAxis.z));
+
+  return res;
+}
+
+template <typename Type>
+void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
+{
+  *this = MakeAxisRotation(vAxis, angle);
 }
 
 template <typename Type>

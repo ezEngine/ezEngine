@@ -36,10 +36,40 @@ public:
   /// \param layout
   ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
   ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
-  ezMat3Template(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
+  /*[[deprecated("Use ezMat3::MakeFromColumnMajorArray() instead.")]]*/ ezMat3Template(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  ezMat3Template(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3); // [tested]
+  /*[[deprecated("Use ezMat3::MakeFromValues() instead.")]]*/ ezMat3Template(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3); // [tested]
+
+  /// \brief Returns a zero matrix.
+  [[nodiscard]] static ezMat3Template<Type> MakeZero();
+
+  /// \brief Returns an identity matrix.
+  [[nodiscard]] static ezMat3Template<Type> MakeIdentity();
+
+  /// \brief Creates a matrix from 9 values that are in row-major layout.
+  [[nodiscard]] static ezMat3Template<Type> MakeFromRowMajorArray(const Type* const pData);
+
+  /// \brief Creates a matrix from 9 values that are in column-major layout.
+  [[nodiscard]] static ezMat3Template<Type> MakeFromColumnMajorArray(const Type* const pData);
+
+  /// \brief Creates a matrix from 9 values. Naming is "column-n row-m"
+  [[nodiscard]] static ezMat3Template<Type> MakeFromValues(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3);
+
+  /// \brief Creates a matrix with all zero values, except along the diagonal, which is set to x,y,z
+  [[nodiscard]] static ezMat3Template<Type> MakeScaling(const ezVec3Template<Type>& vScale);
+
+  /// \brief Creates a matrix that is a rotation matrix around the X-axis.
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationX(ezAngle angle);
+
+  /// \brief Creates a matrix that is a rotation matrix around the Y-axis.
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationY(ezAngle angle);
+
+  /// \brief Creates a matrix that is a rotation matrix around the Z-axis.
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationZ(ezAngle angle);
+
+  /// \brief Creates a matrix that is a rotation matrix around the given axis.
+  [[nodiscard]] static ezMat3Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle);
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -56,45 +86,45 @@ public:
   /// \param layout
   ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
   ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
-  void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
+  /*[[deprecated("Use ezMat3::MakeFromColumnMajorArray() instead.")]]*/ void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Copies the 9 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major
   /// format.
   void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3); // [tested]
+  /*[[deprecated("Use ezMat3::MakeFromValues() instead.")]]*/ void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3); // [tested]
 
   // *** Special matrix constructors ***
 public:
   /// \brief Sets all elements to zero.
-  void SetZero(); // [tested]
+  /*[[deprecated("Use ezMat3::MakeZero() instead.")]]*/ void SetZero(); // [tested]
 
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
-  void SetIdentity(); // [tested]
+  /*[[deprecated("Use ezMat3::MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
 
   /// \brief Sets the matrix to all zero, except the diagonal, which is set to x,y,z,1
-  void SetScalingMatrix(const ezVec3Template<Type>& vScale); // [tested]
+  /*[[deprecated("Use ezMat3::MakeScaling() instead.")]]*/ void SetScalingMatrix(const ezVec3Template<Type>& vScale); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the X-axis.
-  void SetRotationMatrixX(ezAngle angle); // [tested]
+  /*[[deprecated("Use ezMat3::MakeRotationX() instead.")]]*/ void SetRotationMatrixX(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Y-axis.
-  void SetRotationMatrixY(ezAngle angle); // [tested]
+  /*[[deprecated("Use ezMat3::MakeRotationY() instead.")]]*/ void SetRotationMatrixY(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Z-axis.
-  void SetRotationMatrixZ(ezAngle angle); // [tested]
+  /*[[deprecated("Use ezMat3::MakeRotationZ() instead.")]]*/ void SetRotationMatrixZ(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the given axis.
-  void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
+  /*[[deprecated("Use ezMat3::MakeAxisRotation() instead.")]]*/ void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
 
   // *** Common Matrix Operations ***
 public:
   /// \brief Returns an Identity Matrix.
-  static const ezMat3Template<Type> IdentityMatrix(); // [tested]
+  /*[[deprecated("Use ezMat3::MakeIdentity() instead.")]]*/ static const ezMat3Template<Type> IdentityMatrix(); // [tested]
 
   /// \brief Returns a Zero Matrix.
-  static const ezMat3Template<Type> ZeroMatrix(); // [tested]
+  /*[[deprecated("Use ezMat3::MakeZero() instead.")]]*/ static const ezMat3Template<Type> ZeroMatrix(); // [tested]
 
   /// \brief Transposes this matrix.
   void Transpose(); // [tested]
@@ -149,7 +179,7 @@ public:
   /// is possible.
   ezResult SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
-  /// \brief Computes the determinant of the matix.
+  /// \brief Computes the determinant of the matrix.
   Type GetDeterminant() const;
 
   // *** Operators ***
@@ -169,7 +199,6 @@ public:
   /// \brief Equality Check with epsilon.
   bool IsEqual(const ezMat3Template<Type>& rhs, Type fEpsilon) const; // [tested]
 };
-
 
 // *** free functions ***
 
