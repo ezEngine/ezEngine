@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{16879783450754886336}
+		u4 %Hash{11603368547675914783}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -7043,6 +7043,7 @@ o
 			Uuid{u4{16570669015473823106,5528518874280039215}}
 			Uuid{u4{4097864705009347472,5017752797156897871}}
 		}
+		s %VolumeType{"GenericVolume"}
 	}
 }
 o
@@ -8857,6 +8858,8 @@ o
 		Vec3 %Falloff{f{0,0x0000003F,0}}
 		f %SortOrder{0}
 		s %Template{"{ c3b42246-a98b-439d-82e4-9bf3ec6efb59 }"}
+		s %Type{"GenericVolume"}
+		VarDict %Values{}
 	}
 }
 o
@@ -12281,6 +12284,7 @@ o
 			Uuid{u4{14861961278534461611,5429287421616888847}}
 			Uuid{u4{4675024263073621918,5653410995292447235}}
 		}
+		s %VolumeType{"GenericVolume"}
 	}
 }
 o

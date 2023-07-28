@@ -48,6 +48,9 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
+  void SetVolumeType(const char* szType); // [ property ]
+  const char* GetVolumeType() const;      // [ property ]
+
 private:
   ezUInt32 Mappings_GetCount() const { return m_Mappings.GetCount(); }                                // [ property ]
   const ezPostProcessingValueMapping& Mappings_GetMapping(ezUInt32 i) const { return m_Mappings[i]; } // [ property ]
@@ -63,4 +66,5 @@ private:
   ezComponentHandle m_hCameraComponent;
   ezDynamicArray<ezPostProcessingValueMapping> m_Mappings;
   ezUniquePtr<ezVolumeSampler> m_pSampler;
+  ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
 };

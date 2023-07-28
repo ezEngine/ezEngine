@@ -3,8 +3,6 @@
 #include <GameEngine/Volumes/VolumeComponent.h>
 #include <GameEngine/Volumes/VolumeSampler.h>
 
-ezSpatialData::Category s_VolumeCategory = ezSpatialData::RegisterCategory("GenericVolume", ezSpatialData::Flags::None);
-
 ezVolumeSampler::ezVolumeSampler() = default;
 ezVolumeSampler::~ezVolumeSampler() = default;
 
@@ -40,7 +38,7 @@ void ezVolumeSampler::DeregisterAllValues()
   m_Values.Clear();
 }
 
-void ezVolumeSampler::SampleAtPosition(ezWorld& world, const ezVec3& vGlobalPosition, ezTime deltaTime)
+void ezVolumeSampler::SampleAtPosition(ezWorld& world, ezSpatialData::Category spatialCategory, const ezVec3& vGlobalPosition, ezTime deltaTime)
 {
   struct ComponentInfo
   {
@@ -58,7 +56,7 @@ void ezVolumeSampler::SampleAtPosition(ezWorld& world, const ezVec3& vGlobalPosi
   ezBoundingSphere sphere(vGlobalPosition, 0.01f);
 
   ezSpatialSystem::QueryParams queryParams;
-  queryParams.m_uiCategoryBitmask = s_VolumeCategory.GetBitmask();
+  queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
 
   ezHybridArray<ComponentInfo, 16> componentInfos;
   world.GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, [&](ezGameObject* pObject)

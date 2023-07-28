@@ -15,7 +15,7 @@ public:
   void DeregisterValue(ezHashedString sName);
   void DeregisterAllValues();
 
-  void SampleAtPosition(ezWorld& world, const ezVec3& vGlobalPosition, ezTime deltaTime);
+  void SampleAtPosition(ezWorld& world, ezSpatialData::Category spatialCategory, const ezVec3& vGlobalPosition, ezTime deltaTime);
 
   ezVariant GetValue(ezTempHashedString sName) const
   {

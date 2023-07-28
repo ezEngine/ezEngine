@@ -79,6 +79,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPostProcessingComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("VolumeType", GetVolumeType, SetVolumeType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new ezDefaultValueAttribute("GenericVolume")),
     EZ_ARRAY_ACCESSOR_PROPERTY("Mappings", Mappings_GetCount, Mappings_GetMapping, Mappings_SetMapping, Mappings_Insert, Mappings_Remove),
   }
   EZ_END_PROPERTIES;
@@ -95,12 +96,16 @@ EZ_END_COMPONENT_TYPE
 ezPostProcessingComponent::ezPostProcessingComponent() = default;
 ezPostProcessingComponent::ezPostProcessingComponent(ezPostProcessingComponent&& other) = default;
 ezPostProcessingComponent::~ezPostProcessingComponent() = default;
+ezPostProcessingComponent& ezPostProcessingComponent::operator=(ezPostProcessingComponent&& other) = default;
 
 void ezPostProcessingComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
 
   ezStreamWriter& s = inout_stream.GetStream();
+
+  auto& sCategory = ezSpatialData::GetCategoryName(m_SpatialCategory);
+  s << sCategory;
 
   s.WriteArray(m_Mappings).IgnoreResult();
 }
@@ -111,10 +116,22 @@ void ezPostProcessingComponent::DeserializeComponent(ezWorldReader& inout_stream
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
+  ezHashedString sCategory;
+  s >> sCategory;
+  m_SpatialCategory = ezSpatialData::RegisterCategory(sCategory, ezSpatialData::Flags::None);
+
   s.ReadArray(m_Mappings).IgnoreResult();
 }
 
-ezPostProcessingComponent& ezPostProcessingComponent::operator=(ezPostProcessingComponent&& other) = default;
+void ezPostProcessingComponent::SetVolumeType(const char* szType)
+{
+  m_SpatialCategory = ezSpatialData::RegisterCategory(szType, ezSpatialData::Flags::None);
+}
+
+const char* ezPostProcessingComponent::GetVolumeType() const
+{
+  return ezSpatialData::GetCategoryName(m_SpatialCategory);
+}
 
 void ezPostProcessingComponent::Initialize()
 {
@@ -233,7 +250,7 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
     deltaTime = ezClock::GetGlobalClock()->GetTimeDiff();
   }
 
-  m_pSampler->SampleAtPosition(*pWorld, vSamplePos, deltaTime);
+  m_pSampler->SampleAtPosition(*pWorld, m_SpatialCategory, vSamplePos, deltaTime);
 
   for (auto& mapping : m_Mappings)
   {
