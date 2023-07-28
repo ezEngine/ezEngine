@@ -3,7 +3,7 @@
 #include <GameEngine/Volumes/VolumeComponent.h>
 #include <GameEngine/Volumes/VolumeSampler.h>
 
-extern ezSpatialData::Category s_VolumeCategory;
+ezSpatialData::Category s_VolumeCategory = ezSpatialData::RegisterCategory("GenericVolume", ezSpatialData::Flags::None);
 
 ezVolumeSampler::ezVolumeSampler() = default;
 ezVolumeSampler::~ezVolumeSampler() = default;

@@ -2,6 +2,7 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/World.h>
+#include <Foundation/Types/RangeView.h>
 #include <GameEngine/GameEngineDLL.h>
 
 struct ezMsgUpdateLocalBounds;
@@ -25,11 +26,14 @@ public:
   void SetTemplate(const ezBlackboardTemplateResourceHandle& hResource);
   ezBlackboardTemplateResourceHandle GetTemplate() const { return m_hTemplateResource; }
 
-  void SetSortOrder(float fOrder);// [ property ]
-  float GetSortOrder() const { return m_fSortOrder; }// [ property ]
+  void SetSortOrder(float fOrder);                    // [ property ]
+  float GetSortOrder() const { return m_fSortOrder; } // [ property ]
+
+  void SetVolumeType(const char* szType); // [ property ]
+  const char* GetVolumeType() const;      // [ property ]
 
   void SetValue(const ezHashedString& sName, const ezVariant& value); // [ scriptable ]
-  ezVariant GetValue(ezTempHashedString sName) const // [ scriptable ]
+  ezVariant GetValue(ezTempHashedString sName) const                  // [ scriptable ]
   {
     ezVariant v;
     m_Values.TryGetValue(sName, v);
@@ -40,7 +44,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
-  const ezDynamicArray<ezString>& Reflection_GetKeys() const { return m_OverwrittenValues; }
+  const ezRangeView<const ezString&, ezUInt32> Reflection_GetKeys() const;
   bool Reflection_GetValue(const char* szName, ezVariant& value) const;
   void Reflection_InsertValue(const char* szName, const ezVariant& value);
   void Reflection_RemoveValue(const char* szName);
@@ -51,8 +55,9 @@ protected:
 
   ezBlackboardTemplateResourceHandle m_hTemplateResource;
   ezHashTable<ezHashedString, ezVariant> m_Values;
-  ezDynamicArray<ezString> m_OverwrittenValues; // only used in editor
+  ezSmallArray<ezHashedString, 1> m_OverwrittenValues; // only used in editor
   float m_fSortOrder = 0.0f;
+  ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
   bool m_bReloadFunctionAdded = false;
 };
 

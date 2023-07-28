@@ -6,15 +6,12 @@
 #include <GameEngine/Utils/BlackboardTemplateResource.h>
 #include <GameEngine/Volumes/VolumeComponent.h>
 
-ezSpatialData::Category s_VolumeCategory = ezSpatialData::RegisterCategory("GenericVolume", ezSpatialData::Flags::None);
-
-//////////////////////////////////////////////////////////////////////////
-
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezVolumeComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("Type", GetVolumeType, SetVolumeType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new ezDefaultValueAttribute("GenericVolume")),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("Template", GetTemplateFile, SetTemplateFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
     EZ_MAP_ACCESSOR_PROPERTY("Values", Reflection_GetKeys, Reflection_GetValue, Reflection_InsertValue, Reflection_RemoveValue),
@@ -96,6 +93,21 @@ void ezVolumeComponent::SetSortOrder(float fOrder)
   m_fSortOrder = fOrder;
 }
 
+void ezVolumeComponent::SetVolumeType(const char* szType)
+{
+  m_SpatialCategory = ezSpatialData::RegisterCategory(szType, ezSpatialData::Flags::None);
+  
+  if (IsActiveAndInitialized())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
+}
+
+const char* ezVolumeComponent::GetVolumeType() const
+{
+  return ezSpatialData::GetCategoryName(m_SpatialCategory);
+}
+
 void ezVolumeComponent::SetValue(const ezHashedString& sName, const ezVariant& value)
 {
   m_Values.Insert(sName, value);
@@ -108,6 +120,10 @@ void ezVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_fSortOrder;
+
+  auto& sCategory = ezSpatialData::GetCategoryName(m_SpatialCategory);
+  s << sCategory;
+
   s << m_hTemplateResource;
 
   // Only serialize overwritten values so a template change doesn't require a re-save of all volumes
@@ -115,13 +131,10 @@ void ezVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << numValues;
   for (auto& sName : m_OverwrittenValues)
   {
-    ezHashedString sNameHashed;
-    sNameHashed.Assign(sName);
-
     ezVariant value;
-    m_Values.TryGetValue(sNameHashed, value);
+    m_Values.TryGetValue(sName, value);
 
-    s << sNameHashed;
+    s << sName;
     s << value;
   }
 }
@@ -133,6 +146,11 @@ void ezVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_fSortOrder;
+
+  ezHashedString sCategory;
+  s >> sCategory;
+  m_SpatialCategory = ezSpatialData::RegisterCategory(sCategory, ezSpatialData::Flags::None);
+
   s >> m_hTemplateResource;
 
   // m_OverwrittenValues is only used in editor so we don't write to it here
@@ -149,6 +167,18 @@ void ezVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
+const ezRangeView<const ezString&, ezUInt32> ezVolumeComponent::Reflection_GetKeys() const
+{
+  return ezRangeView<const ezString&, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_OverwrittenValues.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const ezString&
+    { return m_OverwrittenValues[uiIt].GetString(); });
+}
+
 bool ezVolumeComponent::Reflection_GetValue(const char* szName, ezVariant& value) const
 {
   return m_Values.TryGetValue(ezTempHashedString(szName), value);
@@ -156,23 +186,26 @@ bool ezVolumeComponent::Reflection_GetValue(const char* szName, ezVariant& value
 
 void ezVolumeComponent::Reflection_InsertValue(const char* szName, const ezVariant& value)
 {
-  // Only needed in editor
-  if (GetUniqueID() != ezInvalidIndex && m_OverwrittenValues.Contains(szName) == false)
-  {
-    m_OverwrittenValues.PushBack(szName);
-  }
-
   ezHashedString sName;
   sName.Assign(szName);
+
+  // Only needed in editor
+  if (GetUniqueID() != ezInvalidIndex && m_OverwrittenValues.Contains(sName) == false)
+  {
+    m_OverwrittenValues.PushBack(sName);
+  }
 
   m_Values.Insert(sName, value);
 }
 
 void ezVolumeComponent::Reflection_RemoveValue(const char* szName)
 {
-  m_OverwrittenValues.RemoveAndCopy(szName);
+  ezHashedString sName;
+  sName.Assign(szName);
 
-  m_Values.Remove(ezTempHashedString(szName));
+  m_OverwrittenValues.RemoveAndCopy(sName);
+
+  m_Values.Remove(sName);
 }
 
 void ezVolumeComponent::InitializeFromTemplate()
@@ -210,10 +243,7 @@ void ezVolumeComponent::ReloadTemplate()
   ezHashTable<ezHashedString, ezVariant> overwrittenValues;
   for (auto& sName : m_OverwrittenValues)
   {
-    ezHashedString sNameHashed;
-    sNameHashed.Assign(sName);
-
-    overwrittenValues.Insert(sNameHashed, m_Values[sNameHashed]);
+    overwrittenValues.Insert(sName, m_Values[sName]);
   }
   m_Values.Swap(overwrittenValues);
 
@@ -299,7 +329,7 @@ void ezVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), s_VolumeCategory);
+  ref_msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), m_SpatialCategory);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -371,5 +401,5 @@ void ezVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), s_VolumeCategory);
+  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), m_SpatialCategory);
 }

@@ -1001,7 +1001,7 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::AddSpatialDataToGrids(const ezS
     auto& pGrid = m_Grids[uiGridIndex];
     if (pGrid == nullptr)
     {
-      pGrid = EZ_NEW(&m_Allocator, Grid, *this, ezSpatialData::Category(uiGridIndex));
+      pGrid = EZ_NEW(&m_Allocator, Grid, *this, ezSpatialData::Category(static_cast<ezUInt16>(uiGridIndex)));
     }
 
     pGrid->AddSpatialData(bounds, tags, pObject, m_uiFrameCounter, hData);

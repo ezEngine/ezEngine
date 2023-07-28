@@ -26,6 +26,12 @@ void ezQtDynamicStringEnumPropertyWidget::OnInit()
   const ezDynamicStringEnumAttribute* pAttr = m_pProp->GetAttributeByType<ezDynamicStringEnumAttribute>();
 
   m_pEnum = &ezDynamicStringEnum::GetDynamicEnum(pAttr->GetDynamicEnumName());
+
+  if (auto pDefaultValueAttr = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
+  {
+    m_pEnum->AddValidValue(pDefaultValueAttr->GetValue().ConvertTo<ezString>(), true);
+  }
+
   const auto& AllValues = m_pEnum->GetAllValidValues();
 
   ezQtScopedBlockSignals bs(m_pWidget);
