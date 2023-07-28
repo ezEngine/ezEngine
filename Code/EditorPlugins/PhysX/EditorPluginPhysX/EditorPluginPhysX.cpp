@@ -31,18 +31,18 @@ void OnLoadPlugin()
       ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetMenuBar").IgnoreResult();
       ezStandardMenus::MapActions("PxCollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezProjectActions::MapActions("PxCollisionMeshAssetMenuBar");
-      ezDocumentActions::MapActions("PxCollisionMeshAssetMenuBar", "Menu.File", false);
-      ezAssetActions::MapMenuActions("PxCollisionMeshAssetMenuBar", "Menu.File");
-      ezCommandHistoryActions::MapActions("PxCollisionMeshAssetMenuBar", "Menu.Edit");
+      ezDocumentActions::MapMenuActions("PxCollisionMeshAssetMenuBar");
+      ezAssetActions::MapMenuActions("PxCollisionMeshAssetMenuBar");
+      ezCommandHistoryActions::MapActions("PxCollisionMeshAssetMenuBar");
     }
 
     // Tool Bar
     {
       ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapActions("PxCollisionMeshAssetToolBar", "", true);
+      ezDocumentActions::MapToolbarActions("PxCollisionMeshAssetToolBar");
       ezCommandHistoryActions::MapActions("PxCollisionMeshAssetToolBar", "");
       ezAssetActions::MapToolBarActions("PxCollisionMeshAssetToolBar", true);
-      ezCommonAssetActions::MapActions("PxCollisionMeshAssetToolBar", "", ezCommonAssetUiState::Grid);
+      ezCommonAssetActions::MapToolbarActions("PxCollisionMeshAssetToolBar", ezCommonAssetUiState::Grid);
     }
   }
 
