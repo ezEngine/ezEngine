@@ -63,24 +63,23 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   return ezTimestamp(iTimeStamp, ezSIUnitOfTime::Second);
 }
 
-ezDateTime ezDateTime::MakeFromTimestamp(ezTimestamp timestamp, ezTimestamp fallback)
+ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 {
   tm timeinfo = {0};
   time64_t iTime = (time64_t)timestamp.GetInt64(ezSIUnitOfTime::Second);
   if (gmtime64_r(&iTime, &timeinfo) == nullptr)
-    return fallback;
+    return EZ_FAILURE;
 
-  ezDateTime ts;
-  ts.m_iYear = timeinfo.tm_year + 1900;
-  ts.m_uiMonth = timeinfo.tm_mon + 1;
-  ts.m_uiDay = timeinfo.tm_mday;
-  ts.m_uiHour = timeinfo.tm_hour;
-  ts.m_uiMinute = timeinfo.tm_min;
-  ts.m_uiSecond = timeinfo.tm_sec;
-  ts.m_uiDayOfWeek = ezMath::MaxValue<ezUInt8>(); // TODO: no day of week exists, setting to uint8 max.
-  ts.m_uiMicroseconds = 0;
+  m_iYear = timeinfo.tm_year + 1900;
+  m_uiMonth = timeinfo.tm_mon + 1;
+  m_uiDay = timeinfo.tm_mday;
+  m_uiHour = timeinfo.tm_hour;
+  m_uiMinute = timeinfo.tm_min;
+  m_uiSecond = timeinfo.tm_sec;
+  m_uiDayOfWeek = ezMath::MaxValue<ezUInt8>(); // TODO: no day of week exists, setting to uint8 max.
+  m_uiMicroseconds = 0;
 
-  return ts;
+  return EZ_SUCCESS;
 }
 
 #endif

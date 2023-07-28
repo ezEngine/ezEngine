@@ -122,7 +122,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     // SetTimestamp / GetTimestamp
     ezTimestamp currentTimestamp = ezTimestamp::CurrentTimestamp();
     ezDateTime currentDateTime;
-    currentDateTime.SetTimestamp(currentTimestamp);
+    currentDateTime.SetFromTimestamp(currentTimestamp).AssertSuccess();
     ezTimestamp currentTimestamp2 = currentDateTime.GetTimestamp();
     // OS date time functions should be accurate within one second.
     ezInt64 iDiff = ezMath::Abs(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) - currentTimestamp2.GetInt64(ezSIUnitOfTime::Microsecond));

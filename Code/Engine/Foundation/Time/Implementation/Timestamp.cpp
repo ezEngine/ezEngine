@@ -83,6 +83,13 @@ bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
 ezDateTime::ezDateTime() = default;
 ezDateTime::~ezDateTime() = default;
 
+ezDateTime ezDateTime::MakeFromTimestamp(ezTimestamp timestamp)
+{
+  ezDateTime res;
+  res.SetFromTimestamp(timestamp).AssertSuccess("Invalid timestamp");
+  return res;
+}
+
 bool ezDateTime::IsValid() const
 {
   if (m_uiMonth <= 0 || m_uiMonth > 12)
@@ -109,7 +116,7 @@ bool ezDateTime::IsValid() const
 ezDateTime::ezDateTime(ezTimestamp timestamp)
   : ezDateTime()
 {
-  SetTimestamp(timestamp);
+  SetFromTimestamp(timestamp).AssertSuccess();
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg)

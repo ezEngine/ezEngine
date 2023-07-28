@@ -124,14 +124,13 @@ public:
   [[nodiscard]] static ezDateTime MakeZero() { return ezDateTime(); }
 
   /// \brief Creates a date time instance from the given timestamp.
-  /*[[deprecated("Use ezDateTime::MakeFromTimestamp() instead.")]]*/ ezDateTime(ezTimestamp timestamp); // [tested]
+  /*[[deprecated("Use MakeFromTimestamp() instead.")]]*/ ezDateTime(ezTimestamp timestamp); // [tested]
 
   /// \brief Sets this instance to the given timestamp.
   ///
-  /// The conversion is done via the OS and will fail for invalid dates and values outside the supported range,
-  /// in which case the return timestamp will be the fallback value.
-  /// Anything after 1970 and before the not so distant future should be safe.
-  [[nodiscard]] static ezDateTime MakeFromTimestamp(ezTimestamp timestamp, ezTimestamp fallback = {});
+  /// This calls SetFromTimestamp() internally and asserts that the conversion succeeded.
+  /// Use SetFromTimestamp() directly, if you need to be able to react to invalid data.
+  [[nodiscard]] static ezDateTime MakeFromTimestamp(ezTimestamp timestamp);
 
   /// \brief Converts this instance' values into a ezTimestamp.
   ///
@@ -140,7 +139,12 @@ public:
   /// not so distant future should be safe.
   [[nodiscard]] const ezTimestamp GetTimestamp() const; // [tested]
 
-  /*[[deprecated("Use ezDateTime::MakeFromTimestamp() instead.")]]*/ void SetTimestamp(ezTimestamp timestamp) { *this = MakeFromTimestamp(timestamp); }
+  /// \brief Sets this instance to the given timestamp.
+  ///
+  /// The conversion is done via the OS and will fail for invalid dates and values outside the supported range,
+  /// in which case EZ_FAILURE will be returned.
+  /// Anything after 1970 and before the not so distant future should be safe.
+  ezResult SetFromTimestamp(ezTimestamp timestamp);
 
   // *** Accessors ***
 public:
