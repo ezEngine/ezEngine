@@ -28,8 +28,8 @@ void ezPhysXActions::MapMenuActions()
   ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_Scene2MenuBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
-  pMap->MapAction(s_hCategoryPhysX, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 10.0f);
-  pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/PhysX", 1.0f);
+  pMap->MapAction(s_hCategoryPhysX, "G.Plugins.Settings", 10.0f);
+  pMap->MapAction(s_hProjectSettings, "G.Plugins.Settings", "PhysX", 1.0f);
 }
 
 ezPhysXAction::ezPhysXAction(const ezActionContext& context, const char* szName, ActionType type)

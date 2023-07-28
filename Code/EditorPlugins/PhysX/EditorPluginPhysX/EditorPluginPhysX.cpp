@@ -29,7 +29,7 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("PxCollisionMeshAssetMenuBar").IgnoreResult();
-      ezStandardMenus::MapActions("PxCollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("PxCollisionMeshAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
       ezProjectActions::MapActions("PxCollisionMeshAssetMenuBar");
       ezDocumentActions::MapMenuActions("PxCollisionMeshAssetMenuBar");
       ezAssetActions::MapMenuActions("PxCollisionMeshAssetMenuBar");
