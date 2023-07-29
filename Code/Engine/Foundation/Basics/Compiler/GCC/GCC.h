@@ -17,9 +17,9 @@
       {                        \
         __builtin_debugtrap(); \
       }
-#elif defined(__i386__) || defined(__x86_64__)
-#    define EZ_DEBUG_BREAK     \
-      {                        \
+#  elif defined(__i386__) || defined(__x86_64__)
+#    define EZ_DEBUG_BREAK            \
+      {                               \
         __asm__ __volatile__("int3"); \
       }
 #  else
