@@ -963,7 +963,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
 
   // now generate the .ezMaterialBin file
   {
-    const ezUInt8 uiVersion = 7;
+    const ezUInt8 uiVersion = 8;
 
     inout_stream0 << uiVersion;
 
@@ -1101,9 +1101,9 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
       const ezUInt16 uiTextures = Textures3D.GetCount();
       stream << uiTextures;
 
-      for(ezUInt16 p = 0; p < uiTextures; ++p)
+      for(auto pProp : Textures3D)
       {
-        const char* szName = Textures3D[p]->GetPropertyName();
+        const char* szName = pProp->GetPropertyName();
         sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
         stream << szName;

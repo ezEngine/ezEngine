@@ -742,6 +742,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* pOuterStrea
         }
       }
     }
+
     // Shader constants
     {
       ezUInt16 uiConstants = 0;
