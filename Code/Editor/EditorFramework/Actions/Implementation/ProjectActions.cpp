@@ -688,6 +688,9 @@ void ezProjectAction::Execute(const ezVariant& value)
       e.m_Type = ezEditorAppEvent::Type::ReloadResources;
       ezQtEditorApp::GetSingleton()->m_Events.Broadcast(e);
 
+      QTimer::singleShot(1, [this](){ ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+      QTimer::singleShot(500, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+
       if (m_Context.m_pDocument)
       {
         m_Context.m_pDocument->ShowDocumentStatus("Reloading Resources");

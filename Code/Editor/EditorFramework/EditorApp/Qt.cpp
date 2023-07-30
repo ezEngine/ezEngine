@@ -1,16 +1,37 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <Core/Scripting/LuaWrapper.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Logging/Log.h>
+
+int lua_SetColor(lua_State* s)
+{
+  ezLuaWrapper lua(s);
+
+  QPalette* palette = (QPalette*)lua.GetFunctionLightUserData();
+
+  const int iColor = lua.GetIntParameter(0);
+  const int r = lua.GetIntParameter(1);
+  const int g = lua.GetIntParameter(2);
+  const int b = lua.GetIntParameter(3);
+
+  const QPalette::ColorRole role = (QPalette::ColorRole)iColor;
+
+  palette->setColor(role, QColor(r, g, b));
+
+  return lua.ReturnToScript();
+}
 
 void ezQtEditorApp::SetStyleSheet()
 {
+  QPalette palette;
+
   ezColorGammaUB highlightColor = ezColorScheme::DarkUI(ezColorScheme::Yellow);
   ezColorGammaUB highlightColorDisabled = ezColorScheme::DarkUI(ezColorScheme::Yellow) * 0.5f;
   ezColorGammaUB linkColor = ezColorScheme::LightUI(ezColorScheme::Orange);
   ezColorGammaUB linkVisitedColor = ezColorScheme::LightUI(ezColorScheme::Yellow);
 
   QApplication::setStyle(QStyleFactory::create("fusion"));
-  QPalette palette;
 
   palette.setColor(QPalette::WindowText, QColor(221, 221, 221));
   palette.setColor(QPalette::Button, QColor(60, 60, 60));
@@ -42,6 +63,39 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::Disabled, QPalette::BrightText, QColor(255, 255, 255));
   palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
   palette.setColor(QPalette::Disabled, QPalette::Highlight, ezToQtColor(highlightColorDisabled));
+
+  ezOSFile file;
+  if (file.Open("D:\\Style.lua", ezFileOpenMode::Read).Succeeded())
+  {
+    ezDataBuffer content;
+    file.ReadAll(content);
+    content.PushBack('\0');
+
+    ezLuaWrapper lua;
+    lua.SetVariable("WindowText", QPalette::WindowText);
+    lua.SetVariable("Button", QPalette::Button);
+    lua.SetVariable("Light", QPalette::Light);
+    lua.SetVariable("Midlight", QPalette::Midlight);
+    lua.SetVariable("Dark", QPalette::Dark);
+    lua.SetVariable("Mid", QPalette::Mid);
+    lua.SetVariable("Text", QPalette::Text);
+    lua.SetVariable("BrightText", QPalette::BrightText);
+    lua.SetVariable("ButtonText", QPalette::ButtonText);
+    lua.SetVariable("Base", QPalette::Base);
+    lua.SetVariable("Window", QPalette::Window);
+    lua.SetVariable("Shadow", QPalette::Shadow);
+    lua.SetVariable("Highlight", QPalette::Highlight);
+    lua.SetVariable("HighlightedText", QPalette::HighlightedText);
+    lua.SetVariable("Link", QPalette::Link);
+    lua.SetVariable("LinkVisited", QPalette::LinkVisited);
+    lua.SetVariable("AlternateBase", QPalette::AlternateBase);
+    lua.SetVariable("ToolTipBase", QPalette::ToolTipBase);
+    lua.SetVariable("ToolTipText", QPalette::ToolTipText);
+    lua.SetVariable("PlaceholderText", QPalette::PlaceholderText);
+    lua.RegisterCFunction("SetColor", lua_SetColor, &palette);
+
+    lua.ExecuteString((const char*)content.GetData(), "", ezLog::GetThreadLocalLogSystem()).IgnoreResult();
+  }
 
   QApplication::setPalette(palette);
 }

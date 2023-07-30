@@ -211,6 +211,7 @@ public:
   void ReloadEngineResources();
 
   void RestartEngineProcessIfPluginsChanged(bool bForce);
+  void SetStyleSheet();
 
 Q_SIGNALS:
   void IdleEvent();
@@ -254,7 +255,6 @@ private:
   void ReadTagRegistry();
 
   void SetupDataDirectories();
-  void SetStyleSheet();
   void CreatePanels();
 
   void SetupAndShowSplashScreen();
