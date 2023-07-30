@@ -15,10 +15,30 @@
 
 #  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(__alignof(type), EZ_ALIGNMENT_MINIMUM)
 
-#  define EZ_DEBUG_BREAK \
-    {                    \
-      __builtin_trap();  \
-    }
+#  if __has_builtin(__builtin_debugtrap)
+#    define EZ_DEBUG_BREAK     \
+      {                        \
+        __builtin_debugtrap(); \
+      }
+#  elif __has_builtin(__debugbreak)
+#    define EZ_DEBUG_BREAK \
+      {                    \
+        __debugbreak();    \
+      }
+#  else
+#    include <signal.h>
+#    if defined(SIGTRAP)
+#      define EZ_DEBUG_BREAK \
+        {                    \
+          raise(SIGTRAP);    \
+        }
+#    else
+#      define EZ_DEBUG_BREAK \
+        {                    \
+          raise(SIGABRT);    \
+        }
+#    endif
+#  endif
 
 #  define EZ_SOURCE_FUNCTION __PRETTY_FUNCTION__
 #  define EZ_SOURCE_LINE __LINE__
