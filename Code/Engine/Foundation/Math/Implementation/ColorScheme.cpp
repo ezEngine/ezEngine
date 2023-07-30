@@ -216,42 +216,59 @@ ezColor ezColorScheme::GetColor(float fIndex, ezUInt8 uiBrightness, float fSatur
   return ezMath::Lerp(ezColor(l, l, l), c, fSaturation).WithAlpha(fAlpha);
 }
 
-ezColor ezColorScheme::GetGroupColor(ColorGroup group)
+ezColor ezColorScheme::GetGroupColor(ColorGroup group, ezInt8 iBrightnessOffset, ezUInt8 uiSaturationStep)
 {
+  const ezUInt8 uiBrightness = (ezUInt8)ezMath::Clamp<ezInt32>(DarkUIBrightness + iBrightnessOffset, 0, 9);
+  const float fSaturation = DarkUISaturation - (uiSaturationStep * 0.2f);
+
+  // Red,
+  // Pink,
+  // Grape,
+  // Violet,
+  // Indigo,
+  // Blue,
+  // Cyan,
+  // Teal,
+  // Green,
+  // Lime,
+  // Yellow,
+  // Orange,
+  // Gray,
+
   switch (group)
   {
     case Ai:
-      return ezColorScheme::DarkUI(ezColorScheme::Cyan).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
     case Animation:
-      return ezColorScheme::DarkUI(ezColorScheme::Pink).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Pink, uiBrightness, fSaturation) * DarkUIFactor;
     case Construction:
-      return ezColorScheme::DarkUI(ezColorScheme::Orange).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
     case Custom:
-      return ezColorScheme::DarkUI(ezColorScheme::Red).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
     case Effects:
-      return ezColorScheme::DarkUI(ezColorScheme::Grape).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Grape, uiBrightness, fSaturation) * DarkUIFactor;
     case Gameplay:
-      return ezColorScheme::DarkUI(ezColorScheme::Indigo).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Indigo, uiBrightness, fSaturation) * DarkUIFactor;
     case Input:
-      return ezColorScheme::DarkUI(ezColorScheme::Red).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
     case Lighting:
-      return ezColorScheme::DarkUI(ezColorScheme::Yellow);
+      return ezColorScheme::GetColor(ezColorScheme::Violet, uiBrightness, fSaturation) * DarkUIFactor;
     case Logic:
-      return ezColorScheme::DarkUI(ezColorScheme::Teal).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Teal, uiBrightness, fSaturation) * DarkUIFactor;
     case Physics:
-      return ezColorScheme::DarkUI(ezColorScheme::Blue).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Blue, uiBrightness, fSaturation) * DarkUIFactor;
     case Prefab:
-      return ezColorScheme::DarkUI(ezColorScheme::Orange).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
     case Rendering:
-      return ezColorScheme::DarkUI(ezColorScheme::Lime).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Lime, uiBrightness, fSaturation) * DarkUIFactor;
     case Scripting:
-      return ezColorScheme::DarkUI(ezColorScheme::Yellow).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Green, uiBrightness, fSaturation) * DarkUIFactor;
     case Sound:
-      return ezColorScheme::DarkUI(ezColorScheme::Blue).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Blue, uiBrightness, fSaturation) * DarkUIFactor;
     case Utilities:
-      return ezColorScheme::DarkUI(ezColorScheme::Gray).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Gray, uiBrightness, fSaturation) * DarkUIFactor;
     case XR:
-      return ezColorScheme::DarkUI(ezColorScheme::Cyan).GetDarker();
+      return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }

@@ -97,7 +97,7 @@ public:
     XR,
   };
 
-  static ezColor GetGroupColor(ColorGroup group);
+  static ezColor GetGroupColor(ColorGroup group, ezInt8 iBrightnessOffset = -3, ezUInt8 uiSaturationStep = 0);
 
 private:
   EZ_ALWAYS_INLINE constexpr static void GetInterpolation(float fIndex, ezUInt32& out_uiIndexA, ezUInt32& out_uiIndexB, float& out_fFrac)
