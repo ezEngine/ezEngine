@@ -93,7 +93,7 @@ void ezQtInlinedGroupBox::paintEvent(QPaintEvent* event)
     wrAdjusted.adjust(0.5, 0.5, Rounding, -0.5);
     QPainterPath oPath;
     oPath.addRoundedRect(wrAdjusted, Rounding, Rounding);
-    p.fillPath(oPath, pal.alternateBase());
+    p.fillPath(oPath, pal.shadow());
   }
 
   DrawHeader(p, wr.adjusted(Rounding, 0, 0, 0));

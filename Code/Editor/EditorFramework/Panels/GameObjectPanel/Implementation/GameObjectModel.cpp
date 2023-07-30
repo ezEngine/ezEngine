@@ -132,8 +132,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int iRow, 
 
       if (sName.IsEmpty())
       {
-        // uses an auto generated name
-        return QColor(128, 128, 128);
+        return QVariant();
       }
     }
     break;

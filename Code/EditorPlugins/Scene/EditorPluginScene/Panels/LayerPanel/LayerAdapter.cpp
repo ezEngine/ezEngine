@@ -76,7 +76,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int i
       ezUuid layerGuid = pAccessor->Get<ezUuid>(pObject, "Layer");
       if (!m_pSceneDocument->IsLayerLoaded(layerGuid))
       {
-        return QColor(128, 128, 128);
+        return QVariant();
       }
     }
     break;

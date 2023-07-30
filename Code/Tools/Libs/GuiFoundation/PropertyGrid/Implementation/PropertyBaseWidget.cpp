@@ -1654,7 +1654,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
     else
     {
       const QPalette& pal = palette();
-      elem.m_pSubGroup->SetFillColor(pal.alternateBase().color());
+      elem.m_pSubGroup->SetFillColor(pal.mid().color());
     }
 
     // help URL
