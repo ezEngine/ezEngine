@@ -3,6 +3,8 @@
 #include <Core/Scripting/LuaWrapper.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Logging/Log.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageUtils.h>
 
 int lua_SetColor(lua_State* s)
 {
@@ -124,6 +126,35 @@ void ezQtEditorApp::SetStyleSheet()
       lua.ExecuteString((const char*)content.GetData(), "", ezLog::GetThreadLocalLogSystem()).IgnoreResult();
     }
   }
+
+  ezImage img;
+  ezImageHeader hdr;
+  hdr.SetWidth(16);
+  hdr.SetHeight(150);
+  hdr.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+  img.ResetAndAlloc(hdr);
+
+  ezInt32 x = 0, y = 0;
+
+  for (ezInt32 c = 0; c <= ezColorScheme::ColorGroup::XR; ++c)
+  {
+    for (ezInt32 s = 0; s < 4; ++s)
+    {
+      x = 0;
+
+      for (ezInt32 b = -3; b <= 3; ++b)
+      {
+        const ezColor col = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)c, b, s);
+
+        *img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, x, y) = col;
+        ++x;
+      }
+
+      ++y;
+    }
+  }
+
+  img.SaveTo("D:\\Colors.png").IgnoreResult();
 
   QApplication::setPalette(palette);
 }
