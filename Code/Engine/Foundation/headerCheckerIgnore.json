@@ -38,7 +38,8 @@
 			"unistd.h",
 			"jni.h",
 			"float.h",
-			"arm_neon.h"
+			"arm_neon.h",
+            "signal.h"
 		]
 	},
 	"includeSource" : 
