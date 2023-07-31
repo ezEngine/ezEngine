@@ -123,6 +123,9 @@ public:
   void SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
   void SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
 
+  void ResetRenderPassProperties();
+  void ResetExtractorProperties();
+
   void SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
   ezVariant GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName);
   bool IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const;
@@ -185,7 +188,8 @@ private:
   {
     ezString m_sObjectName;
     ezString m_sPropertyName;
-    ezVariant m_Value;
+    ezVariant m_DefaultValue;
+    ezVariant m_CurrentValue;
     bool m_bIsValid;
     bool m_bIsDirty;
   };
@@ -200,7 +204,7 @@ private:
   void ApplyRenderPassProperties();
   void ApplyExtractorProperties();
 
-  void ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const char* szTypeName);
+  void ApplyProperty(ezReflectedClass* pObject, PropertyValue& data, const char* szTypeName);
 
   ezMap<ezString, PropertyValue> m_PassProperties;
   ezMap<ezString, PropertyValue> m_PassReadBackProperties;

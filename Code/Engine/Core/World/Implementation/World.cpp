@@ -129,16 +129,6 @@ void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemPr
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 }
 
-void ezWorld::SetGameObjectReferenceResolver(const ReferenceResolver& resolver)
-{
-  m_Data.m_GameObjectReferenceResolver = resolver;
-}
-
-const ezWorld::ReferenceResolver& ezWorld::GetGameObjectReferenceResolver() const
-{
-  return m_Data.m_GameObjectReferenceResolver;
-}
-
 // a super simple, but also efficient random number generator
 inline static ezUInt32 NextStableRandomSeed(ezUInt32& ref_uiSeed)
 {
@@ -473,6 +463,12 @@ void ezWorld::Update()
   if (m_Data.m_pSpatialSystem != nullptr)
   {
     m_Data.m_pSpatialSystem->StartNewFrame();
+  }
+
+  // reload resources
+  {
+    EZ_PROFILE_SCOPE("Reload Resources");
+    ProcessResourceReloadFunctions();
   }
 
   // initialize phase
@@ -1438,11 +1434,75 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
   }
 }
 
+void ezWorld::ProcessResourceReloadFunctions()
+{
+  ResourceReloadContext context;
+  context.m_pWorld = this;
+
+  for (auto& hResource : m_Data.m_NeedReload)
+  {
+    if (m_Data.m_ReloadFunctions.TryGetValue(hResource, m_Data.m_TempReloadFunctions))
+    {
+      for (auto& data : m_Data.m_TempReloadFunctions)
+      {
+        EZ_VERIFY(TryGetComponent(data.m_hComponent, context.m_pComponent), "Reload function called on dead component");
+        context.m_pUserData = data.m_pUserData;
+
+        data.m_Func(context);
+      }
+    }
+  }
+
+  m_Data.m_NeedReload.Clear();
+}
+
 void ezWorld::SetMaxInitializationTimePerFrame(ezTime maxInitTime)
 {
   CheckForWriteAccess();
 
   m_Data.m_MaxInitializationTimePerFrame = maxInitTime;
+}
+
+void ezWorld::SetGameObjectReferenceResolver(const ReferenceResolver& resolver)
+{
+  m_Data.m_GameObjectReferenceResolver = resolver;
+}
+
+const ezWorld::ReferenceResolver& ezWorld::GetGameObjectReferenceResolver() const
+{
+  return m_Data.m_GameObjectReferenceResolver;
+}
+
+void ezWorld::AddResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData, ResourceReloadFunc function)
+{
+  CheckForWriteAccess();
+
+  if (hResource.IsValid() == false)
+    return;
+
+  auto& data = m_Data.m_ReloadFunctions[hResource].ExpandAndGetRef();
+  data.m_hComponent = hComponent;
+  data.m_pUserData = pUserData;
+  data.m_Func = function;
+}
+
+void ezWorld::RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData)
+{
+  CheckForWriteAccess();
+
+  ezInternal::WorldData::ReloadFunctionList* pReloadFunctions = nullptr;
+  if (m_Data.m_ReloadFunctions.TryGetValue(hResource, pReloadFunctions))
+  {
+    for (ezUInt32 i = 0; i < pReloadFunctions->GetCount(); ++i)
+    {
+      auto& data = (*pReloadFunctions)[i];
+      if (data.m_hComponent == hComponent && data.m_pUserData == pUserData)
+      {
+        pReloadFunctions->RemoveAtAndSwap(i);
+        break;
+      }
+    }
+  }
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

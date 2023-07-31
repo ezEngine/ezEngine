@@ -481,7 +481,7 @@ void ezPxRagdollComponent::SetupLimbsFromBindPose()
   auto getBone = [&](ezUInt16 i, auto f) -> ezMat4
   {
     const auto& j = desc.m_Skeleton.GetJointByIndex(i);
-    const ezMat4 bm = j.GetBindPoseLocalTransform().GetAsMat4();
+    const ezMat4 bm = j.GetRestPoseLocalTransform().GetAsMat4();
 
     if (j.GetParentIndex() != ezInvalidJointIndex)
     {

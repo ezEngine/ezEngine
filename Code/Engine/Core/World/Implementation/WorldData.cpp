@@ -1,5 +1,7 @@
 #include <Core/CorePCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/World/Implementation/WorldData.h>
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
 
@@ -100,9 +102,14 @@ namespace ezInternal
     }
 
     m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
+
+    ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&WorldData::ResourceEventHandler, this));
   }
 
-  WorldData::~WorldData() = default;
+  WorldData::~WorldData()
+  {
+    ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&WorldData::ResourceEventHandler, this));
+  }
 
   void WorldData::Clear()
   {
@@ -377,6 +384,18 @@ namespace ezInternal
           TraverseHierarchyLevel<WithParentWithSpatialData>(*dataPtr[i], &userData);
         }
       }
+    }
+  }
+
+  void WorldData::ResourceEventHandler(const ezResourceEvent& e)
+  {
+    if (e.m_Type != ezResourceEvent::Type::ResourceContentUnloading)
+      return;
+
+    ezTypelessResourceHandle hResource(e.m_pResource);
+    if (m_ReloadFunctions.Contains(hResource))
+    {
+      m_NeedReload.Insert(hResource);
     }
   }
 

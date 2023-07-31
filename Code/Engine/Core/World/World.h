@@ -326,6 +326,12 @@ public:
   /// \sa SetGameObjectReferenceResolver()
   const ReferenceResolver& GetGameObjectReferenceResolver() const;
 
+  using ResourceReloadContext = ezInternal::WorldData::ResourceReloadContext;
+  using ResourceReloadFunc = ezInternal::WorldData::ResourceReloadFunc;
+
+  void AddResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData, ResourceReloadFunc function);
+  void RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData);
+
   /// \name Helper methods to query ezWorld limits
   ///@{
   static constexpr ezUInt64 GetMaxNumGameObjects();
@@ -397,6 +403,8 @@ private:
 
   void PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve);
   void RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic);
+
+  void ProcessResourceReloadFunctions();
 
   bool ReportErrorWhenStaticObjectMoves() const;
 

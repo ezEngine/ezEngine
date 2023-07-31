@@ -63,8 +63,8 @@ public:
   float GetRadius() const { return m_fRadius; }
   void SetRadius(float fRadius);
 
-  float GetFadeOutStart() const { return m_fFadeOutStart; }
-  void SetFadeOutStart(float fFadeOutStart);
+  float GetFalloff() const { return m_fFalloff; }
+  void SetFalloff(float fFalloff);
 
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
@@ -74,7 +74,7 @@ public:
 
 protected:
   float m_fRadius = 5.0f;
-  float m_fFadeOutStart = 0.5f;
+  float m_fFalloff = 0.5f;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -92,8 +92,8 @@ public:
   const ezVec3& GetExtents() const { return m_vExtents; }
   void SetExtents(const ezVec3& vExtents);
 
-  const ezVec3& GetFadeOutStart() const { return m_vFadeOutStart; }
-  void SetFadeOutStart(const ezVec3& vFadeOutStart);
+  const ezVec3& GetFalloff() const { return m_vFalloff; }
+  void SetFalloff(const ezVec3& vFalloff);
 
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
@@ -103,7 +103,7 @@ public:
 
 protected:
   ezVec3 m_vExtents = ezVec3(10.0f);
-  ezVec3 m_vFadeOutStart = ezVec3(0.5f);
+  ezVec3 m_vFalloff = ezVec3(0.5f);
 };
 
 //////////////////////////////////////////////////////////////////////////

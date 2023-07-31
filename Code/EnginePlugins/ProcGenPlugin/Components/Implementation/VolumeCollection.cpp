@@ -1,6 +1,7 @@
 #include <ProcGenPlugin/ProcGenPluginPCH.h>
 
 #include <GameEngine/Utils/ImageDataResource.h>
+#include <GameEngine/Volumes/VolumeSampler.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 #include <Texture/Image/ImageUtils.h>
 
@@ -56,14 +57,6 @@ ezSimdMat4f ezVolumeCollection::Shape::GetGlobalToLocalTransform() const
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVolumeCollection, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-// static
-ezUInt32 ezVolumeCollection::ComputeSortingKey(float fSortOrder, float fMaxScale)
-{
-  ezUInt32 uiSortingKey = (ezUInt32)(ezMath::Min(fSortOrder * 512.0f, 32767.0f) + 32768.0f);
-  uiSortingKey = (uiSortingKey << 16) | (0xFFFF - ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF));
-  return uiSortingKey;
-}
 
 float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const
 {
@@ -175,8 +168,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
       pObject->SendMessage(msg);
     }
 
-    return ezVisitorExecution::Continue;
-  });
+    return ezVisitorExecution::Continue; });
 
   out_collection.m_Spheres.Sort();
   out_collection.m_Boxes.Sort();
@@ -239,7 +231,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
   }
 }
 
-void ezVolumeCollection::AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFadeOutStart)
+void ezVolumeCollection::AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale *= fRadius;
@@ -249,13 +241,13 @@ void ezVolumeCollection::AddSphere(const ezSimdTransform& transform, float fRadi
   sphere.m_Type = ShapeType::Sphere;
   sphere.m_BlendMode = blendMode;
   sphere.m_fValue = fValue;
-  sphere.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
-  sphere.m_fFadeOutScale = -1.0f / ezMath::Max(1.0f - fFadeOutStart, 0.0001f);
+  sphere.m_uiSortingKey = ezVolumeSampler::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
+  sphere.m_fFadeOutScale = -1.0f / ezMath::Max(fFalloff, 0.0001f);
   sphere.m_fFadeOutBias = -sphere.m_fFadeOutScale;
 }
 
 void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
-  float fValue, const ezVec3& vFadeOutStart)
+  float fValue, const ezVec3& vFalloff)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;
@@ -265,8 +257,8 @@ void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& 
   box.m_Type = ShapeType::Box;
   box.m_BlendMode = blendMode;
   box.m_fValue = fValue;
-  box.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
-  box.m_vFadeOutScale = ezVec3(-1.0f).CompDiv((ezVec3(1.0f) - vFadeOutStart).CompMax(ezVec3(0.0001f)));
+  box.m_uiSortingKey = ezVolumeSampler::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
+  box.m_vFadeOutScale = ezVec3(-1.0f).CompDiv(vFalloff.CompMax(ezVec3(0.0001f)));
   box.m_vFadeOutBias = -box.m_vFadeOutScale;
 }
 
@@ -280,7 +272,7 @@ void ezVolumeCollection::AddImage(const ezSimdTransform& transform, const ezVec3
   shape.m_Type = ShapeType::Image;
   shape.m_BlendMode = blendMode;
   shape.m_fValue = fValue;
-  shape.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
+  shape.m_uiSortingKey = ezVolumeSampler::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
   shape.m_vFadeOutScale = ezVec3(-1.0f).CompDiv((ezVec3(1.0f) - vFadeOutStart).CompMax(ezVec3(0.0001f)));
   shape.m_vFadeOutBias = -shape.m_vFadeOutScale;
 

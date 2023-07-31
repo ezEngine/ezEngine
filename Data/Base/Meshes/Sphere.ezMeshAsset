@@ -11,7 +11,7 @@ o
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2103140589558521791,5741224228062947139}}
-		u4 %Hash{16365354009891935498}
+		u4 %Hash{10648100822210172388}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -48,8 +48,8 @@ o
 		Angle %Angle{f{0xDB0FC940}}
 		b %Cap{1}
 		b %Cap2{1}
-		u2 %Detail{3}
-		u2 %Detail2{1}
+		u2 %Detail{0}
+		u2 %Detail2{0}
 		b %FlipForwardDir{0}
 		f %Height{0x0000803F}
 		b %ImportMaterials{1}
@@ -59,7 +59,7 @@ o
 		}
 		s %MeshFile{""}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
-		s %PrimitiveType{"ezMeshPrimitive::GeodesicSphere"}
+		s %PrimitiveType{"ezMeshPrimitive::Sphere"}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		b %RecalculateNormals{0}
@@ -67,7 +67,7 @@ o
 		s %RightDir{"ezBasisAxis::PositiveX"}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
 		f %UniformScaling{0x0000803F}
-		s %UpDir{"ezBasisAxis::PositiveY"}
+		s %UpDir{"ezBasisAxis::PositiveZ"}
 	}
 }
 o

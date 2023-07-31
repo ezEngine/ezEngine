@@ -6,10 +6,11 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Types/SharedPtr.h>
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/WorldDesc.h>
-#include <Foundation/Types/SharedPtr.h>
 
 namespace ezInternal
 {
@@ -141,6 +142,8 @@ namespace ezInternal
 
     void UpdateGlobalTransforms();
 
+    void ResourceEventHandler(const ezResourceEvent& e);
+
     // game object lookups
     ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
     ezHashTable<ezUInt64, ezHashedString, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
@@ -243,6 +246,27 @@ namespace ezInternal
 
     /// \brief Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
     ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle, ezStringView)> m_GameObjectReferenceResolver;
+
+    struct ResourceReloadContext
+    {
+      ezWorld* m_pWorld = nullptr;
+      ezComponent* m_pComponent = nullptr;
+      void* m_pUserData = nullptr;
+    };
+
+    using ResourceReloadFunc = ezDelegate<void(ResourceReloadContext&)>;
+
+    struct ResourceReloadFunctionData
+    {
+      ezComponentHandle m_hComponent;
+      void* m_pUserData = nullptr;
+      ResourceReloadFunc m_Func;
+    };
+
+    using ReloadFunctionList = ezHybridArray<ResourceReloadFunctionData, 8>;
+    ezHashTable<ezTypelessResourceHandle, ReloadFunctionList> m_ReloadFunctions;
+    ezHashSet<ezTypelessResourceHandle> m_NeedReload;
+    ReloadFunctionList m_TempReloadFunctions;
 
   public:
     class ReadMarker

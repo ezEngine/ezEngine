@@ -9,6 +9,7 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/Utils/BlackboardTemplateResource.h>
 #include <GameEngine/Utils/ImageDataResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
@@ -66,6 +67,7 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Decal", ezGetStaticRTTI<ezDecalResource>());
   ezResourceManager::RegisterResourceForAssetType("Decal Atlas", ezGetStaticRTTI<ezDecalAtlasResource>());
   ezResourceManager::RegisterResourceForAssetType("LUT", ezGetStaticRTTI<ezTexture3DResource>());
+  ezResourceManager::RegisterResourceForAssetType("BlackboardTemplate", ezGetStaticRTTI<ezBlackboardTemplateResource>());
 }
 
 void ezGameApplication::Init_SetupDefaultResources()

@@ -368,6 +368,12 @@ bool ezVariant::operator==(const ezVariant& other) const
     const ezStringView b = other.IsA<ezStringView>() ? other.Get<ezStringView>() : ezStringView(other.Get<ezString>().GetData());
     return a.IsEqual(b);
   }
+  else if (IsHashedString() && other.IsHashedString())
+  {
+    const ezTempHashedString a = IsA<ezTempHashedString>() ? Get<ezTempHashedString>() : ezTempHashedString(Get<ezHashedString>());
+    const ezTempHashedString b = other.IsA<ezTempHashedString>() ? other.Get<ezTempHashedString>() : ezTempHashedString(other.Get<ezHashedString>());
+    return a == b;
+  }
   else if (m_uiType == other.m_uiType)
   {
     CompareFunc compareFunc;
@@ -456,20 +462,24 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (type == Type::Invalid)
     return false;
 
-  if (type == Type::String && m_uiType == Type::Invalid)
+  const bool bTargetIsString = (type == Type::String) || (type == Type::HashedString) || (type == Type::TempHashedString);
+
+  if (bTargetIsString && m_uiType == Type::Invalid)
     return true;
 
-  if (type == Type::String && (m_uiType > Type::FirstStandardType && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer))
+  if (bTargetIsString && (m_uiType > Type::FirstStandardType && m_uiType < Type::LastStandardType && m_uiType != Type::DataBuffer))
     return true;
-  if (type == Type::String && (m_uiType == Type::VariantArray || m_uiType == Type::VariantDictionary))
+  if (bTargetIsString && (m_uiType == Type::VariantArray || m_uiType == Type::VariantDictionary))
     return true;
-  if (type == Type::StringView && m_uiType == Type::String)
+  if (type == Type::StringView && (m_uiType == Type::String || m_uiType == Type::HashedString))
+    return true;
+  if (type == Type::TempHashedString && m_uiType == Type::HashedString)
     return true;
 
   if (!IsValid())
     return false;
 
-  if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String))
+  if (IsNumberStatic(type) && (IsNumber() || m_uiType == Type::String || m_uiType == Type::HashedString))
     return true;
 
   if (IsVector2Static(type) && (IsVector2Static(m_uiType)))
@@ -614,5 +624,45 @@ ezStringView ezVariant::GetTypeName(const ezRTTI* pType)
 {
   return pType->GetTypeName();
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+struct LerpFunc
+{
+  constexpr static bool CanInterpolate(ezVariantType::Enum variantType)
+  {
+    return variantType >= ezVariantType::Int8 && variantType <= ezVariantType::Vector4;
+  }
+
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, double x, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezQuat>)
+    {
+      ezQuat q;
+      q.SetSlerp(a.Get<ezQuat>(), b.Get<ezQuat>(), static_cast<float>(x));
+      out_res = q;
+    }
+    else if constexpr (CanInterpolate(static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<T>::value)))
+    {
+      out_res = ezMath::Lerp(a.Get<T>(), b.Get<T>(), static_cast<float>(x));
+    }
+    else
+    {
+      out_res = (x < 0.5) ? a : b;
+    }
+  }
+};
+
+namespace ezMath
+{
+  ezVariant Lerp(const ezVariant& a, const ezVariant& b, double fFactor)
+  {
+    LerpFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, fFactor, result);
+    return result;
+  }
+} // namespace ezMath
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);

@@ -26,11 +26,11 @@ struct ezSpatialData
   struct Category
   {
     EZ_ALWAYS_INLINE Category()
-      : m_uiValue(ezInvalidIndex)
+      : m_uiValue(ezSmallInvalidIndex)
     {
     }
 
-    EZ_ALWAYS_INLINE explicit Category(ezUInt32 uiValue)
+    EZ_ALWAYS_INLINE explicit Category(ezUInt16 uiValue)
       : m_uiValue(uiValue)
     {
     }
@@ -38,9 +38,9 @@ struct ezSpatialData
     EZ_ALWAYS_INLINE bool operator==(const Category& other) const { return m_uiValue == other.m_uiValue; }
     EZ_ALWAYS_INLINE bool operator!=(const Category& other) const { return m_uiValue != other.m_uiValue; }
 
-    ezUInt32 m_uiValue;
+    ezUInt16 m_uiValue;
 
-    EZ_ALWAYS_INLINE ezUInt32 GetBitmask() const { return m_uiValue != ezInvalidIndex ? static_cast<ezUInt32>(EZ_BIT(m_uiValue)) : 0; }
+    EZ_ALWAYS_INLINE ezUInt32 GetBitmask() const { return m_uiValue != ezSmallInvalidIndex ? static_cast<ezUInt32>(EZ_BIT(m_uiValue)) : 0; }
   };
 
   /// \brief Registers a spatial data category under the given name.
@@ -51,6 +51,9 @@ struct ezSpatialData
 
   /// \brief Returns either an existing category with the given name or ezInvalidSpatialDataCategory.
   EZ_CORE_DLL static Category FindCategory(ezStringView sCategoryName);
+
+  /// \brief Returns the name of the given category.
+  EZ_CORE_DLL static const ezHashedString& GetCategoryName(Category category);
 
   /// \brief Returns the flags for the given category.
   EZ_CORE_DLL static const ezBitflags<Flags>& GetCategoryFlags(Category category);

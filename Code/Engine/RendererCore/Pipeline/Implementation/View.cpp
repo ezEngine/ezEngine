@@ -208,6 +208,32 @@ void ezView::SetExtractorProperty(const char* szPassName, const char* szProperty
   SetProperty(m_ExtractorProperties, szPassName, szPropertyName, value);
 }
 
+void ezView::ResetRenderPassProperties()
+{
+  for (auto it : m_PassProperties)
+  {
+    auto& prop = it.Value();
+    if (prop.m_bIsValid)
+    {
+      prop.m_CurrentValue = prop.m_DefaultValue;
+      prop.m_bIsDirty;
+    }
+  }
+}
+
+void ezView::ResetExtractorProperties()
+{
+  for (auto it : m_ExtractorProperties)
+  {
+    auto& prop = it.Value();
+    if (prop.m_bIsValid)
+    {
+      prop.m_CurrentValue = prop.m_DefaultValue;
+      prop.m_bIsDirty;
+    }
+  }
+}
+
 void ezView::SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
 {
   SetReadBackProperty(m_PassReadBackProperties, szPassName, szPropertyName, value);
@@ -219,7 +245,9 @@ ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const ch
 
   auto it = m_PassReadBackProperties.Find(sKey);
   if (it.IsValid())
-    return it.Value().m_Value;
+  {
+    return it.Value().m_CurrentValue;
+  }
 
   ezLog::Warning("Unknown read-back property '{0}::{1}'", szPassName, szPropertyName);
   return ezVariant();
@@ -337,7 +365,7 @@ void ezView::SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPass
   }
 
   prop.m_bIsDirty = true;
-  prop.m_Value = value;
+  prop.m_CurrentValue = value;
 }
 
 
@@ -356,7 +384,7 @@ void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char
   }
 
   prop.m_bIsDirty = false;
-  prop.m_Value = value;
+  prop.m_CurrentValue = value;
 }
 
 void ezView::ReadBackPassProperties()
@@ -403,8 +431,7 @@ void ezView::ApplyRenderPassProperties()
 
     if (pObject == nullptr)
     {
-      ezLog::Error(
-        "The render pass '{0}' does not exist. Property '{1}' cannot be applied.", propertyValue.m_sObjectName, propertyValue.m_sPropertyName);
+      ezLog::Error("The render pass '{0}' does not exist. Property '{1}' cannot be applied.", propertyValue.m_sObjectName, propertyValue.m_sPropertyName);
 
       propertyValue.m_bIsValid = false;
       continue;
@@ -436,9 +463,9 @@ void ezView::ApplyExtractorProperties()
   }
 }
 
-void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const char* szTypeName)
+void ezView::ApplyProperty(ezReflectedClass* pObject, PropertyValue& data, const char* szTypeName)
 {
-  ezAbstractProperty* pAbstractProperty = pClass->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
+  ezAbstractProperty* pAbstractProperty = pObject->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
   if (pAbstractProperty == nullptr)
   {
     ezLog::Error("The {0} '{1}' does not have a property called '{2}', it cannot be applied.", szTypeName, data.m_sObjectName, data.m_sPropertyName);
@@ -455,7 +482,13 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const 
     return;
   }
 
-  ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstractProperty), pClass, data.m_Value);
+  auto pMemberProperty = static_cast<ezAbstractMemberProperty*>(pAbstractProperty);
+  if (data.m_DefaultValue.IsValid() == false)
+  {
+    data.m_DefaultValue = ezReflectionUtils::GetMemberPropertyValue(pMemberProperty, pObject);
+  }
+
+  ezReflectionUtils::SetMemberPropertyValue(pMemberProperty, pObject, data.m_CurrentValue);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_View);

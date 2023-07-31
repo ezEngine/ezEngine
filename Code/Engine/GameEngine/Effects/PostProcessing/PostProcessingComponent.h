@@ -1,0 +1,74 @@
+#pragma once
+
+#include <Core/World/World.h>
+#include <GameEngine/Volumes/VolumeSampler.h>
+#include <RendererCore/Pipeline/Declarations.h>
+
+class EZ_GAMEENGINE_DLL ezPostProcessingComponentManager : public ezComponentManager<class ezPostProcessingComponent, ezBlockStorageType::Compact>
+{
+public:
+  ezPostProcessingComponentManager(ezWorld* pWorld);
+
+  virtual void Initialize() override;
+
+private:
+  void UpdateComponents(const UpdateContext& context);
+};
+
+struct ezPostProcessingValueMapping
+{
+  ezHashedString m_sRenderPassName;
+  ezHashedString m_sPropertyName;
+  ezHashedString m_sVolumeValueName;
+  ezVariant m_DefaultValue;
+  ezTime m_InterpolationDuration;
+
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPostProcessingValueMapping);
+
+/// \brief A component that sets the configured values on a render pipeline and optionally samples those values from volumes at the corresponding camera position.
+///
+/// If there is a render target camera component attached to the owner object it will affect the render pipeline of this camera,
+/// otherwise the render pipeline of the main camera is affected.
+class EZ_GAMEENGINE_DLL ezPostProcessingComponent : public ezComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezPostProcessingComponent, ezComponent, ezPostProcessingComponentManager);
+
+public:
+  ezPostProcessingComponent();
+  ezPostProcessingComponent(ezPostProcessingComponent&& other);
+  ~ezPostProcessingComponent();
+  ezPostProcessingComponent& operator=(ezPostProcessingComponent&& other);
+
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
+
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+
+  void SetVolumeType(const char* szType); // [ property ]
+  const char* GetVolumeType() const;      // [ property ]
+
+private:
+  ezUInt32 Mappings_GetCount() const { return m_Mappings.GetCount(); }                                // [ property ]
+  const ezPostProcessingValueMapping& Mappings_GetMapping(ezUInt32 i) const { return m_Mappings[i]; } // [ property ]
+  void Mappings_SetMapping(ezUInt32 i, const ezPostProcessingValueMapping& mapping);                  // [ property ]
+  void Mappings_Insert(ezUInt32 uiIndex, const ezPostProcessingValueMapping& mapping);                // [ property ]
+  void Mappings_Remove(ezUInt32 uiIndex);                                                             // [ property ]
+
+  ezView* FindView() const;
+  void RegisterSamplerValues();
+  void ResetViewProperties();
+  void SampleAndSetViewProperties();
+
+  ezComponentHandle m_hCameraComponent;
+  ezDynamicArray<ezPostProcessingValueMapping> m_Mappings;
+  ezUniquePtr<ezVolumeSampler> m_pSampler;
+  ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
+};

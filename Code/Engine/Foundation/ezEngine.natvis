@@ -7,8 +7,8 @@
 	<!-- Strings-->
 	<Type Name="ezHybridStringBase&lt;*&gt;">
 		<AlternativeType Name="ezStringBuilder" />
-    <DisplayString>{m_Data.m_pElements,s8}</DisplayString>
-    <StringView>m_Data.m_pElements,s8</StringView>
+		<DisplayString>{m_Data.m_pElements,s8}</DisplayString>
+		<StringView>m_Data.m_pElements,s8</StringView>
 		<Expand>
 			<Item Name="String">m_Data.m_pElements,s8</Item>
 			<Item Name="CharacterCount">m_uiCharacterCount</Item>
@@ -70,13 +70,13 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
-  
-  <Type Name="ezSmallArrayBase&lt;*&gt;">
+	
+	<Type Name="ezSmallArrayBase&lt;*&gt;">
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
 			<Item Name="count">m_uiCount</Item>
 			<Item Name="capacity">m_uiCapacity</Item>
-      <Item Name="userdata">m_uiUserData</Item>
+			<Item Name="userdata">m_uiUserData</Item>
 			<ArrayItems>
 				<Size>m_uiCount</Size>
 				<ValuePointer>(m_uiCapacity &lt;= $T2) ? ($T1*)((intptr_t)(m_StaticData)) : m_pElements</ValuePointer>
@@ -220,6 +220,8 @@
 			<Item Name="Value" Condition="m_uiType == Type::Uuid">*reinterpret_cast&lt;ezUuid*&gt;(&amp;m_Data)</Item>
 			<Item Name="Value" Condition="m_uiType == Type::Angle">*reinterpret_cast&lt;ezAngle*&gt;(&amp;m_Data)</Item>
 			<Item Name="Value" Condition="m_uiType == Type::ColorGamma">*reinterpret_cast&lt;ezColorGammaUB*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::HashedString">*reinterpret_cast&lt;ezHashedString*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_uiType == Type::TempHashedString">*reinterpret_cast&lt;ezTempHashedString*&gt;(&amp;m_Data)</Item>
 			
 			<Item Name="Value" Condition="m_uiType == Type::TypedPointer">*reinterpret_cast&lt;ezTypedPointer*&gt;(&amp;m_Data)</Item>
 			<Item Name="Value" Condition="m_uiType == Type::TypedObject &amp;&amp; m_bIsShared">reinterpret_cast&lt;void*&gt;(m_Data.shared->m_Ptr)</Item>
@@ -338,12 +340,12 @@
 		</Expand>
 	</Type>
 
-  <Type Name="ezAngle">
-    <DisplayString>{{Degree = {m_fRadian*57.295}}}</DisplayString>
-    <Expand>
-      <Item Name="Radians">m_fRadian</Item>
-    </Expand>
-  </Type>
+	<Type Name="ezAngle">
+		<DisplayString>{{Degree = {m_fRadian*57.295}}}</DisplayString>
+		<Expand>
+			<Item Name="Radians">m_fRadian</Item>
+		</Expand>
+	</Type>
 </AutoVisualizer>
 
 

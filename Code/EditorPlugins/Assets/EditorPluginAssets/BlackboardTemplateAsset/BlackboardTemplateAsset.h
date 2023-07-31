@@ -20,8 +20,10 @@ class ezBlackboardTemplateAssetDocument : public ezSimpleAssetDocument<ezBlackbo
 public:
   ezBlackboardTemplateAssetDocument(const char* szDocumentPath);
 
-protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  ezStatus WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile) const;
 
-  ezStatus RetrieveState(const ezBlackboardTemplateAssetObject* pProp, ezBlackboardTemplateResourceDescriptor& inout_Desc);
+protected:
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& inout_stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+
+  ezStatus RetrieveState(const ezBlackboardTemplateAssetObject* pProp, ezBlackboardTemplateResourceDescriptor& inout_Desc) const;
 };

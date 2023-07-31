@@ -471,6 +471,11 @@ ezRenderPipelineResourceHandle ezCameraComponent::GetRenderPipeline() const
   return m_hCachedRenderPipeline;
 }
 
+ezViewHandle ezCameraComponent::GetRenderTargetView() const
+{
+  return m_hRenderTargetView;
+}
+
 const char* ezCameraComponent::GetRenderPipelineEnum() const
 {
   return m_sRenderPipeline.GetData();

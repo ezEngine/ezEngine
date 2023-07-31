@@ -251,11 +251,17 @@ namespace ezConversionUtils
   /// \brief Converts an angle to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezAngle& value, ezStringBuilder& out_sResult); // [tested]
 
-  /// \brief Converts an angle to a string
+  /// \brief Converts a time to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTime& value, ezStringBuilder& out_sResult);
 
   /// \brief Converts a ezStringView to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_sResult);
+
+  /// \brief Converts a hashed string to a string
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezHashedString& value, ezStringBuilder& out_sResult);
+
+  /// \brief Converts a temp hashed string to a string. Will print the hash value since the original string can't be restored from a temp hashed string.
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTempHashedString& value, ezStringBuilder& out_sResult);
 
   /// \brief Converts a ezVariantArray to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_sResult);

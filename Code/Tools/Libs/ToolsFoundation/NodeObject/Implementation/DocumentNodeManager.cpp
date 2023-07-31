@@ -810,6 +810,9 @@ void ezDocumentNodeManager::StructureEventHandler(const ezDocumentObjectStructur
 
 void ezDocumentNodeManager::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
+  if (e.m_pObject == nullptr)
+    return;
+
   const ezAbstractProperty* pProp = e.m_pObject->GetType()->FindPropertyByName(e.m_sProperty);
   if (pProp == nullptr)
     return;

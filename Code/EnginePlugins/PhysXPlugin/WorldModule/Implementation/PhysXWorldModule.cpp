@@ -235,8 +235,7 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   , m_ScratchMemory(ezPhysX::GetSingleton()->GetAllocator())
   , m_Settings()
 {
-  m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this));
-  m_pSimulateTask->ConfigureTask("PhysX Simulate", ezTaskNesting::Maybe);
+  m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "PhysX Simulate", ezTaskNesting::Maybe, ezMakeDelegate(&ezPhysXWorldModule::Simulate, this));
 
   m_ScratchMemory.SetCountUninitialized(ezMemoryUtils::AlignSize(m_Settings.m_uiScratchMemorySize, 16u * 1024u));
 }

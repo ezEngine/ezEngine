@@ -28,38 +28,40 @@ struct ezVariantType
 
     /// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
     FirstStandardType = 1,
-    Bool,       ///< The variant stores a bool.
-    Int8,       ///< The variant stores an ezInt8.
-    UInt8,      ///< The variant stores an ezUInt8.
-    Int16,      ///< The variant stores an ezInt16.
-    UInt16,     ///< The variant stores an ezUInt16.
-    Int32,      ///< The variant stores an ezInt32.
-    UInt32,     ///< The variant stores an ezUInt32.
-    Int64,      ///< The variant stores an ezInt64.
-    UInt64,     ///< The variant stores an ezUInt64.
-    Float,      ///< The variant stores a float.
-    Double,     ///< The variant stores a double.
-    Color,      ///< The variant stores an ezColor.
-    Vector2,    ///< The variant stores an ezVec2.
-    Vector3,    ///< The variant stores an ezVec3.
-    Vector4,    ///< The variant stores an ezVec4.
-    Vector2I,   ///< The variant stores an ezVec2I32.
-    Vector3I,   ///< The variant stores an ezVec3I32.
-    Vector4I,   ///< The variant stores an ezVec4I32.
-    Vector2U,   ///< The variant stores an ezVec2U32.
-    Vector3U,   ///< The variant stores an ezVec3U32.
-    Vector4U,   ///< The variant stores an ezVec4U32.
-    Quaternion, ///< The variant stores an ezQuat.
-    Matrix3,    ///< The variant stores an ezMat3. A heap allocation is required to store this data type.
-    Matrix4,    ///< The variant stores an ezMat4. A heap allocation is required to store this data type.
-    Transform,  ///< The variant stores an ezTransform. A heap allocation is required to store this data type.
-    String,     ///< The variant stores a string. A heap allocation is required to store this data type.
-    StringView, ///< The variant stores an ezStringView.
-    DataBuffer, ///< The variant stores an ezDataBuffer, a typedef to DynamicArray<ezUInt8>. A heap allocation is required to store this data type.
-    Time,       ///< The variant stores an ezTime value.
-    Uuid,       ///< The variant stores an ezUuid value.
-    Angle,      ///< The variant stores an ezAngle value.
-    ColorGamma, ///< The variant stores an ezColorGammaUB value.
+    Bool,             ///< The variant stores a bool.
+    Int8,             ///< The variant stores an ezInt8.
+    UInt8,            ///< The variant stores an ezUInt8.
+    Int16,            ///< The variant stores an ezInt16.
+    UInt16,           ///< The variant stores an ezUInt16.
+    Int32,            ///< The variant stores an ezInt32.
+    UInt32,           ///< The variant stores an ezUInt32.
+    Int64,            ///< The variant stores an ezInt64.
+    UInt64,           ///< The variant stores an ezUInt64.
+    Float,            ///< The variant stores a float.
+    Double,           ///< The variant stores a double.
+    Color,            ///< The variant stores an ezColor.
+    Vector2,          ///< The variant stores an ezVec2.
+    Vector3,          ///< The variant stores an ezVec3.
+    Vector4,          ///< The variant stores an ezVec4.
+    Vector2I,         ///< The variant stores an ezVec2I32.
+    Vector3I,         ///< The variant stores an ezVec3I32.
+    Vector4I,         ///< The variant stores an ezVec4I32.
+    Vector2U,         ///< The variant stores an ezVec2U32.
+    Vector3U,         ///< The variant stores an ezVec3U32.
+    Vector4U,         ///< The variant stores an ezVec4U32.
+    Quaternion,       ///< The variant stores an ezQuat.
+    Matrix3,          ///< The variant stores an ezMat3. A heap allocation is required to store this data type.
+    Matrix4,          ///< The variant stores an ezMat4. A heap allocation is required to store this data type.
+    Transform,        ///< The variant stores an ezTransform. A heap allocation is required to store this data type.
+    String,           ///< The variant stores a string. A heap allocation is required to store this data type.
+    StringView,       ///< The variant stores an ezStringView.
+    DataBuffer,       ///< The variant stores an ezDataBuffer, a typedef to DynamicArray<ezUInt8>. A heap allocation is required to store this data type.
+    Time,             ///< The variant stores an ezTime value.
+    Uuid,             ///< The variant stores an ezUuid value.
+    Angle,            ///< The variant stores an ezAngle value.
+    ColorGamma,       ///< The variant stores an ezColorGammaUB value.
+    HashedString,     ///< The variant stores an ezHashedString value.
+    TempHashedString, ///< The variant stores an ezTempHashedString value.
     LastStandardType,
     /// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
 

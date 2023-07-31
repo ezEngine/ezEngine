@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezEnumBase, ezNoBase, 1, ezRTTINoAllocator)
@@ -367,6 +368,12 @@ EZ_END_STATIC_REFLECTED_TYPE;
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezDataBuffer, ezNoBase, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE;
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezHashedString, ezNoBase, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTempHashedString, ezNoBase, 1, ezRTTINoAllocator)
+EZ_END_STATIC_REFLECTED_TYPE;
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAngle, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
@@ -414,21 +421,22 @@ EZ_BITFLAGS_CONSTANTS(ezPropertyFlags::PointerOwner, ezPropertyFlags::ReadOnly, 
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFunctionType, 1)
-EZ_BITFLAGS_CONSTANTS(ezFunctionType::Member, ezFunctionType::StaticMember, ezFunctionType::Constructor)
+EZ_ENUM_CONSTANTS(ezFunctionType::Member, ezFunctionType::StaticMember, ezFunctionType::Constructor)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVariantType, 1)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::Invalid, ezVariantType::Bool, ezVariantType::Int8, ezVariantType::UInt8, ezVariantType::Int16, ezVariantType::UInt16)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::Int32, ezVariantType::UInt32, ezVariantType::Int64, ezVariantType::UInt64, ezVariantType::Float, ezVariantType::Double)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::Color, ezVariantType::Vector2, ezVariantType::Vector3, ezVariantType::Vector4)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::Vector2I, ezVariantType::Vector3I, ezVariantType::Vector4I, ezVariantType::Vector2U, ezVariantType::Vector3U, ezVariantType::Vector4U)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::Quaternion, ezVariantType::Matrix3, ezVariantType::Matrix4, ezVariantType::Transform)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::String, ezVariantType::StringView, ezVariantType::DataBuffer, ezVariantType::Time, ezVariantType::Uuid, ezVariantType::Angle, ezVariantType::ColorGamma)
-EZ_BITFLAGS_CONSTANTS(ezVariantType::VariantArray, ezVariantType::VariantDictionary, ezVariantType::TypedPointer, ezVariantType::TypedObject)
+EZ_ENUM_CONSTANTS(ezVariantType::Invalid, ezVariantType::Bool, ezVariantType::Int8, ezVariantType::UInt8, ezVariantType::Int16, ezVariantType::UInt16)
+EZ_ENUM_CONSTANTS(ezVariantType::Int32, ezVariantType::UInt32, ezVariantType::Int64, ezVariantType::UInt64, ezVariantType::Float, ezVariantType::Double)
+EZ_ENUM_CONSTANTS(ezVariantType::Color, ezVariantType::Vector2, ezVariantType::Vector3, ezVariantType::Vector4)
+EZ_ENUM_CONSTANTS(ezVariantType::Vector2I, ezVariantType::Vector3I, ezVariantType::Vector4I, ezVariantType::Vector2U, ezVariantType::Vector3U, ezVariantType::Vector4U)
+EZ_ENUM_CONSTANTS(ezVariantType::Quaternion, ezVariantType::Matrix3, ezVariantType::Matrix4, ezVariantType::Transform)
+EZ_ENUM_CONSTANTS(ezVariantType::String, ezVariantType::StringView, ezVariantType::DataBuffer, ezVariantType::Time, ezVariantType::Uuid, ezVariantType::Angle, ezVariantType::ColorGamma)
+EZ_ENUM_CONSTANTS(ezVariantType::HashedString, ezVariantType::TempHashedString)
+EZ_ENUM_CONSTANTS(ezVariantType::VariantArray, ezVariantType::VariantDictionary, ezVariantType::TypedPointer, ezVariantType::TypedObject)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyCategory, 1)
-EZ_BITFLAGS_CONSTANTS(ezPropertyCategory::Constant, ezPropertyCategory::Member, ezPropertyCategory::Function, ezPropertyCategory::Array, ezPropertyCategory::Set, ezPropertyCategory::Map)
+EZ_ENUM_CONSTANTS(ezPropertyCategory::Constant, ezPropertyCategory::Member, ezPropertyCategory::Function, ezPropertyCategory::Array, ezPropertyCategory::Set, ezPropertyCategory::Map)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
