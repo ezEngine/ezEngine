@@ -27,45 +27,41 @@ ezQtNodeScene::ezQtNodeScene(QObject* pParent)
 ezQtNodeScene::~ezQtNodeScene()
 {
   disconnect(this, &QGraphicsScene::selectionChanged, this, &ezQtNodeScene::OnSelectionChanged);
-  SetDocumentNodeManager(nullptr);
-}
-
-void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager)
-{
-  if (pManager == m_pManager)
-    return;
 
   Clear();
+
   if (m_pManager != nullptr)
   {
     m_pManager->m_NodeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
     m_pManager->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
     m_pManager->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
   }
+}
+
+void ezQtNodeScene::InitScene(const ezDocumentNodeManager* pManager)
+{
+  EZ_ASSERT_DEV(pManager != nullptr, "Invalid node manager");
 
   m_pManager = pManager;
 
-  if (m_pManager != nullptr)
-  {
-    m_pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
-    m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
-    m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
+  m_pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
+  m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
+  m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
 
-    // Create Nodes
-    const auto& rootObjects = pManager->GetRootObject()->GetChildren();
-    for (const auto& pObject : rootObjects)
+  // Create Nodes
+  const auto& rootObjects = pManager->GetRootObject()->GetChildren();
+  for (const auto& pObject : rootObjects)
+  {
+    if (pManager->IsNode(pObject))
     {
-      if (pManager->IsNode(pObject))
-      {
-        CreateQtNode(pObject);
-      }
+      CreateQtNode(pObject);
     }
-    for (const auto& pObject : rootObjects)
+  }
+  for (const auto& pObject : rootObjects)
+  {
+    if (pManager->IsConnection(pObject))
     {
-      if (pManager->IsConnection(pObject))
-      {
-        CreateQtConnection(pObject);
-      }
+      CreateQtConnection(pObject);
     }
   }
 }
@@ -292,7 +288,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     ezQtPin* pPin = static_cast<ezQtPin*>(pItem);
     QAction* pAction = new QAction("Disconnect Pin", &menu);
     menu.addAction(pAction);
-    connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked) { DisconnectPinsAction(pPin); });
+    connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked)
+      { DisconnectPinsAction(pPin); });
 
     pPin->ExtendContextMenu(menu);
   }
@@ -311,7 +308,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     {
       QAction* pAction = new QAction("Remove", &menu);
       menu.addAction(pAction);
-      connect(pAction, &QAction::triggered, this, [this](bool bChecked) { RemoveSelectedNodesAction(); });
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+        { RemoveSelectedNodesAction(); });
     }
 
     pNode->ExtendContextMenu(menu);
@@ -321,7 +319,8 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     ezQtConnection* pConnection = static_cast<ezQtConnection*>(pItem);
     QAction* pAction = new QAction("Delete Connection", &menu);
     menu.addAction(pAction);
-    connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked) { DisconnectPinsAction(pConnection); });
+    connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked)
+      { DisconnectPinsAction(pConnection); });
 
     pConnection->ExtendContextMenu(menu);
   }
@@ -700,7 +699,8 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
   menu.addAction(pSearchMenu);
 
   connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
-  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]() { menu.close(); });
+  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]()
+    { menu.close(); });
 
   ezStringBuilder sFullName, sCleanName2;
 

@@ -37,7 +37,7 @@ public:
   ezQtVisualScriptNodeScene(QObject* pParent = nullptr);
   ~ezQtVisualScriptNodeScene();
 
-  virtual void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);
+  virtual void InitScene(const ezDocumentNodeManager* pManager);
 
   const QPixmap& GetCoroutineIcon() const { return m_CoroutineIcon; }
 
