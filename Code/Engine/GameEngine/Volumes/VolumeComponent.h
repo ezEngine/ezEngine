@@ -9,6 +9,10 @@ struct ezMsgUpdateLocalBounds;
 
 using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
 
+/// \brief A volume component can hold generic values either from a blackboard template or set directly on the component.
+///
+/// The values can be sampled with an ezVolumeSampler and then used for things like e.g. post-processing, reverb etc.
+/// They can also be used to represent knowledge in a scene, like e.g. smell or threat, and can be detected by an ezSensorComponent and then processed by AI.
 class EZ_GAMEENGINE_DLL ezVolumeComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezVolumeComponent, ezComponent);

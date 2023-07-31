@@ -5,6 +5,7 @@
 
 class ezWorld;
 
+/// \brief A volume sampler is used to sample the registered values from volumes at a given position. It also takes care of interpolation over time of those values.
 class EZ_GAMEENGINE_DLL ezVolumeSampler
 {
 public:

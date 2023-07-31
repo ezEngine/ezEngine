@@ -29,6 +29,10 @@ struct ezPostProcessingValueMapping
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPostProcessingValueMapping);
 
+/// \brief A component that sets the configured values on a render pipeline and optionally samples those values from volumes at the corresponding camera position.
+///
+/// If there is a render target camera component attached to the owner object it will affect the render pipeline of this camera,
+/// otherwise the render pipeline of the main camera is affected.
 class EZ_GAMEENGINE_DLL ezPostProcessingComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPostProcessingComponent, ezComponent, ezPostProcessingComponentManager);
