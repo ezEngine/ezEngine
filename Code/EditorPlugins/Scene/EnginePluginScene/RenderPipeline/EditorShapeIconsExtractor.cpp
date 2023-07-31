@@ -183,7 +183,14 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
 
         if (auto pColorAttribute = pRtti->GetAttributeByType<ezColorAttribute>())
         {
-          shapeIconInfo.m_FallbackColor = pColorAttribute->GetColor().GetDarker(0.6f);
+          ezColor col = pColorAttribute->GetColor();
+
+          if (pColorAttribute->m_iColorGroup != -1)
+          {
+            col = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)pColorAttribute->m_iColorGroup, 2, 2);
+          }
+
+          shapeIconInfo.m_FallbackColor = col;
         }
       }
     });
