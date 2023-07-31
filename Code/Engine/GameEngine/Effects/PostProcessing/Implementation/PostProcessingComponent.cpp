@@ -240,7 +240,7 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
   const ezVec3 vSamplePos = pView->GetCullingCamera()->GetCenterPosition();
 
   ezWorld* pWorld = GetWorld();
-  ezTime deltaTime;  
+  ezTime deltaTime;
   if (pWorld->GetWorldSimulationEnabled())
   {
     deltaTime = pWorld->GetClock().GetTimeDiff();

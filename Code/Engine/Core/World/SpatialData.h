@@ -52,7 +52,7 @@ struct ezSpatialData
   /// \brief Returns either an existing category with the given name or ezInvalidSpatialDataCategory.
   EZ_CORE_DLL static Category FindCategory(ezStringView sCategoryName);
 
-   /// \brief Returns the name of the given category.
+  /// \brief Returns the name of the given category.
   EZ_CORE_DLL static const ezHashedString& GetCategoryName(Category category);
 
   /// \brief Returns the flags for the given category.

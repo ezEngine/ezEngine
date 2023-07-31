@@ -59,8 +59,7 @@ void ezVolumeSampler::SampleAtPosition(ezWorld& world, ezSpatialData::Category s
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
 
   ezHybridArray<ComponentInfo, 16> componentInfos;
-  world.GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, [&](ezGameObject* pObject)
-    {
+  world.GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, [&](ezGameObject* pObject) {
       ezVolumeComponent* pComponent = nullptr;
       if (pObject->TryGetComponentOfBaseType(pComponent))
       {
