@@ -38,7 +38,7 @@ void ezVolumeSampler::DeregisterAllValues()
   m_Values.Clear();
 }
 
-void ezVolumeSampler::SampleAtPosition(ezWorld& world, ezSpatialData::Category spatialCategory, const ezVec3& vGlobalPosition, ezTime deltaTime)
+void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Category spatialCategory, const ezVec3& vGlobalPosition, ezTime deltaTime)
 {
   struct ComponentInfo
   {

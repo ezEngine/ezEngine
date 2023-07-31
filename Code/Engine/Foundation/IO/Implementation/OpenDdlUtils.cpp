@@ -618,7 +618,7 @@ ezResult ezOpenDdlUtils::ConvertToAngle(const ezOpenDdlReaderElement* pElement, 
   return EZ_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToHashedString(const ezOpenDdlReaderElement* pElement, ezHashedString& out_result)
+ezResult ezOpenDdlUtils::ConvertToHashedString(const ezOpenDdlReaderElement* pElement, ezHashedString& out_sResult)
 {
   if (pElement == nullptr)
     return EZ_FAILURE;
@@ -639,7 +639,7 @@ ezResult ezOpenDdlUtils::ConvertToHashedString(const ezOpenDdlReaderElement* pEl
   {
     const ezStringView* pValues = pElement->GetPrimitivesString();
 
-    out_result.Assign(pValues[0]);
+    out_sResult.Assign(pValues[0]);
 
     return EZ_SUCCESS;
   }
@@ -647,7 +647,7 @@ ezResult ezOpenDdlUtils::ConvertToHashedString(const ezOpenDdlReaderElement* pEl
   return EZ_FAILURE;
 }
 
-ezResult ezOpenDdlUtils::ConvertToTempHashedString(const ezOpenDdlReaderElement* pElement, ezTempHashedString& out_result)
+ezResult ezOpenDdlUtils::ConvertToTempHashedString(const ezOpenDdlReaderElement* pElement, ezTempHashedString& out_sResult)
 {
   if (pElement == nullptr)
     return EZ_FAILURE;
@@ -668,7 +668,7 @@ ezResult ezOpenDdlUtils::ConvertToTempHashedString(const ezOpenDdlReaderElement*
   {
     const ezUInt64* pValues = pElement->GetPrimitivesUInt64();
 
-    out_result = ezTempHashedString(pValues[0]);
+    out_sResult = ezTempHashedString(pValues[0]);
 
     return EZ_SUCCESS;
   }

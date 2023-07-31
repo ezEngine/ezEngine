@@ -132,13 +132,13 @@ namespace ezOpenDdlUtils
   ///
   /// \a pElement maybe be a primitives list of exactly 1 string.
   /// It may also be a group that contains such a primitives list as the only child.
-  EZ_FOUNDATION_DLL ezResult ConvertToHashedString(const ezOpenDdlReaderElement* pElement, ezHashedString& out_result); // [tested]
+  EZ_FOUNDATION_DLL ezResult ConvertToHashedString(const ezOpenDdlReaderElement* pElement, ezHashedString& out_sResult); // [tested]
 
   /// \brief Converts the data that \a pElement points to to an ezTempHashedString.
   ///
   /// \a pElement maybe be a primitives list of exactly 1 uint64.
   /// It may also be a group that contains such a primitives list as the only child.
-  EZ_FOUNDATION_DLL ezResult ConvertToTempHashedString(const ezOpenDdlReaderElement* pElement, ezTempHashedString& out_result); // [tested]
+  EZ_FOUNDATION_DLL ezResult ConvertToTempHashedString(const ezOpenDdlReaderElement* pElement, ezTempHashedString& out_sResult); // [tested]
 
   /// \brief Uses the elements custom type name to infer which type the object holds and reads it into the ezVariant.
   ///

@@ -224,7 +224,7 @@ void ezVolumeComponent::InitializeFromTemplate()
   if (m_bReloadFunctionAdded == false)
   {
     GetWorld()->AddResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr,
-      [](ezWorld::ResourceReloadContext& context) {
+      [](const ezWorld::ResourceReloadContext& context) {
         ezStaticCast<ezVolumeComponent*>(context.m_pComponent)->ReloadTemplate();
       });
 
