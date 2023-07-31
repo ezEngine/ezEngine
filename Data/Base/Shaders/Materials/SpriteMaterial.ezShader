@@ -3,6 +3,7 @@ ALL
 
 [PERMUTATIONS]
 
+SHAPE_ICON
 BLEND_MODE
 RENDER_PASS
 MSAA
@@ -170,7 +171,15 @@ PS_OUT main(PS_IN Input)
     discard;
   }
 
-  float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoord0.xy) * Input.Color0;
+  float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoord0.xy);
+
+#if SHAPE_ICON
+  float3 tintedColor = saturate(color.rgb * Input.Color0.rgb * 2.0);
+  float factor = saturate(GetLuminance(color.rgb) * 3.0 - 2.0);
+  color.rgb = lerp(tintedColor, 1.0, factor);  
+#else
+  color *= Input.Color0;
+#endif
 
   PS_OUT Output;
 

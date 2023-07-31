@@ -17,6 +17,7 @@ struct ezSpriteBlendMode
     Masked,
     Transparent,
     Additive,
+    ShapeIcon,
 
     Default = Masked
   };

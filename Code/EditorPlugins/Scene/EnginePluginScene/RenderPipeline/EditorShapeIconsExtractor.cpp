@@ -104,7 +104,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
       pRenderData->m_fSize = m_fSize;
       pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
       pRenderData->m_fAspectRatio = 1.0f;
-      pRenderData->m_BlendMode = ezSpriteBlendMode::Masked;
+      pRenderData->m_BlendMode = ezSpriteBlendMode::ShapeIcon;
       pRenderData->m_texCoordScale = ezVec2(1.0f);
       pRenderData->m_texCoordOffset = ezVec2(0.0f);
       pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(pComponent);
@@ -120,7 +120,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
       }
       else
       {
-        pRenderData->m_color = ezColor::White;
+        pRenderData->m_color = pShapeIconInfo->m_FallbackColor;
       }
 
       pRenderData->m_color.a = 1.0f;
@@ -180,6 +180,11 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
         shapeIconInfo.m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sPath);
         shapeIconInfo.m_pColorProperty = FindColorProperty(pRtti);
         shapeIconInfo.m_pColorGammaProperty = FindColorGammaProperty(pRtti);
+
+        if (auto pColorAttribute = pRtti->GetAttributeByType<ezColorAttribute>())
+        {
+          shapeIconInfo.m_FallbackColor = pColorAttribute->GetColor().GetDarker(0.6f);
+        }
       }
     });
 }

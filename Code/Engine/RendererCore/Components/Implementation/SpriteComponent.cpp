@@ -20,6 +20,7 @@ ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
   switch (blendMode)
   {
     case ezSpriteBlendMode::Masked:
+    case ezSpriteBlendMode::ShapeIcon:
       return "BLEND_MODE_MASKED";
     case ezSpriteBlendMode::Transparent:
       return "BLEND_MODE_TRANSPARENT";

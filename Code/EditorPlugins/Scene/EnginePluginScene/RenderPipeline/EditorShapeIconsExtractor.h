@@ -34,6 +34,7 @@ private:
     ezTexture2DResourceHandle m_hTexture;
     const ezTypedMemberProperty<ezColor>* m_pColorProperty;
     const ezTypedMemberProperty<ezColorGammaUB>* m_pColorGammaProperty;
+    ezColor m_FallbackColor = ezColor::White;
   };
 
   ezHashTable<const ezRTTI*, ShapeIconInfo> m_ShapeIconInfos;

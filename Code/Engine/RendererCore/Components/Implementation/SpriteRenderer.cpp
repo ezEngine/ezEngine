@@ -73,6 +73,7 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   pContext->BindTexture2D("SpriteTexture", pRenderData->m_hTexture);
 
   pContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
+  pContext->SetShaderPermutationVariable("SHAPE_ICON", pRenderData->m_BlendMode == ezSpriteBlendMode::ShapeIcon ? ezMakeHashedString("TRUE") : ezMakeHashedString("FALSE"));
 
   ezUInt32 uiStartIndex = 0;
   while (uiStartIndex < batch.GetCount())
