@@ -663,6 +663,6 @@ namespace ezMath
     ezVariant::DispatchTo(func, a.GetType(), a, b, fFactor, result);
     return result;
   }
-}
+} // namespace ezMath
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);

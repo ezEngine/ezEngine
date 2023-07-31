@@ -83,7 +83,7 @@ ezScriptCoroutine::Result ezScriptCoroutine_TweenProperty::Update(ezTime deltaTi
     double fCurrentX = ezMath::Min(fDuration > 0 ? m_TimePassed.GetSeconds() / fDuration : 1.0, 1.0);
     fCurrentX = ezCurveFunction::GetValue(m_Easing, fCurrentX);
     ezVariant currentValue = ezMath::Lerp(m_SourceValue, m_TargetValue, fCurrentX);
-    
+
     ezReflectionUtils::SetMemberPropertyValue(m_pProperty, pComponent, currentValue);
   }
 

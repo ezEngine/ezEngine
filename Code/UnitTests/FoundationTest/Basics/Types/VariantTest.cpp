@@ -1902,61 +1902,61 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TypedPointer) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::TypedObject) == false);
 
-      ezResult ConversionStatus = EZ_SUCCESS;
-      EZ_TEST_BOOL(v.ConvertTo<bool>(&ConversionStatus) == false);
-      EZ_TEST_BOOL(ConversionStatus == EZ_FAILURE);
+    ezResult ConversionStatus = EZ_SUCCESS;
+    EZ_TEST_BOOL(v.ConvertTo<bool>(&ConversionStatus) == false);
+    EZ_TEST_BOOL(ConversionStatus == EZ_FAILURE);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_INT(v.ConvertTo<ezInt8>(&ConversionStatus), 78);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezInt8>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_INT(v.ConvertTo<ezUInt8>(&ConversionStatus), 78);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezUInt8>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_INT(v.ConvertTo<ezInt16>(&ConversionStatus), 78);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezInt16>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_INT(v.ConvertTo<ezUInt16>(&ConversionStatus), 78);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezUInt16>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_INT(v.ConvertTo<ezInt32>(&ConversionStatus), 78);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezInt32>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_INT(v.ConvertTo<ezUInt32>(&ConversionStatus), 78);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezUInt32>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_INT(v.ConvertTo<ezInt64>(&ConversionStatus), 78);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezInt64>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_INT(v.ConvertTo<ezUInt64>(&ConversionStatus), 78);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_INT(v.ConvertTo<ezUInt64>(&ConversionStatus), 78);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_BOOL(v.ConvertTo<float>(&ConversionStatus) == 78.0f);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<float>(&ConversionStatus) == 78.0f);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_BOOL(v.ConvertTo<double>(&ConversionStatus) == 78.0);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<double>(&ConversionStatus) == 78.0);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_STRING(v.ConvertTo<ezString>(&ConversionStatus), "78");
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_STRING(v.ConvertTo<ezString>(&ConversionStatus), "78");
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_BOOL(v.ConvertTo<ezStringView>(&ConversionStatus) == "78"_ezsv);
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<ezStringView>(&ConversionStatus) == "78"_ezsv);
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
 
-      ConversionStatus = EZ_FAILURE;
-      EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>(&ConversionStatus) == ezTempHashedString("78"));
-      EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
+    ConversionStatus = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>(&ConversionStatus) == ezTempHashedString("78"));
+    EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezTempHashedString)")

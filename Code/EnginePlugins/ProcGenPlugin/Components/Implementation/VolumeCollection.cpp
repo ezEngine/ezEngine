@@ -152,8 +152,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
   queryParams.m_IncludeTags = includeTags;
 
-  world.GetSpatialSystem()->FindObjectsInBox(box, queryParams, [&](ezGameObject* pObject)
-    {
+  world.GetSpatialSystem()->FindObjectsInBox(box, queryParams, [&](ezGameObject* pObject) {
     if (pComponentBaseType != nullptr)
     {
       ezHybridArray<const ezComponent*, 8> components;

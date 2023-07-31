@@ -864,8 +864,7 @@ namespace ezConversionUtils
 
     const ezUInt32 uiLen = sColorName.GetElementCount();
 
-    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult
-    {
+    auto twoCharsToByte = [](const char* szColorChars, ezUInt8& out_uiByte) -> ezResult {
       ezInt8 firstChar = HexCharacterToIntValue(szColorChars[0]);
       ezInt8 secondChar = HexCharacterToIntValue(szColorChars[1]);
       if (firstChar < 0 || secondChar < 0)
