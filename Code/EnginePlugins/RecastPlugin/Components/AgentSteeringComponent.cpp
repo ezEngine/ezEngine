@@ -11,7 +11,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezAgentSteeringComponent, 1)
   {
     new ezCategoryAttribute("AI/Experimental"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Alpha),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Ai)),
+    new ezColorAttribute(ezColorScheme::Ai),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS

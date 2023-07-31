@@ -66,7 +66,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Rendering)),
+    new ezColorAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

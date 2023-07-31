@@ -116,7 +116,7 @@ public:
 
   /// \brief Returns a cached QIcon that was created from an internal Qt resource (e.g. 'QIcon(":QtNamespace/MyIcon.png")' ). Prevents creating the
   /// object over and over.
-  static const QIcon& GetCachedIconResource(const char* szIdentifier);
+  static const QIcon& GetCachedIconResource(const char* szIdentifier, ezColor color = ezColor::ZeroColor());
 
   /// \brief Returns a cached QImage that was created from an internal Qt resource (e.g. 'QImage(":QtNamespace/MyIcon.png")' ). Prevents creating the
   /// object over and over.

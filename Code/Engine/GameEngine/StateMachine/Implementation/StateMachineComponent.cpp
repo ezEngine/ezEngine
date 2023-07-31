@@ -274,7 +274,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay/Logic"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Logic)),
+    new ezColorAttribute(ezColorScheme::Logic),
   }
   EZ_END_ATTRIBUTES;
 }

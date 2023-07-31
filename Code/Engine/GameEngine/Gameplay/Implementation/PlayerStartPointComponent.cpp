@@ -21,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPlayerStartPointComponent, 2, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DarkSlateBlue),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Gameplay)),
+    new ezColorAttribute(ezColorScheme::Gameplay),
   }
   EZ_END_ATTRIBUTES;
 }

@@ -37,7 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionProbeComponentBase, 2, ezRTTINoAlloc
   EZ_BEGIN_ATTRIBUTES
   {
     new ezTransformManipulatorAttribute("CaptureOffset"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Rendering)),
+    new ezColorAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
 }

@@ -10,7 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAlwaysVisibleComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Rendering)),
+    new ezColorAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
 }

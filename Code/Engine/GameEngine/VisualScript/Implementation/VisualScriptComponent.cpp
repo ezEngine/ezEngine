@@ -91,7 +91,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 5, ezComponentMode::Static);
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Scripting"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Scripting)),
+    new ezColorAttribute(ezColorScheme::Scripting),
   }
   EZ_END_ATTRIBUTES;
 }

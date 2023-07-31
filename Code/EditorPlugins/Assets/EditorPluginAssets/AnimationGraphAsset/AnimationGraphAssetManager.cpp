@@ -14,6 +14,7 @@ ezAnimationGraphAssetManager::ezAnimationGraphAssetManager()
   m_DocTypeDesc.m_sDocumentTypeName = "Animation Graph";
   m_DocTypeDesc.m_sFileExtension = "ezAnimationGraphAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/AnimationGraph.svg";
+  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::Animation;
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationGraphAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Keyframe_Graph");

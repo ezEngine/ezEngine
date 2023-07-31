@@ -60,7 +60,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 3, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::YellowGreen),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Gameplay)),
+    new ezColorAttribute(ezColorScheme::Gameplay),
   }
   EZ_END_ATTRIBUTES;
 }

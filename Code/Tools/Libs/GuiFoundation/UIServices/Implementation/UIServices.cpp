@@ -72,24 +72,72 @@ void ezQtUiServices::SaveState()
   Settings.endGroup();
 }
 
+ezMutex m;
 
-const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier)
+const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier, ezColor color)
 {
-  const ezString sIdentifier = szIdentifier;
+  ezStringBuilder sIdentifier = szIdentifier;
   auto& map = s_IconsCache;
+
+  if (color != ezColor::ZeroColor())
+  {
+    sIdentifier.AppendFormat("-{}", ezColorGammaUB(color));
+  }
 
   auto it = map.Find(sIdentifier);
 
   if (it.IsValid())
     return it.Value();
 
-  QIcon icon(QString::fromUtf8(szIdentifier));
+  ezStringBuilder filename = sIdentifier.GetFileName();
 
-  // Workaround for QIcon being stupid and treating failed to load icons as not-null.
-  if (!icon.pixmap(QSize(16, 16)).isNull())
-    map[sIdentifier] = icon;
+  if (color != ezColor::ZeroColor())
+  {
+    EZ_LOCK(m);
+
+    const ezColorGammaUB color8 = color;
+
+    ezOSFile::CreateDirectoryStructure(ezOSFile::GetTempDataFolder("QIcons")).AssertSuccess();
+    const ezStringBuilder name(ezOSFile::GetTempDataFolder("QIcons"), "/", filename, ".svg");
+
+    QFile file(szIdentifier);
+    file.open(QIODeviceBase::OpenModeFlag::ReadOnly);
+    QByteArray content = file.readAll();
+    file.close();
+
+    QString sContent = content;
+
+    const QChar c0 = '0';
+
+    sContent = sContent.replace("#ffffff", QString("#%1%2%3").arg((int)color8.r, 2, 16, c0).arg((int)color8.g, 2, 16, c0).arg((int)color8.b, 2, 16, c0), Qt::CaseInsensitive);
+
+    {
+      ezStringBuilder tmp = sContent.toUtf8().data();
+
+      QFile fileOut(name.GetData());
+      fileOut.open(QIODeviceBase::OpenModeFlag::WriteOnly);
+      fileOut.write(tmp.GetData(), tmp.GetElementCount());
+      fileOut.flush();
+      fileOut.close();
+    }
+
+    QIcon icon(name.GetData());
+
+    if (!icon.pixmap(QSize(16, 16)).isNull())
+      map[sIdentifier] = icon;
+    else
+      map[sIdentifier] = QIcon();
+  }
   else
-    map[sIdentifier] = QIcon();
+  {
+    QIcon icon(szIdentifier);
+
+    // Workaround for QIcon being stupid and treating failed to load icons as not-null.
+    if (!icon.pixmap(QSize(16, 16)).isNull())
+      map[sIdentifier] = icon;
+    else
+      map[sIdentifier] = QIcon();
+  }
 
   return map[sIdentifier];
 }

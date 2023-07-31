@@ -71,7 +71,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 2, ezComponentMode::Dynamic)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Animation"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Physics)),
+    new ezColorAttribute(ezColorScheme::Physics),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS

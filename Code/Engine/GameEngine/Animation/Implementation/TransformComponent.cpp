@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 3, ezRTTINoAllocator)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Animation)),
+    new ezColorAttribute(ezColorScheme::Animation),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS

@@ -53,7 +53,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
   {
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.4f, ezColor::OrangeRed),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Gameplay)),
+    new ezColorAttribute(ezColorScheme::Gameplay),
   }
   EZ_END_ATTRIBUTES;
 }

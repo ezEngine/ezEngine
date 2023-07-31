@@ -22,6 +22,7 @@ ezLUTAssetDocumentManager::ezLUTAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "LUT";
   m_DocTypeDesc.m_sFileExtension = "ezLUTAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/LUT.svg";
+  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::Rendering;
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezLUTAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezLUT";

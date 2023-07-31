@@ -17,7 +17,7 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
 
   if (m_pGizmoType)
   {
-    ezStringBuilder sIcon(":/TypeIcons/", m_pGizmoType->GetTypeName());
+    ezStringBuilder sIcon(":/TypeIcons/", m_pGizmoType->GetTypeName(), ".svg");
     SetIconPath(sIcon);
   }
   else

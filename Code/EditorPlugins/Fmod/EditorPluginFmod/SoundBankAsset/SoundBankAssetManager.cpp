@@ -58,6 +58,7 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "Sound Bank";
   m_DocTypeDesc.m_sFileExtension = "ezSoundBankAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Bank.svg";
+  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::ColorGroup::Sound;
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Bank");

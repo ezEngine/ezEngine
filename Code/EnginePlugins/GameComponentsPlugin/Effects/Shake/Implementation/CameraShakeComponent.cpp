@@ -19,7 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraShakeComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects/CameraShake"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Effects)),
+    new ezColorAttribute(ezColorScheme::Effects),
   }
   EZ_END_ATTRIBUTES;
 }

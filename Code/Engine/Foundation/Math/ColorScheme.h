@@ -79,6 +79,7 @@ public:
 
   enum ColorGroup
   {
+    None,
     Ai,
     Animation,
     Construction,

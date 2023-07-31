@@ -27,7 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 4, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Scripting"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Scripting)),
+    new ezColorAttribute(ezColorScheme::Scripting),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

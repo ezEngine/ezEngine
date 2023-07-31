@@ -34,7 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Terrain"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Rendering)),
+    new ezColorAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

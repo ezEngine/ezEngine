@@ -17,6 +17,7 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "Animation Clip";
   m_DocTypeDesc.m_sFileExtension = "ezAnimationClipAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
+  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::Animation;
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Keyframe_Animation");
@@ -50,8 +51,7 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-void ezAnimationClipAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   out_pDocument = new ezAnimationClipAssetDocument(szPath);
 }

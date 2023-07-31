@@ -8,7 +8,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezShapeIconComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Editing Utilities"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Utilities)),
+    new ezColorAttribute(ezColorScheme::Utilities),
   }
   EZ_END_ATTRIBUTES;
 }

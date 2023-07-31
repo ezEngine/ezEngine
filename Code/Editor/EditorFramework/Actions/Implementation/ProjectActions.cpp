@@ -273,9 +273,7 @@ void ezProjectActions::MapActions(ezStringView sMapping)
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 
 void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
@@ -299,7 +297,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
       continue;
 
     item.m_UserValue = file.m_File;
-    item.m_Icon = ezQtUiServices::GetCachedIconResource(pTypeDesc->m_sIcon);
+    item.m_Icon = ezQtUiServices::GetCachedIconResource(pTypeDesc->m_sIcon, ezColorScheme::GetGroupColor(pTypeDesc->m_IconColorGroup, 2));
 
     if (ezToolsProject::IsProjectOpen())
     {

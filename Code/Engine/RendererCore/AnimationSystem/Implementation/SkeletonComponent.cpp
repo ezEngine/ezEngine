@@ -34,7 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 5, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Animation)),
+    new ezColorAttribute(ezColorScheme::Animation),
   }
   EZ_END_ATTRIBUTES;
 }

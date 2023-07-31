@@ -237,6 +237,8 @@ ezColor ezColorScheme::GetGroupColor(ColorGroup group, ezInt8 iBrightnessOffset,
 
   switch (group)
   {
+    case None:
+      return ezColor::ZeroColor();
     case Ai:
       return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
     case Animation:

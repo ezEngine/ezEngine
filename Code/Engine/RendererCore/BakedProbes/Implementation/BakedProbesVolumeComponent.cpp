@@ -24,7 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesVolumeComponent, 1, ezComponentMode::Static
     new ezCategoryAttribute("Rendering/Baking"),
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::OrangeRed),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Lighting)),
+    new ezColorAttribute(ezColorScheme::Lighting),
   }
   EZ_END_ATTRIBUTES;
 }

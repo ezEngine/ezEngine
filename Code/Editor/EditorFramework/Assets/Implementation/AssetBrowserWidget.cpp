@@ -92,7 +92,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
     // 'All' Filter
     {
-      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/All")), QLatin1String("<All>"));
+      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/All.svg")), QLatin1String("<All>"));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Checked);
       pItem->setData(Qt::UserRole, QLatin1String("<All>"));
@@ -102,7 +102,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
     for (const auto& it : assetTypes)
     {
-      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
+      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetGroupColor(it.Value()->m_IconColorGroup, 2)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Unchecked);
       pItem->setData(Qt::UserRole, QLatin1String(it.Value()->m_sDocumentTypeName));
@@ -117,11 +117,11 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
     TypeFilter->clear();
 
     // 'All' Filter
-    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/All")), QLatin1String("<All>"));
+    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/All.svg")), QLatin1String("<All>"));
 
     for (const auto& it : assetTypes)
     {
-      TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
+      TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetGroupColor(it.Value()->m_IconColorGroup, 2)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
       TypeFilter->setItemData(TypeFilter->count() - 1, QString::fromUtf8(it.Value()->m_sDocumentTypeName, it.Value()->m_sDocumentTypeName.GetElementCount()), Qt::UserRole);
     }
   }
@@ -223,7 +223,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
       continue;
 
     QAction* pAction = pSubMenu->addAction(ezTranslate(desc->m_sDocumentTypeName));
-    pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
+    pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon, ezColorScheme::GetGroupColor(desc->m_IconColorGroup, 2)));
     pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
     pAction->setProperty("AssetManager", QVariant::fromValue<void*>(desc->m_pManager));
     pAction->setProperty("Extension", desc->m_sFileExtension.GetData());

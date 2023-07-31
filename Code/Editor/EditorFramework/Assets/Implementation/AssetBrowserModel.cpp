@@ -44,7 +44,8 @@ ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* 
   , m_pFilter(pFilter)
 {
   EZ_ASSERT_DEBUG(pFilter != nullptr, "ezQtAssetBrowserModel requires a valid filter.");
-  connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]() { resetModel(); });
+  connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]()
+    { resetModel(); });
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
 
@@ -330,7 +331,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
       }
       else
       {
-        return ezQtUiServices::GetCachedIconResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
+        return ezQtUiServices::GetCachedIconResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon, ezColorScheme::GetGroupColor(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_IconColorGroup, 2));
       }
     }
     break;
@@ -349,8 +350,8 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
     case UserRoles::RelativePath:
       return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath, pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
 
-    case UserRoles::AssetIconPath:
-      return ezQtUiServices::GetCachedIconResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
+    case UserRoles::AssetIcon:
+      return ezQtUiServices::GetCachedIconResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon, ezColorScheme::GetGroupColor(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_IconColorGroup, 2));
 
     case UserRoles::TransformState:
       return (int)pSubAsset->m_pAssetInfo->m_TransformState;

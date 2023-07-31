@@ -30,7 +30,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezWindVolumeComponent, 2)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects/Wind"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Effects)),
+    new ezColorAttribute(ezColorScheme::Effects),
   }
   EZ_END_ATTRIBUTES;
 }

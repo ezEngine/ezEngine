@@ -85,12 +85,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorAttribute, 1, ezRTTIDefaultAllocator<ezCo
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("ColorGroup", m_iColorGroup),
     EZ_MEMBER_PROPERTY("Color", m_Color),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(ezColor),
+    EZ_CONSTRUCTOR_PROPERTY(ezInt32),
   }
   EZ_END_FUNCTIONS;
 }
@@ -1074,3 +1076,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 //////////////////////////////////////////////////////////////////////////
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
+
+ezColorAttribute::ezColorAttribute(ezInt32 iColorGroup)
+  : m_iColorGroup(iColorGroup)
+{
+  m_Color = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)iColorGroup);
+}

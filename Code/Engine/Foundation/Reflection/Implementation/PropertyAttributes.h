@@ -102,6 +102,10 @@ public:
   {
   }
 
+  ezColorAttribute(ezInt32 iColorGroup);
+
+  ezInt32 m_iColorGroup = -1;
+
   const ezColor& GetColor() const { return m_Color; }
 
 private:

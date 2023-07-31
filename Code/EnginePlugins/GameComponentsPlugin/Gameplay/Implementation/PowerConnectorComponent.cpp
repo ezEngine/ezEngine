@@ -50,7 +50,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPowerConnectorComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Gameplay)),
+    new ezColorAttribute(ezColorScheme::Gameplay),
   }
   EZ_END_ATTRIBUTES;
 }

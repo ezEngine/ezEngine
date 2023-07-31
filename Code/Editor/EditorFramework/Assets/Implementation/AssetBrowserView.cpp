@@ -200,7 +200,7 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
   {
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
     thumbnailRect.setSize(QSize(16, 16));
-    QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIconPath));
+    QIcon icon = qvariant_cast<QIcon>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIcon));
     icon.paint(pPainter, thumbnailRect);
   }
 

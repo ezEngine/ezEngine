@@ -19,7 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleWindComponent, 2, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Effects/Wind"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DodgerBlue),
-    new ezColorAttribute(ezColorScheme::GetGroupColor(ezColorScheme::Effects)),
+    new ezColorAttribute(ezColorScheme::Effects),
   }
   EZ_END_ATTRIBUTES;
 }
