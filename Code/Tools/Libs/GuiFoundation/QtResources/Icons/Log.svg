@@ -1,18 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg height="800px" width="800px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-	 viewBox="0 0 512 512"  xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#FFFFFF;}
-</style>
-<g>
-	<path class="st0" d="M256,0C114.612,0,0,114.612,0,256s114.612,256,256,256s256-114.612,256-256S397.388,0,256,0z M250.669,88.462
-		c26.504,0,47.998,21.482,47.998,48.01c0,26.496-21.494,47.994-47.998,47.994c-26.513,0-48.006-21.498-48.006-47.994
-		C202.662,109.944,224.156,88.462,250.669,88.462z M315.554,428c0,3.343-2.709,6.044-6.048,6.044h-103.3
-		c-3.339,0-6.044-2.7-6.044-6.044v-26.372c0-3.343,2.705-6.052,6.044-6.052h12.808c6.678,0,12.096-5.418,12.096-12.095V277.72
-		c0,0-26.612,2.61-35.55,2.98c-8.937,0.363-20.452-13.964,3.549-25.96l82.484-45.836c1.96-1.038,4.327-0.988,6.225,0.164
-		c1.906,1.152,3.067,3.211,3.067,5.434v168.979c0,6.677,5.418,12.095,12.091,12.095h6.529c3.339,0,6.048,2.709,6.048,6.052V428z"/>
-</g>
-</svg>
+
+<svg
+   height="800px"
+   width="800px"
+   version="1.1"
+   id="_x32_"
+   viewBox="0 0 512 512"
+   xml:space="preserve"
+   sodipodi:docname="Log.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs1" /><sodipodi:namedview
+   id="namedview1"
+   pagecolor="#ffffff"
+   bordercolor="#000000"
+   borderopacity="0.25"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="true"
+   inkscape:deskcolor="#d1d1d1"
+   inkscape:zoom="1.11375"
+   inkscape:cx="400"
+   inkscape:cy="400"
+   inkscape:window-width="1920"
+   inkscape:window-height="1129"
+   inkscape:window-x="1912"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="g1" />&#10;<style
+   type="text/css"
+   id="style1">&#10;	.st0{fill:#FFFFFF;}&#10;</style>&#10;<g
+   id="g1">&#10;	<path
+   class="st0"
+   d="M256,0C114.612,0,0,114.612,0,256s114.612,256,256,256s256-114.612,256-256S397.388,0,256,0z M250.669,88.462   c26.504,0,47.998,21.482,47.998,48.01c0,26.496-21.494,47.994-47.998,47.994c-26.513,0-48.006-21.498-48.006-47.994   C202.662,109.944,224.156,88.462,250.669,88.462z M315.554,428c0,3.343-2.709,6.044-6.048,6.044h-103.3   c-3.339,0-6.044-2.7-6.044-6.044v-26.372c0-3.343,2.705-6.052,6.044-6.052h12.808c6.678,0,12.096-5.418,12.096-12.095V277.72   c0,0-26.612,2.61-35.55,2.98c-8.937,0.363-20.452-13.964,3.549-25.96l82.484-45.836c1.96-1.038,4.327-0.988,6.225,0.164   c1.906,1.152,3.067,3.211,3.067,5.434v168.979c0,6.677,5.418,12.095,12.091,12.095h6.529c3.339,0,6.048,2.709,6.048,6.052V428z"
+   id="path1"
+   style="fill:#578cb7;fill-opacity:1" />&#10;</g>&#10;</svg>
