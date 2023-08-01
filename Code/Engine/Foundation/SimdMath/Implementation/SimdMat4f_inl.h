@@ -70,11 +70,11 @@ inline void ezSimdMat4f::SetFromArray(const float* const pData, ezMatrixLayout::
 {
   if (layout == ezMatrixLayout::ColumnMajor)
   {
-    *this = MakeFromRowMajorArray(pData);
+    *this = MakeFromColumnMajorArray(pData);
   }
   else
   {
-    *this = MakeFromColumnMajorArray(pData);
+    *this = MakeFromRowMajorArray(pData);
   }
 }
 

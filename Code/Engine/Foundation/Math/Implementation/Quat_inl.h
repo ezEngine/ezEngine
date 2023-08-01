@@ -9,6 +9,9 @@ EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
+  x = TypeNaN;
+  y = TypeNaN;
+  z = TypeNaN;
   w = TypeNaN;
 #endif
 }

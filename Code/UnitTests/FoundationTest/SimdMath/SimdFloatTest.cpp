@@ -76,14 +76,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
   }
 
   {
-    const float nan = ezMath::NaN<float>();
-
     ezSimdFloat z = ezSimdFloat::MakeNaN();
-    EZ_TEST_BOOL(z == nan);
 
     // Make sure all components are set to the same value
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-    EZ_TEST_BOOL(z.m_v.m128_f32[0] == nan && z.m_v.m128_f32[1] == nan && z.m_v.m128_f32[2] == nan && z.m_v.m128_f32[3] == nan);
+    EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[0]));
+    EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[1]));
+    EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[2]));
+    EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m128_f32[3]));
 #endif
   }
 

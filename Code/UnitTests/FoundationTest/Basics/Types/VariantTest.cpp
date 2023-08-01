@@ -646,13 +646,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezQuat(7, 9, 8, 4));
     EZ_TEST_BOOL(v == ezQuat(7, 9, 8, 4));
-    EZ_TEST_BOOL(v[0][0] == 7);
-    EZ_TEST_BOOL(v[0][1] == 9);
-    EZ_TEST_BOOL(v[0][2] == 8);
-    EZ_TEST_BOOL(v[1] == 4);
-    EZ_TEST_BOOL(v["v"]["x"] == 7);
-    EZ_TEST_BOOL(v["v"]["y"] == 9);
-    EZ_TEST_BOOL(v["v"]["z"] == 8);
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v[2] == 8);
+    EZ_TEST_BOOL(v[3] == 4);
+    EZ_TEST_BOOL(v["x"] == 7);
+    EZ_TEST_BOOL(v["y"] == 9);
+    EZ_TEST_BOOL(v["z"] == 8);
     EZ_TEST_BOOL(v["w"] == 4);
 
     EZ_TEST_BOOL(v.IsNumber() == false);
@@ -1854,13 +1854,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.ConvertTo<ezAngle>() == t);
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "123.0°");
-    //EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("123.0°")); // For some reason the compiler stumbles upon the degree sign, encoding weirdness most likely
-    //EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("123.0°"));
+    // EZ_TEST_BOOL(v.ConvertTo<ezHashedString>() == ezMakeHashedString("123.0°")); // For some reason the compiler stumbles upon the degree sign, encoding weirdness most likely
+    // EZ_TEST_BOOL(v.ConvertTo<ezTempHashedString>() == ezTempHashedString("123.0°"));
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Angle).Get<ezAngle>() == t);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "123.0°");
-    //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("123.0°"));
-    //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("123.0°"));
+    // EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::HashedString).Get<ezHashedString>() == ezMakeHashedString("123.0°"));
+    // EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::TempHashedString).Get<ezTempHashedString>() == ezTempHashedString("123.0°"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezHashedString)")

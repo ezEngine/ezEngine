@@ -134,7 +134,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeScaling(const ezVec3Template<Type
   res.Element(0, 2) = 0;
   res.Element(1, 2) = 0;
   res.Element(2, 2) = vScale.z;
-  res.Element(3, 2) = vScale.z;
+  res.Element(3, 2) = 0;
   res.Element(0, 3) = 0;
   res.Element(1, 3) = 0;
   res.Element(2, 3) = 0;

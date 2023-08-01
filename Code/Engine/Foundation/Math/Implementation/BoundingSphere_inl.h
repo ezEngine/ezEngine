@@ -34,7 +34,7 @@ EZ_FORCE_INLINE ezBoundingSphereTemplate<Type> ezBoundingSphereTemplate<Type>::M
 {
   ezBoundingSphereTemplate<Type> res;
   res.m_vCenter = vCenter;
-  res.m_fRadius = -1;
+  res.m_fRadius = -ezMath::SmallEpsilon<Type>(); // has to be very small for ExpandToInclude to work
   return res;
 }
 

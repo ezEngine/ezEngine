@@ -214,9 +214,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     }
 
     {
-      const float nan = ezMath::NaN<float>();
       ezSimdVec4f z = ezSimdVec4f::MakeNaN();
-      EZ_TEST_BOOL(z.x() == nan && z.y() == nan && z.z() == nan && z.w() == nan);
+      EZ_TEST_BOOL(ezMath::IsNaN((float)z.x()));
+      EZ_TEST_BOOL(ezMath::IsNaN((float)z.y()));
+      EZ_TEST_BOOL(ezMath::IsNaN((float)z.z()));
+      EZ_TEST_BOOL(ezMath::IsNaN((float)z.w()));
     }
 
     {
