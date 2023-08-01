@@ -22,6 +22,62 @@ EZ_ALWAYS_INLINE ezRectTemplate<Type>::ezRectTemplate(Type width, Type height)
 }
 
 template <typename Type>
+ezRectTemplate<Type> ezRectTemplate<Type>::MakeInvalid()
+{
+  /// \test This is new
+
+  ezRectTemplate<Type> res;
+
+  const Type fLargeValue = ezMath::MaxValue<Type>() / 2;
+  res.x = fLargeValue;
+  res.y = fLargeValue;
+  res.width = -fLargeValue;
+  res.height = -fLargeValue;
+
+  return res;
+}
+
+template <typename Type>
+ezRectTemplate<Type> ezRectTemplate<Type>::MakeIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
+{
+  /// \test This is new
+
+  ezRectTemplate<Type> res;
+
+  Type x1 = ezMath::Max(r0.GetX1(), r1.GetX1());
+  Type y1 = ezMath::Max(r0.GetY1(), r1.GetY1());
+  Type x2 = ezMath::Min(r0.GetX2(), r1.GetX2());
+  Type y2 = ezMath::Min(r0.GetY2(), r1.GetY2());
+
+  res.x = x1;
+  res.y = y1;
+  res.width = x2 - x1;
+  res.height = y2 - y1;
+
+  return res;
+}
+
+template <typename Type>
+ezRectTemplate<Type> ezRectTemplate<Type>::MakeUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
+{
+  /// \test This is new
+
+  ezRectTemplate<Type> res;
+
+  Type x1 = ezMath::Min(r0.GetX1(), r1.GetX1());
+  Type y1 = ezMath::Min(r0.GetY1(), r1.GetY1());
+  Type x2 = ezMath::Max(r0.GetX2(), r1.GetX2());
+  Type y2 = ezMath::Max(r0.GetY2(), r1.GetY2());
+
+  res.x = x1;
+  res.y = y1;
+  res.width = x2 - x1;
+  res.height = y2 - y1;
+
+  return res;
+}
+
+template <typename Type>
 EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::operator==(const ezRectTemplate<Type>& rhs) const
 {
   return x == rhs.x && y == rhs.y && width == rhs.width && height == rhs.height;
@@ -101,13 +157,7 @@ EZ_ALWAYS_INLINE void ezRectTemplate<Type>::Clip(const ezRectTemplate<Type>& cli
 template <typename Type>
 EZ_ALWAYS_INLINE void ezRectTemplate<Type>::SetInvalid()
 {
-  /// \test This is new
-
-  const Type fLargeValue = ezMath::MaxValue<Type>() / 2;
-  x = fLargeValue;
-  y = fLargeValue;
-  width = -fLargeValue;
-  height = -fLargeValue;
+  *this = MakeInvalid();
 }
 
 template <typename Type>
@@ -129,33 +179,13 @@ EZ_ALWAYS_INLINE const ezVec2Template<Type> ezRectTemplate<Type>::GetClampedPoin
 template <typename Type>
 void ezRectTemplate<Type>::SetIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
 {
-  /// \test This is new
-
-  Type x1 = ezMath::Max(r0.GetX1(), r1.GetX1());
-  Type y1 = ezMath::Max(r0.GetY1(), r1.GetY1());
-  Type x2 = ezMath::Min(r0.GetX2(), r1.GetX2());
-  Type y2 = ezMath::Min(r0.GetY2(), r1.GetY2());
-
-  x = x1;
-  y = y1;
-  width = x2 - x1;
-  height = y2 - y1;
+  *this = MakeIntersection(r0, r1);
 }
 
 template <typename Type>
 void ezRectTemplate<Type>::SetUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
 {
-  /// \test This is new
-
-  Type x1 = ezMath::Min(r0.GetX1(), r1.GetX1());
-  Type y1 = ezMath::Min(r0.GetY1(), r1.GetY1());
-  Type x2 = ezMath::Max(r0.GetX2(), r1.GetX2());
-  Type y2 = ezMath::Max(r0.GetY2(), r1.GetY2());
-
-  x = x1;
-  y = y1;
-  width = x2 - x1;
-  height = y2 - y1;
+  *this = MakeUnion(r0, r1);
 }
 
 template <typename Type>
