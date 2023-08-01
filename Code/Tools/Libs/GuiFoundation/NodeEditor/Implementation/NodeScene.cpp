@@ -288,8 +288,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     ezQtPin* pPin = static_cast<ezQtPin*>(pItem);
     QAction* pAction = new QAction("Disconnect Pin", &menu);
     menu.addAction(pAction);
-    connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked)
-      { DisconnectPinsAction(pPin); });
+    connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked) { DisconnectPinsAction(pPin); });
 
     pPin->ExtendContextMenu(menu);
   }
@@ -308,8 +307,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     {
       QAction* pAction = new QAction("Remove", &menu);
       menu.addAction(pAction);
-      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
-        { RemoveSelectedNodesAction(); });
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked) { RemoveSelectedNodesAction(); });
     }
 
     pNode->ExtendContextMenu(menu);
@@ -319,8 +317,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
     ezQtConnection* pConnection = static_cast<ezQtConnection*>(pItem);
     QAction* pAction = new QAction("Delete Connection", &menu);
     menu.addAction(pAction);
-    connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked)
-      { DisconnectPinsAction(pConnection); });
+    connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked) { DisconnectPinsAction(pConnection); });
 
     pConnection->ExtendContextMenu(menu);
   }
@@ -699,8 +696,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
   menu.addAction(pSearchMenu);
 
   connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
-  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]()
-    { menu.close(); });
+  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]() { menu.close(); });
 
   ezStringBuilder sFullName, sCleanName2;
 
