@@ -141,7 +141,8 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     QSplitter* pSplitter = new QSplitter(Qt::Orientation::Horizontal, m_pVsePanel);
 
     m_pScene = new ezQtVisualShaderScene(this);
-    m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+    m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+
     m_pNodeView = new ezQtNodeView(m_pVsePanel);
     m_pNodeView->SetScene(m_pScene);
     pSplitter->addWidget(m_pNodeView);

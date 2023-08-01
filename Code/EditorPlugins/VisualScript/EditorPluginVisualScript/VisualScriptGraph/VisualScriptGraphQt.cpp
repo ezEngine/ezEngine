@@ -221,11 +221,17 @@ ezQtVisualScriptNodeScene::ezQtVisualScriptNodeScene(QObject* pParent /*= nullpt
   m_CoroutineIcon = QIcon(":/EditorPluginVisualScript/Coroutine.svg").pixmap(QSize(iconSize, iconSize));
 }
 
-ezQtVisualScriptNodeScene::~ezQtVisualScriptNodeScene() = default;
-
-void ezQtVisualScriptNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager)
+ezQtVisualScriptNodeScene::~ezQtVisualScriptNodeScene()
 {
-  ezQtNodeScene::SetDocumentNodeManager(pManager);
+  if (m_pManager != nullptr)
+  {
+    static_cast<const ezVisualScriptNodeManager*>(m_pManager)->m_NodeChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptNodeScene::NodeChangedHandler, this));
+  }
+}
+
+void ezQtVisualScriptNodeScene::InitScene(const ezDocumentNodeManager* pManager)
+{
+  ezQtNodeScene::InitScene(pManager);
 
   static_cast<const ezVisualScriptNodeManager*>(pManager)->m_NodeChangedEvent.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptNodeScene::NodeChangedHandler, this));
 }

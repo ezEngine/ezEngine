@@ -37,7 +37,8 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
   }
 
   m_pScene = new ezQtStateMachineAssetScene(this);
-  m_pScene->SetDocumentNodeManager(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+  m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+
   m_pView = new ezQtNodeView(this);
   m_pView->SetScene(m_pScene);
   setCentralWidget(m_pView);

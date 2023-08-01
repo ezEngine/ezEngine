@@ -26,7 +26,7 @@ public:
   explicit ezQtNodeScene(QObject* pParent = nullptr);
   ~ezQtNodeScene();
 
-  virtual void SetDocumentNodeManager(const ezDocumentNodeManager* pManager);
+  virtual void InitScene(const ezDocumentNodeManager* pManager);
   const ezDocumentNodeManager* GetDocumentNodeManager() const;
   const ezDocument* GetDocument() const;
 
