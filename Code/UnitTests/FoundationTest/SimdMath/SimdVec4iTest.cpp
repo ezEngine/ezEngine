@@ -58,6 +58,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
     EZ_TEST_BOOL(vSetZero.x() == 0 && vSetZero.y() == 0 && vSetZero.z() == 0 && vSetZero.w() == 0);
 
     {
+      ezSimdVec4i z = ezSimdVec4i::MakeZero();
+      EZ_TEST_BOOL(z.x() == 0 && z.y() == 0 && z.z() == 0 && z.w() == 0);
+    }
+
+    {
       int testBlock[4] = {1, 2, 3, 4};
       ezSimdVec4i x;
       x.Load<1>(testBlock);

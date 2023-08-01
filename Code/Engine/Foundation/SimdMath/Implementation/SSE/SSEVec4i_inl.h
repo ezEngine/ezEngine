@@ -28,6 +28,11 @@ EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(ezInternal::QuadInt v)
   m_v = v;
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::MakeZero()
+{
+  return _mm_setzero_si128();
+}
+
 EZ_ALWAYS_INLINE void ezSimdVec4i::Set(ezInt32 iXyzw)
 {
   m_v = _mm_set1_epi32(iXyzw);
