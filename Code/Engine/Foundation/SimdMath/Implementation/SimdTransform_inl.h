@@ -16,6 +16,41 @@ EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform(const ezSimdQuat& qRotation)
   m_Scale.Set(1.0f);
 }
 
+inline ezSimdTransform ezSimdTransform::Make(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation /*= ezSimdQuat::IdentityQuaternion()*/, const ezSimdVec4f& vScale /*= ezSimdVec4f(1.0f)*/)
+{
+  ezSimdTransform res;
+  res.m_Position = vPosition;
+  res.m_Rotation = qRotation;
+  res.m_Scale = vScale;
+  return res;
+}
+
+EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::MakeIdentity()
+{
+  ezSimdTransform res;
+  res.m_Position.SetZero();
+  res.m_Rotation.SetIdentity();
+  res.m_Scale.Set(1.0f);
+  return res;
+}
+
+inline ezSimdTransform ezSimdTransform::MakeLocalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& globalTransformChild)
+{
+  const ezSimdQuat invRot = -globalTransformParent.m_Rotation;
+  const ezSimdVec4f invScale = globalTransformParent.m_Scale.GetReciprocal();
+
+  ezSimdTransform res;
+  res.m_Position = (invRot * (globalTransformChild.m_Position - globalTransformParent.m_Position)).CompMul(invScale);
+  res.m_Rotation = invRot * globalTransformChild.m_Rotation;
+  res.m_Scale = invScale.CompMul(globalTransformChild.m_Scale);
+  return res;
+}
+
+EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::MakeGlobalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& localTransformChild)
+{
+  return globalTransformParent * localTransformChild;
+}
+
 EZ_ALWAYS_INLINE void ezSimdTransform::SetIdentity()
 {
   m_Position.SetZero();
@@ -26,9 +61,7 @@ EZ_ALWAYS_INLINE void ezSimdTransform::SetIdentity()
 // static
 EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::IdentityTransform()
 {
-  ezSimdTransform result;
-  result.SetIdentity();
-  return result;
+  return MakeIdentity();
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdTransform::GetMaxScale() const
@@ -67,19 +100,14 @@ EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::GetInverse() const
   return ezSimdTransform(invPos, invRot, invScale);
 }
 
-inline void ezSimdTransform::SetLocalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& globalTransformChild)
+EZ_ALWAYS_INLINE void ezSimdTransform::SetLocalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& globalTransformChild)
 {
-  ezSimdQuat invRot = -globalTransformParent.m_Rotation;
-  ezSimdVec4f invScale = globalTransformParent.m_Scale.GetReciprocal();
-
-  m_Position = (invRot * (globalTransformChild.m_Position - globalTransformParent.m_Position)).CompMul(invScale);
-  m_Rotation = invRot * globalTransformChild.m_Rotation;
-  m_Scale = invScale.CompMul(globalTransformChild.m_Scale);
+  *this = MakeLocalTransform(globalTransformParent, globalTransformChild);
 }
 
 EZ_ALWAYS_INLINE void ezSimdTransform::SetGlobalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& localTransformChild)
 {
-  *this = globalTransformParent * localTransformChild;
+  *this = MakeGlobalTransform(globalTransformParent, localTransformChild);
 }
 
 EZ_FORCE_INLINE ezSimdMat4f ezSimdTransform::GetAsMat4() const

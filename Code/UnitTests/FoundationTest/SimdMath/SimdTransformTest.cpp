@@ -39,6 +39,29 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
     }
 
     {
+      ezSimdQuat qRot;
+      qRot.SetFromAxisAndAngle(ezSimdVec4f(1, 2, 3).GetNormalized<3>(), ezAngle::Degree(42.0f));
+
+      ezSimdVec4f pos(4, 5, 6);
+      ezSimdVec4f scale(7, 8, 9);
+
+      ezSimdTransform t = ezSimdTransform::Make(pos);
+      EZ_TEST_BOOL((t.m_Position == pos).AllSet<3>());
+      EZ_TEST_BOOL(t.m_Rotation == ezSimdQuat::IdentityQuaternion());
+      EZ_TEST_BOOL((t.m_Scale == ezSimdVec4f(1)).AllSet<3>());
+
+      t = ezSimdTransform::Make(pos, qRot);
+      EZ_TEST_BOOL((t.m_Position == pos).AllSet<3>());
+      EZ_TEST_BOOL(t.m_Rotation == qRot);
+      EZ_TEST_BOOL((t.m_Scale == ezSimdVec4f(1)).AllSet<3>());
+
+      t = ezSimdTransform::Make(pos, qRot, scale);
+      EZ_TEST_BOOL((t.m_Position == pos).AllSet<3>());
+      EZ_TEST_BOOL(t.m_Rotation == qRot);
+      EZ_TEST_BOOL((t.m_Scale == scale).AllSet<3>());
+    }
+
+    {
       ezSimdTransform t;
       t.SetIdentity();
 
