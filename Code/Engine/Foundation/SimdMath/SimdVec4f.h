@@ -19,6 +19,12 @@ public:
 
   ezSimdVec4f(ezInternal::QuadFloat v); // [tested]
 
+  /// \brief Creates an ezSimdVec4f that is initialized to zero.
+  [[nodiscard]] static ezSimdVec4f MakeZero(); // [tested]
+
+  /// \brief Creates an ezSimdVec4f that is initialized to Not-A-Number (NaN).
+  [[nodiscard]] static ezSimdVec4f MakeNaN(); // [tested]
+
   void Set(float fXyzw); // [tested]
 
   void Set(float x, float y, float z, float w); // [tested]

@@ -209,6 +209,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     EZ_TEST_BOOL(c.x() == 0.0f && c.y() == 0.0f && c.z() == 0.0f && c.w() == 0.0f);
 
     {
+      ezSimdVec4f z = ezSimdVec4f::MakeZero();
+      EZ_TEST_BOOL(z.x() == 0.0f && z.y() == 0.0f && z.z() == 0.0f && z.w() == 0.0f);
+    }
+
+    {
+      const float nan = ezMath::NaN<float>();
+      ezSimdVec4f z = ezSimdVec4f::MakeNaN();
+      EZ_TEST_BOOL(z.x() == nan && z.y() == nan && z.z() == nan && z.w() == nan);
+    }
+
+    {
       float testBlock[4] = {1, 2, 3, 4};
       ezSimdVec4f x;
       x.Load<1>(testBlock);

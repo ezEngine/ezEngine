@@ -1,6 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f() {}
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f() = default;
 
 EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float xyzw)
 {
