@@ -30,9 +30,9 @@ ezQuat ezUwpUtils::ConvertQuat(const ABI::Windows::Foundation::Numerics::Quatern
 
 void ezUwpUtils::ConvertQuat(const ezQuat& in, ABI::Windows::Foundation::Numerics::Quaternion& out)
 {
-  out.X = in.v.x;
-  out.Y = in.v.y;
-  out.Z = in.v.z;
+  out.X = in.x;
+  out.Y = in.y;
+  out.Z = in.z;
   out.W = in.w;
 }
 

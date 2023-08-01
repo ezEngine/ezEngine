@@ -94,7 +94,7 @@ ezBoundingBoxSphereTemplate<Type> ezBoundingBoxSphereTemplate<Type>::MakeFromBox
   ezBoundingBoxSphereTemplate<Type> res;
   res.m_vCenter = box.GetCenter();
   res.m_vBoxHalfExtends = box.GetHalfExtents();
-  res.m_fSphereRadius = m_vBoxHalfExtends.GetLength();
+  res.m_fSphereRadius = res.m_vBoxHalfExtends.GetLength();
   return res;
 }
 
@@ -104,7 +104,7 @@ ezBoundingBoxSphereTemplate<Type> ezBoundingBoxSphereTemplate<Type>::MakeFromSph
   ezBoundingBoxSphereTemplate<Type> res;
   res.m_vCenter = sphere.m_vCenter;
   res.m_fSphereRadius = sphere.m_fRadius;
-  res.m_vBoxHalfExtends.Set(m_fSphereRadius);
+  res.m_vBoxHalfExtends.Set(res.m_fSphereRadius);
   return res;
 }
 
