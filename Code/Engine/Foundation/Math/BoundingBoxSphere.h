@@ -21,16 +21,41 @@ public:
   ezBoundingBoxSphereTemplate(); // [tested]
 
   /// \brief Constructs the bounds from the center position, the box half extends and the sphere radius.
-  ezBoundingBoxSphereTemplate(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius); // [tested]
+  /*[[deprecated("Use MakeFromCenterExtents() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius); // [tested]
 
   /// \brief Constructs the bounds from the given box and sphere.
-  ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box, const ezBoundingSphereTemplate<Type>& sphere); // [tested]
+  /*[[deprecated("Use MakeFromBoxAndSphere() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box, const ezBoundingSphereTemplate<Type>& sphere); // [tested]
 
   /// \brief Constructs the bounds from the given box. The sphere radius is calculated from the box extends.
-  ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box); // [tested]
+  /*[[deprecated("Use MakeFromBox() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box); // [tested]
 
   /// \brief Constructs the bounds from the given sphere. The box extends are calculated from the sphere radius.
-  ezBoundingBoxSphereTemplate(const ezBoundingSphereTemplate<Type>& sphere); // [tested]
+  /*[[deprecated("Use MakeFromSphere() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezBoundingSphereTemplate<Type>& sphere); // [tested]
+
+  /// \brief Creates an object with all zero values. These are valid bounds around the origin with no volume.
+  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeZero();
+
+  /// \brief Creates an 'invalid' object, ie one with negative extents/radius.
+  ///
+  /// Invalid objects can be made valid through ExpandToInclude().
+  /// Be aware that such expanded objects will always include the originally given center point.
+  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeInvalid(const ezVec3Template<Type>& vCenter = ezVec3Template<Type>::MakeZero());
+
+  /// \brief Creates an object from the given center point and extents.
+  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeFromCenterExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius);
+
+  /// \brief Creates an object that contains all the provided points.
+  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>));
+
+  /// \brief Creates an object from another bounding box.
+  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeFromBox(const ezBoundingBoxTemplate<Type>& box);
+
+  /// \brief Creates an object from another bounding sphere.
+  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeFromSphere(const ezBoundingSphereTemplate<Type>& sphere);
+
+  /// \brief Creates an object from another bounding box and a sphere.
+  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeFromBoxAndSphere(const ezBoundingBoxTemplate<Type>& box, const ezBoundingSphereTemplate<Type>& sphere);
+
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -41,7 +66,7 @@ public:
 #endif
 
   /// \brief Resets the bounds to an invalid state.
-  void SetInvalid(); // [tested]
+  /*[[deprecated("Use MakeInvalid() instead.")]]*/ void SetInvalid(); // [tested]
 
   /// \brief Checks whether the bounds is in an invalid state.
   bool IsValid() const; // [tested]
@@ -50,7 +75,7 @@ public:
   bool IsNaN() const; // [tested]
 
   /// \brief Calculates the bounds from given set of points.
-  void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
+  /*[[deprecated("Use MakeFromPoints() instead.")]]*/ void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
 
   /// \brief Returns the bounding box.
   const ezBoundingBoxTemplate<Type> GetBox() const; // [tested]
