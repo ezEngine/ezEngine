@@ -7,6 +7,29 @@ EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat(const ezSimdVec4f& v)
 {
 }
 
+EZ_ALWAYS_INLINE const ezSimdQuat ezSimdQuat::MakeIdentity()
+{
+  return ezSimdQuat(ezSimdVec4f(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::MakeFromElements(ezSimdFloat x, ezSimdFloat y, ezSimdFloat z, ezSimdFloat w)
+{
+  return ezSimdQuat(ezSimdVec4f(x, y, z, w));
+}
+
+inline ezSimdQuat ezSimdQuat::MakeFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
+{
+  ///\todo optimize
+  const ezAngle halfAngle = ezAngle::Radian(fAngle) * 0.5f;
+  float s = ezMath::Sin(halfAngle);
+  float c = ezMath::Cos(halfAngle);
+
+  ezSimdQuat res;
+  res.m_v = vRotationAxis * s;
+  res.m_v.SetW(c);
+  return res;
+}
+
 // static
 EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::IdentityQuaternion()
 {
@@ -20,13 +43,7 @@ EZ_ALWAYS_INLINE void ezSimdQuat::SetIdentity()
 
 EZ_ALWAYS_INLINE void ezSimdQuat::SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
 {
-  ///\todo optimize
-  const ezAngle halfAngle = ezAngle::Radian(fAngle) * 0.5f;
-  float s = ezMath::Sin(halfAngle);
-  float c = ezMath::Cos(halfAngle);
-
-  m_v = vRotationAxis * s;
-  m_v.SetW(c);
+  *this = MakeFromAxisAndAngle(vRotationAxis, fAngle);
 }
 
 EZ_ALWAYS_INLINE void ezSimdQuat::Normalize()
@@ -113,7 +130,7 @@ EZ_ALWAYS_INLINE bool ezSimdQuat::IsNaN() const
 
 EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::operator-() const
 {
-  return m_v.FlipSign(ezSimdVec4b(true, true, true, false));
+  return ezSimdQuat(m_v.FlipSign(ezSimdVec4b(true, true, true, false)));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdQuat::operator*(const ezSimdVec4f& v) const

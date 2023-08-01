@@ -86,7 +86,7 @@ public:
   /// \sa ReconstructFromMat3()
   void ReconstructFromMat4(const ezMat4Template<Type>& m);
 
-  /// \brief Sets this quaternion to be the spherical linear interpolation of the other two.
+  /// \brief Returns a quaternion that is the spherical linear interpolation of the other two.
   [[nodiscard]] static ezQuatTemplate<Type> MakeSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
   /*[[deprecated("Use ezQuat::MakeSlerp() instead.")]]*/ void SetSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t) { *this = MakeSlerp(qFrom, qTo, t); }
 
