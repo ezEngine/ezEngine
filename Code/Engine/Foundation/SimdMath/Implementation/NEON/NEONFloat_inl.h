@@ -54,6 +54,18 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
   return vmovq_n_f32(0.0f);
 }
 
+// static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeZero()
+{
+  return vmovq_n_f32(0.0f);
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeNaN()
+{
+  return vmovq_n_f32(ezMath::NaN<float>());
+}
+
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator+(const ezSimdFloat& f) const
 {
   return vaddq_f32(m_v, f.m_v);

@@ -38,6 +38,18 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
   return ezSimdFloat(0.0f);
 }
 
+// static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeZero()
+{
+  return ezSimdFloat(0.0f);
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeNaN()
+{
+  return ezSimdFloat(ezMath::NaN<float>());
+}
+
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator+(const ezSimdFloat& f) const
 {
   return m_v + f.m_v;
