@@ -314,3 +314,9 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::ZeroVector()
 {
   return ezVec4U32::ZeroVector();
 }
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::MakeZero()
+{
+  return ezVec4U32::MakeZero();
+}

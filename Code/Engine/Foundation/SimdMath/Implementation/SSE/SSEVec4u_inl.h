@@ -287,6 +287,12 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::ZeroVector()
   return _mm_setzero_si128();
 }
 
+// static
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::MakeZero()
+{
+  return _mm_setzero_si128();
+}
+
 // not needed atm
 #if 0
 void ezSimdVec4u::Transpose(ezSimdVec4u& v0, ezSimdVec4u& v1, ezSimdVec4u& v2, ezSimdVec4u& v3)

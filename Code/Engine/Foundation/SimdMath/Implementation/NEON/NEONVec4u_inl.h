@@ -232,6 +232,12 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::ZeroVector()
   return vmovq_n_u32(0);
 }
 
+// static
+EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::MakeZero()
+{
+  return vmovq_n_u32(0);
+}
+
 // not needed atm
 #if 0
 void ezSimdVec4u::Transpose(ezSimdVec4u& v0, ezSimdVec4u& v1, ezSimdVec4u& v2, ezSimdVec4u& v3)
