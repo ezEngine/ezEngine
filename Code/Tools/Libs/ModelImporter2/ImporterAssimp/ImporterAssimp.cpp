@@ -187,7 +187,7 @@ namespace ezModelImporter2
     if (pCurJoint)
     {
       pCurJoint->m_sName.Assign(pNode->mName.C_Str());
-      pCurJoint->m_LocalTransform.SetFromMat4(localTransform);
+      pCurJoint->m_LocalTransform = ezTransform::MakeFromMat4(localTransform);
     }
 
     if (pNode->mNumMeshes > 0)

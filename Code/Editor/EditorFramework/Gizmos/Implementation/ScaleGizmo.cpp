@@ -23,7 +23,7 @@ ezScaleGizmo::ezScaleGizmo()
   m_hAxisXYZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, coly, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/ScaleXYZ.obj");
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezScaleGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)

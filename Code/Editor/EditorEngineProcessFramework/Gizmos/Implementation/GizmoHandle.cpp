@@ -63,8 +63,7 @@ void ezGizmoHandle::SetTransformation(const ezTransform& m)
 
 void ezGizmoHandle::SetTransformation(const ezMat4& m)
 {
-  ezTransform t;
-  t.SetFromMat4(m);
+  ezTransform t = ezTransform::MakeFromMat4(m);
   SetTransformation(t);
 }
 

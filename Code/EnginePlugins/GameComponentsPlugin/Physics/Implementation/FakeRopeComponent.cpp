@@ -355,14 +355,14 @@ void ezFakeRopeComponent::SendCurrentPose()
       tGlobal.m_vPosition = ezSimdConversion::ToVec3(p0);
       tGlobal.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezSimdConversion::ToVec3(dir));
 
-      pieces[i].SetLocalTransform(tRoot, tGlobal);
+      pieces[i] = ezTransform::MakeLocalTransform(tRoot, tGlobal);
     }
 
     {
       tGlobal.m_vPosition = ezSimdConversion::ToVec3(m_RopeSim.m_Nodes.PeekBack().m_vPosition);
       // tGlobal.m_qRotation is the same as from the previous bone
 
-      pieces.PeekBack().SetLocalTransform(tRoot, tGlobal);
+      pieces.PeekBack() = ezTransform::MakeLocalTransform(tRoot, tGlobal);
     }
 
     poseMsg.m_LinkTransforms = pieces;

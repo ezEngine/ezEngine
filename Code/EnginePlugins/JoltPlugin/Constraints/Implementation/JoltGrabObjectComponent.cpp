@@ -433,7 +433,7 @@ void ezJoltGrabObjectComponent::CreateJoint(ezJoltDynamicActorComponent* pParent
 
   // ezTransform tAnchor = m_ChildAnchorLocal;
   // tAnchor.m_vPosition = tAnchor.m_vPosition.CompMul(pChild->GetOwner()->GetGlobalScaling());
-  // pJoint->SetActors(pParent->GetOwner()->GetHandle(), ezTransform::IdentityTransform(), pChild->GetOwner()->GetHandle(), tAnchor);
+  // pJoint->SetActors(pParent->GetOwner()->GetHandle(), ezTransform::MakeIdentity(), pChild->GetOwner()->GetHandle(), tAnchor);
 
   m_pConstraint = static_cast<JPH::SixDOFConstraint*>(opt.Create(*bodyLock.GetBody(0), *bodyLock.GetBody(1)));
   m_pConstraint->AddRef();

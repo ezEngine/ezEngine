@@ -369,7 +369,7 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID, e
 
         // m_localFrameA is already valid
         // assume it was in global space and move it into local space of the found parent
-        m_LocalFrameA.SetLocalTransform(pRbComp->GetOwner()->GetGlobalTransform(), globalFrame);
+        m_LocalFrameA = ezTransform::MakeLocalTransform(pRbComp->GetOwner()->GetGlobalTransform(), globalFrame);
         m_LocalFrameA.m_vPosition = m_LocalFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
       }
     }
@@ -391,7 +391,7 @@ ezResult ezJoltConstraintComponent::FindParentBody(ezUInt32& out_uiJoltBodyID, e
   {
     // m_localFrameA is now valid
     SetUserFlag(0, true);
-    m_LocalFrameA.SetLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
+    m_LocalFrameA = ezTransform::MakeLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
     m_LocalFrameA.m_vPosition = m_LocalFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
@@ -457,7 +457,7 @@ ezResult ezJoltConstraintComponent::FindChildBody(ezUInt32& out_uiJoltBodyID, ez
 
     // m_localFrameB is now valid
     SetUserFlag(1, true);
-    m_LocalFrameB.SetLocalTransform(pObject->GetGlobalTransform(), pAnchorObject->GetGlobalTransform());
+    m_LocalFrameB = ezTransform::MakeLocalTransform(pObject->GetGlobalTransform(), pAnchorObject->GetGlobalTransform());
     m_LocalFrameB.m_vPosition = m_LocalFrameB.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
@@ -472,7 +472,7 @@ ezTransform ezJoltConstraintComponent::ComputeParentBodyGlobalFrame() const
     if (GetWorld()->TryGetObject(m_hActorA, pObject))
     {
       ezTransform res;
-      res.SetGlobalTransform(pObject->GetGlobalTransform(), m_LocalFrameA);
+      res = ezTransform::MakeGlobalTransform(pObject->GetGlobalTransform(), m_LocalFrameA);
       return res;
     }
   }
@@ -488,7 +488,7 @@ ezTransform ezJoltConstraintComponent::ComputeChildBodyGlobalFrame() const
     if (GetWorld()->TryGetObject(m_hActorB, pObject))
     {
       ezTransform res;
-      res.SetGlobalTransform(pObject->GetGlobalTransform(), m_LocalFrameB);
+      res = ezTransform::MakeGlobalTransform(pObject->GetGlobalTransform(), m_LocalFrameB);
       return res;
     }
   }

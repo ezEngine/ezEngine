@@ -64,7 +64,7 @@ protected:
 
   void MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds);
 
-  ezTransform m_RootTransform = ezTransform::IdentityTransform();
+  ezTransform m_RootTransform = ezTransform::MakeIdentity();
   ezBoundingBox m_MaxBounds;
   ezSkinningState m_SkinningState;
   ezSkeletonResourceHandle m_hDefaultSkeleton;

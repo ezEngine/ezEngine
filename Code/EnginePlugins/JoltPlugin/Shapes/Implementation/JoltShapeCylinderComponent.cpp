@@ -96,7 +96,7 @@ void ezJoltShapeCylinderComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& 
 
   ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
   sub.m_pShape = pNewShape;
-  sub.m_Transform.SetLocalTransform(rootTransform, tOwn);
+  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, tOwn);
 }
 
 

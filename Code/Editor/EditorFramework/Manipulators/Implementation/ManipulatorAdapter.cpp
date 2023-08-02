@@ -81,7 +81,7 @@ void ezManipulatorAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMeta
 
 ezTransform ezManipulatorAdapter::GetOffsetTransform() const
 {
-  return ezTransform::IdentityTransform();
+  return ezTransform::MakeIdentity();
 }
 
 ezTransform ezManipulatorAdapter::GetObjectTransform() const
@@ -91,8 +91,7 @@ ezTransform ezManipulatorAdapter::GetObjectTransform() const
 
   const ezTransform offset = GetOffsetTransform();
 
-  ezTransform tGlobal;
-  tGlobal.SetGlobalTransform(tObj, offset);
+  ezTransform tGlobal = ezTransform::MakeGlobalTransform(tObj, offset);
 
   return tGlobal;
 }

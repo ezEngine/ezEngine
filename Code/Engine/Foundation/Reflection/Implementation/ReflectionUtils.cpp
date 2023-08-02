@@ -1501,7 +1501,7 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
     case ezVariant::Type::Matrix4:
       return ezVariant(ezMat4::IdentityMatrix());
     case ezVariant::Type::Transform:
-      return ezVariant(ezTransform::IdentityTransform());
+      return ezVariant(ezTransform::MakeIdentity());
     case ezVariant::Type::String:
       return ezVariant(ezString());
     case ezVariant::Type::StringView:

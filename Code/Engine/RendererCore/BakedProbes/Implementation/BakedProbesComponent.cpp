@@ -300,7 +300,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
   auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
 
   auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching) {
-    ezTransform transform = ezTransform::IdentityTransform();
+    ezTransform transform = ezTransform::MakeIdentity();
     transform.m_vPosition = vPosition;
 
     ezColor encodedSkyVisibility = ezColor::Black;

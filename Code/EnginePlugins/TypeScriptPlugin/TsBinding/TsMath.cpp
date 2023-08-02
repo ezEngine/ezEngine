@@ -544,7 +544,7 @@ void ezTypeScriptBinding::SetTransformProperty(duk_context* pDuk, const char* sz
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
+ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::MakeIdentity()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return fallback;
@@ -559,7 +559,7 @@ ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx
 }
 
 ezTransform ezTypeScriptBinding::GetTransformProperty(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::MakeIdentity()*/)
 {
   ezDuktapeHelper duk(pDuk);
 

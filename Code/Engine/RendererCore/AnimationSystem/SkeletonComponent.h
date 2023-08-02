@@ -66,7 +66,7 @@ protected:
   ezDebugRenderer::Line& AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
 
   ezSkeletonResourceHandle m_hSkeleton;
-  ezTransform m_RootTransform = ezTransform::IdentityTransform();
+  ezTransform m_RootTransform = ezTransform::MakeIdentity();
   ezUInt32 m_uiSkeletonChangeCounter = 0;
   ezString m_sBonesToHighlight;
 

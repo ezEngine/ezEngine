@@ -777,7 +777,7 @@ void ezJoltRopeComponent::Update()
       global.m_vPosition = ezJoltConversionUtils::ToVec3(pBody->GetPosition());
       global.m_qRotation = ezJoltConversionUtils::ToQuat(pBody->GetRotation());
 
-      poses[i].SetLocalTransform(rootTransform, global);
+      poses[i] = ezTransform::MakeLocalTransform(rootTransform, global);
     }
   }
 
@@ -789,7 +789,7 @@ void ezJoltRopeComponent::Update()
     tLocal.SetIdentity();
     tLocal.m_vPosition.x = (poses[uiLastIdx - 1].m_vPosition - poses[uiLastIdx - 2].m_vPosition).GetLength();
 
-    poses.PeekBack().SetGlobalTransform(poses[uiLastIdx - 1], tLocal);
+    poses.PeekBack() = ezTransform::MakeGlobalTransform(poses[uiLastIdx - 1], tLocal);
   }
 
   GetOwner()->SendMessage(poseMsg);
@@ -823,7 +823,7 @@ void ezJoltRopeComponent::SendPreviewPose()
 
     for (auto& n : pieces)
     {
-      n.SetLocalTransform(tOwner, n);
+      n = ezTransform::MakeLocalTransform(tOwner, n);
     }
   }
 

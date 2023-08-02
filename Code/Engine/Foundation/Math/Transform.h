@@ -71,7 +71,7 @@ public:
   /*[[deprecated("Use MakeFromMat4() instead.")]]*/ void SetFromMat4(const ezMat4Template<Type>& mMat);
 
   /// \brief Sets the position to be zero and the rotation to identity.
-  /*[[deprecated("Use MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
+  void SetIdentity(); // [tested]
 
   /// \brief Returns an Identity Transform.
   /*[[deprecated("Use MakeIdentity() instead.")]]*/ [[nodiscard]] static const ezTransformTemplate<Type> IdentityTransform();

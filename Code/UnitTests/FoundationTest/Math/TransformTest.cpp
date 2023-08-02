@@ -50,8 +50,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
       ezMat4T mTrans;
       mTrans.SetTransformationMatrix(mRot, ezVec3T(1, 2, 3));
 
-      ezTransformT t;
-      t.SetFromMat4(mTrans);
+      ezTransformT t = ezTransform::MakeFromMat4(mTrans);
       EZ_TEST_VEC3(t.m_vPosition, ezVec3T(1, 2, 3), 0);
       EZ_TEST_BOOL(t.m_qRotation.GetAsMat3().IsEqual(mRot, 0.001f));
     }
@@ -294,7 +293,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     tToChild.m_vScale.Set(4);
 
     ezTransformT tChild;
-    tChild.SetGlobalTransform(tParent, tToChild);
+    tChild = ezTransform::MakeGlobalTransform(tParent, tToChild);
 
     // negate twice -> get back original
     tToChild.Invert();
@@ -303,7 +302,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     ezTransformT tInvToChild = tToChild.GetInverse();
 
     ezTransformT tParentFromChild;
-    tParentFromChild.SetGlobalTransform(tChild, tInvToChild);
+    tParentFromChild = ezTransform::MakeGlobalTransform(tChild, tInvToChild);
 
     EZ_TEST_BOOL(tParent.IsEqual(tParentFromChild, 0.0001f));
   }
@@ -352,7 +351,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
       EZ_TEST_BOOL(t.m_qRotation == ezQuat::MakeIdentity());
       EZ_TEST_BOOL((t.m_vScale == ezVec3(1)));
 
-      EZ_TEST_BOOL(t == ezTransform::IdentityTransform());
+      EZ_TEST_BOOL(t == ezTransform::MakeIdentity());
     }
   }
 
@@ -398,7 +397,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     tChild.m_vScale = ezVec3(8);
 
     ezTransform tToChild;
-    tToChild.SetLocalTransform(tParent, tChild);
+    tToChild = ezTransform::MakeLocalTransform(tParent, tChild);
 
     EZ_TEST_BOOL(tToChild.m_vPosition.IsEqual(ezVec3(4, 5, 6), 0.0001f));
     EZ_TEST_BOOL(tToChild.m_qRotation.IsEqualRotation(q, 0.0001f));
@@ -416,7 +415,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     tToChild.m_vScale = ezVec3(4);
 
     ezTransform tChild;
-    tChild.SetGlobalTransform(tParent, tToChild);
+    tChild = ezTransform::MakeGlobalTransform(tParent, tToChild);
 
     EZ_TEST_BOOL(tChild.m_vPosition.IsEqual(ezVec3(13, 12, -5), 0.0001f));
     EZ_TEST_BOOL(tChild.m_qRotation.IsEqualRotation(tParent.m_qRotation * tToChild.m_qRotation, 0.0001f));

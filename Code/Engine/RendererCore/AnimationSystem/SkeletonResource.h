@@ -34,7 +34,7 @@ struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 
   ezUInt64 GetHeapMemoryUsage() const;
 
-  ezTransform m_RootTransform = ezTransform::IdentityTransform();
+  ezTransform m_RootTransform = ezTransform::MakeIdentity();
   ezSkeleton m_Skeleton;
   float m_fMaxImpulse = ezMath::HighValue<float>();
 

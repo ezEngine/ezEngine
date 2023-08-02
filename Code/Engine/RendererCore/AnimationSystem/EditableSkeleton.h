@@ -63,7 +63,7 @@ public:
   void CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint);
 
   ezHashedString m_sName;
-  ezTransform m_LocalTransform = ezTransform::IdentityTransform();
+  ezTransform m_LocalTransform = ezTransform::MakeIdentity();
 
   ezEnum<ezSkeletonJointType> m_JointType;
 

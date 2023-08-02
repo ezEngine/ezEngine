@@ -15,12 +15,12 @@ namespace
 {
   ezTransform CreateTransform(const ezUInt32 uiColumns, const ezUInt32 uiRows, ezUInt32 x, ezUInt32 y)
   {
-    ezTransform t = ezTransform::IdentityTransform();
+    ezTransform t = ezTransform::MakeIdentity();
     t.m_vScale = ezVec3(1.0f / float(uiColumns), 1.0f / float(uiRows), 1);
     t.m_vPosition = ezVec3(ezMath::Lerp(-1.f, 1.f, (float(x) + 0.5f) / float(uiColumns)), ezMath::Lerp(1.f, -1.f, (float(y) + 0.5f) / float(uiRows)), 0);
     if (ezClipSpaceYMode::RenderToTextureDefault == ezClipSpaceYMode::Flipped)
     {
-      ezTransform flipY = ezTransform::IdentityTransform();
+      ezTransform flipY = ezTransform::MakeIdentity();
       flipY.m_vScale.y *= -1.0f;
       t = flipY * t;
     }

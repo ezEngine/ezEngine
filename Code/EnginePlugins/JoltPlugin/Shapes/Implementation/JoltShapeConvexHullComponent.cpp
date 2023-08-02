@@ -82,7 +82,7 @@ void ezJoltShapeConvexHullComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>
 
     ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
     sub.m_pShape = pShape;
-    sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+    sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
   }
 }
 

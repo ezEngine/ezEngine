@@ -15,7 +15,7 @@ ezClickGizmo::ezClickGizmo()
   m_hShape.ConfigureHandle(this, ezEngineGizmoHandleType::Sphere, ezColor::White, ezGizmoFlags::Pickable);
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezClickGizmo::SetColor(const ezColor& color)

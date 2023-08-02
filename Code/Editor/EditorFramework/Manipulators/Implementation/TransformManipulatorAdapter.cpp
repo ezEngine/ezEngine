@@ -81,7 +81,7 @@ void ezTransformManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
         const ezTransform tParent = GetObjectTransform();
         const ezTransform tGlobal = static_cast<const ezGizmo*>(e.m_pGizmo)->GetTransformation();
         ezTransform tLocal;
-        tLocal.SetLocalTransform(tParent, tGlobal);
+        tLocal = ezTransform::MakeLocalTransform(tParent, tGlobal);
         if (e.m_pGizmo == &m_TranslateGizmo)
         {
           ChangeProperties(pAttr->GetTranslateProperty(), tLocal.m_vPosition);
@@ -118,7 +118,7 @@ void ezTransformManipulatorAdapter::UpdateGizmoTransform()
   tLocal.m_qRotation = vRot;
   tLocal.m_vScale = vScale;
   ezTransform tGlobal;
-  tGlobal.SetGlobalTransform(tParent, tLocal);
+  tGlobal = ezTransform::MakeGlobalTransform(tParent, tLocal);
   // Let's not apply scaling to the gizmos.
   tGlobal.m_vScale = ezVec3(1, 1, 1);
 

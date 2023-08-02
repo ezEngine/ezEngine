@@ -263,8 +263,8 @@ public:
   static void PushTransform(duk_context* pDuk, const ezTransform& value);
   static void SetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& value);
   static void SetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& value);
-  static ezTransform GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
-  static ezTransform GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
+  static ezTransform GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::MakeIdentity());
+  static ezTransform GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::MakeIdentity());
 
   static void PushVariant(duk_context* pDuk, const ezVariant& value);
   static void SetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVariant& value);

@@ -284,7 +284,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   if (pWorld->TryGetObject(hObject, pObject) && pObject->IsDynamic())
   {
     hParent = hObject;
-    t.SetLocalTransform(pObject->GetGlobalTransform(), t);
+    t = ezTransform::MakeLocalTransform(pObject->GetGlobalTransform(), t);
   }
 
   ezHybridArray<ezGameObject*, 8> rootObjects;

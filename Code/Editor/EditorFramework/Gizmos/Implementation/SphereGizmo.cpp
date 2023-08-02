@@ -20,7 +20,7 @@ ezSphereGizmo::ezSphereGizmo()
   m_hOuterSphere.ConfigureHandle(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)

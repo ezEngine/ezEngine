@@ -243,7 +243,8 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
 
 void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
 {
-  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents) {
+  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents)
+  {
     ezUInt8 Temp[4096];
     for (auto& compTypeInfo : m_ComponentTypes)
     {
@@ -553,7 +554,7 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
     {
       ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
       ezTransform tFinal;
-      tFinal.SetGlobalTransform(m_RootTransform, tChild);
+      tFinal = ezTransform::MakeGlobalTransform(m_RootTransform, tChild);
 
       desc.m_LocalPosition = tFinal.m_vPosition;
       desc.m_LocalRotation = tFinal.m_qRotation;

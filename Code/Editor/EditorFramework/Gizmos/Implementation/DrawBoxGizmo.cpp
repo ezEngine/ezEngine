@@ -18,7 +18,7 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
   m_hBox.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), ezGizmoFlags::ShowInOrtho);
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 ezDrawBoxGizmo::~ezDrawBoxGizmo() = default;

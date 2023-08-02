@@ -214,7 +214,7 @@ void ezRopeRenderComponent::SetThickness(float fThickness)
         offsetMat.SetTranslationVector(ezVec3(static_cast<float>(i), 0, 0));
         ezMat4 skinningMat = m_SkinningState.m_Transforms[i].GetAsMat4() * offsetMat;
 
-        transforms[i].SetFromMat4(skinningMat);
+        transforms[i] = ezTransform::MakeFromMat4(skinningMat);
       }
 
       UpdateSkinningTransformBuffer(transforms);

@@ -29,7 +29,7 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_hPlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneZ.obj");
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 
   m_Mode = TranslateMode::None;
   m_MovementMode = MovementMode::ScreenProjection;

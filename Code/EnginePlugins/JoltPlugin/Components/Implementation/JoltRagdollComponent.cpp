@@ -792,7 +792,7 @@ void ezJoltRagdollComponent::ComputeLimbGlobalTransform(ezTransform& transform, 
 {
   ezTransform local;
   ComputeLimbModelSpaceTransform(local, pose, uiPoseJointIndex);
-  transform.SetGlobalTransform(GetOwner()->GetGlobalTransform(), local);
+  transform = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), local);
 }
 
 void ezJoltRagdollComponent::CreateAllLimbs(const ezSkeletonResource& skeletonResource, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale)
@@ -822,7 +822,7 @@ void ezJoltRagdollComponent::CreateAllLimbs(const ezSkeletonResource& skeletonRe
 
   // get the limb with the lowest index (ie. the first one added) as the root joint
   // and use it's transform to compute m_RootBodyLocalTransform
-  m_RootBodyLocalTransform.SetLocalTransform(GetOwner()->GetGlobalTransform(), limbConstructionInfos.GetIterator().Value().m_GlobalTransform);
+  m_RootBodyLocalTransform = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), limbConstructionInfos.GetIterator().Value().m_GlobalTransform);
 }
 
 void ezJoltRagdollComponent::CreateLimb(const ezSkeletonResource& skeletonResource, ezMap<ezUInt16, LimbConstructionInfo>& limbConstructionInfos, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale)
@@ -998,7 +998,7 @@ void ezJoltRagdollComponent::CreateAllLimbGeoShapes(const LimbConstructionInfo& 
     ezTransform shapeTransform;
     JPH::Shape* pSubShape = CreateLimbGeoShape(limbConstructionInfo, *geometries[0], pJoltMaterial, qBoneDirAdjustment, skeletonRootTransform, shapeTransform, fObjectScale);
 
-    if (!shapeTransform.IsEqual(ezTransform::IdentityTransform(), 0.001f))
+    if (!shapeTransform.IsEqual(ezTransform::MakeIdentity(), 0.001f))
     {
       JPH::RotatedTranslatedShapeSettings outerShape;
       outerShape.mInnerShapePtr = pSubShape;
