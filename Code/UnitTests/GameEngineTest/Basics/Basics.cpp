@@ -480,8 +480,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // Frustum
   {
-    ezFrustum f;
-    f.SetFrustum(ezVec3(5, 7, 3), ezVec3(0, -1, 0), ezVec3(0, 0, 1), ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(20), 0.1f, 5.0f);
+    ezFrustum f = ezFrustum::MakeFromFOV(ezVec3(5, 7, 3), ezVec3(0, -1, 0), ezVec3(0, 0, 1), ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(20), 0.1f, 5.0f);
     ezDebugRenderer::DrawLineFrustum(m_pWorld.Borrow(), f, ezColor::Cornsilk);
   }
 

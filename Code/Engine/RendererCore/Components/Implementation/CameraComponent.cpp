@@ -348,8 +348,7 @@ void ezCameraComponent::ShowStats(ezView* pView)
     ezMat4 projectionMatrix = pView->GetProjectionMatrix(ezCameraEye::Left); // todo: Stereo support
     ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
 
-    ezFrustum frustum;
-    frustum.SetFrustum(viewProjectionMatrix);
+    ezFrustum frustum = ezFrustum::MakeFromMVP(viewProjectionMatrix);
 
     // TODO: limit far plane to 10 meters
 

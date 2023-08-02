@@ -6,7 +6,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Math, Frustum)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFrustum (planes)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromPlanes")
   {
     ezFrustum f;
 
@@ -18,7 +18,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     p[4].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
     p[5].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
 
-    f.SetFrustum(p);
+    f = ezFrustum::MakeFromPlanes(p);
 
     EZ_TEST_BOOL(f.GetPlane(0) == p[0]);
     EZ_TEST_BOOL(f.GetPlane(1) == p[1]);
@@ -36,7 +36,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     p[4].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
     p[5].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
 
-    f.SetFrustum(p);
+    f = ezFrustum::MakeFromPlanes(p);
 
     ezMat4 mTransform;
     mTransform.SetRotationMatrixY(ezAngle::MakeFromDegree(90.0f));
@@ -63,7 +63,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     p[4].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
     p[5].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
 
-    f.SetFrustum(p);
+    f = ezFrustum::MakeFromPlanes(p);
 
     f.InvertFrustum();
 
@@ -107,11 +107,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         const ezMat4 mViewProjLH = mProjLH * mViewLH;
         const ezMat4 mViewProjRH = mProjRH * mViewRH;
 
-        ezFrustum fLH, fRH, fB;
-        fLH.SetFrustum(mViewProjLH, range, ezHandedness::LeftHanded);
-        fRH.SetFrustum(mViewProjRH, range, ezHandedness::RightHanded);
+        ezFrustum fB;
+        const ezFrustum fLH = ezFrustum::MakeFromMVP(mViewProjLH, range, ezHandedness::LeftHanded);
+        const ezFrustum fRH = ezFrustum::MakeFromMVP(mViewProjRH, range, ezHandedness::RightHanded);
 
-        fB.SetFrustum(vCamPos, vLookDir, ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 100.0f);
+        fB = ezFrustum::MakeFromFOV(vCamPos, vLookDir, ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 100.0f);
 
         EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::NearPlane).IsEqual(fB.GetPlane(ezFrustum::NearPlane), 0.1f));
         EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::LeftPlane).IsEqual(fB.GetPlane(ezFrustum::LeftPlane), 0.1f));
@@ -139,8 +139,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     for (ezUInt32 dir = 0; dir < 6; ++dir)
     {
       ezFrustum fDir;
-      fDir.SetFrustum(
-        offsetPos, camDir[dir], camDir[dir].GetOrthogonalVector() /*arbitrary*/, ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 100.0f);
+      fDir = ezFrustum::MakeFromFOV(offsetPos, camDir[dir], camDir[dir].GetOrthogonalVector() /*arbitrary*/, ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 100.0f);
 
       for (ezUInt32 obj = 0; obj < 6; ++obj)
       {
@@ -240,8 +239,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
       ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 10.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
 
     ezFrustum frustum[2];
-    frustum[0].SetFrustum(mProj, ezClipSpaceDepthRange::MinusOneToOne, ezHandedness::RightHanded);
-    frustum[1].SetFrustum(ezVec3::ZeroVector(), ezVec3(0, 0, -1), ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 10.0f);
+    frustum[0] = ezFrustum::MakeFromMVP(mProj, ezClipSpaceDepthRange::MinusOneToOne, ezHandedness::RightHanded);
+    frustum[1] = ezFrustum::MakeFromFOV(ezVec3::ZeroVector(), ezVec3(0, 0, -1), ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 10.0f);
 
     for (int f = 0; f < 2; ++f)
     {
