@@ -39,10 +39,10 @@ public:
   /*[[deprecated("Use ezUuid::MakeInvalid() instead.")]]*/ EZ_ALWAYS_INLINE void SetInvalid();
 
   /// \brief Creates a new Uuid and stores is it in this object.
-  /*[[deprecated("Use ezUuid::MakeUuid() instead.")]]*/ void CreateNewUuid();
+  /*[[deprecated("Use ezUuid::MakeUuid() instead.")]]*/ void CreateNewUuid() { *this = MakeUuid(); }
 
   /// \brief Returns a new Uuid.
-  [[nodiscard]] EZ_ALWAYS_INLINE static ezUuid MakeUuid();
+  [[nodiscard]] static ezUuid MakeUuid();
   [[nodiscard]] /*[[deprecated("Use ezUuid::MakeUuid() instead.")]]*/ EZ_ALWAYS_INLINE static ezUuid CreateUuid() { return MakeUuid(); }
 
   /// \brief Returns the internal 128 Bit of data
