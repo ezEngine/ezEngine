@@ -169,14 +169,10 @@ void ezVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 const ezRangeView<const ezString&, ezUInt32> ezVolumeComponent::Reflection_GetKeys() const
 {
-  return ezRangeView<const ezString&, ezUInt32>([]() -> ezUInt32
-    { return 0; },
-    [this]() -> ezUInt32
-    { return m_OverwrittenValues.GetCount(); },
-    [](ezUInt32& ref_uiIt)
-    { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const ezString&
-    { return m_OverwrittenValues[uiIt].GetString(); });
+  return ezRangeView<const ezString&, ezUInt32>([]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_OverwrittenValues.GetCount(); },
+    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const ezString& { return m_OverwrittenValues[uiIt].GetString(); });
 }
 
 bool ezVolumeComponent::Reflection_GetValue(const char* szName, ezVariant& value) const
@@ -228,8 +224,7 @@ void ezVolumeComponent::InitializeFromTemplate()
   if (m_bReloadFunctionAdded == false)
   {
     GetWorld()->AddResourceReloadFunction(m_hTemplateResource, GetHandle(), nullptr,
-      [](const ezWorld::ResourceReloadContext& context)
-      {
+      [](const ezWorld::ResourceReloadContext& context) {
         ezStaticCast<ezVolumeComponent*>(context.m_pComponent)->ReloadTemplate();
       });
 

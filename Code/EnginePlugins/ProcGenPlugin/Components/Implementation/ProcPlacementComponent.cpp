@@ -205,8 +205,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       }
 
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
-      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB)
-        { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
+      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB) { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
     }
 
     ClearVisibleComponents();
@@ -306,8 +305,7 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
     sortedTask.m_uiTaskIndex = i;
   }
 
-  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB)
-    { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
+  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB) { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 
