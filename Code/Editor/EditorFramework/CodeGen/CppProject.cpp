@@ -458,7 +458,7 @@ void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
   plugin.m_bLoadCopy = true;
   plugin.m_bSelected = true;
   plugin.m_bMissing = true;
-  plugin.m_LastModificationTime.Invalidate();
+  plugin.m_LastModificationTime = ezTimestamp::MakeInvalid();
   plugin.m_ExclusiveFeatures.PushBack("ProjectPlugin");
   txt.Set("'", cfg.m_sPluginName, "' project plugin");
   plugin.m_sDisplayName = txt;

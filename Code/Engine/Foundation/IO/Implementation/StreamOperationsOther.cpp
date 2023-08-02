@@ -297,7 +297,7 @@ void operator>>(ezStreamReader& inout_stream, ezTimestamp& ref_value)
   ezInt64 value;
   inout_stream >> value;
 
-  ref_value.SetInt64(value, ezSIUnitOfTime::Microsecond);
+  ref_value = ezTimestamp::MakeFromInt(value, ezSIUnitOfTime::Microsecond);
 }
 
 // ezVarianceTypeFloat

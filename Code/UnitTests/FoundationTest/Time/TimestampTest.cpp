@@ -13,9 +13,9 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     ezTimestamp invalidTimestamp;
     EZ_TEST_BOOL(!invalidTimestamp.IsValid());
 
-    ezTimestamp validTimestamp(0, ezSIUnitOfTime::Second);
+    ezTimestamp validTimestamp = ezTimestamp::MakeFromInt(0, ezSIUnitOfTime::Second);
     EZ_TEST_BOOL(validTimestamp.IsValid());
-    validTimestamp.Invalidate();
+    validTimestamp = ezTimestamp::MakeInvalid();
     EZ_TEST_BOOL(!validTimestamp.IsValid());
 
     ezTimestamp currentTimestamp = ezTimestamp::CurrentTimestamp();
@@ -35,36 +35,36 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Public Accessors")
   {
-    const ezTimestamp epoch(0, ezSIUnitOfTime::Second);
-    const ezTimestamp firstContact(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
+    const ezTimestamp epoch = ezTimestamp::MakeFromInt(0, ezSIUnitOfTime::Second);
+    const ezTimestamp firstContact = ezTimestamp::MakeFromInt(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
     EZ_TEST_BOOL(epoch.IsValid());
     EZ_TEST_BOOL(firstContact.IsValid());
 
     // GetInt64 / SetInt64
-    ezTimestamp firstContactTest(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
+    ezTimestamp firstContactTest = ezTimestamp::MakeFromInt(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
     EZ_TEST_INT(firstContactTest.GetInt64(ezSIUnitOfTime::Second), iFirstContactUnixTimeInSeconds);
     EZ_TEST_INT(firstContactTest.GetInt64(ezSIUnitOfTime::Millisecond), iFirstContactUnixTimeInSeconds * 1000LL);
     EZ_TEST_INT(firstContactTest.GetInt64(ezSIUnitOfTime::Microsecond), iFirstContactUnixTimeInSeconds * 1000000LL);
     EZ_TEST_INT(firstContactTest.GetInt64(ezSIUnitOfTime::Nanosecond), iFirstContactUnixTimeInSeconds * 1000000000LL);
 
-    firstContactTest.SetInt64(firstContactTest.GetInt64(ezSIUnitOfTime::Second), ezSIUnitOfTime::Second);
+    firstContactTest = ezTimestamp::MakeFromInt(firstContactTest.GetInt64(ezSIUnitOfTime::Second), ezSIUnitOfTime::Second);
     EZ_TEST_BOOL(firstContactTest.Compare(firstContact, ezTimestamp::CompareMode::Identical));
-    firstContactTest.SetInt64(firstContactTest.GetInt64(ezSIUnitOfTime::Millisecond), ezSIUnitOfTime::Millisecond);
+    firstContactTest = ezTimestamp::MakeFromInt(firstContactTest.GetInt64(ezSIUnitOfTime::Millisecond), ezSIUnitOfTime::Millisecond);
     EZ_TEST_BOOL(firstContactTest.Compare(firstContact, ezTimestamp::CompareMode::Identical));
-    firstContactTest.SetInt64(firstContactTest.GetInt64(ezSIUnitOfTime::Microsecond), ezSIUnitOfTime::Microsecond);
+    firstContactTest = ezTimestamp::MakeFromInt(firstContactTest.GetInt64(ezSIUnitOfTime::Microsecond), ezSIUnitOfTime::Microsecond);
     EZ_TEST_BOOL(firstContactTest.Compare(firstContact, ezTimestamp::CompareMode::Identical));
-    firstContactTest.SetInt64(firstContactTest.GetInt64(ezSIUnitOfTime::Nanosecond), ezSIUnitOfTime::Nanosecond);
+    firstContactTest = ezTimestamp::MakeFromInt(firstContactTest.GetInt64(ezSIUnitOfTime::Nanosecond), ezSIUnitOfTime::Nanosecond);
     EZ_TEST_BOOL(firstContactTest.Compare(firstContact, ezTimestamp::CompareMode::Identical));
 
     // IsEqual
-    const ezTimestamp firstContactPlusAFewMicroseconds(firstContact.GetInt64(ezSIUnitOfTime::Microsecond) + 42, ezSIUnitOfTime::Microsecond);
+    const ezTimestamp firstContactPlusAFewMicroseconds = ezTimestamp::MakeFromInt(firstContact.GetInt64(ezSIUnitOfTime::Microsecond) + 42, ezSIUnitOfTime::Microsecond);
     EZ_TEST_BOOL(firstContact.Compare(firstContactPlusAFewMicroseconds, ezTimestamp::CompareMode::FileTimeEqual));
     EZ_TEST_BOOL(!firstContact.Compare(firstContactPlusAFewMicroseconds, ezTimestamp::CompareMode::Identical));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
-    const ezTimestamp firstContact(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
+    const ezTimestamp firstContact = ezTimestamp::MakeFromInt(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
 
     // Time span arithmetics
     const ezTime timeSpan1000s = ezTime::Seconds(1000);
@@ -105,8 +105,8 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     ezDateTime invalidDateTime;
     EZ_TEST_BOOL(!invalidDateTime.GetTimestamp().IsValid());
 
-    const ezTimestamp firstContact(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
-    ezDateTime firstContactDataTime(firstContact);
+    const ezTimestamp firstContact = ezTimestamp::MakeFromInt(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
+    ezDateTime firstContactDataTime = ezDateTime::MakeFromTimestamp(firstContact);
 
     // Getter
     EZ_TEST_INT(firstContactDataTime.GetYear(), 2063);

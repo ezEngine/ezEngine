@@ -36,7 +36,7 @@ ezGameApplicationBase::~ezGameApplicationBase()
 
 void AppendCurrentTimestamp(ezStringBuilder& out_sString)
 {
-  const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+  const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
 
   out_sString.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
@@ -270,7 +270,8 @@ ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWo
     ezInt32 iBestPriority = -1;
 
     ezRTTI::ForEachDerivedType<ezGameStateBase>(
-      [&](const ezRTTI* pRtti) {
+      [&](const ezRTTI* pRtti)
+      {
         ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
 
         const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);

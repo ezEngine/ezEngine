@@ -55,7 +55,7 @@ void ezCrashHandler_WriteMiniDump::SetDumpFilePath(ezStringView sAbsDirectoryPat
 
   if (flags.IsSet(PathFlags::AppendDate))
   {
-    const ezDateTime date = ezTimestamp::CurrentTimestamp();
+    const ezDateTime date = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
     sOutputPath.AppendFormat("_{}", date);
   }
 
