@@ -94,7 +94,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    const ezVec3 dir = ezVec3::CreateRandomDeviationZ(rng, m_Angle);
+    const ezVec3 dir = ezVec3::MakeRandomDeviationZ(rng, m_Angle);
     // dir.z = 0;
     // float len = 0.0f;
 

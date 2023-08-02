@@ -216,7 +216,7 @@ void ezNavMeshPointOfInterestGraph::ExtractInterestPointsFromMesh(const rcPolyMe
 
           if (distSqr < ezMath::Square(2.0f))
           {
-            AddToInterestPoints(interestPoints, -1, ezMath::Lerp(start, end, 0.5f), vPolyCenter, ezVec3::ZeroVector());
+            AddToInterestPoints(interestPoints, -1, ezMath::Lerp(start, end, 0.5f), vPolyCenter, ezVec3::MakeZero());
           }
           else
           {
@@ -228,7 +228,7 @@ void ezNavMeshPointOfInterestGraph::ExtractInterestPointsFromMesh(const rcPolyMe
             {
               if (uiCurEdgeIdx > uiPrevEdgeIdx)
               {
-                AddToInterestPoints(interestPoints, startIdx, start, vPolyCenter, ezVec3::ZeroVector());
+                AddToInterestPoints(interestPoints, startIdx, start, vPolyCenter, ezVec3::MakeZero());
               }
             }
             else
@@ -240,7 +240,7 @@ void ezNavMeshPointOfInterestGraph::ExtractInterestPointsFromMesh(const rcPolyMe
             {
               if (uiCurEdgeIdx > uiNextEdgeIdx)
               {
-                AddToInterestPoints(interestPoints, endIdx, end, vPolyCenter, ezVec3::ZeroVector());
+                AddToInterestPoints(interestPoints, endIdx, end, vPolyCenter, ezVec3::MakeZero());
               }
             }
             else

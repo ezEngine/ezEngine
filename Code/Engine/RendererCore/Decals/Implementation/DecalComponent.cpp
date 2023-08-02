@@ -233,7 +233,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
 
 void ezDecalComponent::SetExtents(const ezVec3& value)
 {
-  m_vExtents = value.CompMax(ezVec3::ZeroVector());
+  m_vExtents = value.CompMax(ezVec3::MakeZero());
 
   TriggerLocalBoundsUpdate();
 }

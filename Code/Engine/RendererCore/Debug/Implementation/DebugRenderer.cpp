@@ -501,9 +501,9 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
     return;
 
   const float fHalfLineLength = fLineLength * 0.5f;
-  const ezVec3 xAxis = ezVec3::UnitXAxis() * fHalfLineLength;
-  const ezVec3 yAxis = ezVec3::UnitYAxis() * fHalfLineLength;
-  const ezVec3 zAxis = ezVec3::UnitZAxis() * fHalfLineLength;
+  const ezVec3 xAxis = ezVec3::MakeAxisX() * fHalfLineLength;
+  const ezVec3 yAxis = ezVec3::MakeAxisY() * fHalfLineLength;
+  const ezVec3 zAxis = ezVec3::MakeAxisZ() * fHalfLineLength;
 
   EZ_LOCK(s_Mutex);
 
@@ -976,7 +976,7 @@ void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context
   item.m_Timeout = data.m_Now + duration;
 }
 
-void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::UnitXAxis()*/, ezVec3 vRotationAxis /*= ezVec3::UnitZAxis()*/)
+void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/, ezVec3 vRotationAxis /*= ezVec3::MakeAxisZ()*/)
 {
   ezHybridArray<Triangle, 64> tris;
   ezHybridArray<Line, 64> lines;
@@ -1039,7 +1039,7 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   DrawLines(context, lines, lineColor, transform);
 }
 
-void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::UnitXAxis()*/)
+void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/)
 {
   ezHybridArray<Triangle, 64> trisInside;
   ezHybridArray<Triangle, 64> trisOutside;
@@ -1239,7 +1239,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawCross(context, ezVec3::ZeroVector(), item.m_fSize, item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawCross(context, ezVec3::MakeZero(), item.m_fSize, item.m_Color, item.m_Transform);
 
           ++i;
         }
@@ -1260,7 +1260,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), item.m_fRadius), item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), item.m_fRadius), item.m_Color, item.m_Transform);
 
           ++i;
         }

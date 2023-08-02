@@ -338,7 +338,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
       EZ_TEST_BOOL(t.m_qRotation == qRot);
       EZ_TEST_BOOL((t.m_vScale == scale));
 
-      t = ezTransform(ezVec3::ZeroVector(), qRot);
+      t = ezTransform(ezVec3::MakeZero(), qRot);
       EZ_TEST_BOOL(t.m_vPosition.IsZero());
       EZ_TEST_BOOL(t.m_qRotation == qRot);
       EZ_TEST_BOOL((t.m_vScale == ezVec3(1)));

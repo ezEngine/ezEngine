@@ -89,7 +89,7 @@ public:
   void Clear();
 
   /// \brief Adds a vertex, returns the index to the added vertex.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices = ezVec4U16::ZeroVector(), const ezColorLinearUB& boneWeights = ezColorLinearUB(255, 0, 0, 0));
+  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices = ezVec4U16::MakeZero(), const ezColorLinearUB& boneWeights = ezColorLinearUB(255, 0, 0, 0));
 
   /// \brief Adds a vertex, returns the index to the added vertex. Position and normal are transformed with the given matrix.
   ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, const ezMat4& mTransform)

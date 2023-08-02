@@ -64,7 +64,7 @@ void AsteroidGameState::OnDeactivation()
 void AsteroidGameState::BeforeWorldUpdate()
 {
   m_MainCamera.SetCameraMode(ezCameraMode::OrthoFixedHeight, 40, -10, 10);
-  m_MainCamera.LookAt(ezVec3::ZeroVector(), ezVec3(0, 0, 1), ezVec3(0, 1, 0));
+  m_MainCamera.LookAt(ezVec3::MakeZero(), ezVec3(0, 0, 1), ezVec3(0, 1, 0));
 }
 
 void AsteroidGameState::ConfigureInputActions()

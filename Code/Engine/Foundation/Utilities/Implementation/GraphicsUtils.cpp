@@ -461,7 +461,7 @@ ezMat3 ezGraphicsUtils::CreateLookAtViewMatrix(const ezVec3& vTarget, const ezVe
   EZ_ASSERT_DEBUG(!vTarget.IsZero(), "The target must not be at the origin.");
 
   ezVec3 vLookDir = vTarget;
-  vLookDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+  vLookDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
 
   ezVec3 vNormalizedUpDir = vUpDir.GetNormalized();
 
@@ -489,7 +489,7 @@ ezMat3 ezGraphicsUtils::CreateInverseLookAtViewMatrix(const ezVec3& vTarget, con
   EZ_ASSERT_DEBUG(!vTarget.IsZero(), "The target must not be at the origin.");
 
   ezVec3 vLookDir = vTarget;
-  vLookDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+  vLookDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
 
   ezVec3 vNormalizedUpDir = vUpDir.GetNormalized();
 

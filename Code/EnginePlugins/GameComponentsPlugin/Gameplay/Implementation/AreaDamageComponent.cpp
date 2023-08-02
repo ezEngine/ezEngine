@@ -81,7 +81,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         else
         {
           // otherwise, if we are so close, that the distance is zero, pick a random direction away from it
-          vDirToTarget.CreateRandomDirection(GetWorld()->GetRandomNumberGenerator());
+          vDirToTarget = ezVec3::MakeRandomDirection(GetWorld()->GetRandomNumberGenerator());
         }
 
         // linearly scale damage and impulse down by distance

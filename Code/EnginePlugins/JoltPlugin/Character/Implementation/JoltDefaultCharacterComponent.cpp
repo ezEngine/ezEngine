@@ -419,7 +419,7 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
 
     if (!gnom.IsZero(0.01f))
     {
-      ezQuat rot = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), gnom);
+      ezQuat rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
 
       ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), ezColor::Aquamarine, ezTransform(gpos, rot));
     }
@@ -470,14 +470,14 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
     if (gnom.IsZero(0.01f))
     {
-      rot = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+      rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
       color = ezColor::OrangeRed;
     }
     else
     {
-      rot = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), gnom);
+      rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
 
-      if (gnom.Dot(ezVec3::UnitZAxis()) > ezMath::Cos(ezAngle::MakeFromDegree(40)))
+      if (gnom.Dot(ezVec3::MakeAxisZ()) > ezMath::Cos(ezAngle::MakeFromDegree(40)))
       {
         m_bFeetOnSolidGround = true;
         color = ezColor::GreenYellow;
@@ -596,7 +596,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     cfg.m_fMaxStepDown = 0;
   }
 
-  ezVec3 vGroundVelocity = ezVec3::ZeroVector();
+  ezVec3 vGroundVelocity = ezVec3::MakeZero();
 
   ContactPoint groundContact;
   {

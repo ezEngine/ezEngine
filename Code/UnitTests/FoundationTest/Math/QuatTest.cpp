@@ -307,7 +307,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       ezAngle angle;
       q.GetRotationAxisAndAngle(axis, angle, 0.01f);
 
-      EZ_TEST_VEC3(axis, ezVec3::UnitXAxis(), 0.001f);
+      EZ_TEST_VEC3(axis, ezVec3::MakeAxisX(), 0.001f);
       EZ_TEST_FLOAT(angle.GetDegree(), (float)x, 0.1f);
 
       q.GetAsEulerAngles(ax, ay, az);
@@ -330,12 +330,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
       if (y < 0)
       {
-        EZ_TEST_VEC3(axis, -ezVec3::UnitYAxis(), 0.001f);
+        EZ_TEST_VEC3(axis, -ezVec3::MakeAxisY(), 0.001f);
         EZ_TEST_FLOAT(angle.GetDegree(), (float)-y, 0.1f);
       }
       else if (y > 0)
       {
-        EZ_TEST_VEC3(axis, ezVec3::UnitYAxis(), 0.001f);
+        EZ_TEST_VEC3(axis, ezVec3::MakeAxisY(), 0.001f);
         EZ_TEST_FLOAT(angle.GetDegree(), (float)y, 0.1f);
       }
 
@@ -361,7 +361,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       ezAngle angle;
       q.GetRotationAxisAndAngle(axis, angle, 0.01f);
 
-      EZ_TEST_VEC3(axis, ezVec3::UnitZAxis(), 0.001f);
+      EZ_TEST_VEC3(axis, ezVec3::MakeAxisZ(), 0.001f);
       EZ_TEST_FLOAT(angle.GetDegree(), (float)z, 0.1f);
 
       q.GetAsEulerAngles(ax, ay, az);
@@ -386,9 +386,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
           ezQuat q3;
           {
             ezQuat xRot, yRot, zRot;
-            xRot = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitXAxis(), ezAngle::MakeFromDegree(x));
-            yRot = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitYAxis(), ezAngle::MakeFromDegree(y));
-            zRot = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::MakeFromDegree(z));
+            xRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisX(), ezAngle::MakeFromDegree(x));
+            yRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisY(), ezAngle::MakeFromDegree(y));
+            zRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(z));
 
             q3 = zRot * yRot * xRot;
           }

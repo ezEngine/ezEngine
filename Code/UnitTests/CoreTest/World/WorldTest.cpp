@@ -164,7 +164,7 @@ namespace
         ezVec3 newPos = ezVec3(i * 10.0f, 0, 0);
         it->SetLocalPosition(newPos);
 
-        ezQuat newRot = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::MakeFromDegree(i * 30.0f));
+        ezQuat newRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(i * 30.0f));
         it->SetLocalRotation(newRot);
 
         if (i > 5)
@@ -185,7 +185,7 @@ namespace
 
       for (auto it = GetWorld()->GetObjects(); it.IsValid(); ++it)
       {
-        it->SetGlobalPosition(ezVec3::ZeroVector());
+        it->SetGlobalPosition(ezVec3::MakeZero());
       }
     }
 
@@ -729,7 +729,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (ezUInt32 i = 0; i < numObjects; ++i)
     {
       objectDesc.m_LocalPosition = ezVec3(0, 0, 5);
-      objectDesc.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::MakeFromDegree(90));
+      objectDesc.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(90));
 
       hObjects[i] = world.CreateObject(objectDesc, pObjects[i]);
     }
@@ -766,7 +766,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       ezVec3 expectedLastPos = ezVec3(i * 10, 0, 0);
       ezVec3 expectedLinearVelocity = ezVec3(i * -100.0f, 0, 0);
       EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
-      EZ_TEST_VEC3(pObject->GetGlobalPosition(), ezVec3::ZeroVector(), ezMath::DefaultEpsilon<float>());
+      EZ_TEST_VEC3(pObject->GetGlobalPosition(), ezVec3::MakeZero(), ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
     }
   }

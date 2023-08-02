@@ -111,7 +111,7 @@ void ezParticleTypeMesh::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
   {
     const ezUInt64 uiElementIdx = uiStartIndex + i;
 
-    pAxis[uiElementIdx] = ezVec3::CreateRandomDirection(rng);
+    pAxis[uiElementIdx] = ezVec3::MakeRandomDirection(rng);
   }
 }
 

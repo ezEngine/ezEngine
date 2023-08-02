@@ -134,7 +134,7 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
     }
     else
     {
-      itVelocity.Current() = ezVec3::CreateRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir) * m_fSpeed;
+      itVelocity.Current() = ezVec3::MakeRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir) * m_fSpeed;
     }
 
     itPosition.Advance();

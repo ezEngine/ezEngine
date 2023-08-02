@@ -113,7 +113,7 @@ void RtsGameState::BeforeWorldUpdate()
     const ezVec3 dir = m_MainCamera.GetCenterDirForwards();
     const ezVec3 up = m_MainCamera.GetCenterDirUp();
 
-    pSoundInterface->SetListener(0, pos, dir, up, ezVec3::ZeroVector());
+    pSoundInterface->SetListener(0, pos, dir, up, ezVec3::MakeZero());
   }
 }
 
@@ -241,7 +241,7 @@ void RtsGameState::RenderUnitSelection() const
     t.m_vScale.Set(1.0f);
     t.m_qRotation.SetIdentity();
 
-    bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
+    bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(fRadius, fRadius, 0));
     ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::White, t);
 
     RenderUnitHealthbar(pObject, fRadius);
@@ -261,7 +261,7 @@ void RtsGameState::RenderUnitSelection() const
         t.m_vScale.Set(1.0f);
         t.m_qRotation.SetIdentity();
 
-        bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
+        bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(fRadius, fRadius, 0));
         ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
 
         RenderUnitHealthbar(pObject, fRadius);
@@ -292,7 +292,7 @@ void RtsGameState::RenderUnitHealthbar(ezGameObject* pObject, float fSelectableR
     else if (percentage < 0.8f)
       c = ezColor::Yellow;
 
-    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
     ezDebugRenderer::DrawSolidBox(m_pMainWorld, bbox, c, ezTransform(pos));
   }
 }

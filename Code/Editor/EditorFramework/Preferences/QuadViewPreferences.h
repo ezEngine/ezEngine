@@ -5,9 +5,9 @@
 
 struct EZ_EDITORFRAMEWORK_DLL ezEngineViewPreferences
 {
-  ezVec3 m_vCamPos = ezVec3::ZeroVector();
-  ezVec3 m_vCamDir = ezVec3::UnitXAxis();
-  ezVec3 m_vCamUp = ezVec3::UnitZAxis();
+  ezVec3 m_vCamPos = ezVec3::MakeZero();
+  ezVec3 m_vCamDir = ezVec3::MakeAxisX();
+  ezVec3 m_vCamUp = ezVec3::MakeAxisZ();
   ezSceneViewPerspective::Enum m_PerspectiveMode = ezSceneViewPerspective::Perspective;
   ezViewRenderMode::Enum m_RenderMode = ezViewRenderMode::Default;
   float m_fFov = 70.0f;

@@ -132,7 +132,7 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
   // rotate the prefab randomly along its main axis (the X axis)
   ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromRadian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
 
-  vAlignDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+  vAlignDir.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
 
   trans.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vAlignDir);
   trans.m_qRotation = trans.m_qRotation * qRot;

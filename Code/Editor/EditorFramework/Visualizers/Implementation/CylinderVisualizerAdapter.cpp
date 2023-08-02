@@ -107,7 +107,7 @@ void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
   t.m_vScale = ezVec3(m_fRadius, m_fRadius, m_fHeight);
   t.m_vPosition = m_vPositionOffset;
 
-  ezVec3 vOffset = ezVec3::ZeroVector();
+  ezVec3 vOffset = ezVec3::MakeZero();
 
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
     vOffset.x -= t.m_vScale.x;

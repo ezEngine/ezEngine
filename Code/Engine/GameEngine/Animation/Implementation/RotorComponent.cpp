@@ -155,11 +155,11 @@ void ezRotorComponent::OnSimulationStarted()
   {
     if (m_AxisDeviation > ezAngle::MakeFromDegree(179))
     {
-      m_vRotationAxis = ezVec3::CreateRandomDirection(GetWorld()->GetRandomNumberGenerator());
+      m_vRotationAxis = ezVec3::MakeRandomDirection(GetWorld()->GetRandomNumberGenerator());
     }
     else
     {
-      m_vRotationAxis = ezVec3::CreateRandomDeviation(GetWorld()->GetRandomNumberGenerator(), m_AxisDeviation, m_vRotationAxis);
+      m_vRotationAxis = ezVec3::MakeRandomDeviation(GetWorld()->GetRandomNumberGenerator(), m_AxisDeviation, m_vRotationAxis);
 
       if (m_AxisDeviation.GetRadian() > 0 && GetWorld()->GetRandomNumberGenerator().Bool())
         m_vRotationAxis = -m_vRotationAxis;

@@ -246,7 +246,7 @@ ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
   else
   {
     ezBoundingBox box = ezBoundingBox::MakeInvalid();
-    box.ExpandToInclude(ezVec3::ZeroVector());
+    box.ExpandToInclude(ezVec3::MakeZero());
     box.ExpandToInclude(ezVec3(m_vSize.x, 0, -0.1f));
     box.ExpandToInclude(ezVec3(0, m_vSize.y, +0.1f));
     box.ExpandToInclude(ezVec3(m_vSize.x, m_vSize.y, 0));
@@ -569,8 +569,8 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
           {
             pVertexData[vidx].m_vPosition = pRenderData->m_Positions[vidx];
             pVertexData[vidx].m_vTexCoord = ezVec2(x * fDivU, y * fDivY);
-            pVertexData[vidx].EncodeNormal(ezVec3::UnitZAxis());
-            pVertexData[vidx].EncodeTangent(ezVec3::UnitXAxis(), 1.0f);
+            pVertexData[vidx].EncodeNormal(ezVec3::MakeAxisZ());
+            pVertexData[vidx].EncodeTangent(ezVec3::MakeAxisX(), 1.0f);
           }
         }
       }

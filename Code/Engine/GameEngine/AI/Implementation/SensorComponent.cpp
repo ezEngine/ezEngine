@@ -249,7 +249,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
 
 void ezSensorSphereComponent::DebugDrawSensorShape() const
 {
-  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), m_fRadius);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius);
   ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, GetOwner()->GetGlobalTransform());
 }
 
@@ -441,7 +441,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
     }
     else
     {
-      q = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitXAxis(), ezAngle::MakeFromDegree(90));
+      q = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisX(), ezAngle::MakeFromDegree(90));
       fX *= m_fFarDistance;
       fCircleRadius *= m_fFarDistance;
     }

@@ -128,20 +128,20 @@ void DebugRenderComponent::Update()
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Box))
   {
-    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(m_fSize));
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(m_fSize));
 
     ezDebugRenderer::DrawLineBox(GetWorld(), bbox, m_Color, ownerTransform);
   }
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Cross))
   {
-    ezDebugRenderer::DrawCross(GetWorld(), ezVec3::ZeroVector(), m_fSize, m_Color, ownerTransform);
+    ezDebugRenderer::DrawCross(GetWorld(), ezVec3::MakeZero(), m_fSize, m_Color, ownerTransform);
   }
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Sphere))
   {
     // BEGIN-DOCS-CODE-SNIPPET: debugrender-sphere
-    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), m_fSize);
+    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fSize);
     ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, ownerTransform);
     // END-DOCS-CODE-SNIPPET
   }

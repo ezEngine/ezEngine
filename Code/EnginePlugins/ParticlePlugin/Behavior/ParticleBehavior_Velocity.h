@@ -53,5 +53,5 @@ protected:
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamVelocity;
 
-  ezVec3 m_vLastWind = ezVec3::ZeroVector();
+  ezVec3 m_vLastWind = ezVec3::MakeZero();
 };

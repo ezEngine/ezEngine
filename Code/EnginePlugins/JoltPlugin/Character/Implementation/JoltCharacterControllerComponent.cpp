@@ -236,7 +236,7 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
 //     //   // ignore contacts that we are moving away from or parallel to
 //     //   if (contact.m_vContactNormal.Dot(vDirNormal) >= 0.0f)
 //     //   {
-//     //     rot.SetShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
+//     //     rot.SetShortestRotation(ezVec3::MakeAxisX(), contact.m_vContactNormal);
 //     //     ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::MakeZero(), ezColor::DimGrey, ezTransform(contact.m_vPosition, rot));
 //     //     continue;
 //     //   }
@@ -245,7 +245,7 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
 //     fMoveDistance = ezMath::Min((fMaxDistance /*+ 1.0f*/) * cont.m_fCastFraction, fMaxDistance) - fHypoth;
 //
 //     //  {
-//     //    rot.SetShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
+//     //    rot.SetShortestRotation(ezVec3::MakeAxisX(), contact.m_vContactNormal);
 //     //    ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::MakeZero(), ezColor::Black, ezTransform(contact.m_vPosition, rot));
 //     //  }
 //     //}
@@ -384,7 +384,7 @@ void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactP
 ezVec3 ezJoltCharacterControllerComponent::GetContactVelocityAndPushAway(const ContactPoint& contact, float fPushForce)
 {
   if (contact.m_BodyID.IsInvalid())
-    return ezVec3::ZeroVector();
+    return ezVec3::MakeZero();
 
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
   auto pJoltSystem = pModule->GetJoltSystem();
@@ -392,7 +392,7 @@ ezVec3 ezJoltCharacterControllerComponent::GetContactVelocityAndPushAway(const C
   JPH::BodyLockWrite bodyLock(pJoltSystem->GetBodyLockInterface(), contact.m_BodyID);
 
   if (!bodyLock.Succeeded())
-    return ezVec3::ZeroVector();
+    return ezVec3::MakeZero();
 
   const JPH::Vec3 vGroundPos = ezJoltConversionUtils::ToVec3(contact.m_vPosition);
 
@@ -404,7 +404,7 @@ ezVec3 ezJoltCharacterControllerComponent::GetContactVelocityAndPushAway(const C
     pJoltSystem->GetBodyInterfaceNoLock().ActivateBody(contact.m_BodyID);
   }
 
-  ezVec3 vGroundVelocity = ezVec3::ZeroVector();
+  ezVec3 vGroundVelocity = ezVec3::MakeZero();
 
   if (bodyLock.GetBody().IsKinematic())
   {
@@ -541,7 +541,7 @@ void ezJoltCharacterControllerComponent::VisualizeContact(const ContactPoint& co
 {
   ezTransform trans;
   trans.m_vPosition = contact.m_vPosition;
-  trans.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
+  trans.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), contact.m_vContactNormal);
   trans.m_vScale.Set(1.0f);
 
   ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.1f, ezColor::MakeZero(), color, trans);

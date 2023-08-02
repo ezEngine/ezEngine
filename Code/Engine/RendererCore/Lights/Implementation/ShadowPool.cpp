@@ -512,7 +512,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
       // stabilize
       ezMat4 worldToLightMatrix = pView->GetViewMatrix(ezCameraEye::Left);
-      ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::ZeroVector());
+      ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::MakeZero());
       float texelInWorld = (2.0f * radius) / s_uiShadowMapSize;
       offset.x -= ezMath::Floor(offset.x / texelInWorld) * texelInWorld;
       offset.y -= ezMath::Floor(offset.y / texelInWorld) * texelInWorld;

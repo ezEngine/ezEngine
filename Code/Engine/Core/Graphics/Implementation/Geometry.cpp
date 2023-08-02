@@ -65,7 +65,7 @@ void ezGeometry::Clear()
   m_Lines.Clear();
 }
 
-ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices /*= ezVec4U16::ZeroVector()*/, const ezColorLinearUB& boneWeights /*= ezColorLinearUB(255, 0, 0, 0)*/)
+ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices /*= ezVec4U16::MakeZero()*/, const ezColorLinearUB& boneWeights /*= ezColorLinearUB(255, 0, 0, 0)*/)
 {
   Vertex& v = m_Vertices.ExpandAndGetRef();
   v.m_vPosition = vPos;

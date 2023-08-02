@@ -126,13 +126,13 @@ void ezFollowPathComponent::Update(bool bForce)
   }
 
   ezVec3 vTarget = transformAhead.m_vPosition - transform.m_vPosition;
-  vTarget.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+  vTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
 
   ezVec3 vUp = transform.m_vUpDirection;
   ezVec3 vRight = vTarget.CrossRH(vUp);
-  vRight.NormalizeIfNotZero(ezVec3::UnitYAxis()).IgnoreResult();
+  vRight.NormalizeIfNotZero(ezVec3::MakeAxisY()).IgnoreResult();
   vUp = vRight.CrossRH(vTarget);
-  vUp.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
+  vUp.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
 
   {
     m_bLastStateValid = true;

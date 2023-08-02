@@ -233,8 +233,8 @@ public:
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void SetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& value);
   static void SetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& value);
-  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::ZeroVector());
-  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::ZeroVector());
+  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::MakeZero());
+  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& vFallback = ezVec3::MakeZero());
 
   static void PushMat3(duk_context* pDuk, const ezMat3& value);
   static void SetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& value);

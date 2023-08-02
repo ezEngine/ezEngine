@@ -204,7 +204,7 @@ void ezWindVolumeSphereComponent::SetRadius(float fVal)
 
 void ezWindVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), m_fRadius), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), ezWindVolumeComponent::SpatialDataCategory);
 }
 
 //////////////////////////////////////////////////////////////////////////

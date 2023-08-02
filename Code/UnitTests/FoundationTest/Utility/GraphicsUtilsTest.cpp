@@ -296,16 +296,16 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       ezVec4 worldSpacePoint = mProj.GetInverse() * clipSpacePoint;
       worldSpacePoint /= worldSpacePoint.w;
 
-      EZ_TEST_FLOAT(horz.GetDistanceTo(ezVec3::ZeroVector()), 0.0f, 0.01f);
-      EZ_TEST_FLOAT(vert.GetDistanceTo(ezVec3::ZeroVector()), 0.0f, 0.01f);
+      EZ_TEST_FLOAT(horz.GetDistanceTo(ezVec3::MakeZero()), 0.0f, 0.01f);
+      EZ_TEST_FLOAT(vert.GetDistanceTo(ezVec3::MakeZero()), 0.0f, 0.01f);
 
       if (i == 0)
       {
-        EZ_TEST_FLOAT(forw.GetDistanceTo(ezVec3::ZeroVector()), -nearPlane, 0.01f);
+        EZ_TEST_FLOAT(forw.GetDistanceTo(ezVec3::MakeZero()), -nearPlane, 0.01f);
       }
       else if (i == 10)
       {
-        EZ_TEST_FLOAT(forw.GetDistanceTo(ezVec3::ZeroVector()), -farPlane, 0.01f);
+        EZ_TEST_FLOAT(forw.GetDistanceTo(ezVec3::MakeZero()), -farPlane, 0.01f);
       }
 
       EZ_TEST_FLOAT(horz.GetDistanceTo(worldSpacePoint.GetAsVec3()), 0.0f, 0.02f);

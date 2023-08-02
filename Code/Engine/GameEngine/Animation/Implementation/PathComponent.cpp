@@ -539,8 +539,8 @@ static void ComputeCpDirs(const ezDynamicArray<ezPathComponent::ControlPoint>& p
 
     ezVec3 dirP = (posPrev - cpC.m_vPosition);
     ezVec3 dirN = (posNext - cpC.m_vPosition);
-    dirP.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
-    dirN.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+    dirP.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
+    dirN.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
     ezVec3 dirAvg = dirP - dirN;
     dirAvg.NormalizeIfNotZero(cs.m_vForwardDir).IgnoreResult();

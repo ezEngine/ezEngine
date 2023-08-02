@@ -91,7 +91,7 @@ public:
     bool m_bAllowJump = true;
     bool m_bAllowCrouch = true;
     bool m_bApplyGroundVelocity = true;
-    ezVec3 m_vVelocity = ezVec3::ZeroVector();
+    ezVec3 m_vVelocity = ezVec3::MakeZero();
     float m_fPushDownForce = 0;
     ezHashedString m_sGroundInteraction;
     float m_fGroundInteractionDistanceThreshold = 1.0f;
@@ -147,7 +147,7 @@ protected:
   float m_fHeadTargetHeight = 0.0f;
   ezGameObjectHandle m_hHeadObject;
 
-  ezVec3 m_vAbsoluteRootMotion = ezVec3::ZeroVector();
+  ezVec3 m_vAbsoluteRootMotion = ezVec3::MakeZero();
 
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   ezUInt32 m_uiJoltBodyID = ezInvalidIndex;

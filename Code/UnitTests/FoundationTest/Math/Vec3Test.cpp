@@ -37,7 +37,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     ezVec3T vCopy(vInit4F);
     EZ_TEST_BOOL(vCopy.x == 1.0f && vCopy.y == 2.0f && vCopy.z == 3.0f);
 
-    ezVec3T vZero = ezVec3T::ZeroVector();
+    ezVec3T vZero = ezVec3T::MakeZero();
     EZ_TEST_BOOL(vZero.x == 0.0f && vZero.y == 0.0f && vZero.z == 0.0f);
   }
 
@@ -83,7 +83,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     {
       ezVec3T vSetLength = vOp1.GetNormalized() * ezMath::DefaultEpsilon<ezMathTestType>();
       EZ_TEST_BOOL(vSetLength.SetLength(4.0f, ezMath::LargeEpsilon<ezMathTestType>()) == EZ_FAILURE);
-      EZ_TEST_BOOL(vSetLength == ezVec3T::ZeroVector());
+      EZ_TEST_BOOL(vSetLength == ezVec3T::MakeZero());
       vSetLength = vOp1.GetNormalized() * (ezMathTestType)0.001;
       EZ_TEST_BOOL(vSetLength.SetLength(4.0f, (ezMathTestType)ezMath::DefaultEpsilon<ezMathTestType>()) == EZ_SUCCESS);
       EZ_TEST_FLOAT(vSetLength.GetLength(), 4.0f, ezMath::SmallEpsilon<ezMathTestType>());
@@ -132,7 +132,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero")
     {
-      EZ_TEST_BOOL(ezVec3T::ZeroVector().IsZero());
+      EZ_TEST_BOOL(ezVec3T::MakeZero().IsZero());
       for (int i = 0; i < 3; ++i)
       {
         EZ_TEST_BOOL(!compArray[i].IsZero());
@@ -141,7 +141,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero(float)")
     {
-      EZ_TEST_BOOL(ezVec3T::ZeroVector().IsZero(0.0f));
+      EZ_TEST_BOOL(ezVec3T::MakeZero().IsZero(0.0f));
       for (int i = 0; i < 3; ++i)
       {
         EZ_TEST_BOOL(!compArray[i].IsZero(0.0f));
@@ -231,7 +231,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     vMulFloat *= 2.0f;
     EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3T(-8.0f, 0.4f, -14.0f), ezMath::SmallEpsilon<ezMathTestType>()));
     vMulFloat *= 0.0f;
-    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3T::MakeZero(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator/= (float)
     ezVec3T vDivFloat = vOp1;
@@ -251,13 +251,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_BOOL(
       vMulFloatVec3.IsEqual(ezVec3T((ezMathTestType)-8.0, (ezMathTestType)0.4, (ezMathTestType)-14.0), ezMath::SmallEpsilon<ezMathTestType>()));
     vMulFloatVec3 = ((ezMathTestType)0 * vOp1);
-    EZ_TEST_BOOL(vMulFloatVec3.IsEqual(ezVec3T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vMulFloatVec3.IsEqual(ezVec3T::MakeZero(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator* (ezVec3T, float)
     ezVec3T vMulVec3Float = (vOp1 * (ezMathTestType)2);
     EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3T(-8.0f, 0.4f, -14.0f), ezMath::SmallEpsilon<ezMathTestType>()));
     vMulVec3Float = (vOp1 * (ezMathTestType)0);
-    EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3T::MakeZero(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator/ (ezVec3T, float)
     ezVec3T vDivVec3Float = (vOp1 / (ezMathTestType)2);
@@ -404,7 +404,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_VEC3(v2, ezVec3T(1, -1, 0), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CreateRandomPointInSphere")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomPointInSphere")
   {
     ezVec3T v;
 
@@ -417,7 +417,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     const ezUInt32 uiNumSamples = 100'000;
     for (ezUInt32 i = 0; i < uiNumSamples; ++i)
     {
-      v = ezVec3T::CreateRandomPointInSphere(rng);
+      v = ezVec3T::MakeRandomPointInSphere(rng);
 
       EZ_TEST_BOOL(v.GetLength() <= 1.0f + ezMath::SmallEpsilon<float>());
       EZ_TEST_BOOL(!v.IsZero());
@@ -432,7 +432,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_BOOL(avg.IsZero(0.1f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CreateRandomDirection")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDirection")
   {
     ezVec3T v;
 
@@ -445,7 +445,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     const ezUInt32 uiNumSamples = 100'000;
     for (ezUInt32 i = 0; i < uiNumSamples; ++i)
     {
-      v = ezVec3T::CreateRandomDirection(rng);
+      v = ezVec3T::MakeRandomDirection(rng);
 
       EZ_TEST_BOOL(v.IsNormalized());
 
@@ -459,7 +459,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_BOOL(avg.IsZero(0.1f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CreateRandomDeviationX")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviationX")
   {
     ezVec3T v;
     ezVec3T avg;
@@ -474,7 +474,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     for (ezUInt32 i = 0; i < uiNumSamples; ++i)
     {
-      v = ezVec3T::CreateRandomDeviationX(rng, dev);
+      v = ezVec3T::MakeRandomDeviationX(rng, dev);
 
       EZ_TEST_BOOL(v.IsNormalized());
 
@@ -488,7 +488,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_BOOL(avg.IsEqual(vAxis, 0.1f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CreateRandomDeviationY")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviationY")
   {
     ezVec3T v;
     ezVec3T avg;
@@ -503,7 +503,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     for (ezUInt32 i = 0; i < uiNumSamples; ++i)
     {
-      v = ezVec3T::CreateRandomDeviationY(rng, dev);
+      v = ezVec3T::MakeRandomDeviationY(rng, dev);
 
       EZ_TEST_BOOL(v.IsNormalized());
 
@@ -517,7 +517,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_BOOL(avg.IsEqual(vAxis, 0.1f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CreateRandomDeviationZ")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviationZ")
   {
     ezVec3T v;
     ezVec3T avg;
@@ -532,7 +532,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     for (ezUInt32 i = 0; i < uiNumSamples; ++i)
     {
-      v = ezVec3T::CreateRandomDeviationZ(rng, dev);
+      v = ezVec3T::MakeRandomDeviationZ(rng, dev);
 
       EZ_TEST_BOOL(v.IsNormalized());
 
@@ -546,7 +546,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_BOOL(avg.IsEqual(vAxis, 0.1f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CreateRandomDeviation")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviation")
   {
     ezVec3T v;
 
@@ -559,9 +559,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     for (ezUInt32 i = 0; i < uiNumSamples; ++i)
     {
-      vAxis = ezVec3T::CreateRandomDirection(rng);
+      vAxis = ezVec3T::MakeRandomDirection(rng);
 
-      v = ezVec3T::CreateRandomDeviation(rng, dev, vAxis);
+      v = ezVec3T::MakeRandomDeviation(rng, dev, vAxis);
 
       EZ_TEST_BOOL(v.IsNormalized());
 

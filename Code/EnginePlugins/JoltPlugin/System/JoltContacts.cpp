@@ -523,7 +523,7 @@ void ezJoltContactEvents::OnContact_RollReaction(const JPH::Body& body0, const J
 
 void ezJoltContactEvents::OnContact_SlideReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0)
 {
-  ezVec3 vVelocity[2] = {ezVec3::ZeroVector(), ezVec3::ZeroVector()};
+  ezVec3 vVelocity[2] = {ezVec3::MakeZero(), ezVec3::MakeZero()};
 
   {
     vVelocity[0] = ezJoltConversionUtils::ToVec3(body0.GetLinearVelocity());
@@ -546,7 +546,7 @@ void ezJoltContactEvents::OnContact_SlideReaction(const JPH::Body& body0, const 
     const ezVec3 vRelativeVelocityDir = vRelativeVelocity.GetNormalized();
 
     ezVec3 vAvgNormal = vAvgNormal0;
-    vAvgNormal.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
+    vAvgNormal.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
 
     // an object is only 'sliding' if it moves at roughly 90 degree along another object
     constexpr float slideAngle = 0.17f; // ezMath ::Cos(ezAngle::MakeFromDegree(80));

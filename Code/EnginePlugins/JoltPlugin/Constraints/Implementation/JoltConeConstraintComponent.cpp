@@ -55,8 +55,8 @@ void ezJoltConeConstraintComponent::CreateContstraintType(JPH::Body* pBody0, JPH
   opt.mPoint1 = inv1 * ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_vPosition);
   opt.mPoint2 = inv2 * ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_vPosition);
   opt.mHalfConeAngle = m_ConeAngle.GetRadian() * 0.5f;
-  opt.mTwistAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3::UnitXAxis()));
-  opt.mTwistAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3::UnitXAxis()));
+  opt.mTwistAxis1 = inv1.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameA.m_qRotation * ezVec3::MakeAxisX()));
+  opt.mTwistAxis2 = inv2.Multiply3x3(ezJoltConversionUtils::ToVec3(m_LocalFrameB.m_qRotation * ezVec3::MakeAxisX()));
 
   m_pConstraint = opt.Create(*pBody0, *pBody1);
 }

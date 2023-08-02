@@ -73,9 +73,9 @@ void ezCameraShakeComponent::GenerateKeyframe()
     m_Rotation.NormalizeRange();
 
     ezQuat qRot;
-    qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitXAxis(), m_Rotation);
+    qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisX(), m_Rotation);
 
-    const ezVec3 tiltAxis = qRot * ezVec3::UnitZAxis();
+    const ezVec3 tiltAxis = qRot * ezVec3::MakeAxisZ();
 
     m_qNextTarget = ezQuat::MakeFromAxisAndAngle(tiltAxis, deviation);
   }

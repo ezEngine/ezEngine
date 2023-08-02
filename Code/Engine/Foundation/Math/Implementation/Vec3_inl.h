@@ -59,7 +59,7 @@ EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetLength() const
 template <typename Type>
 ezResult ezVec3Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
 {
-  if (NormalizeIfNotZero(ezVec3Template<Type>::ZeroVector(), fEpsilon) == EZ_FAILURE)
+  if (NormalizeIfNotZero(ezVec3Template<Type>::MakeZero(), fEpsilon) == EZ_FAILURE)
     return EZ_FAILURE;
 
   *this *= fNewLength;

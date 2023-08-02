@@ -366,7 +366,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 // static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
 {
-  return ezVec4I32::ZeroVector();
+  return ezVec4I32::MakeZero();
 }
 
 // static

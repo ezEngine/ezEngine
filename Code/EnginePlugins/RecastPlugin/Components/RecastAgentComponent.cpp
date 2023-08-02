@@ -448,7 +448,7 @@ void ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
 
   ezVec3 vDirection = m_vNextSteps[m_iFirstNextStep] - vCurPos;
   vDirection.z = 0;
-  vDirection.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+  vDirection.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
   m_vCurrentSteeringDirection = vDirection;
 }

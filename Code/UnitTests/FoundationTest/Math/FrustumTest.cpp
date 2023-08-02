@@ -238,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
 
     ezFrustum frustum[2];
     frustum[0] = ezFrustum::MakeFromMVP(mProj, ezClipSpaceDepthRange::MinusOneToOne, ezHandedness::RightHanded);
-    frustum[1] = ezFrustum::MakeFromFOV(ezVec3::ZeroVector(), ezVec3(0, 0, -1), ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 10.0f);
+    frustum[1] = ezFrustum::MakeFromFOV(ezVec3::MakeZero(), ezVec3(0, 0, -1), ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 10.0f);
 
     for (int f = 0; f < 2; ++f)
     {

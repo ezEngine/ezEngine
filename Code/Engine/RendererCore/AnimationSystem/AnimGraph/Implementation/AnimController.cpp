@@ -44,7 +44,7 @@ void ezAnimController::Update(ezTime diff, ezGameObject* pTarget)
 
   m_CurrentLocalTransformOutputs.Clear();
 
-  m_vRootMotion = ezVec3::ZeroVector();
+  m_vRootMotion = ezVec3::MakeZero();
   m_RootRotationX = {};
   m_RootRotationY = {};
   m_RootRotationZ = {};
@@ -265,7 +265,7 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
 
   // model space to output
   {
-    ezVec3 rootMotion = ezVec3::ZeroVector();
+    ezVec3 rootMotion = ezVec3::MakeZero();
     ezAngle rootRotationX;
     ezAngle rootRotationY;
     ezAngle rootRotationZ;

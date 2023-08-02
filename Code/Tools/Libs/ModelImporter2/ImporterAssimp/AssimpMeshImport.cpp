@@ -223,7 +223,7 @@ namespace ezModelImporter2
       if (streams.uiNormals != ezInvalidIndex && pMesh->HasNormals())
       {
         ezVec3 normal = normalsTransform * ConvertAssimpType(pMesh->mNormals[vertIdx]);
-        normal.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+        normal.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
         ezMeshBufferUtils::EncodeNormal(normal, ref_mb.GetVertexData(streams.uiNormals, finalVertIdx), meshNormalsPrecision).IgnoreResult();
       }
@@ -260,9 +260,9 @@ namespace ezModelImporter2
         ezVec3 tangent = normalsTransform * ConvertAssimpType(pMesh->mTangents[vertIdx]);
         ezVec3 bitangent = normalsTransform * ConvertAssimpType(pMesh->mBitangents[vertIdx]);
 
-        normal.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
-        tangent.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
-        bitangent.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+        normal.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
+        tangent.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
+        bitangent.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
         const float fBitangentSign = ezMath::Abs(tangent.CrossRH(bitangent).Dot(normal));
 

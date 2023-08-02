@@ -38,7 +38,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     EZ_TEST_VEC2(v, ezVec2T(3, 3), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroVector")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeZero")
   {
     EZ_TEST_VEC2(ezVec2T::MakeZero(), ezVec2T(0, 0), 0);
   }

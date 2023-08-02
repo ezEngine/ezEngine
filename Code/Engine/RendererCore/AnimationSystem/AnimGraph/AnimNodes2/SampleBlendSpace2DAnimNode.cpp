@@ -304,7 +304,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
   ezHybridArray<ezAnimPoseGeneratorCommandSampleTrack*, 8> pSampleTrack;
   pSampleTrack.SetCountUninitialized(clips.GetCount());
 
-  ezVec3 vRootMotion = ezVec3::ZeroVector();
+  ezVec3 vRootMotion = ezVec3::MakeZero();
   ezUInt32 uiNumAvgClips = 0;
 
   for (ezUInt32 i = 0; i < clips.GetCount(); ++i)

@@ -94,7 +94,7 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
 
       ezGeometry geom;
       ezGeometry::GeoOptions opt;
-      opt.m_Transform = ezMat4(mTransformation, ezVec3::ZeroVector());
+      opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
 
       if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::Cylinder)
       {

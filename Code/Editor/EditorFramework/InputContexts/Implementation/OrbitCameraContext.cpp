@@ -6,7 +6,7 @@
 
 ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_Volume = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());
+  m_Volume = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3::MakeZero());
   m_pCamera = nullptr;
 
   m_LastUpdate = ezTime::Now();
@@ -33,7 +33,7 @@ void ezOrbitCameraContext::SetDefaultCameraRelative(const ezVec3& vDirection, fl
   m_bFixedDefaultCamera = false;
 
   m_vDefaultCamera = vDirection;
-  m_vDefaultCamera.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+  m_vDefaultCamera.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
   m_vDefaultCamera *= ezMath::Max(0.01f, fDistanceScale);
 }
 

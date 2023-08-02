@@ -767,8 +767,8 @@ void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstan
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetLinearVelocity();
-  const auto fwd = GetOwner()->GetGlobalRotation() * ezVec3::UnitXAxis();
-  const auto up = GetOwner()->GetGlobalRotation() * ezVec3::UnitZAxis();
+  const auto fwd = GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisX();
+  const auto up = GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisZ();
 
   FMOD_3D_ATTRIBUTES attr;
   attr.position.x = pos.x;

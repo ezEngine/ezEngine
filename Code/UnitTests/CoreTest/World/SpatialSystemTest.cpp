@@ -30,7 +30,7 @@ namespace
       float y = (float)rng.DoubleMinMax(1.0, 100.0);
       float z = (float)rng.DoubleMinMax(1.0, 100.0);
 
-      ezBoundingBox bounds = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
+      ezBoundingBox bounds = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(x, y, z));
 
       ezSpatialData::Category category = m_SpecialCategory;
       if (category == ezInvalidSpatialDataCategory)
@@ -218,7 +218,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
-    ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+    ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
     ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(80.0f), 1.0f, 1.0f, 10000.0f);
 
     ezFrustum testFrustum = ezFrustum::MakeFromMVP(projection * lookAt);

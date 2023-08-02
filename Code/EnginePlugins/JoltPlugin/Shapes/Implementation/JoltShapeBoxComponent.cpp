@@ -64,7 +64,7 @@ void ezJoltShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) con
 
 void ezJoltShapeBoxComponent::SetHalfExtents(const ezVec3& value)
 {
-  m_vHalfExtents = value.CompMax(ezVec3::ZeroVector());
+  m_vHalfExtents = value.CompMax(ezVec3::MakeZero());
 
   if (IsActiveAndInitialized())
   {

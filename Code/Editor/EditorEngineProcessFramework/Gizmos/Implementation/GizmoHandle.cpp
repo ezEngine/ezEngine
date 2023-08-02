@@ -458,7 +458,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferFromFile(const char* szFile)
   ezGeometry geom;
   for (ezUInt32 v = 0; v < obj.m_Positions.GetCount(); ++v)
   {
-    geom.AddVertex(obj.m_Positions[v], ezVec3::ZeroVector(), ezVec2::MakeZero(), ezColor::White);
+    geom.AddVertex(obj.m_Positions[v], ezVec3::MakeZero(), ezVec2::MakeZero(), ezColor::White);
   }
 
   ezStaticArray<ezUInt32, 3> triangle;

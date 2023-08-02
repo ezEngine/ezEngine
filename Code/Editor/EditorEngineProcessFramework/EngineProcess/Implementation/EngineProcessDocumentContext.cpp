@@ -87,7 +87,7 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
   }
 
   if (!bounds.IsValid())
-    bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::ZeroVector(), ezVec3(1, 1, 1), 2);
+    bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), ezVec3(1, 1, 1), 2);
 
   return bounds;
 }

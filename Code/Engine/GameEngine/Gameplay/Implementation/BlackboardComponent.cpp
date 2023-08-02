@@ -375,7 +375,7 @@ void ezBlackboardComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) con
 {
   if (GetShowDebugInfo())
   {
-    msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), 2.0f), ezDefaultSpatialDataCategories::RenderDynamic);
+    msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 2.0f), ezDefaultSpatialDataCategories::RenderDynamic);
   }
 }
 

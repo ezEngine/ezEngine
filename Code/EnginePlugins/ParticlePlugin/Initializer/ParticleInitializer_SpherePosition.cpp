@@ -167,7 +167,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezVec3 pos = ezVec3::CreateRandomPointInSphere(rng) * m_fRadius;
+    ezVec3 pos = ezVec3::MakeRandomPointInSphere(rng) * m_fRadius;
     ezVec3 normalPos = pos;
 
     if (m_bSpawnOnSurface || m_bSetVelocity)

@@ -487,7 +487,7 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
   for (ezUInt32 i = 0; i < newNormals.GetCount(); ++i)
   {
     // normalize the new normal
-    if (newNormals[i].NormalizeIfNotZero(ezVec3::UnitXAxis()).Failed())
+    if (newNormals[i].NormalizeIfNotZero(ezVec3::MakeAxisX()).Failed())
       res = EZ_FAILURE;
 
     // then encode it in the target format precision and write it back to the buffer

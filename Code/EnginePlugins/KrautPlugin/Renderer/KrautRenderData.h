@@ -22,6 +22,6 @@ public:
   ezUInt8 m_uiSubMeshIndex = 0;
   ezUInt8 m_uiThisLodIndex = 0;
   bool m_bCastShadows = false;
-  ezVec3 m_vWindTrunk = ezVec3::ZeroVector();
-  ezVec3 m_vWindBranches = ezVec3::ZeroVector();
+  ezVec3 m_vWindTrunk = ezVec3::MakeZero();
+  ezVec3 m_vWindBranches = ezVec3::MakeZero();
 };

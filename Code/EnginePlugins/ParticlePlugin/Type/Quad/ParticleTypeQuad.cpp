@@ -483,7 +483,7 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
       {
         const ezUInt64 uiElementIdx = uiStartIndex + i;
 
-        pAxis[uiElementIdx] = ezVec3::CreateRandomDirection(rng);
+        pAxis[uiElementIdx] = ezVec3::MakeRandomDirection(rng);
       }
     }
     else if (m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir || m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
@@ -512,7 +512,7 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
         for (ezUInt32 i = 0; i < uiNumElements; ++i)
         {
           const ezUInt64 uiElementIdx = uiStartIndex + i;
-          const ezVec3 vRandomX = ezVec3::CreateRandomDeviationX(rng, m_MaxDeviation);
+          const ezVec3 vRandomX = ezVec3::MakeRandomDeviationX(rng, m_MaxDeviation);
 
           pAxis[uiElementIdx] = qRotToDir * vRandomX;
         }

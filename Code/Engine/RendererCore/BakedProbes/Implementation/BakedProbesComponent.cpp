@@ -325,7 +325,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
   if (m_bUseTestPosition)
   {
     ezBakedProbesWorldModule::ProbeIndexData indexData;
-    if (pModule->GetProbeIndexData(m_vTestPosition, ezVec3::UnitZAxis(), indexData).Failed())
+    if (pModule->GetProbeIndexData(m_vTestPosition, ezVec3::MakeAxisZ(), indexData).Failed())
       return;
 
     if (true)

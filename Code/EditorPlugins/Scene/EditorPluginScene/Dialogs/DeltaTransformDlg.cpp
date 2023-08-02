@@ -361,7 +361,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
         if (s_fNaturalDeviationZ > 0.0f)
         {
-          const ezVec3 vDeviationAxis = ezVec3::CreateRandomDeviationZ(rng, ezAngle::MakeFromDegree(s_fNaturalDeviationZ));
+          const ezVec3 vDeviationAxis = ezVec3::MakeRandomDeviationZ(rng, ezAngle::MakeFromDegree(s_fNaturalDeviationZ));
           qDeviation = ezQuat::MakeShortestRotation(ezVec3(0, 0, 1), vDeviationAxis);
         }
 

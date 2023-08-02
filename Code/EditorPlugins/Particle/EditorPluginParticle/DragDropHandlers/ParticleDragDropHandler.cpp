@@ -23,7 +23,7 @@ void ezParticleComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo
   {
     CreateDropObject(pInfo->m_vDropPosition, "ezParticleComponent", "Effect", GetAssetGuidString(pInfo), ezUuid(), -1);
 
-    m_vAlignAxisWithNormal = ezVec3::UnitZAxis();
+    m_vAlignAxisWithNormal = ezVec3::MakeAxisZ();
   }
   else
     CreateDropObject(pInfo->m_vDropPosition, "ezParticleComponent", "Effect", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);

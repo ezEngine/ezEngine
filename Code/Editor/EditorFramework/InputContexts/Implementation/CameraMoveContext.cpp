@@ -162,7 +162,7 @@ void ezCameraMoveContext::UpdateContext()
     {
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+      vDir.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
       m_pCamera->MoveGlobally(vDir.x * fSpeedFactor, vDir.y * fSpeedFactor, vDir.z * fSpeedFactor);
     }
     else
@@ -177,7 +177,7 @@ void ezCameraMoveContext::UpdateContext()
     {
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+      vDir.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
       m_pCamera->MoveGlobally(vDir.x * -fSpeedFactor, vDir.y * -fSpeedFactor, vDir.z * -fSpeedFactor);
     }
     else
@@ -660,7 +660,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
       ezVec3 vDir = m_pCamera->GetCenterDirForwards();
       vDir.z = 0.0f;
-      vDir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+      vDir.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
       m_vOrbitPoint += vDir * fMoveForward;
       m_pCamera->MoveGlobally(vDir.x * fMoveForward, vDir.y * fMoveForward, vDir.z * fMoveForward);

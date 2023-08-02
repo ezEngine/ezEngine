@@ -57,7 +57,7 @@ ezResult ezRootRotationAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezRootRotationAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  ezVec3 vRootMotion = ezVec3::ZeroVector();
+  ezVec3 vRootMotion = ezVec3::MakeZero();
   ezAngle rootRotationX;
   ezAngle rootRotationY;
   ezAngle rootRotationZ;

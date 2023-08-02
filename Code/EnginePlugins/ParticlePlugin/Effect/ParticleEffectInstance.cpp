@@ -529,7 +529,7 @@ void ezParticleEffectInstance::UpdateWindSamples()
   if (m_vSampleWindLocations[uiDataIdx].IsEmpty())
     return;
 
-  m_vSampleWindResults[uiDataIdx].SetCount(m_vSampleWindLocations[uiDataIdx].GetCount(), ezVec3::ZeroVector());
+  m_vSampleWindResults[uiDataIdx].SetCount(m_vSampleWindLocations[uiDataIdx].GetCount(), ezVec3::MakeZero());
 
   if (auto pWind = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>())
   {
@@ -594,7 +594,7 @@ ezVec3 ezParticleEffectInstance::GetWindSampleResult(ezInt32 iIdx) const
     return m_vSampleWindResults[uiDataIdx][iIdx];
   }
 
-  return ezVec3::ZeroVector();
+  return ezVec3::MakeZero();
 }
 
 void ezParticleEffectInstance::PassTransformToSystems()
@@ -639,7 +639,7 @@ void ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& ref_volume
 {
   if (!m_BoundingVolume.IsValid())
   {
-    ref_volume = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), 0.25f);
+    ref_volume = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.25f);
     return;
   }
 

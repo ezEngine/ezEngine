@@ -187,7 +187,7 @@ bool ezSpawnComponent::CanTriggerManualSpawn() const
   return tNow - m_LastManualSpawn >= m_MinDelay;
 }
 
-bool ezSpawnComponent::TriggerManualSpawn(bool bIgnoreSpawnDelay /*= false*/, const ezVec3& vLocalOffset /*= ezVec3::ZeroVector()*/)
+bool ezSpawnComponent::TriggerManualSpawn(bool bIgnoreSpawnDelay /*= false*/, const ezVec3& vLocalOffset /*= ezVec3::MakeZero()*/)
 {
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
@@ -259,7 +259,7 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
 
-    SpawnOnce(ezVec3::ZeroVector());
+    SpawnOnce(ezVec3::MakeZero());
 
     // do it all again
     if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnContinuously))

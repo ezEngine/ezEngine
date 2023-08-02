@@ -244,8 +244,8 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   struct Bone
   {
-    ezVec3 pos = ezVec3::ZeroVector();
-    ezVec3 dir = ezVec3::ZeroVector();
+    ezVec3 pos = ezVec3::MakeZero();
+    ezVec3 dir = ezVec3::MakeZero();
     float distToParent = 0.0f;
     float minDistToChild = 10.0f;
     bool highlight = false;
@@ -271,11 +271,11 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
     bone.pos = v1;
     bone.distToParent = dirToBone.GetLength();
     bone.dir = *msg.m_pRootTransform * msg.m_ModelTransforms[iCurrentBone].TransformDirection(vBoneDir);
-    bone.dir.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+    bone.dir.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
     auto& pb = bones[iParentBone];
 
-    if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
+    if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::MakeZero()).Succeeded())
     {
       if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::MakeFromDegree(45))
       {
@@ -435,7 +435,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
     {
       auto& shape = m_SpheresShapes.ExpandAndGetRef();
       shape.m_Transform = st;
-      shape.m_Shape = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), geo.m_Transform.m_vScale.z);
+      shape.m_Shape = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), geo.m_Transform.m_vScale.z);
       shape.m_Color = hlS;
     }
 
@@ -452,7 +452,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
       st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
       shape.m_Transform = st;
-      shape.m_Shape = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ext);
+      shape.m_Shape = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ext);
       shape.m_Color = hlS;
     }
 

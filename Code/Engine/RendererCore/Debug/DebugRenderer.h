@@ -169,10 +169,10 @@ public:
   /// The rotation goes around the given \a rotationAxis.
   /// An angle of zero is pointing into forwardAxis direction.
   /// Both angles may be negative.
-  static void DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::UnitXAxis(), ezVec3 vRotationAxis = ezVec3::UnitZAxis());
+  static void DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::MakeAxisX(), ezVec3 vRotationAxis = ezVec3::MakeAxisZ());
 
   /// \brief Renders a cone with the tip at the center position, opening up with the given angle.
-  static void DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::UnitXAxis());
+  static void DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());
 
   /// \brief Renders a bent cone with the tip at the center position, pointing into the +X direction opening up with halfAngle1 and halfAngle2 along the Y and Z axis.
   ///

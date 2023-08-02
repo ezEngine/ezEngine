@@ -98,7 +98,7 @@ private:
 
 struct ezProcGenBoxExtents
 {
-  ezVec3 m_vOffset = ezVec3::ZeroVector();
+  ezVec3 m_vOffset = ezVec3::MakeZero();
   ezQuat m_Rotation = ezQuat::MakeIdentity();
   ezVec3 m_vExtents = ezVec3(10);
 

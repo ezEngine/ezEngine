@@ -58,10 +58,10 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
   ezGeometry geom;
-  //const ezMat4 mTrans(mTransformation, ezVec3::ZeroVector());
+  //const ezMat4 mTrans(mTransformation, ezVec3::MakeZero());
 
   ezGeometry::GeoOptions opt;
-  opt.m_Transform = ezMat4(mTransformation, ezVec3::ZeroVector());
+  opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
 
   auto detail1 = pProp->m_uiDetail;
   auto detail2 = pProp->m_uiDetail2;
