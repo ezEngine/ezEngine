@@ -83,8 +83,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       EZ_TEST_FLOAT(sat, hsv[i].y, 0.1f);
       EZ_TEST_FLOAT(val, hsv[i].z, 0.1f);
 
-      ezColor fromHSV;
-      fromHSV.SetHSV(hsv[i].x, hsv[i].y, hsv[i].z);
+      ezColor fromHSV = ezColor::MakeHSV(hsv[i].x, hsv[i].y, hsv[i].z);
       EZ_TEST_FLOAT(fromHSV.r, color.r, 0.01f);
       EZ_TEST_FLOAT(fromHSV.g, color.g, 0.01f);
       EZ_TEST_FLOAT(fromHSV.b, color.b, 0.01f);

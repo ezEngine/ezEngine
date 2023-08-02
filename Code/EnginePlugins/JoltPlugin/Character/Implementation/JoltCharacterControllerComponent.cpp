@@ -237,7 +237,7 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
 //     //   if (contact.m_vContactNormal.Dot(vDirNormal) >= 0.0f)
 //     //   {
 //     //     rot.SetShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
-//     //     ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::ZeroColor(), ezColor::DimGrey, ezTransform(contact.m_vPosition, rot));
+//     //     ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::MakeZero(), ezColor::DimGrey, ezTransform(contact.m_vPosition, rot));
 //     //     continue;
 //     //   }
 //
@@ -246,7 +246,7 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
 //
 //     //  {
 //     //    rot.SetShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
-//     //    ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::ZeroColor(), ezColor::Black, ezTransform(contact.m_vPosition, rot));
+//     //    ezDebugRenderer::DrawCylinder(GetWorld(), 0.0f, 0.05f, 0.1f, ezColor::MakeZero(), ezColor::Black, ezTransform(contact.m_vPosition, rot));
 //     //  }
 //     //}
 //   }
@@ -544,7 +544,7 @@ void ezJoltCharacterControllerComponent::VisualizeContact(const ContactPoint& co
   trans.m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
   trans.m_vScale.Set(1.0f);
 
-  ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.1f, ezColor::ZeroColor(), color, trans);
+  ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.1f, ezColor::MakeZero(), color, trans);
 }
 
 void ezJoltCharacterControllerComponent::VisualizeContacts(const ezDynamicArray<ContactPoint>& contacts, const ezColor& color) const

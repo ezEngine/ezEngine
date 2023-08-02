@@ -423,7 +423,7 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
       ezQuat rot;
       rot.SetShortestRotation(ezVec3::UnitXAxis(), gnom);
 
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::ZeroColor(), ezColor::Aquamarine, ezTransform(gpos, rot));
+      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), ezColor::Aquamarine, ezTransform(gpos, rot));
     }
   }
 
@@ -489,7 +489,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
     if (m_DebugFlags.IsAnySet(ezJoltCharacterDebugFlags::VisFootCheck))
     {
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::ZeroColor(), color, ezTransform(gpos, rot));
+      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), color, ezTransform(gpos, rot));
     }
   }
 

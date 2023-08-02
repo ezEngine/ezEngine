@@ -47,7 +47,10 @@ inline void ezColor::SetRGBA(float fLinearRed, float fLinearGreen, float fLinear
 
 inline void ezColor::SetZero()
 {
-  *this = ZeroColor();
+  r = 0.0f;
+  g = 0.0f;
+  b = 0.0f;
+  a = 0.0f;
 }
 
 // http://en.wikipedia.org/wiki/Luminance_%28relative%29

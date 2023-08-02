@@ -241,7 +241,7 @@ void PlacementTask::ExecuteVM()
     ezSimdVec4f scale = ezSimdVec4f(ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));
     placementTransform.m_Transform.m_Scale = ezSimdVec4f::Lerp(vMinScale, vMaxScale, scale);
 
-    placementTransform.m_ObjectColor = ezColor::ZeroColor();
+    placementTransform.m_ObjectColor = ezColor::MakeZero();
     placementTransform.m_uiPointIndex = placementPoint.m_uiPointIndex;
     placementTransform.m_uiObjectIndex = placementPoint.m_uiObjectIndex;
     placementTransform.m_bHasValidColor = false;
