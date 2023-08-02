@@ -38,8 +38,7 @@ void TestSerialize(T* pObject)
   ezRttiConverterWriter conv(&graph, &context, true, true);
 
   const ezRTTI* pRtti = ezGetStaticRTTI<T>();
-  ezUuid guid;
-  guid.CreateNewUuid();
+  const ezUuid guid = ezUuid::MakeUuid();
 
   context.RegisterObject(guid, pRtti, pObject);
   ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, pObject, "root");

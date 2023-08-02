@@ -346,7 +346,7 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
   }
   else
   {
-    seedGuid.CreateNewUuid();
+    seedGuid = ezUuid::MakeUuid();
     inout_cloneGuid = documentId;
     inout_cloneGuid.CombineWithSeed(seedGuid);
   }

@@ -170,8 +170,8 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
     pHistory->StartTransaction("Add Grey-Box");
 
     ezUuid objGuid, compGuid;
-    objGuid.CreateNewUuid();
-    compGuid.CreateNewUuid();
+    objGuid = ezUuid::MakeUuid();
+    compGuid = ezUuid::MakeUuid();
 
     {
       ezAddObjectCommand cmdAdd;

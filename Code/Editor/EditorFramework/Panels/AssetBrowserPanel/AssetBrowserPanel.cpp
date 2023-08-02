@@ -56,5 +56,5 @@ void ezQtAssetBrowserPanel::SlotAssetSelected(ezUuid guid, QString sAssetPathRel
 
 void ezQtAssetBrowserPanel::SlotAssetCleared()
 {
-  m_LastSelected.SetInvalid();
+  m_LastSelected = ezUuid::MakeInvalid();
 }

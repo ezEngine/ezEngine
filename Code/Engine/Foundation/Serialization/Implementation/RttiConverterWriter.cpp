@@ -21,14 +21,14 @@ void ezRttiConverterContext::OnUnknownTypeError(ezStringView sTypeName)
 ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const
 {
   ezUuid guid = parentGuid;
-  guid.HashCombine(ezUuid::StableUuidForString(pProp->GetPropertyName()));
+  guid.HashCombine(ezUuid::MakeStableUuidFromString(pProp->GetPropertyName()));
   if (index.IsA<ezString>())
   {
-    guid.HashCombine(ezUuid::StableUuidForString(index.Get<ezString>()));
+    guid.HashCombine(ezUuid::MakeStableUuidFromString(index.Get<ezString>()));
   }
   else if (index.CanConvertTo<ezUInt32>())
   {
-    guid.HashCombine(ezUuid::StableUuidForInt(index.ConvertTo<ezUInt32>()));
+    guid.HashCombine(ezUuid::MakeStableUuidFromInt(index.ConvertTo<ezUInt32>()));
   }
   else if (index.IsValid())
   {

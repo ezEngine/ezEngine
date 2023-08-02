@@ -16,8 +16,7 @@ void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const
   if (vPos.IsNaN())
     vPos.SetZero();
 
-  ezUuid ObjectGuid;
-  ObjectGuid.CreateNewUuid();
+  ezUuid ObjectGuid = ezUuid::MakeUuid();
 
   ezAddObjectCommand cmd;
   cmd.m_Parent = parent;
@@ -46,8 +45,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
 {
   auto history = m_pDocument->GetCommandHistory();
 
-  ezUuid CmpGuid;
-  CmpGuid.CreateNewUuid();
+  ezUuid CmpGuid = ezUuid::MakeUuid();
 
   ezAddObjectCommand cmd;
 

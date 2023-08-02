@@ -16,7 +16,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEditorEngineSyncObject::ezEditorEngineSyncObject()
 {
-  m_SyncObjectGuid.CreateNewUuid();
+  m_SyncObjectGuid = ezUuid::MakeUuid();
   m_bModified = true;
 }
 

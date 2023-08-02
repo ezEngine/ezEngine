@@ -198,8 +198,7 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
 
   const ezUInt32 uiFileSize = fileContent.GetCount();
 
-  ezUuid uploadGuid;
-  uploadGuid.CreateNewUuid();
+  ezUuid uploadGuid = ezUuid::MakeUuid();
 
   {
     ezRemoteMessage msg;
@@ -627,7 +626,7 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
 
   m_Download.Clear();
   m_sCurFileRequest = szFile;
-  m_CurFileRequestGuid.CreateNewUuid();
+  m_CurFileRequestGuid = ezUuid::MakeUuid();
   m_bDownloading = true;
 
   ezRemoteMessage msg('FSRV', 'READ');

@@ -174,7 +174,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(ezStringView sAbsFilePath, const
 
         ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", pNewAssetInfo->m_sAbsolutePath, pCurrentAssetInfo->m_sAbsolutePath);
 
-        const ezUuid mod = ezUuid::StableUuidForString(sAbsFilePath);
+        const ezUuid mod = ezUuid::MakeStableUuidFromString(sAbsFilePath);
         ezUuid replacementGuid = pNewAssetInfo->m_Info->m_DocumentID;
         replacementGuid.CombineWithSeed(mod);
 

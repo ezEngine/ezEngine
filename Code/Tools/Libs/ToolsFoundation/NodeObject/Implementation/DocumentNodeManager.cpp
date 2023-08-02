@@ -860,9 +860,7 @@ void ezDocumentNodeManager::RestoreOldMetaDataAfterLoading(const ezAbstractObjec
     ezDocumentNodeManager::CanConnectResult res;
     if (CanConnect(pConnectionType, *pSourcePin, *pTargetPin, res).m_Result.Succeeded())
     {
-      ezUuid ObjectGuid;
-      ObjectGuid.CreateNewUuid();
-      ezDocumentObject* pConnectionObject = CreateObject(pConnectionType, ObjectGuid);
+      ezDocumentObject* pConnectionObject = CreateObject(pConnectionType, ezUuid::MakeUuid());
 
       AddObject(pConnectionObject, nullptr, "", -1);
 

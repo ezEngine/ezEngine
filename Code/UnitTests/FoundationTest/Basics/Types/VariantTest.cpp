@@ -869,13 +869,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.Get<ezUuid>() == ezUuid());
 
-    ezUuid uuid;
-    uuid.CreateNewUuid();
+    const ezUuid uuid = ezUuid::MakeUuid();
     EZ_TEST_BOOL(v != ezVariant(uuid));
     EZ_TEST_BOOL(ezVariant(uuid).Get<ezUuid>() == uuid);
 
-    ezUuid uuid2;
-    uuid2.CreateNewUuid();
+    const ezUuid uuid2 = ezUuid::MakeUuid();
     EZ_TEST_BOOL(ezVariant(uuid) != ezVariant(uuid2));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
@@ -1832,8 +1830,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUuid)")
   {
-    ezUuid uuid;
-    uuid.CreateNewUuid();
+    const ezUuid uuid = ezUuid::MakeUuid();
     ezVariant v(uuid);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Uuid);

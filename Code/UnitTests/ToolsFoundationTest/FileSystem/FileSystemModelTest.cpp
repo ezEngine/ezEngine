@@ -600,9 +600,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     auto callback = [](const ezFileStatus& status, ezStreamReader& ref_reader) -> ezUuid {
       EZ_TEST_INT((ezInt64)status.m_uiHash, (ezInt64)10983861097202158394u);
-      ezUuid guid;
-      guid.CreateNewUuid();
-      return guid;
+      return ezUuid::MakeUuid();
     };
 
     EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->ReadDocument(sFilePathNew, callback));
@@ -618,8 +616,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
 
     {
-      ezUuid guid;
-      guid.CreateNewUuid();
+      ezUuid guid = ezUuid::MakeUuid();
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
 

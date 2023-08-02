@@ -54,8 +54,8 @@ ezResult ezEditorSceneDocumentTest::DeInitializeTest()
 {
   m_pDoc = nullptr;
   m_pLayer = nullptr;
-  m_SceneGuid.SetInvalid();
-  m_LayerGuid.SetInvalid();
+  m_SceneGuid = ezUuid::MakeInvalid();
+  m_LayerGuid = ezUuid::MakeInvalid();
 
   if (SUPER::DeInitializeTest().Failed())
     return EZ_FAILURE;
@@ -121,8 +121,8 @@ void ezEditorSceneDocumentTest::CloseSimpleScene()
     EZ_TEST_BOOL(bSaved);
     m_pDoc = nullptr;
     m_pLayer = nullptr;
-    m_SceneGuid.SetInvalid();
-    m_LayerGuid.SetInvalid();
+    m_SceneGuid = ezUuid::MakeInvalid();
+    m_LayerGuid = ezUuid::MakeInvalid();
   }
 }
 

@@ -20,10 +20,7 @@ void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& inout_stream, cons
   ezRttiConverterContext context;
   ezRttiConverterWriter conv(&graph, &context, false, true);
 
-  ezUuid guid;
-  guid.CreateNewUuid();
-
-  context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
+  context.RegisterObject(ezUuid::MakeUuid(), pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
   ezAbstractGraphDdlSerializer::Write(inout_stream, &graph, nullptr, bCompactMmode, typeMode);
@@ -36,7 +33,9 @@ void ezReflectionSerializer::WriteObjectToDDL(ezOpenDdlWriter& ref_ddl, const ez
   ezRttiConverterWriter conv(&graph, &context, false, true);
 
   if (!guid.IsValid())
-    guid.CreateNewUuid();
+  {
+    guid = ezUuid::MakeUuid();
+  }
 
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
@@ -50,10 +49,7 @@ void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& inout_stream, c
   ezRttiConverterContext context;
   ezRttiConverterWriter conv(&graph, &context, false, true);
 
-  ezUuid guid;
-  guid.CreateNewUuid();
-
-  context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
+  context.RegisterObject(ezUuid::MakeUuid(), pRtti, const_cast<void*>(pObject));
   conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
   ezAbstractGraphBinarySerializer::Write(inout_stream, &graph);

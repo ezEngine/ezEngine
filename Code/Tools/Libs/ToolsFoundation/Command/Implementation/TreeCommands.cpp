@@ -179,7 +179,7 @@ ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
   if (!bRedo)
   {
     if (!m_NewObjectGuid.IsValid())
-      m_NewObjectGuid.CreateNewUuid();
+      m_NewObjectGuid = ezUuid::MakeUuid();
   }
 
   ezDocumentObject* pParent = nullptr;
@@ -251,9 +251,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
     }
 
     // Remap
-    ezUuid seed;
-    seed.CreateNewUuid();
-    graph.ReMapNodeGuids(seed);
+    graph.ReMapNodeGuids(ezUuid::MakeUuid());
 
     ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 

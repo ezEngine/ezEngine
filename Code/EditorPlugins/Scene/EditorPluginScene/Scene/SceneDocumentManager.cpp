@@ -112,7 +112,8 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
     return;
 
   // Fix up scene layers during cloning
-  pObjects->ModifyNodeViaNativeCounterpart(pSettings, [&](void* pNativeObject, const ezRTTI* pType) {
+  pObjects->ModifyNodeViaNativeCounterpart(pSettings, [&](void* pNativeObject, const ezRTTI* pType)
+    {
     ezSceneDocumentSettings* pObject = static_cast<ezSceneDocumentSettings*>(pNativeObject);
 
     for (ezSceneLayerBase* pLayerBase : pObject->m_Layers)
@@ -137,7 +138,7 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
             else
             {
               ezLog::Error("Failed to resolve layer: {}. Cloned Layer will be invalid.");
-              pLayer->m_Layer.SetInvalid();
+              pLayer->m_Layer = ezUuid::MakeInvalid();
             }
           }
           if (!sLayerPath.IsEmpty())
@@ -156,8 +157,7 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
           }
         }
       }
-    }
-  });
+    } });
 }
 
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
@@ -165,17 +165,13 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
   auto history = pDocument->GetCommandHistory();
   history->StartTransaction("Initial Scene Setup");
 
-  ezUuid skyObjectGuid;
-  skyObjectGuid.CreateNewUuid();
-  ezUuid lightObjectGuid;
-  lightObjectGuid.CreateNewUuid();
-  ezUuid meshObjectGuid;
-  meshObjectGuid.CreateNewUuid();
+  const ezUuid skyObjectGuid = ezUuid::MakeUuid();
+  const ezUuid lightObjectGuid = ezUuid::MakeUuid();
+  const ezUuid meshObjectGuid = ezUuid::MakeUuid();
 
   // Thumbnail Camera
   {
-    ezUuid objectGuid;
-    objectGuid.CreateNewUuid();
+    const ezUuid objectGuid = ezUuid::MakeUuid();
 
     ezAddObjectCommand cmd;
     cmd.m_Index = -1;

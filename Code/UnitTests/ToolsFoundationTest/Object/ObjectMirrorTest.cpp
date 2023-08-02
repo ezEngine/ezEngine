@@ -105,9 +105,7 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
       return ezVariant(ezTime::Seconds(123.0f));
     case ezVariant::Type::Uuid:
     {
-      ezUuid guid;
-      guid.CreateNewUuid();
-      return ezVariant(guid);
+      return ezVariant(ezUuid::MakeUuid());
     }
     case ezVariant::Type::Angle:
       return ezVariant(ezAngle::Degree(30.0f));
@@ -144,8 +142,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
       if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
       {
         const ezUuid oldGuid = pObjectAccessor->Get<ezUuid>(pObject, pProp);
-        ezUuid newGuid;
-        newGuid.CreateNewUuid();
+        ezUuid newGuid = ezUuid::MakeUuid();
         if (oldGuid.IsValid())
         {
           EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid)).m_Result.Succeeded());
@@ -203,8 +200,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
 
       if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
-        ezUuid newGuid;
-        newGuid.CreateNewUuid();
+        ezUuid newGuid = ezUuid::MakeUuid();
         EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, 0, pProp->GetSpecificType(), newGuid).m_Result.Succeeded());
       }
     }
@@ -237,8 +233,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
         EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).m_Result.Succeeded());
       }
 
-      ezUuid newGuid;
-      newGuid.CreateNewUuid();
+      ezUuid newGuid = ezUuid::MakeUuid();
       EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, "value1", pProp->GetSpecificType(), newGuid).m_Result.Succeeded());
     }
   }

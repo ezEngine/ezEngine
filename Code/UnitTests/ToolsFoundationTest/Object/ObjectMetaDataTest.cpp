@@ -75,7 +75,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
     for (ezUInt32 i = 0; i < num; ++i)
     {
       ezUuid& uid = obj[i];
-      uid.CreateNewUuid();
+      uid = ezUuid::MakeUuid();
 
       if (ezMath::IsEven(i))
       {

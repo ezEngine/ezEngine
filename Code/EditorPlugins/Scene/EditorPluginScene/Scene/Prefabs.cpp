@@ -181,8 +181,7 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
 
     const ezTransform transform = GetGlobalTransform(pObject);
 
-    ezUuid newGuid;
-    newGuid.CreateNewUuid();
+    ezUuid newGuid = ezUuid::MakeUuid();
     ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_sAbsolutePath, assetGuid, newGuid, false);
 
     if (newObject.IsValid())
@@ -226,8 +225,8 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
     // create an object with the reference prefab component
     {
       ezUuid ObjectGuid, CmpGuid;
-      ObjectGuid.CreateNewUuid();
-      CmpGuid.CreateNewUuid();
+      ObjectGuid = ezUuid::MakeUuid();
+      CmpGuid = ezUuid::MakeUuid();
 
       ezAddObjectCommand cmd;
       cmd.m_Parent = (pObject->GetParent() == GetObjectManager()->GetRootObject()) ? ezUuid() : pObject->GetParent()->GetGuid();

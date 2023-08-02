@@ -45,7 +45,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezReflectionProbeComponentBase::ezReflectionProbeComponentBase()
 {
-  m_Desc.m_uniqueID.CreateNewUuid();
+  m_Desc.m_uniqueID = ezUuid::MakeUuid();
 }
 
 ezReflectionProbeComponentBase::~ezReflectionProbeComponentBase() = default;
@@ -155,7 +155,7 @@ void ezReflectionProbeComponentBase::SerializeComponent(ezWorldWriter& inout_str
 void ezReflectionProbeComponentBase::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   m_Desc.m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
@@ -175,7 +175,7 @@ float ezReflectionProbeComponentBase::ComputePriority(ezMsgExtractRenderData& ms
   // This sorting is only by size to make sure the probes in a cluster are iterating from smallest to largest on the GPU. Which probes are actually used is determined below by the returned priority.
   pRenderData->m_uiSortingKey = ezMath::FloatToInt(static_cast<float>(ezMath::MaxValue<ezUInt32>()) * fLogVolume / 40.0f);
 
-  //#TODO This is a pretty poor distance / size based score.
+  // #TODO This is a pretty poor distance / size based score.
   if (msg.m_pView)
   {
     if (auto pCamera = msg.m_pView->GetLodCamera())

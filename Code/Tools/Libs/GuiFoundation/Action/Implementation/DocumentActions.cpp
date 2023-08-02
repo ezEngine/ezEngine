@@ -197,8 +197,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
 
         if (!sFile.IsEmpty())
         {
-          ezUuid newDoc;
-          newDoc.CreateNewUuid();
+          ezUuid newDoc = ezUuid::MakeUuid();
           ezStatus res = m_Context.m_pDocument->GetDocumentManager()->CloneDocument(m_Context.m_pDocument->GetDocumentPath(), sFile, newDoc);
 
           if (res.Failed())

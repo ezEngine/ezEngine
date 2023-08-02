@@ -119,7 +119,7 @@ void ezLongOpControllerManager::RegisterLongOp(const ezUuid& documentGuid, const
   auto& opInfo = *opInfoPtr;
   opInfo.m_DocumentGuid = documentGuid;
   opInfo.m_ComponentGuid = componentGuid;
-  opInfo.m_OperationGuid.CreateNewUuid();
+  opInfo.m_OperationGuid = ezUuid::MakeUuid();
 
   opInfo.m_pProxyOp = pRtti->GetAllocator()->Allocate<ezLongOpProxy>();
   opInfo.m_pProxyOp->InitializeRegistered(documentGuid, componentGuid);

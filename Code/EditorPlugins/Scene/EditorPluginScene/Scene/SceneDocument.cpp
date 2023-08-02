@@ -136,8 +136,7 @@ void ezSceneDocument::GroupSelection()
 
   pHistory->StartTransaction("Group Selection");
 
-  ezUuid groupObj;
-  groupObj.CreateNewUuid();
+  ezUuid groupObj = ezUuid::MakeUuid();
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_NewObjectGuid = groupObj;
@@ -398,7 +397,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
 
   if (Sel.IsEmpty() || !bAttachToParent)
   {
-    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     auto res = history->AddCommand(cmdAdd);
@@ -410,7 +409,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
   }
   else
   {
-    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     cmdAdd.m_Parent = Sel[0]->GetGuid();
@@ -625,7 +624,7 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
     {
       const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
 
-      ezAbstractObjectNode* pRoot = ref_graph.AddNode(ezUuid::CreateUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
+      ezAbstractObjectNode* pRoot = ref_graph.AddNode(ezUuid::MakeUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
       pRoot->AddProperty("Name", "<Prefab-Root>");
       pRoot->AddProperty("Children", varChildren);
 

@@ -106,7 +106,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, c
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "ColorCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezColorControlPoint>();
   cmdAdd.m_Index = -1;
@@ -145,7 +145,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, e
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "AlphaCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezAlphaControlPoint>();
   cmdAdd.m_Index = -1;
@@ -176,7 +176,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double pos
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "IntensityCPs";
   cmdAdd.m_pType = ezGetStaticRTTI<ezIntensityControlPoint>();
   cmdAdd.m_Index = -1;

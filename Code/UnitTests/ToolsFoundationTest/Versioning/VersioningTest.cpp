@@ -177,7 +177,7 @@ namespace
       // Object
       ezRttiConverterContext context;
       ezRttiConverterWriter rttiConverter(&ref_graph, &context, true, true);
-      context.RegisterObject(ezUuid::StableUuidForString(pRtti->GetTypeName()), pRtti, pObject);
+      context.RegisterObject(ezUuid::MakeStableUuidFromString(pRtti->GetTypeName()), pRtti, pObject);
       pNode = rttiConverter.AddObjectToGraph(pRtti, pObject, "ROOT");
     }
     {

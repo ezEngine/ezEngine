@@ -1852,7 +1852,7 @@ void ezAssetCurator::LoadCaches(ezMap<ezString, ezFileStatus>& out_referencedFil
           ezFileStatus stat;
           reader >> stat;
           // We invalidate all asset guids as the current cache as stored on disk is missing various bits in the curator that requires the code to go through the found new asset init code on load again.
-          stat.m_DocumentID.SetInvalid();
+          stat.m_DocumentID = ezUuid::MakeInvalid();
           out_referencedFiles.Insert(std::move(sPath), stat);
         }
       }

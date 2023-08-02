@@ -91,7 +91,7 @@ ezDocumentObject* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti, ezU
   if (guid.IsValid())
     pObject->m_Guid = guid;
   else
-    pObject->m_Guid.CreateNewUuid();
+    pObject->m_Guid = ezUuid::MakeUuid();
 
   PatchEmbeddedClassObjectsInternal(pObject, pRtti, false);
 
@@ -691,7 +691,7 @@ void ezDocumentObjectManager::PatchEmbeddedClassObjectsInternal(ezDocumentObject
       ezStringBuilder sTemp;
       ezConversionUtils::ToString(pObject->GetGuid(), sTemp);
       sTemp.Append("/", pProperty->GetPropertyName());
-      const ezUuid subObjectGuid = ezUuid::StableUuidForString(sTemp);
+      const ezUuid subObjectGuid = ezUuid::MakeStableUuidFromString(sTemp);
       ezDocumentObject* pEmbeddedObject = CreateObject(pProperty->GetSpecificType(), subObjectGuid);
       if (addToDoc)
       {

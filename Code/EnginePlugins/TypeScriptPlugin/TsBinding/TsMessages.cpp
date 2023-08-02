@@ -294,7 +294,7 @@ void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* sz
 
   duk.PopStack(); // [ ]
 
-  m_CurrentTsMsgHandlerRegistrator.SetInvalid();
+  m_CurrentTsMsgHandlerRegistrator = ezUuid::MakeInvalid();
 
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }

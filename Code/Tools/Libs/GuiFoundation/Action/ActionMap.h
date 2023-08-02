@@ -44,7 +44,7 @@ public:
   ezTreeNode<T>* InsertChild(const T& data, ezUInt32 uiIndex)
   {
     ezTreeNode<T>* pNode = EZ_DEFAULT_NEW(ezTreeNode<T>, data);
-    pNode->m_Guid.CreateNewUuid();
+    pNode->m_Guid = ezUuid::MakeUuid();
     m_Children.Insert(pNode, uiIndex);
     pNode->m_pParent = this;
     return pNode;

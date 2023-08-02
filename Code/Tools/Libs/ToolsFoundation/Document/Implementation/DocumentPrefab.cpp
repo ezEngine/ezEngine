@@ -70,7 +70,7 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const
   }
 
   ezUuid PrefabGuid, SeedGuid;
-  SeedGuid.CreateNewUuid();
+  SeedGuid = ezUuid::MakeUuid();
   ezStatus res = CreatePrefabDocument(szFile, nodes, SeedGuid, PrefabGuid, adjustGraphNodeCB, true, finalizeGraphCB);
 
   if (res.m_Result.Succeeded())
@@ -207,9 +207,8 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
     auto pHistory = GetCommandHistory();
 
     ezStringBuilder tmp;
-    ezUuid CmpGuid;
-    instantiatedRoot.CreateNewUuid();
-    CmpGuid.CreateNewUuid();
+    ezUuid CmpGuid = ezUuid::MakeUuid();
+    instantiatedRoot = ezUuid::MakeUuid();
 
     ezAddObjectCommand cmd;
     cmd.m_Parent = (pRootObject->GetParent() == GetObjectManager()->GetRootObject()) ? ezUuid() : pRootObject->GetParent()->GetGuid();

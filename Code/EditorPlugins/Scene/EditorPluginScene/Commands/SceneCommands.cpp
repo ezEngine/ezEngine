@@ -143,8 +143,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
   ezSceneDocument* pDocument = static_cast<ezSceneDocument*>(GetDocument());
 
   // Remap
-  ezUuid seed;
-  seed.CreateNewUuid();
+  const ezUuid seed = ezUuid::MakeUuid();
   graph.ReMapNodeGuids(seed);
 
   ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);

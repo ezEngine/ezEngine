@@ -431,8 +431,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
   }
 
   auto CreateGuid = [](const char* szType, ezInt32 iIndex) -> ezUuid {
-    ezUuid A = ezUuid::StableUuidForString(szType);
-    ezUuid B = ezUuid::StableUuidForInt(iIndex);
+    ezUuid A = ezUuid::MakeStableUuidFromString(szType);
+    ezUuid B = ezUuid::MakeStableUuidFromInt(iIndex);
     A.CombineWithSeed(B);
     return A;
   };
