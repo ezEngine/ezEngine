@@ -187,12 +187,6 @@ EZ_ALWAYS_INLINE void ezRectTemplate<Type>::Clip(const ezRectTemplate<Type>& cli
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezRectTemplate<Type>::SetInvalid()
-{
-  *this = MakeInvalid();
-}
-
-template <typename Type>
 EZ_ALWAYS_INLINE bool ezRectTemplate<Type>::IsValid() const
 {
   /// \test This is new
@@ -206,18 +200,6 @@ EZ_ALWAYS_INLINE const ezVec2Template<Type> ezRectTemplate<Type>::GetClampedPoin
   /// \test This is new
 
   return ezVec2Template<Type>(ezMath::Clamp(vPoint.x, Left(), Right()), ezMath::Clamp(vPoint.y, Top(), Bottom()));
-}
-
-template <typename Type>
-void ezRectTemplate<Type>::SetIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
-{
-  *this = MakeIntersection(r0, r1);
-}
-
-template <typename Type>
-void ezRectTemplate<Type>::SetUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1)
-{
-  *this = MakeUnion(r0, r1);
 }
 
 template <typename Type>

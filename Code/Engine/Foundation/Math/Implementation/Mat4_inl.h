@@ -205,37 +205,6 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeRotationZ(ezAngle angle)
 }
 
 template <typename Type>
-const ezMat4Template<Type> ezMat4Template<Type>::IdentityMatrix()
-{
-  return ezMat4Template(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-}
-
-template <typename Type>
-const ezMat4Template<Type> ezMat4Template<Type>::ZeroMatrix()
-{
-  return ezMat4Template(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-}
-
-template <typename Type>
-void ezMat4Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout)
-{
-  if (layout == ezMatrixLayout::ColumnMajor)
-  {
-    ezMemoryUtils::Copy(m_fElementsCM, pData, 16);
-  }
-  else
-  {
-    for (int i = 0; i < 4; ++i)
-    {
-      Element(0, i) = pData[i * 4 + 0];
-      Element(1, i) = pData[i * 4 + 1];
-      Element(2, i) = pData[i * 4 + 2];
-      Element(3, i) = pData[i * 4 + 3];
-    }
-  }
-}
-
-template <typename Type>
 void ezMat4Template<Type>::SetTransformationMatrix(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation)
 {
   SetRotationalPart(mRotation);
@@ -265,28 +234,6 @@ void ezMat4Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layo
 }
 
 template <typename Type>
-void ezMat4Template<Type>::SetElements(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3,
-  Type c3r3, Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4)
-{
-  Element(0, 0) = c1r1;
-  Element(1, 0) = c2r1;
-  Element(2, 0) = c3r1;
-  Element(3, 0) = c4r1;
-  Element(0, 1) = c1r2;
-  Element(1, 1) = c2r2;
-  Element(2, 1) = c3r2;
-  Element(3, 1) = c4r2;
-  Element(0, 2) = c1r3;
-  Element(1, 2) = c2r3;
-  Element(2, 2) = c3r3;
-  Element(3, 2) = c4r3;
-  Element(0, 3) = c1r4;
-  Element(1, 3) = c2r4;
-  Element(2, 3) = c3r4;
-  Element(3, 3) = c4r4;
-}
-
-template <typename Type>
 void ezMat4Template<Type>::SetZero()
 {
   *this = MakeZero();
@@ -296,36 +243,6 @@ template <typename Type>
 void ezMat4Template<Type>::SetIdentity()
 {
   *this = MakeIdentity();
-}
-
-template <typename Type>
-void ezMat4Template<Type>::SetTranslationMatrix(const ezVec3Template<Type>& vTranslation)
-{
-  *this = MakeTranslation(vTranslation);
-}
-
-template <typename Type>
-void ezMat4Template<Type>::SetScalingMatrix(const ezVec3Template<Type>& s)
-{
-  *this = MakeScaling(s);
-}
-
-template <typename Type>
-void ezMat4Template<Type>::SetRotationMatrixX(ezAngle angle)
-{
-  *this = MakeRotationX(angle);
-}
-
-template <typename Type>
-void ezMat4Template<Type>::SetRotationMatrixY(ezAngle angle)
-{
-  *this = MakeRotationY(angle);
-}
-
-template <typename Type>
-void ezMat4Template<Type>::SetRotationMatrixZ(ezAngle angle)
-{
-  *this = MakeRotationZ(angle);
 }
 
 template <typename Type>

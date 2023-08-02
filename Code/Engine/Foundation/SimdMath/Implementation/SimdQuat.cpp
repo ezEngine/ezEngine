@@ -79,18 +79,6 @@ ezSimdQuat ezSimdQuat::MakeSlerp(const ezSimdQuat& qFrom, const ezSimdQuat& qTo,
   return res;
 }
 
-///\todo optimize these methods if needed
-
-void ezSimdQuat::SetShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVec4f& vDirTo)
-{
-  *this = MakeShortestRotation(vDirFrom, vDirTo);
-}
-
-void ezSimdQuat::SetSlerp(const ezSimdQuat& qFrom, const ezSimdQuat& qTo, const ezSimdFloat& t)
-{
-  *this = MakeSlerp(qFrom, qTo, t);
-}
-
 bool ezSimdQuat::IsEqualRotation(const ezSimdQuat& qOther, const ezSimdFloat& fEpsilon) const
 {
   ezSimdVec4f vA1, vA2;

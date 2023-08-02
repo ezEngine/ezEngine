@@ -91,22 +91,9 @@ public:
   /// \brief Creates a matrix that is a rotation matrix around the given axis.
   [[nodiscard]] static ezMat4Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle);
 
-
-  /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
-  ///
-  /// \param pData
-  ///   The array of Type values from which to set the matrix data.
-  /// \param layout
-  ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
-  ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
-  [[deprecated("Use ezMat4::MakeFromColumnMajorArray() instead.")]] void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
-
   /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or
   /// row-major format.
   void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
-
-  /// \brief Sets each element manually: Naming is "column-n row-m"
-  [[deprecated("Use ezMat4::MakeFromValues() instead.")]] void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
   void SetTransformationMatrix(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation); // [tested]
@@ -119,31 +106,8 @@ public:
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
   void SetIdentity(); // [tested]
 
-  /// \brief Sets the matrix to all zero, except the last column, which is set to x,y,z,1
-  [[deprecated("Use ezMat4::MakeTranslation() instead.")]] void SetTranslationMatrix(const ezVec3Template<Type>& vTranslation); // [tested]
-
-  /// \brief Sets the matrix to all zero, except the diagonal, which is set to x,y,z,1
-  [[deprecated("Use ezMat4::MakeScaling() instead.")]] void SetScalingMatrix(const ezVec3Template<Type>& vScale); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the X-axis.
-  [[deprecated("Use ezMat4::MakeRotationX() instead.")]] void SetRotationMatrixX(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the Y-axis.
-  [[deprecated("Use ezMat4::MakeRotationY() instead.")]] void SetRotationMatrixY(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the Z-axis.
-  [[deprecated("Use ezMat4::MakeRotationZ() instead.")]] void SetRotationMatrixZ(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the given axis.
-  [[deprecated("Use ezMat4::MakeAxisRotation() instead.")]] void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
-
   // *** Common Matrix Operations ***
 public:
-  /// \brief Returns an Identity Matrix.
-  [[deprecated("Use ezMat4::MakeIdentity() instead.")]] static const ezMat4Template<Type> IdentityMatrix(); // [tested]
-
-  /// \brief Returns a Zero Matrix.
-  [[deprecated("Use ezMat4::MakeZero() instead.")]] static const ezMat4Template<Type> ZeroMatrix(); // [tested]
 
   /// \brief Transposes this matrix.
   void Transpose(); // [tested]

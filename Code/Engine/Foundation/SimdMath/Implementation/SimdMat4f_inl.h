@@ -2,31 +2,6 @@
 
 EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f() = default;
 
-EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const float* const pData, ezMatrixLayout::Enum layout)
-{
-  if (layout == ezMatrixLayout::ColumnMajor)
-    *this = MakeFromColumnMajorArray(pData);
-  else
-    *this = MakeFromRowMajorArray(pData);
-}
-
-EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const ezSimdVec4f& vCol0, const ezSimdVec4f& vCol1, const ezSimdVec4f& vCol2, const ezSimdVec4f& vCol3)
-  : m_col0(vCol0)
-  , m_col1(vCol1)
-  , m_col2(vCol2)
-  , m_col3(vCol3)
-{
-}
-
-EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(float f1r1, float f2r1, float f3r1, float f4r1, float f1r2, float f2r2, float f3r2, float f4r2, float f1r3,
-  float f2r3, float f3r3, float f4r3, float f1r4, float f2r4, float f3r4, float f4r4)
-{
-  m_col0.Set(f1r1, f1r2, f1r3, f1r4);
-  m_col1.Set(f2r1, f2r2, f2r3, f2r4);
-  m_col2.Set(f3r1, f3r2, f3r3, f3r4);
-  m_col3.Set(f4r1, f4r2, f4r3, f4r4);
-}
-
 inline ezSimdMat4f ezSimdMat4f::MakeFromValues(float f1r1, float f2r1, float f3r1, float f4r1, float f1r2, float f2r2, float f3r2, float f4r2, float f1r3,
   float f2r3, float f3r3, float f4r3, float f1r4, float f2r4, float f3r4, float f4r4)
 {
@@ -69,18 +44,6 @@ inline ezSimdMat4f ezSimdMat4f::MakeFromColumnMajorArray(const float* const pDat
   return res;
 }
 
-inline void ezSimdMat4f::SetFromArray(const float* const pData, ezMatrixLayout::Enum layout)
-{
-  if (layout == ezMatrixLayout::ColumnMajor)
-  {
-    *this = MakeFromColumnMajorArray(pData);
-  }
-  else
-  {
-    *this = MakeFromRowMajorArray(pData);
-  }
-}
-
 inline void ezSimdMat4f::GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const
 {
   ezSimdMat4f tmp = *this;
@@ -94,22 +57,6 @@ inline void ezSimdMat4f::GetAsArray(float* out_pData, ezMatrixLayout::Enum layou
   tmp.m_col1.Store<4>(out_pData + 4);
   tmp.m_col2.Store<4>(out_pData + 8);
   tmp.m_col3.Store<4>(out_pData + 12);
-}
-
-EZ_ALWAYS_INLINE void ezSimdMat4f::SetIdentity()
-{
-  m_col0.Set(1, 0, 0, 0);
-  m_col1.Set(0, 1, 0, 0);
-  m_col2.Set(0, 0, 1, 0);
-  m_col3.Set(0, 0, 0, 1);
-}
-
-EZ_ALWAYS_INLINE void ezSimdMat4f::SetZero()
-{
-  m_col0.SetZero();
-  m_col1.SetZero();
-  m_col2.SetZero();
-  m_col3.SetZero();
 }
 
 EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::MakeZero()
@@ -130,17 +77,6 @@ EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::MakeIdentity()
   res.m_col2.Set(0, 0, 1, 0);
   res.m_col3.Set(0, 0, 0, 1);
   return res;
-}
-
-// static
-EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::IdentityMatrix()
-{
-  return MakeIdentity();
-}
-
-EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::ZeroMatrix()
-{
-  return MakeZero();
 }
 
 EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::GetTranspose() const

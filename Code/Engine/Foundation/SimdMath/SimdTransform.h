@@ -28,12 +28,6 @@ public:
   /// \brief Creates a transform that is the global transform, that is reached by applying the child's local transform to the parent's global one.
   [[nodiscard]] static ezSimdTransform MakeGlobalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& localTransformChild); // [tested]
 
-  /// \brief Sets the position to be zero and the rotation to identity.
-  void SetIdentity(); // [tested]
-
-  /// \brief Returns an Identity Transform.
-  [[deprecated("Use MakeIdentity() instead.")]] static ezSimdTransform IdentityTransform(); // [tested]
-
   /// \brief Returns the scale component with maximum magnitude.
   ezSimdFloat GetMaxScale() const; // [tested]
 
@@ -53,14 +47,6 @@ public:
 
   /// \brief Returns the inverse of this transform.
   ezSimdTransform GetInverse() const; // [tested]
-
-public:
-  /// \brief Sets this transform to be the local transformation needed to get from the parent's transform to the child's.
-  [[deprecated("Use MakeLocalTransform() instead.")]] void SetLocalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& globalTransformChild); // [tested]
-
-  /// \brief Sets this transform to the global transform, that is reached by applying the child's local transform to the parent's global
-  /// one.
-  [[deprecated("Use MakeGlobalTransform() instead.")]] void SetGlobalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& localTransformChild); // [tested]
 
   /// \brief Returns the transformation as a matrix.
   ezSimdMat4f GetAsMat4() const; // [tested]

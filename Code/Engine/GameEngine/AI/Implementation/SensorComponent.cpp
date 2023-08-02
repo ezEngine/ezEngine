@@ -303,7 +303,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
   const ezGameObject* pOwner = GetOwner();
 
   const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
-  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), m_fRadius * scale);
+  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fRadius * scale);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -325,7 +325,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
 
 void ezSensorSphereComponent::DebugDrawSensorShape() const
 {
-  ezBoundingSphere sphere = ezBoundingSphere(ezVec3::MakeZero(), m_fRadius);
+  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius);
   ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, GetOwner()->GetGlobalTransform());
 }
 
@@ -380,7 +380,7 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
   const float xyScale = ezMath::Max(scale.x, scale.y);
 
   const float sphereRadius = ezVec2(m_fRadius * xyScale, m_fHeight * 0.5f * scale.z).GetLength();
-  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), sphereRadius);
+  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), sphereRadius);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -461,7 +461,7 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
   const ezGameObject* pOwner = GetOwner();
 
   const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
-  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
+  const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();

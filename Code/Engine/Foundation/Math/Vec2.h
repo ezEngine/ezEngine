@@ -42,7 +42,6 @@ public:
 
   /// \brief Static function that returns a zero-vector.
   [[nodiscard]] static const ezVec2Template<Type> MakeZero() { return ezVec2Template(0); } // [tested]
-  [[deprecated("Use ezVec2::MakeZero() instead.")]] static const ezVec2Template<Type> ZeroVector() { return ezVec2Template(0); }
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const

@@ -5,16 +5,6 @@
 
 inline ezTimestamp::ezTimestamp() = default;
 
-inline ezTimestamp::ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
-{
-  *this = MakeFromInt(iTimeValue, unitOfTime);
-}
-
-inline void ezTimestamp::Invalidate()
-{
-  m_iTimestamp = EZ_INVALID_TIME_STAMP;
-}
-
 inline bool ezTimestamp::IsValid() const
 {
   return m_iTimestamp != EZ_INVALID_TIME_STAMP;

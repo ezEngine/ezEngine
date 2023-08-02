@@ -7,11 +7,6 @@ constexpr EZ_ALWAYS_INLINE ezTime::ezTime(double fTime)
 {
 }
 
-EZ_ALWAYS_INLINE void ezTime::SetZero()
-{
-  m_fTime = 0.0;
-}
-
 constexpr EZ_ALWAYS_INLINE float ezTime::AsFloatInSeconds() const
 {
   return static_cast<float>(m_fTime);

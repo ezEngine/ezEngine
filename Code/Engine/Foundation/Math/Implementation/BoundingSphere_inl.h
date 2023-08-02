@@ -14,13 +14,6 @@ EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate()
 }
 
 template <typename Type>
-EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate(const ezVec3Template<Type>& vCenter, Type fRadius)
-  : m_vCenter(vCenter)
-  , m_fRadius(fRadius)
-{
-}
-
-template <typename Type>
 EZ_FORCE_INLINE ezBoundingSphereTemplate<Type> ezBoundingSphereTemplate<Type>::MakeZero()
 {
   ezBoundingSphereTemplate<Type> res;
@@ -88,22 +81,9 @@ EZ_FORCE_INLINE ezBoundingSphereTemplate<Type> ezBoundingSphereTemplate<Type>::M
 }
 
 template <typename Type>
-void ezBoundingSphereTemplate<Type>::SetZero()
-{
-  m_vCenter.SetZero();
-  m_fRadius = 0.0f;
-}
-
-template <typename Type>
 bool ezBoundingSphereTemplate<Type>::IsZero(Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */) const
 {
   return m_vCenter.IsZero(fEpsilon) && ezMath::IsZero(m_fRadius, fEpsilon);
-}
-
-template <typename Type>
-void ezBoundingSphereTemplate<Type>::SetInvalid()
-{
-  *this = MakeInvalid();
 }
 
 template <typename Type>
@@ -116,12 +96,6 @@ template <typename Type>
 bool ezBoundingSphereTemplate<Type>::IsNaN() const
 {
   return (m_vCenter.IsNaN() || ezMath::IsNaN(m_fRadius));
-}
-
-template <typename Type>
-EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::SetElements(const ezVec3Template<Type>& vCenter, Type fRadius)
-{
-  *this = MakeFromCenterAndRadius(vCenter, fRadius);
 }
 
 template <typename Type>
@@ -312,12 +286,6 @@ bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoint
   }
 
   return false;
-}
-
-template <typename Type>
-void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
-{
-  *this = MakeFromPoints(pPoints, uiNumPoints, uiStride);
 }
 
 template <typename Type>

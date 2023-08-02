@@ -581,12 +581,6 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::ZeroVector()
-{
-  return _mm_setzero_ps();
-}
-
-// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX2

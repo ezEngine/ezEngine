@@ -137,7 +137,7 @@ void ezFollowPathComponent::Update(bool bForce)
   ezVec3 vTarget = transformAhead.m_vPosition - transform.m_vPosition;
   if (m_FollowMode == ezFollowPathMode::AlignUpZ)
   {
-    ezPlane plane(ezVec3::MakeAxisZ(), transform.m_vPosition);
+    const ezPlane plane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), transform.m_vPosition);
     vTarget = plane.GetCoplanarDirection(vTarget);
   }
   vTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
@@ -157,7 +157,7 @@ void ezFollowPathComponent::Update(bool bForce)
     {
       ezVec3 vLastTarget = m_vLastTargetPosition - m_vLastPosition;
       {
-        ezPlane plane(ezVec3::MakeAxisZ(), transform.m_vPosition);
+        const ezPlane plane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), transform.m_vPosition);
         vLastTarget = plane.GetCoplanarDirection(vLastTarget);
         vLastTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
       }

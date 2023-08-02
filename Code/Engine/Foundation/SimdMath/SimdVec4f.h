@@ -168,8 +168,6 @@ public:
   ///\brief Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
   [[nodiscard]] ezSimdVec4f GetOrthogonalVector() const; // [tested]
 
-  [[deprecated("Use MakeZero() instead.")]] [[nodiscard]] static ezSimdVec4f ZeroVector(); // [tested]
-
   [[nodiscard]] static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c); // [tested]
   [[nodiscard]] static ezSimdVec4f MulAdd(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c); // [tested]
 

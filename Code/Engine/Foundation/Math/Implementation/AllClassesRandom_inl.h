@@ -5,12 +5,6 @@
 #include <Foundation/Math/Vec3.h>
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomPointInSphere(ezRandom& inout_rng)
-{
-  return MakeRandomPointInSphere(inout_rng);
-}
-
-template <typename Type>
 ezVec3Template<Type> ezVec3Template<Type>::MakeRandomPointInSphere(ezRandom& inout_rng)
 {
   double px, py, pz;
@@ -29,23 +23,11 @@ ezVec3Template<Type> ezVec3Template<Type>::MakeRandomPointInSphere(ezRandom& ino
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDirection(ezRandom& inout_rng)
-{
-  return MakeRandomDirection(inout_rng);
-}
-
-template <typename Type>
 ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDirection(ezRandom& inout_rng)
 {
   ezVec3Template<Type> vec = MakeRandomPointInSphere(inout_rng);
   vec.Normalize();
   return vec;
-}
-
-template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation)
-{
-  return MakeRandomDeviationX(inout_rng, maxDeviation);
 }
 
 template <typename Type>
@@ -65,12 +47,6 @@ ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationX(ezRandom& inout_
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation)
-{
-  return MakeRandomDeviationY(inout_rng, maxDeviation);
-}
-
-template <typename Type>
 ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation)
 {
   ezVec3Template<Type> vec = MakeRandomDeviationX(inout_rng, maxDeviation);
@@ -79,23 +55,11 @@ ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationY(ezRandom& inout_
 }
 
 template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation)
-{
-  return MakeRandomDeviationZ(inout_rng, maxDeviation);
-}
-
-template <typename Type>
 ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation)
 {
   ezVec3Template<Type> vec = MakeRandomDeviationX(inout_rng, maxDeviation);
   ezMath::Swap(vec.x, vec.z);
   return vec;
-}
-
-template <typename Type>
-ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal)
-{
-  return MakeRandomDeviation(inout_rng, maxDeviation, vNormal);
 }
 
 template <typename Type>

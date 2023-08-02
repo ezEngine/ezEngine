@@ -45,14 +45,6 @@ inline void ezColor::SetRGBA(float fLinearRed, float fLinearGreen, float fLinear
   a = fLinearAlpha;
 }
 
-inline void ezColor::SetZero()
-{
-  r = 0.0f;
-  g = 0.0f;
-  b = 0.0f;
-  a = 0.0f;
-}
-
 // http://en.wikipedia.org/wiki/Luminance_%28relative%29
 EZ_FORCE_INLINE float ezColor::GetLuminance() const
 {

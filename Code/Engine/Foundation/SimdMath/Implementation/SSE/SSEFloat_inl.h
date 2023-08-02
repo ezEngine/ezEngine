@@ -57,12 +57,6 @@ EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
-{
-  return _mm_setzero_ps();
-}
-
-// static
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeZero()
 {
   return _mm_setzero_ps();

@@ -12,20 +12,6 @@ EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate()
 }
 
 template <typename Type>
-ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius)
-  : m_vCenter(vCenter)
-  , m_fSphereRadius(fSphereRadius)
-  , m_vBoxHalfExtends(vBoxHalfExtents)
-{
-}
-
-template <typename Type>
-ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box, const ezBoundingSphereTemplate<Type>& sphere)
-{
-  *this = MakeFromBoxAndSphere(box, sphere);
-}
-
-template <typename Type>
 EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezBoundingBoxSphereTemplate& rhs)
 {
   m_vCenter = rhs.m_vCenter;
@@ -135,12 +121,6 @@ ezBoundingBoxSphereTemplate<Type> ezBoundingBoxSphereTemplate<Type>::MakeFromBox
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezBoundingBoxSphereTemplate<Type>::SetInvalid()
-{
-  *this = MakeInvalid();
-}
-
-template <typename Type>
 EZ_FORCE_INLINE bool ezBoundingBoxSphereTemplate<Type>::IsValid() const
 {
   return (m_vCenter.IsValid() && m_fSphereRadius >= 0.0f && m_vBoxHalfExtends.IsValid());
@@ -150,12 +130,6 @@ template <typename Type>
 EZ_FORCE_INLINE bool ezBoundingBoxSphereTemplate<Type>::IsNaN() const
 {
   return (m_vCenter.IsNaN() || ezMath::IsNaN(m_fSphereRadius) || m_vBoxHalfExtends.IsNaN());
-}
-
-template <typename Type>
-void ezBoundingBoxSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
-{
-  *this = MakeFromPoints(pPoints, uiNumPoints, uiStride);
 }
 
 template <typename Type>
