@@ -43,8 +43,7 @@ void ezCameraShakeComponent::Update()
   {
     const float fLerp = ezMath::Clamp((tNow - m_ReferenceTime).AsFloatInSeconds() / tDuration.AsFloatInSeconds(), 0.0f, 1.0f);
 
-    ezQuat q;
-    q.SetSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
+    ezQuat q = ezQuat::MakeSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
 
     GetOwner()->SetLocalRotation(q);
   }
@@ -74,11 +73,11 @@ void ezCameraShakeComponent::GenerateKeyframe()
     m_Rotation.NormalizeRange();
 
     ezQuat qRot;
-    qRot.SetFromAxisAndAngle(ezVec3::UnitXAxis(), m_Rotation);
+    qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitXAxis(), m_Rotation);
 
     const ezVec3 tiltAxis = qRot * ezVec3::UnitZAxis();
 
-    m_qNextTarget.SetFromAxisAndAngle(tiltAxis, deviation);
+    m_qNextTarget = ezQuat::MakeFromAxisAndAngle(tiltAxis, deviation);
   }
   else
   {

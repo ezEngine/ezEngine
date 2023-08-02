@@ -200,7 +200,7 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
 //   const ezVec3 vShapePos = ezJoltConversionUtils::ToVec3(GetJoltCharacter()->GetCenterOfMassTransform().GetTranslation());
 //
 //   ezHybridArray<ContactPoint, 32> contacts;
-//   CollectCastContacts(contacts, GetJoltCharacter()->GetShape(), vShapePos, ezQuat::IdentityQuaternion(), vDirection /*+ vDirNormal*/);
+//   CollectCastContacts(contacts, GetJoltCharacter()->GetShape(), vShapePos, ezQuat::MakeIdentity(), vDirection /*+ vDirNormal*/);
 //
 //   ezDebugRenderer::DrawCross(GetWorld(), vShapePos, 0.2f, ezColor::GreenYellow);
 //
@@ -541,7 +541,7 @@ void ezJoltCharacterControllerComponent::VisualizeContact(const ContactPoint& co
 {
   ezTransform trans;
   trans.m_vPosition = contact.m_vPosition;
-  trans.m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
+  trans.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), contact.m_vContactNormal);
   trans.m_vScale.Set(1.0f);
 
   ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.1f, ezColor::MakeZero(), color, trans);

@@ -330,8 +330,7 @@ void ezSensorCylinderComponent::DebugDrawSensorShape() const
 {
   ezTransform pt = GetOwner()->GetGlobalTransform();
 
-  ezQuat r;
-  r.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90.0f));
+  ezQuat r = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90.0f));
   ezTransform t = ezTransform(ezVec3(0, 0, -0.5f * m_fHeight * pt.m_vScale.z), r, ezVec3(pt.m_vScale.z, pt.m_vScale.y, pt.m_vScale.x));
 
   pt.m_vScale.Set(1);
@@ -442,7 +441,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
     }
     else
     {
-      q.SetFromAxisAndAngle(ezVec3::UnitXAxis(), ezAngle::MakeFromDegree(90));
+      q = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitXAxis(), ezAngle::MakeFromDegree(90));
       fX *= m_fFarDistance;
       fCircleRadius *= m_fFarDistance;
     }

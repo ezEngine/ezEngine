@@ -459,7 +459,7 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key,
   if (bIsRotation)
   {
     ezQuat qRotation;
-    qRotation.SetFromEulerAngles(euler[0], euler[1], euler[2]);
+    qRotation = ezQuat::MakeFromEulerAngles(euler[0], euler[1], euler[2]);
     animValue = qRotation;
   }
 

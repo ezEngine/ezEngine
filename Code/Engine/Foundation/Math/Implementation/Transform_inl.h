@@ -26,7 +26,7 @@ inline ezTransformTemplate<Type> ezTransformTemplate<Type>::MakeIdentity()
 {
   ezTransformTemplate<Type> res;
   res.m_vPosition.SetZero();
-  res.m_qRotation = ezQuatTemplate<Type>::IdentityQuaternion();
+  res.m_qRotation = ezQuatTemplate<Type>::MakeIdentity();
   res.m_vScale.Set(1.0f);
   return res;
 }
@@ -40,7 +40,7 @@ ezTransformTemplate<Type> ezTransformTemplate<Type>::MakeFromMat4(const ezMat4Te
   res.m_vPosition = mMat.GetTranslationVector();
   res.m_vScale = mRot.GetScalingFactors();
   mRot.SetScalingFactors(ezVec3Template<Type>(1)).IgnoreResult();
-  res.m_qRotation.SetFromMat3(mRot);
+  res.m_qRotation = ezQuat::MakeFromMat3(mRot);
   return res;
 }
 

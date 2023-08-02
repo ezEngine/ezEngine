@@ -270,8 +270,7 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
     vPosOffset = mRevolve * vPosOffset;
   }
 
-  ezQuat qRot;
-  qRot.SetFromEulerAngles(ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.x + vRandR.x), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.z + vRandR.z));
+  ezQuat qRot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.x + vRandR.x), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.z + vRandR.z));
 
   for (const auto& pi : Duplicates)
   {

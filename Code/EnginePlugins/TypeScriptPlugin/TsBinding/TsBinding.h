@@ -251,8 +251,8 @@ public:
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
   static void SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQuat& value);
   static void SetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezQuat& value);
-  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::IdentityQuaternion());
-  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::IdentityQuaternion());
+  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::MakeIdentity());
+  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback = ezQuat::MakeIdentity());
 
   static void PushColor(duk_context* pDuk, const ezColor& value);
   static void SetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& value);

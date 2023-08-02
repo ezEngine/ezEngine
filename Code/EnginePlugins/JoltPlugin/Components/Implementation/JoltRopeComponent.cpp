@@ -513,7 +513,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
   //    transforms[p].m_vPosition = ownTrans * t0.m_vPosition;
   //    transforms[p].m_vScale.Set(1);
-  //    transforms[p].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ownTrans.m_qRotation * (t1.m_vPosition - t0.m_vPosition).GetNormalized());
+  //    transforms[p].m_qRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), ownTrans.m_qRotation * (t1.m_vPosition - t0.m_vPosition).GetNormalized());
 
   //    t0 = t1;
   //  }
@@ -625,7 +625,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
       transforms[idx2].m_vScale.Set(1);
       transforms[idx2].m_vPosition = ezSimdConversion::ToVec3(p0);
-      transforms[idx2].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
+      transforms[idx2].m_qRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
 
       ++idx2;
       p0 = p1;
@@ -648,7 +648,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
       transforms[idx2].m_qRotation = pAnchor2->GetGlobalRotation();
 
       ezVec3 dir = transforms[idx2].m_qRotation * ezVec3(1, 0, 0);
-      transforms[idx2].m_qRotation.SetShortestRotation(ezVec3(1, 0, 0), -dir);
+      transforms[idx2].m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), -dir);
 
       // transforms[idx2].m_qRotation.Flip();
       transforms[idx2].m_qRotation.Normalize();

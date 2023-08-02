@@ -149,7 +149,7 @@ void ezFollowPathComponent::Update(bool bForce)
   ezTransform tFinal;
   tFinal.m_vPosition = transform.m_vPosition;
   tFinal.m_vScale.Set(1);
-  tFinal.m_qRotation.SetFromMat3(mRot);
+  tFinal.m_qRotation = ezQuat::MakeFromMat3(mRot);
 
   GetOwner()->SetGlobalTransform(pPathObject->GetGlobalTransform() * tFinal);
 }

@@ -72,7 +72,7 @@ void ezQtExposedBoneWidget::SlotValueChanged()
     ezAngle y = ezAngle::MakeFromDegree(m_pRotWidget[1]->value());
     ezAngle z = ezAngle::MakeFromDegree(m_pRotWidget[2]->value());
 
-    pCopy->m_Transform.m_qRotation.SetFromEulerAngles(x, y, z);
+    pCopy->m_Transform.m_qRotation = ezQuat::MakeFromEulerAngles(x, y, z);
   }
 
   ezVariant newValue;

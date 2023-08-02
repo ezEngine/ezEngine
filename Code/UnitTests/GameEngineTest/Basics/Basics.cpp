@@ -435,7 +435,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
     ezTransform t;
     t.SetIdentity();
-    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(25));
+    t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(25));
     ezDebugRenderer::DrawLineBox(m_pWorld.Borrow(), bbox, ezColor::HotPink, t);
   }
 
@@ -446,7 +446,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
     ezTransform t;
     t.SetIdentity();
     t.m_vPosition.Set(0, 5, -2);
-    t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(25));
+    t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(25));
     ezDebugRenderer::DrawLineBoxCorners(m_pWorld.Borrow(), bbox, 0.5f, ezColor::DeepPink, t);
   }
 

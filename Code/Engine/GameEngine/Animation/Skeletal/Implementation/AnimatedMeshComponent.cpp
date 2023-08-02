@@ -265,8 +265,7 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
       pObject->SetLocalPosition(vNewPos);
 
       // not tested whether this is actually correct
-      ezQuat rotation;
-      rotation.SetFromEulerAngles(rotationX, rotationY, rotationZ);
+      ezQuat rotation = ezQuat::MakeFromEulerAngles(rotationX, rotationY, rotationZ);
 
       pObject->SetLocalRotation(rotation * pObject->GetLocalRotation());
 

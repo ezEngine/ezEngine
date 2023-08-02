@@ -1526,8 +1526,7 @@ void ezGeometry::AddStairs(const ezVec3& vSize, ezUInt32 uiNumSteps, ezAngle cur
   ezVec3 vSideNormal1(0, 1, 0);
   ezVec3 vStepFrontNormal(-1, 0, 0);
 
-  ezQuat qRot;
-  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), curveStep);
+  ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), curveStep);
 
   for (ezUInt32 step = 0; step < uiNumSteps; ++step)
   {

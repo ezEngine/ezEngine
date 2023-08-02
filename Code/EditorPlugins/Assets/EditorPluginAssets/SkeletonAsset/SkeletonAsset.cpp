@@ -59,7 +59,7 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
   }
 
   ezMat3 rot = ezBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, 1.0f);
-  t.m_qRotation.SetFromMat3(rot);
+  t.m_qRotation = ezQuat::MakeFromMat3(rot);
 
   return t;
 }

@@ -19,7 +19,7 @@ struct EZ_CORE_DLL ezGameObjectDesc
   ezGameObjectHandle m_hParent; ///< An optional parent object to attach this object to as a child.
 
   ezVec3 m_LocalPosition = ezVec3::ZeroVector();         ///< The local position relative to the parent (or the world)
-  ezQuat m_LocalRotation = ezQuat::IdentityQuaternion(); ///< The local rotation relative to the parent (or the world)
+  ezQuat m_LocalRotation = ezQuat::MakeIdentity(); ///< The local rotation relative to the parent (or the world)
   ezVec3 m_LocalScaling = ezVec3(1, 1, 1);               ///< The local scaling relative to the parent (or the world)
   float m_LocalUniformScaling = 1.0f;                    ///< An additional local uniform scaling relative to the parent (or the world)
   ezTagSet m_Tags;                                       ///< See ezGameObject::GetTags()

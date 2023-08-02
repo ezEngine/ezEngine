@@ -80,7 +80,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     TestSetValue(pMath, "Vec3I", ezVec3I32(1, 2, 3));
     TestSetValue(pMath, "Vec4I", ezVec4I32(1, 2, 3, 4));
     ezQuat qValue;
-    qValue.SetFromEulerAngles(ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(30));
+    qValue = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(30));
     TestSetValue(pMath, "Quat", qValue);
     ezMat3 mValue;
     mValue.SetRotationMatrixX(ezAngle::MakeFromDegree(30));

@@ -123,11 +123,11 @@ void ezCameraVisualizerAdapter::Update()
       m_LocalTransformFrustum.m_vScale.Set(fFrustumScale, fAngleScale * fFrustumScale, fAngleScale * fFrustumScale);
       m_LocalTransformFrustum.m_vPosition.Set(0, 0, 0);
 
-      m_LocalTransformNearPlane.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
+      m_LocalTransformNearPlane.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       m_LocalTransformNearPlane.m_vScale.Set(fAngleScale * fNearPlane, fAngleScale * fNearPlane, 1);
       m_LocalTransformNearPlane.m_vPosition.Set(fNearPlane, 0, 0);
 
-      m_LocalTransformFarPlane.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
+      m_LocalTransformFarPlane.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       m_LocalTransformFarPlane.m_vScale.Set(fAngleScale * fFarPlaneScale, fAngleScale * fFarPlaneScale, 1);
       m_LocalTransformFarPlane.m_vPosition.Set(fFarPlaneScale, 0, 0);
     }

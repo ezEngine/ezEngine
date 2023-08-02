@@ -108,7 +108,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
     if (!e->modifiers().testFlag(Qt::AltModifier))
       ezSnapProvider::SnapRotation(snappedRotation);
 
-    m_qRotationResult.SetFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
+    m_qRotationResult = ezQuat::MakeFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
 
     {
       m_fScaleMouseMove += diff.x;

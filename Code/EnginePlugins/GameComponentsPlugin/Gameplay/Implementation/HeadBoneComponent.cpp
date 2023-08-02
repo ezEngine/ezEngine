@@ -37,8 +37,8 @@ void ezHeadBoneComponent::Update()
   m_NewVerticalRotation = ezMath::Clamp(m_NewVerticalRotation, -m_MaxVerticalRotation, m_MaxVerticalRotation);
 
   ezQuat qOld, qNew;
-  qOld.SetFromAxisAndAngle(ezVec3(0, 1, 0), m_CurVerticalRotation);
-  qNew.SetFromAxisAndAngle(ezVec3(0, 1, 0), m_NewVerticalRotation);
+  qOld = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), m_CurVerticalRotation);
+  qNew = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), m_NewVerticalRotation);
 
   const ezQuat qChange = qNew * -qOld;
 

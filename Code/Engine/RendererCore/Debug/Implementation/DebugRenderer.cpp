@@ -528,7 +528,7 @@ void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const e
 
   auto& boxData = data.m_lineBoxes.ExpandAndGetRef();
 
-  ezTransform boxTransform(box.GetCenter(), ezQuat::IdentityQuaternion(), box.GetHalfExtents());
+  ezTransform boxTransform(box.GetCenter(), ezQuat::MakeIdentity(), box.GetHalfExtents());
 
   boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
@@ -789,7 +789,7 @@ void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const 
 
   auto& boxData = data.m_solidBoxes.ExpandAndGetRef();
 
-  ezTransform boxTransform(box.GetCenter(), ezQuat::IdentityQuaternion(), box.GetHalfExtents());
+  ezTransform boxTransform(box.GetCenter(), ezQuat::MakeIdentity(), box.GetHalfExtents());
 
   boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
@@ -906,13 +906,13 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
 ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Top*/)
 {
-  return AddTextLines(context, text, vPositionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
+  return AddTextLines(context, text, vPositionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
+    {
     auto& textLine = ref_data.m_textLines2D.ExpandAndGetRef();
     textLine.m_text = sLine;
     textLine.m_topLeftCorner = vTopLeftCorner;
     textLine.m_color = color;
-    textLine.m_uiSizeInPixel = uiSizeInPixel;
-  });
+    textLine.m_uiSizeInPixel = uiSizeInPixel; });
 }
 
 
@@ -932,14 +932,14 @@ void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, Screen
 
 ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Bottom*/)
 {
-  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
+  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
+    {
     auto& textLine = ref_data.m_textLines3D.ExpandAndGetRef();
     textLine.m_text = sLine;
     textLine.m_topLeftCorner = vTopLeftCorner;
     textLine.m_color = color;
     textLine.m_uiSizeInPixel = uiSizeInPixel;
-    textLine.m_position = vGlobalPosition;
-  });
+    textLine.m_position = vGlobalPosition; });
 }
 
 void ezDebugRenderer::AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)
@@ -993,11 +993,9 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   const ezUInt32 uiTesselation = ezMath::Max(1u, (ezUInt32)(range / ezAngle::MakeFromDegree(5)));
   const ezAngle step = range / (float)uiTesselation;
 
-  ezQuat qStart;
-  qStart.SetFromAxisAndAngle(vRotationAxis, startAngle);
+  ezQuat qStart = ezQuat::MakeFromAxisAndAngle(vRotationAxis, startAngle);
 
-  ezQuat qStep;
-  qStep.SetFromAxisAndAngle(vRotationAxis, step);
+  ezQuat qStep = ezQuat::MakeFromAxisAndAngle(vRotationAxis, step);
 
   ezVec3 vCurDir = qStart * vForwardAxis;
 
@@ -1055,11 +1053,9 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
 
   const ezVec3 tangentAxis = vForwardAxis.GetOrthogonalVector().GetNormalized();
 
-  ezQuat tilt;
-  tilt.SetFromAxisAndAngle(tangentAxis, halfAngle);
+  ezQuat tilt = ezQuat::MakeFromAxisAndAngle(tangentAxis, halfAngle);
 
-  ezQuat step;
-  step.SetFromAxisAndAngle(vForwardAxis, ezAngle::MakeFromDegree(360) / (float)uiTesselation);
+  ezQuat step = ezQuat::MakeFromAxisAndAngle(vForwardAxis, ezAngle::MakeFromDegree(360) / (float)uiTesselation);
 
   ezVec3 vCurDir = tilt * vForwardAxis;
 
@@ -1345,7 +1341,8 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       auto& cd = pData->m_infoTextData[corner];
 
       // InsertionSort is stable
-      ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool { return lhs.m_group < rhs.m_group; });
+      ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
+        { return lhs.m_group < rhs.m_group; });
 
       ezVec2I32 pos = anchor[corner];
 

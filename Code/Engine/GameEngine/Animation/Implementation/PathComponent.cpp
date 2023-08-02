@@ -663,8 +663,7 @@ static void ComputeSegmentUpVector(ezArrayPtr<ezPathComponent::LinearizedElement
 
     const ezAngle roll = ezMath::Lerp(cp0.m_Roll, cp1.m_Roll, fLerpFactor);
 
-    ezQuat qRoll;
-    qRoll.SetFromAxisAndAngle(tangents[t], roll);
+    ezQuat qRoll = ezQuat::MakeFromAxisAndAngle(tangents[t], roll);
 
     ezVec3 vLocalUp = ezMath::Lerp(cp0up, cp1up, fLerpFactor);
     vLocalUp.NormalizeIfNotZero(vWorldUp).IgnoreResult();

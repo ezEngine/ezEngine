@@ -507,8 +507,7 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
       if (m_MaxDeviation > ezAngle::MakeFromDegree(1.0f))
       {
         // how to get from the X axis to the desired normal
-        ezQuat qRotToDir;
-        qRotToDir.SetShortestRotation(ezVec3(1, 0, 0), vNormal);
+        ezQuat qRotToDir = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vNormal);
 
         for (ezUInt32 i = 0; i < uiNumElements; ++i)
         {

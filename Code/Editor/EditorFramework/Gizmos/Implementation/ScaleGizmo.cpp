@@ -219,11 +219,11 @@ void ezManipulatorScaleGizmo::OnTransformationChanged(const ezTransform& transfo
 
   m_hAxisX.SetTransformation(transform * t);
 
-  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
+  t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
   t.m_vPosition = ezVec3(0, fOffset, 0);
   m_hAxisY.SetTransformation(transform * t);
 
-  t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  t.m_qRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
   t.m_vPosition = ezVec3(0, 0, fOffset);
   m_hAxisZ.SetTransformation(transform * t);
 

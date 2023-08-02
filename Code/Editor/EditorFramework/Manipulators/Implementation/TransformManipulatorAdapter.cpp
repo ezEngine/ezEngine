@@ -150,7 +150,7 @@ ezQuat ezTransformManipulatorAdapter::GetRotation()
     return pObjectAccessor->Get<ezQuat>(m_pObject, GetProperty(pAttr->GetRotateProperty()));
   }
 
-  return ezQuat::IdentityQuaternion();
+  return ezQuat::MakeIdentity();
 }
 
 ezVec3 ezTransformManipulatorAdapter::GetScale()

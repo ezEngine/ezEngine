@@ -85,12 +85,12 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       item.m_pInteraction = &i;
     }
 
-    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool {
+    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool
+      {
       if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
         return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
 
-      return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
-    });
+      return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold; });
   }
 
   res.m_State = ezResourceState::Loaded;
@@ -275,7 +275,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
   ezTransform t;
   t.m_vPosition = vPosition;
-  t.m_qRotation.SetFromMat3(mRot);
+  t.m_qRotation = ezQuat::MakeFromMat3(mRot);
   t.m_vScale.Set(1.0f);
 
   // attach to dynamic objects

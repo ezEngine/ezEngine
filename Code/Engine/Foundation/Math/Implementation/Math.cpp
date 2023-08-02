@@ -310,19 +310,19 @@ ezQuat ezBasisAxis::GetBasisRotation_PosX(Enum axis)
       rotAxis.SetIdentity();
       break;
     case ezBasisAxis::PositiveY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
       break;
     case ezBasisAxis::PositiveZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::NegativeX:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
       break;
     case ezBasisAxis::NegativeY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::NegativeZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       break;
   }
 
@@ -338,19 +338,19 @@ ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
       rotId.SetIdentity();
       break;
     case ezBasisAxis::PositiveY:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::PositiveZ:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       break;
     case ezBasisAxis::NegativeX:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
       break;
     case ezBasisAxis::NegativeY:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
       break;
     case ezBasisAxis::NegativeZ:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
+      rotId = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       break;
   }
 
@@ -361,19 +361,19 @@ ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
       rotAxis.SetIdentity();
       break;
     case ezBasisAxis::PositiveY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
       break;
     case ezBasisAxis::PositiveZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::NegativeX:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(180));
       break;
     case ezBasisAxis::NegativeY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-90));
       break;
     case ezBasisAxis::NegativeZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
+      rotAxis = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90));
       break;
   }
 

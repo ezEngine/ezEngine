@@ -250,7 +250,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     mRot.SetColumn(0, cam->GetCenterDirRight());
     mRot.SetColumn(1, cam->GetCenterDirUp());
     mRot.SetColumn(2, cam->GetCenterDirForwards());
-    pRenderData->m_GlobalTransform.m_qRotation.SetFromMat3(mRot);
+    pRenderData->m_GlobalTransform.m_qRotation = ezQuat::MakeFromMat3(mRot);
 
     const ezVec3 vBottomLeft = cam->GetCenterPosition() - cam->GetCenterDirRight() * fDimX - cam->GetCenterDirUp() * fDimY;
     const ezVec3 vTopRight = cam->GetCenterPosition() + cam->GetCenterDirRight() * fDimX + cam->GetCenterDirUp() * fDimY;

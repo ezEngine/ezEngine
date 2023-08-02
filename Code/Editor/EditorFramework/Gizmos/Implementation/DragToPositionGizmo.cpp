@@ -245,11 +245,11 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
     if (alignAxis.GetAngleBetween(res.m_vPickedNormal) > ezAngle::MakeFromDegree(179))
     {
-      rot.SetFromAxisAndAngle(m_qStartOrientation * orthoAxis, ezAngle::MakeFromDegree(180));
+      rot = ezQuat::MakeFromAxisAndAngle(m_qStartOrientation * orthoAxis, ezAngle::MakeFromDegree(180));
     }
     else
     {
-      rot.SetShortestRotation(alignAxis, res.m_vPickedNormal);
+      rot = ezQuat::MakeShortestRotation(alignAxis, res.m_vPickedNormal);
     }
   }
 

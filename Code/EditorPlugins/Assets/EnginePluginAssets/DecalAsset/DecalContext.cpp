@@ -131,7 +131,7 @@ void ezDecalContext::OnInitialize()
     // box
     {
       obj.m_sName.Assign("Decal4");
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
+      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.25f, 0, 0);
       pWorld->CreateObject(obj, pObj);
 
@@ -144,7 +144,7 @@ void ezDecalContext::OnInitialize()
     // torus
     {
       obj.m_sName.Assign("Decal5");
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
+      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.2f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
@@ -157,7 +157,7 @@ void ezDecalContext::OnInitialize()
     // sphere
     {
       obj.m_sName.Assign("Decal6");
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
+      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.5f, 1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 

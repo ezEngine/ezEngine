@@ -283,7 +283,7 @@ void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
 
   if (!vAlignDir.IsZero())
   {
-    god.m_LocalRotation.SetShortestRotation(ezVec3(0, 0, 1), vAlignDir);
+    god.m_LocalRotation = ezQuat::MakeShortestRotation(ezVec3(0, 0, 1), vAlignDir);
   }
 
   ezGameObject* pObject = nullptr;

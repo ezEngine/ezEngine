@@ -128,7 +128,7 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
       vPivot = vDir.CrossRH(vPartToEm);
       vPivot.NormalizeIfNotZero().IgnoreResult();
 
-      qRot.SetFromAxisAndAngle(vPivot, m_MaxSteeringAngle);
+      qRot = ezQuat::MakeFromAxisAndAngle(vPivot, m_MaxSteeringAngle);
 
       itVelocity.Current() = qRot * vVelocity;
     }

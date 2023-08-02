@@ -398,7 +398,7 @@ void ezTypeScriptBinding::SetQuatProperty(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::IdentityQuaternion()*/)
+ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::MakeIdentity()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return qFallback;
@@ -422,7 +422,7 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat q
 }
 
 ezQuat ezTypeScriptBinding::GetQuatProperty(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::IdentityQuaternion()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat qFallback /*= ezQuat::MakeIdentity()*/)
 {
   ezDuktapeHelper duk(pDuk);
 

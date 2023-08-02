@@ -203,8 +203,7 @@ bool ezJoltWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_result, float 
 
   const JPH::CapsuleShape shape(fCapsuleHeight * 0.5f, fCapsuleRadius);
 
-  ezQuat qFixRot;
-  qFixRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
+  ezQuat qFixRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
 
   ezQuat qRot;
   qRot = transform.m_qRotation;
@@ -288,8 +287,7 @@ bool ezJoltWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleH
 
   const JPH::CapsuleShape shape(fCapsuleHeight * 0.5f, fCapsuleRadius);
 
-  ezQuat qFixRot;
-  qFixRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
+  ezQuat qFixRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
 
   ezQuat qRot;
   qRot = transform.m_qRotation;

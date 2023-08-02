@@ -326,17 +326,17 @@ ezResult ezJoltGrabObjectComponent::DetermineGrabPoint(const ezComponent* pActor
 
       grabPoints.SetCount(4);
       grabPoints[0].m_vLocalPosition.Set(-halfExt.x, 0, 0);
-      grabPoints[0].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitXAxis());
+      grabPoints[0].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitXAxis());
       grabPoints[1].m_vLocalPosition.Set(+halfExt.x, 0, 0);
-      grabPoints[1].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitXAxis());
+      grabPoints[1].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitXAxis());
       grabPoints[2].m_vLocalPosition.Set(0, -halfExt.y, 0);
-      grabPoints[2].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitYAxis());
+      grabPoints[2].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitYAxis());
       grabPoints[3].m_vLocalPosition.Set(0, +halfExt.y, 0);
-      grabPoints[3].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitYAxis());
+      grabPoints[3].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitYAxis());
       // grabPoints[4].m_vLocalPosition.Set(0, 0, -halfExt.z);
-      // grabPoints[4].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+      // grabPoints[4].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
       // grabPoints[5].m_vLocalPosition.Set(0, 0, +halfExt.z);
-      // grabPoints[5].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitZAxis());
+      // grabPoints[5].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitZAxis());
 
       for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
       {

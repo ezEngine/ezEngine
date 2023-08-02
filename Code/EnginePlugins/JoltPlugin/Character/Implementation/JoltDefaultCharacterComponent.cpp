@@ -273,8 +273,7 @@ void ezJoltDefaultCharacterComponent::ApplyRotationZ()
   if (m_InputRotateZ.GetRadian() == 0.0f)
     return;
 
-  ezQuat qRotZ;
-  qRotZ.SetFromAxisAndAngle(ezVec3(0, 0, 1), m_InputRotateZ);
+  ezQuat qRotZ = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), m_InputRotateZ);
   m_InputRotateZ.SetRadian(0.0);
 
   GetOwner()->SetGlobalRotation(qRotZ * GetOwner()->GetGlobalRotation());
@@ -420,8 +419,7 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
 
     if (!gnom.IsZero(0.01f))
     {
-      ezQuat rot;
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), gnom);
+      ezQuat rot = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), gnom);
 
       ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), ezColor::Aquamarine, ezTransform(gpos, rot));
     }
@@ -452,8 +450,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   m_bFeetOnSolidGround = false;
 
   ezTransform shapeTrans = GetOwner()->GetGlobalTransform();
-  ezQuat shapeRot;
-  shapeRot.SetShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
+  ezQuat shapeRot = ezQuat::MakeShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
 
   const float radius = m_fFootRadius;
   const float halfHeight = ezMath::Max(0.0f, m_fMaxStepDown - radius);
@@ -473,12 +470,12 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
     if (gnom.IsZero(0.01f))
     {
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+      rot = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
       color = ezColor::OrangeRed;
     }
     else
     {
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), gnom);
+      rot = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), gnom);
 
       if (gnom.Dot(ezVec3::UnitZAxis()) > ezMath::Cos(ezAngle::MakeFromDegree(40)))
       {

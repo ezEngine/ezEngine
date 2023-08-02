@@ -301,8 +301,7 @@ void ezRcAgentComponent::ApplySteering(const ezVec3& vDirection, float fSpeed)
 {
   // compute new rotation
   {
-    ezQuat qDesiredNewRotation;
-    qDesiredNewRotation.SetShortestRotation(ezVec3(1, 0, 0), vDirection);
+    ezQuat qDesiredNewRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vDirection);
 
     /// \todo Pass through character controller
     GetOwner()->SetGlobalRotation(qDesiredNewRotation);

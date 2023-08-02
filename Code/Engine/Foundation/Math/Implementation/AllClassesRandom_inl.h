@@ -105,8 +105,7 @@ ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviation(ezRandom& inout_r
   // *** Pre-compute this once: ***
 
   // how to get from the X axis to our desired basis
-  ezQuatTemplate<Type> qRotXtoDir;
-  qRotXtoDir.SetShortestRotation(ezVec3Template<Type>(1, 0, 0), vNormal);
+  ezQuatTemplate<Type> qRotXtoDir = ezQuat::MakeShortestRotation(ezVec3Template<Type>(1, 0, 0), vNormal);
 
   // *** Then call this with the precomputed value as often as needed: ***
 

@@ -228,7 +228,7 @@ void ezDrawBoxGizmo::UpdateBox()
 
   if (m_ManipulateMode == ManipulateMode::None || m_vFirstCorner == m_vSecondCorner)
   {
-    m_hBox.SetTransformation(ezTransform(ezVec3(0), ezQuat::IdentityQuaternion(), ezVec3(0)));
+    m_hBox.SetTransformation(ezTransform(ezVec3(0), ezQuat::MakeIdentity(), ezVec3(0)));
     m_hBox.SetVisible(false);
     return;
   }
@@ -267,7 +267,7 @@ void ezDrawBoxGizmo::UpdateBox()
     vSize.y = m_fBoxHeight;
   }
 
-  m_hBox.SetTransformation(ezTransform(vCenter, ezQuat::IdentityQuaternion(), vSize));
+  m_hBox.SetTransformation(ezTransform(vCenter, ezQuat::MakeIdentity(), vSize));
   m_hBox.SetVisible(true);
 }
 

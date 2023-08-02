@@ -269,8 +269,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
     // reference
     ezBoundingBox referenceBox = ezBoundingBoxT::MakeFromMinMax(ezVec3(3), ezVec3(5));
     {
-      ezQuat q;
-      q.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-30));
+      ezQuat q = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-30));
 
       ezTransform referenceTransform(ezVec3(4, 5, 6), q, ezVec3(1, -2, -4));
 

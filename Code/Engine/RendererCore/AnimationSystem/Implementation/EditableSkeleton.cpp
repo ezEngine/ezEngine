@@ -222,7 +222,7 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& re
   {
     const ezUInt16 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_LocalTransform);
 
-    CreateJointsRecursive(sb, ref_desc, nullptr, pJoint, idx, ezQuat::IdentityQuaternion(), ref_desc.m_RootTransform.GetAsMat4());
+    CreateJointsRecursive(sb, ref_desc, nullptr, pJoint, idx, ezQuat::MakeIdentity(), ref_desc.m_RootTransform.GetAsMat4());
   }
 
   sb.BuildSkeleton(ref_desc.m_Skeleton);

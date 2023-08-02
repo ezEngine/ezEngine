@@ -321,7 +321,7 @@ void ezQuatTemplate<Type>::ReconstructFromMat3(const ezMat3Template<Type>& mMat)
   m.SetColumn(1, y);
   m.SetColumn(2, z);
 
-  SetFromMat3(m);
+  *this = ezQuat::MakeFromMat3(m);
 }
 
 template <typename Type>
@@ -336,7 +336,7 @@ void ezQuatTemplate<Type>::ReconstructFromMat4(const ezMat4Template<Type>& mMat)
   m.SetColumn(1, y);
   m.SetColumn(2, z);
 
-  SetFromMat3(m);
+  *this = ezQuat::MakeFromMat3(m);
 }
 
 /*! \note This function will ALWAYS return a quaternion that rotates from one direction to another.

@@ -903,8 +903,7 @@ void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
   ezAngle y = ezAngle::MakeFromDegree(m_pWidget[1]->value());
   ezAngle z = ezAngle::MakeFromDegree(m_pWidget[2]->value());
 
-  ezQuat qRot;
-  qRot.SetFromEulerAngles(x, y, z);
+  ezQuat qRot = ezQuat::MakeFromEulerAngles(x, y, z);
 
   BroadcastValueChanged(qRot);
 }

@@ -410,7 +410,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
     bonesToHighlight.Clear();
 
   ezQuat qRotZtoX; // the capsule should extend along X, but the debug renderer draws them along Z
-  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
 
   for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
   {
@@ -642,8 +642,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
         vDirRef.Normalize();
 
         const ezVec3 vRotDir = shape.m_Transform.m_qRotation * qBoneDir * ezVec3(1, 0, 0);
-        ezQuat qRotRef;
-        qRotRef.SetFromAxisAndAngle(vRotDir, thisJoint.GetTwistLimitCenterAngle());
+        ezQuat qRotRef = ezQuat::MakeFromAxisAndAngle(vRotDir, thisJoint.GetTwistLimitCenterAngle());
         vDirRef = qRotRef * vDirRef;
 
         // if the current twist is outside the twist limit range, highlight the bone

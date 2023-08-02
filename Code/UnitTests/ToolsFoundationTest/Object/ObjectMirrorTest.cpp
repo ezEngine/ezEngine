@@ -79,7 +79,7 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
     case ezVariant::Type::Quaternion:
     {
       ezQuat quat;
-      quat.SetFromEulerAngles(ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(-15), ezAngle::MakeFromDegree(20));
+      quat = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(-15), ezAngle::MakeFromDegree(20));
       return ezVariant(quat);
     }
     case ezVariant::Type::Matrix3:

@@ -753,8 +753,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
   {
     ezTypedMemberProperty<ezQuat>* pTyped = static_cast<ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
 
-    ezQuat rot;
-    rot.SetFromEulerAngles(ezAngle::MakeFromDegree(fCurValue[0]), ezAngle::MakeFromDegree(fCurValue[1]), ezAngle::MakeFromDegree(fCurValue[2]));
+    ezQuat rot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fCurValue[0]), ezAngle::MakeFromDegree(fCurValue[1]), ezAngle::MakeFromDegree(fCurValue[2]));
 
     pTyped->SetValue(binding.m_pObject, rot);
   }

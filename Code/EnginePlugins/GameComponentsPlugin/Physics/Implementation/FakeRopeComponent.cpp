@@ -353,7 +353,7 @@ void ezFakeRopeComponent::SendCurrentPose()
       dir.NormalizeIfNotZero<3>();
 
       tGlobal.m_vPosition = ezSimdConversion::ToVec3(p0);
-      tGlobal.m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
+      tGlobal.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
 
       pieces[i].SetLocalTransform(tRoot, tGlobal);
     }

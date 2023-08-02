@@ -551,7 +551,7 @@ ezResult ezOpenDdlUtils::ConvertToQuat(const ezOpenDdlReaderElement* pElement, e
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_qResult.SetElements(pValues[0], pValues[1], pValues[2], pValues[3]);
+    out_qResult = ezQuat(pValues[0], pValues[1], pValues[2], pValues[3]);
 
     return EZ_SUCCESS;
   }

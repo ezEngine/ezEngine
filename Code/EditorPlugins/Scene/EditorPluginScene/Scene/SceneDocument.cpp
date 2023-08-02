@@ -271,7 +271,7 @@ void ezSceneDocument::SnapObjectToCamera()
   mRot.SetColumn(0, camera.GetCenterDirForwards());
   mRot.SetColumn(1, camera.GetCenterDirRight());
   mRot.SetColumn(2, camera.GetCenterDirUp());
-  transform.m_qRotation.SetFromMat3(mRot);
+  transform.m_qRotation = ezQuat::MakeFromMat3(mRot);
 
   auto* pHistory = GetCommandHistory();
 
@@ -1235,7 +1235,7 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   mRot.SetColumn(1, vUp.CrossRH(vDir).GetNormalized());
   mRot.SetColumn(2, vUp);
   ezQuat qRot;
-  qRot.SetFromMat3(mRot);
+  qRot = ezQuat::MakeFromMat3(mRot);
   qRot.Normalize();
 
   SetGlobalTransform(pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);

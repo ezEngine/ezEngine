@@ -900,8 +900,7 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
       shape.mHalfHeightOfCylinder = geo.m_Transform.m_vScale.x * 0.5f * fObjectScale;
       shape.mRadius = geo.m_Transform.m_vScale.z * fObjectScale;
 
-      ezQuat qRot;
-      qRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::MakeFromDegree(-90));
+      ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::MakeFromDegree(-90));
       out_shapeTransform.m_qRotation = out_shapeTransform.m_qRotation * qRot;
       out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
 
@@ -1103,8 +1102,7 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
 
     const ezQuat offsetRot = thisJoint.GetLocalOrientation();
 
-    ezQuat qTwist;
-    qTwist.SetFromAxisAndAngle(ezVec3::UnitYAxis(), thisJoint.GetTwistLimitCenterAngle());
+    ezQuat qTwist = ezQuat::MakeFromAxisAndAngle(ezVec3::UnitYAxis(), thisJoint.GetTwistLimitCenterAngle());
 
     pJoint->mDrawConstraintSize = 0.1f;
     pJoint->mPosition1 = pLink->mPosition;

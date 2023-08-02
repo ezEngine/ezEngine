@@ -62,7 +62,7 @@ private:
   ezUInt8 m_uiCollisionLayer = 0;
 
   ezEnum<ezSkeletonJointType> m_JointType;
-  ezQuat m_qLocalJointOrientation = ezQuat::IdentityQuaternion();
+  ezQuat m_qLocalJointOrientation = ezQuat::MakeIdentity();
   ezAngle m_HalfSwingLimitY;
   ezAngle m_HalfSwingLimitZ;
   ezAngle m_TwistLimitHalfAngle;

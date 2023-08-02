@@ -126,8 +126,7 @@ void RtsShipSteeringComponent::UpdateSteering()
     {
       const ezAngle toTurnNow = (bTargetIsRight ? 1.0f : -1.0f) * ezMath::Min(angleToTurn, m_MaxTurnSpeed * tDiff);
 
-      ezQuat qRot;
-      qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), toTurnNow);
+      ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), toTurnNow);
 
       transform.m_qRotation = qRot * transform.m_qRotation;
     }

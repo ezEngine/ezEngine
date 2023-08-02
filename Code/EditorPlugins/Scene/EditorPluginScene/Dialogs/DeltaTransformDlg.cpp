@@ -305,7 +305,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateX:
       case Mode::RotateXRandom:
       case Mode::RotateXDeviation:
-        qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(vRotate.x));
+        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(vRotate.x));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -316,7 +316,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateY:
       case Mode::RotateYRandom:
       case Mode::RotateYDeviation:
-        qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(vRotate.y));
+        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(vRotate.y));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -327,7 +327,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateZ:
       case Mode::RotateZRandom:
       case Mode::RotateZDeviation:
-        qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(vRotate.z));
+        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(vRotate.z));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -362,10 +362,10 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         if (s_fNaturalDeviationZ > 0.0f)
         {
           const ezVec3 vDeviationAxis = ezVec3::CreateRandomDeviationZ(rng, ezAngle::MakeFromDegree(s_fNaturalDeviationZ));
-          qDeviation.SetShortestRotation(ezVec3(0, 0, 1), vDeviationAxis);
+          qDeviation = ezQuat::MakeShortestRotation(ezVec3(0, 0, 1), vDeviationAxis);
         }
 
-        qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), randomRotationZ);
+        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), randomRotationZ);
         localTrans.m_qRotation = qDeviation * qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qDeviation * qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;

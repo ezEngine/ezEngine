@@ -65,7 +65,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
 
   if (PasteCmd.m_CreatedRootObject.IsValid())
   {
-    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos, ezQuat::IdentityQuaternion());
+    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos, ezQuat::MakeIdentity());
 
     m_DraggedObjects.PushBack(PasteCmd.m_CreatedRootObject);
   }

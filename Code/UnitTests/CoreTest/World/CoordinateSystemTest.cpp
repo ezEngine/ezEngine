@@ -39,8 +39,7 @@ void TestRotation(const ezCoordinateSystemConversion& atoB, const ezCoordinateSy
 
 ezQuat FromAxisAndAngle(const ezVec3& vAxis, ezAngle angle)
 {
-  ezQuat q;
-  q.SetFromAxisAndAngle(vAxis.GetNormalized(), angle);
+  ezQuat q = ezQuat::MakeFromAxisAndAngle(vAxis.GetNormalized(), angle);
   return q;
 }
 

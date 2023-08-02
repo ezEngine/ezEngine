@@ -41,8 +41,7 @@ void ezRotorComponent::Update()
       const float fNewDistance =
         CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
-      ezQuat qRotation;
-      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::MakeFromDegree(fNewDistance));
+      ezQuat qRotation = ezQuat::MakeFromAxisAndAngle(m_vRotationAxis, ezAngle::MakeFromDegree(fNewDistance));
 
       GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_qLastRotation * qRotation);
 
@@ -85,8 +84,7 @@ void ezRotorComponent::Update()
     {
       /// \todo This will probably give precision issues pretty quickly
 
-      ezQuat qRotation;
-      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::MakeFromDegree(m_fAnimationSpeed * GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds()));
+      ezQuat qRotation = ezQuat::MakeFromAxisAndAngle(m_vRotationAxis, ezAngle::MakeFromDegree(m_fAnimationSpeed * GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds()));
 
       GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * qRotation);
     }

@@ -95,8 +95,7 @@ void ProjectileComponent::Update()
 
         for (ezInt32 i = 0; i < CVar_SparksPerHit; ++i)
         {
-          ezQuat qRot;
-          qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree((i - (CVar_SparksPerHit / 2)) * fSteps));
+          ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree((i - (CVar_SparksPerHit / 2)) * fSteps));
 
           {
             ezGameObjectDesc desc;

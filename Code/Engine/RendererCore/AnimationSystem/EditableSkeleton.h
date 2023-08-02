@@ -29,7 +29,7 @@ struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneShape : public ezReflectedClass
   ezEnum<ezSkeletonJointGeometryType> m_Geometry;
 
   ezVec3 m_vOffset = ezVec3::ZeroVector();
-  ezQuat m_qRotation = ezQuat::IdentityQuaternion();
+  ezQuat m_qRotation = ezQuat::MakeIdentity();
 
   float m_fLength = 0;    // Box, Capsule; 0 means parent joint to this joint (auto mode)
   float m_fWidth = 0;     // Box
@@ -75,9 +75,9 @@ public:
   ezAngle m_SwingLimitZ;
 
   ezVec3 m_vGizmoOffsetPositionRO = ezVec3::ZeroVector();
-  ezQuat m_qGizmoOffsetRotationRO = ezQuat::IdentityQuaternion();
+  ezQuat m_qGizmoOffsetRotationRO = ezQuat::MakeIdentity();
 
-  ezQuat m_qLocalJointRotation = ezQuat::IdentityQuaternion();
+  ezQuat m_qLocalJointRotation = ezQuat::MakeIdentity();
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
   ezHybridArray<ezEditableSkeletonBoneShape, 1> m_BoneShapes;
