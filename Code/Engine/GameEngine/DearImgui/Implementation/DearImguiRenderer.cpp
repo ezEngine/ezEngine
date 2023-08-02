@@ -68,7 +68,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
       ezImguiRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezImguiRenderData>(nullptr);
       pRenderData->m_uiSortingKey = draw;
       pRenderData->m_GlobalTransform.SetIdentity();
-      pRenderData->m_GlobalBounds.SetInvalid();
+      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
 
       // copy the vertex data
       // uses the frame allocator to prevent unnecessary deallocations

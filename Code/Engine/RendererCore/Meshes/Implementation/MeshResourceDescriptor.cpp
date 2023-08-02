@@ -12,12 +12,12 @@
 
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
 {
-  m_Bounds.SetInvalid();
+  m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 }
 
 void ezMeshResourceDescriptor::Clear()
 {
-  m_Bounds.SetInvalid();
+  m_Bounds = ezBoundingBoxSphere::MakeInvalid();
   m_hMeshBuffer.Invalidate();
   m_Materials.Clear();
   m_MeshBufferDescriptor.Clear();
@@ -84,7 +84,7 @@ void ezMeshResourceDescriptor::AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 ui
   p.m_uiFirstPrimitive = uiFirstPrimitive;
   p.m_uiPrimitiveCount = uiPrimitiveCount;
   p.m_uiMaterialIndex = uiMaterialIndex;
-  p.m_Bounds.SetInvalid();
+  p.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 
   m_SubMeshes.PushBack(p);
 }
@@ -381,7 +381,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& inout_stream)
         chunk >> m_SubMeshes[idx].m_uiPrimitiveCount;
 
         /// \todo load from file
-        m_SubMeshes[idx].m_Bounds.SetInvalid();
+        m_SubMeshes[idx].m_Bounds = ezBoundingBoxSphere::MakeInvalid();
       }
     }
 

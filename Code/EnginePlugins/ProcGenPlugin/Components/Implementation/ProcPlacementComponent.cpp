@@ -205,7 +205,8 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
       }
 
       // Sort by distance, larger distances come first since new tiles are processed in reverse order.
-      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB) { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
+      m_NewTiles.Sort([](auto& ref_tileA, auto& ref_tileB)
+        { return ref_tileA.m_fDistanceToCamera > ref_tileB.m_fDistanceToCamera; });
     }
 
     ClearVisibleComponents();
@@ -305,7 +306,8 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
     sortedTask.m_uiTaskIndex = i;
   }
 
-  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB) { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
+  m_SortedProcessingTasks.Sort([](auto& ref_taskA, auto& ref_taskB)
+    { return ref_taskA.m_uiScheduledFrame < ref_taskB.m_uiScheduledFrame; });
 
   ezUInt32 uiTotalNumPlacedObjects = 0;
 
@@ -667,12 +669,11 @@ void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_m
   if (m_BoxExtents.IsEmpty())
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   for (auto& boxExtent : m_BoxExtents)
   {
-    ezBoundingBoxSphere localBox = ezBoundingBox::MakeFromMinMax(-boxExtent.m_vExtents * 0.5f, boxExtent.m_vExtents * 0.5f);
+    ezBoundingBoxSphere localBox = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-boxExtent.m_vExtents * 0.5f, boxExtent.m_vExtents * 0.5f));
     localBox.Transform(ezTransform(boxExtent.m_vOffset, boxExtent.m_Rotation).GetAsMat4());
 
     bounds.ExpandToInclude(localBox);

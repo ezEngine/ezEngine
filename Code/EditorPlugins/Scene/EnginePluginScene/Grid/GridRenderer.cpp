@@ -230,7 +230,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   float fDensity = m_pSceneContext->GetGridDensity();
 
   ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr);
-  pRenderData->m_GlobalBounds.SetInvalid();
+  pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
   pRenderData->m_bOrthoMode = cam->IsOrthographic();
   pRenderData->m_bGlobal = m_pSceneContext->IsGridInGlobalSpace();
 

@@ -193,7 +193,7 @@ namespace ezRmlUiInternal
     {
       ezRmlUiRenderData* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezRmlUiRenderData, ezFrameAllocator::GetCurrentAllocator());
       pRenderData->m_GlobalTransform.SetIdentity();
-      pRenderData->m_GlobalBounds.SetInvalid();
+      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
       pRenderData->m_Batches = m_Batches;
 
       return pRenderData;

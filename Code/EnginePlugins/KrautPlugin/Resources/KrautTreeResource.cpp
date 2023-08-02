@@ -22,7 +22,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezKrautTreeResource);
 ezKrautTreeResource::ezKrautTreeResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
 {
-  m_Details.m_Bounds.SetInvalid();
+  m_Details.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 }
 
 ezResourceLoadDesc ezKrautTreeResource::UnloadData(Unload WhatToUnload)

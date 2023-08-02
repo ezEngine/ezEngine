@@ -38,7 +38,7 @@ namespace
         category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
       }
 
-      ref_msg.AddBounds(bounds, category);
+      ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(bounds), category);
     }
 
     ezSpatialData::Category m_SpecialCategory = ezInvalidSpatialDataCategory;

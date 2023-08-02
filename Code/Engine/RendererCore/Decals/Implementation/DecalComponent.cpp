@@ -227,7 +227,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
   ezVec3 vHalfExtents = (axisRotation * vAspectCorrection).Abs().CompMul(m_vExtents * 0.5f);
 
-  bounds = ezBoundingBox::MakeFromMinMax(-vHalfExtents, vHalfExtents);
+  bounds = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-vHalfExtents, vHalfExtents));
   return EZ_SUCCESS;
 }
 
@@ -414,7 +414,8 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       const auto& item = atlas.m_Items.GetValue(decalIdx);
       uiDecalFlags = item.m_uiFlags;
 
-      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 vTextureSize) {
+      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 vTextureSize)
+      {
         ezVec4 result;
         result.x = (float)layerRect.width / vTextureSize.x * 0.5f;
         result.y = (float)layerRect.height / vTextureSize.y * 0.5f;

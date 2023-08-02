@@ -56,8 +56,7 @@ void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
 
   for (const auto& obj : m_Selection)
   {
-    ezBoundingBoxSphere bounds;
-    bounds.SetInvalid();
+    ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
     ezGameObject* pObj;
     if (!m_pWorld->TryGetObject(obj, pObj))
@@ -413,8 +412,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   if (m_Selection.IsEmpty())
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
@@ -437,7 +435,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
         if (!m_pWorld->TryGetObject(obj, pObj))
           continue;
 
-        bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.0f), 0.0f));
+        bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromCenterExtents(pObj->GetGlobalPosition(), ezVec3(0.0f), 0.0f));
       }
     }
   }
@@ -937,7 +935,8 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
     paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+    { return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash(); });
 
   file << exposedParams.GetCount();
 

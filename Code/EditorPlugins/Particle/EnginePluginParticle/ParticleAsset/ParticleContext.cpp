@@ -188,7 +188,7 @@ void ezParticleContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 void ezParticleContext::OnThumbnailViewContextRequested()
 {
-  m_ThumbnailBoundingVolume.SetInvalid();
+  m_ThumbnailBoundingVolume = ezBoundingBoxSphere::MakeInvalid();
 }
 
 bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)

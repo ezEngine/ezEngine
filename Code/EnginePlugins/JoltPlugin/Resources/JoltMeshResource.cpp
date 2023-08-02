@@ -52,7 +52,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezJoltMeshResource);
 ezJoltMeshResource::ezJoltMeshResource()
   : ezResource(DoUpdate::OnMainThread, 1)
 {
-  m_Bounds = ezBoundingBoxSphere(ezVec3::ZeroVector(), ezVec3::ZeroVector(), 0);
+  m_Bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector(), 0);
 
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezJoltMeshResource);
 }

@@ -76,7 +76,7 @@ namespace ezSimdConversion
   EZ_ALWAYS_INLINE ezBoundingBoxSphere ToBBoxSphere(const ezSimdBBoxSphere& b)
   {
     ezVec4 centerAndRadius = ToVec4(b.m_CenterAndRadius);
-    return ezBoundingBoxSphere(centerAndRadius.GetAsVec3(), ToVec3(b.m_BoxHalfExtents), centerAndRadius.w);
+    return ezBoundingBoxSphere::MakeFromCenterExtents(centerAndRadius.GetAsVec3(), ToVec3(b.m_BoxHalfExtents), centerAndRadius.w);
   }
 
   EZ_ALWAYS_INLINE ezSimdBBoxSphere ToBBoxSphere(const ezBoundingBoxSphere& b)

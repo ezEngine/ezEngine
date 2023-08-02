@@ -120,7 +120,7 @@ ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& 
     const float fHalfWidth = m_fWidth * 0.5f;
     box.m_vMin -= ezVec3(0, fHalfWidth, fHalfWidth);
     box.m_vMax += ezVec3(0, fHalfWidth, fHalfWidth);
-    ref_bounds = box;
+    ref_bounds = ezBoundingBoxSphere::MakeFromBox(box);
 
     return EZ_SUCCESS;
   }

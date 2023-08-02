@@ -197,8 +197,7 @@ void ezKrautTreeContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMs
   if (m_pMainObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());

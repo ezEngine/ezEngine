@@ -116,8 +116,7 @@ void ezAnimatedMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* 
   if (m_pAnimatedMeshObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());

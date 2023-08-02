@@ -40,7 +40,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_bIsSharedEffect = bIsShared;
   m_bEmitterEnabled = true;
   m_bIsFinishing = false;
-  m_BoundingVolume.SetInvalid();
+  m_BoundingVolume = ezBoundingBoxSphere::MakeInvalid();
   m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
   m_EffectIsVisible = ezTime::MakeZero();
   m_iMinSimStepsToDo = 4;
@@ -655,8 +655,7 @@ void ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& ref_volume
 
 void ezParticleEffectInstance::CombineSystemBoundingVolumes()
 {
-  ezBoundingBoxSphere effectVolume;
-  effectVolume.SetInvalid();
+  ezBoundingBoxSphere effectVolume = ezBoundingBoxSphere::MakeInvalid();
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {

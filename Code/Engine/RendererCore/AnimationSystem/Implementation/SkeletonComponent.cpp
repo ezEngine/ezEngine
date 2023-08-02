@@ -48,7 +48,7 @@ ezResult ezSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bo
   if (m_MaxBounds.IsValid())
   {
     ezBoundingBox bbox = m_MaxBounds;
-    ref_bounds = bbox;
+    ref_bounds = ezBoundingBoxSphere::MakeFromBox(bbox);
     ref_bounds.Transform(m_RootTransform.GetAsMat4());
     return EZ_SUCCESS;
   }
@@ -258,7 +258,8 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
   const ezVec3 vBoneDir = ezBasisAxis::GetBasisVector(msg.m_pSkeleton->m_BoneDirection);
 
-  auto renderBone = [&](int iCurrentBone, int iParentBone) {
+  auto renderBone = [&](int iCurrentBone, int iParentBone)
+  {
     if (iParentBone == ozz::animation::Skeleton::kNoParent)
       return;
 

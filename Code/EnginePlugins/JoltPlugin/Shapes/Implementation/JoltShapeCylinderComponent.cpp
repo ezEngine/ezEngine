@@ -56,7 +56,8 @@ void ezJoltShapeCylinderComponent::DeserializeComponent(ezWorldReader& inout_str
 
 void ezJoltShapeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingBox::MakeFromMinMax(ezVec3(-m_fRadius, -m_fRadius, -m_fHeight * 0.5f), ezVec3(m_fRadius, m_fRadius, m_fHeight * 0.5f)), ezInvalidSpatialDataCategory);
+  ezBoundingBox box = ezBoundingBox::MakeFromMinMax(ezVec3(-m_fRadius, -m_fRadius, -m_fHeight * 0.5f), ezVec3(m_fRadius, m_fRadius, m_fHeight * 0.5f));
+  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(box), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltShapeCylinderComponent::SetRadius(float f)

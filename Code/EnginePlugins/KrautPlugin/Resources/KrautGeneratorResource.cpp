@@ -549,7 +549,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
 
   ezLog::Debug("AO vertices: {}, checks: {}", uiOccVertices, uiOccChecks);
 
-  ref_dstDesc.m_Details.m_Bounds = ezBoundingBoxSphere(bbox2);
+  ref_dstDesc.m_Details.m_Bounds = ezBoundingBoxSphere::MakeFromBox(bbox2);
   ref_dstDesc.m_Details.m_fStaticColliderRadius = m_pDescriptor->m_fStaticColliderRadius;
   ref_dstDesc.m_Details.m_sSurfaceResource = m_pDescriptor->m_sSurfaceResource;
   ref_dstDesc.m_Details.m_vLeafCenter = ref_dstDesc.m_Details.m_Bounds.m_vCenter;

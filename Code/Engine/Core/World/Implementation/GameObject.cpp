@@ -656,7 +656,7 @@ void ezGameObject::UpdateGlobalTransform()
 void ezGameObject::UpdateLocalBounds()
 {
   ezMsgUpdateLocalBounds msg;
-  msg.m_ResultingLocalBounds.SetInvalid();
+  msg.m_ResultingLocalBounds = ezBoundingBoxSphere::MakeInvalid();
 
   SendMessage(msg);
 

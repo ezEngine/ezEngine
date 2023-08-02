@@ -80,7 +80,7 @@ void ezRopeRenderComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_LocalBounds.SetInvalid();
+  m_LocalBounds = ezBoundingBoxSphere::MakeInvalid();
 }
 
 void ezRopeRenderComponent::OnDeactivated()
@@ -290,7 +290,7 @@ void ezRopeRenderComponent::OnRopePoseUpdated(ezMsgRopePoseUpdated& msg)
   // if the existing bounds are big enough, don't update them
   if (!m_LocalBounds.IsValid() || !m_LocalBounds.GetBox().Contains(newBounds))
   {
-    m_LocalBounds.ExpandToInclude(newBounds);
+    m_LocalBounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(newBounds));
 
     TriggerLocalBoundsUpdate();
   }

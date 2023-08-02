@@ -43,7 +43,7 @@ ezAtomicInteger32 s_iCustomMeshResources;
 
 ezCustomMeshComponent::ezCustomMeshComponent()
 {
-  m_Bounds.SetInvalid();
+  m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 }
 
 ezCustomMeshComponent::~ezCustomMeshComponent() = default;

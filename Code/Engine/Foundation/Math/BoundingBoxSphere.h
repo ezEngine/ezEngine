@@ -20,6 +20,10 @@ public:
   /// \brief Default constructor does not initialize anything.
   ezBoundingBoxSphereTemplate(); // [tested]
 
+  ezBoundingBoxSphereTemplate(const ezBoundingBoxSphereTemplate& rhs);
+
+  void operator=(const ezBoundingBoxSphereTemplate& rhs);
+
   /// \brief Constructs the bounds from the center position, the box half extends and the sphere radius.
   /*[[deprecated("Use MakeFromCenterExtents() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius); // [tested]
 
@@ -27,10 +31,10 @@ public:
   /*[[deprecated("Use MakeFromBoxAndSphere() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box, const ezBoundingSphereTemplate<Type>& sphere); // [tested]
 
   /// \brief Constructs the bounds from the given box. The sphere radius is calculated from the box extends.
-  /*[[deprecated("Use MakeFromBox() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box); // [tested]
+  ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box); // [tested]
 
   /// \brief Constructs the bounds from the given sphere. The box extends are calculated from the sphere radius.
-  /*[[deprecated("Use MakeFromSphere() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezBoundingSphereTemplate<Type>& sphere); // [tested]
+  ezBoundingBoxSphereTemplate(const ezBoundingSphereTemplate<Type>& sphere); // [tested]
 
   /// \brief Creates an object with all zero values. These are valid bounds around the origin with no volume.
   [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeZero();

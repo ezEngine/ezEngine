@@ -246,7 +246,7 @@ ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
 
   ezBoundingBox bbox = m_MaxBounds;
   bbox.Grow(ezVec3(pMesh->m_fMaxBoneVertexOffset));
-  bounds = bbox;
+  bounds = ezBoundingBoxSphere::MakeFromBox(bbox);
   bounds.Transform(m_RootTransform.GetAsMat4());
   return EZ_SUCCESS;
 }

@@ -241,7 +241,7 @@ ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
 {
   if (m_Bbox.IsValid())
   {
-    ref_bounds.ExpandToInclude(m_Bbox);
+    ref_bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(m_Bbox));
   }
   else
   {
@@ -251,7 +251,7 @@ ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
     box.ExpandToInclude(ezVec3(0, m_vSize.y, +0.1f));
     box.ExpandToInclude(ezVec3(m_vSize.x, m_vSize.y, 0));
 
-    ref_bounds.ExpandToInclude(box);
+    ref_bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(box));
   }
 
   return EZ_SUCCESS;

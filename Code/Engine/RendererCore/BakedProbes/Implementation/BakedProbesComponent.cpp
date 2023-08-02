@@ -309,7 +309,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
     ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
     {
       pRenderData->m_GlobalTransform = transform;
-      pRenderData->m_GlobalBounds.SetInvalid();
+      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
       pRenderData->m_hMesh = pManager->m_hDebugSphere;
       pRenderData->m_hMaterial = pManager->m_hDebugMaterial;
       pRenderData->m_Color = encodedSkyVisibility;

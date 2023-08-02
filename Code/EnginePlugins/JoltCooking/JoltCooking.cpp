@@ -297,8 +297,7 @@ ezStatus ezJoltCooking::WriteResourceToStream(ezChunkStreamWriter& inout_stream,
   {
     inout_stream.BeginChunk("Details", 1);
 
-    ezBoundingBoxSphere aabb;
-    aabb.SetFromPoints(mesh.m_Vertices.GetData(), mesh.m_Vertices.GetCount());
+    ezBoundingBoxSphere aabb = ezBoundingBoxSphere::MakeFromPoints(mesh.m_Vertices.GetData(), mesh.m_Vertices.GetCount());
 
     inout_stream << aabb;
 
