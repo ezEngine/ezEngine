@@ -264,8 +264,7 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
 
     revolve += fStep * m_RevolveAngleStep;
 
-    ezMat3 mRevolve;
-    mRevolve.SetRotationMatrix(vRevolveAxis, revolve);
+    ezMat3 mRevolve = ezMat3::MakeAxisRotation(vRevolveAxis, revolve);
 
     vPosOffset = mRevolve * vPosOffset;
   }

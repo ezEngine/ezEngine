@@ -36,10 +36,10 @@ void ezGameGrid<CellData>::SetWorldSpaceDimensions(const ezVec3& vLowerLeftCorne
       mRot.SetIdentity();
       break;
     case InPlaneXZ:
-      mRot.SetRotationMatrix(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
+      mRot = ezMat3::MakeAxisRotation(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
       break;
     case InPlaneXminusZ:
-      mRot.SetRotationMatrix(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(-90.0f));
+      mRot = ezMat3::MakeAxisRotation(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(-90.0f));
       break;
   }
 

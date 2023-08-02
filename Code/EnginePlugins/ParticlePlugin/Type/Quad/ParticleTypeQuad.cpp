@@ -280,50 +280,52 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
 
   AllocateParticleData(numParticles, bNeedsBillboardData, bNeedsTangentData);
 
-  auto SetBaseData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetBaseData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     m_BaseParticleData[uiDstIdx].Size = pSize[uiSrcIdx];
     m_BaseParticleData[uiDstIdx].Color = pColor[uiSrcIdx].ToLinearFloat() * tintColor;
     m_BaseParticleData[uiDstIdx].Life = pLifeTime[uiSrcIdx].x * pLifeTime[uiSrcIdx].y;
     m_BaseParticleData[uiDstIdx].Variation = (pVariation != nullptr) ? pVariation[uiSrcIdx] : 0;
   };
 
-  auto SetBillboardData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetBillboardData = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     m_BillboardParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
     m_BillboardParticleData[uiDstIdx].RotationOffset = pRotationOffset[uiSrcIdx];
     m_BillboardParticleData[uiDstIdx].RotationSpeed = pRotationSpeed[uiSrcIdx];
   };
 
-  auto SetTangentDataEmitterDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
-    ezMat3 mRotation;
-    mRotation.SetRotationMatrix(vEmitterDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
+  auto SetTangentDataEmitterDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
+    ezMat3 mRotation = ezMat3::MakeAxisRotation(vEmitterDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
     m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
     m_TangentParticleData[uiDstIdx].TangentX = mRotation * vEmitterDirOrtho;
     m_TangentParticleData[uiDstIdx].TangentZ = vEmitterDir;
   };
 
-  auto SetTangentDataEmitterDirOrtho = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataEmitterDirOrtho = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     const ezVec3 vDirToParticle = (pPosition[uiSrcIdx].GetAsVec3() - vEmitterPos);
     ezVec3 vOrthoDir = vEmitterDir.CrossRH(vDirToParticle);
     vOrthoDir.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
 
-    ezMat3 mRotation;
-    mRotation.SetRotationMatrix(vOrthoDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
+    ezMat3 mRotation = ezMat3::MakeAxisRotation(vOrthoDir, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
     m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
     m_TangentParticleData[uiDstIdx].TangentX = vOrthoDir;
     m_TangentParticleData[uiDstIdx].TangentZ = mRotation * vEmitterDir;
   };
 
-  auto SetTangentDataFromAxis = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataFromAxis = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     EZ_ASSERT_DEBUG(pAxis != nullptr, "Axis must be valid");
     ezVec3 vNormal = pAxis[uiSrcIdx];
     vNormal.Normalize();
 
     const ezVec3 vTangentStart = vNormal.GetOrthogonalVector().GetNormalized();
 
-    ezMat3 mRotation;
-    mRotation.SetRotationMatrix(vNormal, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
+    ezMat3 mRotation = ezMat3::MakeAxisRotation(vNormal, ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[uiSrcIdx]) + pRotationOffset[uiSrcIdx]));
 
     const ezVec3 vTangentX = mRotation * vTangentStart;
 
@@ -332,13 +334,15 @@ void ezParticleTypeQuad::CreateExtractedData(const ezHybridArray<sod, 64>* pSort
     m_TangentParticleData[uiDstIdx].TangentZ = vTangentX.CrossRH(vNormal);
   };
 
-  auto SetTangentDataAligned_Emitter = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataAligned_Emitter = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     m_TangentParticleData[uiDstIdx].Position = pPosition[uiSrcIdx].GetAsVec3();
     m_TangentParticleData[uiDstIdx].TangentX = vEmitterDir;
     m_TangentParticleData[uiDstIdx].TangentZ.x = m_fStretch;
   };
 
-  auto SetTangentDataAligned_ParticleDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx) {
+  auto SetTangentDataAligned_ParticleDir = [&](ezUInt32 uiDstIdx, ezUInt32 uiSrcIdx)
+  {
     const ezVec3 vCurPos = pPosition[uiSrcIdx].GetAsVec3();
     const ezVec3 vLastPos = pLastPosition[uiSrcIdx];
     const ezVec3 vDir = vCurPos - vLastPos;
@@ -613,4 +617,3 @@ ezParticleTypeQuadFactory_1_2 g_ezParticleTypeQuadFactory_1_2;
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Quad_ParticleTypeQuad);
-

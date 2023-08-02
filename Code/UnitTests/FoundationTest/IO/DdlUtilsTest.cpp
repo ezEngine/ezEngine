@@ -231,7 +231,7 @@ Group $v1 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9 } }\
     EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToMat3(doc.FindElement("v0"), v0).Failed());
     EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToMat3(doc.FindElement("v1"), v1).Succeeded());
 
-    EZ_TEST_BOOL(v1.IsEqual(ezMat3(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
+    EZ_TEST_BOOL(v1.IsEqual(ezMat3::MakeFromValues(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToMat4")
@@ -523,7 +523,7 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
-    ezOpenDdlUtils::StoreMat3(js, ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9), "v1", true);
+    ezOpenDdlUtils::StoreMat3(js, ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9), "v1", true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreMat4")

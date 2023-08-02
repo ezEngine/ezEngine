@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (composite)")
   {
-    ezMat3T mr(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T mr = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
     ezVec3T vt(10, 11, 12);
 
     ezMat4T m(mr, vt);
@@ -151,7 +151,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeTransformation")
   {
-    ezMat3T mr(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T mr = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
     ezVec3T vt(10, 11, 12);
 
     ezMat4T m = ezMat4T::MakeTransformation(mr, vt);
@@ -644,7 +644,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
   {
     ezMat4T m = ezMat4T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
 
-    ezMat3T r(17, 18, 19, 20, 21, 22, 23, 24, 25);
+    ezMat3T r = ezMat3T::MakeFromValues(17, 18, 19, 20, 21, 22, 23, 24, 25);
 
     m.SetRotationalPart(r);
     EZ_TEST_VEC4(m.GetRow(0), ezVec4T(17, 18, 19, 4), 0.0f);

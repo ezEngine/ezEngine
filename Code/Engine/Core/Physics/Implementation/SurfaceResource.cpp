@@ -85,7 +85,8 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       item.m_pInteraction = &i;
     }
 
-    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool {
+    m_Interactions.Sort([](const SurfInt& lhs, const SurfInt& rhs) -> bool
+      {
       if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
         return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
 
@@ -216,8 +217,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   {
     double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0);
 
-    ezMat3 rotMat;
-    rotMat.SetRotationMatrix(vDir, ezAngle::MakeFromRadian((float)randomAngle));
+    ezMat3 rotMat = ezMat3::MakeAxisRotation(vDir, ezAngle::MakeFromRadian((float)randomAngle));
 
     vTangent = rotMat * vTangent;
   }
@@ -257,8 +257,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
     const ezAngle deviation = ezAngle::MakeFromRadian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
 
     // tilt around the tangent (we don't want to compute another random rotation here)
-    ezMat3 matTilt;
-    matTilt.SetRotationMatrix(vTangent, deviation);
+    ezMat3 matTilt = ezMat3::MakeAxisRotation(vTangent, deviation);
 
     vDir = matTilt * vDir;
   }

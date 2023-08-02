@@ -98,10 +98,10 @@ public:
   // *** Special matrix constructors ***
 public:
   /// \brief Sets all elements to zero.
-  /*[[deprecated("Use ezMat3::MakeZero() instead.")]]*/ void SetZero(); // [tested]
+  void SetZero(); // [tested]
 
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
-  /*[[deprecated("Use ezMat3::MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
+  void SetIdentity(); // [tested]
 
   /// \brief Sets the matrix to all zero, except the diagonal, which is set to x,y,z,1
   /*[[deprecated("Use ezMat3::MakeScaling() instead.")]]*/ void SetScalingMatrix(const ezVec3Template<Type>& vScale); // [tested]

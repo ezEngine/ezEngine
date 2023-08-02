@@ -276,7 +276,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableMat3("var1", ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    js.AddVariableMat3("var1", ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat4")

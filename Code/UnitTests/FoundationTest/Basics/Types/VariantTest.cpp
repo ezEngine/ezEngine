@@ -667,22 +667,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMat3")
   {
-    ezVariant v(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    ezVariant v(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
     TestVariant<ezMat3>(v, ezVariantType::Matrix3);
 
-    EZ_TEST_BOOL(v.Get<ezMat3>() == ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    EZ_TEST_BOOL(v.Get<ezMat3>() == ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
 
-    EZ_TEST_BOOL(v == ezVariant(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9)));
-    EZ_TEST_BOOL(v != ezVariant(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 8)));
+    EZ_TEST_BOOL(v == ezVariant(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9)));
+    EZ_TEST_BOOL(v != ezVariant(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 8)));
 
-    EZ_TEST_BOOL(v == ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
-    EZ_TEST_BOOL(v != ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 8));
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    EZ_TEST_BOOL(v != ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 8));
 
-    v = ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 5);
-    EZ_TEST_BOOL(v == ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 5));
+    v = ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5);
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5));
 
-    v = ezVariant(ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
-    EZ_TEST_BOOL(v == ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
+    v = ezVariant(ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 4));
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 4));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -1491,7 +1491,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezMat3)")
   {
-    ezMat3 m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3 m = ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
     ezVariant v(m);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Matrix3);

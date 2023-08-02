@@ -83,8 +83,7 @@ namespace ezModelImporter2
         // Only FBX files have this unit scale factor and the default unit for FBX is cm. We want meters.
         fUnitScale /= 100.0f;
 
-        ezMat3 s;
-        s.SetScalingMatrix(ezVec3(fUnitScale));
+        ezMat3 s = ezMat3::MakeScaling(ezVec3(fUnitScale));
 
         m_Options.m_RootTransform = s * m_Options.m_RootTransform;
       }
