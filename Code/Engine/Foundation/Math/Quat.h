@@ -52,7 +52,7 @@ public:
   // *** Functions to create a quaternion ***
 public:
   /// \brief Sets the Quaternion to the identity.
-  /*[[deprecated("Use ezQuat::MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
+  void SetIdentity(); // [tested]
 
   /// \brief Sets the individual elements of the quaternion directly. Note that x,y,z do NOT represent a rotation axis, and w does NOT represent an
   /// angle.
