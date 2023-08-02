@@ -243,8 +243,7 @@ void ezWorldReader::ReadComponentTypeInfo(ezUInt32 uiComponentTypeIdx)
 
 void ezWorldReader::ReadComponentDataToMemStream(bool warningOnUnknownSkip)
 {
-  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents)
-  {
+  auto WriteToMemStream = [&](ezMemoryStreamWriter& ref_writer, bool bReadNumComponents) {
     ezUInt8 Temp[4096];
     for (auto& compTypeInfo : m_ComponentTypes)
     {

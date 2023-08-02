@@ -122,7 +122,7 @@ public:
   float m_fOwnerVelocityScale = 1.0f;              // [ property ]
   float m_fCenterVelocity = 0.0f;                  // [ property ]
   float m_fCenterAngularVelocity = 0.0f;           // [ property ]
-  ezVec3 m_vCenterPosition = ezVec3::MakeZero(); // [ property ]
+  ezVec3 m_vCenterPosition = ezVec3::MakeZero();   // [ property ]
 
   void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type);
 
