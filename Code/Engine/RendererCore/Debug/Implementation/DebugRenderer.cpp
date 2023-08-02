@@ -1266,7 +1266,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere(ezVec3::ZeroVector(), item.m_fRadius), item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), item.m_fRadius), item.m_Color, item.m_Transform);
 
           ++i;
         }

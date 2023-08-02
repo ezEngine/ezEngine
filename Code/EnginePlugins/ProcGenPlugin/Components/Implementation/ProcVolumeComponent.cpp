@@ -245,7 +245,7 @@ void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stre
 
 void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), m_fRadius), s_ProcVolumeCategory);
 }
 
 void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const

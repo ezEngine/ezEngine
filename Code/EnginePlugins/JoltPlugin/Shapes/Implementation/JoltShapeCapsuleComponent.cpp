@@ -58,8 +58,8 @@ void ezJoltShapeCapsuleComponent::DeserializeComponent(ezWorldReader& inout_stre
 
 void ezJoltShapeCapsuleComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltShapeCapsuleComponent::SetRadius(float f)

@@ -725,8 +725,8 @@ void ezFmodEventComponent::Update()
         pDesc->getMaximumDistance(&maxDistance);
 #  endif
 
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), minDistance), ezColor::Blue);
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
+        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(GetOwner()->GetGlobalPosition(), minDistance), ezColor::Blue);
+        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
       }
 
       char path[128];

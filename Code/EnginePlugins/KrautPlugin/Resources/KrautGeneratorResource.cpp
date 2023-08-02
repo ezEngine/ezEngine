@@ -90,7 +90,7 @@ static void GenerateAmbientOcclusionSpheres(ezDynamicOctree& ref_octree, const e
         const ezVec3 pos = reinterpret_cast<const ezVec3&>(branch.m_Nodes[n].m_vPosition);
 
         ++uiNumSpheres;
-        spheres.PushBack(ezBoundingSphere(pos, fThickness * 1.5f));
+        spheres.PushBack(ezBoundingSphere::MakeFromCenterAndRadius(pos, fThickness * 1.5f));
 
         ref_octree.InsertObject(pos, ezVec3(fThickness * 2.0f), b, spheres.GetCount() - 1, nullptr, true).IgnoreResult();
 

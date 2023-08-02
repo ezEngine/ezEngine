@@ -44,7 +44,7 @@ ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 
-  ref_bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fEffectiveRange);
+  ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), m_fEffectiveRange);
   return EZ_SUCCESS;
 }
 
@@ -108,7 +108,7 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   ezTransform t = GetOwner()->GetGlobalTransform();
 
-  float fScreenSpaceSize = CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
+  float fScreenSpaceSize = CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
 

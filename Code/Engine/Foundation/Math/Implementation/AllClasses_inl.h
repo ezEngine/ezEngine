@@ -28,7 +28,7 @@ inline Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezBoundingSphereTem
 template <typename Type>
 inline const ezBoundingSphereTemplate<Type> ezBoundingBoxTemplate<Type>::GetBoundingSphere() const
 {
-  return ezBoundingSphereTemplate<Type>(GetCenter(), (m_vMax - m_vMin).GetLength() * (Type)0.5);
+  return ezBoundingSphereTemplate<Type>::MakeFromCenterAndRadius(GetCenter(), (m_vMax - m_vMin).GetLength() * (Type)0.5);
 }
 
 template <typename Type>

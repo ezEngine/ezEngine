@@ -639,7 +639,7 @@ void ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& ref_volume
 {
   if (!m_BoundingVolume.IsValid())
   {
-    ref_volume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
+    ref_volume = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), 0.25f);
     return;
   }
 

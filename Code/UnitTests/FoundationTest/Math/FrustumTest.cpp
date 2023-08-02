@@ -158,8 +158,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
 
         // sphere
         {
-          ezBoundingSphere boundingObj;
-          boundingObj.SetElements(offsetPos + objPos[obj], 0.93f);
+          ezBoundingSphere boundingObj = ezBoundingSphere::MakeFromCenterAndRadius(offsetPos + objPos[obj], 0.93f);
 
           const ezVolumePosition::Enum res = fDir.GetObjectPosition(boundingObj);
 
@@ -219,8 +218,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
 
         // SIMD sphere
         {
-          ezBoundingSphere boundingObj;
-          boundingObj.SetElements(offsetPos + objPos[obj], 0.93f);
+          ezBoundingSphere boundingObj = ezBoundingSphere::MakeFromCenterAndRadius(offsetPos + objPos[obj], 0.93f);
 
           const bool res = fDir.Overlaps(ezSimdConversion::ToBSphere(boundingObj));
 

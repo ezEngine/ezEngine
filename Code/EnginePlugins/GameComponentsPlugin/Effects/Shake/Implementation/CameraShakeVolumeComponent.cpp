@@ -185,5 +185,5 @@ void ezCameraShakeVolumeSphereComponent::SetRadius(float fVal)
 
 void ezCameraShakeVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), ezCameraShakeVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), m_fRadius), ezCameraShakeVolumeComponent::SpatialDataCategory);
 }

@@ -98,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInSphere")
   {
-    ezBoundingSphere testSphere(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
+    ezBoundingSphere testSphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
 
     ezDynamicArray<ezGameObject*> objectsInSphere;
     ezHashSet<ezGameObject*> uniqueObjects;

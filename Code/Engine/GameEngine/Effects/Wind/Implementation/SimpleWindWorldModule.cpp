@@ -29,7 +29,7 @@ ezVec3 ezSimpleWindWorldModule::GetWindAt(const ezVec3& vPosition) const
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = ezWindVolumeComponent::SpatialDataCategory.GetBitmask();
 
-    pSpatial->FindObjectsInSphere(ezBoundingSphere(vPosition, 0.5f), queryParams, volumes);
+    pSpatial->FindObjectsInSphere(ezBoundingSphere::MakeFromCenterAndRadius(vPosition, 0.5f), queryParams, volumes);
 
     const ezSimdVec4f pos = ezSimdConversion::ToVec3(vPosition);
     ezSimdVec4f force = ezSimdVec4f::MakeZero();

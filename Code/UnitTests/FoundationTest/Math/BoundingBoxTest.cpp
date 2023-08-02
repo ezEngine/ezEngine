@@ -193,9 +193,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   {
     ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
-    EZ_TEST_BOOL(b.Contains(ezBoundingSphereT(ezVec3T(3), 2)));
-    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT(ezVec3T(3), 2.1f)));
-    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT(ezVec3T(8), 2)));
+    EZ_TEST_BOOL(b.Contains(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2)));
+    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2.1f)));
+    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(8), 2)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (box)")
@@ -240,9 +240,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   {
     ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
-    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT(ezVec3T(3), 2)));
-    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT(ezVec3T(3), 2.1f)));
-    EZ_TEST_BOOL(!b.Overlaps(ezBoundingSphereT(ezVec3T(8), 2)));
+    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2)));
+    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2.1f)));
+    EZ_TEST_BOOL(!b.Overlaps(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(8), 2)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical, ==, !=")
@@ -419,9 +419,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   {
     ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1), ezVec3T(5));
 
-    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(3), 2)) < 0);
-    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(5), 1)) < 0);
-    EZ_TEST_FLOAT(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(8, 2, 2), 2)), 1, 0.001f);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(3), 2)) < 0);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(5), 1)) < 0);
+    EZ_TEST_FLOAT(b.GetDistanceTo(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(8, 2, 2), 2)), 1, 0.001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (box)")

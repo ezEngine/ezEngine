@@ -141,8 +141,7 @@ void DebugRenderComponent::Update()
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Sphere))
   {
     // BEGIN-DOCS-CODE-SNIPPET: debugrender-sphere
-    ezBoundingSphere sphere;
-    sphere.SetElements(ezVec3::ZeroVector(), m_fSize);
+    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), m_fSize);
     ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, ownerTransform);
     // END-DOCS-CODE-SNIPPET
   }

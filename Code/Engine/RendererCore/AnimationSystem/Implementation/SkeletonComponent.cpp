@@ -435,7 +435,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
     {
       auto& shape = m_SpheresShapes.ExpandAndGetRef();
       shape.m_Transform = st;
-      shape.m_Shape.SetElements(ezVec3::ZeroVector(), geo.m_Transform.m_vScale.z);
+      shape.m_Shape = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), geo.m_Transform.m_vScale.z);
       shape.m_Color = hlS;
     }
 

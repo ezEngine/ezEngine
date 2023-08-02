@@ -360,7 +360,7 @@ ezGameObject* RtsGameState::PickSelectableObject() const
 // BEGIN-DOCS-CODE-SNIPPET: spatial-query
 void RtsGameState::InspectObjectsInArea(const ezVec2& vPosition, float fRadius, ezSpatialSystem::QueryCallback callback) const
 {
-  ezBoundingSphere sphere(vPosition.GetAsVec3(0), fRadius);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(vPosition.GetAsVec3(0), fRadius);
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = RtsSelectableComponent::s_SelectableCategory.GetBitmask();
   m_pMainWorld->GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, callback);

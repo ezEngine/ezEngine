@@ -53,7 +53,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
   };
 
   auto vPos = ezSimdConversion::ToVec3(vGlobalPosition);
-  ezBoundingSphere sphere(vGlobalPosition, 0.01f);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(vGlobalPosition, 0.01f);
 
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();

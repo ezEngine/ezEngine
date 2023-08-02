@@ -139,7 +139,7 @@ static int __CPP_Debug_DrawSphere(duk_context* pDuk)
   switch (duk.GetFunctionMagicValue())
   {
     case 0:
-      ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere(vCenter, fRadius), color, transform);
+      ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), color, transform);
       break;
   }
 

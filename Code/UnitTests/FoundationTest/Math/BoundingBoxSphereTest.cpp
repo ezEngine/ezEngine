@@ -13,7 +13,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
     EZ_TEST_BOOL(b.m_fSphereRadius == 2);
 
     ezBoundingBoxT box = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 1, 1), ezVec3T(3, 3, 3));
-    ezBoundingSphereT sphere(ezVec3T(2, 2, 2), 1);
+    ezBoundingSphereT sphere = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(2, 2, 2), 1);
 
     b = ezBoundingBoxSphereT(box, sphere);
 
@@ -75,7 +75,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
     b1.ExpandToInclude(b2);
     EZ_TEST_BOOL(b1 == b2);
 
-    ezBoundingSphereT sphere(ezVec3T(2, 2, 2), 2);
+    ezBoundingSphereT sphere = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(2, 2, 2), 2);
     b2 = ezBoundingBoxSphereT(sphere);
 
     b1.ExpandToInclude(b2);

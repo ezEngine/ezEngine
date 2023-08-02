@@ -209,12 +209,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
   {
     ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(1, 0, 0), ezVec3T(10, 0, 0));
 
-    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(15, 2, 3), 3.0f)) == ezPositionOnPlane::Front);
-    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(5, 2, 3), 3.0f)) == ezPositionOnPlane::Back);
-    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(15, 2, 4.999f), 3.0f)) == ezPositionOnPlane::Front);
-    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(5, 2, 3), 4.999f)) == ezPositionOnPlane::Back);
-    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(8, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
-    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(12, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(15, 2, 3), 3.0f)) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(5, 2, 3), 3.0f)) == ezPositionOnPlane::Back);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(15, 2, 4.999f), 3.0f)) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(5, 2, 3), 4.999f)) == ezPositionOnPlane::Back);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(8, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(12, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition(box)")

@@ -81,7 +81,7 @@ void ShipComponent::Update()
           continue;
       }
 
-      ezBoundingSphere bs(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
+      ezBoundingSphere bs = ezBoundingSphere::MakeFromCenterAndRadius(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
 
       const ezVec3 vPos = GetOwner()->GetLocalPosition();
 

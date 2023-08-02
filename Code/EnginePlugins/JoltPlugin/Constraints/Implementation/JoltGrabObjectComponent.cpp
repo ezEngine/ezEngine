@@ -313,7 +313,7 @@ ezResult ezJoltGrabObjectComponent::DetermineGrabPoint(const ezComponent* pActor
 
     if (!bounds.IsValid())
     {
-      bounds = ezBoundingSphere(ezVec3::ZeroVector(), 0.1f);
+      bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), 0.1f);
     }
 
     const auto& box = bounds.GetBox();

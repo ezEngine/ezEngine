@@ -74,8 +74,8 @@ ezJoltDefaultCharacterComponent::~ezJoltDefaultCharacterComponent() = default;
 
 void ezJoltDefaultCharacterComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, GetCurrentCapsuleHeight() - GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, GetCurrentCapsuleHeight() - GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltDefaultCharacterComponent::OnApplyRootMotion(ezMsgApplyRootMotion& msg)

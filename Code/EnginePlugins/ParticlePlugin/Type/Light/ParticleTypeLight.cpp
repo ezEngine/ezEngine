@@ -180,7 +180,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     pRenderData->m_fRange = pSize[i] * sizeFactor;
     pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
 
-    float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere(pRenderData->m_GlobalTransform.m_vPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
+    float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(pRenderData->m_GlobalTransform.m_vPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
     pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
 
     ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::Never);

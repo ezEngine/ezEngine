@@ -20,7 +20,7 @@ public:
   ezBoundingSphereTemplate();
 
   /// \brief Creates a sphere with the given radius around the given center.
-  ezBoundingSphereTemplate(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]
+  /*[[deprecated("Use MakeFromCenterAndRadius() instead.")]]*/ ezBoundingSphereTemplate(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]
 
   /// \brief Creates a sphere at the origin with radius zero.
   [[nodiscard]] static ezBoundingSphereTemplate<Type> MakeZero();

@@ -499,7 +499,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
       if (false)
       {
-        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere(center, radius), ezColor::OrangeRed);
+        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(center, radius), ezColor::OrangeRed);
       }
 
       float fCameraToCenterDistance = radius + fNearPlaneOffset;

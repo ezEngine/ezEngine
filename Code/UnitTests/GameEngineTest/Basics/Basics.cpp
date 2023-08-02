@@ -457,8 +457,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // Sphere
   {
-    ezBoundingSphere sphere;
-    sphere.SetElements(ezVec3(8, -5, -4), 2);
+    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(8, -5, -4), 2);
     ezDebugRenderer::DrawLineSphere(m_pWorld.Borrow(), sphere, ezColor::Tomato);
   }
 

@@ -61,7 +61,7 @@ float ezMarkerComponent::GetRadius() const
 
 void ezMarkerComponent::OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3(0), m_fRadius), m_SpatialCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0), m_fRadius), m_SpatialCategory);
 }
 
 void ezMarkerComponent::UpdateMarker()
