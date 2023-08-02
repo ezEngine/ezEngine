@@ -231,11 +231,9 @@ void PlacementTask::ExecuteVM()
     ezSimdVec4f roundedYaw = (yaw.CompDiv(vYawRotationSnap) + vHalf).Floor().CompMul(vYawRotationSnap);
     yaw = ezSimdVec4f::Select(vYawRotationSnap == ezSimdVec4f::MakeZero(), yaw, roundedYaw);
 
-    ezSimdQuat qYawRot;
-    qYawRot.SetFromAxisAndAngle(vUp, yaw.x());
+    ezSimdQuat qYawRot = ezSimdQuat::MakeFromAxisAndAngle(vUp, yaw.x());
     ezSimdVec4f vNormal = ezSimdConversion::ToVec3(placementPoint.m_vNormal);
-    ezSimdQuat qToNormalRot;
-    qToNormalRot.SetShortestRotation(vUp, ezSimdVec4f::Lerp(vUp, vNormal, vAlignToNormal));
+    ezSimdQuat qToNormalRot = ezSimdQuat::MakeShortestRotation(vUp, ezSimdVec4f::Lerp(vUp, vNormal, vAlignToNormal));
     placementTransform.m_Transform.m_Rotation = qToNormalRot * qYawRot;
 
     ezSimdVec4f scale = ezSimdVec4f(ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));

@@ -29,7 +29,7 @@ EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::MakeIdentity()
 {
   ezSimdTransform res;
   res.m_Position.SetZero();
-  res.m_Rotation.SetIdentity();
+  res.m_Rotation = ezSimdQuat::MakeIdentity();
   res.m_Scale.Set(1.0f);
   return res;
 }
@@ -54,7 +54,7 @@ EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::MakeGlobalTransform(const ezSi
 EZ_ALWAYS_INLINE void ezSimdTransform::SetIdentity()
 {
   m_Position.SetZero();
-  m_Rotation.SetIdentity();
+  m_Rotation = ezSimdQuat::MakeIdentity();
   m_Scale.Set(1.0f);
 }
 
