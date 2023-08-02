@@ -483,7 +483,7 @@ ezResult ezOpenDdlUtils::ConvertToMat4(const ezOpenDdlReaderElement* pElement, e
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_mResult.SetFromArray(pValues, ezMatrixLayout::ColumnMajor);
+    out_mResult = ezMat4::MakeFromColumnMajorArray(pValues);
 
     return EZ_SUCCESS;
   }

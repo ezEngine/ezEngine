@@ -365,8 +365,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   {
     ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
-    ezMat4T m;
-    m.SetScalingMatrix(ezVec3T(2));
+    ezMat4T m = ezMat4::MakeScaling(ezVec3T(2));
 
     b.TransformFromOrigin(m);
 
@@ -378,8 +377,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   {
     ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(3), ezVec3T(5));
 
-    ezMat4T m;
-    m.SetScalingMatrix(ezVec3T(2));
+    ezMat4T m = ezMat4::MakeScaling(ezVec3T(2));
 
     b.TransformFromCenter(m);
 

@@ -1497,9 +1497,9 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
     case ezVariant::Type::Quaternion:
       return ezVariant(ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
     case ezVariant::Type::Matrix3:
-      return ezVariant(ezMat3::IdentityMatrix());
+      return ezVariant(ezMat3::MakeIdentity());
     case ezVariant::Type::Matrix4:
-      return ezVariant(ezMat4::IdentityMatrix());
+      return ezVariant(ezMat4::MakeIdentity());
     case ezVariant::Type::Transform:
       return ezVariant(ezTransform::MakeIdentity());
     case ezVariant::Type::String:

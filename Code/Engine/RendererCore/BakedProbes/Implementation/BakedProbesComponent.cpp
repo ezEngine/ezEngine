@@ -51,7 +51,7 @@ struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
   ezBakingInterface* m_pBakingInterface = nullptr;
 
   const ezWorld* m_pWorld = nullptr;
-  ezMat4 m_InverseViewProjection = ezMat4::IdentityMatrix();
+  ezMat4 m_InverseViewProjection = ezMat4::MakeIdentity();
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
   ezDynamicArray<ezColorGammaUB> m_PixelData;

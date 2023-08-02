@@ -104,7 +104,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromMat3")
   {
     ezMat3T m;
-    m.SetRotationMatrixZ(ezAngle::MakeFromDegree(-90));
+    m = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(-90));
 
     ezQuatT q1, q2, q3;
     q1 = ezQuat::MakeFromMat3(m);
@@ -165,7 +165,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     q = ezQuat::MakeFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(90));
 
     ezMat3T mr;
-    mr.SetRotationMatrixZ(ezAngle::MakeFromDegree(90));
+    mr = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(90));
 
     ezMat3T m = q.GetAsMat3();
 
@@ -178,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     q = ezQuat::MakeFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(90));
 
     ezMat4T mr;
-    mr.SetRotationMatrixZ(ezAngle::MakeFromDegree(90));
+    mr= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
 
     ezMat4T m = q.GetAsMat4();
 
@@ -276,7 +276,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "rotation direction")
   {
     ezMat3T m;
-    m.SetRotationMatrixZ(ezAngle::MakeFromDegree(90.0f));
+    m = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(90.0f));
 
     ezQuatT q;
     q = ezQuat::MakeFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(90.0f));
@@ -298,7 +298,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       ezQuat q = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(x), {}, {});
 
       ezMat3 m;
-      m.SetRotationMatrixX(ezAngle::MakeFromDegree(x));
+      m = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(x));
       ezQuat qm;
       qm = ezQuat::MakeFromMat3(m);
       EZ_TEST_BOOL(q.IsEqualRotation(qm, 0.01f));
@@ -319,7 +319,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       ezQuat q = ezQuat::MakeFromEulerAngles({}, ezAngle::MakeFromDegree(y), {});
 
       ezMat3 m;
-      m.SetRotationMatrixY(ezAngle::MakeFromDegree(y));
+      m = ezMat3::MakeRotationY(ezAngle::MakeFromDegree(y));
       ezQuat qm;
       qm = ezQuat::MakeFromMat3(m);
       EZ_TEST_BOOL(q.IsEqualRotation(qm, 0.01f));
@@ -352,7 +352,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       ezQuat q = ezQuat::MakeFromEulerAngles({}, {}, ezAngle::MakeFromDegree(z));
 
       ezMat3 m;
-      m.SetRotationMatrixZ(ezAngle::MakeFromDegree(z));
+      m = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(z));
       ezQuat qm;
       qm = ezQuat::MakeFromMat3(m);
       EZ_TEST_BOOL(q.IsEqualRotation(qm, 0.01f));

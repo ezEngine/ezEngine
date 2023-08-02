@@ -71,7 +71,7 @@ namespace ezRmlUiInternal
 
     ezVec2 m_vOffset = ezVec2::MakeZero();
 
-    ezMat4 m_mTransform = ezMat4::IdentityMatrix();
+    ezMat4 m_mTransform = ezMat4::MakeIdentity();
     ezRectFloat m_ScissorRect = ezRectFloat(0, 0);
     bool m_bEnableScissorRect = false;
 

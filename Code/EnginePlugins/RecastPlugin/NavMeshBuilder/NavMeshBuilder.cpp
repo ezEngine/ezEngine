@@ -169,7 +169,7 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
     m.SetRow(1, ezVec3(0, 0, 1));
     m.SetRow(2, ezVec3(0, 1, 0));
 
-    ezMat4 transform = ezMat4::IdentityMatrix();
+    ezMat4 transform = ezMat4::MakeIdentity();
     transform.SetRotationalPart(m);
     transform = transform * object.m_GlobalTransform.GetAsMat4();
 

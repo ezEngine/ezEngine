@@ -693,9 +693,9 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   // create icosahedron
   {
     ezMat3 mRotX, mRotZ, mRotZh;
-    mRotX.SetRotationMatrixX(ezAngle::MakeFromDegree(360.0f / 6.0f));
-    mRotZ.SetRotationMatrixZ(ezAngle::MakeFromDegree(-360.0f / 5.0f));
-    mRotZh.SetRotationMatrixZ(ezAngle::MakeFromDegree(-360.0f / 10.0f));
+    mRotX = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(360.0f / 6.0f));
+    mRotZ = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(-360.0f / 5.0f));
+    mRotZh = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(-360.0f / 10.0f));
 
     ezUInt32 vert[12];
     ezVec3 vDir(0, 0, 1);

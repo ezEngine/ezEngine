@@ -90,7 +90,7 @@ void ezMaterialContext::OnInitialize()
 
         ezGeometry::GeoOptions opt;
         opt.m_Color = ezColor::Red;
-        opt.m_Transform.SetRotationMatrixZ(ezAngle::MakeFromDegree(90));
+        opt.m_Transform= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
         geom.AddSphere(0.1f, 64, 64, opt);
         geom.ComputeTangents();
 
@@ -180,7 +180,7 @@ void ezMaterialContext::OnInitialize()
 
         ezGeometry::GeoOptions opt;
         opt.m_Color = ezColor::Red;
-        opt.m_Transform.SetRotationMatrixZ(ezAngle::MakeFromDegree(-90));
+        opt.m_Transform= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90));
         geom.AddRectXY(ezVec2(0.2f), 64, 64, opt);
         geom.ComputeTangents();
 

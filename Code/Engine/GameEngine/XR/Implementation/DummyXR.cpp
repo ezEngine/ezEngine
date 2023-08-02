@@ -244,10 +244,8 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
           {
             const float fHeight = m_StageSpace == ezXRStageSpace::Standing ? m_fHeadHeight : 0.0f;
             const ezMat4 mStageTransform = add.GetInverse().GetAsMat4();
-            ezMat4 poseLeft;
-            poseLeft.SetTranslationMatrix(ezVec3(0, -m_fEyeOffset, fHeight));
-            ezMat4 poseRight;
-            poseRight.SetTranslationMatrix(ezVec3(0, m_fEyeOffset, fHeight));
+            ezMat4 poseLeft = ezMat4::MakeTranslation(ezVec3(0, -m_fEyeOffset, fHeight));
+            ezMat4 poseRight = ezMat4::MakeTranslation(ezVec3(0, m_fEyeOffset, fHeight));
 
             // EZ Forward is +X, need to add this to align the forward projection
             const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));

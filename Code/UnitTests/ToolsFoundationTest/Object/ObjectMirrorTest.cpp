@@ -84,16 +84,16 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
     }
     case ezVariant::Type::Matrix3:
     {
-      ezMat3 mat = ezMat3::IdentityMatrix();
+      ezMat3 mat = ezMat3::MakeIdentity();
 
       mat.SetRotationMatrix(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::MakeFromDegree(30));
       return ezVariant(mat);
     }
     case ezVariant::Type::Matrix4:
     {
-      ezMat4 mat = ezMat4::IdentityMatrix();
+      ezMat4 mat = ezMat4::MakeIdentity();
 
-      mat.SetRotationMatrix(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::MakeFromDegree(30));
+      mat = ezMat4::MakeAxisRotation(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::MakeFromDegree(30));
       mat.SetTranslationVector(ezVec3(1.0f, 2.0f, 3.0f));
       return ezVariant(mat);
     }

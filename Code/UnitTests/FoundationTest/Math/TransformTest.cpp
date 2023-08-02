@@ -72,7 +72,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     qRot.SetIdentity();
 
     ezTransformT t(ezVec3T(4, 5, 6), qRot, ezVec3T(2, 3, 4));
-    EZ_TEST_BOOL(t.GetAsMat4() == ezMat4(2, 0, 0, 4, 0, 3, 0, 5, 0, 0, 4, 6, 0, 0, 0, 1));
+    EZ_TEST_BOOL(t.GetAsMat4() == ezMat4T::MakeFromValues(2, 0, 0, 4, 0, 3, 0, 5, 0, 0, 4, 6, 0, 0, 0, 1));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator + / -")
@@ -438,7 +438,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
 
       ezTransform referenceTransform(ezVec3(1, 2, 3), q, ezVec3(2, -1, 5));
       ezMat4 tmp = referenceTransform.GetAsMat4();
-      refM.SetFromArray(tmp.m_fElementsCM, ezMatrixLayout::ColumnMajor);
+      refM = ezMat4::MakeFromColumnMajorArray(tmp.m_fElementsCM);
     }
     EZ_TEST_BOOL(m.IsEqual(refM, 0.00001f));
 

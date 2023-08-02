@@ -370,7 +370,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     {
       ezMat4 m;
       m.SetIdentity();
-      m.SetScalingMatrix(ezVec3(0.5f, 0.75f, 0.25f));
+      m = ezMat4::MakeScaling(ezVec3(0.5f, 0.75f, 0.25f));
       m.SetTranslationVector(ezVec3(0.1f, 0.2f, 0.3f));
 
       ezColor c1 = m * ezColor::White;

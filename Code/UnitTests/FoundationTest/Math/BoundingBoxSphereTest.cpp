@@ -95,7 +95,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
     ezBoundingBoxSphereT b = ezBoundingBoxSphereT::MakeFromCenterExtents(ezVec3T(1), ezVec3T(5), 5);
 
     ezMat4T m;
-    m.SetScalingMatrix(ezVec3T(-2, -3, -2));
+    m = ezMat4::MakeScaling(ezVec3T(-2, -3, -2));
     m.SetTranslationVector(ezVec3T(1, 1, 1));
 
     b.Transform(m);

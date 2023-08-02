@@ -322,7 +322,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
     ezMat3T m;
-    m.SetRotationMatrixX(ezAngle::MakeFromDegree(90));
+    m = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(90));
 
     p.Transform(m);
 
@@ -336,7 +336,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
       ezMat4T m;
-      m.SetRotationMatrixX(ezAngle::MakeFromDegree(90));
+      m = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
       m.SetTranslationVector(ezVec3T(0, 5, 0));
 
       p.Transform(m);
@@ -349,7 +349,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
       ezMat4T m;
-      m.SetRotationMatrixX(ezAngle::MakeFromDegree(90));
+      m = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
       m.SetTranslationVector(ezVec3T(0, 0, 5));
 
       p.Transform(m);
@@ -544,7 +544,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezRandom randomGenerator;
     randomGenerator.Initialize(0x83482343);
 
-    const auto randomNonZeroVec3T = [&randomGenerator]() -> ezVec3T {
+    const auto randomNonZeroVec3T = [&randomGenerator]() -> ezVec3T
+    {
       const float extent = 1000.f;
       const ezVec3T v(randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent));
       return v.GetLength() > 0.001f ? v : ezVec3T::MakeAxisX();

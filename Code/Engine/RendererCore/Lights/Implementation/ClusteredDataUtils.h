@@ -215,8 +215,7 @@ namespace
     scale = ezVec3(1.0f).CompDiv(scale.CompMax(ezVec3(0.00001f)));
 
     const ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(position, position + dirForwards, dirUp);
-    ezMat4 scaleMat;
-    scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
+    ezMat4 scaleMat = ezMat4::MakeScaling(ezVec3(scale.y, -scale.z, scale.x));
 
     ref_perDecalData.worldToDecalMatrix = scaleMat * lookAt;
     ref_perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;

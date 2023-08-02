@@ -60,7 +60,7 @@ void ezNonUniformBoxGizmo::OnVisibleChanged(bool bVisible)
 void ezNonUniformBoxGizmo::OnTransformationChanged(const ezTransform& transform)
 {
   ezMat4 scale, rot;
-  scale.SetScalingMatrix(m_vNegSize + m_vPosSize);
+  scale = ezMat4::MakeScaling(m_vNegSize + m_vPosSize);
 
   const ezVec3 center = ezMath::Lerp(-m_vNegSize, m_vPosSize, 0.5f);
 

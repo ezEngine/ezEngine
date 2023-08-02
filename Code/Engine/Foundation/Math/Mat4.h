@@ -73,6 +73,9 @@ public:
   /// \brief Creates a matrix with all zero values, except the last column, which is set to x, y, z, 1
   [[nodiscard]] static ezMat4Template<Type> MakeTranslation(const ezVec3Template<Type>& vTranslation);
 
+  /// \brief Creates a transformation matrix from a rotation and a translation.
+  [[nodiscard]] static ezMat4Template<Type> MakeTransformation(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation);
+
   /// \brief Creates a matrix with all zero values, except along the diagonal, which is set to x, y, z, 1
   [[nodiscard]] static ezMat4Template<Type> MakeScaling(const ezVec3Template<Type>& vScale);
 
@@ -106,15 +109,15 @@ public:
   /*[[deprecated("Use ezMat4::MakeFromValues() instead.")]]*/ void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
-  /*[[deprecated("Use ezMat4::MakeTranslation() instead.")]]*/ void SetTransformationMatrix(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation); // [tested]
+  void SetTransformationMatrix(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation); // [tested]
 
   // *** Special matrix constructors ***
 public:
   /// \brief Sets all elements to zero.
-  /*[[deprecated("Use ezMat4::MakeZero() instead.")]]*/ void SetZero(); // [tested]
+  void SetZero(); // [tested]
 
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
-  /*[[deprecated("Use ezMat4::MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
+  void SetIdentity(); // [tested]
 
   /// \brief Sets the matrix to all zero, except the last column, which is set to x,y,z,1
   /*[[deprecated("Use ezMat4::MakeTranslation() instead.")]]*/ void SetTranslationMatrix(const ezVec3Template<Type>& vTranslation); // [tested]

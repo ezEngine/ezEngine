@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static void CreatePreviewRect(ezGeometry& ref_geom)
 {
-  const ezMat4 mTransform = ezMat4::IdentityMatrix();
+  const ezMat4 mTransform = ezMat4::MakeIdentity();
   const ezVec2 size(1.0f);
   const ezColor color = ezColor::White;
 

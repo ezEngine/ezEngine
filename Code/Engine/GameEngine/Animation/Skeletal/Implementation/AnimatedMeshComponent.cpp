@@ -181,7 +181,7 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTran
 
   const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
 
-  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::IdentityMatrix());
+  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
 
   for (auto itBone : bones)
   {

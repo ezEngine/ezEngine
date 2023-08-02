@@ -61,7 +61,7 @@ public:
     GeoOptions(){}; // NOLINT: This struct is used before the sourrounding class ends, so it needs a default constructor. = default doesn't work here.
 
     ezColor m_Color = ezColor(1, 1, 1, 1);         ///< The color of the entire geometric object
-    ezMat4 m_Transform = ezMat4::IdentityMatrix(); ///< An additional transform to apply to the geometry while adding it
+    ezMat4 m_Transform = ezMat4::MakeIdentity(); ///< An additional transform to apply to the geometry while adding it
     ezUInt16 m_uiBoneIndex = 0;                    ///< Which bone should influence this geometry, for single-bone skinning.
 
     bool IsFlipWindingNecessary() const;

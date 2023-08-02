@@ -432,7 +432,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
     ezMat4T mTransform;
 
-    mTransform.SetTranslationMatrix(ezVec3T(5, 6, 7));
+    mTransform = ezMat4::MakeTranslation(ezVec3T(5, 6, 7));
     mTransform.SetScalingFactors(ezVec3T(4, 3, 2)).IgnoreResult();
 
     s.TransformFromOrigin(mTransform);
@@ -446,7 +446,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
     ezMat4T mTransform;
 
-    mTransform.SetTranslationMatrix(ezVec3T(5, 6, 7));
+    mTransform = ezMat4::MakeTranslation(ezVec3T(5, 6, 7));
     mTransform.SetScalingFactors(ezVec3T(4, 3, 2)).IgnoreResult();
 
     s.TransformFromCenter(mTransform);

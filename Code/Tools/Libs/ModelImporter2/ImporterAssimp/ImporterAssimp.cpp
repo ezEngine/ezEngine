@@ -166,11 +166,11 @@ namespace ezModelImporter2
     if (m_Options.m_pSkeletonOutput != nullptr)
     {
       m_Options.m_pSkeletonOutput->m_Children.PushBack(EZ_DEFAULT_NEW(ezEditableSkeletonJoint));
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::IdentityMatrix(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
+      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::MakeIdentity(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
     }
     else
     {
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::IdentityMatrix(), nullptr));
+      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::MakeIdentity(), nullptr));
     }
 
     return EZ_SUCCESS;

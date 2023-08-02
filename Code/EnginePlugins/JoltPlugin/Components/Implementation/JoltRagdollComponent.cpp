@@ -559,8 +559,7 @@ void ezJoltRagdollComponent::RetrieveRagdollPose()
   const ezVec3 vObjectScale = GetOwner()->GetGlobalScaling();
   const float fObjectScale = ezMath::Max(vObjectScale.x, vObjectScale.y, vObjectScale.z);
 
-  ezMat4 scale;
-  scale.SetScalingMatrix(rootTransform.m_vScale * fObjectScale);
+  ezMat4 scale = ezMat4::MakeScaling(rootTransform.m_vScale * fObjectScale);
 
   ezHybridArray<ezMat4, 64> relativeTransforms;
 

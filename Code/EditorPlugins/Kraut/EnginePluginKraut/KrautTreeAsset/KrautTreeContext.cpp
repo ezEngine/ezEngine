@@ -120,7 +120,7 @@ void ezKrautTreeContext::OnInitialize()
       {
         // Build geometry
         ezGeometry::GeoOptions opt;
-        opt.m_Transform.SetTranslationMatrix(ezVec3(0, 0, -0.05f));
+        opt.m_Transform = ezMat4::MakeTranslation(ezVec3(0, 0, -0.05f));
 
         ezGeometry geom;
         geom.AddCylinder(8.0f, 7.9f, 0.05f, 0.05f, true, true, 32, opt);

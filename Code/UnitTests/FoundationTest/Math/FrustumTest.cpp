@@ -39,7 +39,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     f = ezFrustum::MakeFromPlanes(p);
 
     ezMat4 mTransform;
-    mTransform.SetRotationMatrixY(ezAngle::MakeFromDegree(90.0f));
+    mTransform= ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90.0f));
     mTransform.SetTranslationVector(ezVec3(2, 3, 4));
 
     f.TransformFrustum(mTransform);
@@ -192,8 +192,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
           ezVec3 vertices[8];
           boundingObj.GetCorners(vertices);
 
-          ezMat4 transform;
-          transform.SetTranslationMatrix(offsetPos);
+          ezMat4 transform = ezMat4::MakeTranslation(offsetPos);
 
           const ezVolumePosition::Enum res = fDir.GetObjectPosition(vertices, 8, transform);
 

@@ -429,7 +429,7 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
   if (forwardAxis.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrixX(forwardAxis);
+    m= ezMat3::MakeRotationX(forwardAxis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
@@ -438,7 +438,7 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
   if (rightAxis.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrixY(rightAxis);
+    m = ezMat3::MakeRotationY(rightAxis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
@@ -447,7 +447,7 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
   if (axis.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrixZ(axis);
+    m = ezMat3::MakeRotationZ(axis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;

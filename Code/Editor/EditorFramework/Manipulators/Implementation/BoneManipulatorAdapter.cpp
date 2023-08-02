@@ -300,5 +300,5 @@ ezMat4 ezBoneManipulatorAdapter::ComputeParentTransform(ezUInt32 uiBone) const
     }
   }
 
-  return ezMat4::IdentityMatrix();
+  return ezMat4::MakeIdentity();
 }

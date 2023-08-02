@@ -20,7 +20,7 @@ namespace ezModelImporter2
     bool m_bRecomputeNormals = false;
     bool m_bRecomputeTangents = false;
     bool m_bNormalizeWeights = false;
-    ezMat3 m_RootTransform = ezMat3::IdentityMatrix();
+    ezMat3 m_RootTransform = ezMat3::MakeIdentity();
 
     ezMeshResourceDescriptor* m_pMeshOutput = nullptr;
     ezEnum<ezMeshNormalPrecision> m_MeshNormalsPrecision = ezMeshNormalPrecision::Default;

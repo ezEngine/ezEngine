@@ -42,13 +42,13 @@ void ezDecalContext::OnInitialize()
       geom.AddBox(ezVec3(0.5f, 1.0f, 1.0f), true);
 
       ezMat4 t, r;
-      t.SetTranslationMatrix(ezVec3(0, 1.5f, 0));
-      r.SetRotationMatrixZ(ezAngle::MakeFromDegree(90));
+      t = ezMat4::MakeTranslation(ezVec3(0, 1.5f, 0));
+      r= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
       opt.m_Transform = t * r;
       geom.AddSphere(0.5f, 64, 64, opt);
 
       t.SetTranslationVector(ezVec3(0, -1.5f, 0));
-      r.SetRotationMatrixY(ezAngle::MakeFromDegree(90));
+      r= ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
       opt.m_Transform = t * r;
       geom.AddTorus(0.1f, 0.5f, 32, 64, true, opt);
 
