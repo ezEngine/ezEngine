@@ -66,7 +66,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
       return;
 
     EZ_TEST_BOOL(proc.GetState() == ezProcessState::Running);
-    EZ_TEST_BOOL(proc.WaitToFinish(ezTime::Seconds(5)).Succeeded());
+    EZ_TEST_BOOL(proc.WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
     EZ_TEST_BOOL(proc.GetState() == ezProcessState::Finished);
     EZ_TEST_INT(proc.GetExitCode(), 0);
   }
@@ -114,7 +114,7 @@ EZ_CREATE_SIMPLE_TEST(System, Process)
     }
 
     const ezTime tDiff = ezTime::Now() - tTerminate;
-    EZ_TEST_BOOL_MSG(tDiff < ezTime::Seconds(1.0), "Destruction of ezProcess should be instant after Detach() was used.");
+    EZ_TEST_BOOL_MSG(tDiff < ezTime::MakeFromSeconds(1.0), "Destruction of ezProcess should be instant after Detach() was used.");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "STDOUT")

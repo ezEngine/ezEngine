@@ -55,7 +55,7 @@ ezResult ezRemoteInterface::ConnectToServer(ezUInt32 uiConnectionToken, ezString
   return CreateConnection(uiConnectionToken, ezRemoteMode::Client, sAddress, bStartUpdateThread);
 }
 
-ezResult ezRemoteInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime::Seconds(10)*/)
+ezResult ezRemoteInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime::MakeFromSeconds(10)*/)
 {
   if (m_RemoteMode != ezRemoteMode::Client)
     return EZ_FAILURE;
@@ -75,7 +75,7 @@ ezResult ezRemoteInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime:
         return EZ_FAILURE;
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
 }
 
@@ -401,7 +401,7 @@ ezUInt32 ezRemoteThread::Run()
     {
       ezTime tNow = ezTime::Now();
 
-      if (tNow - lastPing > ezTime::Milliseconds(500))
+      if (tNow - lastPing > ezTime::MakeFromMilliseconds(500))
       {
         lastPing = tNow;
 
@@ -409,7 +409,7 @@ ezUInt32 ezRemoteThread::Run()
       }
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
 
   return 0;

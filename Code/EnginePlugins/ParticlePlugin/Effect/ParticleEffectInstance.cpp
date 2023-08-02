@@ -41,14 +41,14 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_bEmitterEnabled = true;
   m_bIsFinishing = false;
   m_BoundingVolume.SetInvalid();
-  m_ElapsedTimeSinceUpdate.SetZero();
-  m_EffectIsVisible.SetZero();
+  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+  m_EffectIsVisible = ezTime::MakeZero();
   m_iMinSimStepsToDo = 4;
   m_Transform.SetIdentity();
   m_TransformForNextFrame.SetIdentity();
   m_vVelocity.SetZero();
   m_vVelocityForNextFrame.SetZero();
-  m_TotalEffectLifeTime.SetZero();
+  m_TotalEffectLifeTime = ezTime::MakeZero();
   m_pVisibleIf = nullptr;
   m_uiRandomSeed = uiRandomSeed;
 
@@ -170,7 +170,7 @@ void ezParticleEffectInstance::PreSimulate()
 
   // simulate in large steps to get close
   {
-    const ezTime tDiff = ezTime::Seconds(0.5);
+    const ezTime tDiff = ezTime::MakeFromSeconds(0.5);
     while (m_PreSimulateDuration.GetSeconds() > 10.0)
     {
       StepSimulation(tDiff);
@@ -180,7 +180,7 @@ void ezParticleEffectInstance::PreSimulate()
 
   // finer steps
   {
-    const ezTime tDiff = ezTime::Seconds(0.2);
+    const ezTime tDiff = ezTime::MakeFromSeconds(0.2);
     while (m_PreSimulateDuration.GetSeconds() > 5.0)
     {
       StepSimulation(tDiff);
@@ -190,7 +190,7 @@ void ezParticleEffectInstance::PreSimulate()
 
   // even finer
   {
-    const ezTime tDiff = ezTime::Seconds(0.1);
+    const ezTime tDiff = ezTime::MakeFromSeconds(0.1);
     while (m_PreSimulateDuration.GetSeconds() >= 0.1)
     {
       StepSimulation(tDiff);
@@ -202,7 +202,7 @@ void ezParticleEffectInstance::PreSimulate()
   if (m_PreSimulateDuration.GetSeconds() > 0.0)
   {
     StepSimulation(m_PreSimulateDuration);
-    m_PreSimulateDuration = ezTime::Seconds(0);
+    m_PreSimulateDuration = ezTime::MakeFromSeconds(0);
   }
 
   if (!IsContinuous())
@@ -223,7 +223,7 @@ void ezParticleEffectInstance::SetIsVisible() const
   //    so it may be too small and culling could be imprecise
   //    by just rendering it the next 100ms, no matter what, the bounding volume
   //    does not need to be updated so frequently
-  m_EffectIsVisible = ezClock::GetGlobalClock()->GetAccumulatedTime() + ezTime::Seconds(0.1);
+  m_EffectIsVisible = ezClock::GetGlobalClock()->GetAccumulatedTime() + ezTime::MakeFromSeconds(0.1);
 }
 
 
@@ -408,7 +408,7 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
 {
   EZ_PROFILE_SCOPE("PFX: Effect Update");
 
-  ezTime tMinStep = ezTime::Seconds(0);
+  ezTime tMinStep = ezTime::MakeFromSeconds(0);
 
   if (!IsVisible() && m_iMinSimStepsToDo == 0)
   {
@@ -419,19 +419,19 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
     switch (m_InvisibleUpdateRate)
     {
       case ezEffectInvisibleUpdateRate::FullUpdate:
-        tMinStep = ezTime::Seconds(1.0 / 60.0);
+        tMinStep = ezTime::MakeFromSeconds(1.0 / 60.0);
         break;
 
       case ezEffectInvisibleUpdateRate::Max20fps:
-        tMinStep = ezTime::Milliseconds(50);
+        tMinStep = ezTime::MakeFromMilliseconds(50);
         break;
 
       case ezEffectInvisibleUpdateRate::Max10fps:
-        tMinStep = ezTime::Milliseconds(100);
+        tMinStep = ezTime::MakeFromMilliseconds(100);
         break;
 
       case ezEffectInvisibleUpdateRate::Max5fps:
-        tMinStep = ezTime::Milliseconds(200);
+        tMinStep = ezTime::MakeFromMilliseconds(200);
         break;
 
       case ezEffectInvisibleUpdateRate::Pause:
@@ -443,7 +443,7 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
         }
 
         // otherwise do infrequent updates to shut the effect down
-        tMinStep = ezTime::Milliseconds(200);
+        tMinStep = ezTime::MakeFromMilliseconds(200);
         break;
       }
 
@@ -458,7 +458,7 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
 
   // if the time step is too big, iterate multiple times
   {
-    const ezTime tMaxTimeStep = ezTime::Milliseconds(200); // in sync with Max5fps
+    const ezTime tMaxTimeStep = ezTime::MakeFromMilliseconds(200); // in sync with Max5fps
     while (m_ElapsedTimeSinceUpdate > tMaxTimeStep)
     {
       m_ElapsedTimeSinceUpdate -= tMaxTimeStep;
@@ -473,7 +473,7 @@ bool ezParticleEffectInstance::Update(const ezTime& diff)
 
   // do the remainder
   const ezTime tUpdateDiff = m_ElapsedTimeSinceUpdate;
-  m_ElapsedTimeSinceUpdate.SetZero();
+  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   return StepSimulation(tUpdateDiff);
 }
@@ -715,7 +715,7 @@ void ezParticleEffectInstance::ProcessEventQueues()
 ezParticleEffectUpdateTask::ezParticleEffectUpdateTask(ezParticleEffectInstance* pEffect)
 {
   m_pEffect = pEffect;
-  m_UpdateDiff.SetZero();
+  m_UpdateDiff = ezTime::MakeZero();
 }
 
 void ezParticleEffectUpdateTask::Execute()

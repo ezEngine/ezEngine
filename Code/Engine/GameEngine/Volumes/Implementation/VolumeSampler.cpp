@@ -6,7 +6,7 @@
 ezVolumeSampler::ezVolumeSampler() = default;
 ezVolumeSampler::~ezVolumeSampler() = default;
 
-void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue, ezTime interpolationDuration /*= ezTime::Zero()*/)
+void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue, ezTime interpolationDuration /*= ezTime::MakeZero()*/)
 {
   auto& value = m_Values[sName];
   value.m_DefaultValue = defaultValue;

@@ -418,7 +418,7 @@ void ezQtPropertyEditorTimeWidget::SlotValueChanged()
 
   m_bTemporaryCommand = true;
 
-  BroadcastValueChanged(ezTime::Seconds(m_pWidget->value()));
+  BroadcastValueChanged(ezTime::MakeFromSeconds(m_pWidget->value()));
 }
 
 

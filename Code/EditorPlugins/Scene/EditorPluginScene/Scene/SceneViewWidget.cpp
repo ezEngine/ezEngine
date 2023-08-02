@@ -126,7 +126,7 @@ void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 {
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastDragMoveEvent < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastDragMoveEvent < ezTime::MakeFromSeconds(1.0 / 25.0))
     return;
 
   m_LastDragMoveEvent = tNow;

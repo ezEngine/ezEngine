@@ -368,7 +368,7 @@ void ezFakeRopeComponent::SendCurrentPose()
     poseMsg.m_LinkTransforms = pieces;
   }
 
-  GetOwner()->PostMessage(poseMsg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+  GetOwner()->PostMessage(poseMsg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
 }
 
 void ezFakeRopeComponent::SetAnchor1Reference(const char* szReference)

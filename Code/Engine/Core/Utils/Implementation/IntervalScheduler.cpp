@@ -11,13 +11,13 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 static ezTime s_Intervals[] = {
-  ezTime::Zero(),              // EveryFrame
-  ezTime::Seconds(1.0 / 30.0), // Max30fps
-  ezTime::Seconds(1.0 / 20.0), // Max20fps
-  ezTime::Seconds(1.0 / 10.0), // Max10fps
-  ezTime::Seconds(1.0 / 5.0),  // Max5fps
-  ezTime::Seconds(1.0 / 2.0),  // Max2fps
-  ezTime::Seconds(1.0 / 1.0),  // Max1fps
+  ezTime::MakeZero(),              // EveryFrame
+  ezTime::MakeFromSeconds(1.0 / 30.0), // Max30fps
+  ezTime::MakeFromSeconds(1.0 / 20.0), // Max20fps
+  ezTime::MakeFromSeconds(1.0 / 10.0), // Max10fps
+  ezTime::MakeFromSeconds(1.0 / 5.0),  // Max5fps
+  ezTime::MakeFromSeconds(1.0 / 2.0),  // Max2fps
+  ezTime::MakeFromSeconds(1.0 / 1.0),  // Max1fps
 };
 
 static_assert(EZ_ARRAY_SIZE(s_Intervals) == ezUpdateRate::Max1fps + 1);

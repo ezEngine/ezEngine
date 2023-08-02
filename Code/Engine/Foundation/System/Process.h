@@ -119,11 +119,11 @@ public:
 
   /// \brief Waits the given amount of time for the previously launched process to finish.
   ///
-  /// Pass in ezTime::Zero() to wait indefinitely.
+  /// Pass in ezTime::MakeZero() to wait indefinitely.
   /// Returns EZ_FAILURE, if the process did not finish within the given time.
   ///
   /// \note Asserts that the ezProcess instance was used to successfully launch a process before.
-  ezResult WaitToFinish(ezTime timeout = ezTime::Zero());
+  ezResult WaitToFinish(ezTime timeout = ezTime::MakeZero());
 
   /// \brief Kills the detached process, if possible.
   ezResult Terminate();

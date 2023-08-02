@@ -196,14 +196,14 @@ void ezJoltContactEvents::SpawnPhysicsImpactReactions()
 
         if (cvar_PhysicsReactionsVisImpacts)
         {
-          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::LightGreen, ezTransform(ic.m_vPosition), ezTime::Seconds(3));
+          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::LightGreen, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(3));
         }
       }
       else
       {
         if (cvar_PhysicsReactionsVisDiscardedImpacts)
         {
-          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkGray, ezTransform(ic.m_vPosition), ezTime::Seconds(1));
+          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkGray, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(1));
         }
       }
     }
@@ -373,7 +373,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
     {
       if (cvar_PhysicsReactionsVisDiscardedImpacts)
       {
-        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(vAvgPos), ezTime::Seconds(3));
+        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(vAvgPos), ezTime::MakeFromSeconds(3));
       }
 
       return;
@@ -382,7 +382,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
     {
       if (cvar_PhysicsReactionsVisDiscardedImpacts)
       {
-        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(m_InteractionContacts[uiBestScore].m_vPosition), ezTime::Seconds(3));
+        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(m_InteractionContacts[uiBestScore].m_vPosition), ezTime::MakeFromSeconds(3));
       }
     }
 
@@ -421,7 +421,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
 
   if (cvar_PhysicsReactionsVisDiscardedImpacts)
   {
-    ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkOrange, ezTransform(vAvgPos), ezTime::Seconds(10));
+    ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkOrange, ezTransform(vAvgPos), ezTime::MakeFromSeconds(10));
   }
 }
 

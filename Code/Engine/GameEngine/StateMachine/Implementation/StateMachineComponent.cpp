@@ -408,7 +408,7 @@ bool ezStateMachineComponent::SetState(ezStringView sName)
 
 void ezStateMachineComponent::SendStateChangedMsg(ezMsgStateMachineStateChanged& msg, ezTime delay)
 {
-  if (delay > ezTime::Zero())
+  if (delay > ezTime::MakeZero())
   {
     m_StateChangedSender.PostEventMessage(msg, this, GetOwner(), delay, ezObjectMsgQueueType::NextFrame);
   }

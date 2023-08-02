@@ -45,7 +45,7 @@ ezRenderPipeline::ezRenderPipeline()
   m_uiLastRenderFrame = -1;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  m_AverageCullingTime = ezTime::Seconds(0.1f);
+  m_AverageCullingTime = ezTime::MakeFromSeconds(0.1f);
 #endif
 }
 

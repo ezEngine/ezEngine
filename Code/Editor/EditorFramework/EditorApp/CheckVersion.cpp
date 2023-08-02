@@ -96,7 +96,7 @@ void ezQtVersionChecker::Initialize()
 
   m_sKnownLatestVersion = pLatest->GetPrimitivesString()[0];
 
-  const ezTimestamp nextCheck = fs.m_LastModificationTime + ezTime::Hours(24);
+  const ezTimestamp nextCheck = fs.m_LastModificationTime + ezTime::MakeFromHours(24);
 
   if (nextCheck.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Newer))
   {

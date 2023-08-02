@@ -124,7 +124,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     const ezDocumentObject* pFloat = CreateObject(ezGetStaticRTTI<ezFloatStruct>());
     TestSetValue(pFloat, "Float", -5.0f);
     TestSetValue(pFloat, "Double", -5.0);
-    TestSetValue(pFloat, "Time", ezTime::Minutes(3.0f));
+    TestSetValue(pFloat, "Time", ezTime::MakeFromMinutes(3.0f));
     TestSetValue(pFloat, "Angle", ezAngle::MakeFromDegree(45.0f));
 
     TestSetValue(pFloat, "Float", 5.0);

@@ -78,7 +78,7 @@ private:
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 
   ezScriptClassResourceHandle m_hScriptClass;
-  ezTime m_UpdateInterval = ezTime::Zero();
+  ezTime m_UpdateInterval = ezTime::MakeZero();
 
   ezSharedPtr<ezScriptRTTI> m_pScriptType;
   ezUniquePtr<ezScriptInstance> m_pInstance;

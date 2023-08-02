@@ -36,7 +36,7 @@ void ezQtResourceWidget::ResetStats()
 
   m_bUpdateTable = true;
   m_bUpdateTypeBox = true;
-  m_LastTableUpdate = ezTime::Seconds(0);
+  m_LastTableUpdate = ezTime::MakeFromSeconds(0);
 
   Table->clear();
   Table->setRowCount(0);
@@ -91,7 +91,7 @@ void ezQtResourceWidget::UpdateTable()
   if (!m_bUpdateTable)
     return;
 
-  if (ezTime::Now() - m_LastTableUpdate < ezTime::Seconds(0.25))
+  if (ezTime::Now() - m_LastTableUpdate < ezTime::MakeFromSeconds(0.25))
     return;
 
   bool bResizeFirstColumn = false;

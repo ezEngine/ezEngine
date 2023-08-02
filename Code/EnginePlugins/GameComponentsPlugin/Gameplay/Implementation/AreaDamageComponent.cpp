@@ -120,7 +120,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
           }
 
           // delay the damage a little bit for nicer chain reactions
-          pObject->PostEventMessage(msg, this, ezTime::Milliseconds(200));
+          pObject->PostEventMessage(msg, this, ezTime::MakeFromMilliseconds(200));
         }
       }
     }

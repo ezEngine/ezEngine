@@ -36,7 +36,7 @@ ezPipeChannel_win::~ezPipeChannel_win()
   }
   while (m_bConnected)
   {
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
 
   m_pOwner->RemoveChannel(this);

@@ -61,7 +61,7 @@ public:
 protected:
   virtual void UpdateInputSlotValues() override;
 
-  ezTime m_DoubleClickTime = ezTime::Milliseconds(500);
+  ezTime m_DoubleClickTime = ezTime::MakeFromMilliseconds(500);
   static ezInt32 s_iMouseIsOverWindowNumber;
 
 private:

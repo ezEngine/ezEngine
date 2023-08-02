@@ -149,7 +149,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(ezStringView sFile, ezTimestamp
   bool bExisted = false;
   auto it = s_FileTimestamps.FindOrAdd(sFile, &bExisted);
 
-  if (!bExisted || it.Value().m_LastCheck + ezTime::Seconds(2.0) < ezTime::Now())
+  if (!bExisted || it.Value().m_LastCheck + ezTime::MakeFromSeconds(2.0) < ezTime::Now())
   {
     it.Value().m_LastCheck = ezTime::Now();
 

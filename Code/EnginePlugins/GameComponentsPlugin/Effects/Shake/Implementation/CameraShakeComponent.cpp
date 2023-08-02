@@ -30,7 +30,7 @@ ezCameraShakeComponent::~ezCameraShakeComponent() = default;
 
 void ezCameraShakeComponent::Update()
 {
-  const ezTime tDuration = ezTime::Seconds(1.0 / 30.0); // 30 Hz vibration seems to work well
+  const ezTime tDuration = ezTime::MakeFromSeconds(1.0 / 30.0); // 30 Hz vibration seems to work well
 
   const ezTime tNow = ezTime::Now();
 

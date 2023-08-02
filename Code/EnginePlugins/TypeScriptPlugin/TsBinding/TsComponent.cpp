@@ -223,7 +223,7 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
 
   if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {
-    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::MakeZero());
     pComponent->SendMessage(*pMsg);
 
     if (duk.GetBoolValue(3)) // expect the message to have result values
@@ -234,7 +234,7 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
   }
   else // PostMessage
   {
-    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(3));
+    const ezTime delay = ezTime::MakeFromSeconds(duk.GetNumberValue(3));
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
     pComponent->PostMessage(*pMsg, delay);
@@ -251,7 +251,7 @@ static int __CPP_TsComponent_BroadcastEvent(duk_context* pDuk)
 
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
 
-  ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+  ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::MakeZero());
   pComponent->BroadcastEventMsg(ezStaticCast<ezEventMessage&>(*pMsg));
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
@@ -263,7 +263,7 @@ static int __CPP_TsComponent_SetTickInterval(duk_context* pDuk)
 
   ezTypeScriptComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezTypeScriptComponent>(duk, 0 /*this*/);
 
-  const ezTime interval = ezTime::Seconds(duk.GetFloatValue(1, 0.0f));
+  const ezTime interval = ezTime::MakeFromSeconds(duk.GetFloatValue(1, 0.0f));
   pComponent->SetUpdateInterval(interval);
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);

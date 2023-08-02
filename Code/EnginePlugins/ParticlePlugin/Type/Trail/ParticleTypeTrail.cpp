@@ -50,7 +50,7 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
   pType->m_fDistortionStrength = m_fDistortionStrength;
 
   // fixed 25 FPS for the update rate
-  pType->m_UpdateDiff = ezTime::Seconds(1.0 / 25.0); // m_UpdateDiff;
+  pType->m_UpdateDiff = ezTime::MakeFromSeconds(1.0 / 25.0); // m_UpdateDiff;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);

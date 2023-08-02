@@ -29,7 +29,7 @@ void ezQtFileWidget::ResetStats()
   m_bUpdateTable = true;
   m_FileOps.Clear();
   m_FileOps.Reserve(10000);
-  m_LastTableUpdate = ezTime::Seconds(0);
+  m_LastTableUpdate = ezTime::MakeFromSeconds(0);
 
   Table->clear();
 
@@ -219,7 +219,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
 
     double dTime = 0.0;
     Msg.GetReader() >> dTime;
-    data.m_BlockedDuration += ezTime::Seconds(dTime);
+    data.m_BlockedDuration += ezTime::MakeFromSeconds(dTime);
 
     ezUInt8 uiThreadTypes = 0;
     Msg.GetReader() >> uiThreadTypes;
@@ -323,7 +323,7 @@ void ezQtFileWidget::UpdateTable()
   if (!m_bUpdateTable)
     return;
 
-  if (ezTime::Now() - m_LastTableUpdate < ezTime::Seconds(0.3))
+  if (ezTime::Now() - m_LastTableUpdate < ezTime::MakeFromSeconds(0.3))
     return;
 
   m_LastTableUpdate = ezTime::Now();

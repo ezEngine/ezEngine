@@ -22,7 +22,7 @@ EZ_ALWAYS_INLINE float ezIntervalSchedulerBase::GetRandomZeroToOne(int pos, ezUI
   return ezSimdRandom::FloatZeroToOne(ezSimdVec4i(pos), ezSimdVec4u(seed++)).x();
 }
 
-constexpr ezTime s_JitterRange = ezTime::Microseconds(10);
+constexpr ezTime s_JitterRange = ezTime::MakeFromMicroseconds(10);
 
 // static
 EZ_ALWAYS_INLINE ezTime ezIntervalSchedulerBase::GetRandomTimeJitter(int pos, ezUInt32& seed)
@@ -42,7 +42,7 @@ bool ezIntervalScheduler<T>::Data::IsValid() const
 template <typename T>
 void ezIntervalScheduler<T>::Data::MarkAsInvalid()
 {
-  m_Interval = ezTime::Seconds(-1);
+  m_Interval = ezTime::MakeFromSeconds(-1);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ void ezIntervalScheduler<T>::AddOrUpdateWork(const T& work, ezTime interval)
 
   Data data;
   data.m_Work = work;
-  data.m_Interval = ezMath::Max(interval, ezTime::Zero());
+  data.m_Interval = ezMath::Max(interval, ezTime::MakeZero());
   data.m_DueTime = m_CurrentTime + GetRandomZeroToOne(m_Data.GetCount(), m_uiSeed) * data.m_Interval;
   data.m_LastScheduledTime = m_CurrentTime;
 
@@ -102,7 +102,7 @@ ezTime ezIntervalScheduler<T>::GetInterval(const T& work) const
 template <typename T>
 void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCallback)
 {
-  if (deltaTime <= ezTime::Zero())
+  if (deltaTime <= ezTime::MakeZero())
     return;
 
   m_CurrentTime += deltaTime;

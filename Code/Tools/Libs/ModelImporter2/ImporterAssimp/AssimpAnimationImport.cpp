@@ -254,7 +254,7 @@ namespace ezModelImporter2
         }
       }
 
-      pAnimOut->SetDuration(ezTime::Seconds(fMaxTimestamp));
+      pAnimOut->SetDuration(ezTime::MakeFromSeconds(fMaxTimestamp));
 
       return EZ_SUCCESS;
     }

@@ -88,7 +88,7 @@ namespace
   template <>
   void GetVariantFunc::operator()<ezTime>()
   {
-    m_Value = ezTime::Seconds(m_fValue);
+    m_Value = ezTime::MakeFromSeconds(m_fValue);
     m_bValid = true;
   }
 } // namespace

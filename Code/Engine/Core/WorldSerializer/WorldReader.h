@@ -34,7 +34,7 @@ struct ezPrefabInstantiationOptions
   RandomSeedMode m_RandomSeedMode = RandomSeedMode::DeterministicFromParent;
   ezUInt32 m_uiCustomRandomSeedRootValue = 0;
 
-  ezTime m_MaxStepTime = ezTime::Zero();
+  ezTime m_MaxStepTime = ezTime::MakeZero();
 
   ezProgress* m_pProgress = nullptr;
 };
@@ -98,7 +98,7 @@ public:
   ///
   /// If pProgress is a valid pointer it is used to track the progress of the instantiation. The ezProgress object
   /// has to be valid as long as the instantiation is in progress.
-  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::Zero(), ezProgress* pProgress = nullptr);
+  ezUniquePtr<InstantiationContextBase> InstantiateWorld(ezWorld& ref_world, const ezUInt16* pOverrideTeamID = nullptr, ezTime maxStepTime = ezTime::MakeZero(), ezProgress* pProgress = nullptr);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///

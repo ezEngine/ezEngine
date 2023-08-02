@@ -28,7 +28,7 @@ public:
   /// Returns EZ_SUCCESS only if all processes have shut down.
   /// In all other cases, e.g. if the optional timeout is reached,
   /// EZ_FAILURE is returned.
-  ezResult WaitToFinish(ezTime timeout = ezTime::Zero());
+  ezResult WaitToFinish(ezTime timeout = ezTime::MakeZero());
 
   /// \brief Tries to kill all processes associated with this group.
   ///

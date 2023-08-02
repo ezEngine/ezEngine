@@ -204,13 +204,13 @@ void ezJoltRagdollComponent::Update(bool bForce)
   {
     m_ElapsedTimeSinceUpdate += ezClock::GetGlobalClock()->GetTimeDiff();
 
-    if (visState == ezVisibilityState::Indirect && m_ElapsedTimeSinceUpdate < ezTime::Milliseconds(200))
+    if (visState == ezVisibilityState::Indirect && m_ElapsedTimeSinceUpdate < ezTime::MakeFromMilliseconds(200))
     {
       // when the ragdoll is only visible by shadows or reflections, update it infrequently
       return;
     }
 
-    if (visState == ezVisibilityState::Invisible && m_ElapsedTimeSinceUpdate < ezTime::Milliseconds(500))
+    if (visState == ezVisibilityState::Invisible && m_ElapsedTimeSinceUpdate < ezTime::MakeFromMilliseconds(500))
     {
       // when the ragdoll is entirely invisible, update it very rarely
       return;
@@ -220,7 +220,7 @@ void ezJoltRagdollComponent::Update(bool bForce)
   RetrieveRagdollPose();
   SendAnimationPoseMsg();
 
-  m_ElapsedTimeSinceUpdate.SetZero();
+  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 }
 
 ezResult ezJoltRagdollComponent::EnsureSkeletonIsKnown()

@@ -105,7 +105,7 @@ namespace
     TestTransition::InstanceData::s_uiDestructionCounter = 0;
   }
 
-  static ezTime s_TimeStep = ezTime::Milliseconds(10);
+  static ezTime s_TimeStep = ezTime::MakeFromMilliseconds(10);
 
 } // namespace
 
@@ -283,7 +283,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
     pDesc->AddState(pStateB);
 
     auto pTransition = EZ_DEFAULT_NEW(ezStateMachineTransition_Timeout);
-    pTransition->m_Timeout = ezTime::Milliseconds(5);
+    pTransition->m_Timeout = ezTime::MakeFromMilliseconds(5);
     pDesc->AddTransition(0, 1, pTransition);
 
     {
@@ -341,7 +341,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       {
         auto pAllocator = ezGetStaticRTTI<ezStateMachineTransition_Timeout>()->GetAllocator();
         auto pSubTransition = pAllocator->Allocate<ezStateMachineTransition_Timeout>();
-        pSubTransition->m_Timeout = ezTime::Milliseconds(5);
+        pSubTransition->m_Timeout = ezTime::MakeFromMilliseconds(5);
 
         pCompoundTransition->m_SubTransitions.PushBack(pSubTransition);
       }

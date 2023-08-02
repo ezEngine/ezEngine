@@ -23,7 +23,7 @@ ezCVarFloat CVar_SparksSpeed("g_SparksSpeed", 50.0f, ezCVarFlags::Default, "Proj
 ProjectileComponent::ProjectileComponent()
 {
   m_fSpeed = 0.0f;
-  m_TimeToLive = ezTime::Seconds(CVar_ProjectileTimeToLive);
+  m_TimeToLive = ezTime::MakeFromSeconds(CVar_ProjectileTimeToLive);
   m_iBelongsToPlayer = -1;
   m_bDoesDamage = false;
 }
@@ -133,12 +133,12 @@ void ProjectileComponent::Update()
 
       if (pShipComponent)
       {
-        m_TimeToLive = ezTime::Seconds(0);
+        m_TimeToLive = ezTime::MakeFromSeconds(0);
       }
       else
       {
         m_fSpeed = 0.0f;
-        m_TimeToLive = ezTime::Seconds(CVar_SparksTimeToLive);
+        m_TimeToLive = ezTime::MakeFromSeconds(CVar_SparksTimeToLive);
       }
     }
   }

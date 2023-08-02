@@ -17,5 +17,5 @@ void ezTime::Initialize()
 ezTime ezTime::Now()
 {
   // mach_absolute_time() returns nanoseconds after factoring in the mach_timebase_info_data_t
-  return ezTime::Seconds((double)mach_absolute_time() * g_TimeFactor);
+  return ezTime::MakeFromSeconds((double)mach_absolute_time() * g_TimeFactor);
 }

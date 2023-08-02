@@ -139,7 +139,7 @@ void ezTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(ezMsgCompone
       newMsg.m_sMessage = m_sMessage;
       newMsg.m_TriggerState = ezTriggerState::Activated;
 
-      m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
+      m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
     }
   }
   else if (msg.m_sMessage == ezTempHashedString("Deactivate"))
@@ -152,7 +152,7 @@ void ezTriggerDelayModifierComponent::OnMsgComponentInternalTrigger(ezMsgCompone
       newMsg.m_sMessage = m_sMessage;
       newMsg.m_TriggerState = ezTriggerState::Deactivated;
 
-      m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
+      m_TriggerEventSender.PostEventMessage(newMsg, this, GetOwner()->GetParent(), ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
     }
   }
 }

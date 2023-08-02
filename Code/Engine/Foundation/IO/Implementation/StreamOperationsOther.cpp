@@ -35,7 +35,7 @@ void operator>>(ezStreamReader& inout_stream, ezTime& ref_value)
   double d = 0;
   inout_stream.ReadQWordValue(&d).IgnoreResult();
 
-  ref_value = ezTime::Seconds(d);
+  ref_value = ezTime::MakeFromSeconds(d);
 }
 
 // ezUuid

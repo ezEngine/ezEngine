@@ -205,7 +205,7 @@ void ezLongOpControllerManager::CancelAndRemoveAllOpsForDocument(const ezUuid& d
 
     if (bOperationsStillActive)
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
     }
   }
 }

@@ -126,7 +126,7 @@ void ezJoltBoneColliderComponent::RecreatePhysicsShapes()
   DestroyPhysicsShapes();
   CreatePhysicsShapes(msg.m_hSkeleton);
 
-  m_LastUpdate.SetZero();
+  m_LastUpdate = ezTime::MakeZero();
 }
 
 void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton)

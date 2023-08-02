@@ -229,7 +229,7 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_Struct.m_DataBuffer.PushBack(1);
     t1.m_Struct.m_DataBuffer.PushBack(5);
     t1.m_Struct.m_vVec3I = ezVec3I32(0, 1, 333);
-    t1.m_Time = ezTime::Seconds(22.2f);
+    t1.m_Time = ezTime::MakeFromSeconds(22.2f);
     t1.m_enumClass = ezExampleEnum::Value3;
     t1.m_bitflagsClass = ezExampleBitflags::Value1 | ezExampleBitflags::Value2;
     t1.m_array.PushBack(40.0f);

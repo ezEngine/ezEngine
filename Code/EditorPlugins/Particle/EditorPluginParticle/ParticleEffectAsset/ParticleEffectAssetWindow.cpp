@@ -396,7 +396,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
         {
           ezSetObjectPropertyCommand cmd;
           cmd.m_Object = pChild->GetGuid();
-          cmd.m_NewValue = ezTime::Seconds(1);
+          cmd.m_NewValue = ezTime::MakeFromSeconds(1);
           cmd.m_sProperty = "Value";
           cmd.m_Index = 0;
 

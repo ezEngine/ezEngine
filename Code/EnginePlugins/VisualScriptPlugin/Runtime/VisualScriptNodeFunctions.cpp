@@ -746,7 +746,7 @@ namespace
       }
     }
 
-    return ExecResult::ContinueLater(ezTime::Zero());
+    return ExecResult::ContinueLater(ezTime::MakeZero());
   }
 
   static ExecResult NodeFunction_Builtin_Yield(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
@@ -757,7 +757,7 @@ namespace
       // set marker value of 0x1 to indicate we are in a yield
       inout_context.SetCurrentCoroutine(reinterpret_cast<ezScriptCoroutine*>(0x1));
 
-      return ExecResult::ContinueLater(ezTime::Zero());
+      return ExecResult::ContinueLater(ezTime::MakeZero());
     }
 
     inout_context.SetCurrentCoroutine(nullptr);

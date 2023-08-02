@@ -30,5 +30,5 @@ ezTime ezTime::Now()
   s_LastTime = temp.QuadPart;
 #endif
 
-  return ezTime::Seconds(double(temp.QuadPart) * g_fInvQpcFrequency);
+  return ezTime::MakeFromSeconds(double(temp.QuadPart) * g_fInvQpcFrequency);
 }

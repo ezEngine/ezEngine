@@ -152,7 +152,7 @@ ezResult ezOpenDdlUtils::ConvertToTime(const ezOpenDdlReaderElement* pElement, e
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_result = ezTime::Seconds(pValues[0]);
+    out_result = ezTime::MakeFromSeconds(pValues[0]);
 
     return EZ_SUCCESS;
   }
@@ -161,7 +161,7 @@ ezResult ezOpenDdlUtils::ConvertToTime(const ezOpenDdlReaderElement* pElement, e
   {
     const double* pValues = pElement->GetPrimitivesDouble();
 
-    out_result = ezTime::Seconds(pValues[0]);
+    out_result = ezTime::MakeFromSeconds(pValues[0]);
 
     return EZ_SUCCESS;
   }

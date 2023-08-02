@@ -174,7 +174,7 @@ protected:
   JPH::RagdollSettings* m_pRagdollSettings = nullptr;
   ezDynamicArray<Limb> m_Limbs;
   ezTransform m_RootBodyLocalTransform;
-  ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ezVec3 m_vInitialImpulsePosition = ezVec3::ZeroVector();
   ezVec3 m_vInitialImpulseDirection = ezVec3::ZeroVector();

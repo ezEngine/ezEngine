@@ -229,7 +229,7 @@ retry:
     }
   }
 
-  m_SyncTimeDiff.SetZero();
+  m_SyncTimeDiff = ezTime::MakeZero();
 
   ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
 
@@ -693,11 +693,11 @@ ezResult ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimes
 
   if (pPerFrameData->m_fInvTicksPerSecond == 0.0)
   {
-    result.SetZero();
+    result = ezTime::MakeZero();
   }
   else
   {
-    result = ezTime::Seconds(double(uiTimestamp) * pPerFrameData->m_fInvTicksPerSecond) + m_SyncTimeDiff;
+    result = ezTime::MakeFromSeconds(double(uiTimestamp) * pPerFrameData->m_fInvTicksPerSecond) + m_SyncTimeDiff;
   }
   return EZ_SUCCESS;
 }
@@ -786,7 +786,7 @@ void ezGALDeviceDX11::EndFramePlatform()
               ezThreadUtils::YieldTimeSlice();
             }
 
-            m_SyncTimeDiff = ezTime::Now() - ezTime::Seconds(double(uiTimestamp) * perFrameData.m_fInvTicksPerSecond);
+            m_SyncTimeDiff = ezTime::Now() - ezTime::MakeFromSeconds(double(uiTimestamp) * perFrameData.m_fInvTicksPerSecond);
             m_bSyncTimeNeeded = false;
           }
         }

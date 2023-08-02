@@ -49,7 +49,7 @@ public:
   {
     m_fFloat = 1.0f;
     m_fDouble = 1.0;
-    m_Time = ezTime::Seconds(1.0);
+    m_Time = ezTime::MakeFromSeconds(1.0);
     m_Angle = ezAngle::MakeFromDegree(45.0f);
   }
 

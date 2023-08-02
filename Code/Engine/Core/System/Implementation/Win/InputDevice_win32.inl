@@ -22,7 +22,7 @@ ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
     ezStandardInputDevice::s_bMainWindowUsed = true;
   }
 
-  m_DoubleClickTime = ezTime::Milliseconds(GetDoubleClickTime());
+  m_DoubleClickTime = ezTime::MakeFromMilliseconds(GetDoubleClickTime());
 }
 
 ezStandardInputDevice::~ezStandardInputDevice()

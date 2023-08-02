@@ -95,7 +95,7 @@ void ezSimpleWindComponent::OnActivated()
   m_fNextStrength = ezWindStrength::GetInMetersPerSecond(m_MinWindStrength);
   m_vNextDirection = GetOwner()->GetGlobalDirForwards();
   m_NextChange = GetWorld()->GetClock().GetAccumulatedTime();
-  m_LastChange = m_NextChange - ezTime::Seconds(1);
+  m_LastChange = m_NextChange - ezTime::MakeFromSeconds(1);
 
   ComputeNextState();
 }
@@ -129,7 +129,7 @@ void ezSimpleWindComponent::ComputeNextState()
   float fStrengthDiff = fMaxStrength - fMinStrength;
   float fStrengthChange = fStrengthDiff * 0.2f;
 
-  m_NextChange = m_LastChange + ezTime::Seconds(rng.DoubleMinMax(2.0f, 5.0f));
+  m_NextChange = m_LastChange + ezTime::MakeFromSeconds(rng.DoubleMinMax(2.0f, 5.0f));
   m_fNextStrength = ezMath::Clamp<float>(m_fLastStrength + (float)rng.DoubleMinMax(-fStrengthChange, +fStrengthChange), fMinStrength, fMaxStrength);
 
   const ezVec3 vMainDir = GetOwner()->GetGlobalDirForwards();

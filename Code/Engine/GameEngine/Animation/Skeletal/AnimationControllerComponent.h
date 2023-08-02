@@ -48,5 +48,5 @@ protected:
   ezAnimController m_AnimController;
   ezAnimPoseGenerator m_PoseGenerator;
 
-  ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 };

@@ -132,7 +132,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
 
   if ((!m_InStart.IsConnected() && pState->m_uiState == 0) || m_InStart.IsTriggered(ref_graph))
   {
-    pState->m_PlaybackTime = ezTime::Zero();
+    pState->m_PlaybackTime = ezTime::MakeZero();
     pState->m_uiState = 1;
   }
 
@@ -190,13 +190,13 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       }
 
       tCurDuration = pAnimClip->GetDescriptor().GetDuration();
-      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::Milliseconds(5), "Too short clip");
+      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::MakeFromMilliseconds(5), "Too short clip");
 
       if (pState->m_PlaybackTime >= tCurDuration)
       {
         // TODO: sample anim events of previous clip
         m_OutOnMiddleStarted.SetTriggered(ref_graph);
-        tPrevSamplePos = ezTime::Zero();
+        tPrevSamplePos = ezTime::MakeZero();
         pState->m_PlaybackTime -= tCurDuration;
         pState->m_uiState = 2;
 
@@ -235,12 +235,12 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       }
 
       tCurDuration = pAnimClip->GetDescriptor().GetDuration();
-      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::Milliseconds(5), "Too short clip");
+      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::MakeFromMilliseconds(5), "Too short clip");
 
       if (pState->m_PlaybackTime >= tCurDuration)
       {
         // TODO: sample anim events of previous clip
-        tPrevSamplePos = ezTime::Zero();
+        tPrevSamplePos = ezTime::MakeZero();
         pState->m_PlaybackTime -= tCurDuration;
 
         if (bLoop)
@@ -286,7 +286,7 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
       }
 
       tCurDuration = pAnimClip->GetDescriptor().GetDuration();
-      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::Milliseconds(5), "Too short clip");
+      EZ_ASSERT_DEBUG(tCurDuration >= ezTime::MakeFromMilliseconds(5), "Too short clip");
 
       if (pState->m_PlaybackTime >= tCurDuration)
       {

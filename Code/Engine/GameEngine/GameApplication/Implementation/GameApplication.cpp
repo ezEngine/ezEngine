@@ -247,9 +247,9 @@ void ezGameApplication::RenderFps()
   ++uiFrames;
   tAccumTime += m_FrameTime;
 
-  if (tAccumTime >= ezTime::Seconds(0.5))
+  if (tAccumTime >= ezTime::MakeFromSeconds(0.5))
   {
-    tAccumTime -= ezTime::Seconds(0.5);
+    tAccumTime -= ezTime::MakeFromSeconds(0.5);
     tDisplayedFrameTime = m_FrameTime;
 
     uiFPS = uiFrames * 2;

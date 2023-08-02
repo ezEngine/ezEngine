@@ -25,7 +25,7 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
 
 ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
 {
-  const ezTime sleepTime = ezTime::Milliseconds(20);
+  const ezTime sleepTime = ezTime::MakeFromMilliseconds(20);
   ezInt32 iRetries = 20;
 
   if (FileShareMode == ezFileShareMode::Default)

@@ -26,7 +26,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
       "This current time is after the year 3000! If this is actually the case, please fix this test.");
 
     // Sleep for 10 milliseconds
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
     EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) < ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond),
       "Sleeping for 10 ms should cause the timestamp to change!");
     EZ_TEST_BOOL_MSG(!currentTimestamp.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Identical),
@@ -67,7 +67,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     const ezTimestamp firstContact = ezTimestamp::MakeFromInt(iFirstContactUnixTimeInSeconds, ezSIUnitOfTime::Second);
 
     // Time span arithmetics
-    const ezTime timeSpan1000s = ezTime::Seconds(1000);
+    const ezTime timeSpan1000s = ezTime::MakeFromSeconds(1000);
     EZ_TEST_BOOL(timeSpan1000s.GetMicroseconds() == 1000000000LL);
 
     // operator +

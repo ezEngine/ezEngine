@@ -453,7 +453,7 @@ void ezStateMachineInstance::EnterCurrentState(const ezStateMachineState* pFromS
     void* pInstanceData = GetCurrentStateInstanceData();
     m_pCurrentState->OnEnter(*this, pInstanceData, pFromState);
 
-    m_TimeInCurrentState.SetZero();
+    m_TimeInCurrentState = ezTime::MakeZero();
   }
 }
 

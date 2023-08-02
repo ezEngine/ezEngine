@@ -36,7 +36,7 @@ inline const ezTime ezTimestamp::operator-(const ezTimestamp& other) const
 {
   EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
   EZ_ASSERT_DEBUG(other.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  return ezTime::Microseconds((double)(m_iTimestamp - other.m_iTimestamp));
+  return ezTime::MakeFromMicroseconds((double)(m_iTimestamp - other.m_iTimestamp));
 }
 
 inline const ezTimestamp ezTimestamp::operator+(const ezTime& timeSpan) const

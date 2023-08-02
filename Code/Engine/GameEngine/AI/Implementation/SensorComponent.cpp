@@ -641,7 +641,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
       ezMsgSensorDetectedObjectsChanged msg;
       msg.m_DetectedObjects = pSensorComponent->m_LastDetectedObjects;
 
-      pSensorOwner->PostEventMessage(msg, pSensorComponent, ezTime::Zero(), ezObjectMsgQueueType::PostAsync);
+      pSensorOwner->PostEventMessage(msg, pSensorComponent, ezTime::MakeZero(), ezObjectMsgQueueType::PostAsync);
     } });
 }
 

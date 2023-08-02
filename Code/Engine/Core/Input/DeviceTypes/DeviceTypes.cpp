@@ -117,7 +117,7 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
   static ezTime tElapsedTime;
   tElapsedTime += tTimeDifference;
 
-  const ezTime tTimePerSample = ezTime::Seconds(1.0 / VibrationSamplesPerSecond);
+  const ezTime tTimePerSample = ezTime::MakeFromSeconds(1.0 / VibrationSamplesPerSecond);
 
   // advance the vibration track sampling
   while (tElapsedTime >= tTimePerSample)
@@ -191,7 +191,7 @@ void ezInputDeviceMouseKeyboard::UpdateInputSlotValues()
         if (tNow - m_LastMouseClick[i] <= m_DoubleClickTime)
         {
           m_InputSlotValues[dlbSlots[i]] = 1.0f;
-          m_LastMouseClick[i].SetZero(); // this prevents triple-clicks from appearing as two double clicks
+          m_LastMouseClick[i] = ezTime::MakeZero(); // this prevents triple-clicks from appearing as two double clicks
         }
         else
         {

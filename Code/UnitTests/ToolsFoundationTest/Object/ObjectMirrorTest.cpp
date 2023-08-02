@@ -102,7 +102,7 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
     case ezVariant::Type::StringView:
       return ezVariant("Test");
     case ezVariant::Type::Time:
-      return ezVariant(ezTime::Seconds(123.0f));
+      return ezVariant(ezTime::MakeFromSeconds(123.0f));
     case ezVariant::Type::Uuid:
     {
       return ezVariant(ezUuid::MakeUuid());

@@ -7,7 +7,7 @@ void ezClothSimulator::SimulateCloth(const ezTime& diff)
 {
   m_LeftOverTimeStep += diff;
 
-  constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
+  constexpr ezTime tStep = ezTime::MakeFromSeconds(1.0 / 60.0);
   const ezSimdFloat tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
 
   while (m_LeftOverTimeStep >= tStep)

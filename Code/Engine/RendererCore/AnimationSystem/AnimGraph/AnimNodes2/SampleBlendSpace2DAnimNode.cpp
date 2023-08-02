@@ -29,7 +29,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampleBlendSpace2DAnimNode, 1, ezRTTIDefaultAl
       EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("PlaybackSpeed", m_fPlaybackSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, {})),
       EZ_MEMBER_PROPERTY("ApplyRootMotion", m_bApplyRootMotion),
-      EZ_MEMBER_PROPERTY("InputResponse", m_InputResponse)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(100))),
+      EZ_MEMBER_PROPERTY("InputResponse", m_InputResponse)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromMilliseconds(100))),
     EZ_ACCESSOR_PROPERTY("CenterClip", GetCenterClipFile, SetCenterClipFile)->AddAttributes(new ezDynamicStringEnumAttribute("AnimationClipMappingEnum")),
       EZ_ARRAY_MEMBER_PROPERTY("Clips", m_Clips),
 
@@ -153,7 +153,7 @@ void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnim
 
   if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
   {
-    pState->m_CenterPlaybackTime = ezTime::Zero();
+    pState->m_CenterPlaybackTime = ezTime::MakeZero();
     pState->m_fOtherPlaybackPosNorm = 0.0f;
     pState->m_bPlaying = true;
 
@@ -299,7 +299,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
   const bool bLoop = m_InLoop.GetBool(ref_graph, m_bLoop);
   const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed));
 
-  ezTime tAvgDuration = ezTime::Zero();
+  ezTime tAvgDuration = ezTime::MakeZero();
 
   ezHybridArray<ezAnimPoseGeneratorCommandSampleTrack*, 8> pSampleTrack;
   pSampleTrack.SetCountUninitialized(clips.GetCount());
@@ -337,7 +337,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     tAvgDuration = tAvgDuration / uiNumAvgClips;
   }
 
-  tAvgDuration = ezMath::Max(tAvgDuration, ezTime::Milliseconds(16));
+  tAvgDuration = ezMath::Max(tAvgDuration, ezTime::MakeFromMilliseconds(16));
 
   const ezTime fPrevCenterPlaybackPos = pState->m_CenterPlaybackTime;
   const float fPrevPlaybackPosNorm = pState->m_fOtherPlaybackPosNorm;

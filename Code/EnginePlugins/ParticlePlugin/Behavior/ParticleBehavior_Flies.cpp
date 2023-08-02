@@ -89,7 +89,7 @@ void ezParticleBehavior_Flies::CreateRequiredStreams()
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
 
-  m_TimeToChangeDir.SetZero();
+  m_TimeToChangeDir = ezTime::MakeZero();
 }
 
 void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
@@ -102,7 +102,7 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
   if (!bChangeDirection)
     return;
 
-  m_TimeToChangeDir = tCur + ezTime::Seconds(m_fPathLength / m_fSpeed);
+  m_TimeToChangeDir = tCur + ezTime::MakeFromSeconds(m_fPathLength / m_fSpeed);
 
   const ezVec3 vEmitterPos = GetOwnerSystem()->GetTransform().m_vPosition;
   const float fMaxDistanceToEmitterSquared = ezMath::Square(m_fMaxEmitterDistance);

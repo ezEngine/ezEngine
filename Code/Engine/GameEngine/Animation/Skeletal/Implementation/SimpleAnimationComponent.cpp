@@ -126,7 +126,7 @@ void ezSimpleAnimationComponent::Update()
   if (m_fSpeed == 0.0f && !GetUserFlag(1))
     return;
 
-  ezTime tMinStep = ezTime::Seconds(0);
+  ezTime tMinStep = ezTime::MakeFromSeconds(0);
   ezVisibilityState visType = GetOwner()->GetVisibilityState();
 
   if (visType != ezVisibilityState::Direct)
@@ -149,7 +149,7 @@ void ezSimpleAnimationComponent::Update()
     return;
 
   const ezTime tDiff = m_ElapsedTimeSinceUpdate;
-  m_ElapsedTimeSinceUpdate.SetZero();
+  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   const ezAnimationClipResourceDescriptor& animDesc = pAnimation->GetDescriptor();
 

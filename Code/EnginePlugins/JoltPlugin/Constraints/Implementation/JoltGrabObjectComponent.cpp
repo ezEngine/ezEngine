@@ -213,7 +213,7 @@ void ezJoltGrabObjectComponent::BreakObjectGrab()
   ezMsgPhysicsJointBroke msg;
   msg.m_hJointObject = GetOwner()->GetHandle();
 
-  GetOwner()->PostEventMessage(msg, this, ezTime::Zero());
+  GetOwner()->PostEventMessage(msg, this, ezTime::MakeZero());
 }
 
 void ezJoltGrabObjectComponent::SetAttachToReference(const char* szReference)
@@ -471,7 +471,7 @@ void ezJoltGrabObjectComponent::DetectDistanceViolation(ezJoltDynamicActorCompon
   else
   {
     // TODO: make this configurable?
-    if (GetWorld()->GetClock().GetAccumulatedTime() - m_LastValidTime > ezTime::Seconds(1.0))
+    if (GetWorld()->GetClock().GetAccumulatedTime() - m_LastValidTime > ezTime::MakeFromSeconds(1.0))
     {
       BreakObjectGrab();
       return;
@@ -552,7 +552,7 @@ void ezJoltGrabObjectComponent::Update()
   {
     // disallow grabbing something again until that time
     // to prevent grabbing an object in air that we just jumped off of
-    m_LastValidTime = GetWorld()->GetClock().GetAccumulatedTime() + ezTime::Milliseconds(400);
+    m_LastValidTime = GetWorld()->GetClock().GetAccumulatedTime() + ezTime::MakeFromMilliseconds(400);
     BreakObjectGrab();
   }
 }

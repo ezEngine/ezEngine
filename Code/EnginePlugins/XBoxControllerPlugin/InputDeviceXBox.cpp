@@ -122,7 +122,7 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
   // even on not connected controllers
   static ezTime tLastControllerSearch;
   const ezTime tNow = ezTime::Now();
-  const bool bSearchControllers = tNow - tLastControllerSearch > ezTime::Seconds(0.5);
+  const bool bSearchControllers = tNow - tLastControllerSearch > ezTime::MakeFromSeconds(0.5);
 
   if (bSearchControllers)
     tLastControllerSearch = tNow;

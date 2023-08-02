@@ -385,7 +385,7 @@ ezResult ezProcess::ResumeSuspended()
   return EZ_SUCCESS;
 }
 
-ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
+ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
 {
   EZ_ASSERT_DEV(m_pImpl->m_ProcessHandle != nullptr, "Launch a process before waiting on it");
   EZ_ASSERT_DEV(m_pImpl->m_ProcessID != 0, "Launch a process before waiting on it");

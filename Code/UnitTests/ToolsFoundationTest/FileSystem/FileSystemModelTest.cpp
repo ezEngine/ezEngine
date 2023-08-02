@@ -173,7 +173,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       if (fileEvents.GetCount() > 0)
@@ -197,7 +197,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     {
 #  if EZ_ENABLED(EZ_PLATFORM_LINUX)
       // EXT3 filesystem only support second resolution so we won't detect the modification if it is done within the same second.
-      ezThreadUtils::Sleep(ezTime::Seconds(1.0));
+      ezThreadUtils::Sleep(ezTime::MakeFromSeconds(1.0));
 #  endif
       ezFileWriter FileOut;
       EZ_TEST_RESULT(FileOut.Open(sFilePath));
@@ -209,7 +209,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       if (fileEvents.GetCount() > 0)
@@ -238,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       if (fileEvents.GetCount() == 2)
@@ -266,7 +266,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(folderEventLock);
       if (folderEvents.GetCount() > 0)
@@ -295,7 +295,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       if (fileEvents.GetCount() == 2)
@@ -332,7 +332,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       EZ_LOCK(folderEventLock);
@@ -647,7 +647,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       EZ_LOCK(folderEventLock);

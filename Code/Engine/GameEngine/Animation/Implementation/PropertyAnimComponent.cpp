@@ -17,10 +17,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
       EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Property_Animation")),
       EZ_MEMBER_PROPERTY("Playing", m_bPlaying)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
-      EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
+      EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::MakeFromSeconds(0), ezVariant())),
       EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
       EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
+      EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::MakeFromSeconds(60 * 60))),
     } EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
@@ -43,7 +43,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPropertyAnimComponent::ezPropertyAnimComponent()
 {
-  m_AnimationRangeHigh = ezTime::Seconds(60.0 * 60.0);
+  m_AnimationRangeHigh = ezTime::MakeFromSeconds(60.0 * 60.0);
 }
 
 ezPropertyAnimComponent::~ezPropertyAnimComponent() = default;
@@ -443,7 +443,7 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 
 ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
-  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::MakeZero(), m_pAnimDesc->m_AnimationDuration);
   m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
 
   const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
@@ -579,7 +579,7 @@ void ezPropertyAnimComponent::StartPlayback()
   if (m_pAnimDesc == nullptr)
     return;
 
-  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_pAnimDesc->m_AnimationDuration);
+  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::MakeZero(), m_pAnimDesc->m_AnimationDuration);
   m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_pAnimDesc->m_AnimationDuration);
 
   // when starting with a negative speed, start at the end of the animation and play backwards
@@ -596,7 +596,7 @@ void ezPropertyAnimComponent::StartPlayback()
   if (!m_RandomOffset.IsZero() && m_pAnimDesc->m_AnimationDuration.IsPositive())
   {
     // should the random offset also be scaled by the speed factor? I guess not
-    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
+    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
 
     const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 
@@ -654,7 +654,7 @@ void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& bind
   {
     ezTypedMemberProperty<ezTime>* pTyped = static_cast<ezTypedMemberProperty<ezTime>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezTime::Seconds(fFinalValue));
+    pTyped->SetValue(binding.m_pObject, ezTime::MakeFromSeconds(fFinalValue));
     return;
   }
 

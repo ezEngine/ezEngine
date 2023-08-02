@@ -651,7 +651,7 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
       }
     }
 
-    if (ezFileserveClient::GetSingleton()->EnsureConnected(ezTime::Seconds(-30)).Failed())
+    if (ezFileserveClient::GetSingleton()->EnsureConnected(ezTime::MakeFromSeconds(-30)).Failed())
     {
       Error("Failed to establish a Fileserve connection", "", 0, "ezTestFramework::RunTestExecutionLoop", "");
       return ezTestAppRun::Quit;

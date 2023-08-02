@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSwitchPoseAnimNode, 1, ezRTTIDefaultAllocator<
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("TransitionDuration", m_TransitionDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(200))),
+    EZ_MEMBER_PROPERTY("TransitionDuration", m_TransitionDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromMilliseconds(200))),
     EZ_MEMBER_PROPERTY("InIndex", m_InIndex)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("PosesCount", m_uiPosesCount)->AddAttributes(new ezNoTemporaryTransactionsAttribute(), new ezDynamicPinAttribute(), new ezDefaultValueAttribute(2)),
     EZ_ARRAY_MEMBER_PROPERTY("InPoses", m_InPoses)->AddAttributes(new ezHiddenAttribute(), new ezDynamicPinAttribute("PosesCount")),
@@ -108,7 +108,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   {
     pInstance->m_iTransitionFromIndex = pInstance->m_iTransitionToIndex;
     pInstance->m_iTransitionToIndex = iDstIdx;
-    pInstance->m_TransitionTime = ezTime::Zero();
+    pInstance->m_TransitionTime = ezTime::MakeZero();
   }
 
   if (pInstance->m_TransitionTime >= m_TransitionDuration)

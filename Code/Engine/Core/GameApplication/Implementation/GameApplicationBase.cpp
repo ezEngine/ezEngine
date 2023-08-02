@@ -528,7 +528,7 @@ void ezGameApplicationBase::Run_FinishFrame()
   ezProfilingSystem::StartNewFrame();
 
   // if many messages have been logged, make sure they get written to disk
-  ezLog::Flush(100, ezTime::Seconds(10));
+  ezLog::Flush(100, ezTime::MakeFromSeconds(10));
 
   // reset this state
   m_bTakeScreenshot = false;

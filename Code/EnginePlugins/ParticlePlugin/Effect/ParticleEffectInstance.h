@@ -141,8 +141,8 @@ private: // friend ezParticleEffectUpdateTask
   bool StepSimulation(const ezTime& tDiff);
 
 private:
-  ezTime m_TotalEffectLifeTime = ezTime::Zero();
-  ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();
+  ezTime m_TotalEffectLifeTime = ezTime::MakeZero();
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
 
   /// @}

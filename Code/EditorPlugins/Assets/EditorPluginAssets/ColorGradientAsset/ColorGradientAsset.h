@@ -9,7 +9,7 @@ class ezColorControlPoint : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezColorControlPoint, ezReflectedClass);
 
 public:
-  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 iFps);
 
   // double m_fPositionX;
@@ -24,7 +24,7 @@ class ezAlphaControlPoint : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezAlphaControlPoint, ezReflectedClass);
 
 public:
-  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 iFps);
 
   // double m_fPositionX;
@@ -37,7 +37,7 @@ class ezIntensityControlPoint : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezIntensityControlPoint, ezReflectedClass);
 
 public:
-  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 iFps);
 
   // double m_fPositionX;

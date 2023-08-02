@@ -121,7 +121,7 @@ float CalculateAcceleratedMovement(
 
     if (fDist > fDistanceInMeters)
     {
-      ref_timeSinceStartInSec = ezTime::Seconds(fDistanceInMeters / fMaxVelocity);
+      ref_timeSinceStartInSec = ezTime::MakeFromSeconds(fDistanceInMeters / fMaxVelocity);
       return fDistanceInMeters;
     }
 
@@ -179,7 +179,7 @@ float CalculateAcceleratedMovement(
   // if the time is, however, outside the whole path, just return the upper end
   if (ref_timeSinceStartInSec.GetSeconds() >= fAccTime + fMaxVelTime + fDecTime)
   {
-    ref_timeSinceStartInSec = ezTime::Seconds(fAccTime + fMaxVelTime + fDecTime); // clamp the time
+    ref_timeSinceStartInSec = ezTime::MakeFromSeconds(fAccTime + fMaxVelTime + fDecTime); // clamp the time
     return fDistanceInMeters;
   }
 

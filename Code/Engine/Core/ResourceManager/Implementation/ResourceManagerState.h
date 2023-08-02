@@ -98,8 +98,8 @@ private:
   ezUInt32 m_uiNextResourceID = 0;
 
   // Resource Unloading
-  ezTime m_AutoFreeUnusedTimeout = ezTime::Zero();
-  ezTime m_AutoFreeUnusedThreshold = ezTime::Zero();
+  ezTime m_AutoFreeUnusedTimeout = ezTime::MakeZero();
+  ezTime m_AutoFreeUnusedThreshold = ezTime::MakeZero();
 
   ezMap<const ezRTTI*, ezResourceManager::ResourceTypeInfo> m_TypeInfo;
 };

@@ -741,7 +741,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     pModule->m_bSetLocalPos = true;
     pModule->m_bResetGlobalPos = false;
 
-    world.GetClock().SetFixedTimeStep(ezTime::Milliseconds(100));
+    world.GetClock().SetFixedTimeStep(ezTime::MakeFromMilliseconds(100));
     world.Update();
 
     for (auto& pObject : pObjects)

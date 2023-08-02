@@ -793,7 +793,7 @@ void ezRendererTestPipelineStates::Timestamps()
       m_ImgCompFrames.Clear();
     }
   }
-  ezThreadUtils::Sleep(ezTime::Milliseconds(16));
+  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
   if (m_iFrame > 2 && (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds() > 10.0f)
   {
     EZ_TEST_BOOL_MSG(m_bTimestampsValid, "Timestamp results are not present after 10 seconds.");

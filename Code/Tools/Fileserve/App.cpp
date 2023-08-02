@@ -27,8 +27,8 @@ void ezFileserverApp::AfterCoreSystemsStartup()
 #endif
 
   // TODO: CommandLine Option
-  m_CloseAppTimeout = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_close_timeout", 0));
-  m_TimeTillClosing = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_wait_timeout", 0));
+  m_CloseAppTimeout = ezTime::MakeFromSeconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_close_timeout", 0));
+  m_TimeTillClosing = ezTime::MakeFromSeconds(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-fs_wait_timeout", 0));
 
   if (m_TimeTillClosing.GetSeconds() > 0)
   {
@@ -55,7 +55,7 @@ void ezFileserverApp::BeforeCoreSystemsShutdown()
 ezApplication::Execution ezFileserverApp::Run()
 {
   // if there are no more connections, and we have a timeout to close when no connections are left, we return Quit
-  if (m_uiConnections == 0 && m_TimeTillClosing > ezTime::Seconds(0) && ezTime::Now() > m_TimeTillClosing)
+  if (m_uiConnections == 0 && m_TimeTillClosing > ezTime::MakeFromSeconds(0) && ezTime::Now() > m_TimeTillClosing)
   {
     return ezApplication::Execution::Quit;
   }
@@ -67,12 +67,12 @@ ezApplication::Execution ezFileserverApp::Run()
     if (m_uiSleepCounter > 1000)
     {
       // only sleep when no work had to be done in a while
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
     }
     else if (m_uiSleepCounter > 10)
     {
       // only sleep when no work had to be done in a while
-      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
     }
   }
   else

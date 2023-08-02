@@ -259,7 +259,7 @@ ezResult ezAssetTableWriter::WriteAssetTables(const ezPlatformProfile* pAssetPro
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
 
-  m_NextTableFlush = ezTime::Now() + ezTime::Seconds(1.5);
+  m_NextTableFlush = ezTime::Now() + ezTime::MakeFromSeconds(1.5);
   return res;
 }
 

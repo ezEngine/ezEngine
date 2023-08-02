@@ -130,7 +130,7 @@ static ezResult PatchAssetGuid(ezStringView sAbsFilePath, ezUuid oldGuid, ezUuid
     if (uiTries >= 5)
       return EZ_FAILURE;
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50 * (uiTries + 1)));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50 * (uiTries + 1)));
     uiTries++;
   }
 

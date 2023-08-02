@@ -287,7 +287,7 @@ ezResult ezEditorTest::CaptureImage(ezQtDocumentWindow* pWindow, const char* szI
     if (ezOSFile::ExistsFile(sImgPath))
       break;
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
   }
 
   if (!ezOSFile::ExistsFile(sImgPath))

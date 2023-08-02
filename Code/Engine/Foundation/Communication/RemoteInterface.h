@@ -91,7 +91,7 @@ public:
   /// \brief Can only be called after ConnectToServer(). Updates the network in a loop until a connection is established, or the time has run out.
   ///
   /// A timeout of exactly zero means to wait indefinitely.
-  ezResult WaitForConnectionToServer(ezTime timeout = ezTime::Seconds(10));
+  ezResult WaitForConnectionToServer(ezTime timeout = ezTime::MakeFromSeconds(10));
 
   /// \brief Closes the connection in an orderly fashion
   void ShutdownConnection();

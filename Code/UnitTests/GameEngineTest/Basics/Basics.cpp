@@ -116,7 +116,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     ezLog::Error("Failed to start process: '{0}'", sBinPath);
   }
 
-  ezTime timeout = ezTime::Minutes(15);
+  ezTime timeout = ezTime::MakeFromMinutes(15);
   res = proc.WaitToFinish(timeout);
   if (res.Failed())
   {

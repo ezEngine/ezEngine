@@ -140,8 +140,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableTime("var1", ezTime::Seconds(0.5));
-    js.AddVariableTime("var2", ezTime::Seconds(2.25));
+    js.AddVariableTime("var1", ezTime::MakeFromSeconds(0.5));
+    js.AddVariableTime("var2", ezTime::MakeFromSeconds(2.25));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableUuid")

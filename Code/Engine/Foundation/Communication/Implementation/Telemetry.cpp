@@ -33,7 +33,7 @@ void ezTelemetry::UpdateServerPing()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
   enet_peer_ping(g_pConnectionToServer);
-  ezTelemetry::s_PingToServer = ezTime::Milliseconds(g_pConnectionToServer->lastRoundTripTime);
+  ezTelemetry::s_PingToServer = ezTime::MakeFromMilliseconds(g_pConnectionToServer->lastRoundTripTime);
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 }
 
@@ -106,7 +106,7 @@ void ezTelemetry::UpdateNetwork()
           s_bConnectedToServer = false;
 
           // First wait a bit to ensure that the Server could shut down, if this was a legitimate disconnect
-          ezThreadUtils::Sleep(ezTime::Seconds(1));
+          ezThreadUtils::Sleep(ezTime::MakeFromSeconds(1));
 
           // Now try to reconnect. If the Server still exists, fine, connect to that.
           // If it does not exist anymore, this will connect to the next best Server that can be found.
@@ -478,7 +478,7 @@ void ezTelemetry::CloseConnection()
   EZ_LOCK(GetTelemetryMutex());
 
   UpdateNetwork();
-  ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
   if (g_pHost)
   {
@@ -488,7 +488,7 @@ void ezTelemetry::CloseConnection()
 
     // process the network messages (e.g. send the disconnect messages)
     UpdateNetwork();
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
 
   // finally close the network connection

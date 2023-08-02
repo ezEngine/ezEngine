@@ -112,7 +112,7 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
 
     if (timeout.GetSeconds() < 0)
     {
-      timeout = ezTime::Seconds(ezCommandLineUtils::GetGlobalInstance()->GetFloatOption("-fs_timeout", -timeout.GetSeconds()));
+      timeout = ezTime::MakeFromSeconds(ezCommandLineUtils::GetGlobalInstance()->GetFloatOption("-fs_timeout", -timeout.GetSeconds()));
     }
 
     if (m_pNetwork->WaitForConnectionToServer(timeout).Failed())
@@ -256,7 +256,7 @@ void ezFileserveClient::InvalidateFileCache(ezUInt16 uiDataDirID, ezStringView s
   auto& cache = m_MountedDataDirs[uiDataDirID].m_CacheStatus[sFile];
   cache.m_FileHash = uiHash;
   cache.m_TimeStamp = 0;
-  cache.m_LastCheck.SetZero(); // will trigger a server request and that in turn will update the file timestamp
+  cache.m_LastCheck = ezTime::MakeZero(); // will trigger a server request and that in turn will update the file timestamp
 
   // redirect the next access to this cache entry
   // together with the zero LastCheck that will make sure the best match gets updated as well
@@ -279,7 +279,7 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
     auto& cache = m_MountedDataDirs[dd].m_CacheStatus[szFile];
 
     DetermineCacheStatus(dd, szFile, cache);
-    cache.m_LastCheck.SetZero();
+    cache.m_LastCheck = ezTime::MakeZero();
 
     if (cache.m_TimeStamp != 0 && cache.m_FileHash != 0) // file exists
     {
@@ -613,7 +613,7 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
   const ezUInt16 uiUseDataDirCache = bForceThisDataDir ? uiDataDirID : itFileDataDir.Value();
   const FileCacheStatus& CacheStatus = m_MountedDataDirs[uiUseDataDirCache].m_CacheStatus[szFile];
 
-  if (m_CurrentTime - CacheStatus.m_LastCheck < ezTime::Seconds(5.0f))
+  if (m_CurrentTime - CacheStatus.m_LastCheck < ezTime::MakeFromSeconds(5.0f))
   {
     if (CacheStatus.m_FileHash == 0) // file does not exist
       return EZ_FAILURE;
@@ -727,7 +727,7 @@ ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringB
   return EZ_FAILURE;
 }
 
-ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::Seconds(5)*/)
+ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::MakeFromSeconds(5)*/)
 {
   EZ_LOCK(m_Mutex);
   if (!s_bEnableFileserve)
@@ -778,7 +778,7 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
     {
       network->Send('FSRV', 'RUTR');
 
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
 
       network->UpdateRemoteInterface();
       network->ExecuteAllMessageHandlers();
@@ -797,7 +797,7 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
   return EZ_SUCCESS;
 }
 
-ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds(60.0 * 5)*/)
+ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::MakeFromSeconds(60.0 * 5)*/)
 {
   EZ_LOCK(m_Mutex);
   if (!s_bEnableFileserve)
@@ -833,7 +833,7 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
     ezTime tStart = ezTime::Now();
     while (ezTime::Now() - tStart < timeout && sServerIPs.IsEmpty())
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
       network->UpdateRemoteInterface();
       network->ExecuteAllMessageHandlers();
@@ -856,13 +856,13 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
     {
       sAddress.Format("{0}:{1}", ip, uiPort);
 
-      ezThreadUtils::Sleep(ezTime::Milliseconds(500));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(500));
 
-      if (TryConnectWithFileserver(sAddress, ezTime::Seconds(3)).Succeeded())
+      if (TryConnectWithFileserver(sAddress, ezTime::MakeFromSeconds(3)).Succeeded())
         return EZ_SUCCESS;
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(1000));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1000));
   }
 
   return EZ_FAILURE;

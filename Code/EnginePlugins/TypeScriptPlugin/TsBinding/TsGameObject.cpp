@@ -616,7 +616,7 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
 
   if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {
-    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::MakeZero());
 
     if (duk.GetBoolValue(3))
       pGameObject->SendMessageRecursive(*pMsg);
@@ -631,7 +631,7 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
   }
   else // PostMessage
   {
-    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(4));
+    const ezTime delay = ezTime::MakeFromSeconds(duk.GetNumberValue(4));
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 
@@ -655,7 +655,7 @@ static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
 
   if (duk.GetFunctionMagicValue() == 0) // SendEventMessage
   {
-    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::MakeZero());
 
     pGameObject->SendEventMessage(ezStaticCast<ezEventMessage&>(*pMsg), pSender);
 
@@ -667,7 +667,7 @@ static int __CPP_GameObject_SendEventMessage(duk_context* pDuk)
   }
   else // PostEventMessage
   {
-    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(4));
+    const ezTime delay = ezTime::MakeFromSeconds(duk.GetNumberValue(4));
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 

@@ -117,7 +117,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, c
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::Seconds(posX));
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Red";
@@ -156,7 +156,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, e
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::Seconds(posX));
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Alpha";
@@ -187,7 +187,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double pos
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::Seconds(posX));
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Intensity";
@@ -212,7 +212,7 @@ void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, double newPosX, c
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::Seconds(newPosX));
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(newPosX));
   history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();

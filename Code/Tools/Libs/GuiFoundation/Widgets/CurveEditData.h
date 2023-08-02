@@ -66,7 +66,7 @@ class EZ_GUIFOUNDATION_DLL ezCurveControlPointData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveControlPointData, ezReflectedClass);
 
 public:
-  ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
+  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 iFps);
 
   ezInt64 m_iTick; // 4800 ticks per second

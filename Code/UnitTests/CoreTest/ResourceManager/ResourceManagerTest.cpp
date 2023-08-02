@@ -183,7 +183,7 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, Basics)
       if (uiUnloaded == uiNumResources)
         break;
 
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
     }
 
     EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 0);
@@ -276,11 +276,11 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, NestedLoading)
 
     while (ezResourceManager::IsAnyLoadingInProgress())
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
     }
 
     ezResourceManager::FreeAllUnusedResources();
-    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
     ezResourceManager::FreeAllUnusedResources();
 
     EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 0);

@@ -101,7 +101,7 @@ ezTime ezPropertyAnimAssetDocument::GetAnimationDurationTime() const
 {
   const ezInt64 ticks = GetAnimationDurationTicks();
 
-  return ezTime::Seconds(ticks / 4800.0);
+  return ezTime::MakeFromSeconds(ticks / 4800.0);
 }
 
 void ezPropertyAnimAssetDocument::AdjustDuration()

@@ -377,7 +377,7 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
         [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
           if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
           {
-            pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::Zero());
+            pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::MakeZero());
           }
         },
         m_ResourceEventUnsubscriber);

@@ -676,7 +676,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
 
     ezVariantArray testA;
     testA.PushBack(ezVec3(3));
-    testA.PushBack(ezTime::Hours(22));
+    testA.PushBack(ezTime::MakeFromHours(22));
     testA.PushBack("Hello");
 
     FunctionTest test;
@@ -730,7 +730,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Functions)
 
     ezVariantDictionary testA;
     testA.Insert("v", ezVec3(3));
-    testA.Insert("t", ezTime::Hours(22));
+    testA.Insert("t", ezTime::MakeFromHours(22));
     testA.Insert("s", "Hello");
 
     ezStringBuilder tmp;

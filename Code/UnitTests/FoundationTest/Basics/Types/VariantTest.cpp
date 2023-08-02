@@ -839,22 +839,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
   {
-    ezVariant v(ezTime::Seconds(1337));
+    ezVariant v(ezTime::MakeFromSeconds(1337));
     TestVariant<ezTime>(v, ezVariantType::Time);
 
-    EZ_TEST_BOOL(v.Get<ezTime>() == ezTime::Seconds(1337));
+    EZ_TEST_BOOL(v.Get<ezTime>() == ezTime::MakeFromSeconds(1337));
 
-    EZ_TEST_BOOL(v == ezVariant(ezTime::Seconds(1337)));
-    EZ_TEST_BOOL(v != ezVariant(ezTime::Seconds(1336)));
+    EZ_TEST_BOOL(v == ezVariant(ezTime::MakeFromSeconds(1337)));
+    EZ_TEST_BOOL(v != ezVariant(ezTime::MakeFromSeconds(1336)));
 
-    EZ_TEST_BOOL(v == ezTime::Seconds(1337));
-    EZ_TEST_BOOL(v != ezTime::Seconds(1338));
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(1337));
+    EZ_TEST_BOOL(v != ezTime::MakeFromSeconds(1338));
 
-    v = ezTime::Seconds(8472);
-    EZ_TEST_BOOL(v == ezTime::Seconds(8472));
+    v = ezTime::MakeFromSeconds(8472);
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(8472));
 
-    v = ezVariant(ezTime::Seconds(13));
-    EZ_TEST_BOOL(v == ezTime::Seconds(13));
+    v = ezVariant(ezTime::MakeFromSeconds(13));
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(13));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -1816,7 +1816,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezTime)")
   {
-    ezTime t = ezTime::Seconds(123.0);
+    ezTime t = ezTime::MakeFromSeconds(123.0);
     ezVariant v(t);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Time);

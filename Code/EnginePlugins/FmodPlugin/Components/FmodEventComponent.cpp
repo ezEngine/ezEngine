@@ -123,7 +123,7 @@ ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pC
   if (const auto pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
   {
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
-    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, ezTime::Seconds(1000.0));
+    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, ezTime::MakeFromSeconds(1000.0));
   }
 
   return m_OcclusionStates.GetCount() - 1;

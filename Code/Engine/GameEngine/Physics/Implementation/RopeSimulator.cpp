@@ -10,7 +10,7 @@ void ezRopeSimulator::SimulateRope(const ezTime& diff)
 {
   m_LeftOverTimeStep += diff;
 
-  constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
+  constexpr ezTime tStep = ezTime::MakeFromSeconds(1.0 / 60.0);
   const ezSimdFloat tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
   const ezSimdFloat fAllowedError = m_fSegmentLength;
 
@@ -41,7 +41,7 @@ void ezRopeSimulator::SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIte
 
 void ezRopeSimulator::SimulateTillEquilibrium(ezSimdFloat fAllowedMovement, ezUInt32 uiMaxIterations)
 {
-  constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
+  constexpr ezTime tStep = ezTime::MakeFromSeconds(1.0 / 60.0);
   ezSimdFloat tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
 
   ezUInt8 uiInEquilibrium = 0;

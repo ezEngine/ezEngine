@@ -731,7 +731,7 @@ void ezQtAssetBrowserWidget::OnListCopyAssetGuid()
   mimeData->setText(ezConversionUtils::ToString(guid, tmp).GetData());
   clipboard->setMimeData(mimeData);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", tmp), ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", tmp), ezTime::MakeFromSeconds(5));
 }
 
 void ezQtAssetBrowserWidget::OnFilterToThisPath()

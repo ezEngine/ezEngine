@@ -59,24 +59,24 @@ ezTime ezAnimationInvisibleUpdateRate::GetTimeStep(ezAnimationInvisibleUpdateRat
   switch (value)
   {
     case ezAnimationInvisibleUpdateRate::FullUpdate:
-      return ezTime::Zero();
+      return ezTime::MakeZero();
     case ezAnimationInvisibleUpdateRate::Max60FPS:
-      return ezTime::Seconds(1.0 / 60.0);
+      return ezTime::MakeFromSeconds(1.0 / 60.0);
     case ezAnimationInvisibleUpdateRate::Max30FPS:
-      return ezTime::Seconds(1.0 / 30.0);
+      return ezTime::MakeFromSeconds(1.0 / 30.0);
     case ezAnimationInvisibleUpdateRate::Max15FPS:
-      return ezTime::Seconds(1.0 / 15.0);
+      return ezTime::MakeFromSeconds(1.0 / 15.0);
     case ezAnimationInvisibleUpdateRate::Max10FPS:
-      return ezTime::Seconds(1.0 / 10.0);
+      return ezTime::MakeFromSeconds(1.0 / 10.0);
 
     case ezAnimationInvisibleUpdateRate::Max5FPS:
     case ezAnimationInvisibleUpdateRate::Pause: // full pausing should be handled separately, and if something isn't fully paused, it should behave like a very low update rate
-      return ezTime::Seconds(1.0 / 5.0);
+      return ezTime::MakeFromSeconds(1.0 / 5.0);
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  return ezTime::Zero();
+  return ezTime::MakeZero();
 }
 
 void ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& ref_mFullTransform) const

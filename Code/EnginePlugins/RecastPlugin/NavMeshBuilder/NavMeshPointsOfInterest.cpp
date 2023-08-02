@@ -9,7 +9,7 @@ ezNavMeshPointOfInterestGraph::~ezNavMeshPointOfInterestGraph() = default;
 
 void ezNavMeshPointOfInterestGraph::IncreaseCheckVisibiblityTimeStamp(ezTime now)
 {
-  if (now - m_LastTimeStampStep < ezTime::Seconds(0.5f))
+  if (now - m_LastTimeStampStep < ezTime::MakeFromSeconds(0.5f))
     return;
 
   m_LastTimeStampStep = now;

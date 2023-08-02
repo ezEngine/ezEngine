@@ -337,7 +337,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
 
     // resources that have been in use recently will be put into the preload queue immediately
     // everything else will be loaded on demand
-    if (pResource->GetLastAcquireTime() >= tNow - ezTime::Seconds(30.0))
+    if (pResource->GetLastAcquireTime() >= tNow - ezTime::MakeFromSeconds(30.0))
     {
       PreloadResource(pResource);
     }

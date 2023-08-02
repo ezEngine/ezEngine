@@ -11,7 +11,7 @@ public:
   ezVolumeSampler();
   ~ezVolumeSampler();
 
-  void RegisterValue(ezHashedString sName, ezVariant defaultValue, ezTime interpolationDuration = ezTime::Zero());
+  void RegisterValue(ezHashedString sName, ezVariant defaultValue, ezTime interpolationDuration = ezTime::MakeZero());
   void DeregisterValue(ezHashedString sName);
   void DeregisterAllValues();
 

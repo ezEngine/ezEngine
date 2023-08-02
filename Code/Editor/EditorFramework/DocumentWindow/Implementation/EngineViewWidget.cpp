@@ -82,7 +82,7 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     };
     ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
 
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::Seconds(5), &cb).Failed())
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::MakeFromSeconds(5), &cb).Failed())
     {
       ezLog::Error("Timeout while waiting for engine process to destroy view.");
     }
@@ -205,7 +205,7 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
   if (bImmediate)
   {
     // make sure the next camera update interpolates all the way
-    m_LastCameraUpdate -= ezTime::Seconds(10);
+    m_LastCameraUpdate -= ezTime::MakeFromSeconds(10);
     m_fCameraLerp = 0.9f;
   }
 }

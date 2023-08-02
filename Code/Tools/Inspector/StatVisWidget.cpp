@@ -32,7 +32,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* pParent, ezInt32 iWindowNumber)
   , m_ShowWindowAction(pParent)
 {
   m_iWindowNumber = iWindowNumber;
-  m_DisplayInterval = ezTime::Seconds(60.0);
+  m_DisplayInterval = ezTime::MakeFromSeconds(60.0);
 
   s_pWidget = this;
 
@@ -98,7 +98,7 @@ void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
     60 * 10,
   };
 
-  m_DisplayInterval = ezTime::Seconds(uiSeconds[index]);
+  m_DisplayInterval = ezTime::MakeFromSeconds(uiSeconds[index]);
 }
 
 void ezQtStatVisWidget::on_LineName_textChanged(const QString& text)

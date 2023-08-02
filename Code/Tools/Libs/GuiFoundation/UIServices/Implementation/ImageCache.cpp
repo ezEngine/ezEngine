@@ -207,7 +207,7 @@ void ezQtImageCache::StopRequestProcessing(bool bPurgeExistingCache)
       bTaskRunning = m_bTaskRunning;
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
   }
 }
 
@@ -296,7 +296,7 @@ void ezQtImageCache::CleanupCache()
   const ezTime tNow = ezTime::Now();
 
   // do not clean up too often
-  if (tNow - m_LastCleanupTime < ezTime::Seconds(10))
+  if (tNow - m_LastCleanupTime < ezTime::MakeFromSeconds(10))
     return;
 
   m_LastCleanupTime = tNow;
@@ -304,7 +304,7 @@ void ezQtImageCache::CleanupCache()
   // purge everything older than 5 minutes, then 4 minutes, ...
   for (ezInt32 i = 5; i > 2; --i)
   {
-    const ezTime tPurgeThreshold = ezTime::Seconds(60) * i;
+    const ezTime tPurgeThreshold = ezTime::MakeFromSeconds(60) * i;
 
     // purge images that have not been accessed in a longer time
     for (auto it = m_ImageCache.GetIterator(); it.IsValid();)

@@ -827,7 +827,7 @@ void ezJoltRopeComponent::SendPreviewPose()
     }
   }
 
-  GetOwner()->PostMessage(poseMsg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+  GetOwner()->PostMessage(poseMsg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
 }
 
 void ezJoltRopeComponent::SetGravityFactor(float fGravity)

@@ -479,7 +479,7 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
-    ezOpenDdlUtils::StoreTime(js, ezTime::Seconds(2.3), "v1", true);
+    ezOpenDdlUtils::StoreTime(js, ezTime::MakeFromSeconds(2.3), "v1", true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVec2")

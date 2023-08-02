@@ -175,7 +175,7 @@ void ezAssetProcessor::Run()
         m_ProcessRunning[i] = m_ProcessTasks[i].BeginExecute();
       }
     }
-    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
   }
 
   while (true)
@@ -195,7 +195,7 @@ void ezAssetProcessor::Run()
     }
 
     if (bAnyRunning)
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
     else
       break;
   }
