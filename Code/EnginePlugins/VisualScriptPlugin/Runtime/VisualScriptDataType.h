@@ -24,6 +24,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Time,
     Angle,
     String,
+    HashedString,
     GameObject,
     Component,
     TypedPointer,
@@ -33,9 +34,14 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Coroutine,
 
     Count,
-    Default = Invalid,
+    
+    EnumValue,
+
+    ExtendedCount,
 
     Any = 0xFF,
+
+    Default = Invalid,
   };
 
   EZ_ALWAYS_INLINE static bool IsNumber(Enum dataType) { return dataType >= Bool && dataType <= Double; }

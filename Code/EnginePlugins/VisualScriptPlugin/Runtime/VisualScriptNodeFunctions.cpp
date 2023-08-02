@@ -23,6 +23,7 @@ using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*
       &funcName<ezTime>,                                                                                              \
       &funcName<ezAngle>,                                                                                             \
       &funcName<ezString>,                                                                                            \
+      &funcName<ezHashedString>,                                                                                      \
       &funcName<ezGameObjectHandle>,                                                                                  \
       &funcName<ezComponentHandle>,                                                                                   \
       &funcName<ezTypedPointer>,                                                                                      \
@@ -43,7 +44,7 @@ using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*
 template <typename T>
 ezStringView GetTypeName()
 {
-  if constexpr (std::is_same<T, ezTypedPointer>::value)
+  if constexpr (std::is_same_v<T, ezTypedPointer>)
   {
     return "ezTypePointer";
   }
@@ -188,13 +189,210 @@ namespace
     return ExecResult::RunNext(0);
   }
 
+  static ExecResult NodeFunction_SendMessage(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& userData = node.GetUserData<NodeUserData_TypeAndProperties>();
+    auto targetObjectDataOffset = node.GetInputDataOffset(0);
+    auto targetComponentDataOffset = node.GetInputDataOffset(1);
+
+    auto pTargetObject = targetObjectDataOffset.IsValid() ? static_cast<ezGameObject*>(inout_context.GetPointerData(targetObjectDataOffset).m_pObject) : nullptr;
+    auto pTargetComponent = targetComponentDataOffset.IsValid() ? static_cast<ezComponent*>(inout_context.GetPointerData(targetComponentDataOffset).m_pObject) : nullptr;
+    if (pTargetObject == nullptr && pTargetComponent == nullptr)
+    {
+      ezLog::Error("Visual script send '{}': Invalid target game object and component.", userData.m_pType->GetTypeName());
+      return ExecResult::Error();
+    }
+
+    auto mode = static_cast<ezVisualScriptSendMessageMode::Enum>(inout_context.GetData<ezInt64>(node.GetInputDataOffset(2)));
+    ezTime delay = inout_context.GetData<ezTime>(node.GetInputDataOffset(3));
+
+    ezScriptComponent* pSenderComponent = nullptr;
+    if (mode == ezVisualScriptSendMessageMode::Event)
+    {
+      pSenderComponent = ezDynamicCast<ezScriptComponent*>(&inout_context.GetInstance().GetOwner());
+    }
+
+    const ezUInt32 uiStartSlot = 4;
+
+    ezUniquePtr<ezMessage> pMessage = userData.m_pType->GetAllocator()->Allocate<ezMessage>();
+    for (ezUInt32 i = 0; i < userData.m_uiNumProperties; ++i)
+    {
+      auto pProp = userData.m_Properties[i];
+      const ezRTTI* pPropType = pProp->GetSpecificType();
+      ezVariant value = inout_context.GetDataAsVariant(node.GetInputDataOffset(uiStartSlot + i), pPropType);
+
+      if (pProp->GetCategory() == ezPropertyCategory::Member)
+      {
+        ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pMessage.Borrow(), value);
+      }
+      else
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+    }
+
+    bool bWriteOutputs = false;
+    if (pTargetComponent != nullptr)
+    {
+      if (delay.IsPositive())
+      {
+        pTargetComponent->PostMessage(*pMessage, delay);
+      }
+      else
+      {
+        bWriteOutputs = pTargetComponent->SendMessage(*pMessage);
+      }
+    }
+    else if (pTargetObject != nullptr)
+    {
+      if (delay.IsPositive())
+      {
+        if (mode == ezVisualScriptSendMessageMode::Direct)
+          pTargetObject->PostMessage(*pMessage, delay);
+        else if (mode == ezVisualScriptSendMessageMode::Recursive)
+          pTargetObject->PostMessageRecursive(*pMessage, delay);
+        else
+          pTargetObject->PostEventMessage(*pMessage, pSenderComponent, delay);
+      }
+      else
+      {
+        if (mode == ezVisualScriptSendMessageMode::Direct)
+          bWriteOutputs = pTargetObject->SendMessage(*pMessage);
+        else if (mode == ezVisualScriptSendMessageMode::Recursive)
+          bWriteOutputs = pTargetObject->SendMessageRecursive(*pMessage);
+        else
+          bWriteOutputs = pTargetObject->SendEventMessage(*pMessage, pSenderComponent);
+      }
+    }
+
+    if (bWriteOutputs)
+    {
+      for (ezUInt32 i = 0; i < userData.m_uiNumProperties; ++i)
+      {
+        auto dataOffset = node.GetOutputDataOffset(i);
+        if (dataOffset.IsValid() == false)
+          continue;
+
+        auto pProp = userData.m_Properties[i];
+        ezVariant value;
+
+        if (pProp->GetCategory() == ezPropertyCategory::Member)
+        {
+          value = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pMessage.Borrow());
+        }
+        else
+        {
+          EZ_ASSERT_NOT_IMPLEMENTED;
+        }
+
+        inout_context.SetDataFromVariant(dataOffset, value);
+      }
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
   //////////////////////////////////////////////////////////////////////////
+
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_SetVariable(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
+                  std::is_same_v<T, ezComponentHandle> ||
+                  std::is_same_v<T, ezTypedPointer>)
+    {
+      ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), ptr.m_pObject, ptr.m_pType);
+    }
+    else
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<T>(node.GetInputDataOffset(0)));
+    }
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_SetVariable);
+
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_IncVariable(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double>)
+    {
+      T a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      inout_context.SetData(node.GetOutputDataOffset(0), ++a);
+    }
+    else
+    {
+      ezLog::Error("Increment is not defined for type '{}'", GetTypeName<T>());
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_IncVariable);
+
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_DecVariable(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double>)
+    {
+      T a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      inout_context.SetData(node.GetOutputDataOffset(0), --a);
+    }
+    else
+    {
+      ezLog::Error("Decrement is not defined for type '{}'", GetTypeName<T>());
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_DecVariable);
 
   static ExecResult NodeFunction_Builtin_Branch(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     bool bCondition = inout_context.GetData<bool>(node.GetInputDataOffset(0));
     return ExecResult::RunNext(bCondition ? 0 : 1);
   }
+
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_Switch(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezInt64 iValue = 0;
+    if constexpr (std::is_same_v<T, ezInt64>)
+    {
+      iValue = inout_context.GetData<ezInt64>(node.GetInputDataOffset(0));
+    }
+    else if constexpr (std::is_same_v<T, ezHashedString>)
+    {
+      iValue = inout_context.GetData<ezHashedString>(node.GetInputDataOffset(0)).GetHash();
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+
+    auto& userData = node.GetUserData<NodeUserData_Switch>();
+    for (ezUInt32 i = 0; i < userData.m_uiNumCases; ++i)
+    {
+      if (iValue == userData.m_Cases[i])
+      {
+        return ExecResult::RunNext(i);
+      }
+    }
+
+    return ExecResult::RunNext(userData.m_uiNumCases);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Switch);
 
   static ExecResult NodeFunction_Builtin_And(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
@@ -225,35 +423,35 @@ namespace
     auto& userData = node.GetUserData<NodeUserData_Comparison>();
     bool bRes = false;
 
-    if constexpr (std::is_same<T, bool>::value ||
-                  std::is_same<T, ezUInt8>::value ||
-                  std::is_same<T, ezInt32>::value ||
-                  std::is_same<T, ezInt64>::value ||
-                  std::is_same<T, float>::value ||
-                  std::is_same<T, double>::value ||
-                  std::is_same<T, ezColor>::value ||
-                  std::is_same<T, ezVec3>::value ||
-                  std::is_same<T, ezTime>::value ||
-                  std::is_same<T, ezAngle>::value ||
-                  std::is_same<T, ezString>::value)
+    if constexpr (std::is_same_v<T, bool> ||
+                  std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec3> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle> ||
+                  std::is_same_v<T, ezString>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       bRes = ezComparisonOperator::Compare(userData.m_ComparisonOperator, a, b);
     }
-    else if constexpr (std::is_same<T, ezGameObjectHandle>::value ||
-                       std::is_same<T, ezComponentHandle>::value ||
-                       std::is_same<T, ezTypedPointer>::value)
+    else if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
+                       std::is_same_v<T, ezComponentHandle> ||
+                       std::is_same_v<T, ezTypedPointer>)
     {
       ezTypedPointer a = inout_context.GetPointerData(node.GetInputDataOffset(0));
       ezTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(1));
       bRes = ezComparisonOperator::Compare(userData.m_ComparisonOperator, a.m_pObject, b.m_pObject);
     }
-    else if constexpr (std::is_same<T, ezQuat>::value ||
-                       std::is_same<T, ezTransform>::value ||
-                       std::is_same<T, ezVariant>::value ||
-                       std::is_same<T, ezVariantArray>::value ||
-                       std::is_same<T, ezVariantDictionary>::value)
+    else if constexpr (std::is_same_v<T, ezQuat> ||
+                       std::is_same_v<T, ezTransform> ||
+                       std::is_same_v<T, ezVariant> ||
+                       std::is_same_v<T, ezVariantArray> ||
+                       std::is_same_v<T, ezVariantDictionary>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -291,37 +489,41 @@ namespace
     auto dataOffset = node.GetInputDataOffset(0);
 
     bool bIsValid = true;
-    if constexpr (std::is_same<T, float>::value)
+    if constexpr (std::is_same_v<T, float>)
     {
       bIsValid = ezMath::IsFinite(inout_context.GetData<float>(dataOffset));
     }
-    else if constexpr (std::is_same<T, double>::value)
+    else if constexpr (std::is_same_v<T, double>)
     {
       bIsValid = ezMath::IsFinite(inout_context.GetData<double>(dataOffset));
     }
-    else if constexpr (std::is_same<T, ezColor>::value)
+    else if constexpr (std::is_same_v<T, ezColor>)
     {
       bIsValid = inout_context.GetData<ezColor>(dataOffset).IsValid();
     }
-    else if constexpr (std::is_same<T, ezVec3>::value)
+    else if constexpr (std::is_same_v<T, ezVec3>)
     {
       bIsValid = inout_context.GetData<ezVec3>(dataOffset).IsValid();
     }
-    else if constexpr (std::is_same<T, ezQuat>::value)
+    else if constexpr (std::is_same_v<T, ezQuat>)
     {
       bIsValid = inout_context.GetData<ezQuat>(dataOffset).IsValid();
     }
-    else if constexpr (std::is_same<T, ezString>::value || std::is_same<T, ezStringView>::value)
+    else if constexpr (std::is_same_v<T, ezString>)
     {
       bIsValid = inout_context.GetData<ezString>(dataOffset).IsEmpty() == false;
     }
-    else if constexpr (std::is_same<T, ezGameObjectHandle>::value ||
-                       std::is_same<T, ezComponentHandle>::value ||
-                       std::is_same<T, ezTypedPointer>::value)
+    else if constexpr (std::is_same_v<T, ezHashedString>)
+    {
+      bIsValid = inout_context.GetData<ezHashedString>(dataOffset).IsEmpty() == false;
+    }
+    else if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
+                       std::is_same_v<T, ezComponentHandle> ||
+                       std::is_same_v<T, ezTypedPointer>)
     {
       bIsValid = inout_context.GetPointerData(dataOffset).m_pObject != nullptr;
     }
-    else if constexpr (std::is_same<T, ezVariant>::value)
+    else if constexpr (std::is_same_v<T, ezVariant>)
     {
       bIsValid = inout_context.GetData<ezVariant>(dataOffset).IsValid();
     }
@@ -337,19 +539,41 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_Add(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same<T, ezUInt8>::value ||
-                  std::is_same<T, ezInt32>::value ||
-                  std::is_same<T, ezInt64>::value ||
-                  std::is_same<T, float>::value ||
-                  std::is_same<T, double>::value ||
-                  std::is_same<T, ezColor>::value ||
-                  std::is_same<T, ezVec3>::value ||
-                  std::is_same<T, ezTime>::value ||
-                  std::is_same<T, ezAngle>::value)
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec3> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a + b));
+    }
+    else if constexpr (std::is_same_v<T, ezString>)
+    {
+      auto& a = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+      auto& b = inout_context.GetData<ezString>(node.GetInputDataOffset(1));
+
+      ezStringBuilder s;
+      s.Set(a, b);
+
+      inout_context.SetData(node.GetOutputDataOffset(0), ezString(s.GetView()));
+    }
+    else if constexpr (std::is_same_v<T, ezHashedString>)
+    {
+      auto& a = inout_context.GetData<ezHashedString>(node.GetInputDataOffset(0));
+      auto& b = inout_context.GetData<ezHashedString>(node.GetInputDataOffset(1));
+
+      ezStringBuilder s;
+      s.Set(a, b);
+      ezHashedString sHashed;
+      sHashed.Assign(s);
+
+      inout_context.SetData(node.GetOutputDataOffset(0), sHashed);
     }
     else
     {
@@ -364,15 +588,15 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_Sub(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same<T, ezUInt8>::value ||
-                  std::is_same<T, ezInt32>::value ||
-                  std::is_same<T, ezInt64>::value ||
-                  std::is_same<T, float>::value ||
-                  std::is_same<T, double>::value ||
-                  std::is_same<T, ezColor>::value ||
-                  std::is_same<T, ezVec3>::value ||
-                  std::is_same<T, ezTime>::value ||
-                  std::is_same<T, ezAngle>::value)
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec3> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -391,25 +615,25 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_Mul(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same<T, ezUInt8>::value ||
-                  std::is_same<T, ezInt32>::value ||
-                  std::is_same<T, ezInt64>::value ||
-                  std::is_same<T, float>::value ||
-                  std::is_same<T, double>::value ||
-                  std::is_same<T, ezColor>::value ||
-                  std::is_same<T, ezTime>::value)
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezTime>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a * b));
     }
-    else if constexpr (std::is_same<T, ezVec3>::value)
+    else if constexpr (std::is_same_v<T, ezVec3>)
     {
       const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
       const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), a.CompMul(b));
     }
-    else if constexpr (std::is_same<T, ezAngle>::value)
+    else if constexpr (std::is_same_v<T, ezAngle>)
     {
       const ezAngle& a = inout_context.GetData<ezAngle>(node.GetInputDataOffset(0));
       const ezAngle& b = inout_context.GetData<ezAngle>(node.GetInputDataOffset(1));
@@ -428,24 +652,24 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_Div(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same<T, ezUInt8>::value ||
-                  std::is_same<T, ezInt32>::value ||
-                  std::is_same<T, ezInt64>::value ||
-                  std::is_same<T, float>::value ||
-                  std::is_same<T, double>::value ||
-                  std::is_same<T, ezTime>::value)
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezTime>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a / b));
     }
-    else if constexpr (std::is_same<T, ezVec3>::value)
+    else if constexpr (std::is_same_v<T, ezVec3>)
     {
       const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
       const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), a.CompDiv(b));
     }
-    else if constexpr (std::is_same<T, ezAngle>::value)
+    else if constexpr (std::is_same_v<T, ezAngle>)
     {
       const ezAngle& a = inout_context.GetData<ezAngle>(node.GetInputDataOffset(0));
       const ezAngle& b = inout_context.GetData<ezAngle>(node.GetInputDataOffset(1));
@@ -469,21 +693,21 @@ namespace
     auto dataOffset = node.GetInputDataOffset(0);
 
     bool bRes = false;
-    if constexpr (std::is_same<T, bool>::value)
+    if constexpr (std::is_same_v<T, bool>)
     {
       bRes = inout_context.GetData<T>(dataOffset);
     }
-    else if constexpr (std::is_same<T, ezUInt8>::value ||
-                       std::is_same<T, ezInt32>::value ||
-                       std::is_same<T, ezInt64>::value ||
-                       std::is_same<T, float>::value ||
-                       std::is_same<T, double>::value)
+    else if constexpr (std::is_same_v<T, ezUInt8> ||
+                       std::is_same_v<T, ezInt32> ||
+                       std::is_same_v<T, ezInt64> ||
+                       std::is_same_v<T, float> ||
+                       std::is_same_v<T, double>)
     {
       bRes = inout_context.GetData<T>(dataOffset) != 0;
     }
-    else if constexpr (std::is_same<T, ezGameObjectHandle>::value ||
-                       std::is_same<T, ezComponentHandle>::value ||
-                       std::is_same<T, ezTypedPointer>::value)
+    else if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
+                       std::is_same_v<T, ezComponentHandle> ||
+                       std::is_same_v<T, ezTypedPointer>)
     {
       bRes = inout_context.GetPointerData(dataOffset).m_pObject != nullptr;
     }
@@ -504,15 +728,15 @@ namespace
     auto dataOffset = node.GetInputDataOffset(0);
 
     NumberType res = 0;
-    if constexpr (std::is_same<T, bool>::value)
+    if constexpr (std::is_same_v<T, bool>)
     {
       res = inout_context.GetData<T>(dataOffset) ? 1 : 0;
     }
-    else if constexpr (std::is_same<T, ezUInt8>::value ||
-                       std::is_same<T, ezInt32>::value ||
-                       std::is_same<T, ezInt64>::value ||
-                       std::is_same<T, float>::value ||
-                       std::is_same<T, double>::value)
+    else if constexpr (std::is_same_v<T, ezUInt8> ||
+                       std::is_same_v<T, ezInt32> ||
+                       std::is_same_v<T, ezInt64> ||
+                       std::is_same_v<T, float> ||
+                       std::is_same_v<T, double>)
     {
       res = static_cast<NumberType>(inout_context.GetData<T>(dataOffset));
     }
@@ -547,29 +771,98 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_ToString(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    ezStringBuilder s;
-    if constexpr (std::is_same<T, ezGameObjectHandle>::value ||
-                  std::is_same<T, ezComponentHandle>::value ||
-                  std::is_same<T, ezTypedPointer>::value)
+    ezStringBuilder sb;
+    ezStringView s;
+    if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
+                  std::is_same_v<T, ezComponentHandle> ||
+                  std::is_same_v<T, ezTypedPointer>)
     {
       ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
-      s.Format("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
+      sb.Format("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
+      s = sb;
+    }
+    else if constexpr (std::is_same_v<T, ezString>)
+    {
+      s = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
     }
     else
     {
-      ezConversionUtils::ToString(inout_context.GetData<T>(node.GetInputDataOffset(0)), s);
+      s = ezConversionUtils::ToString(inout_context.GetData<T>(node.GetInputDataOffset(0)), sb);
     }
-    inout_context.SetData(node.GetOutputDataOffset(0), ezString(s));
+
+    inout_context.SetData(node.GetOutputDataOffset(0), s);
     return ExecResult::RunNext(0);
   }
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_ToString);
 
+  static ExecResult NodeFunction_Builtin_String_Format(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    auto& params = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(1));
+
+    ezHybridArray<ezString, 12> stringStorage;
+    stringStorage.Reserve(params.GetCount());
+    for (auto& param : params)
+    {
+      stringStorage.PushBack(param.ConvertTo<ezString>());
+    }
+
+    ezHybridArray<ezStringView, 12> stringViews;
+    stringViews.Reserve(stringStorage.GetCount());
+    for (auto& s : stringStorage)
+    {
+      stringViews.PushBack(s);
+    }
+
+    ezFormatString fs(sText.GetView());
+    ezStringBuilder sStorage;
+    ezStringView sFormatted = fs.BuildFormattedText(sStorage, stringViews.GetData(), stringViews.GetCount());
+
+    inout_context.SetData(node.GetOutputDataOffset(0), sFormatted);
+    return ExecResult::RunNext(0);
+  }
+
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_ToHashedString(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezStringBuilder sb;
+    ezStringView s;
+    if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
+                  std::is_same_v<T, ezComponentHandle> ||
+                  std::is_same_v<T, ezTypedPointer>)
+    {
+      ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      sb.Format("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
+      s = sb;
+    }
+    else if constexpr (std::is_same_v<T, ezString>)
+    {
+      s = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    }
+    else if constexpr (std::is_same_v<T, ezHashedString>)
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezHashedString>(node.GetInputDataOffset(0)));
+      return ExecResult::RunNext(0);
+    }
+    else
+    {
+      s = ezConversionUtils::ToString(inout_context.GetData<T>(node.GetInputDataOffset(0)), sb);
+    }
+
+    ezHashedString sHashed;
+    sHashed.Assign(s);
+    inout_context.SetData(node.GetOutputDataOffset(0), sHashed);
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_ToHashedString);
+
   template <typename T>
   static ExecResult NodeFunction_Builtin_ToVariant(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     ezVariant v;
-    if constexpr (std::is_same<T, ezTypedPointer>::value)
+    if constexpr (std::is_same_v<T, ezTypedPointer>)
     {
       ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
       v = ezVariant(p.m_pObject, p.m_pType);
@@ -588,7 +881,7 @@ namespace
   static ExecResult NodeFunction_Builtin_Variant_ConvertTo(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     const ezVariant& v = inout_context.GetData<ezVariant>(node.GetInputDataOffset(0));
-    if constexpr (std::is_same<T, ezTypedPointer>::value)
+    if constexpr (std::is_same_v<T, ezTypedPointer>)
     {
       if (v.IsA<ezTypedPointer>())
       {
@@ -600,7 +893,7 @@ namespace
       inout_context.SetPointerData<void*>(node.GetOutputDataOffset(0), nullptr, nullptr);
       return ExecResult::RunNext(1);
     }
-    else if constexpr (std::is_same<T, ezVariant>::value)
+    else if constexpr (std::is_same_v<T, ezVariant>)
     {
       inout_context.SetData(node.GetOutputDataOffset(0), v);
       return ExecResult::RunNext(0);
@@ -781,16 +1074,27 @@ namespace
     {},                                // MessageHandler_Coroutine,
     {&NodeFunction_ReflectedFunction}, // ReflectedFunction,
     {&NodeFunction_InplaceCoroutine},  // InplaceCoroutine,
-    {&NodeFunction_GetScriptOwner},    // GetOwner,
+    {&NodeFunction_GetScriptOwner},    // GetScriptOwner,
+    {&NodeFunction_SendMessage},       // SendMessage,
 
     {}, // FirstBuiltin,
 
-    {&NodeFunction_Builtin_Branch},                  // Builtin_Branch,
+    {},                                                  // Builtin_Constant,
+    {},                                                  // Builtin_GetVariable,
+    {nullptr, &NodeFunction_Builtin_SetVariable_Getter}, // Builtin_SetVariable,
+    {nullptr, &NodeFunction_Builtin_IncVariable_Getter}, // Builtin_IncVariable,
+    {nullptr, &NodeFunction_Builtin_DecVariable_Getter}, // Builtin_DecVariable,
+
+    {&NodeFunction_Builtin_Branch},                 // Builtin_Branch,
+    {nullptr, &NodeFunction_Builtin_Switch_Getter}, // Builtin_Switch,
+    {},                                             // Builtin_Loop,
+
     {&NodeFunction_Builtin_And},                     // Builtin_And,
     {&NodeFunction_Builtin_Or},                      // Builtin_Or,
     {&NodeFunction_Builtin_Not},                     // Builtin_Not,
     {nullptr, &NodeFunction_Builtin_Compare_Getter}, // Builtin_Compare,
     {nullptr, &NodeFunction_Builtin_IsValid_Getter}, // Builtin_IsValid,
+    {},                                              // Builtin_Select,
 
     {nullptr, &NodeFunction_Builtin_Add_Getter}, // Builtin_Add,
     {nullptr, &NodeFunction_Builtin_Sub_Getter}, // Builtin_Subtract,
@@ -804,6 +1108,8 @@ namespace
     {nullptr, &NodeFunction_Builtin_ToFloat_Getter},           // Builtin_ToFloat,
     {nullptr, &NodeFunction_Builtin_ToDouble_Getter},          // Builtin_ToDouble,
     {nullptr, &NodeFunction_Builtin_ToString_Getter},          // Builtin_ToString,
+    {&NodeFunction_Builtin_String_Format},                     // Builtin_String_Format,
+    {nullptr, &NodeFunction_Builtin_ToHashedString_Getter},    // Builtin_ToHashedString,
     {nullptr, &NodeFunction_Builtin_ToVariant_Getter},         // Builtin_ToVariant,
     {nullptr, &NodeFunction_Builtin_Variant_ConvertTo_Getter}, // Builtin_Variant_ConvertTo,
 

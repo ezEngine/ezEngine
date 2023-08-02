@@ -9,6 +9,17 @@ using ToStringFunction = void (*)(const ezVisualScriptNodeDescription& nodeDesc,
 
 namespace
 {
+  template <typename T, typename U>
+  static ezUInt32 GetDynamicSize(ezUInt32 uiCount)
+  {
+    ezUInt32 uiSize = sizeof(T);
+    if (uiCount > 1)
+    {
+      uiSize += sizeof(U) * (uiCount - 1);
+    }
+    return uiSize;
+  }
+
   struct NodeUserData_Type
   {
     const ezRTTI* m_pType = nullptr;
@@ -43,9 +54,8 @@ namespace
 
     static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
     {
-      NodeUserData_Type userData;
+      auto& userData = ref_node.InitUserData<NodeUserData_Type>(inout_pAdditionalData);
       EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
-      ref_node.SetUserData(userData, inout_pAdditionalData);
       return EZ_SUCCESS;
     }
 
@@ -74,7 +84,9 @@ namespace
     {
       EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
-      inout_stream << nodeDesc.m_sTargetPropertyName;
+      const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+
+      inout_stream << propertiesVar[0].Get<ezHashedString>();
 
       out_uiSize = sizeof(NodeUserData_TypeAndProperty);
       out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_TypeAndProperty);
@@ -111,7 +123,7 @@ namespace
     template <bool PropIsFunction>
     static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
     {
-      NodeUserData_TypeAndProperty userData;
+      auto& userData = ref_node.InitUserData<NodeUserData_TypeAndProperty>(inout_pAdditionalData);
       EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
 
       if constexpr (PropIsFunction)
@@ -123,7 +135,6 @@ namespace
         EZ_SUCCEED_OR_RETURN(ReadProperty(inout_stream, userData.m_pType, userData.m_pType->GetProperties(), userData.m_pProperty));
       }
 
-      ref_node.SetUserData(userData, inout_pAdditionalData);
       return EZ_SUCCESS;
     }
 
@@ -131,14 +142,136 @@ namespace
     {
       NodeUserData_Type::ToString(nodeDesc, out_sResult);
 
-      if (nodeDesc.m_sTargetPropertyName.IsEmpty() == false)
+      if (nodeDesc.m_Value.IsA<ezVariantArray>())
       {
-        out_sResult.Append(".", nodeDesc.m_sTargetPropertyName);
+        const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+        if (propertiesVar.IsEmpty() == false)
+        {
+          out_sResult.Append(".", propertiesVar[0].Get<ezHashedString>());
+        }
       }
     }
   };
 
   static_assert(sizeof(NodeUserData_TypeAndProperty) == 16);
+
+  //////////////////////////////////////////////////////////////////////////
+
+  struct NodeUserData_TypeAndProperties : public NodeUserData_Type
+  {
+    ezUInt32 m_uiNumProperties;
+
+    #if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    ezUInt32 m_uiPadding0;
+#endif
+
+    const ezAbstractProperty* m_Properties[1];
+
+    #if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    ezUInt32 m_uiPadding1;
+#endif
+
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    {
+      EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
+
+      const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+
+      ezUInt32 uiCount = propertiesVar.GetCount();
+      inout_stream << uiCount;
+
+      for (auto& var : propertiesVar)
+      {
+        ezHashedString sPropName = var.Get<ezHashedString>();
+        inout_stream << sPropName;
+      }
+
+      static_assert(sizeof(void*) <= sizeof(ezUInt64));
+      out_uiSize = GetDynamicSize<NodeUserData_TypeAndProperties, ezUInt64>(uiCount);
+      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_TypeAndProperties);
+      return EZ_SUCCESS;
+    }
+
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    {
+      const ezRTTI* pType = nullptr;
+      EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, pType));
+
+      ezUInt32 uiCount = 0;
+      inout_stream >> uiCount;
+
+      const ezUInt32 uiByteSize = GetDynamicSize<NodeUserData_TypeAndProperties, ezUInt64>(uiCount);
+      auto& userData = ref_node.InitUserData<NodeUserData_TypeAndProperties>(inout_pAdditionalData, uiByteSize);
+      userData.m_pType = pType;
+      userData.m_uiNumProperties = uiCount;
+
+      ezHybridArray<const ezAbstractProperty*, 32> properties;
+      userData.m_pType->GetAllProperties(properties);
+
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        const ezAbstractProperty* pProperty = nullptr;
+        EZ_SUCCEED_OR_RETURN(NodeUserData_TypeAndProperty::ReadProperty(inout_stream, userData.m_pType, properties.GetArrayPtr(), pProperty));
+        userData.m_Properties[i] = pProperty;
+      }
+
+      return EZ_SUCCESS;
+    }
+
+    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    {
+      NodeUserData_TypeAndProperty::ToString(nodeDesc, out_sResult);
+    }
+  };
+
+    static_assert(sizeof(NodeUserData_TypeAndProperties) == 24);
+
+  //////////////////////////////////////////////////////////////////////////
+
+  struct NodeUserData_Switch
+  {
+    ezUInt32 m_uiNumCases;
+    ezInt64 m_Cases[1];
+
+    static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
+    {
+      const ezVariantArray& casesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+
+      ezUInt32 uiCount = casesVar.GetCount();
+      inout_stream << uiCount;
+
+      for (auto& var : casesVar)
+      {
+        ezInt64 iCaseValue = var.ConvertTo<ezInt64>();
+        inout_stream << iCaseValue;
+      }
+
+      out_uiSize = GetDynamicSize<NodeUserData_Switch, ezInt64>(uiCount);
+      out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_Switch);
+      return EZ_SUCCESS;
+    }
+
+    static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
+    {
+      ezUInt32 uiCount = 0;
+      inout_stream >> uiCount;
+
+      const ezUInt32 uiByteSize = GetDynamicSize<NodeUserData_Switch, ezInt64>(uiCount);
+      auto& userData = ref_node.InitUserData<NodeUserData_Switch>(inout_pAdditionalData, uiByteSize);
+      userData.m_uiNumCases = uiCount;
+
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        inout_stream >> userData.m_Cases[i];
+      }
+
+      return EZ_SUCCESS;
+    }
+
+    static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
+    {
+    }
+  };
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -148,7 +281,7 @@ namespace
 
     static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
     {
-      ezEnum<ezComparisonOperator> compOp = nodeDesc.m_ComparisonOperator;
+      ezEnum<ezComparisonOperator> compOp = static_cast<ezComparisonOperator::Enum>(nodeDesc.m_Value.Get<ezInt64>());
       inout_stream << compOp;
 
       out_uiSize = sizeof(NodeUserData_Comparison);
@@ -158,9 +291,8 @@ namespace
 
     static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
     {
-      NodeUserData_Comparison userData;
+      auto& userData = ref_node.InitUserData<NodeUserData_Comparison>(inout_pAdditionalData);
       inout_stream >> userData.m_ComparisonOperator;
-      ref_node.SetUserData(userData, inout_pAdditionalData);
 
       return EZ_SUCCESS;
     }
@@ -168,7 +300,7 @@ namespace
     static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
     {
       ezStringBuilder sCompOp;
-      ezReflectionUtils::EnumerationToString<ezComparisonOperator>(nodeDesc.m_ComparisonOperator, sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezComparisonOperator>(), nodeDesc.m_Value.Get<ezInt64>(), sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
 
       out_sResult.Append(" ", sCompOp);
     }
@@ -184,7 +316,8 @@ namespace
     {
       EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
-      inout_stream << nodeDesc.m_CoroutineCreationMode;
+      ezEnum<ezScriptCoroutineCreationMode> creationMode = static_cast<ezScriptCoroutineCreationMode::Enum>(nodeDesc.m_Value.Get<ezInt64>());
+      inout_stream << creationMode;
 
       out_uiSize = sizeof(NodeUserData_StartCoroutine);
       out_uiAlignment = EZ_ALIGNMENT_OF(NodeUserData_StartCoroutine);
@@ -193,12 +326,11 @@ namespace
 
     static ezResult Deserialize(ezVisualScriptGraphDescription::Node& ref_node, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData)
     {
-      NodeUserData_StartCoroutine userData;
+      auto& userData = ref_node.InitUserData<NodeUserData_StartCoroutine>(inout_pAdditionalData);
       EZ_SUCCEED_OR_RETURN(ReadType(inout_stream, userData.m_pType));
 
       inout_stream >> userData.m_CreationMode;
 
-      ref_node.SetUserData(userData, inout_pAdditionalData);
       return EZ_SUCCESS;
     }
 
@@ -207,7 +339,7 @@ namespace
       NodeUserData_Type::ToString(nodeDesc, out_sResult);
 
       ezStringBuilder sCreationMode;
-      ezReflectionUtils::EnumerationToString<ezScriptCoroutineCreationMode>(nodeDesc.m_CoroutineCreationMode, sCreationMode, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+      ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezScriptCoroutineCreationMode>(), nodeDesc.m_Value.Get<ezInt64>(), sCreationMode, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
 
       out_sResult.Append(" ", sCreationMode);
     }
@@ -228,19 +360,37 @@ namespace
     {}, // Invalid,
     {}, // EntryCall,
     {}, // EntryCall_Coroutine,
-    {}, // MessageHandler,
-    {}, // MessageHandler_Coroutine,
+    {&NodeUserData_TypeAndProperties::Serialize,
+      &NodeUserData_TypeAndProperties::Deserialize,
+      &NodeUserData_TypeAndProperties::ToString}, // MessageHandler,
+    {&NodeUserData_TypeAndProperties::Serialize,
+      &NodeUserData_TypeAndProperties::Deserialize,
+      &NodeUserData_TypeAndProperties::ToString}, // MessageHandler_Coroutine,
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<true>,
       &NodeUserData_TypeAndProperty::ToString}, // ReflectedFunction,
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<true>,
       &NodeUserData_TypeAndProperty::ToString}, // InplaceCoroutine,
-    {},                                         // GetOwner,
+    {},                                         // GetScriptOwner,
+    {&NodeUserData_TypeAndProperties::Serialize,
+      &NodeUserData_TypeAndProperties::Deserialize,
+      &NodeUserData_TypeAndProperties::ToString}, // SendMessage,
 
     {}, // FirstBuiltin,
 
+    {}, // Builtin_Constant,
+    {}, // Builtin_GetVariable,
+    {}, // Builtin_SetVariable,
+    {}, // Builtin_IncVariable,
+    {}, // Builtin_DecVariable,
+
     {}, // Builtin_Branch,
+    {&NodeUserData_Switch::Serialize,
+      &NodeUserData_Switch::Deserialize,
+      &NodeUserData_Switch::ToString}, // Builtin_Switch,
+    {},                                // Builtin_Loop,
+
     {}, // Builtin_And,
     {}, // Builtin_Or,
     {}, // Builtin_Not,
@@ -248,6 +398,7 @@ namespace
       &NodeUserData_Comparison::Deserialize,
       &NodeUserData_Comparison::ToString}, // Builtin_Compare,
     {},                                    // Builtin_IsValid,
+    {},                                    // Builtin_Select,
 
     {}, // Builtin_Add,
     {}, // Builtin_Subtract,
@@ -261,6 +412,8 @@ namespace
     {}, // Builtin_ToFloat,
     {}, // Builtin_ToDouble,
     {}, // Builtin_ToString,
+    {}, // Builtin_String_Format,
+    {}, // Builtin_ToHashedString,
     {}, // Builtin_ToVariant,
     {}, // Builtin_Variant_ConvertTo,
 

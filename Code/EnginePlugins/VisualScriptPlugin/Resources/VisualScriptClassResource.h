@@ -1,10 +1,7 @@
 #pragma once
 
 #include <Core/Scripting/ScriptClassResource.h>
-#include <VisualScriptPlugin/VisualScriptPluginDLL.h>
-
-struct ezVisualScriptDataDescription;
-class ezVisualScriptDataStorage;
+#include <VisualScriptPlugin/Runtime/VisualScriptData.h>
 
 class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptClassResource : public ezScriptClassResource
 {
@@ -24,4 +21,5 @@ private:
 
   ezSharedPtr<ezVisualScriptDataStorage> m_pConstantDataStorage;
   ezSharedPtr<const ezVisualScriptDataDescription> m_pInstanceDataDesc;
+  ezSharedPtr < ezVisualScriptInstanceDataMapping> m_pInstanceDataMapping;
 };

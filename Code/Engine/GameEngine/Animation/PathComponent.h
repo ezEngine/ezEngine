@@ -17,9 +17,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPathComponentFlags);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezEventMsgPathChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgPathChanged : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezEventMsgPathChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPathChanged, ezEventMessage);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ public:
   ~ezPathComponent();
 
   /// \brief Informs the path component, that its shape has changed. Sent by path nodes when they are modified.
-  void OnEventMsgPathChanged(ezEventMsgPathChanged& ref_msg); // [ message handler ]
+  void OnMsgPathChanged(ezMsgPathChanged& ref_msg); // [ message handler ]
 
   /// \brief Whether the path end connects to the beginning.
   void SetClosed(bool bClosed);                // [ property ]

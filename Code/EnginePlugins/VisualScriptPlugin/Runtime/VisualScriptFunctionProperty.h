@@ -21,3 +21,16 @@ private:
   ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
   mutable ezVisualScriptDataStorage m_LocalDataStorage;
 };
+
+class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptMessageHandler : public ezScriptMessageHandler
+{
+public:
+  ezVisualScriptMessageHandler(const ezScriptMessageDesc& desc, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
+  ~ezVisualScriptMessageHandler();
+
+  static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
+
+private:
+  ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
+  mutable ezVisualScriptDataStorage m_LocalDataStorage;
+};

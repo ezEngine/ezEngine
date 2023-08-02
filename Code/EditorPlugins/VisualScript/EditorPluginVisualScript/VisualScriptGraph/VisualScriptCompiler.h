@@ -34,13 +34,14 @@ public:
     ezHybridArray<CompiledFunction, 16> m_Functions;
 
     ezVisualScriptDataDescription m_InstanceDataDesc;
+    ezVisualScriptInstanceDataMapping m_InstanceDataMapping;
+
     ezVisualScriptDataDescription m_ConstantDataDesc;
     ezVisualScriptDataStorage m_ConstantDataStorage;
   };
 
   const CompiledModule& GetCompiledModule() const { return m_Module; }
 
-private:
   struct AstNode;
 
   struct DataInput
@@ -50,16 +51,13 @@ private:
     AstNode* m_pSourceNode = nullptr;
     ezUInt32 m_uiId = 0;
     ezUInt8 m_uiSourcePinIndex = 0;
-    ezUInt8 m_uiTargetPinIndex = 0;
     ezEnum<ezVisualScriptDataType> m_DataType;
-    ezUInt8 m_uiArrayIndex = 0;
   };
 
   struct DataOutput
   {
     ezSmallArray<AstNode*, 3> m_TargetNodes;
     ezUInt32 m_uiId = 0;
-    ezUInt8 m_uiSourcePinIndex = 0;
     ezEnum<ezVisualScriptDataType> m_DataType;
   };
 
@@ -68,11 +66,17 @@ private:
     ezEnum<ezVisualScriptNodeDescription::Type> m_Type;
     ezEnum<ezVisualScriptDataType> m_DeductedDataType;
     bool m_bImplicitExecution = false;
-    const ezDocumentObject* m_pObject = nullptr;
+
+    ezHashedString m_sTargetTypeName;
+    ezVariant m_Value;
+
     ezSmallArray<AstNode*, 8> m_Next;
     ezSmallArray<DataInput, 4> m_Inputs;
     ezSmallArray<DataOutput, 4> m_Outputs;
   };
+
+private:
+  using DataOffset = ezVisualScriptDataDescription::DataOffset;
 
   EZ_ALWAYS_INLINE static ezStringView GetNiceTypeName(const ezDocumentObject* pObject)
   {
@@ -87,14 +91,25 @@ private:
   ezUInt32 GetPinId(const ezVisualScriptPin* pPin);
   DataOutput& GetDataOutput(const DataInput& dataInput);
 
-  AstNode* BuildAST(const ezDocumentObject* pEntryNode, const ezDocumentObject* pParentNode);
+  struct DefaultInput
+  {
+    AstNode* m_pSourceNode = nullptr;
+    ezUInt8 m_uiSourcePinIndex = 0;
+  };
+
+  DefaultInput GetDefaultPointerInput(const ezRTTI* pDataType);
+
+  DataOffset GetInstanceDataOffset(ezHashedString sName, ezVisualScriptDataType::Enum dataType);
+
+  AstNode* BuildAST(const ezDocumentObject* pEntryNode);
   void MarkAsCoroutine(AstNode* pEntryAstNode);
-  ezResult InsertMakeArrayForDynamicPin(AstNode* pNode, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type pinType);
   ezResult InsertTypeConversions(AstNode* pEntryAstNode);
+  ezResult InlineConstants(AstNode* pEntryAstNode);
+  ezResult InlineVariables(AstNode* pEntryAstNode);
   ezResult BuildDataStack(AstNode* pEntryAstNode, ezDynamicArray<AstNode*>& out_Stack);
   ezResult BuildDataExecutions(AstNode* pEntryAstNode);
   ezResult FillDataOutputConnections(AstNode* pEntryAstNode);
-  ezResult CollectData(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc);
+  ezResult AssignLocalVariables(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc);  
   ezResult BuildNodeDescriptions(AstNode* pEntryAstNode, ezDynamicArray<ezVisualScriptNodeDescription>& out_NodeDescriptions);
 
   struct ConnectionType
@@ -141,15 +156,13 @@ private:
   const ezVisualScriptNodeManager* m_pManager = nullptr;
 
   ezDeque<AstNode> m_AstNodes;
-  ezHashTable<const ezDocumentObject*, AstNode*> m_ObjectToAstNode;
   ezHybridArray<AstNode*, 8> m_EntryAstNodes;
+  ezHashTable<const ezRTTI*, DefaultInput> m_DefaultInputs;
 
   ezHashSet<Connection, ConnectionHasher> m_ReportedConnections;
 
   ezHashTable<const ezVisualScriptPin*, ezUInt32> m_PinToId;
   ezUInt32 m_uiNextPinId = 0;
-
-  using DataOffset = ezVisualScriptDataDescription::DataOffset;
 
   struct DataDesc
   {

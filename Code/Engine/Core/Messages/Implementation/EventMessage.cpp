@@ -7,6 +7,14 @@
 // clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEventMessage>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY_READ_ONLY("SenderObject", m_hSenderObject),
+    EZ_MEMBER_PROPERTY_READ_ONLY("SenderComponent", m_hSenderComponent)
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -33,7 +41,7 @@ namespace ezInternal
     }
   }
 
-  void EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
+  bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
     ezWorld* pWorld = pSenderComponent->GetWorld();
     UpdateCachedReceivers(ref_msg, *pWorld, pSearchObject, inout_cachedReceivers);
@@ -42,12 +50,13 @@ namespace ezInternal
     bool bHandlerFound = false;
 #endif
 
+    bool bResult = false;
     for (auto hReceiver : inout_cachedReceivers)
     {
       ezComponent* pReceiverComponent = nullptr;
       if (pWorld->TryGetComponent(hReceiver, pReceiverComponent))
       {
-        pReceiverComponent->SendMessage(ref_msg);
+        bResult |= pReceiverComponent->SendMessage(ref_msg);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
         bHandlerFound = true;
 #endif
@@ -60,9 +69,11 @@ namespace ezInternal
       ezLog::Warning("ezEventMessageSender::SendMessage: No event message handler found for message of type {0}.", ref_msg.GetId());
     }
 #endif
+
+    return bResult;
   }
 
-  void EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
+  bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
     const ezWorld* pWorld = pSenderComponent->GetWorld();
     UpdateCachedReceivers(ref_msg, *pWorld, pSearchObject, inout_cachedReceivers);
@@ -71,12 +82,13 @@ namespace ezInternal
     bool bHandlerFound = false;
 #endif
 
+    bool bResult = false;
     for (auto hReceiver : inout_cachedReceivers)
     {
       const ezComponent* pReceiverComponent = nullptr;
       if (pWorld->TryGetComponent(hReceiver, pReceiverComponent))
       {
-        pReceiverComponent->SendMessage(ref_msg);
+        bResult |= pReceiverComponent->SendMessage(ref_msg);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
         bHandlerFound = true;
 #endif
@@ -89,6 +101,8 @@ namespace ezInternal
       ezLog::Warning("ezEventMessageSender::SendMessage: No event message handler found for message of type {0}.", ref_msg.GetId());
     }
 #endif
+
+    return bResult;
   }
 
   void EventMessageSenderHelper::PostEventMessage(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers, ezTime delay, ezObjectMsgQueueType::Enum queueType)

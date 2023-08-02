@@ -51,16 +51,8 @@ void ezQtVisualScriptPin::SetPin(const ezPin& pin)
 
   if (vsPin.IsDataPin())
   {
-    auto scriptDataType = vsPin.GetScriptDataType();
-    if (scriptDataType != ezVisualScriptDataType::TypedPointer)
-    {
-      sTooltip.Append(": ", ezVisualScriptDataType::GetName(scriptDataType));
-    }
-    else
-    {
-      sTooltip.Append(": ", vsPin.GetDataType()->GetTypeName());
-    }
-
+    sTooltip.Append(": ", vsPin.GetDataTypeName());
+    
     if (vsPin.IsRequired())
     {
       sTooltip.Append(" (Required)");
@@ -136,6 +128,9 @@ void ezQtVisualScriptNode::UpdateState()
         {
           sTitle.ReplaceAll(temp, pin->GetPin()->GetName());
         }
+
+        temp.Set("{?", pin->GetPin()->GetName(), "}");
+        sTitle.ReplaceAll(temp, "");
       }
     }
 
@@ -150,9 +145,9 @@ void ezQtVisualScriptNode::UpdateState()
         ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sVal);
         sVal = ezTranslate(sVal);
       }
-      else if (val.IsA<ezString>())
+      else if (val.IsA<ezString>() || val.IsA<ezHashedString>())
       {
-        sVal = val.Get<ezString>();
+        sVal = val.ConvertTo<ezString>();
         if (sVal.GetCharacterCount() > 16)
         {
           sVal.Shrink(0, sVal.GetCharacterCount() - 13);
@@ -172,6 +167,16 @@ void ezQtVisualScriptNode::UpdateState()
 
       temp.Set("{", prop->GetPropertyName(), "}");
       sTitle.ReplaceAll(temp, sVal);
+
+      temp.Set("{?", prop->GetPropertyName(), "}");
+      if (val == ezVariant(0))
+      {        
+        sTitle.ReplaceAll(temp, "");
+      }
+      else
+      {
+        sTitle.ReplaceAll(temp, sVal);
+      }
     }
   }
   else
@@ -191,7 +196,7 @@ void ezQtVisualScriptNode::UpdateState()
     m_pTitleLabel->setPlainText(sTitle.GetData());
 
     auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pType);
-    if (pNodeDesc != nullptr && pNodeDesc->m_bNeedsDataTypeDeduction)
+    if (pNodeDesc != nullptr && pNodeDesc->NeedsTypeDeduction())
     {
       ezVisualScriptDataType::Enum deductedType = pManager->GetDeductedType(GetObject());
       const char* sSubTitle = deductedType != ezVisualScriptDataType::Invalid ? ezVisualScriptDataType::GetName(deductedType) : "Unknown";

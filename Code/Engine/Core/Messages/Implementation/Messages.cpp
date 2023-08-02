@@ -32,7 +32,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
+    EZ_MEMBER_PROPERTY("Message", m_sMessage),
     EZ_MEMBER_PROPERTY("Payload", m_iPayload),
   }
   EZ_END_PROPERTIES;
@@ -119,7 +119,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezM
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
+    EZ_MEMBER_PROPERTY("Message", m_sMessage),
     EZ_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new ezDefaultValueAttribute(0))
   }
   EZ_END_PROPERTIES;
@@ -153,9 +153,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerTriggered, 1, ezRTTIDefaultAllocator
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Message", GetMessage, SetMessage),
+    EZ_MEMBER_PROPERTY("Message", m_sMessage),
     EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
-    //EZ_MEMBER_PROPERTY("GameObject", m_hTriggeringObject),
+    EZ_MEMBER_PROPERTY("GameObject", m_hTriggeringObject),
   }
   EZ_END_PROPERTIES;
 }

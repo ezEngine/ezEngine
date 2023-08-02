@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 class ezVisualScriptClassAssetProperties : public ezReflectedClass
@@ -9,6 +10,8 @@ class ezVisualScriptClassAssetProperties : public ezReflectedClass
 
 public:
   ezString m_sBaseClass;
+  ezDynamicArray<ezVisualScriptVariable> m_Variables;
+  bool m_bDumpAST;
 };
 
 class ezVisualScriptClassAssetDocument : public ezSimpleAssetDocument<ezVisualScriptClassAssetProperties>
@@ -19,8 +22,8 @@ public:
   ezVisualScriptClassAssetDocument(const char* szDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;

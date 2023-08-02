@@ -18,15 +18,26 @@ namespace
     "ReflectedFunction",
     "InplaceCoroutine",
     "GetScriptOwner",
+    "SendMessage",
 
     "", // FirstBuiltin,
 
+    "Builtin_Constant",
+    "Builtin_GetVariable",
+    "Builtin_SetVariable",
+    "Builtin_IncVariable",
+    "Builtin_DecVariable",
+
     "Builtin_Branch",
+    "Builtin_Switch",
+    "Builtin_Loop",
+
     "Builtin_And",
     "Builtin_Or",
     "Builtin_Not",
     "Builtin_Compare",
     "Builtin_IsValid",
+    "Builtin_Select",
 
     "Builtin_Add",
     "Builtin_Subtract",
@@ -40,6 +51,8 @@ namespace
     "Builtin_ToFloat",
     "Builtin_ToDouble",
     "Builtin_ToString",
+    "Builtin_String_Format",
+    "Builtin_ToHashedString",
     "Builtin_ToVariant",
     "Builtin_Variant_ConvertTo",
 
@@ -84,6 +97,9 @@ ezVisualScriptNodeDescription::Type::Enum ezVisualScriptNodeDescription::Type::G
 
   if (targetDataType == ezVisualScriptDataType::String)
     return Builtin_ToString;
+
+  if (targetDataType == ezVisualScriptDataType::HashedString)
+    return Builtin_ToHashedString;
 
   if (targetDataType == ezVisualScriptDataType::Variant)
     return Builtin_ToVariant;
@@ -214,6 +230,23 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
   return EZ_SUCCESS;
 }
 
+ezScriptMessageDesc ezVisualScriptGraphDescription::GetMessageDesc() const
+{
+  auto pEntryNode = GetNode(0);
+  EZ_ASSERT_DEBUG(pEntryNode != nullptr &&
+    pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler ||
+    pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine ||
+    pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::SendMessage,
+    "Entry node is invalid or not a message handler");
+
+  auto& userData = pEntryNode->GetUserData<NodeUserData_TypeAndProperties>();
+
+  ezScriptMessageDesc desc;
+  desc.m_pType = userData.m_pType;
+  desc.m_Properties = ezMakeArrayPtr(userData.m_Properties, userData.m_uiNumProperties);
+  return desc;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
@@ -279,3 +312,11 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
 
   return ExecResult::RunNext(0);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptSendMessageMode, 1)
+  EZ_ENUM_CONSTANTS(ezVisualScriptSendMessageMode::Direct, ezVisualScriptSendMessageMode::Recursive, ezVisualScriptSendMessageMode::Event)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on

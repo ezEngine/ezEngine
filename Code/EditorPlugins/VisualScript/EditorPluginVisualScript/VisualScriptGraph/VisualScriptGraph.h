@@ -8,7 +8,7 @@ class ezVisualScriptPin : public ezPin
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin, ezPin);
 
 public:
-  ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiPinIndex);
+  ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex);
 
   EZ_ALWAYS_INLINE bool IsExecutionPin() const { return m_ScriptDataType == ezVisualScriptDataType::Invalid; }
   EZ_ALWAYS_INLINE bool IsDataPin() const { return m_ScriptDataType != ezVisualScriptDataType::Invalid; }
@@ -16,7 +16,7 @@ public:
   EZ_ALWAYS_INLINE const ezRTTI* GetDataType() const { return m_pDataType; }
   EZ_ALWAYS_INLINE ezVisualScriptDataType::Enum GetScriptDataType() const { return m_ScriptDataType; }
   ezStringView GetDataTypeName(ezVisualScriptDataType::Enum deductedType = ezVisualScriptDataType::Invalid) const;
-  EZ_ALWAYS_INLINE ezUInt32 GetPinIndex() const { return m_uiPinIndex; }
+  EZ_ALWAYS_INLINE ezUInt32 GetDataPinIndex() const { return m_uiDataPinIndex; }
   EZ_ALWAYS_INLINE bool IsRequired() const { return m_bRequired; }
   EZ_ALWAYS_INLINE bool HasDynamicPinProperty() const { return m_bHasDynamicPinProperty; }
   EZ_ALWAYS_INLINE bool SplitExecution() const { return m_bSplitExecution; }
@@ -25,7 +25,7 @@ public:
 
 private:
   const ezRTTI* m_pDataType = nullptr;
-  ezUInt32 m_uiPinIndex = 0;
+  ezUInt32 m_uiDataPinIndex = 0;
   ezEnum<ezVisualScriptDataType> m_ScriptDataType;
   bool m_bRequired = false;
   bool m_bHasDynamicPinProperty = false;
@@ -40,6 +40,9 @@ public:
 
   ezHashedString GetScriptBaseClass() const;
   bool IsFilteredByBaseClass(const ezRTTI* pNodeType, const ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, const ezHashedString& sBaseClass, bool bLogWarning = false) const;
+
+  ezVisualScriptDataType::Enum GetVariableType(ezTempHashedString sName) const;
+  ezResult GetVariableDefaultValue(ezTempHashedString sName, ezVariant& out_Value) const;
 
   void GetInputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
   void GetOutputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;

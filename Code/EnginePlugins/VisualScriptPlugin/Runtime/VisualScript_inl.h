@@ -30,9 +30,8 @@ T* ezVisualScriptGraphDescription::EmbeddedArrayOrPointer<T, Size>::Init(ezUInt8
   }
 
   inout_pAdditionalData = ezMemoryUtils::AlignForwards(inout_pAdditionalData, EZ_ALIGNMENT_OF(T));
-  inout_pAdditionalData += uiCount * sizeof(T);
-
   m_Ptr = reinterpret_cast<T*>(inout_pAdditionalData);
+  inout_pAdditionalData += uiCount * sizeof(T);  
   return m_Ptr;
 }
 
@@ -91,17 +90,17 @@ EZ_ALWAYS_INLINE ezVisualScriptGraphDescription::DataOffset ezVisualScriptGraphD
 template <typename T>
 EZ_ALWAYS_INLINE const T& ezVisualScriptGraphDescription::Node::GetUserData() const
 {
-  EZ_ASSERT_DEBUG(m_UserDataByteSize == sizeof(T), "Invalid data");
+  EZ_ASSERT_DEBUG(m_UserDataByteSize >= sizeof(T), "Invalid data");
   return *reinterpret_cast<const T*>(m_UserDataByteSize <= sizeof(m_UserData.m_Embedded) ? m_UserData.m_Embedded : m_UserData.m_Ptr);
 }
 
 template <typename T>
-void ezVisualScriptGraphDescription::Node::SetUserData(const T& data, ezUInt8*& inout_pAdditionalData)
+T& ezVisualScriptGraphDescription::Node::InitUserData(ezUInt8*& inout_pAdditionalData, ezUInt32 uiByteSize /*= sizeof(T)*/)
 {
-  m_UserDataByteSize = sizeof(T);
-  auto pUserData = m_UserData.Init(m_UserDataByteSize / sizeof(ezUInt32), inout_pAdditionalData);
+  m_UserDataByteSize = uiByteSize;
+  auto pUserData = m_UserData.Init(uiByteSize / sizeof(ezUInt32), inout_pAdditionalData);
   EZ_CHECK_ALIGNMENT(pUserData, EZ_ALIGNMENT_OF(T));
-  *reinterpret_cast<T*>(pUserData) = data;
+  return *reinterpret_cast<T*>(pUserData);
 }
 
 //////////////////////////////////////////////////////////////////////////

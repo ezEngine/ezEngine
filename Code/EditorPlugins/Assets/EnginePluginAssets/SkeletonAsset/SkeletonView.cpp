@@ -86,8 +86,8 @@ void ezSkeletonViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     ezStringBuilder sText;
     sText.AppendFormat("Joints: {}\n", uiNumJoints);
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16, ezDebugRenderer::HorizontalAlignment::Left,
-      ezDebugRenderer::VerticalAlignment::Bottom);
+    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16, ezDebugTextHAlign::Left,
+      ezDebugTextVAlign::Bottom);
   }
 }
 

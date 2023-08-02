@@ -38,7 +38,7 @@ ezResult ezGameEngineTestStateMachine::InitializeSubTest(ezInt32 iIdentifier)
   else if (iIdentifier == SubTests::SimpleTransitions)
   {
     m_ImgCompFrames.PushBack(1);
-    m_ImgCompFrames.PushBack(17);
+    m_ImgCompFrames.PushBack(18);
     m_ImgCompFrames.PushBack(33);
     m_ImgCompFrames.PushBack(49);
 

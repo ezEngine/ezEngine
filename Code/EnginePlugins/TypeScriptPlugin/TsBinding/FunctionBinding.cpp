@@ -123,6 +123,7 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
 
     case ezVariant::Type::String:
     case ezVariant::Type::StringView:
+    case ezVariant::Type::HashedString:
       return "string";
 
     case ezVariant::Type::Time:

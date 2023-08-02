@@ -18,7 +18,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Scripting"),
-    new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Alpha),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -108,21 +107,16 @@ void ezScriptComponent::OnSimulationStarted()
   CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
 }
 
-void ezScriptComponent::BroadcastEventMsg(ezEventMessage& inout_msg)
+bool ezScriptComponent::SendEventMessage(ezMessage& inout_msg)
 {
-  const ezRTTI* pType = inout_msg.GetDynamicRTTI();
-  for (auto& sender : m_EventSenders)
-  {
-    if (sender.m_pMsgType == pType)
-    {
-      sender.m_Sender.SendEventMessage(inout_msg, this, GetOwner());
-      return;
-    }
-  }
+  auto& sender = FindSender(inout_msg);
+  return sender.SendEventMessage(inout_msg, this, GetOwner());
+}
 
-  auto& sender = m_EventSenders.ExpandAndGetRef();
-  sender.m_pMsgType = pType;
-  sender.m_Sender.SendEventMessage(inout_msg, this, GetOwner());
+void ezScriptComponent::PostEventMessage(ezMessage& inout_msg, ezTime delay)
+{
+  auto& sender = FindSender(inout_msg);
+  sender.PostEventMessage(inout_msg, this, GetOwner(), delay);
 }
 
 void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScript)
@@ -193,12 +187,21 @@ void ezScriptComponent::SetParameter(const char* szKey, const ezVariant& value)
     return;
 
   m_Parameters[hs] = value;
+
+  if (IsInitialized() && m_hScriptClass.IsValid())
+  {
+    InstantiateScript(IsActiveAndInitialized());
+  }
 }
 
 void ezScriptComponent::RemoveParameter(const char* szKey)
 {
   if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
   {
+    if (IsInitialized() && m_hScriptClass.IsValid())
+    {
+      InstantiateScript(IsActiveAndInitialized());
+    }
   }
 }
 
@@ -306,4 +309,25 @@ void ezScriptComponent::CallScriptFunction(ezUInt32 uiFunctionIndex)
 void ezScriptComponent::ReloadScript()
 {
   InstantiateScript(IsActiveAndInitialized());
+}
+
+ezEventMessageSender<ezMessage>& ezScriptComponent::FindSender(ezMessage& inout_msg)
+{
+  const ezRTTI* pType = inout_msg.GetDynamicRTTI();
+  if (pType->IsDerivedFrom<ezEventMessage>())
+  {
+    static_cast<ezEventMessage&>(inout_msg).FillFromSenderComponent(this);
+  }
+
+  for (auto& sender : m_EventSenders)
+  {
+    if (sender.m_pMsgType == pType)
+    {
+      return sender.m_Sender;
+    }
+  }
+
+  auto& sender = m_EventSenders.ExpandAndGetRef();
+  sender.m_pMsgType = pType;
+  return sender.m_Sender;
 }

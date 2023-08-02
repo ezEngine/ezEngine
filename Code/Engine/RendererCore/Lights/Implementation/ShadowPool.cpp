@@ -736,8 +736,8 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 
   if (cvar_RenderingShadowsShowPoolStats)
   {
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", "Shadow Pool Stats:", ezColor::LightSteelBlue);
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", "Details (Name: Size - Atlas Offset)", ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", "Shadow Pool Stats:", ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", "Details (Name: Size - Atlas Offset)", ezColor::LightSteelBlue);
   }
 
 #endif
@@ -781,7 +781,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       if (cvar_RenderingShadowsShowPoolStats)
       {
-        ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", ezFmt("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y), ezColor::LightSteelBlue);
+        ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", ezFmt("{0}: {1} - {2}x{3}", pShadowView->GetName(), atlasRect.width, atlasRect.x, atlasRect.y), ezColor::LightSteelBlue);
 
         uiUsedAtlasSize += atlasRect.width * atlasRect.height;
       }
@@ -958,7 +958,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (cvar_RenderingShadowsShowPoolStats)
   {
-    ezDebugRenderer::DrawInfoText(debugContext, ezDebugRenderer::ScreenPlacement::TopLeft, "ShadowPoolStats", ezFmt("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2)), ezColor::LightSteelBlue);
+    ezDebugRenderer::DrawInfoText(debugContext, ezDebugTextPlacement::TopLeft, "ShadowPoolStats", ezFmt("Atlas Utilization: {0}%%", ezArgF(100.0 * (double)uiUsedAtlasSize / uiTotalAtlasSize, 2)), ezColor::LightSteelBlue);
   }
 #endif
 

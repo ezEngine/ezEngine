@@ -167,6 +167,21 @@ protected:
   ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
 };
 
+/// \brief A message handler that creates an instance of the given coroutine type and starts it immediately.
+class EZ_CORE_DLL ezScriptCoroutineMessageHandler : public ezScriptMessageHandler
+{
+public:
+  ezScriptCoroutineMessageHandler(ezStringView sName, const ezScriptMessageDesc& desc, const ezSharedPtr<ezScriptCoroutineRTTI>& pType, ezScriptCoroutineCreationMode::Enum creationMode);
+  ~ezScriptCoroutineMessageHandler();
+
+  static void Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg);
+
+protected:
+  ezHashedString m_sName;
+  ezSharedPtr<ezScriptCoroutineRTTI> m_pType;
+  ezEnum<ezScriptCoroutineCreationMode> m_CreationMode;
+};
+
 /// \brief HashHelper implementation so coroutine handles can be used as key in a hash table. Also needed to store in a variant.
 template <>
 struct ezHashHelper<ezScriptCoroutineHandle>

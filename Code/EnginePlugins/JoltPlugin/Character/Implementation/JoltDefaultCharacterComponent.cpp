@@ -391,16 +391,16 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
     switch (GetJoltCharacter()->GetGroundState())
     {
       case JPH::CharacterBase::EGroundState::OnGround:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: On Ground", ezColor::Brown);
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: On Ground", ezColor::Brown);
         break;
       case JPH::CharacterBase::EGroundState::InAir:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: In Air", ezColor::CornflowerBlue);
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: In Air", ezColor::CornflowerBlue);
         break;
       case JPH::CharacterBase::EGroundState::NotSupported:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: Not Supported", ezColor::Yellow);
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: Not Supported", ezColor::Yellow);
         break;
       case JPH::CharacterBase::EGroundState::OnSteepGround:
-        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", "Jolt: Steep", ezColor::OrangeRed);
+        ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", "Jolt: Steep", ezColor::OrangeRed);
         break;
     }
 
@@ -408,8 +408,8 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
     // const float fDistTraveled = (m_PreviousTransform.m_vPosition - newTransform.m_vPosition).GetLength();
     // const float fSpeedTraveled = fDistTraveled * GetInverseUpdateTimeDelta();
     // const float fSpeedTraveledLateral = fDistTraveled * GetInverseUpdateTimeDelta();
-    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", ezFmt("Speed 1: {} m/s", fSpeedTraveled), ezColor::WhiteSmoke);
-    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "JCC", ezFmt("Speed 2: {} m/s", fSpeedTraveledLateral), ezColor::WhiteSmoke);
+    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", ezFmt("Speed 1: {} m/s", fSpeedTraveled), ezColor::WhiteSmoke);
+    // ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "JCC", ezFmt("Speed 2: {} m/s", fSpeedTraveledLateral), ezColor::WhiteSmoke);
   }
 
   if (m_DebugFlags.IsSet(ezJoltCharacterDebugFlags::VisGroundContact))

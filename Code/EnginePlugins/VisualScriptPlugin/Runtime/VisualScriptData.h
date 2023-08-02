@@ -58,6 +58,9 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataDescription : public ezRefCou
     EZ_ALWAYS_INLINE bool IsInstance() const { return m_uiSource == Source::Instance; }
     EZ_ALWAYS_INLINE bool IsConstant() const { return m_uiSource == Source::Constant; }
 
+    EZ_ALWAYS_INLINE ezResult Serialize(ezStreamWriter& inout_stream) const { return inout_stream.WriteDWordValue(this); }
+    EZ_ALWAYS_INLINE ezResult Deserialize(ezStreamReader& inout_stream) { return inout_stream.ReadDWordValue(this); }
+
     ezUInt32 m_uiByteOffset : BYTE_OFFSET_BITS;
     ezUInt32 m_uiType : TYPE_BITS;
     ezUInt32 m_uiSource : SOURCE_BITS;
@@ -120,5 +123,16 @@ private:
   ezSharedPtr<const ezVisualScriptDataDescription> m_pDesc;
   ezBlob m_Storage;
 };
+
+struct ezVisualScriptInstanceData
+{
+  ezVisualScriptDataDescription::DataOffset m_DataOffset;
+  ezVariant m_DefaultValue;
+
+  ezResult Serialize(ezStreamWriter& inout_stream) const;
+  ezResult Deserialize(ezStreamReader& inout_stream);
+};
+
+using ezVisualScriptInstanceDataMapping = ezRefCountedContainer<ezHashTable<ezHashedString, ezVisualScriptInstanceData>>;
 
 #include <VisualScriptPlugin/Runtime/VisualScriptData_inl.h>

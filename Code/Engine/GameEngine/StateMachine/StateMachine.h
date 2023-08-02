@@ -157,7 +157,7 @@ public:
 private:
   EZ_ALLOW_PRIVATE_PROPERTIES(ezStateMachineInstance);
 
-  bool Reflection_SetState(ezStringView sStateName);
+  bool Reflection_SetState(const ezHashedString& sStateName);
   ezComponent* Reflection_GetOwnerComponent() const;
   ezBlackboard* Reflection_GetBlackboard() const { return m_pBlackboard.Borrow(); }
 

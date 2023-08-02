@@ -1045,25 +1045,25 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   {
     ezStringBuilder sb;
 
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", "Visibility Culling Stats", ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", "Visibility Culling Stats", ezColor::LimeGreen);
 
     sb.Format("Total Num Objects: {0}", stats.m_uiTotalNumObjects);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     sb.Format("Num Objects Tested: {0}", stats.m_uiNumObjectsTested);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     sb.Format("Num Objects Passed: {0}", stats.m_uiNumObjectsPassed);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     // Exponential moving average for better readability.
     m_AverageCullingTime = ezMath::Lerp(m_AverageCullingTime, stats.m_TimeTaken, 0.05f);
 
     sb.Format("Time Taken: {0}ms", m_AverageCullingTime.GetMilliseconds());
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::LimeGreen);
 
     view.GetWorld()->GetSpatialSystem()->GetInternalStats(sb);
-    ezDebugRenderer::DrawInfoText(hView, ezDebugRenderer::ScreenPlacement::TopLeft, "VisCulling", sb, ezColor::AntiqueWhite);
+    ezDebugRenderer::DrawInfoText(hView, ezDebugTextPlacement::TopLeft, "VisCulling", sb, ezColor::AntiqueWhite);
   }
 #endif
 }

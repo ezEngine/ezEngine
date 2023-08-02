@@ -22,24 +22,14 @@ protected:
   virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
-  /*virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) override;
-  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const override;
-
-  bool HandleUnhandledMessage(ezMessage& msg, bool bWasPostedMsg);*/
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezEventMessageHandlerComponent
-
-protected:
-  // virtual bool HandlesEventMessage(const ezEventMessage& msg) const override;
-
   //////////////////////////////////////////////////////////////////////////
   // ezScriptComponent
 public:
   ezScriptComponent();
   ~ezScriptComponent();
 
-  void BroadcastEventMsg(ezEventMessage& inout_msg);
+  bool SendEventMessage(ezMessage& inout_msg);
+  void PostEventMessage(ezMessage& inout_msg, ezTime delay);
 
   void SetScriptClass(const ezScriptClassResourceHandle& hScript);
   const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; }
@@ -57,6 +47,8 @@ public:
   void RemoveParameter(const char* szKey);
   bool GetParameter(const char* szKey, ezVariant& out_value) const;
 
+  EZ_ALWAYS_INLINE ezScriptInstance* GetScriptInstance() { return m_pInstance.Borrow(); }
+
 private:
   void InstantiateScript(bool bActivate);
   void ClearInstance(bool bDeactivate);
@@ -67,10 +59,12 @@ private:
 
   void ReloadScript();
 
+  ezEventMessageSender<ezMessage>& FindSender(ezMessage& inout_msg);
+
   struct EventSender
   {
     const ezRTTI* m_pMsgType = nullptr;
-    ezEventMessageSender<ezEventMessage> m_Sender;
+    ezEventMessageSender<ezMessage> m_Sender;
   };
 
   ezHybridArray<EventSender, 2> m_EventSenders;

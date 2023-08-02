@@ -161,7 +161,6 @@ export import WindVolumeSphereComponent = __AllComponents.WindVolumeSphereCompon
 
 // AUTO-GENERATED
 import __AllMessages = require("./ez/AllMessages")
-export import EventMsgPathChanged = __AllMessages.EventMsgPathChanged;
 export import EventMsgSetPowerInput = __AllMessages.EventMsgSetPowerInput;
 export import MsgAnimationPosePreparing = __AllMessages.MsgAnimationPosePreparing;
 export import MsgAnimationPoseProposal = __AllMessages.MsgAnimationPoseProposal;
@@ -185,6 +184,7 @@ export import MsgMoveCharacterController = __AllMessages.MsgMoveCharacterControl
 export import MsgObjectGrabbed = __AllMessages.MsgObjectGrabbed;
 export import MsgOnlyApplyToObject = __AllMessages.MsgOnlyApplyToObject;
 export import MsgParentChanged = __AllMessages.MsgParentChanged;
+export import MsgPathChanged = __AllMessages.MsgPathChanged;
 export import MsgPhysicsAddForce = __AllMessages.MsgPhysicsAddForce;
 export import MsgPhysicsAddImpulse = __AllMessages.MsgPhysicsAddImpulse;
 export import MsgPhysicsJointBroke = __AllMessages.MsgPhysicsJointBroke;

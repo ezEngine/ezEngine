@@ -416,12 +416,9 @@ void ezStateMachineInstance::SetBlackboard(const ezSharedPtr<ezBlackboard>& pBla
   m_pBlackboard = pBlackboard;
 }
 
-bool ezStateMachineInstance::Reflection_SetState(ezStringView sStateName)
+bool ezStateMachineInstance::Reflection_SetState(const ezHashedString& sStateName)
 {
-  ezHashedString sStateNameHashed;
-  sStateNameHashed.Assign(sStateName);
-
-  return SetState(sStateNameHashed).Succeeded();
+  return SetState(sStateName).Succeeded();
 }
 
 ezComponent* ezStateMachineInstance::Reflection_GetOwnerComponent() const

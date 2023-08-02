@@ -28,14 +28,29 @@ public:
 
   struct NodeDesc
   {
+    struct TypeDeductionMode
+    {
+      using StorageType = ezUInt8;
+
+      enum Enum
+      {
+        None,
+        FromInputPins,
+        FromTypeProperty,
+        FromNameProperty,
+
+        Default = None
+      };
+    };
+
     ezSmallArray<PinDesc, 4> m_InputPins;
     ezSmallArray<PinDesc, 4> m_OutputPins;
     ezHashedString m_sFilterByBaseClass;
     const ezRTTI* m_pTargetType = nullptr;
-    const ezAbstractProperty* m_pTargetProperty = nullptr;
+    ezSmallArray<const ezAbstractProperty*, 1> m_TargetProperties;
     ezEnum<ezVisualScriptNodeDescription::Type> m_Type;
+    ezEnum<TypeDeductionMode> m_TypeDeductionMode;
     bool m_bImplicitExecution = false;
-    bool m_bNeedsDataTypeDeduction = false;
     bool m_bHasDynamicPins = false;
 
     void AddInputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString());
@@ -43,6 +58,8 @@ public:
 
     void AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty = ezHashedString());
     void AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty = ezHashedString());
+
+    EZ_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_TypeDeductionMode != TypeDeductionMode::None; }
   };
 
   ezVisualScriptNodeRegistry();
@@ -61,10 +78,22 @@ private:
   void UpdateNodeTypes();
   void UpdateNodeType(const ezRTTI* pRtti);
 
+  ezResult GetScriptDataType(const ezRTTI* pRtti, ezVisualScriptDataType::Enum& out_scriptDataType, ezStringView sFunctionName = ezStringView(), ezStringView sArgName = ezStringView());
+  ezVisualScriptDataType::Enum GetScriptDataType(const ezAbstractProperty* pProp);
+
+  template <typename T>
+  void AddInputDataPin(ezReflectedTypeDescriptor& ref_typeDesc, ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName);
+  void AddInputDataPin_Any(ezReflectedTypeDescriptor& ref_typeDesc, ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName, bool bRequired, bool bAddVariantProperty = false);
+
+  template <typename T>
+  void AddOutputDataPin(ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName);
+
   void CreateBuiltinTypes();
   void CreateGetOwnerNodeType(const ezRTTI* pRtti);
-  void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction, bool bIsEntryFunction);
+  void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction, const ezScriptableFunctionAttribute* pScriptableFunctionAttribute, bool bIsEntryFunction);
   void CreateCoroutineNodeType(const ezRTTI* pRtti);
+  void CreateMessageNodeTypes(const ezRTTI* pRtti);
+  void CreateEnumNodeTypes(const ezRTTI* pRtti);
 
   void FillDesc(ezReflectedTypeDescriptor& desc, const ezRTTI* pRtti, ezStringView sCategoryOverride = ezStringView(), const ezColorGammaUB* pColorOverride = nullptr);
   void FillDesc(ezReflectedTypeDescriptor& desc, ezStringView sTypeName, ezStringView sCategory, const ezColorGammaUB& color);
@@ -72,4 +101,5 @@ private:
   const ezRTTI* m_pBaseType = nullptr;
   bool m_bBuiltinTypesCreated = false;
   ezMap<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
+  ezHashSet<const ezRTTI*> m_EnumTypes;
 };

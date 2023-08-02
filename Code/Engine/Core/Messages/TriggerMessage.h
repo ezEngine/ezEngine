@@ -30,10 +30,6 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
   ezHashedString m_sMessage;
 
   ezInt32 m_iPayload = 0;
-
-private:
-  const char* GetMessage() const { return m_sMessage; }
-  void SetMessage(const char* szMessage) { m_sMessage.Assign(szMessage); }
 };
 
 /// \brief Sent when something enters or leaves a trigger
@@ -49,8 +45,4 @@ struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezEventMessage
 
   /// The object that entered the trigger volume.
   ezGameObjectHandle m_hTriggeringObject;
-
-private:
-  const char* GetMessage() const { return m_sMessage; }
-  void SetMessage(const char* szMessage) { m_sMessage.Assign(szMessage); }
 };

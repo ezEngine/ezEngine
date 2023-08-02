@@ -136,7 +136,17 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
           }
           else if (functionType == ezVisualScriptNodeDescription::Type::MessageHandler)
           {
-            EZ_ASSERT_NOT_IMPLEMENTED;
+            auto desc = pDesc->GetMessageDesc();
+            ezUniquePtr<ezVisualScriptMessageHandler> pMessageHandler = EZ_DEFAULT_NEW(ezVisualScriptMessageHandler, desc, std::move(pDesc));
+            messageHandlers.PushBack(std::move(pMessageHandler));
+          }
+          else if (functionType == ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine)
+          {
+            auto desc = pDesc->GetMessageDesc();
+            ezUniquePtr<ezVisualScriptCoroutineAllocator> pCoroutineAllocator = EZ_DEFAULT_NEW(ezVisualScriptCoroutineAllocator, std::move(pDesc));
+            auto pCoroutineType = CreateScriptCoroutineType(sScriptClassName, sFunctionName, std::move(pCoroutineAllocator));
+            ezUniquePtr<ezScriptCoroutineMessageHandler> pMessageHandler = EZ_DEFAULT_NEW(ezScriptCoroutineMessageHandler, sFunctionName, desc, pCoroutineType, coroutineCreationMode);
+            messageHandlers.PushBack(std::move(pMessageHandler));
           }
           else
           {
@@ -159,12 +169,18 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
           m_pConstantDataStorage = pConstantDataStorage;
         }
       }
-      else if (chunk.GetCurrentChunk().m_sChunkName == "InstanceDataDesc")
+      else if (chunk.GetCurrentChunk().m_sChunkName == "InstanceData")
       {
         ezSharedPtr<ezVisualScriptDataDescription> pInstanceDataDesc = EZ_DEFAULT_NEW(ezVisualScriptDataDescription);
         if (pInstanceDataDesc->Deserialize(chunk).Succeeded())
         {
           m_pInstanceDataDesc = pInstanceDataDesc;
+        }
+
+        ezSharedPtr<ezVisualScriptInstanceDataMapping> pInstanceDataMapping = EZ_DEFAULT_NEW(ezVisualScriptInstanceDataMapping);
+        if (chunk.ReadHashTable(pInstanceDataMapping->m_Content).Succeeded())
+        {
+          m_pInstanceDataMapping = pInstanceDataMapping;
         }
       }
 
@@ -186,5 +202,5 @@ void ezVisualScriptClassResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
 
 ezUniquePtr<ezScriptInstance> ezVisualScriptClassResource::Instantiate(ezReflectedClass& inout_owner, ezWorld* pWorld) const
 {
-  return EZ_DEFAULT_NEW(ezVisualScriptInstance, inout_owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc);
+  return EZ_DEFAULT_NEW(ezVisualScriptInstance, inout_owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc, m_pInstanceDataMapping);
 }

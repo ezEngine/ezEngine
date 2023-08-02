@@ -376,6 +376,7 @@ void ezTypeScriptBinding::GenerateConstructorString(ezStringBuilder& out_String,
     case ezVariant::Type::Double:
     case ezVariant::Type::String:
     case ezVariant::Type::StringView:
+    case ezVariant::Type::HashedString:
     {
       out_String = value.ConvertTo<ezString>();
       break;
