@@ -52,7 +52,7 @@ private:
   friend class ezRmlUiInternal::EventListener;
   void ProcessEvent(const ezHashedString& sIdentifier, Rml::Event& event);
 
-  ezVec2I32 m_vOffset = ezVec2I32::ZeroVector();
+  ezVec2I32 m_vOffset = ezVec2I32::MakeZero();
 
   ezHashTable<ezHashedString, EventHandler> m_EventHandler;
 

@@ -121,7 +121,7 @@ private:
   ezQtPin* m_pStartPin = nullptr;
   ezQtConnection* m_pTempConnection = nullptr;
   ezDeque<const ezDocumentObject*> m_Selection;
-  ezVec2 m_vMousePos = ezVec2::ZeroVector();
+  ezVec2 m_vMousePos = ezVec2::MakeZero();
   QString m_sContextMenuSearchText;
   ezDynamicArray<const ezQtPin*> m_ConnectablePins;
   ezEnum<ConnectionStyle> m_ConnectionStyle;

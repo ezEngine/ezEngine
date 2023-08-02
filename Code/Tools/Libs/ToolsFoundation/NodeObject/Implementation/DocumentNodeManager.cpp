@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 struct DocumentNodeManager_NodeMetaData
 {
-  ezVec2 m_Pos = ezVec2::ZeroVector();
+  ezVec2 m_Pos = ezVec2::MakeZero();
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, DocumentNodeManager_NodeMetaData);
 

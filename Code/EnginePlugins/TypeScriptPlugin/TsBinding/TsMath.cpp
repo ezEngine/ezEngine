@@ -42,7 +42,7 @@ void ezTypeScriptBinding::SetVec2Property(duk_context* pDuk, const char* szPrope
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::ZeroVector()*/)
+ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::MakeZero()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return vFallback;
@@ -60,7 +60,7 @@ ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ez
 }
 
 ezVec2 ezTypeScriptBinding::GetVec2Property(
-  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::ZeroVector()*/)
+  duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback /*= ezVec2::MakeZero()*/)
 {
   ezDuktapeHelper duk(pDuk);
 

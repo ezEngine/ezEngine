@@ -701,14 +701,14 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
     ezVec3 vDir(0, 0, 1);
 
     vDir.Normalize();
-    vert[0] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+    vert[0] = AddVertex(vDir * fRadius, vDir, ezVec2::MakeZero(), options.m_Color, boneIndices);
 
     vDir = mRotX * vDir;
 
     for (ezInt32 i = 0; i < 5; ++i)
     {
       vDir.Normalize();
-      vert[1 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+      vert[1 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::MakeZero(), options.m_Color, boneIndices);
       vDir = mRotZ * vDir;
     }
 
@@ -718,13 +718,13 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
     for (ezInt32 i = 0; i < 5; ++i)
     {
       vDir.Normalize();
-      vert[6 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+      vert[6 + i] = AddVertex(vDir * fRadius, vDir, ezVec2::MakeZero(), options.m_Color, boneIndices);
       vDir = mRotZ * vDir;
     }
 
     vDir.Set(0, 0, -1);
     vDir.Normalize();
-    vert[11] = AddVertex(vDir * fRadius, vDir, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+    vert[11] = AddVertex(vDir * fRadius, vDir, ezVec2::MakeZero(), options.m_Color, boneIndices);
 
 
     Tris[0].PushBack(Triangle(vert[0], vert[2], vert[1]));
@@ -781,7 +781,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
         else
         {
           const ezVec3 vCenter = (m_Vertices[Edges[i].m_uiVertex[0]].m_vPosition + m_Vertices[Edges[i].m_uiVertex[1]].m_vPosition).GetNormalized();
-          uiNewVert[i] = AddVertex(vCenter * fRadius, vCenter, ezVec2::ZeroVector(), options.m_Color, boneIndices);
+          uiNewVert[i] = AddVertex(vCenter * fRadius, vCenter, ezVec2::MakeZero(), options.m_Color, boneIndices);
 
           NewVertices[Edges[i]] = uiNewVert[i];
         }

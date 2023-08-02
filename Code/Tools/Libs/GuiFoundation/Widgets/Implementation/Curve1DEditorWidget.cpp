@@ -767,7 +767,7 @@ void ezQtCurve1DEditorWidget::onAddPoint()
 {
   Q_EMIT BeginCpChangesEvent("Add Control Point");
 
-  InsertCpAt(m_ContextMenuScenePos.x(), m_ContextMenuScenePos.y(), ezVec2d::ZeroVector());
+  InsertCpAt(m_ContextMenuScenePos.x(), m_ContextMenuScenePos.y(), ezVec2d::MakeZero());
 
   Q_EMIT EndCpChangesEvent();
 }
@@ -963,7 +963,7 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezCurveFunction::Enum function, bo
     const double y = samples[uiIdx].m_fCorrectValue;
 
     cmp.AddControlPoint(x).m_Position.y = y;
-    InsertCpAt(x, y, ezVec2d::ZeroVector());
+    InsertCpAt(x, y, ezVec2d::MakeZero());
   };
 
   AddPt(0);

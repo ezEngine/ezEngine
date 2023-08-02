@@ -162,7 +162,7 @@ protected:
 
   struct NodeInternal
   {
-    ezVec2 m_vPos = ezVec2::ZeroVector();
+    ezVec2 m_vPos = ezVec2::MakeZero();
     ezHybridArray<ezUniquePtr<ezPin>, 6> m_Inputs;
     ezHybridArray<ezUniquePtr<ezPin>, 6> m_Outputs;
   };

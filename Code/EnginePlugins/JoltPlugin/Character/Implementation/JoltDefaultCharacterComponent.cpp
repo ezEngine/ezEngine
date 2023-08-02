@@ -172,7 +172,7 @@ void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards)), ezMath::Abs((float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft)));
 
   m_vInputDirection += ezVec2((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
-  m_vInputDirection.NormalizeIfNotZero(ezVec2::ZeroVector()).IgnoreResult();
+  m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
   m_vInputDirection *= fDistanceToMove;
 
   m_InputRotateZ += m_RotateSpeed * (float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft);

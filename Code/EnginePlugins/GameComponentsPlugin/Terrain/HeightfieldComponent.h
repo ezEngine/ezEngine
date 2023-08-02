@@ -121,7 +121,7 @@ protected:
   ezVec2 m_vHalfExtents = ezVec2(100.0f);
   float m_fHeight = 50.0f;
 
-  ezVec2 m_vTexCoordOffset = ezVec2::ZeroVector();
+  ezVec2 m_vTexCoordOffset = ezVec2::MakeZero();
   ezVec2 m_vTexCoordScale = ezVec2(1);
 
   ezVec2U32 m_vTesselation = ezVec2U32(128);

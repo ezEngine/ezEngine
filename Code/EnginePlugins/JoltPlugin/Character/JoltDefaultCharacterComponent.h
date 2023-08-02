@@ -133,11 +133,11 @@ protected:
   ezUInt8 m_uiInputRunBit : 1;
   ezUInt8 m_uiIsCrouchingBit : 1;
   ezAngle m_InputRotateZ;
-  ezVec2 m_vInputDirection = ezVec2::ZeroVector();
+  ezVec2 m_vInputDirection = ezVec2::MakeZero();
   float m_fVelocityUp = 0.0f;
   float m_fNextCylinderHeight = 0;
   float m_fAccumulatedWalkDistance = 0.0f;
-  ezVec2 m_vVelocityLateral = ezVec2::ZeroVector();
+  ezVec2 m_vVelocityLateral = ezVec2::MakeZero();
   ezTransform m_PreviousTransform;
   bool m_bFeetOnSolidGround = false;
 

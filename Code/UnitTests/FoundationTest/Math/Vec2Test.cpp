@@ -38,11 +38,20 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     EZ_TEST_VEC2(v, ezVec2T(3, 3), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroVector") { EZ_TEST_VEC2(ezVec2T::ZeroVector(), ezVec2T(0, 0), 0); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroVector")
+  {
+    EZ_TEST_VEC2(ezVec2T::MakeZero(), ezVec2T(0, 0), 0);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec3") { EZ_TEST_VEC3(ezVec2T(2, 3).GetAsVec3(4), ezVec3T(2, 3, 4), 0); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec3")
+  {
+    EZ_TEST_VEC3(ezVec2T(2, 3).GetAsVec3(4), ezVec3T(2, 3, 4), 0);
+  }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec4") { EZ_TEST_VEC4(ezVec2T(2, 3).GetAsVec4(4, 5), ezVec4T(2, 3, 4, 5), 0); }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec4")
+  {
+    EZ_TEST_VEC4(ezVec2T(2, 3).GetAsVec4(4, 5), ezVec4T(2, 3, 4, 5), 0);
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Set(x, y)")
   {

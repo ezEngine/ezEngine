@@ -227,8 +227,8 @@ public:
   static void PushVec2(duk_context* pDuk, const ezVec2& value);
   static void SetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& value);
   static void SetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& value);
-  static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::ZeroVector());
-  static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::ZeroVector());
+  static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::MakeZero());
+  static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& vFallback = ezVec2::MakeZero());
 
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void SetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& value);

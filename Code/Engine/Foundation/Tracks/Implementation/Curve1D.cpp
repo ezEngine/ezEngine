@@ -245,7 +245,7 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 
 
   if (m_ControlPoints.IsEmpty())
   {
-    m_LinearApproximation.PushBack(ezVec2d::ZeroVector());
+    m_LinearApproximation.PushBack(ezVec2d::MakeZero());
     return;
   }
 
