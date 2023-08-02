@@ -148,13 +148,13 @@ void ezCameraMoveContext::UpdateContext()
   if (m_bMoveDown)
     m_pCamera->MoveGlobally(0, 0, -1 * fSpeedFactor);
   if (m_bRotateLeft)
-    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Degree(-fRotateHorizontal));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromDegree(-fRotateHorizontal));
   if (m_bRotateRight)
-    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Degree(fRotateHorizontal));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromDegree(fRotateHorizontal));
   if (m_bRotateUp)
-    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Degree(fRotateVertical), ezAngle::Radian(0));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromDegree(fRotateVertical), ezAngle::MakeFromRadian(0));
   if (m_bRotateDown)
-    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Degree(-fRotateVertical), ezAngle::Radian(0));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromDegree(-fRotateVertical), ezAngle::MakeFromRadian(0));
 
   if (m_bMoveForwardsInPlane)
   {
@@ -624,8 +624,8 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       float fRotateHorizontal = diff.x * fMouseRotateSensitivityX;
       float fRotateVertical = -diff.y * fMouseRotateSensitivityY;
 
-      m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
-      m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
+      m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateVertical), ezAngle::MakeFromRadian(0));
+      m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateHorizontal));
 
       if (m_bOrbitCamera)
       {

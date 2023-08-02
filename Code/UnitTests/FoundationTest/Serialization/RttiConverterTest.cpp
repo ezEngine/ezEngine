@@ -140,7 +140,7 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_fFloat1 = 5.0f;
     t1.m_UInt8 = 222;
     t1.m_variant = "A";
-    t1.m_Angle = ezAngle::Degree(5);
+    t1.m_Angle = ezAngle::MakeFromDegree(5);
     t1.m_DataBuffer.PushBack(1);
     t1.m_DataBuffer.PushBack(5);
     t1.m_vVec3I = ezVec3I32(0, 1, 333);
@@ -163,7 +163,7 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_Struct.m_fFloat1 = 5.0f;
     t1.m_Struct.m_UInt8 = 222;
     t1.m_Struct.m_variant = "A";
-    t1.m_Struct.m_Angle = ezAngle::Degree(5);
+    t1.m_Struct.m_Angle = ezAngle::MakeFromDegree(5);
     t1.m_Struct.m_DataBuffer.PushBack(1);
     t1.m_Struct.m_DataBuffer.PushBack(5);
     t1.m_Struct.m_vVec3I = ezVec3I32(0, 1, 333);
@@ -225,7 +225,7 @@ EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)
     t1.m_Struct.m_fFloat1 = 5.0f;
     t1.m_Struct.m_UInt8 = 222;
     t1.m_Struct.m_variant = "A";
-    t1.m_Struct.m_Angle = ezAngle::Degree(5);
+    t1.m_Struct.m_Angle = ezAngle::MakeFromDegree(5);
     t1.m_Struct.m_DataBuffer.PushBack(1);
     t1.m_Struct.m_DataBuffer.PushBack(5);
     t1.m_Struct.m_vVec3I = ezVec3I32(0, 1, 333);

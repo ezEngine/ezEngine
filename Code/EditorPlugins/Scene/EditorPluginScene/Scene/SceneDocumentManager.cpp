@@ -296,7 +296,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
 
     {
       ezQuat qRot;
-      qRot.SetFromEulerAngles(ezAngle::Degree(0), ezAngle::Degree(55), ezAngle::Degree(90));
+      qRot.SetFromEulerAngles(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(55), ezAngle::MakeFromDegree(90));
 
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;

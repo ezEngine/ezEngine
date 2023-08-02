@@ -116,7 +116,7 @@ void ezTextureCubeContext::OnInitialize()
     ezGameObject* pObj;
 
     obj.m_sName.Assign("TextureCubePreview");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
     m_hPreviewObject = m_pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;

@@ -100,7 +100,7 @@ void ezKrautTreeContext::OnInitialize()
     ezSimpleWindComponent* pWind = nullptr;
     ezSimpleWindComponent::CreateComponent(pObj, pWind);
 
-    pWind->m_Deviation = ezAngle::Degree(180);
+    pWind->m_Deviation = ezAngle::MakeFromDegree(180);
     pWind->m_MinWindStrength = ezWindStrength::Calm;
     pWind->m_MaxWindStrength = ezWindStrength::ModerateBreeze;
   }

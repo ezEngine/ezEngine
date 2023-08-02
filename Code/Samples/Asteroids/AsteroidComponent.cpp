@@ -23,7 +23,7 @@ void AsteroidComponent::Update()
   const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
   ezQuat qRot;
-  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Radian(m_fRotationSpeed * fTimeDiff));
+  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromRadian(m_fRotationSpeed * fTimeDiff));
 
   GetOwner()->SetLocalRotation(qRot * GetOwner()->GetLocalRotation());
 

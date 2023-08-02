@@ -20,7 +20,7 @@ EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::MakeFromElements(ezSimdFloat x, ezSimdFl
 inline ezSimdQuat ezSimdQuat::MakeFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
 {
   ///\todo optimize
-  const ezAngle halfAngle = ezAngle::Radian(fAngle) * 0.5f;
+  const ezAngle halfAngle = ezAngle::MakeFromRadian(fAngle) * 0.5f;
   float s = ezMath::Sin(halfAngle);
   float c = ezMath::Cos(halfAngle);
 

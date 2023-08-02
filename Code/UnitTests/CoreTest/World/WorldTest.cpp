@@ -26,7 +26,7 @@ namespace
     ezMemoryUtils::ZeroFill(&testWorldObjects, 1);
 
     ezQuat q;
-    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
+    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::MakeFromDegree(90.0f));
 
     ezGameObjectDesc desc;
     desc.m_bDynamic = bDynamic;
@@ -55,7 +55,7 @@ namespace
   {
     const float eps = ezMath::DefaultEpsilon<float>();
     ezQuat q;
-    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
+    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::MakeFromDegree(90.0f));
 
     for (ezUInt32 i = 0; i < 2; ++i)
     {
@@ -167,7 +167,7 @@ namespace
         it->SetLocalPosition(newPos);
 
         ezQuat newRot;
-        newRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(i * 30.0f));
+        newRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::MakeFromDegree(i * 30.0f));
         it->SetLocalRotation(newRot);
 
         if (i > 5)
@@ -268,7 +268,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     const float eps = ezMath::DefaultEpsilon<float>();
     ezQuat q;
-    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
+    q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::MakeFromDegree(90.0f));
 
     ezGameObjectDesc desc;
     desc.m_LocalPosition = ezVec3(100.0f, 0.0f, 0.0f);
@@ -733,7 +733,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (ezUInt32 i = 0; i < numObjects; ++i)
     {
       objectDesc.m_LocalPosition = ezVec3(0, 0, 5);
-      objectDesc.m_LocalRotation.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(90));
+      objectDesc.m_LocalRotation.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::MakeFromDegree(90));
 
       hObjects[i] = world.CreateObject(objectDesc, pObjects[i]);
     }
@@ -754,7 +754,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       EZ_TEST_VEC3(pObject->GetGlobalPosition(), expectedPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
 
-      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::Degree(i * 30) - ezAngle::Degree(90)).GetRadian() * 10);
+      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::MakeFromDegree(i * 30) - ezAngle::MakeFromDegree(90)).GetRadian() * 10);
       ezVec3 angularVelocity = pObject->GetAngularVelocity();
       EZ_TEST_VEC3(angularVelocity, expectedAngularVelocity, ezMath::DefaultEpsilon<float>());
     }

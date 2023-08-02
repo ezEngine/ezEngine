@@ -79,21 +79,21 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
     case ezVariant::Type::Quaternion:
     {
       ezQuat quat;
-      quat.SetFromEulerAngles(ezAngle::Degree(30), ezAngle::Degree(-15), ezAngle::Degree(20));
+      quat.SetFromEulerAngles(ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(-15), ezAngle::MakeFromDegree(20));
       return ezVariant(quat);
     }
     case ezVariant::Type::Matrix3:
     {
       ezMat3 mat = ezMat3::IdentityMatrix();
 
-      mat.SetRotationMatrix(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::Degree(30));
+      mat.SetRotationMatrix(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::MakeFromDegree(30));
       return ezVariant(mat);
     }
     case ezVariant::Type::Matrix4:
     {
       ezMat4 mat = ezMat4::IdentityMatrix();
 
-      mat.SetRotationMatrix(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(30));
+      mat.SetRotationMatrix(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::MakeFromDegree(30));
       mat.SetTranslationVector(ezVec3(1.0f, 2.0f, 3.0f));
       return ezVariant(mat);
     }
@@ -108,7 +108,7 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
       return ezVariant(ezUuid::MakeUuid());
     }
     case ezVariant::Type::Angle:
-      return ezVariant(ezAngle::Degree(30.0f));
+      return ezVariant(ezAngle::MakeFromDegree(30.0f));
     case ezVariant::Type::DataBuffer:
     {
       ezDataBuffer data;

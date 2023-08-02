@@ -73,7 +73,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
     ezSimdBSphere s(ezSimdVec4f(5, 0, 0), 2);
 
     ezSimdTransform t(ezSimdVec4f(4, 5, 6));
-    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(90));
+    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
     t.m_Scale = ezSimdVec4f(1, -2, -4);
 
     s.Transform(t);

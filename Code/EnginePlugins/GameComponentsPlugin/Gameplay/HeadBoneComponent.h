@@ -27,7 +27,7 @@ public:
   void ChangeVerticalRotation(float fRadians); // [ scriptable ]
 
   ezAngle m_NewVerticalRotation;                       // [ property ]
-  ezAngle m_MaxVerticalRotation = ezAngle::Degree(80); // [ property ]
+  ezAngle m_MaxVerticalRotation = ezAngle::MakeFromDegree(80); // [ property ]
 
 protected:
   void Update();

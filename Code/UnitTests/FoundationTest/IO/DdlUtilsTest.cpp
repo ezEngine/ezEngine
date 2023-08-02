@@ -578,7 +578,7 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
-    ezOpenDdlUtils::StoreAngle(js, ezAngle::Radian(2.3f), "v1", true);
+    ezOpenDdlUtils::StoreAngle(js, ezAngle::MakeFromRadian(2.3f), "v1", true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreHashedString")

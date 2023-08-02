@@ -327,7 +327,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezWindVolumeConeComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(45)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(179))),
+    EZ_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(45)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(179))),
     EZ_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, ezVariant())),
   }
   EZ_END_PROPERTIES;
@@ -401,7 +401,7 @@ void ezWindVolumeConeComponent::SetLength(float fVal)
 
 void ezWindVolumeConeComponent::SetAngle(ezAngle val)
 {
-  m_Angle = ezMath::Max(val, ezAngle::Degree(1.0f));
+  m_Angle = ezMath::Max(val, ezAngle::MakeFromDegree(1.0f));
 
   if (IsActiveAndInitialized())
   {

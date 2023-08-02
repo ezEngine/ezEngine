@@ -155,7 +155,7 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
 
   ezCamera& cam = m_pViewConfig->m_Camera;
 
-  const float fLerpValue = ezMath::Sin(ezAngle::Degree(90.0f * m_fCameraLerp));
+  const float fLerpValue = ezMath::Sin(ezAngle::MakeFromDegree(90.0f * m_fCameraLerp));
 
   ezQuat qRot, qRotFinal;
   qRot.SetShortestRotation(m_vCameraStartDirection, m_vCameraTargetDirection);

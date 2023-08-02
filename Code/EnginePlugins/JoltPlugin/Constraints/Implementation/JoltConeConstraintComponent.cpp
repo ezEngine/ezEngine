@@ -10,7 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltConeConstraintComponent, 1, ezComponentMode::Stati
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("ConeAngle", GetConeAngle, SetConeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(175))),
+    EZ_ACCESSOR_PROPERTY("ConeAngle", GetConeAngle, SetConeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(175))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES

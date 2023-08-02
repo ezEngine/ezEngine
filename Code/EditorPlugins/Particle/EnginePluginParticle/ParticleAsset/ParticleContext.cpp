@@ -162,7 +162,7 @@ void ezParticleContext::OnInitialize()
     {
       ezGameObject* pObj;
       obj.m_LocalPosition.Set(4, (float)x * 4, -2);
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(45));
+      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(45));
       pWorld->CreateObject(obj, pObj);
 
       ezMeshComponent* pMesh;

@@ -305,7 +305,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateX:
       case Mode::RotateXRandom:
       case Mode::RotateXDeviation:
-        qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(vRotate.x));
+        qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(vRotate.x));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -316,7 +316,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateY:
       case Mode::RotateYRandom:
       case Mode::RotateYDeviation:
-        qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(vRotate.y));
+        qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(vRotate.y));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -327,7 +327,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateZ:
       case Mode::RotateZRandom:
       case Mode::RotateZDeviation:
-        qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(vRotate.z));
+        qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(vRotate.z));
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -354,14 +354,14 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
       case Mode::NaturalDeviationZ:
       {
-        const ezAngle randomRotationZ = ezAngle::Degree(rng.DoubleInRange(0, 360));
+        const ezAngle randomRotationZ = ezAngle::MakeFromDegree(rng.DoubleInRange(0, 360));
 
         ezQuat qDeviation;
         qDeviation.SetIdentity();
 
         if (s_fNaturalDeviationZ > 0.0f)
         {
-          const ezVec3 vDeviationAxis = ezVec3::CreateRandomDeviationZ(rng, ezAngle::Degree(s_fNaturalDeviationZ));
+          const ezVec3 vDeviationAxis = ezVec3::CreateRandomDeviationZ(rng, ezAngle::MakeFromDegree(s_fNaturalDeviationZ));
           qDeviation.SetShortestRotation(ezVec3(0, 0, 1), vDeviationAxis);
         }
 

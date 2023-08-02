@@ -731,7 +731,7 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
       return duk.GetBoolValue(iObjIdx);
 
     case ezVariant::Type::Angle:
-      return ezAngle::Radian(duk.GetFloatValue(iObjIdx));
+      return ezAngle::MakeFromRadian(duk.GetFloatValue(iObjIdx));
 
     case ezVariant::Type::Time:
       return ezTime::Seconds(duk.GetFloatValue(iObjIdx));

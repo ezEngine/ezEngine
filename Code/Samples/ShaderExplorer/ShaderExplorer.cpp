@@ -94,8 +94,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "LookNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y += fInputValue * fMouseSpeed;
 
-    m_pCamera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
-    m_pCamera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.y), ezAngle::MakeFromRadian(0.0));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.x), ezAngle::MakeFromRadian(0.0));
   }
   else
   {
@@ -119,8 +119,8 @@ ezApplication::Execution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "TurnNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y -= fInputValue * fTurnSpeed;
 
-    m_pCamera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
-    m_pCamera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.y), ezAngle::MakeFromRadian(0.0));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0.0), ezAngle::MakeFromRadian(mouseMotion.x), ezAngle::MakeFromRadian(0.0));
   }
 
   // movement

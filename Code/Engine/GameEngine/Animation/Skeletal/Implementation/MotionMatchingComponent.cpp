@@ -168,7 +168,7 @@
 //  ezInputManager::GetInputActionState("mm", "turnleft", &tl);
 //  ezInputManager::GetInputActionState("mm", "turnright", &tr);
 //
-//  const ezAngle turn = ezAngle::Degree((tr - tl) * 90.0f);
+//  const ezAngle turn = ezAngle::MakeFromDegree((tr - tl) * 90.0f);
 //
 //  ezQuat q;
 //  q.SetFromAxisAndAngle(ezVec3(0, 0, 1), turn);

@@ -243,9 +243,9 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
     alignAxis = m_qStartOrientation * alignAxis;
     alignAxis.Normalize();
 
-    if (alignAxis.GetAngleBetween(res.m_vPickedNormal) > ezAngle::Degree(179))
+    if (alignAxis.GetAngleBetween(res.m_vPickedNormal) > ezAngle::MakeFromDegree(179))
     {
-      rot.SetFromAxisAndAngle(m_qStartOrientation * orthoAxis, ezAngle::Degree(180));
+      rot.SetFromAxisAndAngle(m_qStartOrientation * orthoAxis, ezAngle::MakeFromDegree(180));
     }
     else
     {

@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsShipSteeringComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Speed", m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.1f, 100.0f)),
     EZ_MEMBER_PROPERTY("Acceleration", m_fMaxAcceleration)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.1f, 100.0f)),
     EZ_MEMBER_PROPERTY("Deceleration", m_fMaxDeceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.1f, 100.0f)),
-    EZ_MEMBER_PROPERTY("TurnSpeed", m_MaxTurnSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f))),
+    EZ_MEMBER_PROPERTY("TurnSpeed", m_MaxTurnSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90.0f))),
   }
   EZ_END_PROPERTIES;
 
@@ -94,7 +94,7 @@ void RtsShipSteeringComponent::UpdateSteering()
   float fDistToTarget = vDistToTarget.GetLength();
   const ezVec2 vDirToTarget = (fDistToTarget <= 0) ? vOwnerDir : (vDistToTarget / fDistToTarget);
 
-  const bool bTargetIsInFront = vOwnerDir.Dot(vDirToTarget) > ezMath::Cos(ezAngle::Degree(60));
+  const bool bTargetIsInFront = vOwnerDir.Dot(vDirToTarget) > ezMath::Cos(ezAngle::MakeFromDegree(60));
   const bool bTargetIsRight = (vOwnerRight.Dot(m_vTargetPosition) - vOwnerRight.Dot(vOwnerPos)) > 0;
 
   if (m_Mode == RtsShipSteeringComponent::Mode::Stop)

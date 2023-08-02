@@ -36,7 +36,7 @@ public:
     InAir,    ///< Character isn't touching any ground surface (may still touch a wall or ceiling)
   };
 
-  ezAngle m_RotateSpeed = ezAngle::Degree(90.0f); ///< [ property ] How many degrees per second the character turns
+  ezAngle m_RotateSpeed = ezAngle::MakeFromDegree(90.0f); ///< [ property ] How many degrees per second the character turns
   float m_fShapeRadius = 0.25f;
   float m_fCylinderHeightCrouch = 0.9f;
   float m_fCylinderHeightStand = 1.7f;

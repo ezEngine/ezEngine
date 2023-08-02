@@ -193,7 +193,7 @@ ezEditorInput ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_vLastMousePos = UpdateMouseMode(e);
 
   const float dv = m_vScreenTangent.Dot(vDiff);
-  m_Rotation += ezAngle::Degree(dv);
+  m_Rotation += ezAngle::MakeFromDegree(dv);
 
   ezAngle rot = m_Rotation;
 

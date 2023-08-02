@@ -883,22 +883,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezAngle")
   {
-    ezVariant v(ezAngle::Degree(1337));
+    ezVariant v(ezAngle::MakeFromDegree(1337));
     TestVariant<ezAngle>(v, ezVariantType::Angle);
 
-    EZ_TEST_BOOL(v.Get<ezAngle>() == ezAngle::Degree(1337));
+    EZ_TEST_BOOL(v.Get<ezAngle>() == ezAngle::MakeFromDegree(1337));
 
-    EZ_TEST_BOOL(v == ezVariant(ezAngle::Degree(1337)));
-    EZ_TEST_BOOL(v != ezVariant(ezAngle::Degree(1336)));
+    EZ_TEST_BOOL(v == ezVariant(ezAngle::MakeFromDegree(1337)));
+    EZ_TEST_BOOL(v != ezVariant(ezAngle::MakeFromDegree(1336)));
 
-    EZ_TEST_BOOL(v == ezAngle::Degree(1337));
-    EZ_TEST_BOOL(v != ezAngle::Degree(1338));
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(1337));
+    EZ_TEST_BOOL(v != ezAngle::MakeFromDegree(1338));
 
-    v = ezAngle::Degree(8472);
-    EZ_TEST_BOOL(v == ezAngle::Degree(8472));
+    v = ezAngle::MakeFromDegree(8472);
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(8472));
 
-    v = ezVariant(ezAngle::Degree(13));
-    EZ_TEST_BOOL(v == ezAngle::Degree(13));
+    v = ezVariant(ezAngle::MakeFromDegree(13));
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(13));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -1104,9 +1104,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedObject inline")
   {
-    // ezAngle::Degree(90.0f) was replaced with radian as release builds generate a different float then debug.
-    ezVarianceTypeAngle value = {0.1f, ezAngle::Radian(1.57079637f)};
-    ezVarianceTypeAngle value2 = {0.2f, ezAngle::Radian(1.57079637f)};
+    // ezAngle::MakeFromDegree(90.0f) was replaced with radian as release builds generate a different float then debug.
+    ezVarianceTypeAngle value = {0.1f, ezAngle::MakeFromRadian(1.57079637f)};
+    ezVarianceTypeAngle value2 = {0.2f, ezAngle::MakeFromRadian(1.57079637f)};
 
     ezVariant v(value);
     TestVariant<ezVarianceTypeAngle>(v, ezVariantType::TypedObject);
@@ -1129,7 +1129,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezUInt64 uiHash = v.ComputeHash(0);
     EZ_TEST_INT(uiHash, 13667342936068485827ul);
 
-    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::Radian(1.57079637f)});
+    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::MakeFromRadian(1.57079637f)});
     ezVariant copy;
     copy.CopyTypedObject(pTypedAngle, ezGetStaticRTTI<ezVarianceTypeAngle>());
     ezVariant move;
@@ -1844,7 +1844,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezAngle)")
   {
-    ezAngle t = ezAngle::Degree(123.0);
+    ezAngle t = ezAngle::MakeFromDegree(123.0);
     ezVariant v(t);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Angle);

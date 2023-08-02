@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraShakeComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("MinShake", m_MinShake),
-    EZ_MEMBER_PROPERTY("MaxShake", m_MaxShake)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(5))),
+    EZ_MEMBER_PROPERTY("MaxShake", m_MaxShake)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(5))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -70,7 +70,7 @@ void ezCameraShakeComponent::GenerateKeyframe()
 
   if (deviation > ezAngle())
   {
-    m_Rotation += ezAngle::Radian(pWorld->GetRandomNumberGenerator().FloatMinMax(ezAngle::Degree(120).GetRadian(), ezAngle::Degree(240).GetRadian()));
+    m_Rotation += ezAngle::MakeFromRadian(pWorld->GetRandomNumberGenerator().FloatMinMax(ezAngle::MakeFromDegree(120).GetRadian(), ezAngle::MakeFromDegree(240).GetRadian()));
     m_Rotation.NormalizeRange();
 
     ezQuat qRot;

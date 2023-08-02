@@ -73,52 +73,52 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sin")
   {
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(0.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(90.0f)), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(180.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(270.0f)), -1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(0.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(90.0f)), 1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(180.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(270.0f)), -1.0f, 0.000001f);
 
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(45.0f)), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(135.0f)), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(225.0f)), -0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(315.0f)), -0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(45.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(135.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(225.0f)), -0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::MakeFromDegree(315.0f)), -0.7071067f, 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Cos")
   {
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(0.0f)), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(90.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(180.0f)), -1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(270.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(0.0f)), 1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(90.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(180.0f)), -1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(270.0f)), 0.0f, 0.000001f);
 
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(45.0f)), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(135.0f)), -0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(225.0f)), -0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(315.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(45.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(135.0f)), -0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(225.0f)), -0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::MakeFromDegree(315.0f)), 0.7071067f, 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tan")
   {
-    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(0.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(45.0f)), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(-45.0f)), -1.0f, 0.000001f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(90.00001f)) < 1000000.0f);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(89.9999f)) > 100000.0f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::MakeFromDegree(0.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::MakeFromDegree(45.0f)), 1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::MakeFromDegree(-45.0f)), -1.0f, 0.000001f);
+    EZ_TEST_BOOL(ezMath::Tan(ezAngle::MakeFromDegree(90.00001f)) < 1000000.0f);
+    EZ_TEST_BOOL(ezMath::Tan(ezAngle::MakeFromDegree(89.9999f)) > 100000.0f);
 
     // Testing the period of tan(x) centered at 0 and the adjacent ones
-    ezAngle angle = ezAngle::Degree(-89.0f);
+    ezAngle angle = ezAngle::MakeFromDegree(-89.0f);
     while (angle.GetDegree() < 89.0f)
     {
       float fTan = ezMath::Tan(angle);
-      float fTanPrev = ezMath::Tan(ezAngle::Degree(angle.GetDegree() - 180.0f));
-      float fTanNext = ezMath::Tan(ezAngle::Degree(angle.GetDegree() + 180.0f));
+      float fTanPrev = ezMath::Tan(ezAngle::MakeFromDegree(angle.GetDegree() - 180.0f));
+      float fTanNext = ezMath::Tan(ezAngle::MakeFromDegree(angle.GetDegree() + 180.0f));
       float fSin = ezMath::Sin(angle);
       float fCos = ezMath::Cos(angle);
 
       EZ_TEST_FLOAT(fTan - fTanPrev, 0.0f, 0.002f);
       EZ_TEST_FLOAT(fTan - fTanNext, 0.0f, 0.002f);
       EZ_TEST_FLOAT(fTan - (fSin / fCos), 0.0f, 0.0005f);
-      angle += ezAngle::Degree(1.234f);
+      angle += ezAngle::MakeFromDegree(1.234f);
     }
   }
 

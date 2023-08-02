@@ -9,7 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezConeAngleGizmo::ezConeAngleGizmo()
 {
-  m_Angle = ezAngle::Degree(1.0f);
+  m_Angle = ezAngle::MakeFromDegree(1.0f);
   m_fAngleScale = 1.0f;
   m_fRadius = 1.0f;
 
@@ -123,13 +123,13 @@ ezEditorInput ezConeAngleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_vLastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
-  const ezAngle aSpeed = ezAngle::Degree(1.0f);
+  const ezAngle aSpeed = ezAngle::MakeFromDegree(1.0f);
 
   {
     m_Angle += vDiff.x * aSpeed;
     m_Angle -= vDiff.y * aSpeed;
 
-    m_Angle = ezMath::Clamp(m_Angle, ezAngle(), ezAngle::Degree(179.0f));
+    m_Angle = ezMath::Clamp(m_Angle, ezAngle(), ezAngle::MakeFromDegree(179.0f));
 
     m_fAngleScale = ezMath::Tan(m_Angle * 0.5f);
   }

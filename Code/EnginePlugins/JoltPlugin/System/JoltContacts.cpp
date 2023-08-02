@@ -484,7 +484,7 @@ ezJoltContactEvents::SlideAndRollInfo* ezJoltContactEvents::FindSlideOrRollInfo(
 void ezJoltContactEvents::OnContact_RollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0)
 {
   // only consider something 'rolling' when it turns faster than this (per second)
-  constexpr ezAngle rollThreshold = ezAngle::Degree(45);
+  constexpr ezAngle rollThreshold = ezAngle::MakeFromDegree(45);
 
   ezBitflags<ezOnJoltContact> contactFlags[2] = {onContact0, onContact1};
   const JPH::Body* bodies[2] = {&body0, &body1};
@@ -549,7 +549,7 @@ void ezJoltContactEvents::OnContact_SlideReaction(const JPH::Body& body0, const 
     vAvgNormal.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
 
     // an object is only 'sliding' if it moves at roughly 90 degree along another object
-    constexpr float slideAngle = 0.17f; // ezMath ::Cos(ezAngle::Degree(80));
+    constexpr float slideAngle = 0.17f; // ezMath ::Cos(ezAngle::MakeFromDegree(80));
 
     if (ezMath::Abs(vAvgNormal.Dot(vRelativeVelocityDir)) < slideAngle)
     {

@@ -308,7 +308,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 
   ezGeometry geom;
 
-  const ezAngle fDegStep = ezAngle::Degree(360.0f / m_uiDetail);
+  const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / m_uiDetail);
   const float fVStep = 1.0f / m_uiDetail;
 
   auto addCap = [&](float x, const ezVec3& vNormal, ezUInt16 uiBoneIndex, bool bFlipWinding) {
@@ -316,7 +316,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
 
     ezUInt32 centerIndex = geom.AddVertex(ezVec3(x, 0, 0), vNormal, ezVec2(0.5f, 0.5f), ezColor::White, boneIndices);
 
-    ezAngle deg = ezAngle::Radian(0);
+    ezAngle deg = ezAngle::MakeFromRadian(0);
     for (ezUInt32 s = 0; s < m_uiDetail; ++s)
     {
       const float fY = ezMath::Cos(deg);
@@ -339,7 +339,7 @@ void ezRopeRenderComponent::GenerateRenderMesh(ezUInt32 uiNumRopePieces)
   };
 
   auto addPiece = [&](float x, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, bool bCreatePolygons) {
-    ezAngle deg = ezAngle::Radian(0);
+    ezAngle deg = ezAngle::MakeFromRadian(0);
     float fU = x * m_fUScale;
     float fV = 0;
 

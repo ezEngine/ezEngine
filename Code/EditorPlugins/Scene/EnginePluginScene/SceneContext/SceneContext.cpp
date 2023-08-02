@@ -1073,7 +1073,7 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag, bool bForce)
     ezGameObjectDesc obj;
     obj.m_sName.Assign("Ambient Light");
 
-    obj.m_LocalRotation.SetFromEulerAngles(ezAngle::Degree(-14.510815f), ezAngle::Degree(43.07951f), ezAngle::Degree(93.223808f));
+    obj.m_LocalRotation.SetFromEulerAngles(ezAngle::MakeFromDegree(-14.510815f), ezAngle::MakeFromDegree(43.07951f), ezAngle::MakeFromDegree(93.223808f));
 
     if (bSetEditorTag)
     {

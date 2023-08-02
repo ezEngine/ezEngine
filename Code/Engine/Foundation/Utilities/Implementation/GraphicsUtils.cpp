@@ -159,8 +159,8 @@ void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProject
   const ezVec3 bottomPlane = (row3 + row1).GetNormalized();
   const ezVec3 topPlane = (row3 - row1).GetNormalized();
 
-  out_fovX = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(leftPlane.Dot(rightPlane));
-  out_fovY = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(bottomPlane));
+  out_fovX = ezAngle::MakeFromRadian(ezMath::Pi<float>()) - ezMath::ACos(leftPlane.Dot(rightPlane));
+  out_fovY = ezAngle::MakeFromRadian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(bottomPlane));
 }
 
 void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProjectionMatrix, ezAngle& out_fovLeft, ezAngle& out_fovRight, ezAngle& out_fovBottom, ezAngle& out_fovTop, ezClipSpaceYMode::Enum range)
@@ -175,9 +175,9 @@ void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& mProject
   const ezVec3 topPlane = (row3 - row1).GetNormalized();
 
   out_fovLeft = -ezMath::ACos(leftPlane.Dot(ezVec3(1.0f, 0, 0)));
-  out_fovRight = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(rightPlane.Dot(ezVec3(1.0f, 0, 0)));
+  out_fovRight = ezAngle::MakeFromRadian(ezMath::Pi<float>()) - ezMath::ACos(rightPlane.Dot(ezVec3(1.0f, 0, 0)));
   out_fovBottom = -ezMath::ACos(bottomPlane.Dot(ezVec3(0, 1.0f, 0)));
-  out_fovTop = ezAngle::Radian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(ezVec3(0, 1.0f, 0)));
+  out_fovTop = ezAngle::MakeFromRadian(ezMath::Pi<float>()) - ezMath::ACos(topPlane.Dot(ezVec3(0, 1.0f, 0)));
 
   if (range == ezClipSpaceYMode::Flipped)
     ezMath::Swap(out_fovBottom, out_fovTop);

@@ -11,13 +11,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltSwingTwistConstraintComponent, 1, ezComponentMode:
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("SwingLimitY", GetSwingLimitY, SetSwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(175))),
-    EZ_ACCESSOR_PROPERTY("SwingLimitZ", GetSwingLimitZ, SetSwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(175))),
+    EZ_ACCESSOR_PROPERTY("SwingLimitY", GetSwingLimitY, SetSwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(175))),
+    EZ_ACCESSOR_PROPERTY("SwingLimitZ", GetSwingLimitZ, SetSwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(175))),
 
     EZ_ACCESSOR_PROPERTY("Friction", GetFriction, SetFriction)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
 
-    EZ_ACCESSOR_PROPERTY("LowerTwistLimit", GetLowerTwistLimit, SetLowerTwistLimit)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(175)), new ezDefaultValueAttribute(ezAngle::Degree(90))),
-    EZ_ACCESSOR_PROPERTY("UpperTwistLimit", GetUpperTwistLimit, SetUpperTwistLimit)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(175)), new ezDefaultValueAttribute(ezAngle::Degree(90))),
+    EZ_ACCESSOR_PROPERTY("LowerTwistLimit", GetLowerTwistLimit, SetLowerTwistLimit)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(175)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90))),
+    EZ_ACCESSOR_PROPERTY("UpperTwistLimit", GetUpperTwistLimit, SetUpperTwistLimit)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(175)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90))),
 
     //EZ_ENUM_ACCESSOR_PROPERTY("TwistDriveMode", ezJoltConstraintDriveMode, GetTwistDriveMode, SetTwistDriveMode),
     //EZ_ACCESSOR_PROPERTY("TwistDriveTargetValue", GetTwistDriveTargetValue, SetTwistDriveTargetValue),

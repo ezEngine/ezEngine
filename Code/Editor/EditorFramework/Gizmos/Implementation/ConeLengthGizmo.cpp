@@ -122,7 +122,7 @@ ezEditorInput ezConeLengthGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_vLastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
-  const ezAngle aSpeed = ezAngle::Degree(1.0f);
+  const ezAngle aSpeed = ezAngle::MakeFromDegree(1.0f);
 
   if (m_ManipulateMode == ManipulateMode::Radius)
   {

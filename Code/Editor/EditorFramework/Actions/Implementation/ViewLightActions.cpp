@@ -310,7 +310,7 @@ void ezViewLightSliderAction::Execute(const ezVariant& value)
     break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
     {
-      m_pSettings->SetDirectionalLightAngle(ezAngle::Degree(value.ConvertTo<float>()));
+      m_pSettings->SetDirectionalLightAngle(ezAngle::MakeFromDegree(value.ConvertTo<float>()));
     }
     break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:

@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleWindComponent, 2, ezComponentMode::Static)
   {
     EZ_ENUM_MEMBER_PROPERTY("MinWindStrength", ezWindStrength, m_MinWindStrength),
     EZ_ENUM_MEMBER_PROPERTY("MaxWindStrength", ezWindStrength, m_MaxWindStrength),
-    EZ_MEMBER_PROPERTY("MaxDeviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(180))),
+    EZ_MEMBER_PROPERTY("MaxDeviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(180))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -134,7 +134,7 @@ void ezSimpleWindComponent::ComputeNextState()
 
   const ezVec3 vMainDir = GetOwner()->GetGlobalDirForwards();
 
-  if (m_Deviation < ezAngle::Degree(1))
+  if (m_Deviation < ezAngle::MakeFromDegree(1))
     m_vNextDirection = vMainDir;
   else
     m_vNextDirection = ezVec3::CreateRandomDeviation(rng, m_Deviation, vMainDir);

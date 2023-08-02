@@ -78,8 +78,8 @@ public:
   float m_fThickness = 0.05f;               // [ property ]
   float m_fSlack = 0.3f;                    // [ property ]
   bool m_bCCD = false;                      // [ property ]
-  ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
-  ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
+  ezAngle m_MaxBend = ezAngle::MakeFromDegree(30);  // [ property ]
+  ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15); // [ property ]
 
   void SetAnchor1Reference(const char* szReference); // [ property ]
   void SetAnchor2Reference(const char* szReference); // [ property ]

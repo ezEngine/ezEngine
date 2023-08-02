@@ -708,7 +708,7 @@ void ezJoltRagdollComponent::ApplyPartInitialVelocity()
       ezVec3 vRotationDir = vVelocityDir.CrossRH(coord.m_vUpDir);
       vRotationDir.NormalizeIfNotZero(coord.m_vUpDir).IgnoreResult();
 
-      ezVec3 vRotationAxis = ezVec3::CreateRandomDeviation(rng, ezAngle::Degree(30.0f), vRotationDir);
+      ezVec3 vRotationAxis = ezVec3::CreateRandomDeviation(rng, ezAngle::MakeFromDegree(30.0f), vRotationDir);
       vRotationAxis *= rng.Bool() ? 1.0f : -1.0f;
 
       float fSpeed = rng.FloatVariance(m_fCenterAngularVelocity, 0.5f);
@@ -901,7 +901,7 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
       shape.mRadius = geo.m_Transform.m_vScale.z * fObjectScale;
 
       ezQuat qRot;
-      qRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(-90));
+      qRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::MakeFromDegree(-90));
       out_shapeTransform.m_qRotation = out_shapeTransform.m_qRotation * qRot;
       out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
 

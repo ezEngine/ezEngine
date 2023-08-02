@@ -191,7 +191,7 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
         {
           const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.width / (float)m_Info.m_vEyeRenderTargetSize.height;
 
-          ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(pCameraComponent->GetFieldOfView()), fAspectRatio,
+          ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(pCameraComponent->GetFieldOfView()), fAspectRatio,
             pCameraComponent->GetNearPlane(), ezMath::Max(pCameraComponent->GetNearPlane() + 0.00001f, pCameraComponent->GetFarPlane()));
 
           m_pCameraToSynchronize->SetStereoProjection(mProj, mProj, fAspectRatio);

@@ -96,7 +96,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   const float fLength = 1.0f;
 
   ezGeometry::GeoOptions opt;
-  opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(90));
+  opt.m_Transform.SetRotationMatrixY(ezAngle::MakeFromDegree(90));
 
   ezGeometry geom;
   geom.AddCylinderOnePiece(fThickness, fThickness, fLength * 0.5f, fLength * 0.5f, 16, opt);
@@ -120,7 +120,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferPiston()
   const float fLength = 1.0f;
 
   ezGeometry::GeoOptions opt;
-  opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(90));
+  opt.m_Transform.SetRotationMatrixY(ezAngle::MakeFromDegree(90));
 
   ezGeometry geom;
   geom.AddCylinderOnePiece(fThickness, fThickness, fLength * 0.5f, fLength * 0.5f, 16, opt);
@@ -144,7 +144,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferHalfPiston()
   const float fLength = 1.0f;
 
   ezGeometry::GeoOptions opt;
-  opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(90));
+  opt.m_Transform.SetRotationMatrixY(ezAngle::MakeFromDegree(90));
   opt.m_Transform.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
 
   ezGeometry geom;
@@ -314,7 +314,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxFaces()
 
   geom.AddRectXY(ezVec2(0.5f), 1, 1, opt);
 
-  opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(180.0));
+  opt.m_Transform.SetRotationMatrixY(ezAngle::MakeFromDegree(180.0));
   opt.m_Transform.SetTranslationVector(ezVec3(0, 0, -0.5f));
   geom.AddRectXY(ezVec2(0.5f), 1, 1, opt);
 
@@ -337,7 +337,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxEdges()
 
   for (ezUInt32 i = 0; i < 4; ++i)
   {
-    rot.SetRotationMatrixY(ezAngle::Degree(90.0f * i));
+    rot.SetRotationMatrixY(ezAngle::MakeFromDegree(90.0f * i));
 
     opt.m_Transform.SetTranslationMatrix(ezVec3(0.5f - 0.125f, 0, 0.5f));
     opt.m_Transform = rot * opt.m_Transform;
@@ -361,11 +361,11 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxCorners()
 
   ezMat4 rot[6];
   rot[0].SetIdentity();
-  rot[1].SetRotationMatrixX(ezAngle::Degree(90));
-  rot[2].SetRotationMatrixX(ezAngle::Degree(180));
-  rot[3].SetRotationMatrixX(ezAngle::Degree(270));
-  rot[4].SetRotationMatrixY(ezAngle::Degree(90));
-  rot[5].SetRotationMatrixY(ezAngle::Degree(-90));
+  rot[1].SetRotationMatrixX(ezAngle::MakeFromDegree(90));
+  rot[2].SetRotationMatrixX(ezAngle::MakeFromDegree(180));
+  rot[3].SetRotationMatrixX(ezAngle::MakeFromDegree(270));
+  rot[4].SetRotationMatrixY(ezAngle::MakeFromDegree(90));
+  rot[5].SetRotationMatrixY(ezAngle::MakeFromDegree(-90));
 
   ezGeometry geom;
   ezGeometry::GeoOptions opt;
@@ -402,7 +402,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferCone()
     return hMesh;
 
   ezGeometry::GeoOptions opt;
-  opt.m_Transform.SetRotationMatrixY(ezAngle::Degree(270.0f));
+  opt.m_Transform.SetRotationMatrixY(ezAngle::MakeFromDegree(270.0f));
   opt.m_Transform.SetTranslationVector(ezVec3(1.0f, 0, 0));
 
   ezGeometry geom;

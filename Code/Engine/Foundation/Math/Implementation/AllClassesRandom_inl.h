@@ -56,7 +56,7 @@ ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationX(ezRandom& inout_
   const double cosAngle = ezMath::Cos(maxDeviation);
 
   const double x = inout_rng.DoubleZeroToOneInclusive() * (1 - cosAngle) + cosAngle;
-  const ezAngle phi = ezAngle::Radian((float)(inout_rng.DoubleZeroToOneInclusive() * twoPi));
+  const ezAngle phi = ezAngle::MakeFromRadian((float)(inout_rng.DoubleZeroToOneInclusive() * twoPi));
   const double invSqrt = ezMath::Sqrt(1 - (x * x));
   const double y = invSqrt * ezMath::Cos(phi);
   const double z = invSqrt * ezMath::Sin(phi);

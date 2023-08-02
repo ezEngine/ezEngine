@@ -135,8 +135,8 @@ protected:
   float m_fSizeVariance = 0;
   ezColorGammaUB m_Color = ezColor::White;
   ezColor m_EmissiveColor = ezColor::Black;
-  ezAngle m_InnerFadeAngle = ezAngle::Degree(50.0f);
-  ezAngle m_OuterFadeAngle = ezAngle::Degree(80.0f);
+  ezAngle m_InnerFadeAngle = ezAngle::MakeFromDegree(50.0f);
+  ezAngle m_OuterFadeAngle = ezAngle::MakeFromDegree(80.0f);
   float m_fSortOrder = 0;
   bool m_bWrapAround = false;
   bool m_bMapNormalToGeometry = false;

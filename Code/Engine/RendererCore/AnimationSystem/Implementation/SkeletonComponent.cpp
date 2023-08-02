@@ -277,7 +277,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
 
     if (!pb.dir.IsZero() && dirToBone.NormalizeIfNotZero(ezVec3::ZeroVector()).Succeeded())
     {
-      if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::Degree(45))
+      if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::MakeFromDegree(45))
       {
         ezPlane plane;
         plane.SetFromNormalAndPoint(pb.dir, pb.pos);
@@ -409,7 +409,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
     bonesToHighlight.Clear();
 
   ezQuat qRotZtoX; // the capsule should extend along X, but the debug renderer draws them along Z
-  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
 
   for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
   {
@@ -612,7 +612,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     }
 
     // twist limit
-    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::Degree(0))
+    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::MakeFromDegree(0))
     {
       auto& shape = m_AngleShapes.ExpandAndGetRef();
       shape.m_StartAngle = thisJoint.GetTwistLimitLow();

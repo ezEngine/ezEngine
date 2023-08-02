@@ -370,13 +370,13 @@ void ezFallbackGameState::ProcessInput()
       m_MainCamera.MoveGlobally(0, 0, -fInput * fMoveSpeed);
 
     if (ezInputManager::GetInputActionState("Game", "TurnLeft", &fInput) != ezKeyState::Up)
-      m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput));
+      m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::MakeFromDegree(-fRotateSpeed * fInput));
     if (ezInputManager::GetInputActionState("Game", "TurnRight", &fInput) != ezKeyState::Up)
-      m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(fRotateSpeed * fInput));
+      m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::MakeFromDegree(fRotateSpeed * fInput));
     if (ezInputManager::GetInputActionState("Game", "TurnUp", &fInput) != ezKeyState::Up)
-      m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(fRotateSpeed * fInput), ezAngle());
+      m_MainCamera.RotateLocally(ezAngle(), ezAngle::MakeFromDegree(fRotateSpeed * fInput), ezAngle());
     if (ezInputManager::GetInputActionState("Game", "TurnDown", &fInput) != ezKeyState::Up)
-      m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput), ezAngle());
+      m_MainCamera.RotateLocally(ezAngle(), ezAngle::MakeFromDegree(-fRotateSpeed * fInput), ezAngle());
   }
 }
 

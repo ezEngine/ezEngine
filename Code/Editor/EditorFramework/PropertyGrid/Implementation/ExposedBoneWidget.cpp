@@ -68,9 +68,9 @@ void ezQtExposedBoneWidget::SlotValueChanged()
   ezExposedBone* pCopy = reinterpret_cast<ezExposedBone*>(ezReflectionSerializer::Clone(obj.m_pObject, obj.m_pType));
 
   {
-    ezAngle x = ezAngle::Degree(m_pRotWidget[0]->value());
-    ezAngle y = ezAngle::Degree(m_pRotWidget[1]->value());
-    ezAngle z = ezAngle::Degree(m_pRotWidget[2]->value());
+    ezAngle x = ezAngle::MakeFromDegree(m_pRotWidget[0]->value());
+    ezAngle y = ezAngle::MakeFromDegree(m_pRotWidget[1]->value());
+    ezAngle z = ezAngle::MakeFromDegree(m_pRotWidget[2]->value());
 
     pCopy->m_Transform.m_qRotation.SetFromEulerAngles(x, y, z);
   }

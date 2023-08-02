@@ -218,12 +218,12 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
     double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0);
 
     ezMat3 rotMat;
-    rotMat.SetRotationMatrix(vDir, ezAngle::Radian((float)randomAngle));
+    rotMat.SetRotationMatrix(vDir, ezAngle::MakeFromRadian((float)randomAngle));
 
     vTangent = rotMat * vTangent;
   }
 
-  if (pIA->m_Deviation > ezAngle::Radian(0.0f))
+  if (pIA->m_Deviation > ezAngle::MakeFromRadian(0.0f))
   {
     ezAngle maxDeviation;
 
@@ -236,7 +236,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
         const float fCosAngle = vDir.Dot(-vSurfaceNormal);
         const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
 
-        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
+        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::MakeFromRadian(fMaxDeviation));
       }
       break;
 
@@ -246,7 +246,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
         const float fCosAngle = vDir.Dot(vSurfaceNormal);
         const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
 
-        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
+        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::MakeFromRadian(fMaxDeviation));
       }
       break;
 
@@ -255,7 +255,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
         break;
     }
 
-    const ezAngle deviation = ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
+    const ezAngle deviation = ezAngle::MakeFromRadian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
 
     // tilt around the tangent (we don't want to compute another random rotation here)
     ezMat3 matTilt;

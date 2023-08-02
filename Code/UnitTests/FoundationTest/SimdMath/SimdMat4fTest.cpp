@@ -185,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
         for (float z = 3.0f; z < 360.0f; z += 33.0f)
         {
           ezSimdQuat q;
-          q.SetFromAxisAndAngle(ezSimdVec4f(x, y, z).GetNormalized<3>(), ezAngle::Degree(19.0f));
+          q.SetFromAxisAndAngle(ezSimdVec4f(x, y, z).GetNormalized<3>(), ezAngle::MakeFromDegree(19.0f));
 
           ezSimdTransform t(q);
 
@@ -212,7 +212,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
         for (float z = 3.0f; z < 360.0f; z += 31.0f)
         {
           ezSimdQuat q;
-          q.SetFromAxisAndAngle(ezSimdVec4f(x, y, z).GetNormalized<3>(), ezAngle::Degree(83.0f));
+          q.SetFromAxisAndAngle(ezSimdVec4f(x, y, z).GetNormalized<3>(), ezAngle::MakeFromDegree(83.0f));
 
           ezSimdTransform t(q);
 

@@ -588,7 +588,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 
   const ezVec3 vCenter = sphere.m_vCenter;
   const float fRadius = sphere.m_fRadius;
-  const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
+  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / NUM_SEGMENTS);
 
   EZ_LOCK(s_Mutex);
 
@@ -626,7 +626,7 @@ void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, fl
     NUM_LINES = NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + 4,
   };
 
-  const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
+  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / NUM_SEGMENTS);
 
   Line lines[NUM_LINES];
 
@@ -987,10 +987,10 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   endAngle.NormalizeRange();
 
   if (startAngle > endAngle)
-    startAngle -= ezAngle::Degree(360);
+    startAngle -= ezAngle::MakeFromDegree(360);
 
   const ezAngle range = endAngle - startAngle;
-  const ezUInt32 uiTesselation = ezMath::Max(1u, (ezUInt32)(range / ezAngle::Degree(5)));
+  const ezUInt32 uiTesselation = ezMath::Max(1u, (ezUInt32)(range / ezAngle::MakeFromDegree(5)));
   const ezAngle step = range / (float)uiTesselation;
 
   ezQuat qStart;
@@ -1048,10 +1048,10 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
   ezHybridArray<Triangle, 64> trisInside;
   ezHybridArray<Triangle, 64> trisOutside;
 
-  halfAngle = ezMath::Clamp(halfAngle, ezAngle(), ezAngle::Degree(180));
+  halfAngle = ezMath::Clamp(halfAngle, ezAngle(), ezAngle::MakeFromDegree(180));
 
-  const ezAngle refAngle = halfAngle <= ezAngle::Degree(90) ? halfAngle : ezAngle::Degree(180) - halfAngle;
-  const ezUInt32 uiTesselation = ezMath::Max(8u, (ezUInt32)(refAngle / ezAngle::Degree(2)));
+  const ezAngle refAngle = halfAngle <= ezAngle::MakeFromDegree(90) ? halfAngle : ezAngle::MakeFromDegree(180) - halfAngle;
+  const ezUInt32 uiTesselation = ezMath::Max(8u, (ezUInt32)(refAngle / ezAngle::MakeFromDegree(2)));
 
   const ezVec3 tangentAxis = vForwardAxis.GetOrthogonalVector().GetNormalized();
 
@@ -1059,7 +1059,7 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
   tilt.SetFromAxisAndAngle(tangentAxis, halfAngle);
 
   ezQuat step;
-  step.SetFromAxisAndAngle(vForwardAxis, ezAngle::Degree(360) / (float)uiTesselation);
+  step.SetFromAxisAndAngle(vForwardAxis, ezAngle::MakeFromDegree(360) / (float)uiTesselation);
 
   ezVec3 vCurDir = tilt * vForwardAxis;
 
@@ -1109,7 +1109,7 @@ void ezDebugRenderer::DrawLimitCone(const ezDebugRendererContext& context, ezAng
     for (ezUInt32 i = 0; i <= NUM_LINES; i++)
     {
       const float angle = 2 * ezMath::Pi<float>() / NUM_LINES * i;
-      const float c = ezMath::Cos(ezAngle::Radian(angle)), s = ezMath::Sin(ezAngle::Radian(angle));
+      const float c = ezMath::Cos(ezAngle::MakeFromRadian(angle)), s = ezMath::Sin(ezAngle::MakeFromRadian(angle));
       const ezVec3 rv(0, -tanQSwingZ * s, tanQSwingY * c);
       const float rv2 = rv.GetLengthSquared();
       const float r = (1 / (1 + rv2));
@@ -1154,7 +1154,7 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
   ezHybridArray<Line, NUM_SEGMENTS * 3> lines;
   ezHybridArray<Triangle, NUM_SEGMENTS * 2 * 2> tris;
 
-  const ezAngle step = ezAngle::Degree(360) / NUM_SEGMENTS;
+  const ezAngle step = ezAngle::MakeFromDegree(360) / NUM_SEGMENTS;
   ezAngle angle = {};
 
   ezVec3 vCurCircle(0, 1 /*ezMath::Cos(angle)*/, 0 /*ezMath::Sin(angle)*/);

@@ -45,8 +45,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
     EZ_ACCESSOR_PROPERTY("MapNormalToGeometry", GetMapNormalToGeometry, SetMapNormalToGeometry)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
-    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
+    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(89.0f)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(50.0f))),
+    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(89.0f)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(80.0f))),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
     EZ_MEMBER_PROPERTY("FadeOutDuration", m_FadeOutDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
@@ -275,7 +275,7 @@ ezColor ezDecalComponent::GetEmissiveColor() const
 
 void ezDecalComponent::SetInnerFadeAngle(ezAngle spotAngle)
 {
-  m_InnerFadeAngle = ezMath::Clamp(spotAngle, ezAngle::Degree(0.0f), m_OuterFadeAngle);
+  m_InnerFadeAngle = ezMath::Clamp(spotAngle, ezAngle::MakeFromDegree(0.0f), m_OuterFadeAngle);
 }
 
 ezAngle ezDecalComponent::GetInnerFadeAngle() const
@@ -285,7 +285,7 @@ ezAngle ezDecalComponent::GetInnerFadeAngle() const
 
 void ezDecalComponent::SetOuterFadeAngle(ezAngle spotAngle)
 {
-  m_OuterFadeAngle = ezMath::Clamp(spotAngle, m_InnerFadeAngle, ezAngle::Degree(90.0f));
+  m_OuterFadeAngle = ezMath::Clamp(spotAngle, m_InnerFadeAngle, ezAngle::MakeFromDegree(90.0f));
 }
 
 ezAngle ezDecalComponent::GetOuterFadeAngle() const
@@ -389,7 +389,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (finalColor.a <= 0.0f)
     return;
 
-  const bool bNoFade = m_InnerFadeAngle == ezAngle::Radian(0.0f) && m_OuterFadeAngle == ezAngle::Radian(0.0f);
+  const bool bNoFade = m_InnerFadeAngle == ezAngle::MakeFromRadian(0.0f) && m_OuterFadeAngle == ezAngle::MakeFromRadian(0.0f);
   const float fCosInner = ezMath::Cos(m_InnerFadeAngle);
   const float fCosOuter = ezMath::Cos(m_OuterFadeAngle);
   const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));

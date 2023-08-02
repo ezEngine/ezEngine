@@ -80,7 +80,7 @@ ezVec3 ezWindWorldModuleInterface::ComputeWindFlutter(const ezVec3& vWind, const
 
   const float fFlutterOffset = (uiFlutterRandomOffset & 1023u) / 256.0f;
 
-  const float fFlutter = ezMath::Sin(ezAngle::Radian(fFlutterOffset + fFlutterSpeed * fWindStrength * GetWorld()->GetClock().GetAccumulatedTime().AsFloatInSeconds())) * fWindStrength;
+  const float fFlutter = ezMath::Sin(ezAngle::MakeFromRadian(fFlutterOffset + fFlutterSpeed * fWindStrength * GetWorld()->GetClock().GetAccumulatedTime().AsFloatInSeconds())) * fWindStrength;
 
   return flutterDir * fFlutter;
 }

@@ -61,7 +61,7 @@ public:
   ezVec3 m_vMinOffset = ezVec3(0);
   ezVec3 m_vMaxOffset = ezVec3(0);
 
-  ezAngle m_YawRotationSnap = ezAngle::Radian(0.0f);
+  ezAngle m_YawRotationSnap = ezAngle::MakeFromRadian(0.0f);
   float m_fAlignToNormal = 1.0f;
 
   ezVec3 m_vMinScale = ezVec3(1);
@@ -186,8 +186,8 @@ class ezProcGen_Slope : public ezProcGenNodeBase
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
-  ezAngle m_MinSlope = ezAngle::Degree(0.0f);
-  ezAngle m_MaxSlope = ezAngle::Degree(30.0f);
+  ezAngle m_MinSlope = ezAngle::MakeFromDegree(0.0f);
+  ezAngle m_MaxSlope = ezAngle::MakeFromDegree(30.0f);
   float m_fLowerFade = 0.0f;
   float m_fUpperFade = 0.2f;
 

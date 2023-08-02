@@ -237,8 +237,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
     // then rotate the camera, and adjust its position to again point at the orbit point
 
-    m_pCamera->RotateLocally(ezAngle::Radian(0.0f), ezAngle::Radian(fMoveUp), ezAngle::Radian(0.0f));
-    m_pCamera->RotateGlobally(ezAngle::Radian(0.0f), ezAngle::Radian(0.0f), ezAngle::Radian(fMoveRight));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0.0f), ezAngle::MakeFromRadian(fMoveUp), ezAngle::MakeFromRadian(0.0f));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0.0f), ezAngle::MakeFromRadian(0.0f), ezAngle::MakeFromRadian(fMoveRight));
 
     ezVec3 vDir = m_pCamera->GetDirForwards();
     if (fDistance == 0.0f || vDir.SetLength(fDistance).Failed())
@@ -264,8 +264,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
     float fRotateHorizontal = diff.x * fMouseRotateSensitivityX;
     float fRotateVertical = -diff.y * fMouseRotateSensitivityY;
 
-    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
-    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateVertical), ezAngle::MakeFromRadian(0));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateHorizontal));
   }
 
   if (m_Mode == Mode::Pan)

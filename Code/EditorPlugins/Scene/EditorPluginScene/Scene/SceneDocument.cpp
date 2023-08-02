@@ -220,8 +220,8 @@ void ezSceneDocument::DuplicateSpecial()
   cmd.m_bGroupDuplicates = dlg.s_bGroupCopies;
   cmd.m_iRevolveAxis = dlg.s_iRevolveAxis;
   cmd.m_fRevolveRadius = dlg.s_fRevolveRadius;
-  cmd.m_RevolveStartAngle = ezAngle::Degree(dlg.s_iRevolveStartAngle);
-  cmd.m_RevolveAngleStep = ezAngle::Degree(dlg.s_iRevolveAngleStep);
+  cmd.m_RevolveStartAngle = ezAngle::MakeFromDegree(dlg.s_iRevolveStartAngle);
+  cmd.m_RevolveAngleStep = ezAngle::MakeFromDegree(dlg.s_iRevolveAngleStep);
 
   auto history = GetCommandHistory();
 

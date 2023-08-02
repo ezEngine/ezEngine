@@ -100,7 +100,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     m_vTranslationDiff = m_vTranslationResult - vLastTranslationResult;
 
-    m_UnsnappedRotationResult += ezAngle::Degree(-diff.x);
+    m_UnsnappedRotationResult += ezAngle::MakeFromDegree(-diff.x);
 
     ezAngle snappedRotation = m_UnsnappedRotationResult;
 
@@ -145,7 +145,7 @@ ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
     m_vTranslationResult.SetZero();
     m_vUnsnappedTranslationResult.SetZero();
     m_qRotationResult.SetIdentity();
-    m_UnsnappedRotationResult = ezAngle::Radian(0.0f);
+    m_UnsnappedRotationResult = ezAngle::MakeFromRadian(0.0f);
     m_fScalingResult = 1.0f;
     m_fUnsnappedScalingResult = 1.0f;
     m_fScaleMouseMove = 0.0f;

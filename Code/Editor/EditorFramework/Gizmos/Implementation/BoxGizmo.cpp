@@ -55,19 +55,19 @@ void ezBoxGizmo::OnTransformationChanged(const ezTransform& transform)
 
   m_hCorners.SetTransformation(scale);
 
-  rot.SetRotationMatrixX(ezAngle::Degree(90));
+  rot.SetRotationMatrixX(ezAngle::MakeFromDegree(90));
   m_Edges[0].SetTransformation(scale * rot);
 
-  rot.SetRotationMatrixY(ezAngle::Degree(90));
+  rot.SetRotationMatrixY(ezAngle::MakeFromDegree(90));
   m_Faces[0].SetTransformation(scale * rot);
 
   rot.SetIdentity();
   m_Edges[1].SetTransformation(scale * rot);
 
-  rot.SetRotationMatrixX(ezAngle::Degree(90));
+  rot.SetRotationMatrixX(ezAngle::MakeFromDegree(90));
   m_Faces[1].SetTransformation(scale * rot);
 
-  rot.SetRotationMatrixZ(ezAngle::Degree(90));
+  rot.SetRotationMatrixZ(ezAngle::MakeFromDegree(90));
   m_Edges[2].SetTransformation(scale * rot);
 
   rot.SetIdentity();

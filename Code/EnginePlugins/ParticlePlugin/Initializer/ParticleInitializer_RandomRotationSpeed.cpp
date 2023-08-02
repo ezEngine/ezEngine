@@ -16,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomRotationSpeed
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RandomStartAngle", m_bRandomStartAngle),
-    EZ_MEMBER_PROPERTY("DegreesPerSecond", m_RotationSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90)), new ezClampValueAttribute(ezAngle::Degree(0), ezVariant())),
+    EZ_MEMBER_PROPERTY("DegreesPerSecond", m_RotationSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezVariant())),
   }
   EZ_END_PROPERTIES;
 }
@@ -90,7 +90,7 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
   ezFloat16* pSpeed = m_pStreamRotationSpeed->GetWritableData<ezFloat16>();
 
   // speed
-  if (m_RotationSpeed.m_Value != ezAngle::Radian(0))
+  if (m_RotationSpeed.m_Value != ezAngle::MakeFromRadian(0))
   {
     ezRandom& rng = GetRNG();
 

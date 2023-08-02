@@ -468,7 +468,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     ezRandom rng;
     rng.InitializeFromCurrentTime();
 
-    const ezAngle dev = ezAngle::Degree(65);
+    const ezAngle dev = ezAngle::MakeFromDegree(65);
     const ezUInt32 uiNumSamples = 100'000;
     const ezVec3 vAxis(1, 0, 0);
 
@@ -497,7 +497,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     ezRandom rng;
     rng.InitializeFromCurrentTime();
 
-    const ezAngle dev = ezAngle::Degree(65);
+    const ezAngle dev = ezAngle::MakeFromDegree(65);
     const ezUInt32 uiNumSamples = 100'000;
     const ezVec3 vAxis(0, 1, 0);
 
@@ -526,7 +526,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     ezRandom rng;
     rng.InitializeFromCurrentTime();
 
-    const ezAngle dev = ezAngle::Degree(65);
+    const ezAngle dev = ezAngle::MakeFromDegree(65);
     const ezUInt32 uiNumSamples = 100'000;
     const ezVec3 vAxis(0, 0, 1);
 
@@ -553,7 +553,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     ezRandom rng;
     rng.InitializeFromCurrentTime();
 
-    const ezAngle dev = ezAngle::Degree(65);
+    const ezAngle dev = ezAngle::MakeFromDegree(65);
     const ezUInt32 uiNumSamples = 100'000;
     ezVec3 vAxis;
 

@@ -21,8 +21,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.0f), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
-    EZ_ACCESSOR_PROPERTY("InnerSpotAngle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(15.0f))),
-    EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
+    EZ_ACCESSOR_PROPERTY("InnerSpotAngle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(179.0f)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(15.0f))),
+    EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(179.0f)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f))),
     //EZ_ACCESSOR_PROPERTY("ProjectedTexture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
   }
   EZ_END_PROPERTIES;
@@ -77,7 +77,7 @@ float ezSpotLightComponent::GetEffectiveRange() const
 
 void ezSpotLightComponent::SetInnerSpotAngle(ezAngle spotAngle)
 {
-  m_InnerSpotAngle = ezMath::Clamp(spotAngle, ezAngle::Degree(0.0f), m_OuterSpotAngle);
+  m_InnerSpotAngle = ezMath::Clamp(spotAngle, ezAngle::MakeFromDegree(0.0f), m_OuterSpotAngle);
 
   InvalidateCachedRenderData();
 }
@@ -89,7 +89,7 @@ ezAngle ezSpotLightComponent::GetInnerSpotAngle() const
 
 void ezSpotLightComponent::SetOuterSpotAngle(ezAngle spotAngle)
 {
-  m_OuterSpotAngle = ezMath::Clamp(spotAngle, m_InnerSpotAngle, ezAngle::Degree(179.0f));
+  m_OuterSpotAngle = ezMath::Clamp(spotAngle, m_InnerSpotAngle, ezAngle::MakeFromDegree(179.0f));
 
   TriggerLocalBoundsUpdate();
 }
@@ -206,7 +206,7 @@ ezBoundingSphere ezSpotLightComponent::CalculateBoundingSphere(const ezTransform
   ezVec3 position = t.m_vPosition;
   ezVec3 forwardDir = t.m_qRotation * ezVec3(1.0f, 0.0f, 0.0f);
 
-  if (halfAngle > ezAngle::Degree(45.0f))
+  if (halfAngle > ezAngle::MakeFromDegree(45.0f))
   {
     res.m_vCenter = position + ezMath::Cos(halfAngle) * fRange * forwardDir;
     res.m_fRadius = ezMath::Sin(halfAngle) * fRange;

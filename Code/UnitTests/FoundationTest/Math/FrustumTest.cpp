@@ -39,7 +39,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     f.SetFrustum(p);
 
     ezMat4 mTransform;
-    mTransform.SetRotationMatrixY(ezAngle::Degree(90.0f));
+    mTransform.SetRotationMatrixY(ezAngle::MakeFromDegree(90.0f));
     mTransform.SetTranslationVector(ezVec3(2, 3, 4));
 
     f.TransformFrustum(mTransform);
@@ -87,10 +87,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
       for (int rot = 0; rot < 360; rot += 45)
       {
         ezVec3 vLookDir;
-        vLookDir.Set(ezMath::Sin(ezAngle::Degree((float)rot)), 0, -ezMath::Cos(ezAngle::Degree((float)rot)));
+        vLookDir.Set(ezMath::Sin(ezAngle::MakeFromDegree((float)rot)), 0, -ezMath::Cos(ezAngle::MakeFromDegree((float)rot)));
 
         ezVec3 vRightDir;
-        vRightDir.Set(ezMath::Sin(ezAngle::Degree(rot + 90.0f)), 0, -ezMath::Cos(ezAngle::Degree(rot + 90.0f)));
+        vRightDir.Set(ezMath::Sin(ezAngle::MakeFromDegree(rot + 90.0f)), 0, -ezMath::Cos(ezAngle::MakeFromDegree(rot + 90.0f)));
 
         const ezVec3 vCamPos(rot * 1.0f, rot * 0.5f, rot * -0.3f);
 
@@ -100,9 +100,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         const ezMat4 mViewRH = ezGraphicsUtils::CreateLookAtViewMatrix(vCamPos, vCamPos + vLookDir, ezVec3(0, 1, 0), ezHandedness::RightHanded);
 
         const ezMat4 mProjLH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-          ezAngle::Degree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+          ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
         const ezMat4 mProjRH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-          ezAngle::Degree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
+          ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
 
         const ezMat4 mViewProjLH = mProjLH * mViewLH;
         const ezMat4 mViewProjRH = mProjRH * mViewRH;
@@ -111,7 +111,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         fLH.SetFrustum(mViewProjLH, range, ezHandedness::LeftHanded);
         fRH.SetFrustum(mViewProjRH, range, ezHandedness::RightHanded);
 
-        fB.SetFrustum(vCamPos, vLookDir, ezVec3(0, 1, 0), ezAngle::Degree(90), ezAngle::Degree(90), 1.0f, 100.0f);
+        fB.SetFrustum(vCamPos, vLookDir, ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 100.0f);
 
         EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::NearPlane).IsEqual(fB.GetPlane(ezFrustum::NearPlane), 0.1f));
         EZ_TEST_BOOL(fRH.GetPlane(ezFrustum::LeftPlane).IsEqual(fB.GetPlane(ezFrustum::LeftPlane), 0.1f));
@@ -140,7 +140,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     {
       ezFrustum fDir;
       fDir.SetFrustum(
-        offsetPos, camDir[dir], camDir[dir].GetOrthogonalVector() /*arbitrary*/, ezAngle::Degree(90), ezAngle::Degree(90), 1.0f, 100.0f);
+        offsetPos, camDir[dir], camDir[dir].GetOrthogonalVector() /*arbitrary*/, ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 100.0f);
 
       for (ezUInt32 obj = 0; obj < 6; ++obj)
       {
@@ -237,11 +237,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeCornerPoints")
   {
     const ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
-      ezAngle::Degree(90), 1.0f, 1.0f, 10.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
+      ezAngle::MakeFromDegree(90), 1.0f, 1.0f, 10.0f, ezClipSpaceDepthRange::MinusOneToOne, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
 
     ezFrustum frustum[2];
     frustum[0].SetFrustum(mProj, ezClipSpaceDepthRange::MinusOneToOne, ezHandedness::RightHanded);
-    frustum[1].SetFrustum(ezVec3::ZeroVector(), ezVec3(0, 0, -1), ezVec3(0, 1, 0), ezAngle::Degree(90), ezAngle::Degree(90), 1.0f, 10.0f);
+    frustum[1].SetFrustum(ezVec3::ZeroVector(), ezVec3(0, 0, -1), ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90), ezAngle::MakeFromDegree(90), 1.0f, 10.0f);
 
     for (int f = 0; f < 2; ++f)
     {

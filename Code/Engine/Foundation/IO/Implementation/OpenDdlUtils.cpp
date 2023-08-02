@@ -610,7 +610,7 @@ ezResult ezOpenDdlUtils::ConvertToAngle(const ezOpenDdlReaderElement* pElement, 
     const float* pValues = pElement->GetPrimitivesFloat();
 
     // have to use radians to prevent precision loss
-    out_result = ezAngle::Radian(pValues[0]);
+    out_result = ezAngle::MakeFromRadian(pValues[0]);
 
     return EZ_SUCCESS;
   }

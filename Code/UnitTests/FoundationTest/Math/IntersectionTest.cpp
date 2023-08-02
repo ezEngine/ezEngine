@@ -10,7 +10,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     for (ezUInt32 i = 0; i < 100; ++i)
     {
       ezMat4 m;
-      m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::Degree((float)i));
+      m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::MakeFromDegree((float)i));
       m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
 
       ezVec3 Vertices[8] = {m.TransformPosition(ezVec3(-10, -10, 0)), ezVec3(-10, -10, 0), m.TransformPosition(ezVec3(10, -10, 0)),
@@ -45,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     for (ezUInt32 i = 0; i < 100; ++i)
     {
       ezMat4 m;
-      m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::Degree((float)i));
+      m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::MakeFromDegree((float)i));
       m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
 
       ezVec3 vSegment0 = m.TransformPosition(ezVec3(-10, 1, 2));
@@ -91,7 +91,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     for (ezUInt32 i = 0; i < 100; ++i)
     {
       ezMat4 m;
-      m.SetRotationMatrixZ(ezAngle::Degree((float)i));
+      m.SetRotationMatrixZ(ezAngle::MakeFromDegree((float)i));
       m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
 
       const ezVec2 vSegment0 = m.TransformPosition(ezVec3(23, 42, 0)).GetAsVec2();

@@ -81,7 +81,7 @@ namespace
   template <>
   void GetVariantFunc::operator()<ezAngle>()
   {
-    m_Value = ezAngle::Degree((float)m_fValue);
+    m_Value = ezAngle::MakeFromDegree((float)m_fValue);
     m_bValid = true;
   }
 

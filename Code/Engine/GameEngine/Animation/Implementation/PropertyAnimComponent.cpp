@@ -647,7 +647,7 @@ void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& bind
   {
     ezTypedMemberProperty<ezAngle>* pTyped = static_cast<ezTypedMemberProperty<ezAngle>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, ezAngle::Degree((float)fFinalValue));
+    pTyped->SetValue(binding.m_pObject, ezAngle::MakeFromDegree((float)fFinalValue));
     return;
   }
   else if (pRtti == ezGetStaticRTTI<ezTime>())
@@ -754,7 +754,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, e
     ezTypedMemberProperty<ezQuat>* pTyped = static_cast<ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
 
     ezQuat rot;
-    rot.SetFromEulerAngles(ezAngle::Degree(fCurValue[0]), ezAngle::Degree(fCurValue[1]), ezAngle::Degree(fCurValue[2]));
+    rot.SetFromEulerAngles(ezAngle::MakeFromDegree(fCurValue[0]), ezAngle::MakeFromDegree(fCurValue[1]), ezAngle::MakeFromDegree(fCurValue[2]));
 
     pTyped->SetValue(binding.m_pObject, rot);
   }

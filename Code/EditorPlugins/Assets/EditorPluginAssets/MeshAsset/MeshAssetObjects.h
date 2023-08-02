@@ -47,7 +47,7 @@ public:
   float m_fRadius = 0.5f;
   float m_fRadius2 = 0.5f;
   float m_fHeight = 1.0f;
-  ezAngle m_Angle = ezAngle::Degree(360.0f);
+  ezAngle m_Angle = ezAngle::MakeFromDegree(360.0f);
   ezUInt16 m_uiDetail = 0;
   ezUInt16 m_uiDetail2 = 0;
   bool m_bCap = true;

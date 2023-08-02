@@ -147,7 +147,7 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
   const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
   ezQuat qRotZtoX; // the capsule should extend along X, but the capsule shape goes along Z
-  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+  qRotZtoX.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
 
   for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
   {

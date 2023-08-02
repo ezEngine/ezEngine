@@ -39,7 +39,7 @@ void Level::SetupLevel(ezUniquePtr<ezWorld> pWorld)
   {
     ezGameObjectDesc obj;
     obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), -ezAngle::Degree(120.0f));
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), -ezAngle::MakeFromDegree(120.0f));
 
     ezGameObject* pObj;
     m_pWorld->CreateObject(obj, pObj);
@@ -115,7 +115,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
   {
     ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(3.0f * fVal * 60.0f));
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(3.0f * fVal * 60.0f));
 
     ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
     pShip->SetLocalRotation(qNewRot);
@@ -124,7 +124,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   if (ezInputManager::GetInputActionState("Game", sControls[5].GetData(), &fVal) != ezKeyState::Up)
   {
     ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-3.0f * fVal * 60.0f));
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-3.0f * fVal * 60.0f));
 
     ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
     pShip->SetLocalRotation(qNewRot);

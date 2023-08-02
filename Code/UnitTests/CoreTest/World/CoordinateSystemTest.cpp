@@ -55,8 +55,8 @@ void TestCoordinateSystemConversion(const ezCoordinateSystem& a, const ezCoordin
 {
   const bool bAisRH = IsRightHanded(a);
   const bool bBisRH = IsRightHanded(b);
-  const ezAngle A_CWRot = bAisRH ? ezAngle::Degree(-90.0f) : ezAngle::Degree(90.0f);
-  const ezAngle B_CWRot = bBisRH ? ezAngle::Degree(-90.0f) : ezAngle::Degree(90.0f);
+  const ezAngle A_CWRot = bAisRH ? ezAngle::MakeFromDegree(-90.0f) : ezAngle::MakeFromDegree(90.0f);
+  const ezAngle B_CWRot = bBisRH ? ezAngle::MakeFromDegree(-90.0f) : ezAngle::MakeFromDegree(90.0f);
 
   ezCoordinateSystemConversion AtoB;
   AtoB.SetConversion(a, b);
@@ -156,7 +156,7 @@ EZ_CREATE_SIMPLE_TEST(World, CoordinateSystem)
     ezCoordSysLH.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
     ezCoordSysLH.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
 
-    const ezAngle rot = ezAngle::Degree(90.0f);
+    const ezAngle rot = ezAngle::MakeFromDegree(90.0f);
 
     ezCoordinateSystemConversion defaultConstucted;
 

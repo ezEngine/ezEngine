@@ -250,8 +250,8 @@ ezResult ezJoltCooking::ComputeConvexHull(const ezJoltCookingMesh& mesh, ezJoltC
   if (faces.GetCount() >= 255)
   {
     ezConvexHullGenerator gen2;
-    gen2.SetSimplificationMinTriangleAngle(ezAngle::Degree(30));
-    gen2.SetSimplificationFlatVertexNormalThreshold(ezAngle::Degree(10));
+    gen2.SetSimplificationMinTriangleAngle(ezAngle::MakeFromDegree(30));
+    gen2.SetSimplificationFlatVertexNormalThreshold(ezAngle::MakeFromDegree(10));
     gen2.SetSimplificationMinTriangleEdgeLength(0.08f);
 
     if (gen2.Build(out_mesh.m_Vertices).Failed())

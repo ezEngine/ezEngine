@@ -63,8 +63,8 @@ protected:
 
   float m_fFriction = 0.0f;
 
-  ezAngle m_LowerTwistLimit = ezAngle::Degree(90);
-  ezAngle m_UpperTwistLimit = ezAngle::Degree(90);
+  ezAngle m_LowerTwistLimit = ezAngle::MakeFromDegree(90);
+  ezAngle m_UpperTwistLimit = ezAngle::MakeFromDegree(90);
 
   // not sure whether these are useful
   // maybe just expose an 'untwist' feature, with strength/frequency and drive to position 0 ?
