@@ -241,7 +241,7 @@ void RtsGameState::RenderUnitSelection() const
     t.m_vScale.Set(1.0f);
     t.m_qRotation.SetIdentity();
 
-    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
+    bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
     ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::White, t);
 
     RenderUnitHealthbar(pObject, fRadius);
@@ -261,7 +261,7 @@ void RtsGameState::RenderUnitSelection() const
         t.m_vScale.Set(1.0f);
         t.m_qRotation.SetIdentity();
 
-        bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
+        bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
         ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
 
         RenderUnitHealthbar(pObject, fRadius);
@@ -292,8 +292,7 @@ void RtsGameState::RenderUnitHealthbar(ezGameObject* pObject, float fSelectableR
     else if (percentage < 0.8f)
       c = ezColor::Yellow;
 
-    ezBoundingBox bbox;
-    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
     ezDebugRenderer::DrawSolidBox(m_pMainWorld, bbox, c, ezTransform(pos));
   }
 }
@@ -336,7 +335,8 @@ ezGameObject* RtsGameState::PickSelectableObject() const
   if (PickGroundPlanePosition(pl.vGroundPos).Failed())
     return nullptr;
 
-  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) {
+  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject)
+  {
     RtsSelectableComponent* pSelectable = nullptr;
     if (pObject->TryGetComponentOfBaseType(pSelectable))
     {

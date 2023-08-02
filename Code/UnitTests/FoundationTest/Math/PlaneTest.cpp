@@ -221,21 +221,21 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
   {
     {
       ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(1, 0, 0), ezVec3T(10, 0, 0));
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
     }
     {
       ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
     }
     {
       ezPlaneT p = ezPlane::MakeFromNormalAndPoint(ezVec3T(0, 0, 1), ezVec3T(0, 0, 10));
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT::MakeFromMinMax(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
     }
   }
 
@@ -562,7 +562,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
         const ezVec3T boxPoint1 = randomNonZeroVec3T();
         const ezVec3T boxMins(ezMath::Min(boxPoint0.x, boxPoint1.x), ezMath::Min(boxPoint0.y, boxPoint1.y), ezMath::Min(boxPoint0.z, boxPoint1.z));
         const ezVec3T boxMaxs(ezMath::Max(boxPoint0.x, boxPoint1.x), ezMath::Max(boxPoint0.y, boxPoint1.y), ezMath::Max(boxPoint0.z, boxPoint1.z));
-        box = ezBoundingBoxT(boxMins, boxMaxs);
+        box = ezBoundingBoxT::MakeFromMinMax(boxMins, boxMaxs);
         box.GetCorners(boxCorners);
       }
 

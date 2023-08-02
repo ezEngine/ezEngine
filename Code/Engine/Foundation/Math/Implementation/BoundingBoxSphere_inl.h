@@ -145,7 +145,7 @@ void ezBoundingBoxSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>
 template <typename Type>
 EZ_FORCE_INLINE const ezBoundingBoxTemplate<Type> ezBoundingBoxSphereTemplate<Type>::GetBox() const
 {
-  return ezBoundingBoxTemplate<Type>(m_vCenter - m_vBoxHalfExtends, m_vCenter + m_vBoxHalfExtends);
+  return ezBoundingBoxTemplate<Type>::MakeFromMinMax(m_vCenter - m_vBoxHalfExtends, m_vCenter + m_vBoxHalfExtends);
 }
 
 template <typename Type>

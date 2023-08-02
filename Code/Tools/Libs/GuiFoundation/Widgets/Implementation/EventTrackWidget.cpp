@@ -1010,7 +1010,7 @@ void ezQtEventTrackWidget::ComputeSelectionRect()
     return;
 
   ezBoundingBox bbox;
-  bbox.SetInvalid();
+  bbox = ezBoundingBox::MakeInvalid();
 
   // TODO: properly implement the Y value
   // for (const auto& cpSel : m_SelectedPoints)

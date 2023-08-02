@@ -428,7 +428,7 @@ namespace
     ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
 
     ezVec3 corners[8];
-    ezBoundingBox(ezVec3(-1), ezVec3(1)).GetCorners(corners);
+    ezBoundingBox::MakeFromMinMax(ezVec3(-1), ezVec3(1)).GetCorners(corners);
 
     ezSimdMat4f decalToScreen = mViewProjectionMatrix * decalToWorld;
     ezSimdBBox screenSpaceBounds;

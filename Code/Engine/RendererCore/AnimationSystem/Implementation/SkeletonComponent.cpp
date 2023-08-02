@@ -146,7 +146,7 @@ void ezSkeletonComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_MaxBounds.SetInvalid();
+  m_MaxBounds = ezBoundingBox::MakeInvalid();
   VisualizeSkeletonDefaultState();
 }
 
@@ -177,7 +177,7 @@ void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
   {
     m_hSkeleton = hResource;
 
-    m_MaxBounds.SetInvalid();
+    m_MaxBounds = ezBoundingBox::MakeInvalid();
     VisualizeSkeletonDefaultState();
   }
 }
@@ -216,7 +216,7 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   BuildJointVisualization(msg);
 
   ezBoundingBox poseBounds;
-  poseBounds.SetInvalid();
+  poseBounds = ezBoundingBox::MakeInvalid();
 
   for (const auto& bone : msg.m_ModelTransforms)
   {
@@ -452,7 +452,7 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
       st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
 
       shape.m_Transform = st;
-      shape.m_Shape.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ext);
+      shape.m_Shape = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ext);
       shape.m_Color = hlS;
     }
 

@@ -54,7 +54,7 @@ void ezJoltShapeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezJoltShapeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingBox(-m_vHalfExtents, m_vHalfExtents), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingBox::MakeFromMinMax(-m_vHalfExtents, m_vHalfExtents), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const

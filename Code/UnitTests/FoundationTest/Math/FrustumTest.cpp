@@ -146,7 +146,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         // box
         {
           ezBoundingBox boundingObj;
-          boundingObj.SetCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
+          boundingObj = ezBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
 
           const ezVolumePosition::Enum res = fDir.GetObjectPosition(boundingObj);
 
@@ -172,7 +172,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         // vertices
         {
           ezBoundingBox boundingObj;
-          boundingObj.SetCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
+          boundingObj = ezBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
 
           ezVec3 vertices[8];
           boundingObj.GetCorners(vertices);
@@ -188,7 +188,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         // vertices + transform
         {
           ezBoundingBox boundingObj;
-          boundingObj.SetCenterAndHalfExtents(objPos[obj], ezVec3(1.0f));
+          boundingObj = ezBoundingBox::MakeFromCenterAndHalfExtents(objPos[obj], ezVec3(1.0f));
 
           ezVec3 vertices[8];
           boundingObj.GetCorners(vertices);
@@ -207,7 +207,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
         // SIMD box
         {
           ezBoundingBox boundingObj;
-          boundingObj.SetCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
+          boundingObj = ezBoundingBox::MakeFromCenterAndHalfExtents(offsetPos + objPos[obj], ezVec3(1.0f));
 
           const bool res = fDir.Overlaps(ezSimdConversion::ToBBox(boundingObj));
 

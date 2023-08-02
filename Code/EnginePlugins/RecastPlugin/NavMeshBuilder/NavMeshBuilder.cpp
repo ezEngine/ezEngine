@@ -69,7 +69,7 @@ ezRecastNavMeshBuilder::~ezRecastNavMeshBuilder() = default;
 
 void ezRecastNavMeshBuilder::Clear()
 {
-  m_BoundingBox.SetInvalid();
+  m_BoundingBox = ezBoundingBox::MakeInvalid();
   m_Vertices.Clear();
   m_Triangles.Clear();
   m_TriangleAreaIDs.Clear();
@@ -165,9 +165,9 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
 
     // convert from ez convention (Z up) to recast convention (Y up)
     ezMat3 m;
-    m.SetRow(0, ezVec3( 1, 0, 0));
-    m.SetRow(1, ezVec3( 0, 0, 1));
-    m.SetRow(2, ezVec3( 0, 1, 0));
+    m.SetRow(0, ezVec3(1, 0, 0));
+    m.SetRow(1, ezVec3(0, 0, 1));
+    m.SetRow(2, ezVec3(0, 1, 0));
 
     ezMat4 transform = ezMat4::IdentityMatrix();
     transform.SetRotationalPart(m);
@@ -217,15 +217,15 @@ void ezRecastNavMeshBuilder::GenerateTriangleMeshFromDescription(const ezWorldGe
     {
       ezUInt32 uiVertexIdx = uiVertexOffset;
 
-        for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
-        {
-          auto& triangle = m_Triangles.ExpandAndGetRef();
-          triangle.m_VertexIdx[0] = uiVertexIdx + 0;
-          triangle.m_VertexIdx[1] = uiVertexIdx + (flip ? 2 : 1);
-          triangle.m_VertexIdx[2] = uiVertexIdx + (flip ? 1 : 2);
+      for (ezUInt32 p = 0; p < meshBufferDesc.GetPrimitiveCount(); ++p)
+      {
+        auto& triangle = m_Triangles.ExpandAndGetRef();
+        triangle.m_VertexIdx[0] = uiVertexIdx + 0;
+        triangle.m_VertexIdx[1] = uiVertexIdx + (flip ? 2 : 1);
+        triangle.m_VertexIdx[2] = uiVertexIdx + (flip ? 1 : 2);
 
-          uiVertexIdx += 3;
-        }
+        uiVertexIdx += 3;
+      }
     }
 
     uiVertexOffset += meshBufferDesc.GetVertexCount();
@@ -242,7 +242,7 @@ void ezRecastNavMeshBuilder::ComputeBoundingBox()
 {
   if (!m_Vertices.IsEmpty())
   {
-    m_BoundingBox.SetFromPoints(m_Vertices.GetData(), m_Vertices.GetCount());
+    m_BoundingBox = ezBoundingBox::MakeFromPoints(m_Vertices.GetData(), m_Vertices.GetCount());
   }
 }
 

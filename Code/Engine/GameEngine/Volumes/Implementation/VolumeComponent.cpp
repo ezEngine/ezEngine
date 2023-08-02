@@ -396,5 +396,5 @@ void ezVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), m_SpatialCategory);
+  ref_msg.AddBounds(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f), m_SpatialCategory);
 }

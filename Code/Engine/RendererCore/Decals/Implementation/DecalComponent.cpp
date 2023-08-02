@@ -227,7 +227,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
   ezVec3 vHalfExtents = (axisRotation * vAspectCorrection).Abs().CompMul(m_vExtents * 0.5f);
 
-  bounds = ezBoundingBox(-vHalfExtents, vHalfExtents);
+  bounds = ezBoundingBox::MakeFromMinMax(-vHalfExtents, vHalfExtents);
   return EZ_SUCCESS;
 }
 

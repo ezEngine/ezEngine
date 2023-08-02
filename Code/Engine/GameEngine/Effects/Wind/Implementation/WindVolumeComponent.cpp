@@ -314,7 +314,7 @@ void ezWindVolumeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& 
 {
   const ezVec3 corner(m_fLength * 0.5f, m_fRadius, m_fRadius);
 
-  msg.AddBounds(ezBoundingBox(-corner, corner), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(ezBoundingBox::MakeFromMinMax(-corner, corner), ezWindVolumeComponent::SpatialDataCategory);
 }
 
 
@@ -420,7 +420,7 @@ void ezWindVolumeConeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   c1.y = ezMath::Tan(m_Angle * 0.5f) * m_fLength;
   c1.z = c1.y;
 
-  msg.AddBounds(ezBoundingBox(c0, c1), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(ezBoundingBox::MakeFromMinMax(c0, c1), ezWindVolumeComponent::SpatialDataCategory);
 }
 
 

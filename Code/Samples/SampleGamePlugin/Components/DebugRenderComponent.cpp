@@ -128,8 +128,7 @@ void DebugRenderComponent::Update()
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Box))
   {
-    ezBoundingBox bbox;
-    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(m_fSize));
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(m_fSize));
 
     ezDebugRenderer::DrawLineBox(GetWorld(), bbox, m_Color, ownerTransform);
   }

@@ -30,8 +30,7 @@ namespace
       float y = (float)rng.DoubleMinMax(1.0, 100.0);
       float z = (float)rng.DoubleMinMax(1.0, 100.0);
 
-      ezBoundingBox bounds;
-      bounds.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
+      ezBoundingBox bounds = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
 
       ezSpatialData::Category category = m_SpecialCategory;
       if (category == ezInvalidSpatialDataCategory)
@@ -127,7 +126,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](ezGameObject* pObject)
+      {
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -154,8 +154,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInBox")
   {
-    ezBoundingBox testBox;
-    testBox.SetCenterAndHalfExtents(ezVec3(100.0f, 60.0f, 400.0f), ezVec3(3000.0f));
+    ezBoundingBox testBox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(100.0f, 60.0f, 400.0f), ezVec3(3000.0f));
 
     ezDynamicArray<ezGameObject*> objectsInBox;
     ezHashSet<ezGameObject*> uniqueObjects;
@@ -183,7 +182,8 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](ezGameObject* pObject)
+      {
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 

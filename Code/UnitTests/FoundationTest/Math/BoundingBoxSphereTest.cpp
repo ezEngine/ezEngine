@@ -12,7 +12,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
     EZ_TEST_BOOL(b.m_vBoxHalfExtends == ezVec3T(1, 2, 3));
     EZ_TEST_BOOL(b.m_fSphereRadius == 2);
 
-    ezBoundingBoxT box(ezVec3T(1, 1, 1), ezVec3T(3, 3, 3));
+    ezBoundingBoxT box = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 1, 1), ezVec3T(3, 3, 3));
     ezBoundingSphereT sphere(ezVec3T(2, 2, 2), 1);
 
     b = ezBoundingBoxSphereT(box, sphere);
@@ -70,7 +70,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
   {
     ezBoundingBoxSphereT b1;
     b1.SetInvalid();
-    ezBoundingBoxSphereT b2(ezBoundingBoxT(ezVec3T(2, 2, 2), ezVec3T(4, 4, 4)));
+    ezBoundingBoxSphereT b2(ezBoundingBoxT::MakeFromMinMax(ezVec3T(2, 2, 2), ezVec3T(4, 4, 4)));
 
     b1.ExpandToInclude(b2);
     EZ_TEST_BOOL(b1 == b2);
@@ -87,7 +87,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
     EZ_TEST_BOOL(b1.m_fSphereRadius <= b1.m_vBoxHalfExtends.GetLength());
 
     b1.SetInvalid();
-    b2 = ezBoundingBoxT(ezVec3T(0.25, 0.25, 0.25), ezVec3T(0.5, 0.5, 0.5));
+    b2 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(0.25, 0.25, 0.25), ezVec3T(0.5, 0.5, 0.5));
 
     b1.ExpandToInclude(b2);
     EZ_TEST_BOOL(b1 == b2);

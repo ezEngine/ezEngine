@@ -468,8 +468,7 @@ void ezRcAgentComponent::VisualizePathCorridorPosition()
   const float* pos = m_pCorridor->getPos();
   const ezVec3 vPos(pos[0], pos[2], pos[1]);
 
-  ezBoundingBox box;
-  box.SetCenterAndHalfExtents(ezVec3(0, 0, 1.0f), ezVec3(0.3f, 0.3f, 1.0f));
+  ezBoundingBox box = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(0, 0, 1.0f), ezVec3(0.3f, 0.3f, 1.0f));
 
   ezTransform t;
   t.SetIdentity();

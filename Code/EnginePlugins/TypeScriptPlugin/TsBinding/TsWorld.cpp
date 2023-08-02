@@ -239,8 +239,7 @@ static int __CPP_World_FindObjectsInBox(duk_context* pDuk)
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = category.GetBitmask();
 
-    pWorld->GetSpatialSystem()->FindObjectsInBox(
-      ezBoundingBox(vBoxMin, vBoxMax), queryParams, ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+    pWorld->GetSpatialSystem()->FindObjectsInBox(ezBoundingBox::MakeFromMinMax(vBoxMin, vBoxMax), queryParams, ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);

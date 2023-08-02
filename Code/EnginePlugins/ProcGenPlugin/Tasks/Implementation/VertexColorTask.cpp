@@ -126,7 +126,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
 
   // TODO:
   // ezBoundingBox box = mbDesc.GetBounds();
-  ezBoundingBox box = ezBoundingBox(ezVec3(-1000), ezVec3(1000));
+  ezBoundingBox box = ezBoundingBox::MakeFromMinMax(ezVec3(-1000), ezVec3(1000));
   box.TransformFromOrigin(transform.GetAsMat4());
 
   m_VolumeCollections.Clear();

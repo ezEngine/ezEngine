@@ -82,7 +82,7 @@ void ezAnimatedMeshComponent::OnDeactivated()
 
 void ezAnimatedMeshComponent::InitializeAnimationPose()
 {
-  m_MaxBounds.SetInvalid();
+  m_MaxBounds = ezBoundingBox::MakeInvalid();
 
   if (!m_hMesh.IsValid())
     return;
@@ -204,7 +204,7 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   ezBoundingBox poseBounds;
-  poseBounds.SetInvalid();
+  poseBounds = ezBoundingBox::MakeInvalid();
   MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
 
   if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))

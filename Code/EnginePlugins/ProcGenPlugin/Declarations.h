@@ -279,7 +279,7 @@ namespace ezProcGenInternal
       ezVec3 vMin = (vCenter - ezVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMinZ);
       ezVec3 vMax = (vCenter + ezVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMaxZ);
 
-      return ezBoundingBox(vMin, vMax);
+      return ezBoundingBox::MakeFromMinMax(vMin, vMax);
     }
 
     ezHybridArray<ezSimdMat4f, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;

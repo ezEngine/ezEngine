@@ -116,8 +116,7 @@ ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& 
 
     ezVec3 pts[] = {ezVec3::ZeroVector(), targetPositionInOwnerSpace};
 
-    ezBoundingBox box;
-    box.SetFromPoints(pts, 2);
+    ezBoundingBox box = ezBoundingBox::MakeFromPoints(pts, 2);
     const float fHalfWidth = m_fWidth * 0.5f;
     box.m_vMin -= ezVec3(0, fHalfWidth, fHalfWidth);
     box.m_vMax += ezVec3(0, fHalfWidth, fHalfWidth);

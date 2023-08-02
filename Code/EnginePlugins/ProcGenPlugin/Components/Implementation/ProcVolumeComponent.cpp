@@ -336,7 +336,7 @@ void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f), s_ProcVolumeCategory);
 }
 
 void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const

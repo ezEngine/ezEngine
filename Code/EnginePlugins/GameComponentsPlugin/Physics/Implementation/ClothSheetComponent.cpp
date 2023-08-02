@@ -139,7 +139,7 @@ void ezClothSheetComponent::OnSimulationStarted()
 
 void ezClothSheetComponent::SetupCloth()
 {
-  m_Bbox.SetInvalid();
+  m_Bbox = ezBoundingBox::MakeInvalid();
 
   if (IsActiveAndSimulating())
   {
@@ -245,8 +245,7 @@ ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
   }
   else
   {
-    ezBoundingBox box;
-    box.SetInvalid();
+    ezBoundingBox box = ezBoundingBox::MakeInvalid();
     box.ExpandToInclude(ezVec3::ZeroVector());
     box.ExpandToInclude(ezVec3(m_vSize.x, 0, -0.1f));
     box.ExpandToInclude(ezVec3(0, m_vSize.y, +0.1f));

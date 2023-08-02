@@ -258,8 +258,7 @@ void ezNavMeshPointOfInterestGraph::ExtractInterestPointsFromMesh(const rcPolyMe
 
   if (bReinitialize)
   {
-    ezBoundingBox box;
-    box.SetInvalid();
+    ezBoundingBox box = ezBoundingBox::MakeInvalid();
 
     // compute bounding box
     {

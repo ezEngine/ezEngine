@@ -6,7 +6,7 @@
 
 ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_Volume.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());
+  m_Volume = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());
   m_pCamera = nullptr;
 
   m_LastUpdate = ezTime::Now();
@@ -70,7 +70,7 @@ void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3
     bSetCamLookAt = true;
   }
 
-  m_Volume.SetCenterAndHalfExtents(vCenterPos, vHalfBoxSize);
+  m_Volume = ezBoundingBox::MakeFromCenterAndHalfExtents(vCenterPos, vHalfBoxSize);
 
   if (bSetCamLookAt)
   {

@@ -119,8 +119,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     ezBoundingSphereT s;
     s.SetElements(ezVec3T(1, 2, 3), 1);
 
-    ezBoundingBoxT b;
-    b.SetCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(2.0f));
+    ezBoundingBoxT b = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(2.0f));
 
     s.ExpandToInclude(b);
 
@@ -307,20 +306,20 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (box)")
   {
     ezBoundingSphereT s(ezVec3T(1, 2, 3), 4);
-    ezBoundingBoxT b1(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + ezVec3T(1));
-    ezBoundingBoxT b2(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + ezVec3T(3));
+    ezBoundingBoxT b1 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + ezVec3T(1));
+    ezBoundingBoxT b2 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + ezVec3T(3));
 
     EZ_TEST_BOOL(s.Contains(b1));
     EZ_TEST_BOOL(!s.Contains(b2));
 
     ezVec3T vDir(1, 1, 1);
     vDir.SetLength(3.99f).IgnoreResult();
-    ezBoundingBoxT b3(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + vDir);
+    ezBoundingBoxT b3 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + vDir);
 
     EZ_TEST_BOOL(s.Contains(b3));
 
     vDir.SetLength(4.01f).IgnoreResult();
-    ezBoundingBoxT b4(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + vDir);
+    ezBoundingBoxT b4 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + vDir);
 
     EZ_TEST_BOOL(!s.Contains(b4));
   }
@@ -363,8 +362,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (box)")
   {
     ezBoundingSphereT s(ezVec3T(1, 2, 3), 2);
-    ezBoundingBoxT b1(ezVec3T(1, 2, 3), ezVec3T(1, 2, 3) + ezVec3T(2));
-    ezBoundingBoxT b2(ezVec3T(1, 2, 3) + ezVec3T(2), ezVec3T(1, 2, 3) + ezVec3T(3));
+    ezBoundingBoxT b1 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3), ezVec3T(1, 2, 3) + ezVec3T(2));
+    ezBoundingBoxT b2 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) + ezVec3T(2), ezVec3T(1, 2, 3) + ezVec3T(3));
 
     EZ_TEST_BOOL(s.Overlaps(b1));
     EZ_TEST_BOOL(!s.Overlaps(b2));

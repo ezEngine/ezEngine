@@ -256,7 +256,7 @@ void ezJoltContactEvents::UpdatePhysicsSlideReactions()
 
       if (cvar_PhysicsReactionsVisSlides)
       {
-        ezDebugRenderer::DrawLineBox(m_pWorld, ezBoundingBox(ezVec3(-0.5f), ezVec3(0.5f)), ezColor::BlueViolet, ezTransform(slideInfo.m_vContactPosition));
+        ezDebugRenderer::DrawLineBox(m_pWorld, ezBoundingBox::MakeFromMinMax(ezVec3(-0.5f), ezVec3(0.5f)), ezColor::BlueViolet, ezTransform(slideInfo.m_vContactPosition));
       }
 
       slideInfo.m_bStillSliding = false;

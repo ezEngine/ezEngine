@@ -1287,7 +1287,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawLineBox(context, ezBoundingBox(-item.m_vHalfSize, item.m_vHalfSize), item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawLineBox(context, ezBoundingBox::MakeFromMinMax(-item.m_vHalfSize, item.m_vHalfSize), item.m_Color, item.m_Transform);
 
           ++i;
         }
