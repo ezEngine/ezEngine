@@ -173,6 +173,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeRotationZ(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
+  return ezMat4Template<Type>::MakeFromValues(fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 template <typename Type>
@@ -204,7 +205,6 @@ void ezMat4Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout:
       Element(3, i) = pData[i * 4 + 3];
     }
   }
-  return ezMat4Template<Type>::MakeFromValues(fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 template <typename Type>
