@@ -54,7 +54,7 @@ ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& r
 {
   if (m_hRenderTarget.IsValid())
   {
-  ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), 0.1f);
+    ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::ZeroVector(), 0.1f);
     return EZ_SUCCESS;
   }
 

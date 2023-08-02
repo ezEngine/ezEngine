@@ -126,8 +126,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](ezGameObject* pObject)
-      {
+    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, queryParams, [&](ezGameObject* pObject) {
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -182,8 +181,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](ezGameObject* pObject)
-      {
+    world.GetSpatialSystem()->FindObjectsInBox(testBox, queryParams, [&](ezGameObject* pObject) {
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 

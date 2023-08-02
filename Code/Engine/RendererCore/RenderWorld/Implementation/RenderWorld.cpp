@@ -69,8 +69,7 @@ namespace
   };
 
   static bool s_bWriteRenderPipelineDgml = false;
-  static ezConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []()
-    { s_bWriteRenderPipelineDgml = true; });
+  static ezConsoleFunction<void()> s_ConFunc_WriteRenderPipelineDgml("WriteRenderPipelineDgml", "()", []() { s_bWriteRenderPipelineDgml = true; });
 } // namespace
 
 namespace ezInternal

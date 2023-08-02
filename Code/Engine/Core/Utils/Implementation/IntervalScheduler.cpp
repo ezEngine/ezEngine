@@ -11,7 +11,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 static ezTime s_Intervals[] = {
-  ezTime::MakeZero(),              // EveryFrame
+  ezTime::MakeZero(),                  // EveryFrame
   ezTime::MakeFromSeconds(1.0 / 30.0), // Max30fps
   ezTime::MakeFromSeconds(1.0 / 20.0), // Max20fps
   ezTime::MakeFromSeconds(1.0 / 10.0), // Max10fps

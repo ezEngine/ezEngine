@@ -544,8 +544,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezRandom randomGenerator;
     randomGenerator.Initialize(0x83482343);
 
-    const auto randomNonZeroVec3T = [&randomGenerator]() -> ezVec3T
-    {
+    const auto randomNonZeroVec3T = [&randomGenerator]() -> ezVec3T {
       const float extent = 1000.f;
       const ezVec3T v(randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent), randomGenerator.FloatMinMax(-extent, extent));
       return v.GetLength() > 0.001f ? v : ezVec3T::UnitXAxis();

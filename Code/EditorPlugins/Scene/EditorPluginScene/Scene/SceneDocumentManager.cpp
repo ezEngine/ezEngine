@@ -112,8 +112,7 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
     return;
 
   // Fix up scene layers during cloning
-  pObjects->ModifyNodeViaNativeCounterpart(pSettings, [&](void* pNativeObject, const ezRTTI* pType)
-    {
+  pObjects->ModifyNodeViaNativeCounterpart(pSettings, [&](void* pNativeObject, const ezRTTI* pType) {
     ezSceneDocumentSettings* pObject = static_cast<ezSceneDocumentSettings*>(pNativeObject);
 
     for (ezSceneLayerBase* pLayerBase : pObject->m_Layers)

@@ -147,8 +147,7 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     m_ActiveSaveTask.Invalidate();
   }
   ezStatus result;
-  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res)
-    { result = res; });
+  m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res) { result = res; });
   ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   m_ActiveSaveTask.Invalidate();
   return result;

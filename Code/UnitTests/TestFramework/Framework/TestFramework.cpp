@@ -582,14 +582,12 @@ void ezTestFramework::TimeoutThread()
     if (m_uiTimeoutMS == 0)
     {
       // If no timeout is set, we simply put the thread to sleep.
-      m_TimeoutCV.wait(lock, [this]
-        { return !m_bUseTimeout; });
+      m_TimeoutCV.wait(lock, [this] { return !m_bUseTimeout; });
     }
     // We want to be notified when we reach the timeout and not when we are spuriously woken up.
     // Thus we continue waiting via the predicate if we are still using a timeout until we are either
     // woken up via the CV or reach the timeout.
-    else if (!m_TimeoutCV.wait_for(lock, std::chrono::milliseconds(m_uiTimeoutMS), [this]
-               { return !m_bUseTimeout || m_bArm; }))
+    else if (!m_TimeoutCV.wait_for(lock, std::chrono::milliseconds(m_uiTimeoutMS), [this] { return !m_bUseTimeout || m_bArm; }))
     {
       if (ezSystemInformation::IsDebuggerAttached())
       {

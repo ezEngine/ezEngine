@@ -254,8 +254,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
   // store spheres for a 'cheap' ambient occlusion computation
   GenerateAmbientOcclusionSpheres(octree, bbox2, occlusionSpheres, treeStructure);
 
-  auto CheckOcclusion = [&](ezUInt32 uiBranch, const ezVec3& vPos) -> float
-  {
+  auto CheckOcclusion = [&](ezUInt32 uiBranch, const ezVec3& vPos) -> float {
     constexpr float fCluster = 4.0f;
     constexpr float fDivCluster = 1.0f / fCluster;
 
