@@ -15,27 +15,27 @@ public:
   static ezTime Now(); // [tested]
 
   /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
-  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeNanoseconds(double fNanoseconds) { return ezTime(fNanoseconds * 0.000000001); }
+  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromNanoseconds(double fNanoseconds) { return ezTime(fNanoseconds * 0.000000001); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Nanoseconds(double fNanoseconds) { return ezTime(fNanoseconds * 0.000000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from microseconds.
-  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeMicroseconds(double fMicroseconds) { return ezTime(fMicroseconds * 0.000001); }
+  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromMicroseconds(double fMicroseconds) { return ezTime(fMicroseconds * 0.000001); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Microseconds(double fMicroseconds) { return ezTime(fMicroseconds * 0.000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from milliseconds.
-  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeMilliseconds(double fMilliseconds) { return ezTime(fMilliseconds * 0.001); }
+  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromMilliseconds(double fMilliseconds) { return ezTime(fMilliseconds * 0.001); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Milliseconds(double fMilliseconds) { return ezTime(fMilliseconds * 0.001); }
 
   /// \brief Creates an instance of ezTime that was initialized from seconds.
-  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeSeconds(double fSeconds) { return ezTime(fSeconds); }
+  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromSeconds(double fSeconds) { return ezTime(fSeconds); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Seconds(double fSeconds) { return ezTime(fSeconds); }
 
   /// \brief Creates an instance of ezTime that was initialized from minutes.
-  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeMinutes(double fMinutes) { return ezTime(fMinutes * 60); }
+  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromMinutes(double fMinutes) { return ezTime(fMinutes * 60); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Minutes(double fMinutes) { return ezTime(fMinutes * 60); }
 
   /// \brief Creates an instance of ezTime that was initialized from hours.
-  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeHours(double fHours) { return ezTime(fHours * 60 * 60); }
+  [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeFromHours(double fHours) { return ezTime(fHours * 60 * 60); }
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime Hours(double fHours) { return ezTime(fHours * 60 * 60); }
 
   /// \brief Creates an instance of ezTime that was initialized with zero.
