@@ -91,7 +91,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     for (ezUInt32 i = 0; i < 100; ++i)
     {
       ezMat4 m;
-      m= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree((float)i));
+      m = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree((float)i));
       m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
 
       const ezVec2 vSegment0 = m.TransformPosition(ezVec3(23, 42, 0)).GetAsVec2();

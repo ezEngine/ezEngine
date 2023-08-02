@@ -39,7 +39,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     f = ezFrustum::MakeFromPlanes(p);
 
     ezMat4 mTransform;
-    mTransform= ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90.0f));
+    mTransform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90.0f));
     mTransform.SetTranslationVector(ezVec3(2, 3, 4));
 
     f.TransformFrustum(mTransform);

@@ -90,13 +90,13 @@ void ezRendererTestBasics::RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBin
 
   ezMat4 mTransform, mOther, mRot;
 
-  mRot= ezMat4::MakeRotationX(ezAngle::MakeFromDegree(-90));
+  mRot = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(-90));
 
   mOther = ezMat4::MakeScaling(ezVec3(1.0f, 1.0f, 1.0f));
   mTransform = ezMat4::MakeTranslation(ezVec3(-0.3f, -0.3f, 0.0f));
   RenderObject(m_hLongBox, mProj * mView * mTransform * mOther, ezColor(1, 0, 1, 0.25f), ShaderBindFlags);
 
-  mOther= ezMat4::MakeRotationX(ezAngle::MakeFromDegree(80.0f));
+  mOther = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(80.0f));
   mTransform = ezMat4::MakeTranslation(ezVec3(0.75f, 0, -1.8f));
   RenderObject(m_hTorus, mProj * mView * mTransform * mOther * mRot, ezColor(1, 0, 0, 0.5f), ShaderBindFlags);
 
@@ -120,7 +120,7 @@ void ezRendererTestBasics::RenderLineObjects(ezBitflags<ezShaderBindFlags> Shade
 
   ezMat4 mTransform, mOther, mRot;
 
-  mRot= ezMat4::MakeRotationX(ezAngle::MakeFromDegree(-90));
+  mRot = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(-90));
 
   mOther = ezMat4::MakeScaling(ezVec3(1.0f, 1.0f, 1.0f));
   mTransform = ezMat4::MakeTranslation(ezVec3(-0.3f, -0.3f, 0.0f));

@@ -463,7 +463,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
     case ezGreyBoxShape::RampY:
       ezMath::Swap(size.x, size.y);
-      opt.m_Transform= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90.0f));
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90.0f));
       opt.m_Transform.SetTranslationVector(offset);
       geom.AddTexturedRamp(size, opt);
       break;
@@ -479,7 +479,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
     case ezGreyBoxShape::StairsY:
       ezMath::Swap(size.x, size.y);
-      opt.m_Transform= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90.0f));
+      opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90.0f));
       opt.m_Transform.SetTranslationVector(offset);
       geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, opt);
       break;
@@ -490,8 +490,8 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
       size.z = size.x;
       size.x = size.y;
       size.y = tmp;
-      opt.m_Transform= ezMat4::MakeRotationY(ezAngle::MakeFromDegree(-90));
-      t2= ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
+      opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(-90));
+      t2 = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
       opt.m_Transform = t2 * opt.m_Transform;
       opt.m_Transform.SetTranslationVector(offset);
       geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, false, false, false, !bOnlyRoughDetails, opt);
@@ -500,9 +500,9 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
     case ezGreyBoxShape::ArchY:
     {
-      opt.m_Transform= ezMat4::MakeRotationY(ezAngle::MakeFromDegree(-90));
-      t2= ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
-      t3= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
+      opt.m_Transform = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(-90));
+      t2 = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
+      t3 = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
       ezMath::Swap(size.y, size.z);
       opt.m_Transform = t3 * t2 * opt.m_Transform;
       opt.m_Transform.SetTranslationVector(offset);

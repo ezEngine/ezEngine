@@ -178,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     q = ezQuat::MakeFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(90));
 
     ezMat4T mr;
-    mr= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
+    mr = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
 
     ezMat4T m = q.GetAsMat4();
 

@@ -43,12 +43,12 @@ void ezDecalContext::OnInitialize()
 
       ezMat4 t, r;
       t = ezMat4::MakeTranslation(ezVec3(0, 1.5f, 0));
-      r= ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
+      r = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
       opt.m_Transform = t * r;
       geom.AddSphere(0.5f, 64, 64, opt);
 
       t.SetTranslationVector(ezVec3(0, -1.5f, 0));
-      r= ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
+      r = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
       opt.m_Transform = t * r;
       geom.AddTorus(0.1f, 0.5f, 32, 64, true, opt);
 
