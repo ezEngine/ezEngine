@@ -13,7 +13,7 @@ ezResult ezSimdMat4f::Invert(const ezSimdFloat& fEpsilon)
   if (tmp.Invert(fEpsilon).Failed())
     return EZ_FAILURE;
 
-  SetFromArray(tmp.m_fElementsCM, ezMatrixLayout::ColumnMajor);
+  *this = ezSimdMat4f::MakeFromColumnMajorArray(tmp.m_fElementsCM);
 
   return EZ_SUCCESS;
 }

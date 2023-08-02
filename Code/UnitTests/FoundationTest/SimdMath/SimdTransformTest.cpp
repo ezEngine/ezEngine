@@ -156,7 +156,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
 
       ezTransform referenceTransform(ezVec3(1, 2, 3), q, ezVec3(2, -1, 5));
       ezMat4 tmp = referenceTransform.GetAsMat4();
-      refM.SetFromArray(tmp.m_fElementsCM, ezMatrixLayout::ColumnMajor);
+      refM = ezSimdMat4f::MakeFromColumnMajorArray(tmp.m_fElementsCM);
     }
     EZ_TEST_BOOL(m.IsEqual(refM, 0.00001f));
 

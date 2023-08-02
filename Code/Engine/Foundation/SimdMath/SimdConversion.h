@@ -70,9 +70,7 @@ namespace ezSimdConversion
 
   EZ_ALWAYS_INLINE ezSimdMat4f ToMat4(const ezMat4& m)
   {
-    ezSimdMat4f tmp;
-    tmp.SetFromArray(m.m_fElementsCM, ezMatrixLayout::ColumnMajor);
-    return tmp;
+    return ezSimdMat4f::MakeFromColumnMajorArray(m.m_fElementsCM);
   }
 
   EZ_ALWAYS_INLINE ezBoundingBoxSphere ToBBoxSphere(const ezSimdBBoxSphere& b)

@@ -115,7 +115,7 @@ EZ_ALWAYS_INLINE ezSimdMat4f ezSimdQuat::GetAsMat4() const
   const ezSimdVec4f addZ_u_subY_u = adds.GetCombined<ezSwizzle::ZXYX>(subs);
   const ezSimdVec4f col2 = addZ_u_subY_u.GetCombined<ezSwizzle::XZZW>(diagonal);
 
-  return ezSimdMat4f(col0, col1, col2, ezSimdVec4f(0, 0, 0, 1));
+  return ezSimdMat4f::MakeFromColumns(col0, col1, col2, ezSimdVec4f(0, 0, 0, 1));
 }
 
 EZ_ALWAYS_INLINE bool ezSimdQuat::IsValid(const ezSimdFloat& fEpsilon) const
