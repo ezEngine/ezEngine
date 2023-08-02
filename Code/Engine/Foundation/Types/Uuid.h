@@ -12,8 +12,8 @@ class EZ_FOUNDATION_DLL ezUuid
 public:
   EZ_DECLARE_POD_TYPE();
 
-  /// \brief Default constructor. Constructed Uuid will be invalid. [tested]
-  EZ_ALWAYS_INLINE ezUuid();
+  /// \brief Default constructor. Constructed Uuid will be invalid.
+  EZ_ALWAYS_INLINE ezUuid(); // [tested]
 
   /// \brief Constructs the Uuid from existing values
   EZ_ALWAYS_INLINE ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh)

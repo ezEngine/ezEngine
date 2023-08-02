@@ -11,11 +11,9 @@ void ezUuid::SetInvalid()
   m_uiLow = 0;
 }
 
-ezUuid ezUuid::MakeUuid()
+void ezUuid::CreateNewUuid()
 {
-  ezUuid guid;
-  guid.CreateNewUuid();
-  return guid;
+  *this = MakeUuid();
 }
 
 bool ezUuid::operator==(const ezUuid& other) const
