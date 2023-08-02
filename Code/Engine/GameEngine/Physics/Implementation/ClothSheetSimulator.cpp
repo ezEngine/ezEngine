@@ -37,7 +37,7 @@ void ezClothSimulator::SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIt
 
 ezSimdFloat ezClothSimulator::EnforceDistanceConstraint()
 {
-  ezSimdFloat fError = ezSimdFloat::Zero();
+  ezSimdFloat fError = ezSimdFloat::MakeZero();
 
   for (ezUInt32 y = 0; y < m_uiHeight; ++y)
   {
@@ -86,7 +86,7 @@ ezSimdVec4f ezClothSimulator::MoveTowards(const ezSimdVec4f posThis, const ezSim
   ezSimdVec4f vDir = (posNext - posThis);
   ezSimdFloat fLen = vDir.GetLength<3>();
 
-  if (fLen.IsEqual(ezSimdFloat::Zero(), 0.001f))
+  if (fLen.IsEqual(ezSimdFloat::MakeZero(), 0.001f))
   {
     vDir = fallbackDir;
     fLen = 1;

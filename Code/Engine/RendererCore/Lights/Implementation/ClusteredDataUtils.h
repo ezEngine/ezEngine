@@ -440,7 +440,7 @@ namespace
       ezSimdVec4f corner = ezSimdConversion::ToVec3(corners[i]);
       ezSimdVec4f screenSpaceCorner = decalToScreen.TransformPosition(corner);
       ezSimdFloat depth = screenSpaceCorner.w();
-      bInsideBox |= depth < ezSimdFloat::Zero();
+      bInsideBox |= depth < ezSimdFloat::MakeZero();
 
       screenSpaceCorner /= depth;
       screenSpaceCorner = screenSpaceCorner.GetCombined<ezSwizzle::XYZW>(ezSimdVec4f(depth));

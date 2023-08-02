@@ -371,7 +371,7 @@ ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdV
 {
   const ezSimdFloat fConeDist = vLocalPos.x();
 
-  if (fConeDist <= ezSimdFloat::Zero() || fConeDist >= m_fLength)
+  if (fConeDist <= ezSimdFloat::MakeZero() || fConeDist >= m_fLength)
     return ezSimdVec4f::ZeroVector();
 
   // TODO: precompute base radius

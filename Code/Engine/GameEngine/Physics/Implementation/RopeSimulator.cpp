@@ -155,7 +155,7 @@ ezSimdFloat ezRopeSimulator::EnforceDistanceConstraint()
   auto& firstNode = m_Nodes[0];
   auto& lastNode = m_Nodes.PeekBack();
 
-  ezSimdFloat fError = ezSimdFloat::Zero();
+  ezSimdFloat fError = ezSimdFloat::MakeZero();
 
   if (!m_bFirstNodeIsFixed)
   {

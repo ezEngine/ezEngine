@@ -15,7 +15,7 @@ EZ_ALWAYS_INLINE void ezSimdBSphere::SetInvalid()
 
 EZ_ALWAYS_INLINE bool ezSimdBSphere::IsValid() const
 {
-  return m_CenterAndRadius.IsValid<4>() && GetRadius() >= ezSimdFloat::Zero();
+  return m_CenterAndRadius.IsValid<4>() && GetRadius() >= ezSimdFloat::MakeZero();
 }
 
 EZ_ALWAYS_INLINE bool ezSimdBSphere::IsNaN() const
@@ -52,7 +52,7 @@ inline void ezSimdBSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 ui
 
   pCur = pPoints;
 
-  ezSimdFloat fMaxDistSquare = ezSimdFloat::Zero();
+  ezSimdFloat fMaxDistSquare = ezSimdFloat::MakeZero();
   for (ezUInt32 i = 0; i < uiNumPoints; ++i)
   {
     const ezSimdFloat fDistSQR = (*pCur - m_CenterAndRadius).GetLengthSquared<3>();
@@ -78,7 +78,7 @@ inline void ezSimdBSphere::ExpandToInclude(const ezSimdVec4f* pPoints, ezUInt32 
 
   const ezSimdVec4f* pCur = pPoints;
 
-  ezSimdFloat fMaxDistSquare = ezSimdFloat::Zero();
+  ezSimdFloat fMaxDistSquare = ezSimdFloat::MakeZero();
 
   for (ezUInt32 i = 0; i < uiNumPoints; ++i)
   {

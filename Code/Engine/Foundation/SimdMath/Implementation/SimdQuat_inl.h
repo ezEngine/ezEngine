@@ -84,7 +84,7 @@ EZ_ALWAYS_INLINE ezSimdMat4f ezSimdQuat::GetAsMat4() const
   const ezSimdVec4f yy2_xx2_xx2 = xx2yy2zz2.Get<ezSwizzle::YXXX>();
   const ezSimdVec4f zz2_zz2_yy2 = xx2yy2zz2.Get<ezSwizzle::ZZYX>();
   ezSimdVec4f diagonal = ezSimdVec4f(1.0f) - (yy2_xx2_xx2 + zz2_zz2_yy2);
-  diagonal.SetW(ezSimdFloat::Zero());
+  diagonal.SetW(ezSimdFloat::MakeZero());
 
   // non diagonal terms
   // xy2 +- wz2

@@ -10,7 +10,7 @@ EZ_FORCE_INLINE bool ezFrustum::Overlaps(const ezSimdBBox& object) const
   // We're working with center and extents scaled by two - but the plane equation still works out
   // correctly since we set W = 2 here.
   center2.SetW(ezSimdFloat(2.0f));
-  extents.SetW(ezSimdFloat::Zero());
+  extents.SetW(ezSimdFloat::MakeZero());
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   ezSimdVec4f minusZero;
@@ -35,7 +35,7 @@ EZ_FORCE_INLINE bool ezFrustum::Overlaps(const ezSimdBBox& object) const
     // Compute AABB corner which is the furthest along the plane normal
     const ezSimdVec4f offset = center2 + maxExtent;
 
-    if (equation.Dot<4>(offset) > ezSimdFloat::Zero())
+    if (equation.Dot<4>(offset) > ezSimdFloat::MakeZero())
     {
       // outside
       return false;

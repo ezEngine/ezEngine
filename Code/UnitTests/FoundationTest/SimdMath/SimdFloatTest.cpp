@@ -56,7 +56,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
                  vInit1U.m_v.m128_f32[3] == 4553.0f);
 #endif
 
-    ezSimdFloat z = ezSimdFloat::Zero();
+    ezSimdFloat z = ezSimdFloat::MakeZero();
     EZ_TEST_BOOL(z == 0.0f);
 
     // Make sure all components are set to the same value

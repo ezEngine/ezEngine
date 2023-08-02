@@ -71,7 +71,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdTransform::GetMaxScale() const
 
 EZ_ALWAYS_INLINE bool ezSimdTransform::ContainsNegativeScale() const
 {
-  return (m_Scale.x() * m_Scale.y() * m_Scale.z()) < ezSimdFloat::Zero();
+  return (m_Scale.x() * m_Scale.y() * m_Scale.z()) < ezSimdFloat::MakeZero();
 }
 
 EZ_ALWAYS_INLINE bool ezSimdTransform::ContainsUniformScale() const
