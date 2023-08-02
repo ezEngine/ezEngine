@@ -345,7 +345,7 @@ void ezAssetCurator::StoreFullTransformDate()
   if (file.Open(path, ezFileOpenMode::Write).Succeeded())
   {
     ezDateTime date;
-    date.SetTimestamp(ezTimestamp::CurrentTimestamp());
+    date.SetFromTimestamp(ezTimestamp::CurrentTimestamp()).AssertSuccess();
 
     path.Format("{}", date);
     file.Write(path.GetData(), path.GetElementCount()).AssertSuccess();

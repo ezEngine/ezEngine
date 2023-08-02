@@ -38,6 +38,36 @@ ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>* const pVertic
 }
 
 template <typename Type>
+ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeInvalid()
+{
+  ezPlaneTemplate<Type> res;
+  res.m_vNormal.Set(0);
+  res.m_fNegDistance = 0;
+  return res;
+}
+
+template <typename Type>
+ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane)
+{
+  EZ_ASSERT_DEV(vNormal.IsNormalized(), "Normal must be normalized.");
+
+  ezPlaneTemplate<Type> res;
+  res.m_vNormal = vNormal;
+  res.m_fNegDistance = -vNormal.Dot(vPointOnPlane);
+  return res;
+}
+
+template <typename Type>
+ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
+{
+  ezPlaneTemplate<Type> res;
+  EZ_VERIFY(res.m_vNormal.CalculateNormal(v1, v2, v3).Succeeded(), "The 3 provided points to not form a plane");
+
+  res.m_fNegDistance = -res.m_vNormal.Dot(v1);
+  return res;
+}
+
+template <typename Type>
 ezVec4Template<Type> ezPlaneTemplate<Type>::GetAsVec4() const
 {
   return ezVec4(m_vNormal.x, m_vNormal.y, m_vNormal.z, m_fNegDistance);

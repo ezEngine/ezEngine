@@ -21,6 +21,73 @@ EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate(const e
 }
 
 template <typename Type>
+EZ_FORCE_INLINE ezBoundingSphereTemplate<Type> ezBoundingSphereTemplate<Type>::MakeZero()
+{
+  ezBoundingSphereTemplate<Type> res;
+  res.m_vCenter.SetZero();
+  res.m_fRadius = 0.0f;
+  return res;
+}
+
+template <typename Type>
+EZ_FORCE_INLINE ezBoundingSphereTemplate<Type> ezBoundingSphereTemplate<Type>::MakeInvalid(const ezVec3Template<Type>& vCenter)
+{
+  ezBoundingSphereTemplate<Type> res;
+  res.m_vCenter = vCenter;
+  res.m_fRadius = -ezMath::SmallEpsilon<Type>(); // has to be very small for ExpandToInclude to work
+  return res;
+}
+
+template <typename Type>
+EZ_FORCE_INLINE ezBoundingSphereTemplate<Type> ezBoundingSphereTemplate<Type>::MakeFromCenterAndRadius(const ezVec3Template<Type>& vCenter, Type fRadius)
+{
+  ezBoundingSphereTemplate<Type> res;
+  res.m_vCenter = vCenter;
+  res.m_fRadius = fRadius;
+  EZ_ASSERT_DEBUG(res.IsValid(), "The sphere was created with invalid values.");
+  return res;
+}
+
+template <typename Type>
+EZ_FORCE_INLINE ezBoundingSphereTemplate<Type> ezBoundingSphereTemplate<Type>::MakeFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /*= sizeof(ezVec3Template<Type>)*/)
+{
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
+  EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
+
+  const ezVec3Template<Type>* pCur = &pPoints[0];
+
+  ezVec3Template<Type> vCenter(0.0f);
+
+  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
+  {
+    vCenter += *pCur;
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
+  }
+
+  vCenter /= (Type)uiNumPoints;
+
+  Type fMaxDistSQR = 0.0f;
+
+  pCur = &pPoints[0];
+  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
+  {
+    const Type fDistSQR = (*pCur - vCenter).GetLengthSquared();
+    fMaxDistSQR = ezMath::Max(fMaxDistSQR, fDistSQR);
+
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
+  }
+
+  ezBoundingSphereTemplate<Type> res;
+  res.m_vCenter = vCenter;
+  res.m_fRadius = ezMath::Sqrt(fMaxDistSQR);
+
+  EZ_ASSERT_DEBUG(res.IsValid(), "The point cloud contained corrupted data.");
+
+  return res;
+}
+
+template <typename Type>
 void ezBoundingSphereTemplate<Type>::SetZero()
 {
   m_vCenter.SetZero();
@@ -36,8 +103,7 @@ bool ezBoundingSphereTemplate<Type>::IsZero(Type fEpsilon /* = ezMath::DefaultEp
 template <typename Type>
 void ezBoundingSphereTemplate<Type>::SetInvalid()
 {
-  m_vCenter.SetZero();
-  m_fRadius = -ezMath::SmallEpsilon<Type>();
+  *this = MakeInvalid();
 }
 
 template <typename Type>
@@ -55,10 +121,7 @@ bool ezBoundingSphereTemplate<Type>::IsNaN() const
 template <typename Type>
 EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::SetElements(const ezVec3Template<Type>& vCenter, Type fRadius)
 {
-  m_vCenter = vCenter;
-  m_fRadius = fRadius;
-
-  EZ_ASSERT_DEBUG(IsValid(), "The sphere was created with invalid values.");
+  *this = MakeFromCenterAndRadius(vCenter, fRadius);
 }
 
 template <typename Type>
@@ -208,8 +271,7 @@ const ezVec3Template<Type> ezBoundingSphereTemplate<Type>::GetClampedPoint(const
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::Contains(
-  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
+bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
@@ -231,8 +293,7 @@ bool ezBoundingSphereTemplate<Type>::Contains(
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::Overlaps(
-  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
+bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
@@ -254,45 +315,13 @@ bool ezBoundingSphereTemplate<Type>::Overlaps(
 }
 
 template <typename Type>
-void ezBoundingSphereTemplate<Type>::SetFromPoints(
-  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
+void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
 {
-  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
-  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
-  EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
-
-  const ezVec3Template<Type>* pCur = &pPoints[0];
-
-  ezVec3Template<Type> vCenter(0.0f);
-
-  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
-  {
-    vCenter += *pCur;
-    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
-  }
-
-  vCenter /= (Type)uiNumPoints;
-
-  Type fMaxDistSQR = 0.0f;
-
-  pCur = &pPoints[0];
-  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
-  {
-    const Type fDistSQR = (*pCur - vCenter).GetLengthSquared();
-    fMaxDistSQR = ezMath::Max(fMaxDistSQR, fDistSQR);
-
-    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
-  }
-
-  m_vCenter = vCenter;
-  m_fRadius = ezMath::Sqrt(fMaxDistSQR);
-
-  EZ_ASSERT_DEBUG(IsValid(), "The point cloud contained corrupted data.");
+  *this = MakeFromPoints(pPoints, uiNumPoints, uiStride);
 }
 
 template <typename Type>
-void ezBoundingSphereTemplate<Type>::ExpandToInclude(
-  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
+void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
@@ -314,8 +343,7 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(
 }
 
 template <typename Type>
-Type ezBoundingSphereTemplate<Type>::GetDistanceTo(
-  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
+Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");

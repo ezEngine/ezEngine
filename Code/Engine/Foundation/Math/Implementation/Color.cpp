@@ -83,7 +83,7 @@ void ezColor::GetHSV(float& out_fHue, float& out_fSat, float& out_fValue) const
 }
 
 // http://www.rapidtables.com/convert/color/hsv-to-rgb.htm
-void ezColor::SetHSV(float fHue, float fSat, float fVal)
+ezColor ezColor::MakeHSV(float fHue, float fSat, float fVal)
 {
   EZ_ASSERT_DEBUG(fHue <= 360 && fHue >= 0, "HSV 'hue' is in invalid range.");
   EZ_ASSERT_DEBUG(fSat <= 1 && fVal >= 0, "HSV 'saturation' is in invalid range.");
@@ -93,50 +93,52 @@ void ezColor::SetHSV(float fHue, float fSat, float fVal)
   float x = c * (1.0f - ezMath::Abs(ezMath::Mod(fHue / 60.0f, 2) - 1.0f));
   float m = fVal - c;
 
-
-  a = 1.0f;
+  ezColor res;
+  res.a = 1.0f;
 
   if (fHue < 60)
   {
-    r = c + m;
-    g = x + m;
-    b = 0 + m;
+    res.r = c + m;
+    res.g = x + m;
+    res.b = 0 + m;
   }
   else if (fHue < 120)
   {
-    r = x + m;
-    g = c + m;
-    b = 0 + m;
+    res.r = x + m;
+    res.g = c + m;
+    res.b = 0 + m;
   }
   else if (fHue < 180)
   {
-    r = 0 + m;
-    g = c + m;
-    b = x + m;
+    res.r = 0 + m;
+    res.g = c + m;
+    res.b = x + m;
   }
   else if (fHue < 240)
   {
-    r = 0 + m;
-    g = x + m;
-    b = c + m;
+    res.r = 0 + m;
+    res.g = x + m;
+    res.b = c + m;
   }
   else if (fHue < 300)
   {
-    r = x + m;
-    g = 0 + m;
-    b = c + m;
+    res.r = x + m;
+    res.g = 0 + m;
+    res.b = c + m;
   }
   else
   {
-    r = c + m;
-    g = 0 + m;
-    b = x + m;
+    res.r = c + m;
+    res.g = 0 + m;
+    res.b = x + m;
   }
 
   // The formula above produces value in gamma space
-  r = GammaToLinear(r);
-  g = GammaToLinear(g);
-  b = GammaToLinear(b);
+  res.r = GammaToLinear(res.r);
+  res.g = GammaToLinear(res.g);
+  res.b = GammaToLinear(res.b);
+
+  return res;
 }
 
 float ezColor::GetSaturation() const
@@ -419,7 +421,12 @@ const ezColor ezColor::WhiteSmoke(ezColorGammaUB(0xF5, 0xF5, 0xF5));
 const ezColor ezColor::Yellow(ezColorGammaUB(0xFF, 0xFF, 0x00));
 const ezColor ezColor::YellowGreen(ezColorGammaUB(0x9A, 0xCD, 0x32));
 
-ezColor ezColor::ZeroColor()
+ezColor ezColor::MakeNaN()
+{
+  return ezColor(ezMath::NaN<float>(), ezMath::NaN<float>(), ezMath::NaN<float>(), ezMath::NaN<float>());
+}
+
+ezColor ezColor::MakeZero()
 {
   return ezColor(0.0f, 0.0f, 0.0f, 0.0f);
 }

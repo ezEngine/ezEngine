@@ -34,10 +34,14 @@ bool ezFrustum::IsValid() const
   return true;
 }
 
-void ezFrustum::SetFrustum(const ezPlane* pPlanes)
+ezFrustum ezFrustum::MakeFromPlanes(const ezPlane* pPlanes)
 {
+  ezFrustum f;
+
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
-    m_Planes[i] = pPlanes[i];
+    f.m_Planes[i] = pPlanes[i];
+
+  return f;
 }
 
 void ezFrustum::TransformFrustum(const ezMat4& mTransform)
@@ -203,7 +207,7 @@ void ezFrustum::ComputeCornerPoints(ezVec3 out_pPoints[FrustumCorner::CORNER_COU
   // clang-format on
 }
 
-void ezFrustum::SetFrustum(const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
+ezFrustum ezFrustum::MakeFromMVP(const ezMat4& mModelViewProjection0, ezClipSpaceDepthRange::Enum depthRange, ezHandedness::Enum handedness)
 {
   ezMat4 ModelViewProjection = mModelViewProjection0;
   ezGraphicsUtils::ConvertProjectionMatrixDepthRange(ModelViewProjection, depthRange, ezClipSpaceDepthRange::MinusOneToOne);
@@ -256,10 +260,13 @@ void ezFrustum::SetFrustum(const ezMat4& mModelViewProjection0, ezClipSpaceDepth
   }
 
   static_assert(offsetof(ezPlane, m_vNormal) == offsetof(ezVec4, x) && offsetof(ezPlane, m_fNegDistance) == offsetof(ezVec4, w));
-  ezMemoryUtils::Copy(m_Planes, (ezPlane*)planes, 6);
+
+  ezFrustum res;
+  ezMemoryUtils::Copy(res.m_Planes, (ezPlane*)planes, 6);
+  return res;
 }
 
-void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane)
+ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle fovX, ezAngle fovY, float fNearPlane, float fFarPlane)
 {
   EZ_ASSERT_DEBUG(ezMath::Abs(vForwards.GetNormalized().Dot(vUp.GetNormalized())) < 0.999f, "Up dir must be different from forward direction");
 
@@ -267,16 +274,18 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
   const ezVec3 vRightNorm = vForwards.CrossRH(vUp).GetNormalized();
   const ezVec3 vUpNorm = vRightNorm.CrossRH(vForwards).GetNormalized();
 
+  ezFrustum res;
+
   // Near Plane
-  m_Planes[NearPlane].SetFromNormalAndPoint(-vForwardsNorm, vPosition + fNearPlane * vForwardsNorm);
+  res.m_Planes[NearPlane].SetFromNormalAndPoint(-vForwardsNorm, vPosition + fNearPlane * vForwardsNorm);
 
   // Far Plane
-  m_Planes[FarPlane].SetFromNormalAndPoint(vForwardsNorm, vPosition + fFarPlane * vForwardsNorm);
+  res.m_Planes[FarPlane].SetFromNormalAndPoint(vForwardsNorm, vPosition + fFarPlane * vForwardsNorm);
 
   // Making sure the near/far plane is always closest/farthest.
   if (fNearPlane > fFarPlane)
   {
-    ezMath::Swap(m_Planes[NearPlane], m_Planes[FarPlane]);
+    ezMath::Swap(res.m_Planes[NearPlane], res.m_Planes[FarPlane]);
   }
 
   ezMat3 mLocalFrame;
@@ -295,7 +304,7 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(-fCosFovX, 0, fSinFovX);
     vPlaneNormal.Normalize();
 
-    m_Planes[LeftPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
+    res.m_Planes[LeftPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
   // Right Plane
@@ -303,7 +312,7 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(fCosFovX, 0, fSinFovX);
     vPlaneNormal.Normalize();
 
-    m_Planes[RightPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
+    res.m_Planes[RightPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
   // Bottom Plane
@@ -311,7 +320,7 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, -fCosFovY, fSinFovY);
     vPlaneNormal.Normalize();
 
-    m_Planes[BottomPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
+    res.m_Planes[BottomPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
   // Top Plane
@@ -319,8 +328,10 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, con
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, fCosFovY, fSinFovY);
     vPlaneNormal.Normalize();
 
-    m_Planes[TopPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
+    res.m_Planes[TopPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
   }
+
+  return res;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Frustum);

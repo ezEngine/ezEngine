@@ -16,7 +16,7 @@
 #  error "Uuid generation functions are not implemented on current platform"
 #endif
 
-ezUuid ezUuid::StableUuidForString(ezStringView sString)
+ezUuid ezUuid::MakeStableUuidFromString(ezStringView sString)
 {
   ezUuid NewUuid;
   NewUuid.m_uiLow = ezHashingUtils::xxHash64String(sString);
@@ -25,7 +25,7 @@ ezUuid ezUuid::StableUuidForString(ezStringView sString)
   return NewUuid;
 }
 
-ezUuid ezUuid::StableUuidForInt(ezInt64 iInt)
+ezUuid ezUuid::MakeStableUuidFromInt(ezInt64 iInt)
 {
   ezUuid NewUuid;
   NewUuid.m_uiLow = ezHashingUtils::xxHash64(&iInt, sizeof(ezInt64));

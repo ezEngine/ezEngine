@@ -11,17 +11,28 @@ public:
   ezSimdTransform(); // [tested]
 
   /// \brief Sets position, rotation and scale.
-  explicit ezSimdTransform(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation = ezSimdQuat::IdentityQuaternion(),
-    const ezSimdVec4f& vScale = ezSimdVec4f(1.0f)); // [tested]
+  explicit ezSimdTransform(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation = ezSimdQuat::IdentityQuaternion(), const ezSimdVec4f& vScale = ezSimdVec4f(1.0f)); // [tested]
 
   /// \brief Sets rotation.
   explicit ezSimdTransform(const ezSimdQuat& qRotation); // [tested]
 
+  /// \brief Creates a transform from the given position, rotation and scale.
+  [[nodiscard]] static ezSimdTransform Make(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation = ezSimdQuat::IdentityQuaternion(), const ezSimdVec4f& vScale = ezSimdVec4f(1.0f)); // [tested]
+
+  /// \brief Creates an identity transform.
+  [[nodiscard]] static ezSimdTransform MakeIdentity(); // [tested]
+
+  /// \brief Creates a transform that is the local transformation needed to get from the parent's transform to the child's.
+  [[nodiscard]] static ezSimdTransform MakeLocalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& globalTransformChild); // [tested]
+
+  /// \brief Creates a transform that is the global transform, that is reached by applying the child's local transform to the parent's global one.
+  [[nodiscard]] static ezSimdTransform MakeGlobalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& localTransformChild); // [tested]
+
   /// \brief Sets the position to be zero and the rotation to identity.
-  void SetIdentity(); // [tested]
+  /*[[deprecated("Use MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
 
   /// \brief Returns an Identity Transform.
-  static ezSimdTransform IdentityTransform(); // [tested]
+  /*[[deprecated("Use MakeIdentity() instead.")]]*/ static ezSimdTransform IdentityTransform(); // [tested]
 
   /// \brief Returns the scale component with maximum magnitude.
   ezSimdFloat GetMaxScale() const; // [tested]
@@ -45,18 +56,18 @@ public:
 
 public:
   /// \brief Sets this transform to be the local transformation needed to get from the parent's transform to the child's.
-  void SetLocalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& globalTransformChild); // [tested]
+  /*[[deprecated("Use MakeLocalTransform() instead.")]]*/ void SetLocalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& globalTransformChild); // [tested]
 
   /// \brief Sets this transform to the global transform, that is reached by applying the child's local transform to the parent's global
   /// one.
-  void SetGlobalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& localTransformChild); // [tested]
+  /*[[deprecated("Use MakeGlobalTransform() instead.")]]*/ void SetGlobalTransform(const ezSimdTransform& globalTransformParent, const ezSimdTransform& localTransformChild); // [tested]
 
   /// \brief Returns the transformation as a matrix.
   ezSimdMat4f GetAsMat4() const; // [tested]
 
 public:
-  ezSimdVec4f TransformPosition(const ezSimdVec4f& v) const;  // [tested]
-  ezSimdVec4f TransformDirection(const ezSimdVec4f& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4f TransformPosition(const ezSimdVec4f& v) const;  // [tested]
+  [[nodiscard]] ezSimdVec4f TransformDirection(const ezSimdVec4f& v) const; // [tested]
 
   /// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
   void operator*=(const ezSimdTransform& other); // [tested]

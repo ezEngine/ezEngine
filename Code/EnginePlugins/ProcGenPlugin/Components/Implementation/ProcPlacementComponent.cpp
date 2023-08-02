@@ -574,7 +574,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcGenBoxExtents, ezNoBase, 1, ezRTTIDefaultAl
   EZ_BEGIN_ATTRIBUTES
   {
     new ezBoxManipulatorAttribute("Extents", 1.0f, false, "Offset", "Rotation"),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue), nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "Offset", "Rotation"),
+    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue), nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "Offset", "Rotation"),
     new ezTransformManipulatorAttribute("Offset", "Rotation"),
   }
   EZ_END_ATTRIBUTES;

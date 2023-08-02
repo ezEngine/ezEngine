@@ -16,6 +16,9 @@ public:
 
   ezSimdVec4u(ezInternal::QuadUInt v); // [tested]
 
+  /// \brief Creates an ezSimdVec4u that is initialized to zero.
+  [[nodiscard]] static ezSimdVec4u MakeZero(); // [tested]
+
   void Set(ezUInt32 uiXyzw); // [tested]
 
   void Set(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w); // [tested]
@@ -28,7 +31,7 @@ public:
 public:
   ezSimdVec4f ToFloat() const; // [tested]
 
-  static ezSimdVec4u Truncate(const ezSimdVec4f& f); // [tested]
+  [[nodiscard]] static ezSimdVec4u Truncate(const ezSimdVec4f& f); // [tested]
 
 public:
   template <int N>
@@ -43,18 +46,18 @@ public:
   ezSimdVec4u Get() const; // [tested]
 
 public:
-  ezSimdVec4u operator+(const ezSimdVec4u& v) const; // [tested]
-  ezSimdVec4u operator-(const ezSimdVec4u& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4u operator+(const ezSimdVec4u& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4u operator-(const ezSimdVec4u& v) const; // [tested]
 
-  ezSimdVec4u CompMul(const ezSimdVec4u& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4u CompMul(const ezSimdVec4u& v) const; // [tested]
 
-  ezSimdVec4u operator|(const ezSimdVec4u& v) const; // [tested]
-  ezSimdVec4u operator&(const ezSimdVec4u& v) const; // [tested]
-  ezSimdVec4u operator^(const ezSimdVec4u& v) const; // [tested]
-  ezSimdVec4u operator~() const;                     // [tested]
+  [[nodiscard]] ezSimdVec4u operator|(const ezSimdVec4u& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4u operator&(const ezSimdVec4u& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4u operator^(const ezSimdVec4u& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4u operator~() const;                     // [tested]
 
-  ezSimdVec4u operator<<(ezUInt32 uiShift) const; // [tested]
-  ezSimdVec4u operator>>(ezUInt32 uiShift) const; // [tested]
+  [[nodiscard]] ezSimdVec4u operator<<(ezUInt32 uiShift) const; // [tested]
+  [[nodiscard]] ezSimdVec4u operator>>(ezUInt32 uiShift) const; // [tested]
 
   ezSimdVec4u& operator+=(const ezSimdVec4u& v); // [tested]
   ezSimdVec4u& operator-=(const ezSimdVec4u& v); // [tested]
@@ -66,8 +69,8 @@ public:
   ezSimdVec4u& operator<<=(ezUInt32 uiShift); // [tested]
   ezSimdVec4u& operator>>=(ezUInt32 uiShift); // [tested]
 
-  ezSimdVec4u CompMin(const ezSimdVec4u& v) const; // [tested]
-  ezSimdVec4u CompMax(const ezSimdVec4u& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4u CompMin(const ezSimdVec4u& v) const; // [tested]
+  [[nodiscard]] ezSimdVec4u CompMax(const ezSimdVec4u& v) const; // [tested]
 
   ezSimdVec4b operator==(const ezSimdVec4u& v) const; // [tested]
   ezSimdVec4b operator!=(const ezSimdVec4u& v) const; // [tested]
@@ -76,7 +79,7 @@ public:
   ezSimdVec4b operator>=(const ezSimdVec4u& v) const; // [tested]
   ezSimdVec4b operator>(const ezSimdVec4u& v) const;  // [tested]
 
-  static ezSimdVec4u ZeroVector(); // [tested]
+  /*[[deprecated("Use MakeZero() instead.")]]*/ [[nodiscard]] static ezSimdVec4u ZeroVector(); // [tested]
 
 public:
   ezInternal::QuadUInt m_v;

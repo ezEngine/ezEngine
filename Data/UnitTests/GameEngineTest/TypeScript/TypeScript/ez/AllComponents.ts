@@ -82,8 +82,8 @@ export class AnimatedMeshComponent extends MeshComponentBase
 export class AnimationControllerComponent extends Component
 {
   public static GetTypeNameHash(): number { return 1449604100; }
-  get AnimController(): string { return __CPP_ComponentProperty_get(this, 1763743819); }
-  set AnimController(value: string) { __CPP_ComponentProperty_set(this, 1763743819, value); }
+  get AnimGraph(): string { return __CPP_ComponentProperty_get(this, 2031661517); }
+  set AnimGraph(value: string) { __CPP_ComponentProperty_set(this, 2031661517, value); }
   get RootMotionMode(): Enum.RootMotionMode { return __CPP_ComponentProperty_get(this, 1675822524); }
   set RootMotionMode(value: Enum.RootMotionMode) { __CPP_ComponentProperty_set(this, 1675822524, value); }
   get InvisibleUpdateRate(): Enum.AnimationInvisibleUpdateRate { return __CPP_ComponentProperty_get(this, 984328090); }
@@ -706,6 +706,13 @@ export class PointLightComponent extends LightComponent
   set Range(value: number) { __CPP_ComponentProperty_set(this, 2070313016, value); }
 }
 
+export class PostProcessingComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 355889753; }
+  get VolumeType(): string { return __CPP_ComponentProperty_get(this, 2875458730); }
+  set VolumeType(value: string) { __CPP_ComponentProperty_set(this, 2875458730, value); }
+}
+
 export class PowerConnectorComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3608170608; }
@@ -1120,6 +1127,35 @@ export class VisualScriptComponent extends EventMessageHandlerComponent
 export class VisualizeHandComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3717625868; }
+}
+
+export class VolumeComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 4218212731; }
+  get Type(): string { return __CPP_ComponentProperty_get(this, 514052835); }
+  set Type(value: string) { __CPP_ComponentProperty_set(this, 514052835, value); }
+  get SortOrder(): number { return __CPP_ComponentProperty_get(this, 1049093630); }
+  set SortOrder(value: number) { __CPP_ComponentProperty_set(this, 1049093630, value); }
+  get Template(): string { return __CPP_ComponentProperty_get(this, 155034580); }
+  set Template(value: string) { __CPP_ComponentProperty_set(this, 155034580, value); }
+}
+
+export class VolumeBoxComponent extends VolumeComponent
+{
+  public static GetTypeNameHash(): number { return 4290233462; }
+  get Extents(): Vec3 { return __CPP_ComponentProperty_get(this, 3685812592); }
+  set Extents(value: Vec3) { __CPP_ComponentProperty_set(this, 3685812592, value); }
+  get Falloff(): Vec3 { return __CPP_ComponentProperty_get(this, 3020062844); }
+  set Falloff(value: Vec3) { __CPP_ComponentProperty_set(this, 3020062844, value); }
+}
+
+export class VolumeSphereComponent extends VolumeComponent
+{
+  public static GetTypeNameHash(): number { return 315895710; }
+  get Radius(): number { return __CPP_ComponentProperty_get(this, 2966498114); }
+  set Radius(value: number) { __CPP_ComponentProperty_set(this, 2966498114, value); }
+  get Falloff(): number { return __CPP_ComponentProperty_get(this, 2058106743); }
+  set Falloff(value: number) { __CPP_ComponentProperty_set(this, 2058106743, value); }
 }
 
 export class WindVolumeComponent extends Component

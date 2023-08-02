@@ -24,16 +24,57 @@ EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(float f1r1, float f2r1, float f3r1, fl
   m_col3.Set(f4r1, f4r2, f4r3, f4r4);
 }
 
+inline ezSimdMat4f ezSimdMat4f::MakeFromValues(float f1r1, float f2r1, float f3r1, float f4r1, float f1r2, float f2r2, float f3r2, float f4r2, float f1r3,
+  float f2r3, float f3r3, float f4r3, float f1r4, float f2r4, float f3r4, float f4r4)
+{
+  ezSimdMat4f res;
+  res.m_col0.Set(f1r1, f1r2, f1r3, f1r4);
+  res.m_col1.Set(f2r1, f2r2, f2r3, f2r4);
+  res.m_col2.Set(f3r1, f3r2, f3r3, f3r4);
+  res.m_col3.Set(f4r1, f4r2, f4r3, f4r4);
+  return res;
+}
+
+inline ezSimdMat4f ezSimdMat4f::MakeFromColumns(const ezSimdVec4f& vCol0, const ezSimdVec4f& vCol1, const ezSimdVec4f& vCol2, const ezSimdVec4f& vCol3)
+{
+  ezSimdMat4f res;
+  res.m_col0 = vCol0;
+  res.m_col1 = vCol1;
+  res.m_col2 = vCol2;
+  res.m_col3 = vCol3;
+  return res;
+}
+
+inline ezSimdMat4f ezSimdMat4f::MakeFromRowMajorArray(const float* const pData)
+{
+  ezSimdMat4f res;
+  res.m_col0.Load<4>(pData + 0);
+  res.m_col1.Load<4>(pData + 4);
+  res.m_col2.Load<4>(pData + 8);
+  res.m_col3.Load<4>(pData + 12);
+  res.Transpose();
+  return res;
+}
+
+inline ezSimdMat4f ezSimdMat4f::MakeFromColumnMajorArray(const float* const pData)
+{
+  ezSimdMat4f res;
+  res.m_col0.Load<4>(pData + 0);
+  res.m_col1.Load<4>(pData + 4);
+  res.m_col2.Load<4>(pData + 8);
+  res.m_col3.Load<4>(pData + 12);
+  return res;
+}
+
 inline void ezSimdMat4f::SetFromArray(const float* const pData, ezMatrixLayout::Enum layout)
 {
-  m_col0.Load<4>(pData + 0);
-  m_col1.Load<4>(pData + 4);
-  m_col2.Load<4>(pData + 8);
-  m_col3.Load<4>(pData + 12);
-
-  if (layout == ezMatrixLayout::RowMajor)
+  if (layout == ezMatrixLayout::ColumnMajor)
   {
-    Transpose();
+    *this = MakeFromColumnMajorArray(pData);
+  }
+  else
+  {
+    *this = MakeFromRowMajorArray(pData);
   }
 }
 
@@ -68,19 +109,35 @@ EZ_ALWAYS_INLINE void ezSimdMat4f::SetZero()
   m_col3.SetZero();
 }
 
+EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::MakeZero()
+{
+  ezSimdMat4f res;
+  res.m_col0.SetZero();
+  res.m_col1.SetZero();
+  res.m_col2.SetZero();
+  res.m_col3.SetZero();
+  return res;
+}
+
+EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::MakeIdentity()
+{
+  ezSimdMat4f res;
+  res.m_col0.Set(1, 0, 0, 0);
+  res.m_col1.Set(0, 1, 0, 0);
+  res.m_col2.Set(0, 0, 1, 0);
+  res.m_col3.Set(0, 0, 0, 1);
+  return res;
+}
+
 // static
 EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::IdentityMatrix()
 {
-  ezSimdMat4f result;
-  result.SetIdentity();
-  return result;
+  return MakeIdentity();
 }
 
 EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::ZeroMatrix()
 {
-  ezSimdMat4f result;
-  result.SetZero();
-  return result;
+  return MakeZero();
 }
 
 EZ_ALWAYS_INLINE ezSimdMat4f ezSimdMat4f::GetTranspose() const

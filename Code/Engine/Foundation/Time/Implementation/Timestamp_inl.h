@@ -3,12 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Math.h>
 
-static const ezInt64 EZ_INVALID_TIME_STAMP = 0x7FFFFFFFFFFFFFFFLL;
-
-inline ezTimestamp::ezTimestamp()
-{
-  Invalidate();
-}
+inline ezTimestamp::ezTimestamp() = default;
 
 inline ezTimestamp::ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
 {
@@ -81,7 +76,8 @@ inline ezUInt8 ezDateTime::GetMonth() const
 
 inline void ezDateTime::SetMonth(ezUInt8 uiMonth)
 {
-  m_uiMonth = ezMath::Clamp<ezUInt8>(uiMonth, 1, 12);
+  EZ_ASSERT_DEBUG(uiMonth >= 1 && uiMonth <= 12, "Invalid month value");
+  m_uiMonth = uiMonth;
 }
 
 inline ezUInt8 ezDateTime::GetDay() const
@@ -91,7 +87,8 @@ inline ezUInt8 ezDateTime::GetDay() const
 
 inline void ezDateTime::SetDay(ezUInt8 uiDay)
 {
-  m_uiDay = ezMath::Clamp<ezUInt8>(uiDay, 1u, 31u);
+  EZ_ASSERT_DEBUG(uiDay >= 1 && uiDay <= 31, "Invalid day value");
+  m_uiDay = uiDay;
 }
 
 inline ezUInt8 ezDateTime::GetDayOfWeek() const
@@ -101,7 +98,8 @@ inline ezUInt8 ezDateTime::GetDayOfWeek() const
 
 inline void ezDateTime::SetDayOfWeek(ezUInt8 uiDayOfWeek)
 {
-  m_uiDayOfWeek = ezMath::Clamp<ezUInt8>(uiDayOfWeek, 0u, 6u);
+  EZ_ASSERT_DEBUG(uiDayOfWeek <= 6, "Invalid day of week value");
+  m_uiDayOfWeek = uiDayOfWeek;
 }
 
 inline ezUInt8 ezDateTime::GetHour() const
@@ -111,7 +109,8 @@ inline ezUInt8 ezDateTime::GetHour() const
 
 inline void ezDateTime::SetHour(ezUInt8 uiHour)
 {
-  m_uiHour = ezMath::Clamp<ezUInt8>(uiHour, 0u, 23u);
+  EZ_ASSERT_DEBUG(uiHour <= 23, "Invalid hour value");
+  m_uiHour = uiHour;
 }
 
 inline ezUInt8 ezDateTime::GetMinute() const
@@ -121,7 +120,8 @@ inline ezUInt8 ezDateTime::GetMinute() const
 
 inline void ezDateTime::SetMinute(ezUInt8 uiMinute)
 {
-  m_uiMinute = ezMath::Clamp<ezUInt8>(uiMinute, 0u, 59u);
+  EZ_ASSERT_DEBUG(uiMinute <= 59, "Invalid minute value");
+  m_uiMinute = uiMinute;
 }
 
 inline ezUInt8 ezDateTime::GetSecond() const
@@ -131,7 +131,8 @@ inline ezUInt8 ezDateTime::GetSecond() const
 
 inline void ezDateTime::SetSecond(ezUInt8 uiSecond)
 {
-  m_uiSecond = ezMath::Clamp<ezUInt8>(uiSecond, 0u, 59u);
+  EZ_ASSERT_DEBUG(uiSecond <= 59, "Invalid second value");
+  m_uiSecond = uiSecond;
 }
 
 inline ezUInt32 ezDateTime::GetMicroseconds() const
@@ -141,5 +142,6 @@ inline ezUInt32 ezDateTime::GetMicroseconds() const
 
 inline void ezDateTime::SetMicroseconds(ezUInt32 uiMicroSeconds)
 {
-  m_uiMicroseconds = ezMath::Clamp<ezUInt32>(uiMicroSeconds, 0u, 999999u);
+  EZ_ASSERT_DEBUG(uiMicroSeconds <= 999999u, "Invalid micro-second value");
+  m_uiMicroseconds = uiMicroSeconds;
 }

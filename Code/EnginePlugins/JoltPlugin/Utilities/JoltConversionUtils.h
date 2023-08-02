@@ -35,7 +35,7 @@ namespace ezJoltConversionUtils
 
   EZ_ALWAYS_INLINE ezSimdQuat ToSimdQuat(const JPH::Quat& q) { return reinterpret_cast<const ezSimdQuat&>(q); }
 
-  EZ_ALWAYS_INLINE JPH::Quat ToQuat(const ezQuat& q) { return JPH::Quat(q.v.x, q.v.y, q.v.z, q.w); }
+  EZ_ALWAYS_INLINE JPH::Quat ToQuat(const ezQuat& q) { return JPH::Quat(q.x, q.y, q.z, q.w); }
 
   EZ_ALWAYS_INLINE JPH::Quat ToQuat(const ezSimdQuat& q) { return reinterpret_cast<const JPH::Quat&>(q); }
 

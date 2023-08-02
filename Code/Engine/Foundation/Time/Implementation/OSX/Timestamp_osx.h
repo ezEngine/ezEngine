@@ -61,7 +61,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   return ezTimestamp(static_cast<ezInt64>((absTime + kCFAbsoluteTimeIntervalSince1970) * 1000000.0), ezSIUnitOfTime::Microsecond);
 }
 
-bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
+ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 {
   // Round the microseconds to the full second so that we can reconstruct the right date / time afterwards
   ezInt64 us = timestamp.GetInt64(ezSIUnitOfTime::Microsecond);
@@ -77,7 +77,7 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
 
   if (CFCalendarDecomposeAbsoluteTime(calendar, at, "yMdHmsE", &year, &month, &day, &hour, &minute, &second, &dayOfWeek) == FALSE)
   {
-    return false;
+    return EZ_FAILURE;
   }
 
   m_iYear = (ezInt16)year;
@@ -88,5 +88,5 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiMinute = (ezUInt8)minute;
   m_uiSecond = (ezUInt8)second;
   m_uiMicroseconds = (ezUInt32)microseconds;
-  return true;
+  return EZ_SUCCESS;
 }

@@ -648,7 +648,7 @@ namespace ezConversionUtils
 
   const ezStringBuilder& ToString(const ezQuat& value, ezStringBuilder& out_sResult)
   {
-    out_sResult.Format("{ x={0}, y={1}, z={2}, w={3} }", value.v.x, value.v.y, value.v.z, value.w);
+    out_sResult.Format("{ x={0}, y={1}, z={2}, w={3} }", value.x, value.y, value.z, value.w);
     return out_sResult;
   }
 

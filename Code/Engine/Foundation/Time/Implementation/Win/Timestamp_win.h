@@ -55,14 +55,14 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   return timestamp;
 }
 
-bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
+ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 {
   FILETIME fileTime = EpochToFileTime(timestamp.GetInt64(ezSIUnitOfTime::Microsecond));
 
   SYSTEMTIME st;
   BOOL res = FileTimeToSystemTime(&fileTime, &st);
   if (res == 0)
-    return false;
+    return EZ_FAILURE;
 
   m_iYear = (ezInt16)st.wYear;
   m_uiMonth = (ezUInt8)st.wMonth;
@@ -72,5 +72,5 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiMinute = (ezUInt8)st.wMinute;
   m_uiSecond = (ezUInt8)st.wSecond;
   m_uiMicroseconds = ezUInt32(st.wMilliseconds * 1000);
-  return true;
+  return EZ_SUCCESS;
 }

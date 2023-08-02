@@ -22,7 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezR
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxVisualizerAttribute("Size", 1.0f, ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3::OneVector(), "PositionOffset")
+    new ezBoxVisualizerAttribute("Size", 1.0f, ezColor::MediumVioletRed, nullptr, ezVisualizerAnchor::Center, ezVec3(1.0f), "PositionOffset")
   }
   EZ_END_ATTRIBUTES;
 }
@@ -148,7 +148,7 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
     ezSimdVec4f pos;
     ezSimdTransform transform;
     transform.m_Position.Load<3>(&ownerTransform.m_vPosition.x);
-    transform.m_Rotation.m_v.Load<4>(&ownerTransform.m_qRotation.v.x);
+    transform.m_Rotation.m_v.Load<4>(&ownerTransform.m_qRotation.x);
     transform.m_Scale.Load<3>(&ownerTransform.m_vScale.x);
 
     float p0[4];

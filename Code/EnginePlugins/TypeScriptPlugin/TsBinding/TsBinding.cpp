@@ -455,7 +455,7 @@ void ezTypeScriptBinding::GenerateConstructorString(ezStringBuilder& out_String,
     case ezVariant::Type::Quaternion:
     {
       const ezQuat q = value.Get<ezQuat>();
-      out_String.Format("new Quat({}, {}, {}, {})", q.v.x, q.v.y, q.v.z, q.w);
+      out_String.Format("new Quat({}, {}, {}, {})", q.x, q.y, q.z, q.w);
       break;
     }
 

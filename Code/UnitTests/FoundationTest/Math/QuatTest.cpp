@@ -11,14 +11,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     {
       // In debug the default constructor initializes everything with NaN.
       ezQuatT p;
-      EZ_TEST_BOOL(ezMath::IsNaN(p.v.x) && ezMath::IsNaN(p.v.y) && ezMath::IsNaN(p.v.z) && ezMath::IsNaN(p.w));
+      EZ_TEST_BOOL(ezMath::IsNaN(p.x) && ezMath::IsNaN(p.y) && ezMath::IsNaN(p.z) && ezMath::IsNaN(p.w));
     }
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
     ezQuatT::ComponentType testBlock[4] = {
       (ezQuatT::ComponentType)1, (ezQuatT::ComponentType)2, (ezQuatT::ComponentType)3, (ezQuatT::ComponentType)4};
     ezQuatT* p = ::new ((void*)&testBlock[0]) ezQuatT;
-    EZ_TEST_BOOL(p->v.x == (ezMat3T::ComponentType)1 && p->v.y == (ezMat3T::ComponentType)2 && p->v.z == (ezMat3T::ComponentType)3 &&
+    EZ_TEST_BOOL(p->x == (ezMat3T::ComponentType)1 && p->y == (ezMat3T::ComponentType)2 && p->z == (ezMat3T::ComponentType)3 &&
                  p->w == (ezMat3T::ComponentType)4);
 #endif
   }
@@ -27,7 +27,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
   {
     ezQuatT q(1, 2, 3, 4);
 
-    EZ_TEST_VEC3(q.v, ezVec3T(1, 2, 3), 0.0001f);
+    EZ_TEST_VEC3(q.GetVectorPart(), ezVec3T(1, 2, 3), 0.0001f);
     EZ_TEST_FLOAT(q.w, 4, 0.0001f);
   }
 
@@ -35,7 +35,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
   {
     ezQuatT q = ezQuatT::IdentityQuaternion();
 
-    EZ_TEST_VEC3(q.v, ezVec3T(0, 0, 0), 0.0001f);
+    EZ_TEST_VEC3(q.GetVectorPart(), ezVec3T(0, 0, 0), 0.0001f);
     EZ_TEST_FLOAT(q.w, 1, 0.0001f);
   }
 
@@ -45,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     q.SetIdentity();
 
-    EZ_TEST_VEC3(q.v, ezVec3T(0, 0, 0), 0.0001f);
+    EZ_TEST_VEC3(q.GetVectorPart(), ezVec3T(0, 0, 0), 0.0001f);
     EZ_TEST_FLOAT(q.w, 1, 0.0001f);
   }
 
@@ -55,7 +55,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     q.SetElements(1, 2, 3, 4);
 
-    EZ_TEST_VEC3(q.v, ezVec3T(1, 2, 3), 0.0001f);
+    EZ_TEST_VEC3(q.GetVectorPart(), ezVec3T(1, 2, 3), 0.0001f);
     EZ_TEST_FLOAT(q.w, 4, 0.0001f);
   }
 
@@ -260,15 +260,15 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       EZ_TEST_BOOL(q.IsNaN());
 
       q.SetIdentity();
-      q.v.x = ezMath::NaN<ezMathTestType>();
+      q.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(q.IsNaN());
 
       q.SetIdentity();
-      q.v.y = ezMath::NaN<ezMathTestType>();
+      q.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(q.IsNaN());
 
       q.SetIdentity();
-      q.v.z = ezMath::NaN<ezMathTestType>();
+      q.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(q.IsNaN());
     }
   }

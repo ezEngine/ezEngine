@@ -39,8 +39,15 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4u)
 
     EZ_TEST_BOOL(copy.GetComponent<0>() == 1 && copy.GetComponent<1>() == 2 && copy.GetComponent<2>() == 3 && copy.GetComponent<3>() == 0xFFFFFFFFu);
 
-    ezSimdVec4u vZero = ezSimdVec4u::ZeroVector();
-    EZ_TEST_BOOL(vZero.x() == 0 && vZero.y() == 0 && vZero.z() == 0 && vZero.w() == 0);
+    {
+      ezSimdVec4u vZero = ezSimdVec4u::ZeroVector();
+      EZ_TEST_BOOL(vZero.x() == 0 && vZero.y() == 0 && vZero.z() == 0 && vZero.w() == 0);
+    }
+
+    {
+      ezSimdVec4u vZero = ezSimdVec4u::MakeZero();
+      EZ_TEST_BOOL(vZero.x() == 0 && vZero.y() == 0 && vZero.z() == 0 && vZero.w() == 0);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setter")

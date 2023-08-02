@@ -33,25 +33,31 @@ ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
   return EZ_INVALID_TIME_STAMP;
 }
 
-void ezTimestamp::SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
+ezTimestamp ezTimestamp::MakeFromInt(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
 {
   EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
+
+  ezTimestamp ts;
 
   switch (unitOfTime)
   {
     case ezSIUnitOfTime::Nanosecond:
-      m_iTimestamp = iTimeValue / 1000LL;
+      ts.m_iTimestamp = iTimeValue / 1000LL;
       break;
     case ezSIUnitOfTime::Microsecond:
-      m_iTimestamp = iTimeValue;
+      ts.m_iTimestamp = iTimeValue;
       break;
     case ezSIUnitOfTime::Millisecond:
-      m_iTimestamp = iTimeValue * 1000LL;
+      ts.m_iTimestamp = iTimeValue * 1000LL;
       break;
     case ezSIUnitOfTime::Second:
-      m_iTimestamp = iTimeValue * 1000000LL;
+      ts.m_iTimestamp = iTimeValue * 1000000LL;
       break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
+
+  return ts;
 }
 
 bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
@@ -74,22 +80,43 @@ bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
   return false;
 }
 
-ezDateTime::ezDateTime()
-  : m_uiMicroseconds(0)
-  , m_iYear(0)
-  , m_uiMonth(0)
-  , m_uiDay(0)
-  , m_uiDayOfWeek(0)
-  , m_uiHour(0)
-  , m_uiMinute(0)
-  , m_uiSecond(0)
+ezDateTime::ezDateTime() = default;
+ezDateTime::~ezDateTime() = default;
+
+ezDateTime ezDateTime::MakeFromTimestamp(ezTimestamp timestamp)
 {
+  ezDateTime res;
+  res.SetFromTimestamp(timestamp).AssertSuccess("Invalid timestamp");
+  return res;
+}
+
+bool ezDateTime::IsValid() const
+{
+  if (m_uiMonth <= 0 || m_uiMonth > 12)
+    return false;
+
+  if (m_uiDay <= 0 || m_uiDay > 31)
+    return false;
+
+  if (m_uiDayOfWeek > 6)
+    return false;
+
+  if (m_uiHour > 23)
+    return false;
+
+  if (m_uiMinute > 59)
+    return false;
+
+  if (m_uiSecond > 59)
+    return false;
+
+  return true;
 }
 
 ezDateTime::ezDateTime(ezTimestamp timestamp)
   : ezDateTime()
 {
-  SetTimestamp(timestamp);
+  SetFromTimestamp(timestamp).AssertSuccess();
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg)

@@ -34,9 +34,9 @@ namespace ezModelImporter2
 
   EZ_FORCE_INLINE void ozz2ez(const ozz::math::Quaternion& in, ezQuat& ref_qOut)
   {
-    ref_qOut.v.x = (float)in.x;
-    ref_qOut.v.y = (float)in.y;
-    ref_qOut.v.z = (float)in.z;
+    ref_qOut.x = (float)in.x;
+    ref_qOut.y = (float)in.y;
+    ref_qOut.z = (float)in.z;
     ref_qOut.w = (float)in.w;
   }
 

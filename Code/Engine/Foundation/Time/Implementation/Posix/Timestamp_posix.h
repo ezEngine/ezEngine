@@ -56,12 +56,12 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   return ezTimestamp(iTimeStamp, ezSIUnitOfTime::Second);
 }
 
-bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
+ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)
 {
   tm timeinfo = {0};
   time_t iTime = (time_t)timestamp.GetInt64(ezSIUnitOfTime::Second);
   if (gmtime_r(&iTime, &timeinfo) == nullptr)
-    return false;
+    return EZ_FAILURE;
 
   m_iYear = timeinfo.tm_year + 1900;
   m_uiMonth = timeinfo.tm_mon + 1;
@@ -72,5 +72,5 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiSecond = timeinfo.tm_sec;
   m_uiMicroseconds = 0;
 
-  return true;
+  return EZ_SUCCESS;
 }

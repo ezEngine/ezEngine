@@ -31,6 +31,23 @@ public:
   /// \brief Initializes x and y with zero, width and height with the given values.
   ezRectTemplate(Type width, Type height);
 
+  /// \brief Creates an 'invalid' rect.
+  ///
+  /// IsValid() will return false.
+  /// It is possible to make an invalid rect valid using ExpandToInclude().
+  [[nodiscard]] static ezRectTemplate<Type> MakeInvalid();
+
+  /// \brief Creates a rect that is the intersection of the two provided rects.
+  ///
+  /// If the two rects don't overlap, the result will be a valid rect, but have zero area.
+  /// See IsValid() and HasNonZeroArea().
+  [[nodiscard]] static ezRectTemplate<Type> MakeIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+
+  /// \brief Creates a rect that is the union of the two provided rects.
+  ///
+  /// This is the same as constructing a bounding box around the two rects.
+  [[nodiscard]] static ezRectTemplate<Type> MakeUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+
   /// The smaller value along x.
   Type Left() const { return x; }
 
@@ -65,7 +82,7 @@ public:
   ///
   /// IsValid() will return false afterwards.
   /// It is possible to make an invalid rect valid using ExpandToInclude().
-  void SetInvalid();
+  /*[[deprecated("Use MakeInvalid() instead.")]]*/ void SetInvalid();
 
   /// \brief Checks whether the position and size contain valid values.
   bool IsValid() const;
@@ -88,11 +105,11 @@ public:
 
   /// \brief The given point is clamped to the area of the rect, i.e. it will be either inside the rect or on its edge and it will have the closest
   /// possible distance to the original point.
-  const ezVec2Template<Type> GetClampedPoint(const ezVec2Template<Type>& vPoint) const;
+  [[nodiscard]] const ezVec2Template<Type> GetClampedPoint(const ezVec2Template<Type>& vPoint) const;
 
-  void SetIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+  /*[[deprecated("Use MakeIntersection() instead.")]]*/ void SetIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
 
-  void SetUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+  /*[[deprecated("Use MakeUnion() instead.")]]*/ void SetUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
 
   /// \brief Moves the rectangle
   void Translate(Type tX, Type tY);

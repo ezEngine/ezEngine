@@ -5,6 +5,16 @@ EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(ezInternal::QuadFloat v)
   m_v = v;
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MakeZero()
+{
+  return ezSimdVec4f(ezSimdFloat::MakeZero());
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MakeNaN()
+{
+  return ezSimdVec4f(ezSimdFloat::MakeNaN());
+}
+
 template <int N, ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetLength() const
 {

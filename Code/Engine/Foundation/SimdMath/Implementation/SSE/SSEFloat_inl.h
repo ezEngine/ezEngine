@@ -62,6 +62,18 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
   return _mm_setzero_ps();
 }
 
+// static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeZero()
+{
+  return _mm_setzero_ps();
+}
+
+// static
+EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeNaN()
+{
+  return _mm_set1_ps(ezMath::NaN<float>());
+}
+
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::operator+(const ezSimdFloat& f) const
 {
   return _mm_add_ps(m_v, f.m_v);
