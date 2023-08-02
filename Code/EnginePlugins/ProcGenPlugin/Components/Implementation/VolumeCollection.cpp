@@ -84,7 +84,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition,
       {
         const float fNewValue = ApplyValue(box.m_BlendMode, fValue, box.m_fValue);
         ezSimdVec4f vAlpha = absLocalPos.CompMul(ezSimdConversion::ToVec3(box.m_vFadeOutScale)) + ezSimdConversion::ToVec3(box.m_vFadeOutBias);
-        vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::ZeroVector());
+        vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::MakeZero());
         const float fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
         fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
       }
@@ -130,7 +130,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition,
         {
           const float fNewValue = ApplyValue(image.m_BlendMode, fValue, fValueToUse);
           ezSimdVec4f vAlpha = absLocalPos.CompMul(ezSimdConversion::ToVec3(image.m_vFadeOutScale)) + ezSimdConversion::ToVec3(image.m_vFadeOutBias);
-          vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::ZeroVector());
+          vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::MakeZero());
           const float fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
           fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
         }

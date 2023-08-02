@@ -271,13 +271,13 @@ ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezS
   const ezSimdFloat fCylDist = vLocalPos.x();
 
   if (fCylDist <= -m_fLength * 0.5f || fCylDist >= m_fLength * 0.5f)
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   ezSimdVec4f orthoDir = vLocalPos;
   orthoDir.SetX(0.0f);
 
   if (orthoDir.GetLengthSquared<3>() >= ezMath::Square(m_fRadius))
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   if (m_Mode == ezWindVolumeCylinderMode::Vortex)
   {
@@ -372,7 +372,7 @@ ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdV
   const ezSimdFloat fConeDist = vLocalPos.x();
 
   if (fConeDist <= ezSimdFloat::MakeZero() || fConeDist >= m_fLength)
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   // TODO: precompute base radius
   const float fBaseRadius = ezMath::Tan(m_Angle * 0.5f) * m_fLength;
@@ -384,7 +384,7 @@ ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdV
   orthoDir.SetX(0.0f);
 
   if (orthoDir.GetLengthSquared<3>() >= fConeRadius * fConeRadius)
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   return vLocalPos.GetNormalized<3>() * GetWindInMetersPerSecond();
 }

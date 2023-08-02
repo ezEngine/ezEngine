@@ -22,7 +22,7 @@ ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
 
 ezSimdVec4f ezSimdPerlinNoise::NoiseZeroToOne(const ezSimdVec4f& vX, const ezSimdVec4f& vY, const ezSimdVec4f& vZ, ezUInt32 uiNumOctaves /*= 1*/)
 {
-  ezSimdVec4f result = ezSimdVec4f::ZeroVector();
+  ezSimdVec4f result = ezSimdVec4f::MakeZero();
   ezSimdFloat amplitude = 1.0f;
   ezUInt32 uiOffset = 0;
 

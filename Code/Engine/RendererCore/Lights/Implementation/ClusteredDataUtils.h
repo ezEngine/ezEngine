@@ -119,7 +119,7 @@ namespace
     ezSimdVec4f dirUp = ezSimdConversion::ToVec3(camera.GetDirUp());
 
 
-    ezSimdVec4f fZn = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f fZn = ezSimdVec4f::MakeZero();
     ezSimdVec4f cc[8];
 
     for (ezInt32 z = 0; z < NUM_CLUSTERS_Z; z++)

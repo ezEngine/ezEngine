@@ -223,13 +223,13 @@ void PlacementTask::ExecuteVM()
 
     ezSimdVec4f random = ezSimdRandom::FloatMinMax(ezSimdVec4i(placementPoint.m_uiPointIndex), vMinValue, vMaxValue, seed);
 
-    ezSimdVec4f offset = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f offset = ezSimdVec4f::MakeZero();
     offset.SetZ(random.y());
     placementTransform.m_Transform.m_Position = ezSimdConversion::ToVec3(placementPoint.m_vPosition) + offset;
 
     ezSimdVec4f yaw = ezSimdVec4f(random.x());
     ezSimdVec4f roundedYaw = (yaw.CompDiv(vYawRotationSnap) + vHalf).Floor().CompMul(vYawRotationSnap);
-    yaw = ezSimdVec4f::Select(vYawRotationSnap == ezSimdVec4f::ZeroVector(), yaw, roundedYaw);
+    yaw = ezSimdVec4f::Select(vYawRotationSnap == ezSimdVec4f::MakeZero(), yaw, roundedYaw);
 
     ezSimdQuat qYawRot;
     qYawRot.SetFromAxisAndAngle(vUp, yaw.x());

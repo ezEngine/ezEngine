@@ -18,8 +18,8 @@ class EZ_GAMEENGINE_DLL ezRopeSimulator
 public:
   struct Node
   {
-    ezSimdVec4f m_vPosition = ezSimdVec4f::ZeroVector();
-    ezSimdVec4f m_vPreviousPosition = ezSimdVec4f::ZeroVector();
+    ezSimdVec4f m_vPosition = ezSimdVec4f::MakeZero();
+    ezSimdVec4f m_vPreviousPosition = ezSimdVec4f::MakeZero();
 
     // could add per node acceleration
     // could add per node mass

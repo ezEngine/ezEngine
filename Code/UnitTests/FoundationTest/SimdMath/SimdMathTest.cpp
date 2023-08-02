@@ -124,9 +124,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMath)
       ezSimdVec4f fSin = ezSimdMath::Sin(simdAngle);
       ezSimdVec4f fCos = ezSimdMath::Cos(simdAngle);
 
-      EZ_TEST_BOOL((fTan - fTanPrev).IsEqual(ezSimdVec4f::ZeroVector(), 0.002f).AllSet());
-      EZ_TEST_BOOL((fTan - fTanNext).IsEqual(ezSimdVec4f::ZeroVector(), 0.002f).AllSet());
-      EZ_TEST_BOOL((fTan - fSin.CompDiv(fCos)).IsEqual(ezSimdVec4f::ZeroVector(), 0.0005f).AllSet());
+      EZ_TEST_BOOL((fTan - fTanPrev).IsEqual(ezSimdVec4f::MakeZero(), 0.002f).AllSet());
+      EZ_TEST_BOOL((fTan - fTanNext).IsEqual(ezSimdVec4f::MakeZero(), 0.002f).AllSet());
+      EZ_TEST_BOOL((fTan - fSin.CompDiv(fCos)).IsEqual(ezSimdVec4f::MakeZero(), 0.0005f).AllSet());
       angle += ezAngle::MakeFromDegree(1.234f);
     }
   }

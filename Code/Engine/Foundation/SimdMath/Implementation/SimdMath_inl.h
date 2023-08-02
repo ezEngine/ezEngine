@@ -112,7 +112,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::ACos(const ezSimdVec4f& f)
   s += x3 * -0.0187293f;
   s = s.CompMul((ezSimdVec4f(1.0f) - x1).GetSqrt());
 
-  return ezSimdVec4f::Select(f >= ezSimdVec4f::ZeroVector(), s, ezSimdVec4f(ezMath::Pi<float>()) - s);
+  return ezSimdVec4f::Select(f >= ezSimdVec4f::MakeZero(), s, ezSimdVec4f(ezMath::Pi<float>()) - s);
 }
 
 // Reference: https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
@@ -128,5 +128,5 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::ATan(const ezSimdVec4f& f)
   poly = poly.CompMul(t0);
   t0 = ezSimdVec4f::Select(x < ezSimdVec4f(1.0f), poly, ezSimdVec4f(ezMath::Pi<float>() * 0.5f) - poly);
 
-  return ezSimdVec4f::Select(f < ezSimdVec4f::ZeroVector(), -t0, t0);
+  return ezSimdVec4f::Select(f < ezSimdVec4f::MakeZero(), -t0, t0);
 }

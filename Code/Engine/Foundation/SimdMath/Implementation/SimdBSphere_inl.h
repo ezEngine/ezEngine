@@ -41,7 +41,7 @@ inline void ezSimdBSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 ui
 
   const ezSimdVec4f* pCur = pPoints;
 
-  ezSimdVec4f vCenter = ezSimdVec4f::ZeroVector();
+  ezSimdVec4f vCenter = ezSimdVec4f::MakeZero();
   for (ezUInt32 i = 0; i < uiNumPoints; ++i)
   {
     vCenter += *pCur;

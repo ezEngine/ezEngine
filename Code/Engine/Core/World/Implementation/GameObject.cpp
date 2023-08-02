@@ -636,7 +636,7 @@ ezVec3 ezGameObject::GetAngularVelocity() const
 {
   const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
   const ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
-  ezSimdVec4f angularVelocity = ezSimdVec4f::ZeroVector();
+  ezSimdVec4f angularVelocity = ezSimdVec4f::MakeZero();
 
   ezSimdVec4f axis;
   ezSimdFloat angle;

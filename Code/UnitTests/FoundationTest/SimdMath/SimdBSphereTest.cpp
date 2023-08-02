@@ -31,7 +31,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(Point)")
   {
-    ezSimdBSphere s(ezSimdVec4f::ZeroVector(), 0.0f);
+    ezSimdBSphere s(ezSimdVec4f::MakeZero(), 0.0f);
 
     s.ExpandToInclude(ezSimdVec4f(3, 0, 0));
 

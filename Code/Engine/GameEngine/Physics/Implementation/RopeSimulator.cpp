@@ -98,7 +98,7 @@ float ezRopeSimulator::GetTotalLength() const
 ezSimdVec4f ezRopeSimulator::GetPositionAtLength(float fLength) const
 {
   if (m_Nodes.IsEmpty())
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   ezSimdVec4f prev = m_Nodes[0].m_vPosition;
   for (ezUInt32 i = 1; i < m_Nodes.GetCount(); ++i)
@@ -128,7 +128,7 @@ ezSimdVec4f ezRopeSimulator::MoveTowards(const ezSimdVec4f posThis, const ezSimd
 
   if (fLen < m_fSegmentLength)
   {
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
   }
 
   vDir /= fLen;
