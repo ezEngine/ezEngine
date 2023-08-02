@@ -301,8 +301,7 @@ namespace
   }
 
   template <typename Cluster, typename IntersectionFunc>
-  EZ_FORCE_INLINE void FillCluster(
-    const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* pClusters, IntersectionFunc func)
+  EZ_FORCE_INLINE void FillCluster(const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* pClusters, IntersectionFunc func)
   {
     ezSimdVec4f scale = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, -0.5f * NUM_CLUSTERS_Y, 1.0f, 1.0f);
     ezSimdVec4f bias = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, 0.5f * NUM_CLUSTERS_Y, 0.0f, 0.0f);
@@ -314,7 +313,7 @@ namespace
 
     ezSimdVec4i maxClusterIndex = ezSimdVec4i(NUM_CLUSTERS_X, NUM_CLUSTERS_Y, NUM_CLUSTERS_X, NUM_CLUSTERS_Y);
     minXY_maxXY = minXY_maxXY.CompMin(maxClusterIndex - ezSimdVec4i(1));
-    minXY_maxXY = minXY_maxXY.CompMax(ezSimdVec4i::ZeroVector());
+    minXY_maxXY = minXY_maxXY.CompMax(ezSimdVec4i::MakeZero());
 
     ezUInt32 xMin = minXY_maxXY.x();
     ezUInt32 yMin = minXY_maxXY.w();
