@@ -186,9 +186,9 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localPosition = ezSimdConversion::ToVec3(desc.m_LocalPosition);
   pTransformationData->m_localRotation = ezSimdConversion::ToQuat(desc.m_LocalRotation);
   pTransformationData->m_localScaling = ezSimdConversion::ToVec4(desc.m_LocalScaling.GetAsVec4(desc.m_LocalUniformScaling));
-  pTransformationData->m_globalTransform.SetIdentity();
+  pTransformationData->m_globalTransform = ezSimdTransform::MakeIdentity();
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  pTransformationData->m_lastGlobalTransform.SetIdentity();
+  pTransformationData->m_lastGlobalTransform = ezSimdTransform::MakeIdentity();
   pTransformationData->m_uiLastGlobalTransformUpdateCounter = ezInvalidIndex;
 #endif
   pTransformationData->m_localBounds.SetInvalid();

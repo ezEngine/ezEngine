@@ -87,7 +87,7 @@ void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocu
         // on play, the engine log has a lot of activity, so makes sense to clear that first
         ezQtLogPanel::GetSingleton()->EngineLog->GetLog()->Clear();
         // but I think we usually want to keep the editor log around
-        //ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
+        // ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
       }
     }
     break;
@@ -444,7 +444,7 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
 
     ezSimdTransform tParent = m_GlobalTransforms[pParent];
 
-    tLocal.SetLocalTransform(tParent, simdT);
+    tLocal = ezSimdTransform::MakeLocalTransform(tParent, simdT);
   }
   else
   {
@@ -1019,15 +1019,14 @@ ezTransform ezGameObjectDocument::ComputeGlobalTransform(const ezDocumentObject*
 {
   if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
   {
-    m_GlobalTransforms[pObject] = ezSimdTransform::IdentityTransform();
+    m_GlobalTransforms[pObject] = ezSimdTransform::MakeIdentity();
     return ezTransform::IdentityTransform();
   }
 
   const ezSimdTransform tParent = ezSimdConversion::ToTransform(ComputeGlobalTransform(pObject->GetParent()));
   const ezSimdTransform tLocal = QueryLocalTransformSimd(pObject);
 
-  ezSimdTransform tGlobal;
-  tGlobal.SetGlobalTransform(tParent, tLocal);
+  ezSimdTransform tGlobal = ezSimdTransform::MakeGlobalTransform(tParent, tLocal);
 
   m_GlobalTransforms[pObject] = tGlobal;
 

@@ -1081,7 +1081,7 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
 
   if (m_pParentData != nullptr)
   {
-    tLocal.SetLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
+    tLocal = ezSimdTransform::MakeLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
   }
   else
   {

@@ -776,7 +776,7 @@ void ezProcPlacementComponent::UpdateBoundsAndTiles()
       localBoxTransform.m_Scale = ezSimdConversion::ToVec3(boxExtent.m_vExtents * 0.5f);
 
       ezSimdTransform finalBoxTransform;
-      finalBoxTransform.SetGlobalTransform(ownerTransform, localBoxTransform);
+      finalBoxTransform = ezSimdTransform::MakeGlobalTransform(ownerTransform, localBoxTransform);
 
       ezSimdMat4f finalBoxMat = finalBoxTransform.GetAsMat4();
 

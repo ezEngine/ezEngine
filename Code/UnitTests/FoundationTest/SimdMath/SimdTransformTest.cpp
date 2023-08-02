@@ -61,14 +61,13 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
     }
 
     {
-      ezSimdTransform t;
-      t.SetIdentity();
+      ezSimdTransform t = ezSimdTransform::MakeIdentity();
 
       EZ_TEST_BOOL(t.m_Position.IsZero<3>());
       EZ_TEST_BOOL(t.m_Rotation == ezSimdQuat::MakeIdentity());
       EZ_TEST_BOOL((t.m_Scale == ezSimdVec4f(1)).AllSet<3>());
 
-      EZ_TEST_BOOL(t == ezSimdTransform::IdentityTransform());
+      EZ_TEST_BOOL(t == ezSimdTransform::MakeIdentity());
     }
   }
 
@@ -113,8 +112,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
     tChild.m_Rotation = tParent.m_Rotation * q;
     tChild.m_Scale = ezSimdVec4f(8);
 
-    ezSimdTransform tToChild;
-    tToChild.SetLocalTransform(tParent, tChild);
+    ezSimdTransform tToChild = ezSimdTransform::MakeLocalTransform(tParent, tChild);
 
     EZ_TEST_BOOL(tToChild.m_Position.IsEqual(ezSimdVec4f(4, 5, 6), 0.0001f).AllSet<3>());
     EZ_TEST_BOOL(tToChild.m_Rotation.IsEqualRotation(q, 0.0001f));
@@ -131,8 +129,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransform)
     tToChild.m_Rotation = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
     tToChild.m_Scale = ezSimdVec4f(4);
 
-    ezSimdTransform tChild;
-    tChild.SetGlobalTransform(tParent, tToChild);
+    ezSimdTransform tChild = ezSimdTransform::MakeGlobalTransform(tParent, tToChild);
 
     EZ_TEST_BOOL(tChild.m_Position.IsEqual(ezSimdVec4f(13, 12, -5), 0.0001f).AllSet<3>());
     EZ_TEST_BOOL(tChild.m_Rotation.IsEqualRotation(tParent.m_Rotation * tToChild.m_Rotation, 0.0001f));
