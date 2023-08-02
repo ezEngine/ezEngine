@@ -129,8 +129,8 @@ void ezPlaneTemplate<Type>::Transform(const ezMat3Template<Type>& m)
   }
   else
   {
-    SetFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
-  } 
+    *this = ezPlane::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+  }
 }
 
 template <typename Type>
@@ -149,7 +149,7 @@ void ezPlaneTemplate<Type>::Transform(const ezMat4Template<Type>& m)
   }
   else
   {
-    SetFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+    *this = ezPlane::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
   }
 }
 

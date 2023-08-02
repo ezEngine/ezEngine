@@ -11,12 +11,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     ezFrustum f;
 
     ezPlane p[6];
-    p[0].SetFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
-    p[1].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[2].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[3].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[4].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[5].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[0] = ezPlane::MakeFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
+    p[1] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[2] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[3] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[4] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[5] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
 
     f = ezFrustum::MakeFromPlanes(p);
 
@@ -29,12 +29,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     ezFrustum f;
 
     ezPlane p[6];
-    p[0].SetFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
-    p[1].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[2].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[3].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[4].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[5].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[0] = ezPlane::MakeFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
+    p[1] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[2] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[3] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[4] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[5] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
 
     f = ezFrustum::MakeFromPlanes(p);
 
@@ -56,12 +56,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     ezFrustum f;
 
     ezPlane p[6];
-    p[0].SetFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
-    p[1].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[2].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[3].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[4].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
-    p[5].SetFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[0] = ezPlane::MakeFromNormalAndPoint(ezVec3(1, 0, 0), ezVec3(1, 2, 3));
+    p[1] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[2] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[3] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[4] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
+    p[5] = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 1, 0), ezVec3(2, 3, 4));
 
     f = ezFrustum::MakeFromPlanes(p);
 

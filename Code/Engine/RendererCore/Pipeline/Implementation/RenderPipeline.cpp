@@ -993,7 +993,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
   ezFrustum limitedFrustum = frustum;
   const ezPlane farPlane = limitedFrustum.GetPlane(ezFrustum::PlaneType::FarPlane);
-  limitedFrustum.AccessPlane(ezFrustum::PlaneType::FarPlane).SetFromNormalAndPoint(farPlane.m_vNormal, view.GetCullingCamera()->GetCenterPosition() + farPlane.m_vNormal * cvar_SpatialCullingOcclusionFarPlane.GetValue()); // only use occluders closer than this
+  limitedFrustum.AccessPlane(ezFrustum::PlaneType::FarPlane) = ezPlane::MakeFromNormalAndPoint(farPlane.m_vNormal, view.GetCullingCamera()->GetCenterPosition() + farPlane.m_vNormal * cvar_SpatialCullingOcclusionFarPlane.GetValue()); // only use occluders closer than this
 
   ezRasterizerView* pRasterizer = PrepareOcclusionCulling(limitedFrustum, view);
   EZ_SCOPE_EXIT(g_pRasterizerViewPool->ReturnRasterizerView(pRasterizer));

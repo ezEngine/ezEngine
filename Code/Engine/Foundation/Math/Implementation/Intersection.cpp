@@ -10,8 +10,7 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
   EZ_ASSERT_DEBUG(uiNumVertices >= 3, "A polygon must have at least three vertices.");
   EZ_ASSERT_DEBUG(uiVertexStride >= sizeof(ezVec3), "The vertex stride is invalid.");
 
-  ezPlane p(*pPolygonVertices, *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride),
-    *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * 2));
+  ezPlane p = ezPlane::MakeFromPoints(*pPolygonVertices, *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride), *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * 2));
 
   EZ_ASSERT_DEBUG(p.IsValid(), "The given polygon's plane is invalid (computed from the first three vertices only).");
 
@@ -31,7 +30,7 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
   {
     const ezVec3 vThisPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, ezMath::SafeMultiply32(uiVertexStride, i));
 
-    const ezPlane EdgePlane(vThisPoint, vPrevPoint, vPrevPoint + p.m_vNormal);
+    ezPlane EdgePlane = ezPlane::MakeFromPoints(vThisPoint, vPrevPoint, vPrevPoint + p.m_vNormal);
 
     // if the intersection point is outside of any of the edge planes, it is not inside the (convex) polygon
     if (EdgePlane.GetPointPosition(vIntersection) == ezPositionOnPlane::Back)

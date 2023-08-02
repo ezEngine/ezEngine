@@ -256,8 +256,8 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     const ezVec3 vTopRight = cam->GetCenterPosition() + cam->GetCenterDirRight() * fDimX + cam->GetCenterDirUp() * fDimY;
 
     ezPlane plane1, plane2;
-    plane1.SetFromNormalAndPoint(cam->GetCenterDirRight(), ezVec3(0));
-    plane2.SetFromNormalAndPoint(cam->GetCenterDirUp(), ezVec3(0));
+    plane1 = ezPlane::MakeFromNormalAndPoint(cam->GetCenterDirRight(), ezVec3(0));
+    plane2 = ezPlane::MakeFromNormalAndPoint(cam->GetCenterDirUp(), ezVec3(0));
 
     const float fFirstDist1 = plane1.GetDistanceTo(vBottomLeft) - fDensity;
     const float fLastDist1 = plane1.GetDistanceTo(vTopRight) + fDensity;

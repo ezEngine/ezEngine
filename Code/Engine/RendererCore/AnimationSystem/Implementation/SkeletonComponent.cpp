@@ -280,7 +280,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
       if (pb.dir.GetAngleBetween(dirToBone) < ezAngle::MakeFromDegree(45))
       {
         ezPlane plane;
-        plane.SetFromNormalAndPoint(pb.dir, pb.pos);
+        plane = ezPlane::MakeFromNormalAndPoint(pb.dir, pb.pos);
         pb.minDistToChild = ezMath::Min(pb.minDistToChild, plane.GetDistanceTo(v1));
       }
     }

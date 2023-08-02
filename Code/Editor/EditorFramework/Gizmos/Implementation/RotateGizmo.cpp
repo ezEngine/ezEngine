@@ -117,7 +117,7 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mInvViewProj, 0, 0, m_vViewport.x, m_vViewport.y, vMousePos, vPosOnNearPlane, &vRayDir).IgnoreResult();
 
     ezPlane plane;
-    plane.SetFromNormalAndPoint(vAxisWS, vGizmoPosWS);
+    plane = ezPlane::MakeFromNormalAndPoint(vAxisWS, vGizmoPosWS);
 
     ezVec3 vPointOnGizmoWS;
     if (!plane.GetRayIntersection(vPosOnNearPlane, vRayDir, nullptr, &vPointOnGizmoWS))

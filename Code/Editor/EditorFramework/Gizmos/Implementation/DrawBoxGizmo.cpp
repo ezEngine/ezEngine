@@ -126,7 +126,7 @@ ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   else
   {
     ezPlane plane;
-    plane.SetFromNormalAndPoint(m_vUpAxis, m_vFirstCorner);
+    plane = ezPlane::MakeFromNormalAndPoint(m_vUpAxis, m_vFirstCorner);
 
     GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), plane, m_vCurrentPosition).IgnoreResult();
 

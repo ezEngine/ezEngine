@@ -338,10 +338,10 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - (y + 1)), fOtherDepths[2]), vOtherPos[2]).IgnoreResult();
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - (y - 1)), fOtherDepths[3]), vOtherPos[3]).IgnoreResult();
 
-    vNormals[0] = ezPlane(vPickedPosition, vOtherPos[0], vOtherPos[2]).m_vNormal;
-    vNormals[1] = ezPlane(vPickedPosition, vOtherPos[2], vOtherPos[1]).m_vNormal;
-    vNormals[2] = ezPlane(vPickedPosition, vOtherPos[1], vOtherPos[3]).m_vNormal;
-    vNormals[3] = ezPlane(vPickedPosition, vOtherPos[3], vOtherPos[0]).m_vNormal;
+    vNormals[0] = ezPlane::MakeFromPoints(vPickedPosition, vOtherPos[0], vOtherPos[2]).m_vNormal;
+    vNormals[1] = ezPlane::MakeFromPoints(vPickedPosition, vOtherPos[2], vOtherPos[1]).m_vNormal;
+    vNormals[2] = ezPlane::MakeFromPoints(vPickedPosition, vOtherPos[1], vOtherPos[3]).m_vNormal;
+    vNormals[3] = ezPlane::MakeFromPoints(vPickedPosition, vOtherPos[3], vOtherPos[0]).m_vNormal;
 
     vNormal = (vNormals[0] + vNormals[1] + vNormals[2] + vNormals[3]).GetNormalized();
   }

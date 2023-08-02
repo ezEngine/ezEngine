@@ -217,7 +217,7 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
     return EZ_FAILURE;
 
   ezPlane Plane;
-  Plane.SetFromNormalAndPoint(m_vMoveAxis, m_vStartPosition);
+  Plane = ezPlane::MakeFromNormalAndPoint(m_vMoveAxis, m_vStartPosition);
 
   ezVec3 vIntersection;
   if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
@@ -239,7 +239,7 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   const ezVec3 vPlaneNormal = m_vMoveAxis.CrossRH(vPlaneTangent);
 
   ezPlane Plane;
-  Plane.SetFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
+  Plane = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
 
   ezVec3 vIntersection;
   if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))

@@ -317,7 +317,7 @@ ezResult RtsGameState::ComputePickingRay()
 ezResult RtsGameState::PickGroundPlanePosition(ezVec3& out_vPositon) const
 {
   ezPlane p;
-  p.SetFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0));
+  p = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0));
 
   return p.GetRayIntersection(m_vCurrentPickingRayStart, m_vCurrentPickingRayDir, nullptr, &out_vPositon) ? EZ_SUCCESS : EZ_FAILURE;
 }

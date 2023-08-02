@@ -313,7 +313,7 @@ ezResult ezNonUniformBoxGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScre
   const ezVec3 vPlaneNormal = m_vMoveAxis.CrossRH(vPlaneTangent);
 
   ezPlane Plane;
-  Plane.SetFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
+  Plane = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
 
   ezVec3 vIntersection;
   if (m_pCamera->IsPerspective())

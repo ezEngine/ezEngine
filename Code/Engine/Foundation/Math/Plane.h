@@ -43,7 +43,7 @@ public:
   /*[[deprecated("Use MakeFromPoints() instead.")]]*/ ezPlaneTemplate(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
 
   /// \brief Creates the plane-equation from three points on the plane, given as an array.
-  /*[[deprecated("Use MakeFromPoints() instead.")]]*/ ezPlaneTemplate(const ezVec3Template<Type>* const pVertices); // [tested]
+  /*[[deprecated("Use SetFromPoints() instead.")]]*/ ezPlaneTemplate(const ezVec3Template<Type>* const pVertices); // [tested]
 
   /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other
   /// for the typical algorithm.

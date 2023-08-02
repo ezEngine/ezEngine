@@ -173,7 +173,7 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
 
     {
       ezPlane p;
-      p.SetFromNormalAndPoint(vNewCameraDirection, vNewCameraPosition);
+      p = ezPlane::MakeFromNormalAndPoint(vNewCameraDirection, vNewCameraPosition);
 
       // at some distance the floating point precision gets so crappy that the camera movement breaks
       // therefore we clamp it to a 'reasonable' distance here

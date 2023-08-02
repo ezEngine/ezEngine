@@ -301,11 +301,11 @@ ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) cons
 {
   if (m_pViewConfig->m_Camera.IsPerspective())
   {
-    return ezPlane(ezVec3(0, 0, 1), vPointOnPlane);
+    return ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), vPointOnPlane);
   }
   else
   {
-    return ezPlane(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
+    return ezPlane::MakeFromNormalAndPoint(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
   }
 }
 
