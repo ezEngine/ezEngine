@@ -118,7 +118,7 @@ public:
   EZ_ALWAYS_INLINE bool SendMessage(ezMessage& ref_msg) const { return SendMessageInternal(ref_msg, false); }
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(const ezMessage& msg, ezTime delay = ezTime::Zero(), ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const ezMessage& msg, ezTime delay = ezTime::MakeZero(), ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Returns whether the given Message is handled by this component.
   virtual bool HandlesMessage(const ezMessage& msg) const;

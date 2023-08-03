@@ -57,13 +57,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTime, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Nanoseconds, In, "Nanoseconds")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Microseconds, In, "Microseconds")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Milliseconds, In, "Milliseconds")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Seconds, In, "Seconds")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Minutes, In, "Minutes")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Hours, In, "Hours")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Zero)->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromNanoseconds, In, "Nanoseconds")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromMicroseconds, In, "Microseconds")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromMilliseconds, In, "Milliseconds")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromSeconds, In, "Seconds")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromMinutes, In, "Minutes")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeFromHours, In, "Hours")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(MakeZero)->AddFlags(ezPropertyFlags::Const),
   }
   EZ_END_FUNCTIONS;
 }
@@ -380,8 +380,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAngle, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(Degree),
-    EZ_FUNCTION_PROPERTY(Radian),
+    EZ_FUNCTION_PROPERTY(MakeFromDegree),
+    EZ_FUNCTION_PROPERTY(MakeFromRadian),
   }
   EZ_END_FUNCTIONS;
 }

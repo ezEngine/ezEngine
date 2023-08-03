@@ -47,7 +47,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDocumentInfo::ezDocumentInfo()
 {
-  m_DocumentID.CreateNewUuid();
+  m_DocumentID = ezUuid::MakeUuid();
 }
 
 

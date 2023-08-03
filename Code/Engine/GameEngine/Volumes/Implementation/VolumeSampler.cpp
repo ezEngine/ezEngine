@@ -6,7 +6,7 @@
 ezVolumeSampler::ezVolumeSampler() = default;
 ezVolumeSampler::~ezVolumeSampler() = default;
 
-void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue, ezTime interpolationDuration /*= ezTime::Zero()*/)
+void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue, ezTime interpolationDuration /*= ezTime::MakeZero()*/)
 {
   auto& value = m_Values[sName];
   value.m_DefaultValue = defaultValue;
@@ -53,7 +53,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
   };
 
   auto vPos = ezSimdConversion::ToVec3(vGlobalPosition);
-  ezBoundingSphere sphere(vGlobalPosition, 0.01f);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(vGlobalPosition, 0.01f);
 
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = spatialCategory.GetBitmask();
@@ -77,7 +77,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
           if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
           {
             ezSimdVec4f vAlpha = (ezSimdVec4f(1.0f) - absLocalPos).CompDiv(ezSimdConversion::ToVec3(pBoxComponent->GetFalloff().CompMax(ezVec3(0.0001f))));
-            vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::ZeroVector());
+            vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::MakeZero());
             info.m_fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
           }
         }

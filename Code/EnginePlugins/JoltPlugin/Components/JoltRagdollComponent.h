@@ -122,7 +122,7 @@ public:
   float m_fOwnerVelocityScale = 1.0f;              // [ property ]
   float m_fCenterVelocity = 0.0f;                  // [ property ]
   float m_fCenterAngularVelocity = 0.0f;           // [ property ]
-  ezVec3 m_vCenterPosition = ezVec3::ZeroVector(); // [ property ]
+  ezVec3 m_vCenterPosition = ezVec3::MakeZero();   // [ property ]
 
   void SetJointTypeOverride(ezStringView sJointName, ezEnum<ezSkeletonJointType> type);
 
@@ -174,10 +174,10 @@ protected:
   JPH::RagdollSettings* m_pRagdollSettings = nullptr;
   ezDynamicArray<Limb> m_Limbs;
   ezTransform m_RootBodyLocalTransform;
-  ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
-  ezVec3 m_vInitialImpulsePosition = ezVec3::ZeroVector();
-  ezVec3 m_vInitialImpulseDirection = ezVec3::ZeroVector();
+  ezVec3 m_vInitialImpulsePosition = ezVec3::MakeZero();
+  ezVec3 m_vInitialImpulseDirection = ezVec3::MakeZero();
   ezUInt8 m_uiNumInitialImpulses = 0;
 
   struct JointOverride

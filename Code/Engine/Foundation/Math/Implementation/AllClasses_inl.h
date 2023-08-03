@@ -28,7 +28,7 @@ inline Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezBoundingSphereTem
 template <typename Type>
 inline const ezBoundingSphereTemplate<Type> ezBoundingBoxTemplate<Type>::GetBoundingSphere() const
 {
-  return ezBoundingSphereTemplate<Type>(GetCenter(), (m_vMax - m_vMin).GetLength() * (Type)0.5);
+  return ezBoundingSphereTemplate<Type>::MakeFromCenterAndRadius(GetCenter(), (m_vMax - m_vMin).GetLength() * (Type)0.5);
 }
 
 template <typename Type>
@@ -87,7 +87,7 @@ bool ezBoundingSphereTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>&
 template <typename Type>
 const ezBoundingBoxTemplate<Type> ezBoundingSphereTemplate<Type>::GetBoundingBox() const
 {
-  return ezBoundingBoxTemplate<Type>(m_vCenter - ezVec3Template<Type>(m_fRadius), m_vCenter + ezVec3Template<Type>(m_fRadius));
+  return ezBoundingBoxTemplate<Type>::MakeFromMinMax(m_vCenter - ezVec3Template<Type>(m_fRadius), m_vCenter + ezVec3Template<Type>(m_fRadius));
 }
 
 

@@ -149,7 +149,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
 
   if (cvar_StreamingTextureLoadDelay > 0)
   {
-    ezThreadUtils::Sleep(ezTime::Seconds(cvar_StreamingTextureLoadDelay));
+    ezThreadUtils::Sleep(ezTime::MakeFromSeconds(cvar_StreamingTextureLoadDelay));
   }
 
   return res;

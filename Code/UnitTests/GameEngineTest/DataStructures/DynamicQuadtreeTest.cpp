@@ -123,7 +123,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInRange(Point)")
   {
     ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -160,7 +160,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInRange(Radius)")
   {
     ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -213,7 +213,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObject(handle)")
   {
     ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -243,7 +243,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObject(index)")
   {
     ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -273,7 +273,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObjectsOfType")
   {
     ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -315,7 +315,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAllObjects")
   {
     ezDynamicQuadtree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {

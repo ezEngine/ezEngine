@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraShakeComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("MinShake", m_MinShake),
-    EZ_MEMBER_PROPERTY("MaxShake", m_MaxShake)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(5))),
+    EZ_MEMBER_PROPERTY("MaxShake", m_MaxShake)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(5))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -30,7 +30,7 @@ ezCameraShakeComponent::~ezCameraShakeComponent() = default;
 
 void ezCameraShakeComponent::Update()
 {
-  const ezTime tDuration = ezTime::Seconds(1.0 / 30.0); // 30 Hz vibration seems to work well
+  const ezTime tDuration = ezTime::MakeFromSeconds(1.0 / 30.0); // 30 Hz vibration seems to work well
 
   const ezTime tNow = ezTime::Now();
 
@@ -43,8 +43,7 @@ void ezCameraShakeComponent::Update()
   {
     const float fLerp = ezMath::Clamp((tNow - m_ReferenceTime).AsFloatInSeconds() / tDuration.AsFloatInSeconds(), 0.0f, 1.0f);
 
-    ezQuat q;
-    q.SetSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
+    ezQuat q = ezQuat::MakeSlerp(m_qPrevTarget, m_qNextTarget, fLerp);
 
     GetOwner()->SetLocalRotation(q);
   }
@@ -70,15 +69,15 @@ void ezCameraShakeComponent::GenerateKeyframe()
 
   if (deviation > ezAngle())
   {
-    m_Rotation += ezAngle::Radian(pWorld->GetRandomNumberGenerator().FloatMinMax(ezAngle::Degree(120).GetRadian(), ezAngle::Degree(240).GetRadian()));
+    m_Rotation += ezAngle::MakeFromRadian(pWorld->GetRandomNumberGenerator().FloatMinMax(ezAngle::MakeFromDegree(120).GetRadian(), ezAngle::MakeFromDegree(240).GetRadian()));
     m_Rotation.NormalizeRange();
 
     ezQuat qRot;
-    qRot.SetFromAxisAndAngle(ezVec3::UnitXAxis(), m_Rotation);
+    qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisX(), m_Rotation);
 
-    const ezVec3 tiltAxis = qRot * ezVec3::UnitZAxis();
+    const ezVec3 tiltAxis = qRot * ezVec3::MakeAxisZ();
 
-    m_qNextTarget.SetFromAxisAndAngle(tiltAxis, deviation);
+    m_qNextTarget = ezQuat::MakeFromAxisAndAngle(tiltAxis, deviation);
   }
   else
   {
@@ -99,7 +98,7 @@ float ezCameraShakeComponent::GetStrengthAtPosition() const
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = ezCameraShakeVolumeComponent::SpatialDataCategory.GetBitmask();
 
-    pSpatial->FindObjectsInSphere(ezBoundingSphere(vPosition, 0.5f), queryParams, volumes);
+    pSpatial->FindObjectsInSphere(ezBoundingSphere::MakeFromCenterAndRadius(vPosition, 0.5f), queryParams, volumes);
 
     const ezSimdVec4f pos = ezSimdConversion::ToVec3(vPosition);
 

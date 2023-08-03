@@ -667,12 +667,11 @@ void ezProcPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_m
   if (m_BoxExtents.IsEmpty())
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   for (auto& boxExtent : m_BoxExtents)
   {
-    ezBoundingBoxSphere localBox = ezBoundingBox(-boxExtent.m_vExtents * 0.5f, boxExtent.m_vExtents * 0.5f);
+    ezBoundingBoxSphere localBox = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-boxExtent.m_vExtents * 0.5f, boxExtent.m_vExtents * 0.5f));
     localBox.Transform(ezTransform(boxExtent.m_vOffset, boxExtent.m_Rotation).GetAsMat4());
 
     bounds.ExpandToInclude(localBox);
@@ -776,7 +775,7 @@ void ezProcPlacementComponent::UpdateBoundsAndTiles()
       localBoxTransform.m_Scale = ezSimdConversion::ToVec3(boxExtent.m_vExtents * 0.5f);
 
       ezSimdTransform finalBoxTransform;
-      finalBoxTransform.SetGlobalTransform(ownerTransform, localBoxTransform);
+      finalBoxTransform = ezSimdTransform::MakeGlobalTransform(ownerTransform, localBoxTransform);
 
       ezSimdMat4f finalBoxMat = finalBoxTransform.GetAsMat4();
 

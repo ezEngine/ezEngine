@@ -24,7 +24,7 @@ public:
   ~ezPoseResultAnimNode();
 
 private:
-  ezTime m_FadeDuration = ezTime::Milliseconds(200); // [ property ]
+  ezTime m_FadeDuration = ezTime::MakeFromMilliseconds(200); // [ property ]
 
   ezAnimGraphLocalPoseInputPin m_InPose;         // [ property ]
   ezAnimGraphNumberInputPin m_InTargetWeight;    // [ property ]

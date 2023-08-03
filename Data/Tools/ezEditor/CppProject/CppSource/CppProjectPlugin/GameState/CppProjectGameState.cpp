@@ -37,7 +37,7 @@ void CppProjectGameState::AfterWorldUpdate()
 
   if (cvar_DebugDisplay)
   {
-    ezDebugRenderer::DrawLineSphere(m_pMainWorld, ezBoundingSphere(ezVec3::ZeroVector(), 1.0f), ezColor::Orange);
+    ezDebugRenderer::DrawLineSphere(m_pMainWorld, ezBoundingSphere(ezVec3::MakeZero(), 1.0f), ezColor::Orange);
   }
 
   ezDebugRenderer::Draw2DText(m_pMainWorld, "Press 'O' to spawn objects", ezVec2I32(10, 10), ezColor::White);

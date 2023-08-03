@@ -636,7 +636,7 @@ ezVec3 ezGameObject::GetAngularVelocity() const
 {
   const ezSimdFloat invDeltaSeconds = GetWorld()->GetInvDeltaSeconds();
   const ezSimdQuat q = m_pTransformationData->m_globalTransform.m_Rotation * -m_pTransformationData->m_lastGlobalTransform.m_Rotation;
-  ezSimdVec4f angularVelocity = ezSimdVec4f::ZeroVector();
+  ezSimdVec4f angularVelocity = ezSimdVec4f::MakeZero();
 
   ezSimdVec4f axis;
   ezSimdFloat angle;
@@ -656,11 +656,11 @@ void ezGameObject::UpdateGlobalTransform()
 void ezGameObject::UpdateLocalBounds()
 {
   ezMsgUpdateLocalBounds msg;
-  msg.m_ResultingLocalBounds.SetInvalid();
+  msg.m_ResultingLocalBounds = ezBoundingBoxSphere::MakeInvalid();
 
   SendMessage(msg);
 
-  const bool bIsAlwaysVisible = m_pTransformationData->m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  const bool bIsAlwaysVisible = m_pTransformationData->m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
   bool bRecreateSpatialData = false;
 
   if (m_pTransformationData->m_hSpatialData.IsInvalidated() == false)
@@ -1081,7 +1081,7 @@ void ezGameObject::TransformationData::UpdateLocalTransform()
 
   if (m_pParentData != nullptr)
   {
-    tLocal.SetLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
+    tLocal = ezSimdTransform::MakeLocalTransform(m_pParentData->m_globalTransform, m_globalTransform);
   }
   else
   {
@@ -1137,7 +1137,7 @@ void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatia
 
   UpdateGlobalBounds();
 
-  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
   if (m_hSpatialData.IsInvalidated() == false && bIsAlwaysVisible == false && m_globalBounds != oldGlobalBounds)
   {
     ref_spatialSystem.UpdateSpatialDataBounds(m_hSpatialData, m_globalBounds);
@@ -1152,7 +1152,7 @@ void ezGameObject::TransformationData::RecreateSpatialData(ezSpatialSystem& ref_
     m_hSpatialData.Invalidate();
   }
 
-  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
+  const bool bIsAlwaysVisible = m_localBounds.m_BoxHalfExtents.w() != ezSimdFloat::MakeZero();
   if (bIsAlwaysVisible)
   {
     m_hSpatialData = ref_spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask, m_pObject->m_Tags);

@@ -207,9 +207,9 @@ void ezQtUiServices::TickEventHandler()
   const ezTime endTime = ezTime::Now();
   ezTime lastFrameTime = endTime - startTime;
 
-  ezTime delay = ezTime::Milliseconds(1000.0 / s_LastTickEvent.m_fRefreshRate);
+  ezTime delay = ezTime::MakeFromMilliseconds(1000.0 / s_LastTickEvent.m_fRefreshRate);
   delay -= lastFrameTime;
-  delay = ezMath::Max(delay, ezTime::Zero());
+  delay = ezMath::Max(delay, ezTime::MakeZero());
 
   QTimer::singleShot((ezInt32)ezMath::Floor(delay.GetMilliseconds()), this, SLOT(TickEventHandler()));
 }
@@ -255,7 +255,7 @@ void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)
   Event e;
   e.m_Type = Event::ShowGlobalStatusBarText;
   e.m_sText = msg.GetText(tmp);
-  e.m_Time = ezTime::Seconds(0);
+  e.m_Time = ezTime::MakeFromSeconds(0);
 
   s_Events.Broadcast(e);
 }

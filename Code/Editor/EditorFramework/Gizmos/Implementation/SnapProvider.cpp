@@ -5,7 +5,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Configuration/SubSystem.h>
 
-ezAngle ezSnapProvider::s_RotationSnapValue = ezAngle::Degree(15.0f);
+ezAngle ezSnapProvider::s_RotationSnapValue = ezAngle::MakeFromDegree(15.0f);
 float ezSnapProvider::s_fScaleSnapValue = 0.125f;
 float ezSnapProvider::s_fTranslationSnapValue = 0.25f;
 ezEventSubscriptionID ezSnapProvider::s_UserPreferencesChanged = 0;
@@ -157,7 +157,7 @@ void ezSnapProvider::SnapRotation(ezAngle& ref_rotation)
 {
   if (s_RotationSnapValue.GetRadian() != 0.0f)
   {
-    ref_rotation = ezAngle::Radian(ezMath::RoundToMultiple(ref_rotation.GetRadian(), s_RotationSnapValue.GetRadian()));
+    ref_rotation = ezAngle::MakeFromRadian(ezMath::RoundToMultiple(ref_rotation.GetRadian(), s_RotationSnapValue.GetRadian()));
   }
 }
 

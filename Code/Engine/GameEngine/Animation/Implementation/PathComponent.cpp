@@ -539,8 +539,8 @@ static void ComputeCpDirs(const ezDynamicArray<ezPathComponent::ControlPoint>& p
 
     ezVec3 dirP = (posPrev - cpC.m_vPosition);
     ezVec3 dirN = (posNext - cpC.m_vPosition);
-    dirP.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
-    dirN.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+    dirP.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
+    dirN.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
     ezVec3 dirAvg = dirP - dirN;
     dirAvg.NormalizeIfNotZero(cs.m_vForwardDir).IgnoreResult();
@@ -663,8 +663,7 @@ static void ComputeSegmentUpVector(ezArrayPtr<ezPathComponent::LinearizedElement
 
     const ezAngle roll = ezMath::Lerp(cp0.m_Roll, cp1.m_Roll, fLerpFactor);
 
-    ezQuat qRoll;
-    qRoll.SetFromAxisAndAngle(tangents[t], roll);
+    ezQuat qRoll = ezQuat::MakeFromAxisAndAngle(tangents[t], roll);
 
     ezVec3 vLocalUp = ezMath::Lerp(cp0up, cp1up, fLerpFactor);
     vLocalUp.NormalizeIfNotZero(vWorldUp).IgnoreResult();

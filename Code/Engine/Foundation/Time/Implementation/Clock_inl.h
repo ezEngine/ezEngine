@@ -61,14 +61,14 @@ inline double ezClock::GetSpeed() const
 
 inline void ezClock::SetMinimumTimeStep(ezTime min)
 {
-  EZ_ASSERT_DEV(min >= ezTime::Seconds(0.0), "Time flows in one direction only.");
+  EZ_ASSERT_DEV(min >= ezTime::MakeFromSeconds(0.0), "Time flows in one direction only.");
 
   m_MinTimeStep = min;
 }
 
 inline void ezClock::SetMaximumTimeStep(ezTime max)
 {
-  EZ_ASSERT_DEV(max >= ezTime::Seconds(0.0), "Time flows in one direction only.");
+  EZ_ASSERT_DEV(max >= ezTime::MakeFromSeconds(0.0), "Time flows in one direction only.");
 
   m_MaxTimeStep = max;
 }

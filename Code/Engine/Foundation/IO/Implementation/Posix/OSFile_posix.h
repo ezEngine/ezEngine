@@ -76,7 +76,7 @@ ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMod
   }
 
   const int iSharedMode = (FileShareMode == ezFileShareMode::Exclusive) ? LOCK_EX : LOCK_SH;
-  const ezTime sleepTime = ezTime::Milliseconds(20);
+  const ezTime sleepTime = ezTime::MakeFromMilliseconds(20);
   ezInt32 iRetries = m_bRetryOnSharingViolation ? 20 : 1;
 
   while (flock(fd, iSharedMode | LOCK_NB /* do not block */) != 0)

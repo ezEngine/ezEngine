@@ -40,7 +40,7 @@ public:
   /// Call GetServerConnectionAddress() to retrieve the address.
   ///
   /// \param timeout Specifies the timeout for checking whether a server can be reached.
-  ezResult SearchForServerAddress(ezTime timeout = ezTime::Seconds(5));
+  ezResult SearchForServerAddress(ezTime timeout = ezTime::MakeFromSeconds(5));
 
   /// \brief Waits for a Fileserver application to try to connect to this device and send its own information.
   ///
@@ -50,7 +50,7 @@ public:
   /// thus enabling the exchange of connection information.
   /// Once this has happened, this function stores the valid server IP internally and returns with success.
   /// A subsequent call to EnsureConnected() should then succeed.
-  ezResult WaitForServerInfo(ezTime timeout = ezTime::Seconds(60.0 * 5));
+  ezResult WaitForServerInfo(ezTime timeout = ezTime::MakeFromSeconds(60.0 * 5));
 
   /// \brief Stores the current connection info to a text file in the user data folder.
   ezResult SaveCurrentConnectionInfoToDisk() const;
@@ -70,7 +70,7 @@ public:
   /// A zero timeout means the application will wait indefinitely.
   /// A negative number means to either wait that time, or whatever was specified through the command-line.
   /// The timeout can be specified with the command line switch "-fs_timeout X" (in seconds).
-  ezResult EnsureConnected(ezTime timeout = ezTime::Seconds(-5));
+  ezResult EnsureConnected(ezTime timeout = ezTime::MakeFromSeconds(-5));
 
   /// \brief Needs to be called regularly to update the network. By default this is automatically called when the global event
   /// 'GameApp_UpdatePlugins' is fired, which is done by ezGameApplication.

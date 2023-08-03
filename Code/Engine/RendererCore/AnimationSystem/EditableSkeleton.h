@@ -28,8 +28,8 @@ struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneShape : public ezReflectedClass
 
   ezEnum<ezSkeletonJointGeometryType> m_Geometry;
 
-  ezVec3 m_vOffset = ezVec3::ZeroVector();
-  ezQuat m_qRotation = ezQuat::IdentityQuaternion();
+  ezVec3 m_vOffset = ezVec3::MakeZero();
+  ezQuat m_qRotation = ezQuat::MakeIdentity();
 
   float m_fLength = 0;    // Box, Capsule; 0 means parent joint to this joint (auto mode)
   float m_fWidth = 0;     // Box
@@ -63,7 +63,7 @@ public:
   void CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint);
 
   ezHashedString m_sName;
-  ezTransform m_LocalTransform = ezTransform::IdentityTransform();
+  ezTransform m_LocalTransform = ezTransform::MakeIdentity();
 
   ezEnum<ezSkeletonJointType> m_JointType;
 
@@ -74,10 +74,10 @@ public:
   ezAngle m_SwingLimitY;
   ezAngle m_SwingLimitZ;
 
-  ezVec3 m_vGizmoOffsetPositionRO = ezVec3::ZeroVector();
-  ezQuat m_qGizmoOffsetRotationRO = ezQuat::IdentityQuaternion();
+  ezVec3 m_vGizmoOffsetPositionRO = ezVec3::MakeZero();
+  ezQuat m_qGizmoOffsetRotationRO = ezQuat::MakeIdentity();
 
-  ezQuat m_qLocalJointRotation = ezQuat::IdentityQuaternion();
+  ezQuat m_qLocalJointRotation = ezQuat::MakeIdentity();
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
   ezHybridArray<ezEditableSkeletonBoneShape, 1> m_BoneShapes;

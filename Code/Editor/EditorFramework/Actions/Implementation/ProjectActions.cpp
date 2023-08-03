@@ -677,7 +677,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::ReloadResources:
     {
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Resources...", ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Resources...", ezTime::MakeFromSeconds(5));
 
       ezSimpleConfigMsgToEngine msg;
       msg.m_sWhatToDo = "ReloadResources";
@@ -699,7 +699,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::LaunchFileserve:
     {
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching FileServe...", ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching FileServe...", ezTime::MakeFromSeconds(5));
 
       ezQtLaunchFileserveDlg dlg(nullptr);
       dlg.exec();
@@ -708,7 +708,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::LaunchInspector:
     {
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching ezInspector...", ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching ezInspector...", ezTime::MakeFromSeconds(5));
 
       ezQtEditorApp::GetSingleton()->RunInspector();
     }
@@ -762,7 +762,7 @@ void ezProjectAction::Execute(const ezVariant& value)
         };
         ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
 
-        if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSaveProfilingResponseToEditor>(), ezTime::Seconds(15), &cb).Failed())
+        if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSaveProfilingResponseToEditor>(), ezTime::MakeFromSeconds(15), &cb).Failed())
         {
           ezLog::Error("Timeout while waiting for engine process to create profiling capture. Captures will not be merged.");
           return;
@@ -808,7 +808,7 @@ void ezProjectAction::Execute(const ezVariant& value)
           sMergedProfilingJson.Append(ezStringView(szStartArray, sEditorProfilingJson.GetElementCount() - (szStartArray - sEditorProfilingJson.GetData())));
         }
         ezStringBuilder sMergedFile;
-        const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+        const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
         sMergedFile.AppendFormat(":appdata/profiling_{0}-{1}-{2}_{3}-{4}-{5}-{6}.json", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
         ezFileWriter fileWriter;
         if (fileWriter.Open(sMergedFile).Failed() || fileWriter.WriteBytes(sMergedProfilingJson.GetData(), sMergedProfilingJson.GetElementCount()).Failed())
@@ -817,7 +817,7 @@ void ezProjectAction::Execute(const ezVariant& value)
           return;
         }
         ezLog::Info("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));
+        ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::MakeFromSeconds(5.0));
       }
     }
     break;

@@ -54,7 +54,7 @@ void ezJoltShapeSphereComponent::DeserializeComponent(ezWorldReader& inout_strea
 
 void ezJoltShapeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltShapeSphereComponent::SetRadius(float f)
@@ -77,7 +77,7 @@ void ezJoltShapeSphereComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
 
   ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
   sub.m_pShape = pNewShape;
-  sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
 
 

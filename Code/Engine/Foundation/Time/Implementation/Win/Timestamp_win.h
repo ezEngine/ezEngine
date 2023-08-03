@@ -31,7 +31,7 @@ const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
   FILETIME fileTime;
   GetSystemTimeAsFileTime(&fileTime);
-  return ezTimestamp(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
+  return ezTimestamp::MakeFromInt(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
 }
 
 const ezTimestamp ezDateTime::GetTimestamp() const
@@ -50,7 +50,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   BOOL res = SystemTimeToFileTime(&st, &fileTime);
   ezTimestamp timestamp;
   if (res != 0)
-    timestamp.SetInt64(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
+    timestamp = ezTimestamp::MakeFromInt(FileTimeToEpoch(fileTime), ezSIUnitOfTime::Microsecond);
 
   return timestamp;
 }

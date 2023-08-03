@@ -56,8 +56,7 @@ void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
 
   for (const auto& obj : m_Selection)
   {
-    ezBoundingBoxSphere bounds;
-    bounds.SetInvalid();
+    ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
     ezGameObject* pObj;
     if (!m_pWorld->TryGetObject(obj, pObj))
@@ -374,7 +373,7 @@ void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg
       mRot.SetColumn(0, pMsg->m_vGridTangent1);
       mRot.SetColumn(1, pMsg->m_vGridTangent2);
       mRot.SetColumn(2, pMsg->m_vGridTangent1.CrossRH(pMsg->m_vGridTangent2));
-      m_GridTransform.m_qRotation.SetFromMat3(mRot);
+      m_GridTransform.m_qRotation = ezQuat::MakeFromMat3(mRot);
     }
   }
 }
@@ -413,8 +412,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   if (m_Selection.IsEmpty())
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
@@ -437,7 +435,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
         if (!m_pWorld->TryGetObject(obj, pObj))
           continue;
 
-        bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.0f), 0.0f));
+        bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromCenterExtents(pObj->GetGlobalPosition(), ezVec3(0.0f), 0.0f));
       }
     }
   }
@@ -761,8 +759,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 
     if (pMsg->m_bUseStartPosition)
     {
-      ezQuat qRot;
-      qRot.SetShortestRotation(ezVec3(1, 0, 0), pMsg->m_vStartDirection);
+      ezQuat qRot = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), pMsg->m_vStartDirection);
 
       ezTransform tStart(pMsg->m_vStartPosition, qRot);
 
@@ -1073,7 +1070,7 @@ void ezSceneContext::AddAmbientLight(bool bSetEditorTag, bool bForce)
     ezGameObjectDesc obj;
     obj.m_sName.Assign("Ambient Light");
 
-    obj.m_LocalRotation.SetFromEulerAngles(ezAngle::Degree(-14.510815f), ezAngle::Degree(43.07951f), ezAngle::Degree(93.223808f));
+    obj.m_LocalRotation = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(-14.510815f), ezAngle::MakeFromDegree(43.07951f), ezAngle::MakeFromDegree(93.223808f));
 
     if (bSetEditorTag)
     {

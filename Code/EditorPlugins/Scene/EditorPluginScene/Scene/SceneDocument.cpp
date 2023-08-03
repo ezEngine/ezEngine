@@ -136,8 +136,7 @@ void ezSceneDocument::GroupSelection()
 
   pHistory->StartTransaction("Group Selection");
 
-  ezUuid groupObj;
-  groupObj.CreateNewUuid();
+  ezUuid groupObj = ezUuid::MakeUuid();
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_NewObjectGuid = groupObj;
@@ -221,8 +220,8 @@ void ezSceneDocument::DuplicateSpecial()
   cmd.m_bGroupDuplicates = dlg.s_bGroupCopies;
   cmd.m_iRevolveAxis = dlg.s_iRevolveAxis;
   cmd.m_fRevolveRadius = dlg.s_fRevolveRadius;
-  cmd.m_RevolveStartAngle = ezAngle::Degree(dlg.s_iRevolveStartAngle);
-  cmd.m_RevolveAngleStep = ezAngle::Degree(dlg.s_iRevolveAngleStep);
+  cmd.m_RevolveStartAngle = ezAngle::MakeFromDegree(dlg.s_iRevolveStartAngle);
+  cmd.m_RevolveAngleStep = ezAngle::MakeFromDegree(dlg.s_iRevolveAngleStep);
 
   auto history = GetCommandHistory();
 
@@ -272,7 +271,7 @@ void ezSceneDocument::SnapObjectToCamera()
   mRot.SetColumn(0, camera.GetCenterDirForwards());
   mRot.SetColumn(1, camera.GetCenterDirRight());
   mRot.SetColumn(2, camera.GetCenterDirUp());
-  transform.m_qRotation.SetFromMat3(mRot);
+  transform.m_qRotation = ezQuat::MakeFromMat3(mRot);
 
   auto* pHistory = GetCommandHistory();
 
@@ -378,7 +377,7 @@ void ezSceneDocument::CopyReference()
 
   QApplication::clipboard()->setText(sGuid.GetData());
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", sGuid), ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", sGuid), ezTime::MakeFromSeconds(5));
 }
 
 ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition)
@@ -398,7 +397,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
 
   if (Sel.IsEmpty() || !bAttachToParent)
   {
-    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     auto res = history->AddCommand(cmdAdd);
@@ -410,7 +409,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
   }
   else
   {
-    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
 
     cmdAdd.m_Parent = Sel[0]->GetGuid();
@@ -625,7 +624,7 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
     {
       const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
 
-      ezAbstractObjectNode* pRoot = ref_graph.AddNode(ezUuid::CreateUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
+      ezAbstractObjectNode* pRoot = ref_graph.AddNode(ezUuid::MakeUuid(), pRtti->GetTypeName(), pRtti->GetTypeVersion());
       pRoot->AddProperty("Name", "<Prefab-Root>");
       pRoot->AddProperty("Children", varChildren);
 
@@ -1236,7 +1235,7 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   mRot.SetColumn(1, vUp.CrossRH(vDir).GetNormalized());
   mRot.SetColumn(2, vUp);
   ezQuat qRot;
-  qRot.SetFromMat3(mRot);
+  qRot = ezQuat::MakeFromMat3(mRot);
   qRot.Normalize();
 
   SetGlobalTransform(pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);
@@ -1542,7 +1541,7 @@ void ezSceneDocument::ExportSceneGeometry(const char* szFile, bool bOnlySelectio
 
   SendMessageToEngine(&msg);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Geometry exported to '{0}'", szFile), ezTime::Seconds(5.0f));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Geometry exported to '{0}'", szFile), ezTime::MakeFromSeconds(5.0f));
 }
 
 void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)

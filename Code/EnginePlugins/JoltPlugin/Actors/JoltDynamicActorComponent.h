@@ -65,7 +65,7 @@ public:
   float m_fAngularDamping = 0.05f;                        // [ property ]
   ezSurfaceResourceHandle m_hSurface;                     // [ property ]
   ezBitflags<ezOnJoltContact> m_OnContact;                // [ property ]
-  ezVec3 m_vCenterOfMass = ezVec3::ZeroVector();          // [ property ]
+  ezVec3 m_vCenterOfMass = ezVec3::MakeZero();            // [ property ]
   bool GetUseCustomCoM() const { return GetUserFlag(0); } // [ property ]
   void SetUseCustomCoM(bool b) { SetUserFlag(0, b); }     // [ property ]
 

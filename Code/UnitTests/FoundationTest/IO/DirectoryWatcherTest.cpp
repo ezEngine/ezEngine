@@ -33,7 +33,7 @@ namespace DirectoryWatcherTestHelpers
   void TickWatcher(ezDirectoryWatcher& ref_watcher)
   {
     ref_watcher.EnumerateChanges([&](ezStringView sPath, ezDirectoryWatcherAction action, ezDirectoryWatcherType type) {},
-      ezTime::Milliseconds(100));
+      ezTime::MakeFromMilliseconds(100));
   }
 } // namespace DirectoryWatcherTestHelpers
 
@@ -59,7 +59,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
         EZ_TEST_BOOL_MSG(type == events[i].type, "Expected event at index %d type mismatch", i);
       }
       i++; },
-      ezTime::Milliseconds(100));
+      ezTime::MakeFromMilliseconds(100));
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 
@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       i++;
       //
     },
-      ezTime::Milliseconds(100));
+      ezTime::MakeFromMilliseconds(100));
     for (auto& fired : eventFired)
     {
       EZ_TEST_BOOL(fired);
@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
         i++;
         //
       },
-      ezTime::Milliseconds(100));
+      ezTime::MakeFromMilliseconds(100));
     EZ_TEST_BOOL_MSG(firedEvents.GetCount() == events.GetCount(), "Directory watcher did not fire expected amount of events");
   };
 

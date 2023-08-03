@@ -74,7 +74,7 @@ void ezBoxVisualizerAdapter::UpdateGizmoTransform()
   t.m_vPosition = m_vPositionOffset;
   t.m_qRotation = m_qRotation;
 
-  ezVec3 vOffset = ezVec3::ZeroVector();
+  ezVec3 vOffset = ezVec3::MakeZero();
 
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
     vOffset.x -= t.m_vScale.x * 0.5f;

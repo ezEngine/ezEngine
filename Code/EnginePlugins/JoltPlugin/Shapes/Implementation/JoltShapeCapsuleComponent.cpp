@@ -58,8 +58,8 @@ void ezJoltShapeCapsuleComponent::DeserializeComponent(ezWorldReader& inout_stre
 
 void ezJoltShapeCapsuleComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltShapeCapsuleComponent::SetRadius(float f)
@@ -89,7 +89,7 @@ void ezJoltShapeCapsuleComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& o
   pNewShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
   pNewShape->SetMaterial(pMaterial);
 
-  JPH::Ref<JPH::RotatedTranslatedShapeSettings> pRotShapeSet = new JPH::RotatedTranslatedShapeSettings(JPH::Vec3::sZero(), JPH::Quat::sRotation(JPH::Vec3::sAxisX(), ezAngle::Degree(90).GetRadian()), pNewShape);
+  JPH::Ref<JPH::RotatedTranslatedShapeSettings> pRotShapeSet = new JPH::RotatedTranslatedShapeSettings(JPH::Vec3::sZero(), JPH::Quat::sRotation(JPH::Vec3::sAxisX(), ezAngle::MakeFromDegree(90).GetRadian()), pNewShape);
 
   JPH::Shape* pRotShape = pRotShapeSet->Create().Get().GetPtr();
   pRotShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
@@ -97,7 +97,7 @@ void ezJoltShapeCapsuleComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& o
   ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
   sub.m_pShape = pRotShape;
   sub.m_pShape->AddRef();
-  sub.m_Transform.SetLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
+  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
 
 

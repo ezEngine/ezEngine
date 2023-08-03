@@ -196,14 +196,14 @@ void ezJoltContactEvents::SpawnPhysicsImpactReactions()
 
         if (cvar_PhysicsReactionsVisImpacts)
         {
-          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::LightGreen, ezTransform(ic.m_vPosition), ezTime::Seconds(3));
+          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::LightGreen, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(3));
         }
       }
       else
       {
         if (cvar_PhysicsReactionsVisDiscardedImpacts)
         {
-          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkGray, ezTransform(ic.m_vPosition), ezTime::Seconds(1));
+          ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkGray, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(1));
         }
       }
     }
@@ -256,7 +256,7 @@ void ezJoltContactEvents::UpdatePhysicsSlideReactions()
 
       if (cvar_PhysicsReactionsVisSlides)
       {
-        ezDebugRenderer::DrawLineBox(m_pWorld, ezBoundingBox(ezVec3(-0.5f), ezVec3(0.5f)), ezColor::BlueViolet, ezTransform(slideInfo.m_vContactPosition));
+        ezDebugRenderer::DrawLineBox(m_pWorld, ezBoundingBox::MakeFromMinMax(ezVec3(-0.5f), ezVec3(0.5f)), ezColor::BlueViolet, ezTransform(slideInfo.m_vContactPosition));
       }
 
       slideInfo.m_bStillSliding = false;
@@ -373,7 +373,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
     {
       if (cvar_PhysicsReactionsVisDiscardedImpacts)
       {
-        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(vAvgPos), ezTime::Seconds(3));
+        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(vAvgPos), ezTime::MakeFromSeconds(3));
       }
 
       return;
@@ -382,7 +382,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
     {
       if (cvar_PhysicsReactionsVisDiscardedImpacts)
       {
-        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(m_InteractionContacts[uiBestScore].m_vPosition), ezTime::Seconds(3));
+        ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DimGrey, ezTransform(m_InteractionContacts[uiBestScore].m_vPosition), ezTime::MakeFromSeconds(3));
       }
     }
 
@@ -421,7 +421,7 @@ void ezJoltContactEvents::OnContact_ImpactReaction(const ezVec3& vAvgPos, const 
 
   if (cvar_PhysicsReactionsVisDiscardedImpacts)
   {
-    ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkOrange, ezTransform(vAvgPos), ezTime::Seconds(10));
+    ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::DarkOrange, ezTransform(vAvgPos), ezTime::MakeFromSeconds(10));
   }
 }
 
@@ -484,7 +484,7 @@ ezJoltContactEvents::SlideAndRollInfo* ezJoltContactEvents::FindSlideOrRollInfo(
 void ezJoltContactEvents::OnContact_RollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0)
 {
   // only consider something 'rolling' when it turns faster than this (per second)
-  constexpr ezAngle rollThreshold = ezAngle::Degree(45);
+  constexpr ezAngle rollThreshold = ezAngle::MakeFromDegree(45);
 
   ezBitflags<ezOnJoltContact> contactFlags[2] = {onContact0, onContact1};
   const JPH::Body* bodies[2] = {&body0, &body1};
@@ -523,7 +523,7 @@ void ezJoltContactEvents::OnContact_RollReaction(const JPH::Body& body0, const J
 
 void ezJoltContactEvents::OnContact_SlideReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal0)
 {
-  ezVec3 vVelocity[2] = {ezVec3::ZeroVector(), ezVec3::ZeroVector()};
+  ezVec3 vVelocity[2] = {ezVec3::MakeZero(), ezVec3::MakeZero()};
 
   {
     vVelocity[0] = ezJoltConversionUtils::ToVec3(body0.GetLinearVelocity());
@@ -546,10 +546,10 @@ void ezJoltContactEvents::OnContact_SlideReaction(const JPH::Body& body0, const 
     const ezVec3 vRelativeVelocityDir = vRelativeVelocity.GetNormalized();
 
     ezVec3 vAvgNormal = vAvgNormal0;
-    vAvgNormal.NormalizeIfNotZero(ezVec3::UnitZAxis()).IgnoreResult();
+    vAvgNormal.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
 
     // an object is only 'sliding' if it moves at roughly 90 degree along another object
-    constexpr float slideAngle = 0.17f; // ezMath ::Cos(ezAngle::Degree(80));
+    constexpr float slideAngle = 0.17f; // ezMath ::Cos(ezAngle::MakeFromDegree(80));
 
     if (ezMath::Abs(vAvgNormal.Dot(vRelativeVelocityDir)) < slideAngle)
     {

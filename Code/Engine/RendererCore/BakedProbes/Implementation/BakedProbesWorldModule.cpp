@@ -43,7 +43,7 @@ ezResult ezBakedProbesWorldModule::GetProbeIndexData(const ezVec3& vGlobalPositi
     return EZ_FAILURE;
 
   ezSimdVec4f gridSpacePos = ezSimdConversion::ToVec3((vGlobalPosition - pProbeTree->GetGridOrigin()).CompDiv(pProbeTree->GetProbeSpacing()));
-  gridSpacePos = gridSpacePos.CompMax(ezSimdVec4f::ZeroVector());
+  gridSpacePos = gridSpacePos.CompMax(ezSimdVec4f::MakeZero());
 
   ezSimdVec4f gridSpacePosFloor = gridSpacePos.Floor();
   ezSimdVec4f weights = gridSpacePos - gridSpacePosFloor;

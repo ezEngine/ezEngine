@@ -177,10 +177,10 @@ bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, T
   GetRotationAxisAndAngle(vA1, A1);
   qOther.GetRotationAxisAndAngle(vA2, A2);
 
-  if ((A1.IsEqualSimple(A2, ezAngle::Degree(static_cast<float>(fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon)))
+  if ((A1.IsEqualSimple(A2, ezAngle::MakeFromDegree(static_cast<float>(fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon)))
     return true;
 
-  if ((A1.IsEqualSimple(-A2, ezAngle::Degree(static_cast<float>(fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon)))
+  if ((A1.IsEqualSimple(-A2, ezAngle::MakeFromDegree(static_cast<float>(fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon)))
     return true;
 
   return false;
@@ -321,7 +321,7 @@ void ezQuatTemplate<Type>::ReconstructFromMat3(const ezMat3Template<Type>& mMat)
   m.SetColumn(1, y);
   m.SetColumn(2, z);
 
-  SetFromMat3(m);
+  *this = ezQuat::MakeFromMat3(m);
 }
 
 template <typename Type>
@@ -336,7 +336,7 @@ void ezQuatTemplate<Type>::ReconstructFromMat4(const ezMat4Template<Type>& mMat)
   m.SetColumn(1, y);
   m.SetColumn(2, z);
 
-  SetFromMat3(m);
+  *this = ezQuat::MakeFromMat3(m);
 }
 
 /*! \note This function will ALWAYS return a quaternion that rotates from one direction to another.
@@ -362,9 +362,9 @@ ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeShortestRotation(const ezVec3Temp
   {
     // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
     if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type)0.8)
-      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::Pi<float>()));
+      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::MakeFromRadian(ezMath::Pi<float>()));
     else
-      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::Pi<float>()));
+      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::MakeFromRadian(ezMath::Pi<float>()));
   }
 
   const ezVec3Template<Type> c = v0.CrossRH(v1);
@@ -476,14 +476,14 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAn
   if (fSingularityTest > fSingularityThreshold) // singularity at north pole
   {
     yaw = -2.0f * ezMath::ATan2(x, w);
-    pitch = ezAngle::Degree(90.0f);
-    roll = ezAngle::Degree(0.0f);
+    pitch = ezAngle::MakeFromDegree(90.0f);
+    roll = ezAngle::MakeFromDegree(0.0f);
   }
   else if (fSingularityTest < -fSingularityThreshold) // singularity at south pole
   {
     yaw = 2.0f * ezMath::ATan2(x, w);
-    pitch = ezAngle::Degree(-90.0f);
-    roll = ezAngle::Degree(0.0f);
+    pitch = ezAngle::MakeFromDegree(-90.0f);
+    roll = ezAngle::MakeFromDegree(0.0f);
   }
   else
   {

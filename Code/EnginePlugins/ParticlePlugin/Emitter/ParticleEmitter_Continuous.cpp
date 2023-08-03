@@ -22,7 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDe
     EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
 
     EZ_ACCESSOR_PROPERTY("CountCurve", GetCountCurveFile, SetCountCurveFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
-    EZ_MEMBER_PROPERTY("CurveDuration", m_CurveDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(10.0))),
+    EZ_MEMBER_PROPERTY("CurveDuration", m_CurveDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromSeconds(10.0))),
   }
   EZ_END_PROPERTIES;
 }
@@ -37,7 +37,7 @@ ezParticleEmitterFactory_Continuous::ezParticleEmitterFactory_Continuous()
   m_uiSpawnCountPerSec = 10;
   m_uiSpawnCountPerSecRange = 0;
 
-  m_CurveDuration = ezTime::Seconds(10.0);
+  m_CurveDuration = ezTime::MakeFromSeconds(10.0);
 }
 
 
@@ -58,7 +58,7 @@ void ezParticleEmitterFactory_Continuous::CopyEmitterProperties(ezParticleEmitte
   pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
 
   pEmitter->m_hCountCurve = m_hCountCurve;
-  pEmitter->m_CurveDuration = ezMath::Max(m_CurveDuration, ezTime::Seconds(1.0));
+  pEmitter->m_CurveDuration = ezMath::Max(m_CurveDuration, ezTime::MakeFromSeconds(1.0));
 }
 
 void ezParticleEmitterFactory_Continuous::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
@@ -167,9 +167,9 @@ const char* ezParticleEmitterFactory_Continuous::GetCountCurveFile() const
 
 void ezParticleEmitter_Continuous::OnFinalize()
 {
-  m_CountCurveTime.SetZero();
+  m_CountCurveTime = ezTime::MakeZero();
   m_fCurSpawnPerSec = (float)GetRNG().DoubleInRange(m_uiSpawnCountPerSec, m_uiSpawnCountPerSecRange);
-  m_TimeSinceRandom.SetZero();
+  m_TimeSinceRandom = ezTime::MakeZero();
   m_fCurSpawnCounter = 0;
 }
 
@@ -192,9 +192,9 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
   m_TimeSinceRandom += tDiff;
   m_CountCurveTime += tDiff;
 
-  if (m_TimeSinceRandom >= ezTime::Milliseconds(200))
+  if (m_TimeSinceRandom >= ezTime::MakeFromMilliseconds(200))
   {
-    m_TimeSinceRandom.SetZero();
+    m_TimeSinceRandom = ezTime::MakeZero();
     m_fCurSpawnPerSec = (float)GetRNG().DoubleInRange(m_uiSpawnCountPerSec, m_uiSpawnCountPerSecRange);
   }
 

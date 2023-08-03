@@ -11,13 +11,13 @@ public:
   ezSimdTransform(); // [tested]
 
   /// \brief Sets position, rotation and scale.
-  explicit ezSimdTransform(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation = ezSimdQuat::IdentityQuaternion(), const ezSimdVec4f& vScale = ezSimdVec4f(1.0f)); // [tested]
+  explicit ezSimdTransform(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation = ezSimdQuat::MakeIdentity(), const ezSimdVec4f& vScale = ezSimdVec4f(1.0f)); // [tested]
 
   /// \brief Sets rotation.
   explicit ezSimdTransform(const ezSimdQuat& qRotation); // [tested]
 
   /// \brief Creates a transform from the given position, rotation and scale.
-  [[nodiscard]] static ezSimdTransform Make(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation = ezSimdQuat::IdentityQuaternion(), const ezSimdVec4f& vScale = ezSimdVec4f(1.0f)); // [tested]
+  [[nodiscard]] static ezSimdTransform Make(const ezSimdVec4f& vPosition, const ezSimdQuat& qRotation = ezSimdQuat::MakeIdentity(), const ezSimdVec4f& vScale = ezSimdVec4f(1.0f)); // [tested]
 
   /// \brief Creates an identity transform.
   [[nodiscard]] static ezSimdTransform MakeIdentity(); // [tested]

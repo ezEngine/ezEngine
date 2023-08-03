@@ -81,7 +81,7 @@ void ShipComponent::Update()
           continue;
       }
 
-      ezBoundingSphere bs(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
+      ezBoundingSphere bs = ezBoundingSphere::MakeFromCenterAndRadius(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
 
       const ezVec3 vPos = GetOwner()->GetLocalPosition();
 
@@ -95,13 +95,13 @@ void ShipComponent::Update()
   GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + m_vVelocity);
   m_vVelocity *= 0.97f;
 
-  if (m_CurShootCooldown > ezTime::Seconds(0))
+  if (m_CurShootCooldown > ezTime::MakeFromSeconds(0))
   {
     m_CurShootCooldown -= tDiff;
   }
   else if (m_bIsShooting && m_fAmmunition >= CVar_ProjectileAmmoPerShot)
   {
-    m_CurShootCooldown = ezTime::Seconds(CVar_ShotDelay);
+    m_CurShootCooldown = ezTime::MakeFromSeconds(CVar_ShotDelay);
 
     ezGameObjectDesc desc;
     desc.m_bDynamic = true;

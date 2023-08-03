@@ -20,7 +20,7 @@ protected:
   // ezSelectPoseAnimNode
 
 private:
-  ezTime m_TransitionDuration = ezTime::Milliseconds(200);  // [ property ]
+  ezTime m_TransitionDuration = ezTime::MakeFromMilliseconds(200); // [ property ]
   ezUInt8 m_uiPosesCount = 0;                               // [ property ]
   ezHybridArray<ezAnimGraphLocalPoseInputPin, 4> m_InPoses; // [ property ]
   ezAnimGraphNumberInputPin m_InIndex;                      // [ property ]

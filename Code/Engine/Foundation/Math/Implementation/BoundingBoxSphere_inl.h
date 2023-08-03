@@ -26,6 +26,22 @@ ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezBoundingB
 }
 
 template <typename Type>
+EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezBoundingBoxSphereTemplate& rhs)
+{
+  m_vCenter = rhs.m_vCenter;
+  m_fSphereRadius = rhs.m_fSphereRadius;
+  m_vBoxHalfExtends = rhs.m_vBoxHalfExtends;
+}
+
+template <typename Type>
+void ezBoundingBoxSphereTemplate<Type>::operator=(const ezBoundingBoxSphereTemplate& rhs)
+{
+  m_vCenter = rhs.m_vCenter;
+  m_fSphereRadius = rhs.m_fSphereRadius;
+  m_vBoxHalfExtends = rhs.m_vBoxHalfExtends;
+}
+
+template <typename Type>
 ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box)
   : m_vCenter(box.GetCenter())
 {
@@ -81,7 +97,7 @@ ezBoundingBoxSphereTemplate<Type> ezBoundingBoxSphereTemplate<Type>::MakeFromPoi
   res.m_vCenter = box.GetCenter();
   res.m_vBoxHalfExtends = box.GetHalfExtents();
 
-  ezBoundingSphereTemplate<Type> sphere(res.m_vCenter, 0.0f);
+  ezBoundingSphereTemplate<Type> sphere = ezBoundingSphereTemplate<Type>::MakeFromCenterAndRadius(res.m_vCenter, 0.0f);
   sphere.ExpandToInclude(pPoints, uiNumPoints, uiStride);
 
   res.m_fSphereRadius = sphere.m_fRadius;
@@ -145,13 +161,13 @@ void ezBoundingBoxSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>
 template <typename Type>
 EZ_FORCE_INLINE const ezBoundingBoxTemplate<Type> ezBoundingBoxSphereTemplate<Type>::GetBox() const
 {
-  return ezBoundingBoxTemplate<Type>(m_vCenter - m_vBoxHalfExtends, m_vCenter + m_vBoxHalfExtends);
+  return ezBoundingBoxTemplate<Type>::MakeFromMinMax(m_vCenter - m_vBoxHalfExtends, m_vCenter + m_vBoxHalfExtends);
 }
 
 template <typename Type>
 EZ_FORCE_INLINE const ezBoundingSphereTemplate<Type> ezBoundingBoxSphereTemplate<Type>::GetSphere() const
 {
-  return ezBoundingSphereTemplate<Type>(m_vCenter, m_fSphereRadius);
+  return ezBoundingSphereTemplate<Type>::MakeFromCenterAndRadius(m_vCenter, m_fSphereRadius);
 }
 
 template <typename Type>
@@ -162,7 +178,7 @@ void ezBoundingBoxSphereTemplate<Type>::ExpandToInclude(const ezBoundingBoxSpher
   box.m_vMax = m_vCenter + m_vBoxHalfExtends;
   box.ExpandToInclude(rhs.GetBox());
 
-  ezBoundingBoxSphereTemplate<Type> result(box);
+  ezBoundingBoxSphereTemplate<Type> result = ezBoundingBoxSphereTemplate<Type>::MakeFromBox(box);
 
   const float fSphereRadiusA = (m_vCenter - result.m_vCenter).GetLength() + m_fSphereRadius;
   const float fSphereRadiusB = (rhs.m_vCenter - result.m_vCenter).GetLength() + rhs.m_fSphereRadius;

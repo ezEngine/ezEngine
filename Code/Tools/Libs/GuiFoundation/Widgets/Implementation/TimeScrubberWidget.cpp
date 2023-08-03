@@ -26,7 +26,7 @@ void ezQtTimeScrubberWidget::SetDuration(ezUInt64 uiNumTicks)
     return;
 
   m_uiDurationTicks = uiNumTicks;
-  m_Duration = ezTime::Seconds((double)uiNumTicks / 4800.0);
+  m_Duration = ezTime::MakeFromSeconds((double)uiNumTicks / 4800.0);
   m_fNormScrubberPosition = ezMath::Clamp((double)m_uiScrubberTickPos / (double)m_uiDurationTicks, 0.0, 1.0);
 
   update();

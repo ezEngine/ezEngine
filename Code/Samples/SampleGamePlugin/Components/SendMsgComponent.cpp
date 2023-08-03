@@ -61,7 +61,7 @@ void SendMsgComponent::OnSimulationStarted()
   // start sending strings shortly
   ezMsgComponentInternalTrigger msg;
   msg.m_sMessage = s_sSendNextString;
-  PostMessage(msg, ezTime::Milliseconds(100));
+  PostMessage(msg, ezTime::MakeFromMilliseconds(100));
 }
 
 void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
@@ -95,6 +95,6 @@ void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
 
 
     // send the next string in a second
-    PostMessage(msg, ezTime::Seconds(2));
+    PostMessage(msg, ezTime::MakeFromSeconds(2));
   }
 }

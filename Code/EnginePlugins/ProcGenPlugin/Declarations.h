@@ -177,10 +177,10 @@ namespace ezProcGenInternal
     const Pattern* m_pPattern = nullptr;
     float m_fFootprint = 1.0f;
 
-    ezVec3 m_vMinOffset = ezVec3::ZeroVector();
-    ezVec3 m_vMaxOffset = ezVec3::ZeroVector();
+    ezVec3 m_vMinOffset = ezVec3::MakeZero();
+    ezVec3 m_vMaxOffset = ezVec3::MakeZero();
 
-    ezAngle m_YawRotationSnap = ezAngle::Radian(0.0f);
+    ezAngle m_YawRotationSnap = ezAngle::MakeFromRadian(0.0f);
     float m_fAlignToNormal = 1.0f;
 
     ezVec3 m_vMinScale = ezVec3(1.0f);
@@ -279,7 +279,7 @@ namespace ezProcGenInternal
       ezVec3 vMin = (vCenter - ezVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMinZ);
       ezVec3 vMax = (vCenter + ezVec2(m_fTileSize * 0.5f)).GetAsVec3(m_fMaxZ);
 
-      return ezBoundingBox(vMin, vMax);
+      return ezBoundingBox::MakeFromMinMax(vMin, vMax);
     }
 
     ezHybridArray<ezSimdMat4f, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;

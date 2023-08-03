@@ -38,7 +38,7 @@ protected:
     ezUInt16 m_uiParentIndex = ezInvalidJointIndex;
     ezHashedString m_sName;
     ezEnum<ezSkeletonJointType> m_JointType;
-    ezQuat m_qLocalJointOrientation = ezQuat::IdentityQuaternion();
+    ezQuat m_qLocalJointOrientation = ezQuat::MakeIdentity();
     ezAngle m_HalfSwingLimitZ;
     ezAngle m_HalfSwingLimitY;
     ezAngle m_TwistLimitHalfAngle;

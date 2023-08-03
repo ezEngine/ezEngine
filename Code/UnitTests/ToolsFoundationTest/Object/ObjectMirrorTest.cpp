@@ -79,21 +79,21 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
     case ezVariant::Type::Quaternion:
     {
       ezQuat quat;
-      quat.SetFromEulerAngles(ezAngle::Degree(30), ezAngle::Degree(-15), ezAngle::Degree(20));
+      quat = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(-15), ezAngle::MakeFromDegree(20));
       return ezVariant(quat);
     }
     case ezVariant::Type::Matrix3:
     {
-      ezMat3 mat = ezMat3::IdentityMatrix();
+      ezMat3 mat = ezMat3::MakeIdentity();
 
-      mat.SetRotationMatrix(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::Degree(30));
+      mat = ezMat3::MakeAxisRotation(ezVec3(1.0f, 0.0f, 0.0f), ezAngle::MakeFromDegree(30));
       return ezVariant(mat);
     }
     case ezVariant::Type::Matrix4:
     {
-      ezMat4 mat = ezMat4::IdentityMatrix();
+      ezMat4 mat = ezMat4::MakeIdentity();
 
-      mat.SetRotationMatrix(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(30));
+      mat = ezMat4::MakeAxisRotation(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::MakeFromDegree(30));
       mat.SetTranslationVector(ezVec3(1.0f, 2.0f, 3.0f));
       return ezVariant(mat);
     }
@@ -102,15 +102,13 @@ ezVariant GetVariantFromType(ezVariant::Type::Enum type)
     case ezVariant::Type::StringView:
       return ezVariant("Test");
     case ezVariant::Type::Time:
-      return ezVariant(ezTime::Seconds(123.0f));
+      return ezVariant(ezTime::MakeFromSeconds(123.0f));
     case ezVariant::Type::Uuid:
     {
-      ezUuid guid;
-      guid.CreateNewUuid();
-      return ezVariant(guid);
+      return ezVariant(ezUuid::MakeUuid());
     }
     case ezVariant::Type::Angle:
-      return ezVariant(ezAngle::Degree(30.0f));
+      return ezVariant(ezAngle::MakeFromDegree(30.0f));
     case ezVariant::Type::DataBuffer:
     {
       ezDataBuffer data;
@@ -144,8 +142,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
       if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
       {
         const ezUuid oldGuid = pObjectAccessor->Get<ezUuid>(pObject, pProp);
-        ezUuid newGuid;
-        newGuid.CreateNewUuid();
+        ezUuid newGuid = ezUuid::MakeUuid();
         if (oldGuid.IsValid())
         {
           EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(oldGuid)).m_Result.Succeeded());
@@ -203,8 +200,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
 
       if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
-        ezUuid newGuid;
-        newGuid.CreateNewUuid();
+        ezUuid newGuid = ezUuid::MakeUuid();
         EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, 0, pProp->GetSpecificType(), newGuid).m_Result.Succeeded());
       }
     }
@@ -237,8 +233,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
         EZ_TEST_BOOL(pObjectAccessor->RemoveObject(pObjectAccessor->GetObject(currentValues[i].Get<ezUuid>())).m_Result.Succeeded());
       }
 
-      ezUuid newGuid;
-      newGuid.CreateNewUuid();
+      ezUuid newGuid = ezUuid::MakeUuid();
       EZ_TEST_BOOL(pObjectAccessor->AddObject(pObject, pProp, "value1", pProp->GetSpecificType(), newGuid).m_Result.Succeeded());
     }
   }

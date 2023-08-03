@@ -30,8 +30,7 @@ namespace
       float y = (float)rng.DoubleMinMax(1.0, 100.0);
       float z = (float)rng.DoubleMinMax(1.0, 100.0);
 
-      ezBoundingBox bounds;
-      bounds.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
+      ezBoundingBox bounds = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(x, y, z));
 
       ezSpatialData::Category category = m_SpecialCategory;
       if (category == ezInvalidSpatialDataCategory)
@@ -39,7 +38,7 @@ namespace
         category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
       }
 
-      ref_msg.AddBounds(bounds, category);
+      ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(bounds), category);
     }
 
     ezSpatialData::Category m_SpecialCategory = ezInvalidSpatialDataCategory;
@@ -99,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInSphere")
   {
-    ezBoundingSphere testSphere(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
+    ezBoundingSphere testSphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
 
     ezDynamicArray<ezGameObject*> objectsInSphere;
     ezHashSet<ezGameObject*> uniqueObjects;
@@ -154,8 +153,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInBox")
   {
-    ezBoundingBox testBox;
-    testBox.SetCenterAndHalfExtents(ezVec3(100.0f, 60.0f, 400.0f), ezVec3(3000.0f));
+    ezBoundingBox testBox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(100.0f, 60.0f, 400.0f), ezVec3(3000.0f));
 
     ezDynamicArray<ezGameObject*> objectsInBox;
     ezHashSet<ezGameObject*> uniqueObjects;
@@ -220,11 +218,10 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
-    ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
-    ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(80.0f), 1.0f, 1.0f, 10000.0f);
+    ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
+    ezMat4 projection = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(80.0f), 1.0f, 1.0f, 10000.0f);
 
-    ezFrustum testFrustum;
-    testFrustum.SetFrustum(projection * lookAt);
+    ezFrustum testFrustum = ezFrustum::MakeFromMVP(projection * lookAt);
 
     ezDynamicArray<const ezGameObject*> visibleObjects;
     ezHashSet<const ezGameObject*> uniqueObjects;

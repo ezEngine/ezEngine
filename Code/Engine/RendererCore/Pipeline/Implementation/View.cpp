@@ -171,7 +171,7 @@ void ezView::ComputeCullingFrustum(ezFrustum& out_frustum) const
   ezMat4 projectionMatrix;
   pCamera->GetProjectionMatrix(fViewportAspectRatio, projectionMatrix);
 
-  out_frustum.SetFrustum(projectionMatrix * viewMatrix);
+  out_frustum = ezFrustum::MakeFromMVP(projectionMatrix * viewMatrix);
 }
 
 void ezView::SetShaderPermutationVariable(const char* szName, const char* szValue)

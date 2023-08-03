@@ -261,7 +261,7 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
     ezGeometry geom;
     ezGeometry::GeoOptions opt;
     opt.m_Color = ezColor::Black;
-    opt.m_Transform = ezMat4(ezMat3::IdentityMatrix(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
+    opt.m_Transform = ezMat4(ezMat3::MakeIdentity(), ezVec3(1.0f - pixToScreen.x * borderOffsetPix - sizeScreen / 2, -1.0f + pixToScreen.y * borderOffsetPix + sizeScreen / 2, 0.0f));
     geom.AddRectXY(ezVec2(sizeScreen, sizeScreen), 1, 1, opt);
 
     ezMeshBufferResourceDescriptor desc;

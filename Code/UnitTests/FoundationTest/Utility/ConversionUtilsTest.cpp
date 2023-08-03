@@ -726,7 +726,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
     for (ezUInt32 i = 0; i < 100; ++i)
     {
-      guid.CreateNewUuid();
+      guid = ezUuid::MakeUuid();
 
       ezConversionUtils::ToString(guid, sGuid);
 

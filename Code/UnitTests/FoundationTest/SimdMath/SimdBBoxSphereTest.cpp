@@ -136,7 +136,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
   {
     ezSimdBBoxSphere b(ezSimdVec4f(1), ezSimdVec4f(5), 5);
 
-    ezSimdTransform t(ezSimdVec4f(1, 1, 1), ezSimdQuat::IdentityQuaternion(), ezSimdVec4f(2, 3, -2));
+    ezSimdTransform t(ezSimdVec4f(1, 1, 1), ezSimdQuat::MakeIdentity(), ezSimdVec4f(2, 3, -2));
 
     b.Transform(t);
 
@@ -161,7 +161,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
 
     b.SetFromPoints(points.GetData(), points.GetCount());
 
-    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(-30));
+    t.m_Rotation = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(-30));
     b.Transform(t);
 
     for (ezUInt32 i = 0; i < points.GetCount(); ++i)

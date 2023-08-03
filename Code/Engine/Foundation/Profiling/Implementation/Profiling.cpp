@@ -680,7 +680,7 @@ void ezProfilingSystem::AddCPUScope(ezStringView sName, const char* szFunctionNa
   const ezTime duration = endTime - beginTime;
 
   // discard?
-  if (duration < ezTime::Milliseconds(cvar_ProfilingDiscardThresholdMS))
+  if (duration < ezTime::MakeFromMilliseconds(cvar_ProfilingDiscardThresholdMS))
     return;
 
   ::CpuScopesBufferBase* pScopes = s_CpuScopes;
@@ -821,7 +821,7 @@ void ezProfilingSystem::InitializeGPUData(ezUInt32 uiGpuCount)
 void ezProfilingSystem::AddGPUScope(ezStringView sName, ezTime beginTime, ezTime endTime, ezUInt32 uiGpuIndex)
 {
   // discard?
-  if (endTime - beginTime < ezTime::Milliseconds(cvar_ProfilingDiscardThresholdMS))
+  if (endTime - beginTime < ezTime::MakeFromMilliseconds(cvar_ProfilingDiscardThresholdMS))
     return;
 
   if (!s_GPUScopes[uiGpuIndex]->CanAppend())
@@ -870,8 +870,8 @@ ezProfilingListScope::ezProfilingListScope(ezStringView sListName, ezStringView 
 ezProfilingListScope::~ezProfilingListScope()
 {
   ezTime now = ezTime::Now();
-  ezProfilingSystem::AddCPUScope(m_sCurSectionName, nullptr, m_CurSectionBeginTime, now, ezTime::Zero());
-  ezProfilingSystem::AddCPUScope(m_sListName, m_szListFunction, m_ListBeginTime, now, ezTime::Zero());
+  ezProfilingSystem::AddCPUScope(m_sCurSectionName, nullptr, m_CurSectionBeginTime, now, ezTime::MakeZero());
+  ezProfilingSystem::AddCPUScope(m_sListName, m_szListFunction, m_ListBeginTime, now, ezTime::MakeZero());
 
   s_pCurrentList = m_pPreviousList;
 }
@@ -882,7 +882,7 @@ void ezProfilingListScope::StartNextSection(ezStringView sNextSectionName)
   ezProfilingListScope* pCurScope = s_pCurrentList;
 
   ezTime now = ezTime::Now();
-  ezProfilingSystem::AddCPUScope(pCurScope->m_sCurSectionName, nullptr, pCurScope->m_CurSectionBeginTime, now, ezTime::Zero());
+  ezProfilingSystem::AddCPUScope(pCurScope->m_sCurSectionName, nullptr, pCurScope->m_CurSectionBeginTime, now, ezTime::MakeZero());
 
   pCurScope->m_sCurSectionName = sNextSectionName;
   pCurScope->m_CurSectionBeginTime = now;

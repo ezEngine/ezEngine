@@ -75,7 +75,7 @@ public:
   void Set(Type x, Type y); // [tested]
 
   /// \brief Sets the vector to all zero.
-  /*[[deprecated("Use ezVec2::MakeZero() instead.")]]*/ void SetZero(); // [tested]
+  void SetZero(); // [tested]
 
   // *** Functions dealing with length ***
 public:

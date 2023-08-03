@@ -12,11 +12,11 @@ struct ezDummyPointType
 void CompileDummy()
 {
   ezPointOfInterestGraph<ezDummyPointType> graph;
-  graph.Initialize(ezVec3::ZeroVector(), ezVec3::ZeroVector());
-  auto& pt = graph.AddPoint(ezVec3::ZeroVector());
+  graph.Initialize(ezVec3::MakeZero(), ezVec3::MakeZero());
+  auto& pt = graph.AddPoint(ezVec3::MakeZero());
 
   ezDynamicArray<ezUInt32> points;
-  graph.FindPointsOfInterest(ezVec3::ZeroVector(), 0, points);
+  graph.FindPointsOfInterest(ezVec3::MakeZero(), 0, points);
 }
 
 

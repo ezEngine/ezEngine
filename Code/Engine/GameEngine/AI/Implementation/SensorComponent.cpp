@@ -227,7 +227,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
   const ezGameObject* pOwner = GetOwner();
 
   const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
-  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), m_fRadius * scale);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fRadius * scale);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -249,7 +249,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
 
 void ezSensorSphereComponent::DebugDrawSensorShape() const
 {
-  ezBoundingSphere sphere = ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius);
   ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, GetOwner()->GetGlobalTransform());
 }
 
@@ -304,7 +304,7 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
   const float xyScale = ezMath::Max(scale.x, scale.y);
 
   const float sphereRadius = ezVec2(m_fRadius * xyScale, m_fHeight * 0.5f * scale.z).GetLength();
-  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), sphereRadius);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), sphereRadius);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -330,8 +330,7 @@ void ezSensorCylinderComponent::DebugDrawSensorShape() const
 {
   ezTransform pt = GetOwner()->GetGlobalTransform();
 
-  ezQuat r;
-  r.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90.0f));
+  ezQuat r = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90.0f));
   ezTransform t = ezTransform(ezVec3(0, 0, -0.5f * m_fHeight * pt.m_vScale.z), r, ezVec3(pt.m_vScale.z, pt.m_vScale.y, pt.m_vScale.x));
 
   pt.m_vScale.Set(1);
@@ -350,7 +349,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSensorConeComponent, 1, ezComponentMode::Static)
   {
     EZ_MEMBER_PROPERTY("NearDistance", m_fNearDistance)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("FarDistance", m_fFarDistance)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(0.0f, ezAngle::Degree(180.0f))),
+    EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90.0f)), new ezClampValueAttribute(0.0f, ezAngle::MakeFromDegree(180.0f))),
   }
   EZ_END_PROPERTIES;
 }
@@ -386,7 +385,7 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
   const ezGameObject* pOwner = GetOwner();
 
   const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
-  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -422,9 +421,9 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
   ezDebugRenderer::Line lines[NUM_LINES];
   ezUInt32 curLine = 0;
 
-  const ezUInt32 numSegments = ezMath::Clamp(static_cast<ezUInt32>(m_Angle / ezAngle::Degree(180)) * MAX_SEGMENTS, MIN_SEGMENTS, MAX_SEGMENTS);
+  const ezUInt32 numSegments = ezMath::Clamp(static_cast<ezUInt32>(m_Angle / ezAngle::MakeFromDegree(180)) * MAX_SEGMENTS, MIN_SEGMENTS, MAX_SEGMENTS);
   const ezAngle stepAngle = m_Angle / static_cast<float>(numSegments);
-  const ezAngle circleStepAngle = ezAngle::Degree(360.0f / CIRCLE_SEGMENTS);
+  const ezAngle circleStepAngle = ezAngle::MakeFromDegree(360.0f / CIRCLE_SEGMENTS);
 
   for (ezUInt32 i = 0; i < 2; ++i)
   {
@@ -442,7 +441,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
     }
     else
     {
-      q.SetFromAxisAndAngle(ezVec3::UnitXAxis(), ezAngle::Degree(90));
+      q = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisX(), ezAngle::MakeFromDegree(90));
       fX *= m_fFarDistance;
       fCircleRadius *= m_fFarDistance;
     }
@@ -484,7 +483,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
       }
     }
 
-    curAngle = ezAngle::Degree(0.0f);
+    curAngle = ezAngle::MakeFromDegree(0.0f);
     for (ezUInt32 s = 0; s < CIRCLE_SEGMENTS; ++s)
     {
       const ezAngle nextAngle = curAngle + circleStepAngle;
@@ -641,7 +640,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
       ezMsgSensorDetectedObjectsChanged msg;
       msg.m_DetectedObjects = pSensorComponent->m_LastDetectedObjects;
 
-      pSensorOwner->PostEventMessage(msg, pSensorComponent, ezTime::Zero(), ezObjectMsgQueueType::PostAsync);
+      pSensorOwner->PostEventMessage(msg, pSensorComponent, ezTime::MakeZero(), ezObjectMsgQueueType::PostAsync);
     } });
 }
 

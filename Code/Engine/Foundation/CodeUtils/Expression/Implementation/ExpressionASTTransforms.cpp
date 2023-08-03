@@ -557,11 +557,11 @@ ezExpressionAST::Node* ezExpressionAST::FoldConstants(Node* pNode)
           case NodeType::Pow2:
             return CreateConstant(ezMath::Pow2(fValue));
           case NodeType::Sin:
-            return CreateConstant(ezMath::Sin(ezAngle::Radian(fValue)));
+            return CreateConstant(ezMath::Sin(ezAngle::MakeFromRadian(fValue)));
           case NodeType::Cos:
-            return CreateConstant(ezMath::Cos(ezAngle::Radian(fValue)));
+            return CreateConstant(ezMath::Cos(ezAngle::MakeFromRadian(fValue)));
           case NodeType::Tan:
-            return CreateConstant(ezMath::Tan(ezAngle::Radian(fValue)));
+            return CreateConstant(ezMath::Tan(ezAngle::MakeFromRadian(fValue)));
           case NodeType::ASin:
             return CreateConstant(ezMath::ASin(fValue).GetRadian());
           case NodeType::ACos:

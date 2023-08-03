@@ -18,7 +18,7 @@ public:
   void SetAsDefaultValues(const ezEngineViewLightSettings& settings);
 
   float m_fPerspectiveFieldOfView = 70.0f;
-  ezAngle m_RotationSnapValue = ezAngle::Degree(15.0f);
+  ezAngle m_RotationSnapValue = ezAngle::MakeFromDegree(15.0f);
   float m_fScaleSnapValue = 0.125f;
   float m_fTranslationSnapValue = 0.25f;
   bool m_bUsePrecompiledTools = true;
@@ -33,7 +33,7 @@ public:
   ezString m_sSkyLightCubeMap = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";
   float m_fSkyLightIntensity = 1.0f;
   bool m_bDirectionalLight = true;
-  ezAngle m_DirectionalLightAngle = ezAngle::Degree(30.0f);
+  ezAngle m_DirectionalLightAngle = ezAngle::MakeFromDegree(30.0f);
   bool m_bDirectionalLightShadows = false;
   float m_fDirectionalLightIntensity = 10.0f;
   bool m_bFog = false;

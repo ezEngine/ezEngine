@@ -238,8 +238,7 @@ ezColor ezColor::GetComplementaryColor() const
   float hue, sat, val;
   GetHSV(hue, sat, val);
 
-  ezColor Shifted;
-  Shifted.SetHSV(ezMath::Mod(hue + 180.0f, 360.0f), sat, val);
+  ezColor Shifted = ezColor::MakeHSV(ezMath::Mod(hue + 180.0f, 360.0f), sat, val);
   Shifted.a = a;
 
   return Shifted;

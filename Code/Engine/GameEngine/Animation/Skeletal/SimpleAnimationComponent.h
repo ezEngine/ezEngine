@@ -63,7 +63,7 @@ protected:
   ezTime m_Duration;
   ezAnimationClipResourceHandle m_hAnimationClip;
   ezSkeletonResourceHandle m_hSkeleton;
-  ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ozz::vector<ozz::math::SoaTransform> m_OzzLocalTransforms; // TODO: could be frame allocated
 };

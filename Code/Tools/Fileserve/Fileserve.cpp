@@ -75,7 +75,7 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
     case ezFileserverEvent::Type::ClientConnected:
     case ezFileserverEvent::Type::ClientReconnected:
       ++m_uiConnections;
-      m_TimeTillClosing.SetZero();
+      m_TimeTillClosing = ezTime::MakeZero();
       break;
     case ezFileserverEvent::Type::ClientDisconnected:
       --m_uiConnections;

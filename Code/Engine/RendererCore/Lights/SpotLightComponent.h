@@ -70,8 +70,8 @@ protected:
   float m_fRange = 0.0f;
   float m_fEffectiveRange = 0.0f;
 
-  ezAngle m_InnerSpotAngle = ezAngle::Degree(15.0f);
-  ezAngle m_OuterSpotAngle = ezAngle::Degree(30.0f);
+  ezAngle m_InnerSpotAngle = ezAngle::MakeFromDegree(15.0f);
+  ezAngle m_OuterSpotAngle = ezAngle::MakeFromDegree(30.0f);
 
   ezTexture2DResourceHandle m_hProjectedTexture;
 };

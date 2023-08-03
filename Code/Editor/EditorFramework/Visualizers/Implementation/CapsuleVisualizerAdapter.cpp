@@ -79,7 +79,7 @@ void ezCapsuleVisualizerAdapter::Update()
 
 void ezCapsuleVisualizerAdapter::UpdateGizmoTransform()
 {
-  ezVec3 vOffset = ezVec3::ZeroVector();
+  ezVec3 vOffset = ezVec3::MakeZero();
 
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
     vOffset.x -= m_fRadius;

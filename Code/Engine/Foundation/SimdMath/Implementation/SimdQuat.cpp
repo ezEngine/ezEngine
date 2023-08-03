@@ -16,7 +16,7 @@ ezSimdQuat ezSimdQuat::MakeShortestRotation(const ezSimdVec4f& vDirFrom, const e
   }
   else if (fDot.IsEqual(-1.0f, 0.0001f)) // if both vectors are opposing
   {
-    return ezSimdQuat::MakeFromAxisAndAngle(v0.GetOrthogonalVector().GetNormalized<3>(), ezAngle::Radian(ezMath::Pi<float>()));
+    return ezSimdQuat::MakeFromAxisAndAngle(v0.GetOrthogonalVector().GetNormalized<3>(), ezAngle::MakeFromRadian(ezMath::Pi<float>()));
   }
 
   const ezSimdVec4f c = v0.CrossRH(v1);
@@ -101,13 +101,13 @@ bool ezSimdQuat::IsEqualRotation(const ezSimdQuat& qOther, const ezSimdFloat& fE
   if (qOther.GetRotationAxisAndAngle(vA2, fA2) == EZ_FAILURE)
     return false;
 
-  ezAngle A1 = ezAngle::Radian(fA1);
-  ezAngle A2 = ezAngle::Radian(fA2);
+  ezAngle A1 = ezAngle::MakeFromRadian(fA1);
+  ezAngle A2 = ezAngle::MakeFromRadian(fA2);
 
-  if ((A1.IsEqualSimple(A2, ezAngle::Degree(fEpsilon))) && (vA1.IsEqual(vA2, fEpsilon).AllSet<3>()))
+  if ((A1.IsEqualSimple(A2, ezAngle::MakeFromDegree(fEpsilon))) && (vA1.IsEqual(vA2, fEpsilon).AllSet<3>()))
     return true;
 
-  if ((A1.IsEqualSimple(-A2, ezAngle::Degree(fEpsilon))) && (vA1.IsEqual(-vA2, fEpsilon).AllSet<3>()))
+  if ((A1.IsEqualSimple(-A2, ezAngle::MakeFromDegree(fEpsilon))) && (vA1.IsEqual(-vA2, fEpsilon).AllSet<3>()))
     return true;
 
   return false;

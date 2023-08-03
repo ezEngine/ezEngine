@@ -86,8 +86,7 @@ ezUuid ezQtPreferencesDlg::NativeToObject(ezPreferences* pPreferences)
   ezRttiConverterContext context;
   ezRttiConverterWriter conv(&graph, &context, true, true);
 
-  ezUuid guid;
-  guid.CreateNewUuid();
+  const ezUuid guid = ezUuid::MakeUuid();
   context.RegisterObject(guid, pType, pPreferences);
   ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pType, pPreferences, "root");
 

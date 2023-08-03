@@ -140,8 +140,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableTime("var1", ezTime::Seconds(0.5));
-    js.AddVariableTime("var2", ezTime::Seconds(2.25));
+    js.AddVariableTime("var1", ezTime::MakeFromSeconds(0.5));
+    js.AddVariableTime("var2", ezTime::MakeFromSeconds(2.25));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableUuid")
@@ -168,8 +168,8 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.SetOutputStream(&sc);
 
     // vs2019 is so imprecise, that the degree->radian conversion introduces differences in the final output
-    js.AddVariableAngle("var1", ezAngle::Radian(1.5707963267f));
-    js.AddVariableAngle("var2", ezAngle::Radian(1.0f * ezMath::Pi<float>()));
+    js.AddVariableAngle("var1", ezAngle::MakeFromRadian(1.5707963267f));
+    js.AddVariableAngle("var2", ezAngle::MakeFromRadian(1.0f * ezMath::Pi<float>()));
   }
 
 
@@ -276,7 +276,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableMat3("var1", ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    js.AddVariableMat3("var1", ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat4")
@@ -288,7 +288,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
-    js.AddVariableMat4("var1", ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    js.AddVariableMat4("var1", ezMat4T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVariant")

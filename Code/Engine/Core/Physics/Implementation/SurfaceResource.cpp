@@ -89,8 +89,7 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
       if (lhs.m_uiInteractionTypeHash != rhs.m_uiInteractionTypeHash)
         return lhs.m_uiInteractionTypeHash < rhs.m_uiInteractionTypeHash;
 
-      return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold;
-    });
+      return lhs.m_pInteraction->m_fImpulseThreshold > rhs.m_pInteraction->m_fImpulseThreshold; });
   }
 
   res.m_State = ezResourceState::Loaded;
@@ -217,13 +216,12 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   {
     double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0);
 
-    ezMat3 rotMat;
-    rotMat.SetRotationMatrix(vDir, ezAngle::Radian((float)randomAngle));
+    ezMat3 rotMat = ezMat3::MakeAxisRotation(vDir, ezAngle::MakeFromRadian((float)randomAngle));
 
     vTangent = rotMat * vTangent;
   }
 
-  if (pIA->m_Deviation > ezAngle::Radian(0.0f))
+  if (pIA->m_Deviation > ezAngle::MakeFromRadian(0.0f))
   {
     ezAngle maxDeviation;
 
@@ -236,7 +234,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
         const float fCosAngle = vDir.Dot(-vSurfaceNormal);
         const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
 
-        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
+        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::MakeFromRadian(fMaxDeviation));
       }
       break;
 
@@ -246,7 +244,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
         const float fCosAngle = vDir.Dot(vSurfaceNormal);
         const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
 
-        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
+        maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::MakeFromRadian(fMaxDeviation));
       }
       break;
 
@@ -255,11 +253,10 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
         break;
     }
 
-    const ezAngle deviation = ezAngle::Radian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
+    const ezAngle deviation = ezAngle::MakeFromRadian((float)pWorld->GetRandomNumberGenerator().DoubleMinMax(-maxDeviation.GetRadian(), maxDeviation.GetRadian()));
 
     // tilt around the tangent (we don't want to compute another random rotation here)
-    ezMat3 matTilt;
-    matTilt.SetRotationMatrix(vTangent, deviation);
+    ezMat3 matTilt = ezMat3::MakeAxisRotation(vTangent, deviation);
 
     vDir = matTilt * vDir;
   }
@@ -275,7 +272,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
   ezTransform t;
   t.m_vPosition = vPosition;
-  t.m_qRotation.SetFromMat3(mRot);
+  t.m_qRotation = ezQuat::MakeFromMat3(mRot);
   t.m_vScale.Set(1.0f);
 
   // attach to dynamic objects
@@ -285,7 +282,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   if (pWorld->TryGetObject(hObject, pObject) && pObject->IsDynamic())
   {
     hParent = hObject;
-    t.SetLocalTransform(pObject->GetGlobalTransform(), t);
+    t = ezTransform::MakeLocalTransform(pObject->GetGlobalTransform(), t);
   }
 
   ezHybridArray<ezGameObject*, 8> rootObjects;
@@ -304,7 +301,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
     for (auto pRootObject : rootObjects)
     {
-      pRootObject->PostMessageRecursive(msgSetFloat, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msgSetFloat, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
     }
   }
 
@@ -315,7 +312,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
     for (auto pRootObject : rootObjects)
     {
-      pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
     }
   }
 

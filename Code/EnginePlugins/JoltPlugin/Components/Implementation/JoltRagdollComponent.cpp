@@ -204,13 +204,13 @@ void ezJoltRagdollComponent::Update(bool bForce)
   {
     m_ElapsedTimeSinceUpdate += ezClock::GetGlobalClock()->GetTimeDiff();
 
-    if (visState == ezVisibilityState::Indirect && m_ElapsedTimeSinceUpdate < ezTime::Milliseconds(200))
+    if (visState == ezVisibilityState::Indirect && m_ElapsedTimeSinceUpdate < ezTime::MakeFromMilliseconds(200))
     {
       // when the ragdoll is only visible by shadows or reflections, update it infrequently
       return;
     }
 
-    if (visState == ezVisibilityState::Invisible && m_ElapsedTimeSinceUpdate < ezTime::Milliseconds(500))
+    if (visState == ezVisibilityState::Invisible && m_ElapsedTimeSinceUpdate < ezTime::MakeFromMilliseconds(500))
     {
       // when the ragdoll is entirely invisible, update it very rarely
       return;
@@ -220,7 +220,7 @@ void ezJoltRagdollComponent::Update(bool bForce)
   RetrieveRagdollPose();
   SendAnimationPoseMsg();
 
-  m_ElapsedTimeSinceUpdate.SetZero();
+  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 }
 
 ezResult ezJoltRagdollComponent::EnsureSkeletonIsKnown()
@@ -559,8 +559,7 @@ void ezJoltRagdollComponent::RetrieveRagdollPose()
   const ezVec3 vObjectScale = GetOwner()->GetGlobalScaling();
   const float fObjectScale = ezMath::Max(vObjectScale.x, vObjectScale.y, vObjectScale.z);
 
-  ezMat4 scale;
-  scale.SetScalingMatrix(rootTransform.m_vScale * fObjectScale);
+  ezMat4 scale = ezMat4::MakeScaling(rootTransform.m_vScale * fObjectScale);
 
   ezHybridArray<ezMat4, 64> relativeTransforms;
 
@@ -708,7 +707,7 @@ void ezJoltRagdollComponent::ApplyPartInitialVelocity()
       ezVec3 vRotationDir = vVelocityDir.CrossRH(coord.m_vUpDir);
       vRotationDir.NormalizeIfNotZero(coord.m_vUpDir).IgnoreResult();
 
-      ezVec3 vRotationAxis = ezVec3::CreateRandomDeviation(rng, ezAngle::Degree(30.0f), vRotationDir);
+      ezVec3 vRotationAxis = ezVec3::MakeRandomDeviation(rng, ezAngle::MakeFromDegree(30.0f), vRotationDir);
       vRotationAxis *= rng.Bool() ? 1.0f : -1.0f;
 
       float fSpeed = rng.FloatVariance(m_fCenterAngularVelocity, 0.5f);
@@ -792,7 +791,7 @@ void ezJoltRagdollComponent::ComputeLimbGlobalTransform(ezTransform& transform, 
 {
   ezTransform local;
   ComputeLimbModelSpaceTransform(local, pose, uiPoseJointIndex);
-  transform.SetGlobalTransform(GetOwner()->GetGlobalTransform(), local);
+  transform = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), local);
 }
 
 void ezJoltRagdollComponent::CreateAllLimbs(const ezSkeletonResource& skeletonResource, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale)
@@ -822,7 +821,7 @@ void ezJoltRagdollComponent::CreateAllLimbs(const ezSkeletonResource& skeletonRe
 
   // get the limb with the lowest index (ie. the first one added) as the root joint
   // and use it's transform to compute m_RootBodyLocalTransform
-  m_RootBodyLocalTransform.SetLocalTransform(GetOwner()->GetGlobalTransform(), limbConstructionInfos.GetIterator().Value().m_GlobalTransform);
+  m_RootBodyLocalTransform = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), limbConstructionInfos.GetIterator().Value().m_GlobalTransform);
 }
 
 void ezJoltRagdollComponent::CreateLimb(const ezSkeletonResource& skeletonResource, ezMap<ezUInt16, LimbConstructionInfo>& limbConstructionInfos, ezArrayPtr<const ezSkeletonResourceGeometry*> geometries, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale)
@@ -900,8 +899,7 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
       shape.mHalfHeightOfCylinder = geo.m_Transform.m_vScale.x * 0.5f * fObjectScale;
       shape.mRadius = geo.m_Transform.m_vScale.z * fObjectScale;
 
-      ezQuat qRot;
-      qRot.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(-90));
+      ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(-90));
       out_shapeTransform.m_qRotation = out_shapeTransform.m_qRotation * qRot;
       out_shapeTransform.m_vPosition += qBoneDirAdjustment * ezVec3(geo.m_Transform.m_vScale.x * 0.5f * fObjectScale, 0, 0);
 
@@ -999,7 +997,7 @@ void ezJoltRagdollComponent::CreateAllLimbGeoShapes(const LimbConstructionInfo& 
     ezTransform shapeTransform;
     JPH::Shape* pSubShape = CreateLimbGeoShape(limbConstructionInfo, *geometries[0], pJoltMaterial, qBoneDirAdjustment, skeletonRootTransform, shapeTransform, fObjectScale);
 
-    if (!shapeTransform.IsEqual(ezTransform::IdentityTransform(), 0.001f))
+    if (!shapeTransform.IsEqual(ezTransform::MakeIdentity(), 0.001f))
     {
       JPH::RotatedTranslatedShapeSettings outerShape;
       outerShape.mInnerShapePtr = pSubShape;
@@ -1103,8 +1101,7 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
 
     const ezQuat offsetRot = thisJoint.GetLocalOrientation();
 
-    ezQuat qTwist;
-    qTwist.SetFromAxisAndAngle(ezVec3::UnitYAxis(), thisJoint.GetTwistLimitCenterAngle());
+    ezQuat qTwist = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisY(), thisJoint.GetTwistLimitCenterAngle());
 
     pJoint->mDrawConstraintSize = 0.1f;
     pJoint->mPosition1 = pLink->mPosition;
@@ -1114,10 +1111,10 @@ void ezJoltRagdollComponent::CreateLimbJoint(const ezSkeletonJoint& thisJoint, v
     pJoint->mTwistMinAngle = -thisJoint.GetTwistLimitHalfAngle().GetRadian();
     pJoint->mTwistMaxAngle = thisJoint.GetTwistLimitHalfAngle().GetRadian();
     pJoint->mMaxFrictionTorque = m_fStiffnessFactor * thisJoint.GetStiffness();
-    pJoint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * qTwist * ezVec3::UnitZAxis()).Normalized();
-    pJoint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * qTwist * ezVec3::UnitZAxis()).Normalized();
-    pJoint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::UnitYAxis()).Normalized();
-    pJoint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::UnitYAxis()).Normalized();
+    pJoint->mPlaneAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * qTwist * ezVec3::MakeAxisZ()).Normalized();
+    pJoint->mPlaneAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * qTwist * ezVec3::MakeAxisZ()).Normalized();
+    pJoint->mTwistAxis1 = ezJoltConversionUtils::ToVec3(tParent.m_qRotation * offsetRot * ezVec3::MakeAxisY()).Normalized();
+    pJoint->mTwistAxis2 = ezJoltConversionUtils::ToVec3(tThis.m_qRotation * ezVec3::MakeAxisY()).Normalized();
   }
 }
 

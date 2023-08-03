@@ -320,7 +320,7 @@ void ezBoundingBoxTemplate<Type>::TransformFromCenter(const ezMat4Template<Type>
   GetCorners(vCorners);
 
   const ezVec3Template<Type> vCenter = GetCenter();
-  SetInvalid();
+  *this = MakeInvalid();
 
   for (ezUInt32 i = 0; i < 8; ++i)
     ExpandToInclude(vCenter + mTransform.TransformPosition(vCorners[i] - vCenter));
@@ -334,7 +334,7 @@ void ezBoundingBoxTemplate<Type>::TransformFromOrigin(const ezMat4Template<Type>
 
   mTransform.TransformPosition(vCorners, 8);
 
-  SetInvalid();
+  *this = MakeInvalid();
   ExpandToInclude(vCorners, 8);
 }
 

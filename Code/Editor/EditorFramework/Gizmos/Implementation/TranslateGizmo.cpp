@@ -29,7 +29,7 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_hPlaneXY.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable | ezGizmoFlags::FaceCamera, "Editor/Meshes/TranslatePlaneZ.obj");
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 
   m_Mode = TranslateMode::None;
   m_MovementMode = MovementMode::ScreenProjection;
@@ -217,7 +217,7 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
     return EZ_FAILURE;
 
   ezPlane Plane;
-  Plane.SetFromNormalAndPoint(m_vMoveAxis, m_vStartPosition);
+  Plane = ezPlane::MakeFromNormalAndPoint(m_vMoveAxis, m_vStartPosition);
 
   ezVec3 vIntersection;
   if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
@@ -239,7 +239,7 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   const ezVec3 vPlaneNormal = m_vMoveAxis.CrossRH(vPlaneTangent);
 
   ezPlane Plane;
-  Plane.SetFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
+  Plane = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
 
   ezVec3 vIntersection;
   if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
@@ -259,7 +259,7 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   const QPoint mousePosition = e->globalPosition().toPoint();
@@ -374,6 +374,6 @@ void ezTranslateGizmo::SetCameraSpeed(float fSpeed)
 
 void ezTranslateGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
 {
-  const ezVec3 diff = ezVec3::ZeroVector();
+  const ezVec3 diff = ezVec3::MakeZero();
   GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Translation: {}, {}, {}", ezArgF(diff.x, 2), ezArgF(diff.y, 2), ezArgF(diff.z, 2)));
 }

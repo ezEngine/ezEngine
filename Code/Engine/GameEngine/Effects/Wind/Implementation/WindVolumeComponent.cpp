@@ -204,7 +204,7 @@ void ezWindVolumeSphereComponent::SetRadius(float fVal)
 
 void ezWindVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), ezWindVolumeComponent::SpatialDataCategory);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -271,13 +271,13 @@ ezSimdVec4f ezWindVolumeCylinderComponent::ComputeForceAtLocalPosition(const ezS
   const ezSimdFloat fCylDist = vLocalPos.x();
 
   if (fCylDist <= -m_fLength * 0.5f || fCylDist >= m_fLength * 0.5f)
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   ezSimdVec4f orthoDir = vLocalPos;
   orthoDir.SetX(0.0f);
 
   if (orthoDir.GetLengthSquared<3>() >= ezMath::Square(m_fRadius))
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   if (m_Mode == ezWindVolumeCylinderMode::Vortex)
   {
@@ -314,7 +314,7 @@ void ezWindVolumeCylinderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& 
 {
   const ezVec3 corner(m_fLength * 0.5f, m_fRadius, m_fRadius);
 
-  msg.AddBounds(ezBoundingBox(-corner, corner), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-corner, corner)), ezWindVolumeComponent::SpatialDataCategory);
 }
 
 
@@ -327,7 +327,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezWindVolumeConeComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(45)), new ezClampValueAttribute(ezAngle::Degree(1), ezAngle::Degree(179))),
+    EZ_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(45)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(179))),
     EZ_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, ezVariant())),
   }
   EZ_END_PROPERTIES;
@@ -371,8 +371,8 @@ ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdV
 {
   const ezSimdFloat fConeDist = vLocalPos.x();
 
-  if (fConeDist <= ezSimdFloat::Zero() || fConeDist >= m_fLength)
-    return ezSimdVec4f::ZeroVector();
+  if (fConeDist <= ezSimdFloat::MakeZero() || fConeDist >= m_fLength)
+    return ezSimdVec4f::MakeZero();
 
   // TODO: precompute base radius
   const float fBaseRadius = ezMath::Tan(m_Angle * 0.5f) * m_fLength;
@@ -384,7 +384,7 @@ ezSimdVec4f ezWindVolumeConeComponent::ComputeForceAtLocalPosition(const ezSimdV
   orthoDir.SetX(0.0f);
 
   if (orthoDir.GetLengthSquared<3>() >= fConeRadius * fConeRadius)
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   return vLocalPos.GetNormalized<3>() * GetWindInMetersPerSecond();
 }
@@ -401,7 +401,7 @@ void ezWindVolumeConeComponent::SetLength(float fVal)
 
 void ezWindVolumeConeComponent::SetAngle(ezAngle val)
 {
-  m_Angle = ezMath::Max(val, ezAngle::Degree(1.0f));
+  m_Angle = ezMath::Max(val, ezAngle::MakeFromDegree(1.0f));
 
   if (IsActiveAndInitialized())
   {
@@ -420,7 +420,7 @@ void ezWindVolumeConeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   c1.y = ezMath::Tan(m_Angle * 0.5f) * m_fLength;
   c1.z = c1.y;
 
-  msg.AddBounds(ezBoundingBox(c0, c1), ezWindVolumeComponent::SpatialDataCategory);
+  msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(c0, c1)), ezWindVolumeComponent::SpatialDataCategory);
 }
 
 

@@ -449,7 +449,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 // static
-void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   if (lines.IsEmpty())
     return;
@@ -495,15 +495,15 @@ void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArray
 }
 
 // static
-void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   if (fLineLength <= 0.0f)
     return;
 
   const float fHalfLineLength = fLineLength * 0.5f;
-  const ezVec3 xAxis = ezVec3::UnitXAxis() * fHalfLineLength;
-  const ezVec3 yAxis = ezVec3::UnitYAxis() * fHalfLineLength;
-  const ezVec3 zAxis = ezVec3::UnitZAxis() * fHalfLineLength;
+  const ezVec3 xAxis = ezVec3::MakeAxisX() * fHalfLineLength;
+  const ezVec3 yAxis = ezVec3::MakeAxisY() * fHalfLineLength;
+  const ezVec3 zAxis = ezVec3::MakeAxisZ() * fHalfLineLength;
 
   EZ_LOCK(s_Mutex);
 
@@ -528,7 +528,7 @@ void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const e
 
   auto& boxData = data.m_lineBoxes.ExpandAndGetRef();
 
-  ezTransform boxTransform(box.GetCenter(), ezQuat::IdentityQuaternion(), box.GetHalfExtents());
+  ezTransform boxTransform(box.GetCenter(), ezQuat::MakeIdentity(), box.GetHalfExtents());
 
   boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
@@ -579,7 +579,7 @@ void ezDebugRenderer::DrawLineBoxCorners(const ezDebugRendererContext& context, 
 }
 
 // static
-void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   enum
   {
@@ -588,7 +588,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 
   const ezVec3 vCenter = sphere.m_vCenter;
   const float fRadius = sphere.m_fRadius;
-  const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
+  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / NUM_SEGMENTS);
 
   EZ_LOCK(s_Mutex);
 
@@ -617,7 +617,7 @@ void ezDebugRenderer::DrawLineSphere(const ezDebugRendererContext& context, cons
 }
 
 
-void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
+void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform /*= ezTransform::MakeIdentity()*/)
 {
   enum
   {
@@ -626,7 +626,7 @@ void ezDebugRenderer::DrawLineCapsuleZ(const ezDebugRendererContext& context, fl
     NUM_LINES = NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + NUM_SEGMENTS + 4,
   };
 
-  const ezAngle stepAngle = ezAngle::Degree(360.0f / NUM_SEGMENTS);
+  const ezAngle stepAngle = ezAngle::MakeFromDegree(360.0f / NUM_SEGMENTS);
 
   Line lines[NUM_LINES];
 
@@ -789,7 +789,7 @@ void ezDebugRenderer::DrawSolidBox(const ezDebugRendererContext& context, const 
 
   auto& boxData = data.m_solidBoxes.ExpandAndGetRef();
 
-  ezTransform boxTransform(box.GetCenter(), ezQuat::IdentityQuaternion(), box.GetHalfExtents());
+  ezTransform boxTransform(box.GetCenter(), ezQuat::MakeIdentity(), box.GetHalfExtents());
 
   boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
@@ -911,8 +911,7 @@ ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, cons
     textLine.m_text = sLine;
     textLine.m_topLeftCorner = vTopLeftCorner;
     textLine.m_color = color;
-    textLine.m_uiSizeInPixel = uiSizeInPixel;
-  });
+    textLine.m_uiSizeInPixel = uiSizeInPixel; });
 }
 
 
@@ -938,8 +937,7 @@ ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, cons
     textLine.m_topLeftCorner = vTopLeftCorner;
     textLine.m_color = color;
     textLine.m_uiSizeInPixel = uiSizeInPixel;
-    textLine.m_position = vGlobalPosition;
-  });
+    textLine.m_position = vGlobalPosition; });
 }
 
 void ezDebugRenderer::AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)
@@ -978,7 +976,7 @@ void ezDebugRenderer::AddPersistentLineBox(const ezDebugRendererContext& context
   item.m_Timeout = data.m_Now + duration;
 }
 
-void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::UnitXAxis()*/, ezVec3 vRotationAxis /*= ezVec3::UnitZAxis()*/)
+void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/, ezVec3 vRotationAxis /*= ezVec3::MakeAxisZ()*/)
 {
   ezHybridArray<Triangle, 64> tris;
   ezHybridArray<Line, 64> lines;
@@ -987,17 +985,15 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   endAngle.NormalizeRange();
 
   if (startAngle > endAngle)
-    startAngle -= ezAngle::Degree(360);
+    startAngle -= ezAngle::MakeFromDegree(360);
 
   const ezAngle range = endAngle - startAngle;
-  const ezUInt32 uiTesselation = ezMath::Max(1u, (ezUInt32)(range / ezAngle::Degree(5)));
+  const ezUInt32 uiTesselation = ezMath::Max(1u, (ezUInt32)(range / ezAngle::MakeFromDegree(5)));
   const ezAngle step = range / (float)uiTesselation;
 
-  ezQuat qStart;
-  qStart.SetFromAxisAndAngle(vRotationAxis, startAngle);
+  ezQuat qStart = ezQuat::MakeFromAxisAndAngle(vRotationAxis, startAngle);
 
-  ezQuat qStep;
-  qStep.SetFromAxisAndAngle(vRotationAxis, step);
+  ezQuat qStep = ezQuat::MakeFromAxisAndAngle(vRotationAxis, step);
 
   ezVec3 vCurDir = qStart * vForwardAxis;
 
@@ -1043,23 +1039,21 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
   DrawLines(context, lines, lineColor, transform);
 }
 
-void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::UnitXAxis()*/)
+void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis /*= ezVec3::MakeAxisX()*/)
 {
   ezHybridArray<Triangle, 64> trisInside;
   ezHybridArray<Triangle, 64> trisOutside;
 
-  halfAngle = ezMath::Clamp(halfAngle, ezAngle(), ezAngle::Degree(180));
+  halfAngle = ezMath::Clamp(halfAngle, ezAngle(), ezAngle::MakeFromDegree(180));
 
-  const ezAngle refAngle = halfAngle <= ezAngle::Degree(90) ? halfAngle : ezAngle::Degree(180) - halfAngle;
-  const ezUInt32 uiTesselation = ezMath::Max(8u, (ezUInt32)(refAngle / ezAngle::Degree(2)));
+  const ezAngle refAngle = halfAngle <= ezAngle::MakeFromDegree(90) ? halfAngle : ezAngle::MakeFromDegree(180) - halfAngle;
+  const ezUInt32 uiTesselation = ezMath::Max(8u, (ezUInt32)(refAngle / ezAngle::MakeFromDegree(2)));
 
   const ezVec3 tangentAxis = vForwardAxis.GetOrthogonalVector().GetNormalized();
 
-  ezQuat tilt;
-  tilt.SetFromAxisAndAngle(tangentAxis, halfAngle);
+  ezQuat tilt = ezQuat::MakeFromAxisAndAngle(tangentAxis, halfAngle);
 
-  ezQuat step;
-  step.SetFromAxisAndAngle(vForwardAxis, ezAngle::Degree(360) / (float)uiTesselation);
+  ezQuat step = ezQuat::MakeFromAxisAndAngle(vForwardAxis, ezAngle::MakeFromDegree(360) / (float)uiTesselation);
 
   ezVec3 vCurDir = tilt * vForwardAxis;
 
@@ -1109,7 +1103,7 @@ void ezDebugRenderer::DrawLimitCone(const ezDebugRendererContext& context, ezAng
     for (ezUInt32 i = 0; i <= NUM_LINES; i++)
     {
       const float angle = 2 * ezMath::Pi<float>() / NUM_LINES * i;
-      const float c = ezMath::Cos(ezAngle::Radian(angle)), s = ezMath::Sin(ezAngle::Radian(angle));
+      const float c = ezMath::Cos(ezAngle::MakeFromRadian(angle)), s = ezMath::Sin(ezAngle::MakeFromRadian(angle));
       const ezVec3 rv(0, -tanQSwingZ * s, tanQSwingY * c);
       const float rv2 = rv.GetLengthSquared();
       const float r = (1 / (1 + rv2));
@@ -1154,7 +1148,7 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
   ezHybridArray<Line, NUM_SEGMENTS * 3> lines;
   ezHybridArray<Triangle, NUM_SEGMENTS * 2 * 2> tris;
 
-  const ezAngle step = ezAngle::Degree(360) / NUM_SEGMENTS;
+  const ezAngle step = ezAngle::MakeFromDegree(360) / NUM_SEGMENTS;
   ezAngle angle = {};
 
   ezVec3 vCurCircle(0, 1 /*ezMath::Cos(angle)*/, 0 /*ezMath::Sin(angle)*/);
@@ -1245,7 +1239,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawCross(context, ezVec3::ZeroVector(), item.m_fSize, item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawCross(context, ezVec3::MakeZero(), item.m_fSize, item.m_Color, item.m_Transform);
 
           ++i;
         }
@@ -1266,7 +1260,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere(ezVec3::ZeroVector(), item.m_fRadius), item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawLineSphere(context, ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), item.m_fRadius), item.m_Color, item.m_Transform);
 
           ++i;
         }
@@ -1287,7 +1281,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         }
         else
         {
-          ezDebugRenderer::DrawLineBox(context, ezBoundingBox(-item.m_vHalfSize, item.m_vHalfSize), item.m_Color, item.m_Transform);
+          ezDebugRenderer::DrawLineBox(context, ezBoundingBox::MakeFromMinMax(-item.m_vHalfSize, item.m_vHalfSize), item.m_Color, item.m_Transform);
 
           ++i;
         }

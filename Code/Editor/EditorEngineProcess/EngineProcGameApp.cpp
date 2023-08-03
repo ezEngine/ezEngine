@@ -65,7 +65,7 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 
   DisableErrorReport();
 
-  ezTaskSystem::SetTargetFrameTime(ezTime::Seconds(1.0 / 20.0));
+  ezTaskSystem::SetTargetFrameTime(ezTime::MakeFromSeconds(1.0 / 20.0));
 
   ConnectToHost();
 }
@@ -97,7 +97,7 @@ void ezEngineProcessGameApplication::WaitForDebugger()
   {
     while (!ezSystemInformation::IsDebuggerAttached())
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
     }
   }
 }

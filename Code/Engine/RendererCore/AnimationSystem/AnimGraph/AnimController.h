@@ -33,7 +33,7 @@ struct ezAnimGraphPinDataLocalTransforms
   ezAnimPoseGeneratorCommandID m_CommandID;
   const ezAnimGraphPinDataBoneWeights* m_pWeights = nullptr;
   float m_fOverallWeight = 1.0f;
-  ezVec3 m_vRootMotion = ezVec3::ZeroVector();
+  ezVec3 m_vRootMotion = ezVec3::MakeZero();
   bool m_bUseRootMotion = false;
 };
 
@@ -41,7 +41,7 @@ struct ezAnimGraphPinDataModelTransforms
 {
   ezUInt16 m_uiOwnIndex = 0xFFFF;
   ezAnimPoseGeneratorCommandID m_CommandID;
-  ezVec3 m_vRootMotion = ezVec3::ZeroVector();
+  ezVec3 m_vRootMotion = ezVec3::MakeZero();
   ezAngle m_RootRotationX;
   ezAngle m_RootRotationY;
   ezAngle m_RootRotationZ;
@@ -93,7 +93,7 @@ private:
   ezSkeletonResourceHandle m_hSkeleton;
   ezAnimGraphPinDataModelTransforms* m_pCurrentModelTransforms = nullptr;
 
-  ezVec3 m_vRootMotion = ezVec3::ZeroVector();
+  ezVec3 m_vRootMotion = ezVec3::MakeZero();
   ezAngle m_RootRotationX;
   ezAngle m_RootRotationY;
   ezAngle m_RootRotationZ;

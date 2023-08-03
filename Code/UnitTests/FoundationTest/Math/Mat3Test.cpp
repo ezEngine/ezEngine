@@ -36,7 +36,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     const ezMathTestType data[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     {
-      ezMat3T m(data, ezMatrixLayout::ColumnMajor);
+      ezMat3T m = ezMat3T::MakeFromColumnMajorArray(data);
 
       EZ_TEST_BOOL(m.m_fElementsCM[0] == 1.0f && m.m_fElementsCM[1] == 2.0f && m.m_fElementsCM[2] == 3.0f && m.m_fElementsCM[3] == 4.0f &&
                    m.m_fElementsCM[4] == 5.0f && m.m_fElementsCM[5] == 6.0f && m.m_fElementsCM[6] == 7.0f && m.m_fElementsCM[7] == 8.0f &&
@@ -44,7 +44,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     }
 
     {
-      ezMat3T m(data, ezMatrixLayout::RowMajor);
+      ezMat3T m = ezMat3T::MakeFromRowMajorArray(data);
 
       EZ_TEST_BOOL(m.m_fElementsCM[0] == 1.0f && m.m_fElementsCM[1] == 4.0f && m.m_fElementsCM[2] == 7.0f && m.m_fElementsCM[3] == 2.0f &&
                    m.m_fElementsCM[4] == 5.0f && m.m_fElementsCM[5] == 8.0f && m.m_fElementsCM[6] == 3.0f && m.m_fElementsCM[7] == 6.0f &&
@@ -54,7 +54,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (Elements)")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     EZ_TEST_FLOAT(m.Element(0, 0), 1, 0.00001f);
     EZ_TEST_FLOAT(m.Element(1, 0), 2, 0.00001f);
@@ -72,8 +72,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     const ezMathTestType data[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     {
-      ezMat3T m;
-      m.SetFromArray(data, ezMatrixLayout::ColumnMajor);
+      ezMat3T m = ezMat3::MakeFromColumnMajorArray(data);
 
       EZ_TEST_BOOL(m.m_fElementsCM[0] == 1.0f && m.m_fElementsCM[1] == 2.0f && m.m_fElementsCM[2] == 3.0f && m.m_fElementsCM[3] == 4.0f &&
                    m.m_fElementsCM[4] == 5.0f && m.m_fElementsCM[5] == 6.0f && m.m_fElementsCM[6] == 7.0f && m.m_fElementsCM[7] == 8.0f &&
@@ -81,8 +80,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     }
 
     {
-      ezMat3T m;
-      m.SetFromArray(data, ezMatrixLayout::RowMajor);
+      ezMat3T m = ezMat3::MakeFromRowMajorArray(data);
 
       EZ_TEST_BOOL(m.m_fElementsCM[0] == 1.0f && m.m_fElementsCM[1] == 4.0f && m.m_fElementsCM[2] == 7.0f && m.m_fElementsCM[3] == 2.0f &&
                    m.m_fElementsCM[4] == 5.0f && m.m_fElementsCM[5] == 8.0f && m.m_fElementsCM[6] == 3.0f && m.m_fElementsCM[7] == 6.0f &&
@@ -92,8 +90,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetElements")
   {
-    ezMat3T m;
-    m.SetElements(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     EZ_TEST_FLOAT(m.Element(0, 0), 1, 0.00001f);
     EZ_TEST_FLOAT(m.Element(1, 0), 2, 0.00001f);
@@ -108,7 +105,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsArray")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     ezMathTestType data[9];
 
@@ -162,8 +159,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetScalingMatrix")
   {
-    ezMat3T m;
-    m.SetScalingMatrix(ezVec3T(2, 3, 4));
+    ezMat3T m = ezMat3::MakeScaling(ezVec3T(2, 3, 4));
 
     EZ_TEST_FLOAT(m.Element(0, 0), 2, 0);
     EZ_TEST_FLOAT(m.Element(1, 0), 0, 0);
@@ -180,16 +176,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
   {
     ezMat3T m;
 
-    m.SetRotationMatrixX(ezAngle::Degree(90));
+    m = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, -3, 2), 0.0001f));
 
-    m.SetRotationMatrixX(ezAngle::Degree(180));
+    m = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, -2, -3), 0.0001f));
 
-    m.SetRotationMatrixX(ezAngle::Degree(270));
+    m = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 3, -2), 0.0001f));
 
-    m.SetRotationMatrixX(ezAngle::Degree(360));
+    m = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(360));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
@@ -197,16 +193,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
   {
     ezMat3T m;
 
-    m.SetRotationMatrixY(ezAngle::Degree(90));
+    m = ezMat3::MakeRotationY(ezAngle::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(3, 2, -1), 0.0001f));
 
-    m.SetRotationMatrixY(ezAngle::Degree(180));
+    m = ezMat3::MakeRotationY(ezAngle::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-1, 2, -3), 0.0001f));
 
-    m.SetRotationMatrixY(ezAngle::Degree(270));
+    m = ezMat3::MakeRotationY(ezAngle::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-3, 2, 1), 0.0001f));
 
-    m.SetRotationMatrixY(ezAngle::Degree(360));
+    m = ezMat3::MakeRotationY(ezAngle::MakeFromDegree(360));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
@@ -214,16 +210,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
   {
     ezMat3T m;
 
-    m.SetRotationMatrixZ(ezAngle::Degree(90));
+    m = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-2, 1, 3), 0.0001f));
 
-    m.SetRotationMatrixZ(ezAngle::Degree(180));
+    m = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-1, -2, 3), 0.0001f));
 
-    m.SetRotationMatrixZ(ezAngle::Degree(270));
+    m = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(2, -1, 3), 0.0001f));
 
-    m.SetRotationMatrixZ(ezAngle::Degree(360));
+    m = ezMat3::MakeRotationZ(ezAngle::MakeFromDegree(360));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
@@ -231,37 +227,37 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
   {
     ezMat3T m;
 
-    m.SetRotationMatrix(ezVec3T(1, 0, 0), ezAngle::Degree(90));
+    m = ezMat3::MakeAxisRotation(ezVec3T(1, 0, 0), ezAngle::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, -3, 2), ezMath::LargeEpsilon<ezMathTestType>()));
 
-    m.SetRotationMatrix(ezVec3T(1, 0, 0), ezAngle::Degree(180));
+    m = ezMat3::MakeAxisRotation(ezVec3T(1, 0, 0), ezAngle::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, -2, -3), ezMath::LargeEpsilon<ezMathTestType>()));
 
-    m.SetRotationMatrix(ezVec3T(1, 0, 0), ezAngle::Degree(270));
+    m = ezMat3::MakeAxisRotation(ezVec3T(1, 0, 0), ezAngle::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 3, -2), ezMath::LargeEpsilon<ezMathTestType>()));
 
-    m.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+    m = ezMat3::MakeAxisRotation(ezVec3T(0, 1, 0), ezAngle::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(3, 2, -1), ezMath::LargeEpsilon<ezMathTestType>()));
 
-    m.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(180));
+    m = ezMat3::MakeAxisRotation(ezVec3T(0, 1, 0), ezAngle::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-1, 2, -3), ezMath::LargeEpsilon<ezMathTestType>()));
 
-    m.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(270));
+    m = ezMat3::MakeAxisRotation(ezVec3T(0, 1, 0), ezAngle::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-3, 2, 1), ezMath::LargeEpsilon<ezMathTestType>()));
 
-    m.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    m = ezMat3::MakeAxisRotation(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-2, 1, 3), ezMath::LargeEpsilon<ezMathTestType>()));
 
-    m.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(180));
+    m = ezMat3::MakeAxisRotation(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-1, -2, 3), ezMath::LargeEpsilon<ezMathTestType>()));
 
-    m.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(270));
+    m = ezMat3::MakeAxisRotation(ezVec3T(0, 0, 1), ezAngle::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(2, -1, 3), ezMath::LargeEpsilon<ezMathTestType>()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeIdentity")
   {
-    ezMat3T m = ezMat3T::IdentityMatrix();
+    ezMat3T m = ezMat3T::MakeIdentity();
 
     EZ_TEST_FLOAT(m.Element(0, 0), 1, 0);
     EZ_TEST_FLOAT(m.Element(1, 0), 0, 0);
@@ -274,9 +270,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     EZ_TEST_FLOAT(m.Element(2, 2), 1, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeZero")
   {
-    ezMat3T m = ezMat3T::ZeroMatrix();
+    ezMat3T m = ezMat3T::MakeZero();
 
     EZ_TEST_FLOAT(m.Element(0, 0), 0, 0);
     EZ_TEST_FLOAT(m.Element(1, 0), 0, 0);
@@ -291,7 +287,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transpose")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     m.Transpose();
 
@@ -308,7 +304,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetTranspose")
   {
-    ezMat3T m0(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m0 = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     ezMat3T m = m0.GetTranspose();
 
@@ -332,7 +328,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
         for (float z = 3.0f; z < 360.0f; z += 23.0f)
         {
           ezMat3T m, inv;
-          m.SetRotationMatrix(ezVec3T(x, y, z).GetNormalized(), ezAngle::Degree(19.0f));
+          m = ezMat3::MakeAxisRotation(ezVec3T(x, y, z).GetNormalized(), ezAngle::MakeFromDegree(19.0f));
           inv = m;
           EZ_TEST_BOOL(inv.Invert() == EZ_SUCCESS);
 
@@ -354,7 +350,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
         for (float z = 3.0f; z < 360.0f; z += 21.0f)
         {
           ezMat3T m, inv;
-          m.SetRotationMatrix(ezVec3T(x, y, z).GetNormalized(), ezAngle::Degree(83.0f));
+          m = ezMat3::MakeAxisRotation(ezVec3T(x, y, z).GetNormalized(), ezAngle::MakeFromDegree(83.0f));
           inv = m.GetInverse();
 
           ezVec3T v = m * ezVec3T(1, 1, 1);
@@ -404,7 +400,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRow")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     EZ_TEST_VEC3(m.GetRow(0), ezVec3T(1, 2, 3), 0.0f);
     EZ_TEST_VEC3(m.GetRow(1), ezVec3T(4, 5, 6), 0.0f);
@@ -428,7 +424,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColumn")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     EZ_TEST_VEC3(m.GetColumn(0), ezVec3T(1, 4, 7), 0.0f);
     EZ_TEST_VEC3(m.GetColumn(1), ezVec3T(2, 5, 8), 0.0f);
@@ -452,7 +448,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDiagonal")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     EZ_TEST_VEC3(m.GetDiagonal(), ezVec3T(1, 5, 9), 0.0f);
   }
@@ -471,7 +467,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetScalingFactors")
   {
-    ezMat3T m(1, 2, 3, 5, 6, 7, 9, 10, 11);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 5, 6, 7, 9, 10, 11);
 
     ezVec3T s = m.GetScalingFactors();
     EZ_TEST_VEC3(s,
@@ -482,7 +478,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetScalingFactors")
   {
-    ezMat3T m(1, 2, 3, 5, 6, 7, 9, 10, 11);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 5, 6, 7, 9, 10, 11);
 
     EZ_TEST_BOOL(m.SetScalingFactors(ezVec3T(1, 2, 3)) == EZ_SUCCESS);
 
@@ -492,7 +488,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformDirection")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     const ezVec3T r = m.TransformDirection(ezVec3T(1, 2, 3));
 
@@ -501,7 +497,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*=")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     m *= 2.0f;
 
@@ -512,7 +508,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/=")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     m *= 4.0f;
     m /= 2.0f;
@@ -524,7 +520,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     ezMat3T m2 = m;
 
@@ -536,7 +532,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     ezMat3T m2 = m;
 
@@ -549,9 +545,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, mat)")
   {
-    ezMat3T m1(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m1 = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
-    ezMat3T m2(-1, -2, -3, -4, -5, -6, -7, -8, -9);
+    ezMat3T m2 = ezMat3T::MakeFromValues(-1, -2, -3, -4, -5, -6, -7, -8, -9);
 
     ezMat3T r = m1 * m2;
 
@@ -562,7 +558,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, vec)")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     const ezVec3T r = m * (ezVec3T(1, 2, 3));
 
@@ -571,7 +567,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, float) | operator*(float, mat)")
   {
-    ezMat3T m0(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m0 = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     ezMat3T m = m0 * (ezMathTestType)2;
     ezMat3T m2 = (ezMathTestType)2 * m0;
@@ -587,7 +583,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/(mat, float)")
   {
-    ezMat3T m0(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m0 = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     m0 *= 4.0f;
 
@@ -600,9 +596,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator+(mat, mat) | operator-(mat, mat)")
   {
-    ezMat3T m0(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m0 = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
-    ezMat3T m1(-1, -2, -3, -4, -5, -6, -7, -8, -9);
+    ezMat3T m1 = ezMat3T::MakeFromValues(-1, -2, -3, -4, -5, -6, -7, -8, -9);
 
     EZ_TEST_BOOL((m0 + m1).IsZero());
     EZ_TEST_BOOL((m0 - m1).IsEqual(m0 * (ezMathTestType)2, 0.0001f));
@@ -610,7 +606,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== (mat, mat) | operator!= (mat, mat)")
   {
-    ezMat3T m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3T m = ezMat3T::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     ezMat3T m2 = m;
 

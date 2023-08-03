@@ -65,7 +65,7 @@ void ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(const char* szFile, const
     return;
   }
 
-  ezMat4 transform = ezMat4::IdentityMatrix();
+  ezMat4 transform = ezMat4::MakeIdentity();
   transform.SetRotationalPart(mTransform);
 
   ezStringBuilder line;

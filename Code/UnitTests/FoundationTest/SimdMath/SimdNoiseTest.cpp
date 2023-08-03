@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
           ezSimdVec4f sX = (ezSimdVec4f(x * 4.0f) + xOffset) / scale;
           ezSimdVec4f sY = ezSimdVec4f(y * 1.0f) / scale;
 
-          ezSimdVec4f noise = perlin.NoiseZeroToOne(sX, sY, ezSimdVec4f::ZeroVector(), uiNumOctaves);
+          ezSimdVec4f noise = perlin.NoiseZeroToOne(sX, sY, ezSimdVec4f::MakeZero(), uiNumOctaves);
           float p[4];
           p[0] = noise.x();
           p[1] = noise.y();
@@ -77,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
       ezSimdVec4u seed = ezSimdVec4u(i);
-      ezSimdVec4f randomValues = ezSimdRandom::FloatMinMax(ezSimdVec4i(0, 1, 2, 3), ezSimdVec4f::ZeroVector(), ezSimdVec4f(256.0f), seed);
+      ezSimdVec4f randomValues = ezSimdRandom::FloatMinMax(ezSimdVec4i(0, 1, 2, 3), ezSimdVec4f::MakeZero(), ezSimdVec4f(256.0f), seed);
       ezSimdVec4i randomValuesAsInt = ezSimdVec4i::Truncate(randomValues);
 
       ++histogram[randomValuesAsInt.x()];
@@ -85,7 +85,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       ++histogram[randomValuesAsInt.z()];
       ++histogram[randomValuesAsInt.w()];
 
-      randomValues = ezSimdRandom::FloatMinMax(ezSimdVec4i(32, 33, 34, 35), ezSimdVec4f::ZeroVector(), ezSimdVec4f(256.0f), seed);
+      randomValues = ezSimdRandom::FloatMinMax(ezSimdVec4i(32, 33, 34, 35), ezSimdVec4f::MakeZero(), ezSimdVec4f(256.0f), seed);
       randomValuesAsInt = ezSimdVec4i::Truncate(randomValues);
 
       ++histogram[randomValuesAsInt.x()];

@@ -157,14 +157,14 @@ ezVec3 ezCamera::MapInternalToExternal(const ezVec3& v) const
 ezAngle ezCamera::GetFovX(float fAspectRatioWidthDivHeight) const
 {
   if (m_Mode == ezCameraMode::PerspectiveFixedFovX)
-    return ezAngle::Degree(m_fFovOrDim);
+    return ezAngle::MakeFromDegree(m_fFovOrDim);
 
   if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
-    return ezMath::ATan(ezMath::Tan(ezAngle::Degree(m_fFovOrDim) * 0.5f) * fAspectRatioWidthDivHeight) * 2.0f;
+    return ezMath::ATan(ezMath::Tan(ezAngle::MakeFromDegree(m_fFovOrDim) * 0.5f) * fAspectRatioWidthDivHeight) * 2.0f;
 
   // TODO: HACK
   if (m_Mode == ezCameraMode::Stereo)
-    return ezAngle::Degree(90);
+    return ezAngle::MakeFromDegree(90);
 
   EZ_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
   return ezAngle();
@@ -173,14 +173,14 @@ ezAngle ezCamera::GetFovX(float fAspectRatioWidthDivHeight) const
 ezAngle ezCamera::GetFovY(float fAspectRatioWidthDivHeight) const
 {
   if (m_Mode == ezCameraMode::PerspectiveFixedFovX)
-    return ezMath::ATan(ezMath::Tan(ezAngle::Degree(m_fFovOrDim) * 0.5f) / fAspectRatioWidthDivHeight) * 2.0f;
+    return ezMath::ATan(ezMath::Tan(ezAngle::MakeFromDegree(m_fFovOrDim) * 0.5f) / fAspectRatioWidthDivHeight) * 2.0f;
 
   if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
-    return ezAngle::Degree(m_fFovOrDim);
+    return ezAngle::MakeFromDegree(m_fFovOrDim);
 
   // TODO: HACK
   if (m_Mode == ezCameraMode::Stereo)
-    return ezAngle::Degree(90);
+    return ezAngle::MakeFromDegree(90);
 
   EZ_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
   return ezAngle();
@@ -282,12 +282,12 @@ void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out
   switch (m_Mode)
   {
     case ezCameraMode::PerspectiveFixedFovX:
-      out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight,
+      out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
         m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::PerspectiveFixedFovY:
-      out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight,
+      out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
         m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
@@ -307,7 +307,7 @@ void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out
       else
       {
         // Evade to FixedFovY
-        out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight,
+        out_mProjectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::MakeFromDegree(m_fFovOrDim), fAspectRatioWidthDivHeight,
           m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       }
       break;
@@ -365,10 +365,10 @@ void ezCamera::ClampRotationAngles(bool bLocalSpace, ezAngle& forwardAxis, ezAng
       // Limit how much the camera can look up and down, to prevent it from overturning
 
       const float fDot = InternalGetDirForwards().Dot(ezVec3(0, 0, -1));
-      const ezAngle fCurAngle = ezMath::ACos(fDot) - ezAngle::Degree(90.0f);
+      const ezAngle fCurAngle = ezMath::ACos(fDot) - ezAngle::MakeFromDegree(90.0f);
       const ezAngle fNewAngle = fCurAngle + rightAxis;
 
-      const ezAngle fAllowedAngle = ezMath::Clamp(fNewAngle, ezAngle::Degree(-85.0f), ezAngle::Degree(85.0f));
+      const ezAngle fAllowedAngle = ezMath::Clamp(fNewAngle, ezAngle::MakeFromDegree(-85.0f), ezAngle::MakeFromDegree(85.0f));
 
       rightAxis = fAllowedAngle - fCurAngle;
     }
@@ -385,8 +385,7 @@ void ezCamera::RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axi
 
   if (forwardAxis.GetRadian() != 0.0f)
   {
-    ezMat3 m;
-    m.SetRotationMatrix(vDirForwards, forwardAxis);
+    ezMat3 m = ezMat3::MakeAxisRotation(vDirForwards, forwardAxis);
 
     vDirUp = m * vDirUp;
     vDirRight = m * vDirRight;
@@ -394,8 +393,7 @@ void ezCamera::RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axi
 
   if (rightAxis.GetRadian() != 0.0f)
   {
-    ezMat3 m;
-    m.SetRotationMatrix(vDirRight, rightAxis);
+    ezMat3 m = ezMat3::MakeAxisRotation(vDirRight, rightAxis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
@@ -403,8 +401,7 @@ void ezCamera::RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle axi
 
   if (axis.GetRadian() != 0.0f)
   {
-    ezMat3 m;
-    m.SetRotationMatrix(vDirUp, axis);
+    ezMat3 m = ezMat3::MakeAxisRotation(vDirUp, axis);
 
     vDirRight = m * vDirRight;
     vDirForwards = m * vDirForwards;
@@ -429,7 +426,7 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
   if (forwardAxis.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrixX(forwardAxis);
+    m = ezMat3::MakeRotationX(forwardAxis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
@@ -438,7 +435,7 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
   if (rightAxis.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrixY(rightAxis);
+    m = ezMat3::MakeRotationY(rightAxis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
@@ -447,7 +444,7 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle ax
   if (axis.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrixZ(axis);
+    m = ezMat3::MakeRotationZ(axis);
 
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;

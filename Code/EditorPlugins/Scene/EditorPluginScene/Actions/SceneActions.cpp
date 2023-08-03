@@ -316,7 +316,7 @@ void ezSceneAction::Execute(const ezVariant& value)
         else
         {
           auto tNow = ezTimestamp::CurrentTimestamp();
-          auto tComp = stat.m_LastModificationTime + ezTime::Hours(24) * 7;
+          auto tComp = stat.m_LastModificationTime + ezTime::MakeFromHours(24) * 7;
 
           if (tComp.GetInt64(ezSIUnitOfTime::Second) < tNow.GetInt64(ezSIUnitOfTime::Second))
           {

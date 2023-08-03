@@ -110,7 +110,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
     auto& vert = m_InputVertices.ExpandAndGetRef();
     vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));
     vert.m_vNormal = normalTransform.TransformDirection(vNormal).GetNormalized();
-    vert.m_Color = pColors != nullptr ? ezColor(*pColors) : ezColor::ZeroColor();
+    vert.m_Color = pColors != nullptr ? ezColor(*pColors) : ezColor::MakeZero();
     vert.m_uiIndex = i;
 
     pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
@@ -126,7 +126,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
 
   // TODO:
   // ezBoundingBox box = mbDesc.GetBounds();
-  ezBoundingBox box = ezBoundingBox(ezVec3(-1000), ezVec3(1000));
+  ezBoundingBox box = ezBoundingBox::MakeFromMinMax(ezVec3(-1000), ezVec3(1000));
   box.TransformFromOrigin(transform.GetAsMat4());
 
   m_VolumeCollections.Clear();

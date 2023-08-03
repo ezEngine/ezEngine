@@ -138,7 +138,7 @@ public:
     static EZ_ALWAYS_INLINE ExecResult Error() { return {State::Error}; }
 
     int m_NextExecAndState = 0;
-    ezTime m_MaxDelay = ezTime::Zero();
+    ezTime m_MaxDelay = ezTime::MakeZero();
   };
 
   struct Node;

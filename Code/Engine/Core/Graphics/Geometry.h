@@ -61,7 +61,7 @@ public:
     GeoOptions(){}; // NOLINT: This struct is used before the sourrounding class ends, so it needs a default constructor. = default doesn't work here.
 
     ezColor m_Color = ezColor(1, 1, 1, 1);         ///< The color of the entire geometric object
-    ezMat4 m_Transform = ezMat4::IdentityMatrix(); ///< An additional transform to apply to the geometry while adding it
+    ezMat4 m_Transform = ezMat4::MakeIdentity();   ///< An additional transform to apply to the geometry while adding it
     ezUInt16 m_uiBoneIndex = 0;                    ///< Which bone should influence this geometry, for single-bone skinning.
 
     bool IsFlipWindingNecessary() const;
@@ -89,7 +89,7 @@ public:
   void Clear();
 
   /// \brief Adds a vertex, returns the index to the added vertex.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices = ezVec4U16::ZeroVector(), const ezColorLinearUB& boneWeights = ezColorLinearUB(255, 0, 0, 0));
+  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices = ezVec4U16::MakeZero(), const ezColorLinearUB& boneWeights = ezColorLinearUB(255, 0, 0, 0));
 
   /// \brief Adds a vertex, returns the index to the added vertex. Position and normal are transformed with the given matrix.
   ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, const ezVec4U16& vBoneIndices, const ezColorLinearUB& boneWeights, const ezMat4& mTransform)
@@ -206,7 +206,7 @@ public:
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// The top or bottom caps can be removed using \a bCapTop and \a bCapBottom.
   /// When \a fraction is set to any value below 360 degree, a pie / pacman shaped cylinder is created.
-  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions(), ezAngle fraction = ezAngle::Degree(360.0f));
+  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions(), ezAngle fraction = ezAngle::MakeFromDegree(360.0f));
 
   /// \brief Same as AddCylinder(), but always adds caps and does not generate separate vertices for the caps.
   ///

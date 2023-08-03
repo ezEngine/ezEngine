@@ -77,10 +77,10 @@ protected:
   ezRmlUiResourceHandle m_hResource;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
 
-  ezVec2I32 m_vOffset = ezVec2I32::ZeroVector();
-  ezVec2U32 m_vSize = ezVec2U32::ZeroVector();
-  ezVec2 m_vAnchorPoint = ezVec2::ZeroVector();
-  ezVec2U32 m_vReferenceResolution = ezVec2U32::ZeroVector();
+  ezVec2I32 m_vOffset = ezVec2I32::MakeZero();
+  ezVec2U32 m_vSize = ezVec2U32::MakeZero();
+  ezVec2 m_vAnchorPoint = ezVec2::MakeZero();
+  ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
   bool m_bPassInput = true;
   bool m_bAutobindBlackboards = true;
 

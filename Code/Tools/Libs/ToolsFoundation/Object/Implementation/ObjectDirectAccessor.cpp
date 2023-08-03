@@ -74,7 +74,7 @@ ezStatus ezObjectDirectAccessor::AddObject(
   EZ_ASSERT_DEBUG(pPar, "Parent is not part of this document manager.");
 
   if (!inout_objectGuid.IsValid())
-    inout_objectGuid.CreateNewUuid();
+    inout_objectGuid = ezUuid::MakeUuid();
   ezDocumentObject* pObj = m_pManager->CreateObject(pType, inout_objectGuid);
   m_pManager->AddObject(pObj, pPar, pParentProp->GetPropertyName(), index);
   return ezStatus(EZ_SUCCESS);

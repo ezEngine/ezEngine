@@ -91,7 +91,7 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
 void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
 {
   ezTime currentTime = ezTime::Now();
-  if (bThrottleCompanionView && currentTime < (m_LastPresent + ezTime::Milliseconds(16)))
+  if (bThrottleCompanionView && currentTime < (m_LastPresent + ezTime::MakeFromMilliseconds(16)))
     return;
 
   m_LastPresent = currentTime;

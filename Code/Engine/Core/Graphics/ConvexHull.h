@@ -90,8 +90,8 @@ private:
   };
 
   // used for mesh simplification
-  ezAngle m_MinTriangleAngle = ezAngle::Degree(22.0f);
-  ezAngle m_FlatVertexNormalThreshold = ezAngle::Degree(5);
+  ezAngle m_MinTriangleAngle = ezAngle::MakeFromDegree(22.0f);
+  ezAngle m_FlatVertexNormalThreshold = ezAngle::MakeFromDegree(5);
   double m_fMinTriangleEdgeLength = 0.05;
 
   ezVec3d m_vCenter;

@@ -139,7 +139,7 @@ void ezClothSheetComponent::OnSimulationStarted()
 
 void ezClothSheetComponent::SetupCloth()
 {
-  m_Bbox.SetInvalid();
+  m_Bbox = ezBoundingBox::MakeInvalid();
 
   if (IsActiveAndSimulating())
   {
@@ -241,18 +241,17 @@ ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
 {
   if (m_Bbox.IsValid())
   {
-    ref_bounds.ExpandToInclude(m_Bbox);
+    ref_bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(m_Bbox));
   }
   else
   {
-    ezBoundingBox box;
-    box.SetInvalid();
-    box.ExpandToInclude(ezVec3::ZeroVector());
+    ezBoundingBox box = ezBoundingBox::MakeInvalid();
+    box.ExpandToInclude(ezVec3::MakeZero());
     box.ExpandToInclude(ezVec3(m_vSize.x, 0, -0.1f));
     box.ExpandToInclude(ezVec3(0, m_vSize.y, +0.1f));
     box.ExpandToInclude(ezVec3(m_vSize.x, m_vSize.y, 0));
 
-    ref_bounds.ExpandToInclude(box);
+    ref_bounds.ExpandToInclude(ezBoundingBoxSphere::MakeFromBox(box));
   }
 
   return EZ_SUCCESS;
@@ -570,8 +569,8 @@ void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewCont
           {
             pVertexData[vidx].m_vPosition = pRenderData->m_Positions[vidx];
             pVertexData[vidx].m_vTexCoord = ezVec2(x * fDivU, y * fDivY);
-            pVertexData[vidx].EncodeNormal(ezVec3::UnitZAxis());
-            pVertexData[vidx].EncodeTangent(ezVec3::UnitXAxis(), 1.0f);
+            pVertexData[vidx].EncodeNormal(ezVec3::MakeAxisZ());
+            pVertexData[vidx].EncodeTangent(ezVec3::MakeAxisX(), 1.0f);
           }
         }
       }

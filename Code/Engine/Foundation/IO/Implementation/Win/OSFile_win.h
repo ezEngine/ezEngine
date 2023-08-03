@@ -25,7 +25,7 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
 
 ezResult ezOSFile::InternalOpen(ezStringView sFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
 {
-  const ezTime sleepTime = ezTime::Milliseconds(20);
+  const ezTime sleepTime = ezTime::MakeFromMilliseconds(20);
   ezInt32 iRetries = 20;
 
   if (FileShareMode == ezFileShareMode::Default)
@@ -305,7 +305,7 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
     out_Stats.m_bIsDirectory = true;
     out_Stats.m_sParentPath.Clear();
     out_Stats.m_sName = s;
-    out_Stats.m_LastModificationTime.Invalidate();
+    out_Stats.m_LastModificationTime = ezTimestamp::MakeInvalid();
     return EZ_SUCCESS;
   }
 
@@ -320,7 +320,7 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
   out_Stats.m_sParentPath = sFileOrFolder;
   out_Stats.m_sParentPath.PathParentDirectory();
   out_Stats.m_sName = data.cFileName;
-  out_Stats.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
+  out_Stats.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   FindClose(hSearch);
   return EZ_SUCCESS;
@@ -380,7 +380,7 @@ void ezFileSystemIterator::StartSearch(ezStringView sSearchStart, ezBitflags<ezF
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   m_CurFile.m_sParentPath = m_sCurPath;
   m_CurFile.m_sName = data.cFileName;
-  m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
+  m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   m_Data.m_Handles.PushBack(hSearch);
 
@@ -451,7 +451,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
       m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
       m_CurFile.m_sParentPath = m_sCurPath;
       m_CurFile.m_sName = data.cFileName;
-      m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
+      m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
       m_Data.m_Handles.PushBack(hSearch);
 
@@ -498,7 +498,7 @@ ezInt32 ezFileSystemIterator::InternalNext()
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
   m_CurFile.m_sParentPath = m_sCurPath;
   m_CurFile.m_sName = data.cFileName;
-  m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
+  m_CurFile.m_LastModificationTime = ezTimestamp::MakeFromInt(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
     return ReturnCallInternalNext;

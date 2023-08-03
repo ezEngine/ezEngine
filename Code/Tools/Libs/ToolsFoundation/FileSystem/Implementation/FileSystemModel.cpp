@@ -334,7 +334,7 @@ ezResult ezFileSystemModel::UnlinkDocument(ezStringView sAbsolutePath)
     if (it.IsValid())
     {
       bDocumentLinkChanged = it.Value().m_DocumentID != ezUuid();
-      it.Value().m_DocumentID.SetInvalid();
+      it.Value().m_DocumentID = ezUuid::MakeInvalid();
       fileStatus = it.Value();
     }
     else

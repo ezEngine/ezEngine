@@ -144,8 +144,8 @@ public:
   {
     ezGameObjectHandle m_hActorA;
     ezGameObjectHandle m_hActorB;
-    ezTransform m_LocalFrameA = ezTransform::IdentityTransform();
-    ezTransform m_LocalFrameB = ezTransform::IdentityTransform();
+    ezTransform m_LocalFrameA = ezTransform::MakeIdentity();
+    ezTransform m_LocalFrameB = ezTransform::MakeIdentity();
   };
 
   struct FixedJointConfig : JointConfig

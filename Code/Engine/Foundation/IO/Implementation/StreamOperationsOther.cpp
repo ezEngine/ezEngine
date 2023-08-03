@@ -35,7 +35,7 @@ void operator>>(ezStreamReader& inout_stream, ezTime& ref_value)
   double d = 0;
   inout_stream.ReadQWordValue(&d).IgnoreResult();
 
-  ref_value = ezTime::Seconds(d);
+  ref_value = ezTime::MakeFromSeconds(d);
 }
 
 // ezUuid
@@ -297,7 +297,7 @@ void operator>>(ezStreamReader& inout_stream, ezTimestamp& ref_value)
   ezInt64 value;
   inout_stream >> value;
 
-  ref_value.SetInt64(value, ezSIUnitOfTime::Microsecond);
+  ref_value = ezTimestamp::MakeFromInt(value, ezSIUnitOfTime::Microsecond);
 }
 
 // ezVarianceTypeFloat

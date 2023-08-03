@@ -123,7 +123,7 @@ void ezRemoteInterfaceEnetImpl::InternalShutdownConnection()
 
     // process the network messages (e.g. send the disconnect messages)
     UpdateRemoteInterface();
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
 
   // finally close the network connection
@@ -142,7 +142,7 @@ ezTime ezRemoteInterfaceEnetImpl::InternalGetPingToServer()
   EZ_ASSERT_DEV(m_pEnetConnectionToServer != nullptr, "Client has not connected to server");
 
   enet_peer_ping(m_pEnetConnectionToServer);
-  return ezTime::Milliseconds(m_pEnetConnectionToServer->lastRoundTripTime);
+  return ezTime::MakeFromMilliseconds(m_pEnetConnectionToServer->lastRoundTripTime);
 }
 
 ezResult ezRemoteInterfaceEnetImpl::InternalTransmit(ezRemoteTransmitMode tm, const ezArrayPtr<const ezUInt8>& data)

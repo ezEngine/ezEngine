@@ -152,7 +152,7 @@ ezResult ezOpenDdlUtils::ConvertToTime(const ezOpenDdlReaderElement* pElement, e
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_result = ezTime::Seconds(pValues[0]);
+    out_result = ezTime::MakeFromSeconds(pValues[0]);
 
     return EZ_SUCCESS;
   }
@@ -161,7 +161,7 @@ ezResult ezOpenDdlUtils::ConvertToTime(const ezOpenDdlReaderElement* pElement, e
   {
     const double* pValues = pElement->GetPrimitivesDouble();
 
-    out_result = ezTime::Seconds(pValues[0]);
+    out_result = ezTime::MakeFromSeconds(pValues[0]);
 
     return EZ_SUCCESS;
   }
@@ -454,7 +454,7 @@ ezResult ezOpenDdlUtils::ConvertToMat3(const ezOpenDdlReaderElement* pElement, e
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_mResult.SetFromArray(pValues, ezMatrixLayout::ColumnMajor);
+    out_mResult = ezMat3::MakeFromColumnMajorArray(pValues);
 
     return EZ_SUCCESS;
   }
@@ -483,7 +483,7 @@ ezResult ezOpenDdlUtils::ConvertToMat4(const ezOpenDdlReaderElement* pElement, e
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_mResult.SetFromArray(pValues, ezMatrixLayout::ColumnMajor);
+    out_mResult = ezMat4::MakeFromColumnMajorArray(pValues);
 
     return EZ_SUCCESS;
   }
@@ -551,7 +551,7 @@ ezResult ezOpenDdlUtils::ConvertToQuat(const ezOpenDdlReaderElement* pElement, e
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_qResult.SetElements(pValues[0], pValues[1], pValues[2], pValues[3]);
+    out_qResult = ezQuat(pValues[0], pValues[1], pValues[2], pValues[3]);
 
     return EZ_SUCCESS;
   }
@@ -610,7 +610,7 @@ ezResult ezOpenDdlUtils::ConvertToAngle(const ezOpenDdlReaderElement* pElement, 
     const float* pValues = pElement->GetPrimitivesFloat();
 
     // have to use radians to prevent precision loss
-    out_result = ezAngle::Radian(pValues[0]);
+    out_result = ezAngle::MakeFromRadian(pValues[0]);
 
     return EZ_SUCCESS;
   }

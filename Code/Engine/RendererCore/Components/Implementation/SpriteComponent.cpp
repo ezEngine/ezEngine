@@ -83,7 +83,7 @@ ezSpriteComponent::~ezSpriteComponent() = default;
 
 ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
-  ref_bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fSize * 0.5f);
+  ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fSize * 0.5f);
   return EZ_SUCCESS;
 }
 

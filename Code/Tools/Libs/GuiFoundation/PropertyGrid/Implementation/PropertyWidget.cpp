@@ -418,7 +418,7 @@ void ezQtPropertyEditorTimeWidget::SlotValueChanged()
 
   m_bTemporaryCommand = true;
 
-  BroadcastValueChanged(ezTime::Seconds(m_pWidget->value()));
+  BroadcastValueChanged(ezTime::MakeFromSeconds(m_pWidget->value()));
 }
 
 
@@ -508,7 +508,7 @@ void ezQtPropertyEditorAngleWidget::SlotValueChanged()
 
   m_bTemporaryCommand = true;
 
-  BroadcastValueChanged(ezAngle::Degree(m_pWidget->value()));
+  BroadcastValueChanged(ezAngle::MakeFromDegree(m_pWidget->value()));
 }
 
 /// *** INT SPINBOX ***
@@ -899,12 +899,11 @@ void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
 
   m_bTemporaryCommand = true;
 
-  ezAngle x = ezAngle::Degree(m_pWidget[0]->value());
-  ezAngle y = ezAngle::Degree(m_pWidget[1]->value());
-  ezAngle z = ezAngle::Degree(m_pWidget[2]->value());
+  ezAngle x = ezAngle::MakeFromDegree(m_pWidget[0]->value());
+  ezAngle y = ezAngle::MakeFromDegree(m_pWidget[1]->value());
+  ezAngle z = ezAngle::MakeFromDegree(m_pWidget[2]->value());
 
-  ezQuat qRot;
-  qRot.SetFromEulerAngles(x, y, z);
+  ezQuat qRot = ezQuat::MakeFromEulerAngles(x, y, z);
 
   BroadcastValueChanged(qRot);
 }

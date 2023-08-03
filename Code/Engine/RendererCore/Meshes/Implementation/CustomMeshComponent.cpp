@@ -43,7 +43,7 @@ ezAtomicInteger32 s_iCustomMeshResources;
 
 ezCustomMeshComponent::ezCustomMeshComponent()
 {
-  m_Bounds.SetInvalid();
+  m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 }
 
 ezCustomMeshComponent::~ezCustomMeshComponent() = default;
@@ -240,7 +240,7 @@ void ezCustomMeshComponent::OnActivated()
       ind[i * 3 + 2] = geo.GetPolygons()[i].m_Vertices[2];
     }
 
-    SetBounds(ezBoundingSphere(ezVec3::ZeroVector(), 1.5f));
+    SetBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 1.5f));
   }
 }
 

@@ -75,8 +75,8 @@ protected:
   // State
   ezMeshResourceHandle m_hMesh;
 
-  ezVec3 m_vLastOwnerPosition = ezVec3::ZeroVector();
-  ezVec3 m_vLastTargetPosition = ezVec3::ZeroVector();
+  ezVec3 m_vLastOwnerPosition = ezVec3::MakeZero();
+  ezVec3 m_vLastTargetPosition = ezVec3::MakeZero();
 
   void CreateMeshes();
   void BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc) const;

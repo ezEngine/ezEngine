@@ -35,14 +35,14 @@ void ezIpcChannelEnet::InternalConnect()
   }
   else
   {
-    if ((m_sLastAddress != m_sAddress) || (ezTime::Now() - m_LastConnectAttempt > ezTime::Seconds(10)))
+    if ((m_sLastAddress != m_sAddress) || (ezTime::Now() - m_LastConnectAttempt > ezTime::MakeFromSeconds(10)))
     {
       m_sLastAddress = m_sAddress;
       m_LastConnectAttempt = ezTime::Now();
       m_pNetwork->ConnectToServer('RMOT', m_sAddress, false).IgnoreResult();
     }
 
-    m_pNetwork->WaitForConnectionToServer(ezTime::Milliseconds(10.0)).IgnoreResult();
+    m_pNetwork->WaitForConnectionToServer(ezTime::MakeFromMilliseconds(10.0)).IgnoreResult();
   }
 
   m_bConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;

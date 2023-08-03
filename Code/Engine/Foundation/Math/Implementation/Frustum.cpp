@@ -277,10 +277,10 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
   ezFrustum res;
 
   // Near Plane
-  res.m_Planes[NearPlane].SetFromNormalAndPoint(-vForwardsNorm, vPosition + fNearPlane * vForwardsNorm);
+  res.m_Planes[NearPlane] = ezPlane::MakeFromNormalAndPoint(-vForwardsNorm, vPosition + fNearPlane * vForwardsNorm);
 
   // Far Plane
-  res.m_Planes[FarPlane].SetFromNormalAndPoint(vForwardsNorm, vPosition + fFarPlane * vForwardsNorm);
+  res.m_Planes[FarPlane] = ezPlane::MakeFromNormalAndPoint(vForwardsNorm, vPosition + fFarPlane * vForwardsNorm);
 
   // Making sure the near/far plane is always closest/farthest.
   if (fNearPlane > fFarPlane)
@@ -304,7 +304,7 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(-fCosFovX, 0, fSinFovX);
     vPlaneNormal.Normalize();
 
-    res.m_Planes[LeftPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
+    res.m_Planes[LeftPlane] = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
   // Right Plane
@@ -312,7 +312,7 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(fCosFovX, 0, fSinFovX);
     vPlaneNormal.Normalize();
 
-    res.m_Planes[RightPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
+    res.m_Planes[RightPlane] = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
   // Bottom Plane
@@ -320,7 +320,7 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, -fCosFovY, fSinFovY);
     vPlaneNormal.Normalize();
 
-    res.m_Planes[BottomPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
+    res.m_Planes[BottomPlane] = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
   // Top Plane
@@ -328,7 +328,7 @@ ezFrustum ezFrustum::MakeFromFOV(const ezVec3& vPosition, const ezVec3& vForward
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, fCosFovY, fSinFovY);
     vPlaneNormal.Normalize();
 
-    res.m_Planes[TopPlane].SetFromNormalAndPoint(vPlaneNormal, vPosition);
+    res.m_Planes[TopPlane] = ezPlane::MakeFromNormalAndPoint(vPlaneNormal, vPosition);
   }
 
   return res;

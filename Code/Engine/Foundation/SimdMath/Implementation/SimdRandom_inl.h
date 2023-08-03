@@ -1,7 +1,7 @@
 #pragma once
 
 // static
-EZ_FORCE_INLINE ezSimdVec4u ezSimdRandom::UInt(const ezSimdVec4i& vPosition, const ezSimdVec4u& vSeed /*= ezSimdVec4u::ZeroVector()*/)
+EZ_FORCE_INLINE ezSimdVec4u ezSimdRandom::UInt(const ezSimdVec4i& vPosition, const ezSimdVec4u& vSeed /*= ezSimdVec4u::MakeZero()*/)
 {
   // Based on Squirrel3 which was introduced by Squirrel Eiserloh at 'Math for Game Programmers: Noise-Based RNG', GDC17.
   const ezSimdVec4u BIT_NOISE1 = ezSimdVec4u(0xb5297a4d);
@@ -21,13 +21,13 @@ EZ_FORCE_INLINE ezSimdVec4u ezSimdRandom::UInt(const ezSimdVec4i& vPosition, con
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdRandom::FloatZeroToOne(const ezSimdVec4i& vPosition, const ezSimdVec4u& vSeed /*= ezSimdVec4u::ZeroVector()*/)
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdRandom::FloatZeroToOne(const ezSimdVec4i& vPosition, const ezSimdVec4u& vSeed /*= ezSimdVec4u::MakeZero()*/)
 {
   return UInt(vPosition, vSeed).ToFloat() * (1.0f / 4294967296.0f);
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdRandom::FloatMinMax(const ezSimdVec4i& vPosition, const ezSimdVec4f& vMinValue, const ezSimdVec4f& vMaxValue, const ezSimdVec4u& vSeed /*= ezSimdVec4u::ZeroVector()*/)
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdRandom::FloatMinMax(const ezSimdVec4i& vPosition, const ezSimdVec4f& vMinValue, const ezSimdVec4f& vMaxValue, const ezSimdVec4u& vSeed /*= ezSimdVec4u::MakeZero()*/)
 {
   return ezSimdVec4f::Lerp(vMinValue, vMaxValue, FloatZeroToOne(vPosition, vSeed));
 }

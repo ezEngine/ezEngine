@@ -25,7 +25,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
 
     {
       ezKrautTreeResourceDescriptor desc;
-      desc.m_Details.m_Bounds.SetInvalid();
+      desc.m_Details.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 
         ezKrautTreeResourceHandle hResource = ezResourceManager::CreateResource<ezKrautTreeResource>("Missing Kraut Tree Mesh", std::move(desc), "Empty Kraut Tree Mesh");
       ezResourceManager::SetResourceTypeMissingFallback<ezKrautTreeResource>(hResource);

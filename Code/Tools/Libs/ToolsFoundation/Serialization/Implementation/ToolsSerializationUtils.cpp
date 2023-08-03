@@ -21,7 +21,7 @@ void ezToolsSerializationUtils::SerializeTypes(const ezSet<const ezRTTI*>& types
       ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(pType, desc);
     }
 
-    context.RegisterObject(ezUuid::StableUuidForString(pType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+    context.RegisterObject(ezUuid::MakeStableUuidFromString(pType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
     rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
   }
 }

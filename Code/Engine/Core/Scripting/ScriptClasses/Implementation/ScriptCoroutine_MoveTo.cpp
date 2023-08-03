@@ -35,7 +35,7 @@ void ezScriptCoroutine_MoveTo::Start(ezGameObjectHandle hObject, const ezVec3& v
   m_Easing = easing;
 
   m_Duration = duration;
-  m_TimePassed = ezTime::Zero();
+  m_TimePassed = ezTime::MakeZero();
 }
 
 ezScriptCoroutine::Result ezScriptCoroutine_MoveTo::Update(ezTime deltaTimeSinceLastUpdate)

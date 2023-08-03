@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static void CreatePreviewRect(ezGeometry& ref_geom)
 {
-  const ezMat4 mTransform = ezMat4::IdentityMatrix();
+  const ezMat4 mTransform = ezMat4::MakeIdentity();
   const ezVec2 size(1.0f);
   const ezColor color = ezColor::White;
 
@@ -135,7 +135,7 @@ void ezTextureContext::OnInitialize()
     ezGameObject* pObj;
 
     obj.m_sName.Assign("TexturePreview");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+    obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(90));
     m_hPreviewObject = m_pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;

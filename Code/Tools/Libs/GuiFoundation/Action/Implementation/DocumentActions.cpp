@@ -197,8 +197,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
 
         if (!sFile.IsEmpty())
         {
-          ezUuid newDoc;
-          newDoc.CreateNewUuid();
+          ezUuid newDoc = ezUuid::MakeUuid();
           ezStatus res = m_Context.m_pDocument->GetDocumentManager()->CloneDocument(m_Context.m_pDocument->GetDocumentPath(), sFile, newDoc);
 
           if (res.Failed())
@@ -266,7 +265,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
       mimeData->setText(sGuid.GetData());
       clipboard->setMimeData(mimeData);
 
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::MakeFromSeconds(5));
     }
     break;
 

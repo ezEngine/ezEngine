@@ -137,7 +137,7 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
             else
             {
               ezLog::Error("Failed to resolve layer: {}. Cloned Layer will be invalid.");
-              pLayer->m_Layer.SetInvalid();
+              pLayer->m_Layer = ezUuid::MakeInvalid();
             }
           }
           if (!sLayerPath.IsEmpty())
@@ -156,8 +156,7 @@ void ezSceneDocumentManager::InternalCloneDocument(const char* szPath, const cha
           }
         }
       }
-    }
-  });
+    } });
 }
 
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
@@ -165,17 +164,13 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
   auto history = pDocument->GetCommandHistory();
   history->StartTransaction("Initial Scene Setup");
 
-  ezUuid skyObjectGuid;
-  skyObjectGuid.CreateNewUuid();
-  ezUuid lightObjectGuid;
-  lightObjectGuid.CreateNewUuid();
-  ezUuid meshObjectGuid;
-  meshObjectGuid.CreateNewUuid();
+  const ezUuid skyObjectGuid = ezUuid::MakeUuid();
+  const ezUuid lightObjectGuid = ezUuid::MakeUuid();
+  const ezUuid meshObjectGuid = ezUuid::MakeUuid();
 
   // Thumbnail Camera
   {
-    ezUuid objectGuid;
-    objectGuid.CreateNewUuid();
+    const ezUuid objectGuid = ezUuid::MakeUuid();
 
     ezAddObjectCommand cmd;
     cmd.m_Index = -1;
@@ -299,8 +294,7 @@ void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
     }
 
     {
-      ezQuat qRot;
-      qRot.SetFromEulerAngles(ezAngle::Degree(0), ezAngle::Degree(55), ezAngle::Degree(90));
+      ezQuat qRot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(55), ezAngle::MakeFromDegree(90));
 
       ezSetObjectPropertyCommand propCmd;
       propCmd.m_Object = cmd.m_NewObjectGuid;

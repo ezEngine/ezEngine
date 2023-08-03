@@ -56,7 +56,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
   PasteCmd.m_CreateFromPrefab = AssetGuid;
   PasteCmd.m_Index = iInsertChildIndex;
   PasteCmd.m_sBasePrefabGraph = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(AssetGuid);
-  PasteCmd.m_RemapGuid.CreateNewUuid();
+  PasteCmd.m_RemapGuid = ezUuid::MakeUuid();
 
   if (PasteCmd.m_sBasePrefabGraph.IsEmpty())
     return; // error
@@ -65,7 +65,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
 
   if (PasteCmd.m_CreatedRootObject.IsValid())
   {
-    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos, ezQuat::IdentityQuaternion());
+    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos, ezQuat::MakeIdentity());
 
     m_DraggedObjects.PushBack(PasteCmd.m_CreatedRootObject);
   }

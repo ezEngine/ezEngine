@@ -38,8 +38,7 @@ void ezRenderComponent::OnDeactivated()
 
 void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   bool bAlwaysVisible = false;
 

@@ -16,8 +16,7 @@ QScreen& ezWidgetUtils::GetClosestScreen(const QPoint& point)
     for (QScreen* pScreen : screens)
     {
       const QRect geom = pScreen->geometry();
-      ezBoundingBox ezGeom;
-      ezGeom.SetCenterAndHalfExtents(ezVec3(geom.center().x(), geom.center().y(), 0), ezVec3(geom.width() / 2.0f, geom.height() / 2.0f, 0));
+      ezBoundingBox ezGeom = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(geom.center().x(), geom.center().y(), 0), ezVec3(geom.width() / 2.0f, geom.height() / 2.0f, 0));
       const ezVec3 ezPoint(point.x(), point.y(), 0);
       if (ezGeom.Contains(ezPoint))
       {

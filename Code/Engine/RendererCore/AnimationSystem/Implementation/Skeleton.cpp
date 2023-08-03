@@ -208,12 +208,12 @@ ezUInt64 ezSkeleton::GetHeapMemoryUsage() const
 
 ezAngle ezSkeletonJoint::GetTwistLimitLow() const
 {
-  return ezMath::Max(ezAngle::Degree(-179), m_TwistLimitCenterAngle - m_TwistLimitHalfAngle);
+  return ezMath::Max(ezAngle::MakeFromDegree(-179), m_TwistLimitCenterAngle - m_TwistLimitHalfAngle);
 }
 
 ezAngle ezSkeletonJoint::GetTwistLimitHigh() const
 {
-  return ezMath::Min(ezAngle::Degree(179), m_TwistLimitCenterAngle + m_TwistLimitHalfAngle);
+  return ezMath::Min(ezAngle::MakeFromDegree(179), m_TwistLimitCenterAngle + m_TwistLimitHalfAngle);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);

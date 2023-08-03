@@ -195,8 +195,7 @@ void ezSkeletonContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg
   if (m_pGameObject == nullptr)
     return;
 
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());

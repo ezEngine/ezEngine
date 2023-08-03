@@ -12,7 +12,7 @@ ezKrautTreeViewContext::ezKrautTreeViewContext(ezKrautTreeContext* pKrautTreeCon
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
 ezKrautTreeViewContext::~ezKrautTreeViewContext() = default;
@@ -43,19 +43,18 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   // const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
-  ezBoundingBox bbox;
-  bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());
+  ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3::MakeZero());
 
   auto hResource = m_pKrautTreeContext->GetResource();
   if (hResource.IsValid())
   {
-    //ezResourceLock<ezKrautGeneratorResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
+    // ezResourceLock<ezKrautGeneratorResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
 
     // TODO
 
-    //if (pResource->GetDetails().m_Bounds.IsValid())
+    // if (pResource->GetDetails().m_Bounds.IsValid())
     //{
-    //  bbox = pResource->GetDetails().m_Bounds.GetBox();
+    //   bbox = pResource->GetDetails().m_Bounds.GetBox();
 
     //  ezStringBuilder sText;
     //  sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),

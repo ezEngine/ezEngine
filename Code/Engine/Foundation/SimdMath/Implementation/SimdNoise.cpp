@@ -22,7 +22,7 @@ ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
 
 ezSimdVec4f ezSimdPerlinNoise::NoiseZeroToOne(const ezSimdVec4f& vX, const ezSimdVec4f& vY, const ezSimdVec4f& vZ, ezUInt32 uiNumOctaves /*= 1*/)
 {
-  ezSimdVec4f result = ezSimdVec4f::ZeroVector();
+  ezSimdVec4f result = ezSimdVec4f::MakeZero();
   ezSimdFloat amplitude = 1.0f;
   ezUInt32 uiOffset = 0;
 
@@ -57,8 +57,8 @@ namespace
     const ezSimdVec4i h = vHash & ezSimdVec4i(15);
     const ezSimdVec4f u = ezSimdVec4f::Select(h < ezSimdVec4i(8), x, y);
     const ezSimdVec4f v = ezSimdVec4f::Select(h < ezSimdVec4i(4), y, ezSimdVec4f::Select(h == ezSimdVec4i(12) || h == ezSimdVec4i(14), x, z));
-    return ezSimdVec4f::Select((h & ezSimdVec4i(1)) == ezSimdVec4i::ZeroVector(), u, -u) +
-           ezSimdVec4f::Select((h & ezSimdVec4i(2)) == ezSimdVec4i::ZeroVector(), v, -v);
+    return ezSimdVec4f::Select((h & ezSimdVec4i(1)) == ezSimdVec4i::MakeZero(), u, -u) +
+           ezSimdVec4f::Select((h & ezSimdVec4i(2)) == ezSimdVec4i::MakeZero(), v, -v);
   }
 
   EZ_ALWAYS_INLINE ezSimdVec4f Lerp(const ezSimdVec4f& t, const ezSimdVec4f& a, const ezSimdVec4f& b) { return ezSimdVec4f::Lerp(a, b, t); }

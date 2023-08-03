@@ -68,7 +68,7 @@ public:
   ezArrayPtr<const KeyframeQuat> GetRotationKeyframes(const JointInfo& jointInfo) const;
   ezArrayPtr<const KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo) const;
 
-  ezVec3 m_vConstantRootMotion = ezVec3::ZeroVector();
+  ezVec3 m_vConstantRootMotion = ezVec3::MakeZero();
 
   ezEventTrack m_EventTrack;
 

@@ -56,7 +56,7 @@ namespace
       // this condition will never be met during the test
       // it should always run into the timeout
       EZ_LOCK(*m_pCVTimeout);
-      m_pCVTimeout->UnlockWaitForSignalAndLock(ezTime::Seconds(0.5));
+      m_pCVTimeout->UnlockWaitForSignalAndLock(ezTime::MakeFromSeconds(0.5));
 
       m_pCounter->Increment();
       return 0;
@@ -102,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
 
       for (ezUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
         if (iCounter >= iExpected)
           break;
@@ -120,7 +120,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
 
       for (ezUInt32 a = 0; a < 1000; ++a)
       {
-        ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
 
         if (iCounter >= (ezInt32)uiNumThreads)
           break;
@@ -174,7 +174,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ConditionalVariable)
     // all threads should run into their timeout now
     for (ezUInt32 a = 0; a < 100; ++a)
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(50));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
 
       if (iCounter >= (ezInt32)uiNumThreads)
         break;

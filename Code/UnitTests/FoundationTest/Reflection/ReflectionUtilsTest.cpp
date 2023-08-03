@@ -81,11 +81,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
     c2.m_MyVector.Set(14, 16, 18);
     c2.m_Struct.m_fFloat1 = 128;
     c2.m_Struct.m_UInt8 = 234;
-    c2.m_Struct.m_Angle = ezAngle::Degree(360);
+    c2.m_Struct.m_Angle = ezAngle::MakeFromDegree(360);
     c2.m_Struct.m_vVec3I = ezVec3I32(9, 8, 7);
     c2.m_Struct.m_DataBuffer.Clear();
     c2.m_Color = ezColor(0.1f, 0.2f, 0.3f);
-    c2.m_Time = ezTime::Seconds(91.0f);
+    c2.m_Time = ezTime::MakeFromSeconds(91.0f);
     c2.m_enumClass = ezExampleEnum::Value3;
     c2.m_bitflagsClass = ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3;
     c2.m_array.PushBack(5.0f);
@@ -111,7 +111,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
     EZ_TEST_FLOAT(c2.m_Color.b, 0.3f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
-    EZ_TEST_BOOL(c2.m_Struct.m_Angle == ezAngle::Degree(360));
+    EZ_TEST_BOOL(c2.m_Struct.m_Angle == ezAngle::MakeFromDegree(360));
     EZ_TEST_BOOL(c2.m_Struct.m_vVec3I == ezVec3I32(9, 8, 7));
     EZ_TEST_BOOL(c2.m_Struct.m_DataBuffer == ezDataBuffer());
     EZ_TEST_BOOL(c2.m_enumClass == ezExampleEnum::Value3);
@@ -161,7 +161,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
     EZ_TEST_FLOAT(c2.m_Color.b, 0.3f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
-    EZ_TEST_BOOL(c2.m_Struct.m_Angle == ezAngle::Degree(360));
+    EZ_TEST_BOOL(c2.m_Struct.m_Angle == ezAngle::MakeFromDegree(360));
     EZ_TEST_BOOL(c2.m_Struct.m_vVec3I == ezVec3I32(9, 8, 7));
     EZ_TEST_BOOL(c2.m_Struct.m_DataBuffer == ezDataBuffer());
     EZ_TEST_BOOL(c2.m_enumClass == ezExampleEnum::Value3);
@@ -201,8 +201,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Utils)
     ClampValueTest<double>(-1, 1000, 2, 4);
     ClampValueTest<ezInt32>(-1, 1000, 2, 4);
     ClampValueTest<ezUInt64>(1, 1000, 2, 4);
-    ClampValueTest<ezTime>(ezTime::Milliseconds(1), ezTime::Milliseconds(1000), ezTime::Milliseconds(2), ezTime::Milliseconds(4));
-    ClampValueTest<ezAngle>(ezAngle::Degree(1), ezAngle::Degree(1000), ezAngle::Degree(2), ezAngle::Degree(4));
+    ClampValueTest<ezTime>(ezTime::MakeFromMilliseconds(1), ezTime::MakeFromMilliseconds(1000), ezTime::MakeFromMilliseconds(2), ezTime::MakeFromMilliseconds(4));
+    ClampValueTest<ezAngle>(ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(1000), ezAngle::MakeFromDegree(2), ezAngle::MakeFromDegree(4));
     ClampValueTest<ezVec3>(ezVec3(1), ezVec3(1000), ezVec3(2), ezVec3(4));
     ClampValueTest<ezVec4I32>(ezVec4I32(1), ezVec4I32(1000), ezVec4I32(2), ezVec4I32(4));
     ClampValueTest<ezVec4U32>(ezVec4U32(1), ezVec4U32(1000), ezVec4U32(2), ezVec4U32(4));

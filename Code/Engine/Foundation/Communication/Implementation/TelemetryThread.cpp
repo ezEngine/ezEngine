@@ -28,7 +28,7 @@ private:
       {
         ezTime tNow = ezTime::Now();
 
-        if (tNow - LastPing > ezTime::Milliseconds(500))
+        if (tNow - LastPing > ezTime::MakeFromMilliseconds(500))
         {
           LastPing = tNow;
 
@@ -36,7 +36,7 @@ private:
         }
       }
 
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
     }
 
     return 0;

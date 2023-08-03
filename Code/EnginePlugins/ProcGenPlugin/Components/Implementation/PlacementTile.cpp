@@ -151,7 +151,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& ref_world, ezArrayPtr<const Placem
         // Set the color
         ezMsgSetColor msg;
         msg.m_Color = objectTransform.m_ObjectColor.ToLinearFloat();
-        pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+        pRootObject->PostMessageRecursive(msg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
       }
     }
 

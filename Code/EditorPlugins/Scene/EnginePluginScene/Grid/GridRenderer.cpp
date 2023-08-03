@@ -230,7 +230,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   float fDensity = m_pSceneContext->GetGridDensity();
 
   ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr);
-  pRenderData->m_GlobalBounds.SetInvalid();
+  pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
   pRenderData->m_bOrthoMode = cam->IsOrthographic();
   pRenderData->m_bGlobal = m_pSceneContext->IsGridInGlobalSpace();
 
@@ -250,14 +250,14 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     mRot.SetColumn(0, cam->GetCenterDirRight());
     mRot.SetColumn(1, cam->GetCenterDirUp());
     mRot.SetColumn(2, cam->GetCenterDirForwards());
-    pRenderData->m_GlobalTransform.m_qRotation.SetFromMat3(mRot);
+    pRenderData->m_GlobalTransform.m_qRotation = ezQuat::MakeFromMat3(mRot);
 
     const ezVec3 vBottomLeft = cam->GetCenterPosition() - cam->GetCenterDirRight() * fDimX - cam->GetCenterDirUp() * fDimY;
     const ezVec3 vTopRight = cam->GetCenterPosition() + cam->GetCenterDirRight() * fDimX + cam->GetCenterDirUp() * fDimY;
 
     ezPlane plane1, plane2;
-    plane1.SetFromNormalAndPoint(cam->GetCenterDirRight(), ezVec3(0));
-    plane2.SetFromNormalAndPoint(cam->GetCenterDirUp(), ezVec3(0));
+    plane1 = ezPlane::MakeFromNormalAndPoint(cam->GetCenterDirRight(), ezVec3(0));
+    plane2 = ezPlane::MakeFromNormalAndPoint(cam->GetCenterDirUp(), ezVec3(0));
 
     const float fFirstDist1 = plane1.GetDistanceTo(vBottomLeft) - fDensity;
     const float fLastDist1 = plane1.GetDistanceTo(vTopRight) + fDensity;

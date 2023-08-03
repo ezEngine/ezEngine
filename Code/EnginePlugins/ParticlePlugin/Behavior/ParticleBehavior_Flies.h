@@ -21,7 +21,7 @@ public:
   float m_fSpeed = 0.2f;
   float m_fPathLength = 0.2f;
   float m_fMaxEmitterDistance = 0.5f;
-  ezAngle m_MaxSteeringAngle = ezAngle::Degree(30);
+  ezAngle m_MaxSteeringAngle = ezAngle::MakeFromDegree(30);
 };
 
 
@@ -35,7 +35,7 @@ public:
   float m_fSpeed = 0.2f;
   float m_fPathLength = 0.2f;
   float m_fMaxEmitterDistance = 0.5f;
-  ezAngle m_MaxSteeringAngle = ezAngle::Degree(30);
+  ezAngle m_MaxSteeringAngle = ezAngle::MakeFromDegree(30);
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;

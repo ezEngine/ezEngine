@@ -83,8 +83,7 @@ namespace ezModelImporter2
         // Only FBX files have this unit scale factor and the default unit for FBX is cm. We want meters.
         fUnitScale /= 100.0f;
 
-        ezMat3 s;
-        s.SetScalingMatrix(ezVec3(fUnitScale));
+        ezMat3 s = ezMat3::MakeScaling(ezVec3(fUnitScale));
 
         m_Options.m_RootTransform = s * m_Options.m_RootTransform;
       }
@@ -166,11 +165,11 @@ namespace ezModelImporter2
     if (m_Options.m_pSkeletonOutput != nullptr)
     {
       m_Options.m_pSkeletonOutput->m_Children.PushBack(EZ_DEFAULT_NEW(ezEditableSkeletonJoint));
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::IdentityMatrix(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
+      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::MakeIdentity(), m_Options.m_pSkeletonOutput->m_Children.PeekBack()));
     }
     else
     {
-      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::IdentityMatrix(), nullptr));
+      EZ_SUCCEED_OR_RETURN(TraverseAiNode(m_pScene->mRootNode, ezMat4::MakeIdentity(), nullptr));
     }
 
     return EZ_SUCCESS;
@@ -187,7 +186,7 @@ namespace ezModelImporter2
     if (pCurJoint)
     {
       pCurJoint->m_sName.Assign(pNode->mName.C_Str());
-      pCurJoint->m_LocalTransform.SetFromMat4(localTransform);
+      pCurJoint->m_LocalTransform = ezTransform::MakeFromMat4(localTransform);
     }
 
     if (pNode->mNumMeshes > 0)

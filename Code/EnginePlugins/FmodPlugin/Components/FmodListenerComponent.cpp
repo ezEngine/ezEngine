@@ -76,8 +76,8 @@ void ezFmodListenerComponent::Update()
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetLinearVelocity();
-  const auto fwd = (GetOwner()->GetGlobalRotation() * ezVec3::UnitXAxis()).GetNormalized();
-  const auto up = (GetOwner()->GetGlobalRotation() * ezVec3::UnitZAxis()).GetNormalized();
+  const auto fwd = (GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisX()).GetNormalized();
+  const auto up = (GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisZ()).GetNormalized();
 
   ezFmod::GetSingleton()->SetListener(m_uiListenerIndex, pos, fwd, up, vel);
 }

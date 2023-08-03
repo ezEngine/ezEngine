@@ -45,7 +45,7 @@ public:
 
   /// \brief Initializes the transform from the given position, rotation and scale.
   ezTransformTemplate(const ezVec3Template<Type>& vPosition,
-    const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(),
+    const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::MakeIdentity(),
     const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1)); // [tested]
 
   /// \brief Creates a transform from the given position, rotation and scale.
@@ -71,7 +71,7 @@ public:
   /*[[deprecated("Use MakeFromMat4() instead.")]]*/ void SetFromMat4(const ezMat4Template<Type>& mMat);
 
   /// \brief Sets the position to be zero and the rotation to identity.
-  /*[[deprecated("Use MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
+  void SetIdentity(); // [tested]
 
   /// \brief Returns an Identity Transform.
   /*[[deprecated("Use MakeIdentity() instead.")]]*/ [[nodiscard]] static const ezTransformTemplate<Type> IdentityTransform();

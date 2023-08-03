@@ -586,7 +586,7 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWit
 
   const ezSimdVec4f vScale = m_localScaling * m_localScaling.w();
   const ezSimdTransform localTransform(m_localPosition, m_localRotation, vScale);
-  m_globalTransform.SetGlobalTransform(m_pParentData->m_globalTransform, localTransform);
+  m_globalTransform = ezSimdTransform::MakeGlobalTransform(m_pParentData->m_globalTransform, localTransform);
 }
 
 EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()

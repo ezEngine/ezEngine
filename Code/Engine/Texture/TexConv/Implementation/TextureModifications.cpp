@@ -300,7 +300,7 @@ ezResult ezTexConvProcessor::ClampInputValues(ezImage& image, float maxValue) co
 
 static bool FillAvgImageColor(ezImage& ref_img)
 {
-  ezColor avg = ezColor::ZeroColor();
+  ezColor avg = ezColor::MakeZero();
   ezUInt32 uiValidCount = 0;
 
   for (const ezColor& col : ref_img.GetBlobPtr<ezColor>())
@@ -361,8 +361,7 @@ static ezColor GetAvgColor(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, ez
   if (colAt.a > 0)
     return colAt;
 
-  ezColor avg;
-  avg.SetZero();
+  ezColor avg = ezColor::MakeZero();
   ezUInt32 uiValidCount = 0;
 
   const ezInt32 iRadius = 1;

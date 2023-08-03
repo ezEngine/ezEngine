@@ -204,8 +204,7 @@ void ezProjectileComponent::Update()
 
           const ezVec3 vNewDirection = vCurDirection.GetReflectedVector(castResult.m_vNormal);
 
-          ezQuat qRot;
-          qRot.SetShortestRotation(vCurDirection, vNewDirection);
+          ezQuat qRot = ezQuat::MakeShortestRotation(vCurDirection, vNewDirection);
 
           GetOwner()->SetGlobalRotation(qRot * GetOwner()->GetGlobalRotation());
 

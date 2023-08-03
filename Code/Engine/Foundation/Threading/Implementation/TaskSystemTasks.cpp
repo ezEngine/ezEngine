@@ -335,7 +335,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezTime smoothFrameTime)
     // therefore at some point we will start executing these tasks, no matter how low the frame rate is
     //
     // this gives us some buffer to smooth out performance drops
-    s_FrameTimeThreshold += ezTime::Milliseconds(0.2);
+    s_FrameTimeThreshold += ezTime::MakeFromMilliseconds(0.2);
   }
 
   // if the queue is really full, we have to guarantee more progress
@@ -393,7 +393,7 @@ void ezTaskSystem::FinishFrameTasks()
     const ezTime tDiff = tNow - s_LastFrameUpdate;
 
     // prevent division by zero (inside ComputeThreadUtilization)
-    if (tDiff > ezTime::Seconds(0.0))
+    if (tDiff > ezTime::MakeFromSeconds(0.0))
     {
       s_LastFrameUpdate = tNow;
 

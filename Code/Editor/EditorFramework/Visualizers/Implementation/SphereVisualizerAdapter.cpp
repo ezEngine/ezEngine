@@ -72,7 +72,7 @@ void ezSphereVisualizerAdapter::UpdateGizmoTransform()
   t.m_vScale.Set(m_fScale);
   t.m_vPosition = m_vPositionOffset;
 
-  ezVec3 vOffset = ezVec3::ZeroVector();
+  ezVec3 vOffset = ezVec3::MakeZero();
 
   if (m_Anchor.IsSet(ezVisualizerAnchor::PosX))
     vOffset.x -= t.m_vScale.x;

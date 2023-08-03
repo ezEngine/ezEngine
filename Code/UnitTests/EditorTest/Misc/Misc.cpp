@@ -81,7 +81,7 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
 
     for (int i = 0; i < 10; ++i)
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
       ProcessEvents();
     }
 

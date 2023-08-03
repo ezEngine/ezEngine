@@ -557,7 +557,7 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
       }
     }
 
-    desc.SetBounds(ezBoundingBox(vPosOffset, vPosOffset + vSize));
+    desc.SetBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(vPosOffset, vPosOffset + vSize)));
 
     ezUInt32 uiTriangleIdx = 0;
     uiVertexIdx = 0;

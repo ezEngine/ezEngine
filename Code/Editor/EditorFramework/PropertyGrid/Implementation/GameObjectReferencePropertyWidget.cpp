@@ -230,7 +230,7 @@ void ezQtGameObjectReferencePropertyWidget::OnCopyReference()
   clipboard->setText(m_sInternalValue);
 
   ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
-    ezFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), ezTime::Seconds(5));
+    ezFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), ezTime::MakeFromSeconds(5));
 }
 
 

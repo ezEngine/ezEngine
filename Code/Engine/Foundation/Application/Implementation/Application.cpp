@@ -37,7 +37,7 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
   {
     while (!ezSystemInformation::IsDebuggerAttached())
     {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(1));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
     }
 
     EZ_DEBUG_BREAK;

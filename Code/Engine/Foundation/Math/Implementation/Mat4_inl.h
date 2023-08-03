@@ -8,8 +8,8 @@ ezMat4Template<Type>::ezMat4Template()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
-  SetElements(
-    TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN);
+  for (ezUInt32 i = 0; i < 16; ++i)
+    m_fElementsCM[i] = TypeNaN;
 #endif
 }
 
@@ -114,8 +114,15 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeFromValues(Type c1r1, Type c2r1, 
 template <typename Type>
 ezMat4Template<Type> ezMat4Template<Type>::MakeTranslation(const ezVec3Template<Type>& vTranslation)
 {
+  return ezMat4Template<Type>::MakeFromValues(1, 0, 0, vTranslation.x, 0, 1, 0, vTranslation.y, 0, 0, 1, vTranslation.z, 0, 0, 0, 1);
+}
+
+
+template <typename Type>
+ezMat4Template<Type> ezMat4Template<Type>::MakeTransformation(const ezMat3Template<Type>& mRotation, const ezVec3Template<Type>& vTranslation)
+{
   ezMat4Template<Type> res;
-  res.SetElements(1, 0, 0, vTranslation.x, 0, 1, 0, vTranslation.y, 0, 0, 1, vTranslation.z, 0, 0, 0, 1);
+  res.SetTransformationMatrix(mRotation, vTranslation);
   return res;
 }
 
@@ -148,9 +155,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeRotationX(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  ezMat4Template<Type> res;
-  res.SetElements(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-  return res;
+  return ezMat4Template<Type>::MakeFromValues(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 template <typename Type>
@@ -159,9 +164,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeRotationY(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  ezMat4Template<Type> res;
-  res.SetElements(fCos, 0.0f, fSin, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -fSin, 0.0f, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-  return res;
+  return ezMat4Template<Type>::MakeFromValues(fCos, 0.0f, fSin, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -fSin, 0.0f, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 template <typename Type>
@@ -170,9 +173,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeRotationZ(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  ezMat4Template<Type> res;
-  res.SetElements(fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-  return res;
+  return ezMat4Template<Type>::MakeFromValues(fCos, -fSin, 0.0f, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 template <typename Type>
@@ -315,7 +316,7 @@ const ezMat4Template<Type> ezMat4Template<Type>::GetTranspose() const
 {
   EZ_NAN_ASSERT(this);
 
-  return ezMat4Template(m_fElementsCM, ezMatrixLayout::RowMajor);
+  return ezMat4Template::MakeFromRowMajorArray(m_fElementsCM);
 }
 
 template <typename Type>

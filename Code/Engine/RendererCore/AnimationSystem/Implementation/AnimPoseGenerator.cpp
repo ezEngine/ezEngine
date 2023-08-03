@@ -472,8 +472,8 @@ void ezAnimPoseGenerator::SampleEventTrack(const ezAnimationClipResource* pResou
 
   const ezTime tPrev = fPrevPos * duration;
   const ezTime tNow = fCurPos * duration;
-  const ezTime tStart = ezTime::Zero();
-  const ezTime tEnd = duration + ezTime::Seconds(1.0); // sampling position is EXCLUSIVE
+  const ezTime tStart = ezTime::MakeZero();
+  const ezTime tEnd = duration + ezTime::MakeFromSeconds(1.0); // sampling position is EXCLUSIVE
 
   ezHybridArray<ezHashedString, 16> events;
 

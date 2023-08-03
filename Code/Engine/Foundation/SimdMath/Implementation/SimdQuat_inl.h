@@ -20,7 +20,7 @@ EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::MakeFromElements(ezSimdFloat x, ezSimdFl
 inline ezSimdQuat ezSimdQuat::MakeFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
 {
   ///\todo optimize
-  const ezAngle halfAngle = ezAngle::Radian(fAngle) * 0.5f;
+  const ezAngle halfAngle = ezAngle::MakeFromRadian(fAngle) * 0.5f;
   float s = ezMath::Sin(halfAngle);
   float c = ezMath::Cos(halfAngle);
 
@@ -84,7 +84,7 @@ EZ_ALWAYS_INLINE ezSimdMat4f ezSimdQuat::GetAsMat4() const
   const ezSimdVec4f yy2_xx2_xx2 = xx2yy2zz2.Get<ezSwizzle::YXXX>();
   const ezSimdVec4f zz2_zz2_yy2 = xx2yy2zz2.Get<ezSwizzle::ZZYX>();
   ezSimdVec4f diagonal = ezSimdVec4f(1.0f) - (yy2_xx2_xx2 + zz2_zz2_yy2);
-  diagonal.SetW(ezSimdFloat::Zero());
+  diagonal.SetW(ezSimdFloat::MakeZero());
 
   // non diagonal terms
   // xy2 +- wz2
@@ -115,7 +115,7 @@ EZ_ALWAYS_INLINE ezSimdMat4f ezSimdQuat::GetAsMat4() const
   const ezSimdVec4f addZ_u_subY_u = adds.GetCombined<ezSwizzle::ZXYX>(subs);
   const ezSimdVec4f col2 = addZ_u_subY_u.GetCombined<ezSwizzle::XZZW>(diagonal);
 
-  return ezSimdMat4f(col0, col1, col2, ezSimdVec4f(0, 0, 0, 1));
+  return ezSimdMat4f::MakeFromColumns(col0, col1, col2, ezSimdVec4f(0, 0, 0, 1));
 }
 
 EZ_ALWAYS_INLINE bool ezSimdQuat::IsValid(const ezSimdFloat& fEpsilon) const

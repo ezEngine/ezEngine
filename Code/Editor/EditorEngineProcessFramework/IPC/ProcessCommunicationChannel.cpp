@@ -110,7 +110,7 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
     {
       ezTime tTimeLeft = timeout - (ezTime::Now() - tStart);
 
-      if (tTimeLeft < ezTime::Zero())
+      if (tTimeLeft < ezTime::MakeZero())
       {
         m_pWaitForMessageType = nullptr;
         ezLog::Dev("Reached time-out of {0} seconds while waiting for {1}", ezArgF(timeout.GetSeconds(), 1), pMessageType->GetTypeName());

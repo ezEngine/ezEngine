@@ -72,8 +72,7 @@ void ezQtColorAreaWidget::UpdateImage()
   {
     for (int x = 0; x < width; ++x)
     {
-      ezColor c;
-      c.SetHSV(m_fHue, (double)x / (width - 1), (double)y / (height - 1));
+      ezColor c = ezColor::MakeHSV(m_fHue, (double)x / (width - 1), (double)y / (height - 1));
 
       ezColorGammaUB cg = c;
       m_Image.setPixel(x, (height - 1) - y, qRgb(cg.r, cg.g, cg.b));
@@ -176,8 +175,7 @@ void ezQtColorRangeWidget::UpdateImage()
 
   for (int x = 0; x < width; ++x)
   {
-    ezColor c;
-    c.SetHSV(((double)x / (width - 1.0)) * 360.0, 1, 1);
+    ezColor c = ezColor::MakeHSV(((double)x / (width - 1.0)) * 360.0, 1, 1);
 
     ezColorGammaUB cg = c;
     m_Image.setPixel(x, 0, qRgb(cg.r, cg.g, cg.b));

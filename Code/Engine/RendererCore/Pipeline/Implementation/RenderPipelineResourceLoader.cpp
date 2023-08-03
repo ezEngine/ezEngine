@@ -197,18 +197,14 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
   // Need to serialize all passes first so we have guids for each to be referenced in the connections.
   for (auto pPass : passes)
   {
-    ezUuid guid;
-    guid.CreateNewUuid();
-    context.RegisterObject(guid, pPass->GetDynamicRTTI(), const_cast<ezRenderPipelinePass*>(pPass));
+    context.RegisterObject(ezUuid::MakeUuid(), pPass->GetDynamicRTTI(), const_cast<ezRenderPipelinePass*>(pPass));
     rttiConverter.AddObjectToGraph(const_cast<ezRenderPipelinePass*>(pPass));
   }
   ezHybridArray<const ezExtractor*, 16> extractors;
   pPipeline->GetExtractors(extractors);
   for (auto pExtractor : extractors)
   {
-    ezUuid guid;
-    guid.CreateNewUuid();
-    context.RegisterObject(guid, pExtractor->GetDynamicRTTI(), const_cast<ezExtractor*>(pExtractor));
+    context.RegisterObject(ezUuid::MakeUuid(), pExtractor->GetDynamicRTTI(), const_cast<ezExtractor*>(pExtractor));
     rttiConverter.AddObjectToGraph(const_cast<ezExtractor*>(pExtractor));
   }
 
@@ -242,8 +238,7 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
         data.m_Target = context.GetObjectGUID(pPinTarget->m_pParent->GetDynamicRTTI(), pPinTarget->m_pParent);
         data.m_TargetPin = pPinTarget->m_pParent->GetPinName(pPinTarget).GetView();
 
-        ezUuid connectionGuid;
-        connectionGuid.CreateNewUuid();
+        const ezUuid connectionGuid = ezUuid::MakeUuid();
         context.RegisterObject(connectionGuid, pType, &data);
         rttiConverter.AddObjectToGraph(pType, &data, "Connection");
       }

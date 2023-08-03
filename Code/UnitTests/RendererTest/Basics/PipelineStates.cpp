@@ -15,12 +15,12 @@ namespace
 {
   ezTransform CreateTransform(const ezUInt32 uiColumns, const ezUInt32 uiRows, ezUInt32 x, ezUInt32 y)
   {
-    ezTransform t = ezTransform::IdentityTransform();
+    ezTransform t = ezTransform::MakeIdentity();
     t.m_vScale = ezVec3(1.0f / float(uiColumns), 1.0f / float(uiRows), 1);
     t.m_vPosition = ezVec3(ezMath::Lerp(-1.f, 1.f, (float(x) + 0.5f) / float(uiColumns)), ezMath::Lerp(1.f, -1.f, (float(y) + 0.5f) / float(uiRows)), 0);
     if (ezClipSpaceYMode::RenderToTextureDefault == ezClipSpaceYMode::Flipped)
     {
-      ezTransform flipY = ezTransform::IdentityTransform();
+      ezTransform flipY = ezTransform::MakeIdentity();
       flipY.m_vScale.y *= -1.0f;
       t = flipY * t;
     }
@@ -94,8 +94,7 @@ namespace
     cam.GetProjectionMatrix(fAspectRatio, mProj);
     ezMat4 mView = cam.GetViewMatrix();
 
-    ezMat4 mTransform;
-    mTransform.SetTranslationMatrix(ezVec3(0.0f, 0.0f, -1.2f));
+    ezMat4 mTransform = ezMat4::MakeTranslation(ezVec3(0.0f, 0.0f, -1.2f));
     return mProj * mView * mTransform;
   }
 } // namespace
@@ -793,7 +792,7 @@ void ezRendererTestPipelineStates::Timestamps()
       m_ImgCompFrames.Clear();
     }
   }
-  ezThreadUtils::Sleep(ezTime::Milliseconds(16));
+  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
   if (m_iFrame > 2 && (ezTime::Now() - m_CPUTime[0]).AsFloatInSeconds() > 10.0f)
   {
     EZ_TEST_BOOL_MSG(m_bTimestampsValid, "Timestamp results are not present after 10 seconds.");

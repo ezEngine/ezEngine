@@ -90,8 +90,7 @@ namespace ezRmlUiInternal
 
     EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry_handle), batch.m_CompiledGeometry), "Invalid compiled geometry");
 
-    ezMat4 offsetMat;
-    offsetMat.SetTranslationMatrix(m_vOffset.GetAsVec3(0));
+    ezMat4 offsetMat = ezMat4::MakeTranslation(m_vOffset.GetAsVec3(0));
 
     batch.m_Transform = offsetMat * m_mTransform;
     batch.m_Translation = ezVec2(translation.x, translation.y);
@@ -107,11 +106,20 @@ namespace ezRmlUiInternal
     }
   }
 
-  void Extractor::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry_handle) { m_ReleasedCompiledGeometry.PushBack({ezRenderWorld::GetFrameCounter(), GeometryId::FromRml(geometry_handle)}); }
+  void Extractor::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry_handle)
+  {
+    m_ReleasedCompiledGeometry.PushBack({ezRenderWorld::GetFrameCounter(), GeometryId::FromRml(geometry_handle)});
+  }
 
-  void Extractor::EnableScissorRegion(bool bEnable) { m_bEnableScissorRect = bEnable; }
+  void Extractor::EnableScissorRegion(bool bEnable)
+  {
+    m_bEnableScissorRect = bEnable;
+  }
 
-  void Extractor::SetScissorRegion(int x, int y, int iWidth, int iHeight) { m_ScissorRect = ezRectFloat(static_cast<float>(x), static_cast<float>(y), static_cast<float>(iWidth), static_cast<float>(iHeight)); }
+  void Extractor::SetScissorRegion(int x, int y, int iWidth, int iHeight)
+  {
+    m_ScissorRect = ezRectFloat(static_cast<float>(x), static_cast<float>(y), static_cast<float>(iWidth), static_cast<float>(iHeight));
+  }
 
   bool Extractor::LoadTexture(Rml::TextureHandle& ref_texture_handle, Rml::Vector2i& ref_texture_dimensions, const Rml::String& sSource)
   {
@@ -162,14 +170,21 @@ namespace ezRmlUiInternal
     return true;
   }
 
-  void Extractor::ReleaseTexture(Rml::TextureHandle texture_handle) { EZ_VERIFY(m_Textures.Remove(TextureId::FromRml(texture_handle)), "Invalid texture handle"); }
+  void Extractor::ReleaseTexture(Rml::TextureHandle texture_handle)
+  {
+    EZ_VERIFY(m_Textures.Remove(TextureId::FromRml(texture_handle)), "Invalid texture handle");
+  }
 
   void Extractor::SetTransform(const Rml::Matrix4f* pTransform)
   {
     if (pTransform != nullptr)
     {
-      constexpr ezMatrixLayout::Enum matrixLayout = std::is_same<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>::value ? ezMatrixLayout::ColumnMajor : ezMatrixLayout::RowMajor;
-      m_mTransform.SetFromArray(pTransform->data(), matrixLayout);
+      constexpr bool bColumnMajor = std::is_same<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>::value;
+
+      if (bColumnMajor)
+        m_mTransform = ezMat4::MakeFromColumnMajorArray(pTransform->data());
+      else
+        m_mTransform = ezMat4::MakeFromRowMajorArray(pTransform->data());
     }
     else
     {
@@ -180,7 +195,7 @@ namespace ezRmlUiInternal
   void Extractor::BeginExtraction(const ezVec2I32& vOffset)
   {
     m_vOffset = ezVec2(static_cast<float>(vOffset.x), static_cast<float>(vOffset.y));
-    m_mTransform = ezMat4::IdentityMatrix();
+    m_mTransform = ezMat4::MakeIdentity();
 
     m_Batches.Clear();
   }
@@ -193,7 +208,7 @@ namespace ezRmlUiInternal
     {
       ezRmlUiRenderData* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezRmlUiRenderData, ezFrameAllocator::GetCurrentAllocator());
       pRenderData->m_GlobalTransform.SetIdentity();
-      pRenderData->m_GlobalBounds.SetInvalid();
+      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
       pRenderData->m_Batches = m_Batches;
 
       return pRenderData;

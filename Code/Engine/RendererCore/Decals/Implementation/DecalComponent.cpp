@@ -45,8 +45,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
     EZ_ACCESSOR_PROPERTY("MapNormalToGeometry", GetMapNormalToGeometry, SetMapNormalToGeometry)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
-    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
+    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(89.0f)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(50.0f))),
+    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(89.0f)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(80.0f))),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
     EZ_MEMBER_PROPERTY("FadeOutDuration", m_FadeOutDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
@@ -227,13 +227,13 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
   ezVec3 vHalfExtents = (axisRotation * vAspectCorrection).Abs().CompMul(m_vExtents * 0.5f);
 
-  bounds = ezBoundingBox(-vHalfExtents, vHalfExtents);
+  bounds = ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-vHalfExtents, vHalfExtents));
   return EZ_SUCCESS;
 }
 
 void ezDecalComponent::SetExtents(const ezVec3& value)
 {
-  m_vExtents = value.CompMax(ezVec3::ZeroVector());
+  m_vExtents = value.CompMax(ezVec3::MakeZero());
 
   TriggerLocalBoundsUpdate();
 }
@@ -275,7 +275,7 @@ ezColor ezDecalComponent::GetEmissiveColor() const
 
 void ezDecalComponent::SetInnerFadeAngle(ezAngle spotAngle)
 {
-  m_InnerFadeAngle = ezMath::Clamp(spotAngle, ezAngle::Degree(0.0f), m_OuterFadeAngle);
+  m_InnerFadeAngle = ezMath::Clamp(spotAngle, ezAngle::MakeFromDegree(0.0f), m_OuterFadeAngle);
 }
 
 ezAngle ezDecalComponent::GetInnerFadeAngle() const
@@ -285,7 +285,7 @@ ezAngle ezDecalComponent::GetInnerFadeAngle() const
 
 void ezDecalComponent::SetOuterFadeAngle(ezAngle spotAngle)
 {
-  m_OuterFadeAngle = ezMath::Clamp(spotAngle, m_InnerFadeAngle, ezAngle::Degree(90.0f));
+  m_OuterFadeAngle = ezMath::Clamp(spotAngle, m_InnerFadeAngle, ezAngle::MakeFromDegree(90.0f));
 }
 
 ezAngle ezDecalComponent::GetOuterFadeAngle() const
@@ -389,7 +389,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (finalColor.a <= 0.0f)
     return;
 
-  const bool bNoFade = m_InnerFadeAngle == ezAngle::Radian(0.0f) && m_OuterFadeAngle == ezAngle::Radian(0.0f);
+  const bool bNoFade = m_InnerFadeAngle == ezAngle::MakeFromRadian(0.0f) && m_OuterFadeAngle == ezAngle::MakeFromRadian(0.0f);
   const float fCosInner = ezMath::Cos(m_InnerFadeAngle);
   const float fCosOuter = ezMath::Cos(m_OuterFadeAngle);
   const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
@@ -529,11 +529,11 @@ void ezDecalComponent::OnSimulationStarted()
   ezWorld* pWorld = GetWorld();
 
   // no fade out -> fade out pretty late
-  m_StartFadeOutTime = ezTime::Hours(24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
+  m_StartFadeOutTime = ezTime::MakeFromHours(24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
-    const ezTime tFadeOutDelay = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
+    const ezTime tFadeOutDelay = ezTime::MakeFromSeconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
     m_StartFadeOutTime = pWorld->GetClock().GetAccumulatedTime() + tFadeOutDelay;
 
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)

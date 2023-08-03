@@ -101,7 +101,7 @@ ezTime ezPropertyAnimAssetDocument::GetAnimationDurationTime() const
 {
   const ezInt64 ticks = GetAnimationDurationTicks();
 
-  return ezTime::Seconds(ticks / 4800.0);
+  return ezTime::MakeFromSeconds(ticks / 4800.0);
 }
 
 void ezPropertyAnimAssetDocument::AdjustDuration()
@@ -439,7 +439,7 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key,
           bIsRotation = true;
           const double fValue = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
 
-          euler[(ezUInt32)pTrack->m_Target - ezPropertyAnimTarget::RotationX] = ezAngle::Degree(fValue);
+          euler[(ezUInt32)pTrack->m_Target - ezPropertyAnimTarget::RotationX] = ezAngle::MakeFromDegree(fValue);
         }
       }
       break;
@@ -459,7 +459,7 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key,
   if (bIsRotation)
   {
     ezQuat qRotation;
-    qRotation.SetFromEulerAngles(euler[0], euler[1], euler[2]);
+    qRotation = ezQuat::MakeFromEulerAngles(euler[0], euler[1], euler[2]);
     animValue = qRotation;
   }
 

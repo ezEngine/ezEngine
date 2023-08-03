@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 3, ezComponentMode::Dynamic)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
-    EZ_MEMBER_PROPERTY("AxisDeviation", m_AxisDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(-180), ezAngle::Degree(180))),
+    EZ_MEMBER_PROPERTY("AxisDeviation", m_AxisDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(-180), ezAngle::MakeFromDegree(180))),
     EZ_MEMBER_PROPERTY("DegreesToRotate", m_iDegreeToRotate),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
@@ -41,8 +41,7 @@ void ezRotorComponent::Update()
       const float fNewDistance =
         CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
-      ezQuat qRotation;
-      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(fNewDistance));
+      ezQuat qRotation = ezQuat::MakeFromAxisAndAngle(m_vRotationAxis, ezAngle::MakeFromDegree(fNewDistance));
 
       GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_qLastRotation * qRotation);
 
@@ -85,8 +84,7 @@ void ezRotorComponent::Update()
     {
       /// \todo This will probably give precision issues pretty quickly
 
-      ezQuat qRotation;
-      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(m_fAnimationSpeed * GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds()));
+      ezQuat qRotation = ezQuat::MakeFromAxisAndAngle(m_vRotationAxis, ezAngle::MakeFromDegree(m_fAnimationSpeed * GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds()));
 
       GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * qRotation);
     }
@@ -155,13 +153,13 @@ void ezRotorComponent::OnSimulationStarted()
 
   if (m_AxisDeviation.GetRadian() != 0.0f)
   {
-    if (m_AxisDeviation > ezAngle::Degree(179))
+    if (m_AxisDeviation > ezAngle::MakeFromDegree(179))
     {
-      m_vRotationAxis = ezVec3::CreateRandomDirection(GetWorld()->GetRandomNumberGenerator());
+      m_vRotationAxis = ezVec3::MakeRandomDirection(GetWorld()->GetRandomNumberGenerator());
     }
     else
     {
-      m_vRotationAxis = ezVec3::CreateRandomDeviation(GetWorld()->GetRandomNumberGenerator(), m_AxisDeviation, m_vRotationAxis);
+      m_vRotationAxis = ezVec3::MakeRandomDeviation(GetWorld()->GetRandomNumberGenerator(), m_AxisDeviation, m_vRotationAxis);
 
       if (m_AxisDeviation.GetRadian() > 0 && GetWorld()->GetRandomNumberGenerator().Bool())
         m_vRotationAxis = -m_vRotationAxis;

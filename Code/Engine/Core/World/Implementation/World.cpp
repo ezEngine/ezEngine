@@ -186,13 +186,13 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localPosition = ezSimdConversion::ToVec3(desc.m_LocalPosition);
   pTransformationData->m_localRotation = ezSimdConversion::ToQuat(desc.m_LocalRotation);
   pTransformationData->m_localScaling = ezSimdConversion::ToVec4(desc.m_LocalScaling.GetAsVec4(desc.m_LocalUniformScaling));
-  pTransformationData->m_globalTransform.SetIdentity();
+  pTransformationData->m_globalTransform = ezSimdTransform::MakeIdentity();
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-  pTransformationData->m_lastGlobalTransform.SetIdentity();
+  pTransformationData->m_lastGlobalTransform = ezSimdTransform::MakeIdentity();
   pTransformationData->m_uiLastGlobalTransformUpdateCounter = ezInvalidIndex;
 #endif
   pTransformationData->m_localBounds.SetInvalid();
-  pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::Zero());
+  pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::MakeZero());
   pTransformationData->m_globalBounds = pTransformationData->m_localBounds;
   pTransformationData->m_hSpatialData.Invalidate();
   pTransformationData->m_uiSpatialDataCategoryBitmask = 0;
@@ -295,7 +295,7 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject, bool bAlsoD
 {
   ezMsgDeleteGameObject msg;
   msg.m_bDeleteEmptyParents = bAlsoDeleteEmptyParents;
-  PostMessage(hObject, msg, ezTime::Zero());
+  PostMessage(hObject, msg, ezTime::MakeZero());
 }
 
 ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(ezStringView sBatchName, bool bMustFinishWithinOneFrame /*= true*/)
@@ -370,7 +370,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
 
   if (m_Data.m_ProcessingMessageQueue == queueType)
   {
-    delay = ezMath::Max(delay, ezTime::Milliseconds(1));
+    delay = ezMath::Max(delay, ezTime::MakeFromMilliseconds(1));
   }
 
   ezRTTIAllocator* pMsgRTTIAllocator = msg.GetDynamicRTTI()->GetAllocator();
@@ -401,7 +401,7 @@ void ezWorld::PostMessage(const ezComponentHandle& hReceiverComponent, const ezM
 
   if (m_Data.m_ProcessingMessageQueue == queueType)
   {
-    delay = ezMath::Max(delay, ezTime::Milliseconds(1));
+    delay = ezMath::Max(delay, ezTime::MakeFromMilliseconds(1));
   }
 
   ezRTTIAllocator* pMsgRTTIAllocator = msg.GetDynamicRTTI()->GetAllocator();
@@ -531,7 +531,7 @@ void ezWorld::Update()
     EZ_PROFILE_SCOPE("Initialize Phase 2");
     // Only process the default init batch here since it contains the components created at runtime.
     // Also make sure that all initialization is finished after this call by giving it enough time.
-    ProcessInitializationBatch(*m_Data.m_pDefaultInitBatch, ezTime::Now() + ezTime::Hours(10000));
+    ProcessInitializationBatch(*m_Data.m_pDefaultInitBatch, ezTime::Now() + ezTime::MakeFromHours(10000));
 
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
   }
@@ -1216,7 +1216,7 @@ void ezWorld::ProcessComponentsToInitialize()
     auto& pInitBatch = it.Value();
     if (pInitBatch->m_bIsReady && pInitBatch->m_bMustFinishWithinOneFrame)
     {
-      ProcessInitializationBatch(*pInitBatch, ezTime::Now() + ezTime::Hours(10000));
+      ProcessInitializationBatch(*pInitBatch, ezTime::Now() + ezTime::MakeFromHours(10000));
     }
   }
 

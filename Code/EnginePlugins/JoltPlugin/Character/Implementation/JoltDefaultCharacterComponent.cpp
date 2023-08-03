@@ -34,7 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, 1, ezComponentMode::Dyn
     EZ_MEMBER_PROPERTY("MaxStepUp", m_fMaxStepUp)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("MaxStepDown", m_fMaxStepDown)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
+    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1.0f), ezAngle::MakeFromDegree(360.0f))),
     EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum"), new ezDefaultValueAttribute(ezStringView("Footstep"))),
     EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
@@ -74,8 +74,8 @@ ezJoltDefaultCharacterComponent::~ezJoltDefaultCharacterComponent() = default;
 
 void ezJoltDefaultCharacterComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, GetCurrentCapsuleHeight() - GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, GetCurrentCapsuleHeight() - GetShapeRadius()), GetShapeRadius()), ezInvalidSpatialDataCategory);
 }
 
 void ezJoltDefaultCharacterComponent::OnApplyRootMotion(ezMsgApplyRootMotion& msg)
@@ -172,7 +172,7 @@ void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards)), ezMath::Abs((float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft)));
 
   m_vInputDirection += ezVec2((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
-  m_vInputDirection.NormalizeIfNotZero(ezVec2::ZeroVector()).IgnoreResult();
+  m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
   m_vInputDirection *= fDistanceToMove;
 
   m_InputRotateZ += m_RotateSpeed * (float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft);
@@ -273,8 +273,7 @@ void ezJoltDefaultCharacterComponent::ApplyRotationZ()
   if (m_InputRotateZ.GetRadian() == 0.0f)
     return;
 
-  ezQuat qRotZ;
-  qRotZ.SetFromAxisAndAngle(ezVec3(0, 0, 1), m_InputRotateZ);
+  ezQuat qRotZ = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), m_InputRotateZ);
   m_InputRotateZ.SetRadian(0.0);
 
   GetOwner()->SetGlobalRotation(qRotZ * GetOwner()->GetGlobalRotation());
@@ -420,10 +419,9 @@ void ezJoltDefaultCharacterComponent::DebugVisualizations()
 
     if (!gnom.IsZero(0.01f))
     {
-      ezQuat rot;
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), gnom);
+      ezQuat rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
 
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::ZeroColor(), ezColor::Aquamarine, ezTransform(gpos, rot));
+      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), ezColor::Aquamarine, ezTransform(gpos, rot));
     }
   }
 
@@ -452,8 +450,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   m_bFeetOnSolidGround = false;
 
   ezTransform shapeTrans = GetOwner()->GetGlobalTransform();
-  ezQuat shapeRot;
-  shapeRot.SetShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
+  ezQuat shapeRot = ezQuat::MakeShortestRotation(ezVec3(0, 1, 0), ezVec3(0, 0, 1));
 
   const float radius = m_fFootRadius;
   const float halfHeight = ezMath::Max(0.0f, m_fMaxStepDown - radius);
@@ -473,14 +470,14 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
     if (gnom.IsZero(0.01f))
     {
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+      rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
       color = ezColor::OrangeRed;
     }
     else
     {
-      rot.SetShortestRotation(ezVec3::UnitXAxis(), gnom);
+      rot = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), gnom);
 
-      if (gnom.Dot(ezVec3::UnitZAxis()) > ezMath::Cos(ezAngle::Degree(40)))
+      if (gnom.Dot(ezVec3::MakeAxisZ()) > ezMath::Cos(ezAngle::MakeFromDegree(40)))
       {
         m_bFeetOnSolidGround = true;
         color = ezColor::GreenYellow;
@@ -489,7 +486,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
 
     if (m_DebugFlags.IsAnySet(ezJoltCharacterDebugFlags::VisFootCheck))
     {
-      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::ZeroColor(), color, ezTransform(gpos, rot));
+      ezDebugRenderer::DrawCylinder(GetWorld(), 0, 0.05f, 0.2f, ezColor::MakeZero(), color, ezTransform(gpos, rot));
     }
   }
 
@@ -599,7 +596,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
     cfg.m_fMaxStepDown = 0;
   }
 
-  ezVec3 vGroundVelocity = ezVec3::ZeroVector();
+  ezVec3 vGroundVelocity = ezVec3::MakeZero();
 
   ContactPoint groundContact;
   {

@@ -179,7 +179,7 @@ public:
 
   float m_fNearDistance = 0.0f;             // [ property ]
   float m_fFarDistance = 10.0f;             // [ property ]
-  ezAngle m_Angle = ezAngle::Degree(90.0f); // [ property ]
+  ezAngle m_Angle = ezAngle::MakeFromDegree(90.0f); // [ property ]
 };
 
 //////////////////////////////////////////////////////////////////////////

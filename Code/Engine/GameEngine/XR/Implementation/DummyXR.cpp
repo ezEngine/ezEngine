@@ -191,7 +191,7 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
         {
           const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.width / (float)m_Info.m_vEyeRenderTargetSize.height;
 
-          ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(pCameraComponent->GetFieldOfView()), fAspectRatio,
+          ezMat4 mProj = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::MakeFromDegree(pCameraComponent->GetFieldOfView()), fAspectRatio,
             pCameraComponent->GetNearPlane(), ezMath::Max(pCameraComponent->GetNearPlane() + 0.00001f, pCameraComponent->GetFarPlane()));
 
           m_pCameraToSynchronize->SetStereoProjection(mProj, mProj, fAspectRatio);
@@ -224,7 +224,7 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
             // Update device state
             ezQuat rot;
             rot.SetIdentity();
-            ezVec3 pos = ezVec3::ZeroVector();
+            ezVec3 pos = ezVec3::MakeZero();
             if (m_StageSpace == ezXRStageSpace::Standing)
             {
               pos.z = m_fHeadHeight;
@@ -244,13 +244,11 @@ void ezDummyXR::GameApplicationEventHandler(const ezGameApplicationExecutionEven
           {
             const float fHeight = m_StageSpace == ezXRStageSpace::Standing ? m_fHeadHeight : 0.0f;
             const ezMat4 mStageTransform = add.GetInverse().GetAsMat4();
-            ezMat4 poseLeft;
-            poseLeft.SetTranslationMatrix(ezVec3(0, -m_fEyeOffset, fHeight));
-            ezMat4 poseRight;
-            poseRight.SetTranslationMatrix(ezVec3(0, m_fEyeOffset, fHeight));
+            ezMat4 poseLeft = ezMat4::MakeTranslation(ezVec3(0, -m_fEyeOffset, fHeight));
+            ezMat4 poseRight = ezMat4::MakeTranslation(ezVec3(0, m_fEyeOffset, fHeight));
 
             // EZ Forward is +X, need to add this to align the forward projection
-            const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+            const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
             const ezMat4 mViewTransformLeft = viewMatrix * mStageTransform * poseLeft.GetInverse();
             const ezMat4 mViewTransformRight = viewMatrix * mStageTransform * poseRight.GetInverse();
 

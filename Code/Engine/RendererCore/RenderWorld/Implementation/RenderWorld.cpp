@@ -552,7 +552,7 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   {
     // Executed via WriteRenderPipelineDgml console command.
     s_bWriteRenderPipelineDgml = false;
-    const ezDateTime dt = ezTimestamp::CurrentTimestamp();
+    const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
     for (ezUInt32 i = 0; i < filteredRenderPipelines.GetCount(); ++i)
     {
       auto& pRenderPipeline = filteredRenderPipelines[i];

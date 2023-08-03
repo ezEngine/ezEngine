@@ -310,7 +310,7 @@ ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(
 
   ClearHandles();
 
-  if (options.m_MaxStepTime <= ezTime::Zero())
+  if (options.m_MaxStepTime <= ezTime::MakeZero())
   {
     InstantiationContext context = InstantiationContext(*this, bUseTransform, rootTransform, options);
 
@@ -333,7 +333,7 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_wor
 
   if (m_Options.m_MaxStepTime.IsZeroOrNegative())
   {
-    m_Options.m_MaxStepTime = ezTime::Hours(24 * 365);
+    m_Options.m_MaxStepTime = ezTime::MakeFromHours(24 * 365);
   }
 
   if (options.m_MaxStepTime.IsPositive())
@@ -553,7 +553,7 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
     {
       ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
       ezTransform tFinal;
-      tFinal.SetGlobalTransform(m_RootTransform, tChild);
+      tFinal = ezTransform::MakeGlobalTransform(m_RootTransform, tChild);
 
       desc.m_LocalPosition = tFinal.m_vPosition;
       desc.m_LocalRotation = tFinal.m_qRotation;

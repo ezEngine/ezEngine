@@ -87,9 +87,9 @@ public:
   /// \brief The 'raw' data for a single path control point
   struct ControlPoint
   {
-    ezVec3 m_vPosition = ezVec3::ZeroVector();
-    ezVec3 m_vTangentIn = ezVec3::ZeroVector();
-    ezVec3 m_vTangentOut = ezVec3::ZeroVector();
+    ezVec3 m_vPosition = ezVec3::MakeZero();
+    ezVec3 m_vTangentIn = ezVec3::MakeZero();
+    ezVec3 m_vTangentOut = ezVec3::MakeZero();
     ezAngle m_Roll;
 
     ezResult Serialize(ezStreamWriter& ref_writer) const;
@@ -106,8 +106,8 @@ public:
   /// \brief If the path is linearized, this represents a single sample point
   struct LinearizedElement
   {
-    ezVec3 m_vPosition = ezVec3::ZeroVector();
-    ezVec3 m_vUpDirection = ezVec3::UnitZAxis();
+    ezVec3 m_vPosition = ezVec3::MakeZero();
+    ezVec3 m_vUpDirection = ezVec3::MakeAxisZ();
   };
 
   /// \brief If the control points changed recently, this makes sure the linearized representation gets recreated. Call this before GetLinearizedRepresentation(), if necessary.

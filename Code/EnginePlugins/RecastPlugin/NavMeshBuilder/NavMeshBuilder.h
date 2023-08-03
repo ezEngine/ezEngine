@@ -20,7 +20,7 @@ struct EZ_RECASTPLUGIN_DLL ezRecastConfig
   float m_fAgentHeight = 1.5f;
   float m_fAgentRadius = 0.3f;
   float m_fAgentClimbHeight = 0.4f;
-  ezAngle m_WalkableSlope = ezAngle::Degree(45);
+  ezAngle m_WalkableSlope = ezAngle::MakeFromDegree(45);
   float m_fCellSize = 0.2f;
   float m_fCellHeight = 0.2f;
   float m_fMaxEdgeLength = 4.0f;

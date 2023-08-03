@@ -22,7 +22,7 @@ ezBoxGizmo::ezBoxGizmo()
   }
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -50,24 +50,24 @@ void ezBoxGizmo::OnVisibleChanged(bool bVisible)
 void ezBoxGizmo::OnTransformationChanged(const ezTransform& transform)
 {
   ezMat4 scale, rot;
-  scale.SetScalingMatrix(m_vSize);
+  scale = ezMat4::MakeScaling(m_vSize);
   scale = transform.GetAsMat4() * scale;
 
   m_hCorners.SetTransformation(scale);
 
-  rot.SetRotationMatrixX(ezAngle::Degree(90));
+  rot = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
   m_Edges[0].SetTransformation(scale * rot);
 
-  rot.SetRotationMatrixY(ezAngle::Degree(90));
+  rot = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
   m_Faces[0].SetTransformation(scale * rot);
 
   rot.SetIdentity();
   m_Edges[1].SetTransformation(scale * rot);
 
-  rot.SetRotationMatrixX(ezAngle::Degree(90));
+  rot = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(90));
   m_Faces[1].SetTransformation(scale * rot);
 
-  rot.SetRotationMatrixZ(ezAngle::Degree(90));
+  rot = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
   m_Edges[2].SetTransformation(scale * rot);
 
   rot.SetIdentity();
@@ -167,7 +167,7 @@ ezEditorInput ezBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;

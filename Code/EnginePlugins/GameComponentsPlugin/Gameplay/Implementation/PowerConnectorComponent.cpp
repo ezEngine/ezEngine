@@ -85,7 +85,7 @@ void ezPowerConnectorComponent::ConnectToSocket(ezGameObjectHandle hSocket)
   if (IsConnected())
     return;
 
-  if (GetOwner()->GetWorld()->GetClock().GetAccumulatedTime() - m_DetachTime < ezTime::Seconds(1))
+  if (GetOwner()->GetWorld()->GetClock().GetAccumulatedTime() - m_DetachTime < ezTime::MakeFromSeconds(1))
   {
     // recently detached -> wait a bit before allowing to attach again
     return;

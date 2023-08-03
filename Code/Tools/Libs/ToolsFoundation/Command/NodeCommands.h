@@ -35,7 +35,7 @@ public:
 
 public: // Properties
   ezUuid m_Object;
-  ezVec2 m_NewPos = ezVec2::ZeroVector();
+  ezVec2 m_NewPos = ezVec2::MakeZero();
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
@@ -44,7 +44,7 @@ private:
 
 private:
   ezDocumentObject* m_pObject = nullptr;
-  ezVec2 m_vOldPos = ezVec2::ZeroVector();
+  ezVec2 m_vOldPos = ezVec2::MakeZero();
 };
 
 

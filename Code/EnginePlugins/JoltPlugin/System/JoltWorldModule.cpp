@@ -309,7 +309,7 @@ void ezJoltWorldModule::OnSimulationStarted()
   UpdateSettingsCfg();
   ApplySettingsCfg();
 
-  m_AccumulatedTimeSinceUpdate.SetZero();
+  m_AccumulatedTimeSinceUpdate = ezTime::MakeZero();
 }
 
 ezUInt32 ezJoltWorldModule::CreateObjectFilterID()
@@ -624,7 +624,7 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
 
 ezTime ezJoltWorldModule::CalculateUpdateSteps()
 {
-  ezTime tSimulatedTimeStep = ezTime::Zero();
+  ezTime tSimulatedTimeStep = ezTime::MakeZero();
   m_AccumulatedTimeSinceUpdate += GetWorld()->GetClock().GetTimeDiff();
   m_UpdateSteps.Clear();
 
@@ -634,11 +634,11 @@ ezTime ezJoltWorldModule::CalculateUpdateSteps()
     m_UpdateSteps.PushBack(m_AccumulatedTimeSinceUpdate);
 
     tSimulatedTimeStep = m_AccumulatedTimeSinceUpdate;
-    m_AccumulatedTimeSinceUpdate.SetZero();
+    m_AccumulatedTimeSinceUpdate = ezTime::MakeZero();
   }
   else if (m_Settings.m_SteppingMode == ezJoltSteppingMode::Fixed)
   {
-    const ezTime tFixedStep = ezTime::Seconds(1.0 / m_Settings.m_fFixedFrameRate);
+    const ezTime tFixedStep = ezTime::MakeFromSeconds(1.0 / m_Settings.m_fFixedFrameRate);
 
     ezUInt32 uiNumSubSteps = 0;
 
@@ -653,7 +653,7 @@ ezTime ezJoltWorldModule::CalculateUpdateSteps()
   }
   else if (m_Settings.m_SteppingMode == ezJoltSteppingMode::SemiFixed)
   {
-    ezTime tFixedStep = ezTime::Seconds(1.0 / m_Settings.m_fFixedFrameRate);
+    ezTime tFixedStep = ezTime::MakeFromSeconds(1.0 / m_Settings.m_fFixedFrameRate);
     const ezTime tMinStep = tFixedStep * 0.25;
 
     if (tFixedStep * m_Settings.m_uiMaxSubSteps < m_AccumulatedTimeSinceUpdate) // in case too much time has passed

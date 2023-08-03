@@ -82,7 +82,7 @@ void ezAnimatedMeshComponent::OnDeactivated()
 
 void ezAnimatedMeshComponent::InitializeAnimationPose()
 {
-  m_MaxBounds.SetInvalid();
+  m_MaxBounds = ezBoundingBox::MakeInvalid();
 
   if (!m_hMesh.IsValid())
     return;
@@ -181,7 +181,7 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTran
 
   const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
 
-  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::IdentityMatrix());
+  out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
 
   for (auto itBone : bones)
   {
@@ -204,7 +204,7 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   ezBoundingBox poseBounds;
-  poseBounds.SetInvalid();
+  poseBounds = ezBoundingBox::MakeInvalid();
   MapModelSpacePoseToSkinningSpace(pMesh->m_Bones, *msg.m_pSkeleton, msg.m_ModelTransforms, &poseBounds);
 
   if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
@@ -246,7 +246,7 @@ ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
 
   ezBoundingBox bbox = m_MaxBounds;
   bbox.Grow(ezVec3(pMesh->m_fMaxBoneVertexOffset));
-  bounds = bbox;
+  bounds = ezBoundingBoxSphere::MakeFromBox(bbox);
   bounds.Transform(m_RootTransform.GetAsMat4());
   return EZ_SUCCESS;
 }
@@ -265,8 +265,7 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
       pObject->SetLocalPosition(vNewPos);
 
       // not tested whether this is actually correct
-      ezQuat rotation;
-      rotation.SetFromEulerAngles(rotationX, rotationY, rotationZ);
+      ezQuat rotation = ezQuat::MakeFromEulerAngles(rotationX, rotationY, rotationZ);
 
       pObject->SetLocalRotation(rotation * pObject->GetLocalRotation());
 

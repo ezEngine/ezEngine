@@ -79,7 +79,7 @@ void ezQtEditorApp::RestartEngineProcessIfPluginsChanged(bool bForce)
 {
   if (!bForce)
   {
-    if (m_LastPluginModificationCheck + ezTime::Seconds(2) > ezTime::Now())
+    if (m_LastPluginModificationCheck + ezTime::MakeFromSeconds(2) > ezTime::Now())
       return;
   }
 

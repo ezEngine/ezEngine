@@ -32,7 +32,7 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
   m_hAlignNZ.ConfigureHandle(this, ezEngineGizmoHandleType::FromFile, colb2, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable, "Editor/Meshes/DragArrowNZ.obj");
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezDragToPositionGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
@@ -175,7 +175,7 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
@@ -243,13 +243,13 @@ ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
     alignAxis = m_qStartOrientation * alignAxis;
     alignAxis.Normalize();
 
-    if (alignAxis.GetAngleBetween(res.m_vPickedNormal) > ezAngle::Degree(179))
+    if (alignAxis.GetAngleBetween(res.m_vPickedNormal) > ezAngle::MakeFromDegree(179))
     {
-      rot.SetFromAxisAndAngle(m_qStartOrientation * orthoAxis, ezAngle::Degree(180));
+      rot = ezQuat::MakeFromAxisAndAngle(m_qStartOrientation * orthoAxis, ezAngle::MakeFromDegree(180));
     }
     else
     {
-      rot.SetShortestRotation(alignAxis, res.m_vPickedNormal);
+      rot = ezQuat::MakeShortestRotation(alignAxis, res.m_vPickedNormal);
     }
   }
 

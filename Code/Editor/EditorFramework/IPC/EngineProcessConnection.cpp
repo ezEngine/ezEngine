@@ -69,7 +69,7 @@ void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiSer
 
       if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
       {
-        WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0)).IgnoreResult();
+        WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::MakeFromSeconds(2.0)).IgnoreResult();
       }
 
       ++m_uiRedrawCountSent;
@@ -337,7 +337,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   EZ_PROFILE_SCOPE("RestartProcess");
   EZ_LOG_BLOCK("Restarting Engine Process");
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Engine Process...", ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Engine Process...", ezTime::MakeFromSeconds(5));
 
   ShutdownProcess();
 

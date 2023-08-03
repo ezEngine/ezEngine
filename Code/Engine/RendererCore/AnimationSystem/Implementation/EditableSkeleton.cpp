@@ -50,16 +50,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 2, ezRTTIDefaultAllocat
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName)->AddAttributes(new ezReadOnlyAttribute()),
-    EZ_MEMBER_PROPERTY("Transform", m_LocalTransform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::IdentityTransform())),
+    EZ_MEMBER_PROPERTY("Transform", m_LocalTransform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::MakeIdentity())),
     EZ_MEMBER_PROPERTY_READ_ONLY("GizmoOffsetTranslationRO", m_vGizmoOffsetPositionRO)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY_READ_ONLY("GizmoOffsetRotationRO", m_qGizmoOffsetRotationRO)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("LocalRotation", m_qLocalJointRotation),
     EZ_ENUM_MEMBER_PROPERTY("JointType", ezSkeletonJointType, m_JointType),
     EZ_MEMBER_PROPERTY("Stiffness", m_fStiffness)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
-    EZ_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
-    EZ_MEMBER_PROPERTY("SwingLimitZ", m_SwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
-    EZ_MEMBER_PROPERTY("TwistLimitHalfAngle", m_TwistLimitHalfAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(10), ezAngle::Degree(170)), new ezDefaultValueAttribute(ezAngle::Degree(30))),
-    EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle)->AddAttributes(new ezClampValueAttribute(-ezAngle::Degree(170), ezAngle::Degree(170))),
+    EZ_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
+    EZ_MEMBER_PROPERTY("SwingLimitZ", m_SwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
+    EZ_MEMBER_PROPERTY("TwistLimitHalfAngle", m_TwistLimitHalfAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(10), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
+    EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle)->AddAttributes(new ezClampValueAttribute(-ezAngle::MakeFromDegree(170), ezAngle::MakeFromDegree(170))),
 
     EZ_MEMBER_PROPERTY("OverrideSurface", m_bOverrideSurface),
     EZ_MEMBER_PROPERTY("Surface", m_sSurfaceOverride)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
@@ -222,7 +222,7 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& re
   {
     const ezUInt16 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_LocalTransform);
 
-    CreateJointsRecursive(sb, ref_desc, nullptr, pJoint, idx, ezQuat::IdentityQuaternion(), ref_desc.m_RootTransform.GetAsMat4());
+    CreateJointsRecursive(sb, ref_desc, nullptr, pJoint, idx, ezQuat::MakeIdentity(), ref_desc.m_RootTransform.GetAsMat4());
   }
 
   sb.BuildSkeleton(ref_desc.m_Skeleton);

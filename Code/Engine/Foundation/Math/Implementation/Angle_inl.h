@@ -130,17 +130,17 @@ constexpr EZ_ALWAYS_INLINE bool ezAngle::operator>=(const ezAngle& r) const
 
 constexpr inline ezAngle operator*(ezAngle a, float f)
 {
-  return ezAngle::Radian(a.GetRadian() * f);
+  return ezAngle::MakeFromRadian(a.GetRadian() * f);
 }
 
 constexpr inline ezAngle operator*(float f, ezAngle a)
 {
-  return ezAngle::Radian(a.GetRadian() * f);
+  return ezAngle::MakeFromRadian(a.GetRadian() * f);
 }
 
 constexpr inline ezAngle operator/(ezAngle a, float f)
 {
-  return ezAngle::Radian(a.GetRadian() / f);
+  return ezAngle::MakeFromRadian(a.GetRadian() / f);
 }
 
 constexpr inline float operator/(ezAngle a, ezAngle b)

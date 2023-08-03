@@ -46,7 +46,7 @@ void ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler(const ezVisual
   GetAllVsNodes(allNodes);
 
   const ezTime tNow = ezTime::Now();
-  const ezTime tHighlight = tNow + ezTime::Milliseconds(300);
+  const ezTime tHighlight = tNow + ezTime::MakeFromMilliseconds(300);
 
   for (auto act : pActivity->m_ActiveExecutionConnections)
   {

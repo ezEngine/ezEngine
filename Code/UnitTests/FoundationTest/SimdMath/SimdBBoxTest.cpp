@@ -252,7 +252,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
     ezSimdBBox b(ezSimdVec4f(3), ezSimdVec4f(5));
 
     ezSimdTransform t(ezSimdVec4f(4, 5, 6));
-    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(90));
+    t.m_Rotation = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
     t.m_Scale = ezSimdVec4f(1, -2, -4);
 
     b.Transform(t);
@@ -260,17 +260,16 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
     EZ_TEST_SIMD_VECTOR_EQUAL(3, b.m_Min, ezSimdVec4f(10, 8, -14), 0.00001f);
     EZ_TEST_SIMD_VECTOR_EQUAL(3, b.m_Max, ezSimdVec4f(14, 10, -6), 0.00001f);
 
-    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(-30));
+    t.m_Rotation = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(-30));
 
     b.m_Min = ezSimdVec4f(3);
     b.m_Max = ezSimdVec4f(5);
     b.Transform(t);
 
     // reference
-    ezBoundingBox referenceBox(ezVec3(3), ezVec3(5));
+    ezBoundingBox referenceBox = ezBoundingBoxT::MakeFromMinMax(ezVec3(3), ezVec3(5));
     {
-      ezQuat q;
-      q.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-30));
+      ezQuat q = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(-30));
 
       ezTransform referenceTransform(ezVec3(4, 5, 6), q, ezVec3(1, -2, -4));
 

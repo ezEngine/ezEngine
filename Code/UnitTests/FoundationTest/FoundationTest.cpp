@@ -41,7 +41,7 @@ EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN("FoundationTest", "Foundation Tests")
     }
 
     // wait a little
-    ezThreadUtils::Sleep(ezTime::Milliseconds(cmd.GetIntOption("-sleep")));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(cmd.GetIntOption("-sleep")));
 
     // shutdown with exit code
     ezTestSetup::DeInitTestFramework(true);

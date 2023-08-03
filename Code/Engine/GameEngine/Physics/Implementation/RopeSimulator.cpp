@@ -10,7 +10,7 @@ void ezRopeSimulator::SimulateRope(const ezTime& diff)
 {
   m_LeftOverTimeStep += diff;
 
-  constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
+  constexpr ezTime tStep = ezTime::MakeFromSeconds(1.0 / 60.0);
   const ezSimdFloat tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
   const ezSimdFloat fAllowedError = m_fSegmentLength;
 
@@ -41,7 +41,7 @@ void ezRopeSimulator::SimulateStep(const ezSimdFloat fDiffSqr, ezUInt32 uiMaxIte
 
 void ezRopeSimulator::SimulateTillEquilibrium(ezSimdFloat fAllowedMovement, ezUInt32 uiMaxIterations)
 {
-  constexpr ezTime tStep = ezTime::Seconds(1.0 / 60.0);
+  constexpr ezTime tStep = ezTime::MakeFromSeconds(1.0 / 60.0);
   ezSimdFloat tStepSqr = static_cast<float>(tStep.GetSeconds() * tStep.GetSeconds());
 
   ezUInt8 uiInEquilibrium = 0;
@@ -98,7 +98,7 @@ float ezRopeSimulator::GetTotalLength() const
 ezSimdVec4f ezRopeSimulator::GetPositionAtLength(float fLength) const
 {
   if (m_Nodes.IsEmpty())
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
 
   ezSimdVec4f prev = m_Nodes[0].m_vPosition;
   for (ezUInt32 i = 1; i < m_Nodes.GetCount(); ++i)
@@ -128,7 +128,7 @@ ezSimdVec4f ezRopeSimulator::MoveTowards(const ezSimdVec4f posThis, const ezSimd
 
   if (fLen < m_fSegmentLength)
   {
-    return ezSimdVec4f::ZeroVector();
+    return ezSimdVec4f::MakeZero();
   }
 
   vDir /= fLen;
@@ -155,7 +155,7 @@ ezSimdFloat ezRopeSimulator::EnforceDistanceConstraint()
   auto& firstNode = m_Nodes[0];
   auto& lastNode = m_Nodes.PeekBack();
 
-  ezSimdFloat fError = ezSimdFloat::Zero();
+  ezSimdFloat fError = ezSimdFloat::MakeZero();
 
   if (!m_bFirstNodeIsFixed)
   {

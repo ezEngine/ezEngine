@@ -396,8 +396,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::GetPrimitiveCount() const
 
 ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
 {
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {
@@ -409,7 +408,7 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
 
       if (!m_VertexStreamData.IsEmpty() && m_uiVertexCount > 0)
       {
-        bounds.SetFromPoints(reinterpret_cast<const ezVec3*>(&m_VertexStreamData[offset]), m_uiVertexCount, m_uiVertexSize);
+        bounds = ezBoundingBoxSphere::MakeFromPoints(reinterpret_cast<const ezVec3*>(&m_VertexStreamData[offset]), m_uiVertexCount, m_uiVertexSize);
       }
 
       return bounds;
@@ -488,7 +487,7 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
   for (ezUInt32 i = 0; i < newNormals.GetCount(); ++i)
   {
     // normalize the new normal
-    if (newNormals[i].NormalizeIfNotZero(ezVec3::UnitXAxis()).Failed())
+    if (newNormals[i].NormalizeIfNotZero(ezVec3::MakeAxisX()).Failed())
       res = EZ_FAILURE;
 
     // then encode it in the target format precision and write it back to the buffer

@@ -66,7 +66,7 @@ class ezIntervalScheduler : public ezIntervalSchedulerBase
   using SUPER = ezIntervalSchedulerBase;
 
 public:
-  EZ_ALWAYS_INLINE ezIntervalScheduler(ezTime minInterval = ezTime::Milliseconds(1), ezTime maxInterval = ezTime::Seconds(1))
+  EZ_ALWAYS_INLINE ezIntervalScheduler(ezTime minInterval = ezTime::MakeFromMilliseconds(1), ezTime maxInterval = ezTime::MakeFromSeconds(1))
     : SUPER(minInterval, maxInterval)
   {
   }

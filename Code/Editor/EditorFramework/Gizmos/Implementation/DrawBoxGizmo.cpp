@@ -18,7 +18,7 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
   m_hBox.ConfigureHandle(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), ezGizmoFlags::ShowInOrtho);
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 ezDrawBoxGizmo::~ezDrawBoxGizmo() = default;
@@ -126,7 +126,7 @@ ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   else
   {
     ezPlane plane;
-    plane.SetFromNormalAndPoint(m_vUpAxis, m_vFirstCorner);
+    plane = ezPlane::MakeFromNormalAndPoint(m_vUpAxis, m_vFirstCorner);
 
     GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), plane, m_vCurrentPosition).IgnoreResult();
 
@@ -228,7 +228,7 @@ void ezDrawBoxGizmo::UpdateBox()
 
   if (m_ManipulateMode == ManipulateMode::None || m_vFirstCorner == m_vSecondCorner)
   {
-    m_hBox.SetTransformation(ezTransform(ezVec3(0), ezQuat::IdentityQuaternion(), ezVec3(0)));
+    m_hBox.SetTransformation(ezTransform(ezVec3(0), ezQuat::MakeIdentity(), ezVec3(0)));
     m_hBox.SetVisible(false);
     return;
   }
@@ -267,7 +267,7 @@ void ezDrawBoxGizmo::UpdateBox()
     vSize.y = m_fBoxHeight;
   }
 
-  m_hBox.SetTransformation(ezTransform(vCenter, ezQuat::IdentityQuaternion(), vSize));
+  m_hBox.SetTransformation(ezTransform(vCenter, ezQuat::MakeIdentity(), vSize));
   m_hBox.SetVisible(true);
 }
 

@@ -301,7 +301,7 @@ void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_
     return;
   }
 
-  const ezDateTime dateTime(ezTimestamp::CurrentTimestamp());
+  const ezDateTime dateTime = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
 
   switch (mode)
   {

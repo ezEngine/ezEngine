@@ -117,9 +117,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     VariantToPropertyTest(&mathClass, pRttiMath, "Quat", ezVariant::Type::Quaternion);
     EZ_TEST_BOOL(mathClass.GetQuat() == ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
     VariantToPropertyTest(&mathClass, pRttiMath, "Mat3", ezVariant::Type::Matrix3);
-    EZ_TEST_BOOL(mathClass.GetMat3() == ezMat3::IdentityMatrix());
+    EZ_TEST_BOOL(mathClass.GetMat3() == ezMat3::MakeIdentity());
     VariantToPropertyTest(&mathClass, pRttiMath, "Mat4", ezVariant::Type::Matrix4);
-    EZ_TEST_BOOL(mathClass.GetMat4() == ezMat4::IdentityMatrix());
+    EZ_TEST_BOOL(mathClass.GetMat4() == ezMat4::MakeIdentity());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enumeration Properties")

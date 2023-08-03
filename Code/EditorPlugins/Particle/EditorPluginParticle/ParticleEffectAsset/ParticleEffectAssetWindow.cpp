@@ -349,8 +349,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
   ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   GetDocument()->GetObjectAccessor()->StartTransaction("Add Particle System");
-  ezUuid systemGuid;
-  systemGuid.CreateNewUuid();
+  ezUuid systemGuid = ezUuid::MakeUuid();
 
   {
     ezAddObjectCommand cmd;
@@ -397,7 +396,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
         {
           ezSetObjectPropertyCommand cmd;
           cmd.m_Object = pChild->GetGuid();
-          cmd.m_NewValue = ezTime::Seconds(1);
+          cmd.m_NewValue = ezTime::MakeFromSeconds(1);
           cmd.m_sProperty = "Value";
           cmd.m_Index = 0;
 

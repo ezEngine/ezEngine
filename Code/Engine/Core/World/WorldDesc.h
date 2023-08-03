@@ -27,5 +27,5 @@ struct ezWorldDesc
 
   bool m_bReportErrorWhenStaticObjectMoves = true;
 
-  ezTime m_MaxComponentInitializationTimePerFrame = ezTime::Hours(10000); // max time to spend on component initialization per frame
+  ezTime m_MaxComponentInitializationTimePerFrame = ezTime::MakeFromHours(10000); // max time to spend on component initialization per frame
 };

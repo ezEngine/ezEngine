@@ -57,7 +57,7 @@ ezResult ezRootRotationAnimNode::DeserializeNode(ezStreamReader& stream)
 
 void ezRootRotationAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const
 {
-  ezVec3 vRootMotion = ezVec3::ZeroVector();
+  ezVec3 vRootMotion = ezVec3::MakeZero();
   ezAngle rootRotationX;
   ezAngle rootRotationY;
   ezAngle rootRotationZ;
@@ -66,15 +66,15 @@ void ezRootRotationAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphI
 
   if (m_InRotateX.IsConnected())
   {
-    rootRotationX += ezAngle::Degree(static_cast<float>(m_InRotateX.GetNumber(ref_graph)));
+    rootRotationX += ezAngle::MakeFromDegree(static_cast<float>(m_InRotateX.GetNumber(ref_graph)));
   }
   if (m_InRotateY.IsConnected())
   {
-    rootRotationY += ezAngle::Degree(static_cast<float>(m_InRotateY.GetNumber(ref_graph)));
+    rootRotationY += ezAngle::MakeFromDegree(static_cast<float>(m_InRotateY.GetNumber(ref_graph)));
   }
   if (m_InRotateZ.IsConnected())
   {
-    rootRotationZ += ezAngle::Degree(static_cast<float>(m_InRotateZ.GetNumber(ref_graph)));
+    rootRotationZ += ezAngle::MakeFromDegree(static_cast<float>(m_InRotateZ.GetNumber(ref_graph)));
   }
 
   ref_controller.SetRootMotion(vRootMotion, rootRotationX, rootRotationY, rootRotationZ);

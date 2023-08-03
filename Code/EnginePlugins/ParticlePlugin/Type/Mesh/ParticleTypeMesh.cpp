@@ -111,7 +111,7 @@ void ezParticleTypeMesh::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
   {
     const ezUInt64 uiElementIdx = uiStartIndex + i;
 
-    pAxis[uiElementIdx] = ezVec3::CreateRandomDirection(rng);
+    pAxis[uiElementIdx] = ezVec3::MakeRandomDirection(rng);
   }
 }
 
@@ -193,7 +193,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
       const ezUInt32 idx = p;
 
       ezTransform trans;
-      trans.m_qRotation.SetFromAxisAndAngle(pAxis[p], ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
+      trans.m_qRotation = ezQuat::MakeFromAxisAndAngle(pAxis[p], ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
       trans.m_vPosition = pPosition[idx].GetAsVec3();
       trans.m_vScale.Set(pSize[idx]);
 

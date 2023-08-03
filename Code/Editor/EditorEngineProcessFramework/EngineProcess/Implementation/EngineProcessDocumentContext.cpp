@@ -67,8 +67,7 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
 
 ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWorld)
 {
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
+  ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
   {
     EZ_LOCK(pWorld->GetReadMarker());
@@ -88,7 +87,7 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
   }
 
   if (!bounds.IsValid())
-    bounds = ezBoundingBoxSphere(ezVec3::ZeroVector(), ezVec3(1, 1, 1), 2);
+    bounds = ezBoundingBoxSphere::MakeFromCenterExtents(ezVec3::MakeZero(), ezVec3(1, 1, 1), 2);
 
   return bounds;
 }

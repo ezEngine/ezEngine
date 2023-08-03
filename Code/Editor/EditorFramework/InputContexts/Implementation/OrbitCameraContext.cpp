@@ -6,7 +6,7 @@
 
 ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_Volume.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());
+  m_Volume = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3::MakeZero());
   m_pCamera = nullptr;
 
   m_LastUpdate = ezTime::Now();
@@ -33,7 +33,7 @@ void ezOrbitCameraContext::SetDefaultCameraRelative(const ezVec3& vDirection, fl
   m_bFixedDefaultCamera = false;
 
   m_vDefaultCamera = vDirection;
-  m_vDefaultCamera.NormalizeIfNotZero(ezVec3::UnitXAxis()).IgnoreResult();
+  m_vDefaultCamera.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
   m_vDefaultCamera *= ezMath::Max(0.01f, fDistanceScale);
 }
 
@@ -70,7 +70,7 @@ void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3
     bSetCamLookAt = true;
   }
 
-  m_Volume.SetCenterAndHalfExtents(vCenterPos, vHalfBoxSize);
+  m_Volume = ezBoundingBox::MakeFromCenterAndHalfExtents(vCenterPos, vHalfBoxSize);
 
   if (bSetCamLookAt)
   {
@@ -237,8 +237,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 
     // then rotate the camera, and adjust its position to again point at the orbit point
 
-    m_pCamera->RotateLocally(ezAngle::Radian(0.0f), ezAngle::Radian(fMoveUp), ezAngle::Radian(0.0f));
-    m_pCamera->RotateGlobally(ezAngle::Radian(0.0f), ezAngle::Radian(0.0f), ezAngle::Radian(fMoveRight));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0.0f), ezAngle::MakeFromRadian(fMoveUp), ezAngle::MakeFromRadian(0.0f));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0.0f), ezAngle::MakeFromRadian(0.0f), ezAngle::MakeFromRadian(fMoveRight));
 
     ezVec3 vDir = m_pCamera->GetDirForwards();
     if (fDistance == 0.0f || vDir.SetLength(fDistance).Failed())
@@ -264,8 +264,8 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
     float fRotateHorizontal = diff.x * fMouseRotateSensitivityX;
     float fRotateVertical = -diff.y * fMouseRotateSensitivityY;
 
-    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
-    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
+    m_pCamera->RotateLocally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateVertical), ezAngle::MakeFromRadian(0));
+    m_pCamera->RotateGlobally(ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(0), ezAngle::MakeFromRadian(fRotateHorizontal));
   }
 
   if (m_Mode == Mode::Pan)

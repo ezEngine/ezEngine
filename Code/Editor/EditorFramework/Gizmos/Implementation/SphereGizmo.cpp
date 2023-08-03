@@ -20,7 +20,7 @@ ezSphereGizmo::ezSphereGizmo()
   m_hOuterSphere.ConfigureHandle(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable);
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -128,7 +128,7 @@ ezEditorInput ezSphereGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;

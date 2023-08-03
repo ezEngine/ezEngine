@@ -11,12 +11,11 @@ ezApplyNativePropertyChangesContext::ezApplyNativePropertyChangesContext(ezRttiC
 
 ezUuid ezApplyNativePropertyChangesContext::GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const
 {
-  ezUuid guid;
   if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
   {
     // If the object is already known by the native context (a pointer that existed before the native changes)
     // we can just return it. Any other pointer will get a new guid assigned.
-    guid = m_NativeContext.GetObjectGUID(pProp->GetSpecificType(), pObject);
+    ezUuid guid = m_NativeContext.GetObjectGUID(pProp->GetSpecificType(), pObject);
     if (guid.IsValid())
       return guid;
   }
@@ -74,8 +73,8 @@ ezUuid ezApplyNativePropertyChangesContext::GenerateObjectGuid(const ezUuid& par
       }
     }
   }
-  guid.CreateNewUuid();
-  return guid;
+
+  return ezUuid::MakeUuid();
 }
 
 

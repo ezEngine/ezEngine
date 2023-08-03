@@ -71,7 +71,7 @@ void ezColorAnimationComponent::OnSimulationStarted()
 
   if (GetRandomStartOffset())
   {
-    m_CurAnimTime = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_Duration.GetSeconds()));
+    m_CurAnimTime = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_Duration.GetSeconds()));
   }
 }
 
@@ -122,7 +122,7 @@ void ezColorAnimationComponent::SetRandomStartOffset(bool value)
 
 void ezColorAnimationComponent::Update()
 {
-  if (!m_hGradient.IsValid() || m_Duration <= ezTime::Zero())
+  if (!m_hGradient.IsValid() || m_Duration <= ezTime::MakeZero())
     return;
 
   ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
@@ -160,7 +160,7 @@ void ezColorAnimationComponent::Update()
 
         m_CurAnimTime = m_Duration - tOver;
       }
-      else if (m_CurAnimTime < ezTime::Zero())
+      else if (m_CurAnimTime < ezTime::MakeZero())
       {
         SetUserFlag(0, !bReverse);
 

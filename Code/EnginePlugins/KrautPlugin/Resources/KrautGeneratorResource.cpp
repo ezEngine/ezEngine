@@ -90,7 +90,7 @@ static void GenerateAmbientOcclusionSpheres(ezDynamicOctree& ref_octree, const e
         const ezVec3 pos = reinterpret_cast<const ezVec3&>(branch.m_Nodes[n].m_vPosition);
 
         ++uiNumSpheres;
-        spheres.PushBack(ezBoundingSphere(pos, fThickness * 1.5f));
+        spheres.PushBack(ezBoundingSphere::MakeFromCenterAndRadius(pos, fThickness * 1.5f));
 
         ref_octree.InsertObject(pos, ezVec3(fThickness * 2.0f), b, spheres.GetCount() - 1, nullptr, true).IgnoreResult();
 
@@ -242,8 +242,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
   GenerateExtraData(extraData, m_pDescriptor->m_TreeStructureDesc, treeStructure, uiRandomSeed, fWoodBendiness, fTwigBendiness);
 
   auto bbox = treeStructure.ComputeBoundingBox();
-  ezBoundingBox bbox2;
-  bbox2.SetElements(ToEzSwizzle(bbox.m_vMin), ToEzSwizzle(bbox.m_vMax));
+  ezBoundingBox bbox2 = ezBoundingBox::MakeFromMinMax(ToEzSwizzle(bbox.m_vMin), ToEzSwizzle(bbox.m_vMax));
 
   // data for ambient occlusion computation
   ezDynamicArray<ezDynamicArray<ezBoundingSphere>> occlusionSpheres;
@@ -529,7 +528,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
     if (lodIdx == 0)
     {
       ezBoundingBox leafBox;
-      leafBox.SetInvalid();
+      leafBox = ezBoundingBox::MakeInvalid();
 
       for (ezUInt32 branchIdx = 0; branchIdx < mesh.m_BranchMeshes.size(); ++branchIdx)
       {
@@ -550,7 +549,7 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
 
   ezLog::Debug("AO vertices: {}, checks: {}", uiOccVertices, uiOccChecks);
 
-  ref_dstDesc.m_Details.m_Bounds = ezBoundingBoxSphere(bbox2);
+  ref_dstDesc.m_Details.m_Bounds = ezBoundingBoxSphere::MakeFromBox(bbox2);
   ref_dstDesc.m_Details.m_fStaticColliderRadius = m_pDescriptor->m_fStaticColliderRadius;
   ref_dstDesc.m_Details.m_sSurfaceResource = m_pDescriptor->m_sSurfaceResource;
   ref_dstDesc.m_Details.m_vLeafCenter = ref_dstDesc.m_Details.m_Bounds.m_vCenter;

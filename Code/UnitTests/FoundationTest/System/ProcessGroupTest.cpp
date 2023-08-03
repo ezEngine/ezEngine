@@ -36,7 +36,7 @@ EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
     }
 
     // in a debugger with child debugging enabled etc. even 10 seconds can lead to timeouts due to long delays in the IDE
-    EZ_TEST_BOOL(pgroup.WaitToFinish(ezTime::Seconds(60)).Succeeded());
+    EZ_TEST_BOOL(pgroup.WaitToFinish(ezTime::MakeFromSeconds(60)).Succeeded());
     EZ_TEST_STRING(out, "NaNaNaNaNaNaNaNa"); // BATMAN!
   }
 
@@ -62,7 +62,7 @@ EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
     EZ_TEST_BOOL(pgroup.TerminateAll().Succeeded());
     const ezTime tDiff = ezTime::Now() - tStart;
 
-    EZ_TEST_BOOL(tDiff < ezTime::Seconds(10));
+    EZ_TEST_BOOL(tDiff < ezTime::MakeFromSeconds(10));
   }
 }
 #endif

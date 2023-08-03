@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPoseResultAnimNode, 1, ezRTTIDefaultAllocator<
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("FadeDuration", m_FadeDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(200)), new ezClampValueAttribute(ezTime::Zero(), ezTime::Seconds(10))),
+    EZ_MEMBER_PROPERTY("FadeDuration", m_FadeDuration)->AddAttributes(new ezDefaultValueAttribute(ezTime::MakeFromMilliseconds(200)), new ezClampValueAttribute(ezTime::MakeZero(), ezTime::MakeFromSeconds(10))),
     EZ_MEMBER_PROPERTY("InPose", m_InPose)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("InTargetWeight", m_InTargetWeight)->AddAttributes(new ezHiddenAttribute),
     EZ_MEMBER_PROPERTY("InFadeDuration", m_InFadeDuration)->AddAttributes(new ezHiddenAttribute),
@@ -109,8 +109,8 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   {
     pInstance->m_fStartWeight = fCurrentWeight;
     pInstance->m_fEndWeight = fNewTargetWeight;
-    pInstance->m_PlayTime = ezTime::Zero();
-    pInstance->m_EndTime = ezTime::Seconds(m_InFadeDuration.GetNumber(ref_graph, m_FadeDuration.GetSeconds()));
+    pInstance->m_PlayTime = ezTime::MakeZero();
+    pInstance->m_EndTime = ezTime::MakeFromSeconds(m_InFadeDuration.GetNumber(ref_graph, m_FadeDuration.GetSeconds()));
   }
 
   m_OutCurrentWeight.SetNumber(ref_graph, fCurrentWeight);

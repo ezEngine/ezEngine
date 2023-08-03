@@ -27,9 +27,7 @@ namespace ezModelImporter2
   {
     EZ_ASSERT_DEBUG(!bDummy, "not implemented");
 
-    ezMat4 mTransformation;
-    mTransformation.SetFromArray(&value.a1, ezMatrixLayout::RowMajor);
-    return mTransformation;
+    return ezMat4::MakeFromRowMajorArray(&value.a1);
   }
 
   ezVec3 ConvertAssimpType(const aiVector3D& value, bool bDummy /*= false*/)

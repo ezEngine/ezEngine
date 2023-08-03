@@ -70,7 +70,7 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
   // Time Scrubber
   {
     m_pTimeScrubber = new ezQtTimeScrubberWidget(pContainer);
-    m_pTimeScrubber->SetDuration(ezTime::Seconds(1));
+    m_pTimeScrubber->SetDuration(ezTime::MakeFromSeconds(1));
 
     pContainer->GetLayout()->addWidget(m_pTimeScrubber);
 
@@ -207,7 +207,7 @@ void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
     }
   }
 
-  m_PlaybackPosition = ezMath::Clamp(m_PlaybackPosition, ezTime::Zero(), m_ClipDuration);
+  m_PlaybackPosition = ezMath::Clamp(m_PlaybackPosition, ezTime::MakeZero(), m_ClipDuration);
   m_pTimeScrubber->SetScrubberPosition(m_PlaybackPosition);
   m_pEventTrackEditor->SetScrubberPosition(m_PlaybackPosition);
 
@@ -239,7 +239,7 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
   {
     if (pMsg->m_sName == "ClipDuration")
     {
-      const ezTime newDuration = ezTime::Seconds(pMsg->m_fPayload);
+      const ezTime newDuration = ezTime::MakeFromSeconds(pMsg->m_fPayload);
 
       if (m_ClipDuration != newDuration)
       {
@@ -261,7 +261,7 @@ void ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler(const ezCom
 
   if (e.m_State == ezCommonAssetUiState::Restart)
   {
-    m_PlaybackPosition = ezTime::Seconds(-1);
+    m_PlaybackPosition = ezTime::MakeFromSeconds(-1);
   }
 }
 
@@ -270,7 +270,7 @@ void ezQtAnimationClipAssetDocumentWindow::OnScrubberPosChangedEvent(ezUInt64 ui
   if (m_pTimeScrubber == nullptr || m_ClipDuration.IsZeroOrNegative())
     return;
 
-  m_PlaybackPosition = ezTime::Seconds(uiNewScrubberTickPos / 4800.0);
+  m_PlaybackPosition = ezTime::MakeFromSeconds(uiNewScrubberTickPos / 4800.0);
 }
 
 void ezQtAnimationClipAssetDocumentWindow::onEventTrackInsertCpAt(ezInt64 tickX, QString value)

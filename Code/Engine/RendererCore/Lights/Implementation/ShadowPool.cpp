@@ -499,7 +499,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
       if (false)
       {
-        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere(center, radius), ezColor::OrangeRed);
+        ezDebugRenderer::DrawLineSphere(pReferenceView->GetHandle(), ezBoundingSphere::MakeFromCenterAndRadius(center, radius), ezColor::OrangeRed);
       }
 
       float fCameraToCenterDistance = radius + fNearPlaneOffset;
@@ -512,7 +512,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
       // stabilize
       ezMat4 worldToLightMatrix = pView->GetViewMatrix(ezCameraEye::Left);
-      ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::ZeroVector());
+      ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::MakeZero());
       float texelInWorld = (2.0f * radius) / s_uiShadowMapSize;
       offset.x -= ezMath::Floor(offset.x / texelInWorld) * texelInWorld;
       offset.y -= ezMath::Floor(offset.y / texelInWorld) * texelInWorld;
@@ -568,7 +568,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   ezVec3 vUp = ezVec3(0.0f, 0.0f, 1.0f);
 
   float fPenumbraSize = ezMath::Max(pPointLight->GetPenumbraSize(), (0.5f / s_uiMinShadowMapSize)); // at least one texel for hardware pcf
-  float fFov = AddSafeBorder(ezAngle::Degree(90.0f), fPenumbraSize);
+  float fFov = AddSafeBorder(ezAngle::MakeFromDegree(90.0f), fPenumbraSize);
 
   float fNearPlane = 0.1f; ///\todo expose somewhere
   float fFarPlane = pPointLight->GetEffectiveRange();

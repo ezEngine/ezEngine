@@ -173,7 +173,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       if (fileEvents.GetCount() > 0)
@@ -197,7 +197,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     {
 #  if EZ_ENABLED(EZ_PLATFORM_LINUX)
       // EXT3 filesystem only support second resolution so we won't detect the modification if it is done within the same second.
-      ezThreadUtils::Sleep(ezTime::Seconds(1.0));
+      ezThreadUtils::Sleep(ezTime::MakeFromSeconds(1.0));
 #  endif
       ezFileWriter FileOut;
       EZ_TEST_RESULT(FileOut.Open(sFilePath));
@@ -209,7 +209,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       if (fileEvents.GetCount() > 0)
@@ -238,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       if (fileEvents.GetCount() == 2)
@@ -266,7 +266,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(folderEventLock);
       if (folderEvents.GetCount() > 0)
@@ -295,7 +295,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       if (fileEvents.GetCount() == 2)
@@ -332,7 +332,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       EZ_LOCK(folderEventLock);
@@ -600,9 +600,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     auto callback = [](const ezFileStatus& status, ezStreamReader& ref_reader) -> ezUuid {
       EZ_TEST_INT((ezInt64)status.m_uiHash, (ezInt64)10983861097202158394u);
-      ezUuid guid;
-      guid.CreateNewUuid();
-      return guid;
+      return ezUuid::MakeUuid();
     };
 
     EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->ReadDocument(sFilePathNew, callback));
@@ -618,8 +616,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
 
     {
-      ezUuid guid;
-      guid.CreateNewUuid();
+      ezUuid guid = ezUuid::MakeUuid();
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
 
@@ -650,7 +647,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
     {
       ezFileSystemModel::GetSingleton()->MainThreadTick();
-      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
       EZ_LOCK(fileEventLock);
       EZ_LOCK(folderEventLock);

@@ -10,7 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(SampleBounceComponent, 1 /* version */, ezComponentMode:
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Amplitude", m_fAmplitude)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
-    EZ_MEMBER_PROPERTY("Speed", m_Speed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90))),
+    EZ_MEMBER_PROPERTY("Speed", m_Speed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90))),
   }
   EZ_END_PROPERTIES;
 

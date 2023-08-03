@@ -391,7 +391,7 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
     cmd.m_sParentProperty = "ShaderProperties";
     cmd.m_Parent = m_pDocument->GetPropertyObject()->GetGuid();
     cmd.m_NewObjectGuid = cmd.m_Parent;
-    cmd.m_NewObjectGuid.CombineWithSeed(ezUuid::StableUuidForString("ShaderProperties"));
+    cmd.m_NewObjectGuid.CombineWithSeed(ezUuid::MakeStableUuidFromString("ShaderProperties"));
 
     auto res = pHistory->AddCommand(cmd);
     EZ_ASSERT_DEV(res.m_Result.Succeeded(), "Addition of new properties should never fail.");

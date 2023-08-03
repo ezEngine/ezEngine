@@ -154,7 +154,7 @@ void ezQtMemoryWidget::UpdateStats()
   }
 
   // once a second update the display of the allocators in the list
-  if (ezTime::Now() - m_LastUpdatedAllocatorList > ezTime::Seconds(1))
+  if (ezTime::Now() - m_LastUpdatedAllocatorList > ezTime::MakeFromSeconds(1))
   {
     m_LastUpdatedAllocatorList = ezTime::Now();
 
@@ -203,7 +203,7 @@ void ezQtMemoryWidget::UpdateStats()
     }
   }
 
-  if (ezTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::Milliseconds(200))
+  if (ezTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::MakeFromMilliseconds(200))
   {
     m_LastUsedMemoryStored = ezTime::Now();
 

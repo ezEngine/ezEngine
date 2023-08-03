@@ -31,7 +31,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(Point)")
   {
-    ezSimdBSphere s(ezSimdVec4f::ZeroVector(), 0.0f);
+    ezSimdBSphere s(ezSimdVec4f::MakeZero(), 0.0f);
 
     s.ExpandToInclude(ezSimdVec4f(3, 0, 0));
 
@@ -73,7 +73,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
     ezSimdBSphere s(ezSimdVec4f(5, 0, 0), 2);
 
     ezSimdTransform t(ezSimdVec4f(4, 5, 6));
-    t.m_Rotation.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(90));
+    t.m_Rotation = ezSimdQuat::MakeFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::MakeFromDegree(90));
     t.m_Scale = ezSimdVec4f(1, -2, -4);
 
     s.Transform(t);

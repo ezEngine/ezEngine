@@ -67,7 +67,7 @@ public:
   /// Manual spawns and continuous (scheduled) spawns are independent from each other regarding minimum spawn delays.
   /// If this function is called in too short intervals, it is ignored and false is returned.
   /// Returns true, if an object was spawned.
-  bool TriggerManualSpawn(bool bIgnoreSpawnDelay = false, const ezVec3& vLocalOffset = ezVec3::ZeroVector()); // [ scriptable ]
+  bool TriggerManualSpawn(bool bIgnoreSpawnDelay = false, const ezVec3& vLocalOffset = ezVec3::MakeZero()); // [ scriptable ]
 
   /// \brief Unless a spawn is already scheduled, this will schedule one within the configured time frame.
   ///

@@ -639,8 +639,7 @@ struct LerpFunc
   {
     if constexpr (std::is_same_v<T, ezQuat>)
     {
-      ezQuat q;
-      q.SetSlerp(a.Get<ezQuat>(), b.Get<ezQuat>(), static_cast<float>(x));
+      ezQuat q = ezQuat::MakeSlerp(a.Get<ezQuat>(), b.Get<ezQuat>(), static_cast<float>(x));
       out_res = q;
     }
     else if constexpr (CanInterpolate(static_cast<ezVariantType::Enum>(ezVariantTypeDeduction<T>::value)))

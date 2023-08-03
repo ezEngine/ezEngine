@@ -213,7 +213,7 @@ void ezParticleWorldModule::CreateFinisherComponent(ezParticleEffectInstance* pE
     ezParticleFinisherComponent::CreateComponent(pFinisher, pFinisherComp);
 
     pFinisherComp->m_EffectController = ezParticleEffectController(this, pEffect->GetHandle());
-    pFinisherComp->m_EffectController.SetTransform(transform, ezVec3::ZeroVector()); // clear the velocity
+    pFinisherComp->m_EffectController.SetTransform(transform, ezVec3::MakeZero()); // clear the velocity
   }
 }
 

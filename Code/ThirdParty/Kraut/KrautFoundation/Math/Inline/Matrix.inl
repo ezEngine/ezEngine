@@ -21,7 +21,7 @@ namespace AE_NS_FOUNDATION
                layout);
   }
 
-  inline const aeMatrix aeMatrix::IdentityMatrix ()
+  inline const aeMatrix aeMatrix::MakeIdentity ()
   {
     return aeMatrix (1, 0, 0, 0,
                      0, 1, 0, 0,
@@ -29,7 +29,7 @@ namespace AE_NS_FOUNDATION
                      0, 0, 0, 1);
   }
 
-  inline const aeMatrix aeMatrix::ZeroMatrix ()
+  inline const aeMatrix aeMatrix::MakeZero ()
   {
     return aeMatrix (0, 0, 0, 0,
                      0, 0, 0, 0,

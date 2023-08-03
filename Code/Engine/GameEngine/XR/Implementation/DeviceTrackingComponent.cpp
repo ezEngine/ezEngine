@@ -151,7 +151,7 @@ void ezDeviceTrackingComponent::Update()
         ezTransform local;
         if (GetOwner()->GetParent() != nullptr)
         {
-          local.SetLocalTransform(GetOwner()->GetParent()->GetGlobalTransform(), global);
+          local = ezTransform::MakeLocalTransform(GetOwner()->GetParent()->GetGlobalTransform(), global);
         }
         else
         {

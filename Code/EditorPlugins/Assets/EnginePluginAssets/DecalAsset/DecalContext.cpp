@@ -42,13 +42,13 @@ void ezDecalContext::OnInitialize()
       geom.AddBox(ezVec3(0.5f, 1.0f, 1.0f), true);
 
       ezMat4 t, r;
-      t.SetTranslationMatrix(ezVec3(0, 1.5f, 0));
-      r.SetRotationMatrixZ(ezAngle::Degree(90));
+      t = ezMat4::MakeTranslation(ezVec3(0, 1.5f, 0));
+      r = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
       opt.m_Transform = t * r;
       geom.AddSphere(0.5f, 64, 64, opt);
 
       t.SetTranslationVector(ezVec3(0, -1.5f, 0));
-      r.SetRotationMatrixY(ezAngle::Degree(90));
+      r = ezMat4::MakeRotationY(ezAngle::MakeFromDegree(90));
       opt.m_Transform = t * r;
       geom.AddTorus(0.1f, 0.5f, 32, 64, true, opt);
 
@@ -131,7 +131,7 @@ void ezDecalContext::OnInitialize()
     // box
     {
       obj.m_sName.Assign("Decal4");
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
+      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.25f, 0, 0);
       pWorld->CreateObject(obj, pObj);
 
@@ -144,7 +144,7 @@ void ezDecalContext::OnInitialize()
     // torus
     {
       obj.m_sName.Assign("Decal5");
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
+      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.2f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
@@ -157,7 +157,7 @@ void ezDecalContext::OnInitialize()
     // sphere
     {
       obj.m_sName.Assign("Decal6");
-      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
+      obj.m_LocalRotation = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(180));
       obj.m_LocalPosition.Set(0.5f, 1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 

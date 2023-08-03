@@ -231,7 +231,7 @@ Group $v1 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9 } }\
     EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToMat3(doc.FindElement("v0"), v0).Failed());
     EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToMat3(doc.FindElement("v1"), v1).Succeeded());
 
-    EZ_TEST_BOOL(v1.IsEqual(ezMat3(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
+    EZ_TEST_BOOL(v1.IsEqual(ezMat3::MakeFromValues(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToMat4")
@@ -249,7 +249,7 @@ Group $v1 { float { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } }\
     EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToMat4(doc.FindElement("v0"), v0).Failed());
     EZ_TEST_BOOL(ezOpenDdlUtils::ConvertToMat4(doc.FindElement("v1"), v1).Succeeded());
 
-    EZ_TEST_BOOL(v1.IsEqual(ezMat4(1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16), 0.0001f));
+    EZ_TEST_BOOL(v1.IsEqual(ezMat4T::MakeFromValues(1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16), 0.0001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezOpenDdlUtils::ConvertToTransform")
@@ -431,8 +431,8 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
     EZ_TEST_VEC2(v[4].Get<ezVec2>(), ezVec2(0.1f, 2.0f), 0.0001f);
     EZ_TEST_VEC3(v[5].Get<ezVec3>(), ezVec3(0.1f, 2.0f, 3.2f), 0.0001f);
     EZ_TEST_VEC4(v[6].Get<ezVec4>(), ezVec4(0.1f, 2.0f, 3.2f, 44.5f), 0.0001f);
-    EZ_TEST_BOOL(v[7].Get<ezMat3>().IsEqual(ezMat3(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
-    EZ_TEST_BOOL(v[8].Get<ezMat4>().IsEqual(ezMat4(1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16), 0.0001f));
+    EZ_TEST_BOOL(v[7].Get<ezMat3>().IsEqual(ezMat3::MakeFromValues(1, 4, 7, 2, 5, 8, 3, 6, 9), 0.0001f));
+    EZ_TEST_BOOL(v[8].Get<ezMat4>().IsEqual(ezMat4::MakeFromValues(1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16), 0.0001f));
     EZ_TEST_BOOL(v[9].Get<ezTransform>().m_qRotation == ezQuat(4, 5, 6, 7));
     EZ_TEST_VEC3(v[9].Get<ezTransform>().m_vPosition, ezVec3(1, 2, 3), 0.0001f);
     EZ_TEST_VEC3(v[9].Get<ezTransform>().m_vScale, ezVec3(8, 9, 10), 0.0001f);
@@ -479,7 +479,7 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
-    ezOpenDdlUtils::StoreTime(js, ezTime::Seconds(2.3), "v1", true);
+    ezOpenDdlUtils::StoreTime(js, ezTime::MakeFromSeconds(2.3), "v1", true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVec2")
@@ -523,7 +523,7 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
-    ezOpenDdlUtils::StoreMat3(js, ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9), "v1", true);
+    ezOpenDdlUtils::StoreMat3(js, ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9), "v1", true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreMat4")
@@ -534,7 +534,7 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
-    ezOpenDdlUtils::StoreMat4(js, ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), "v1", true);
+    ezOpenDdlUtils::StoreMat4(js, ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), "v1", true);
   }
 
   // EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreTransform")
@@ -578,7 +578,7 @@ TempHashedString $v14 { uint64 { 2720389094277464445 } }\
     js.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Readable);
     js.SetOutputStream(&sc);
 
-    ezOpenDdlUtils::StoreAngle(js, ezAngle::Radian(2.3f), "v1", true);
+    ezOpenDdlUtils::StoreAngle(js, ezAngle::MakeFromRadian(2.3f), "v1", true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreHashedString")

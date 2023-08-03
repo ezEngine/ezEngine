@@ -82,7 +82,7 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     };
     ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
 
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::Seconds(5), &cb).Failed())
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::MakeFromSeconds(5), &cb).Failed())
     {
       ezLog::Error("Timeout while waiting for engine process to destroy view.");
     }
@@ -155,11 +155,11 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
 
   ezCamera& cam = m_pViewConfig->m_Camera;
 
-  const float fLerpValue = ezMath::Sin(ezAngle::Degree(90.0f * m_fCameraLerp));
+  const float fLerpValue = ezMath::Sin(ezAngle::MakeFromDegree(90.0f * m_fCameraLerp));
 
   ezQuat qRot, qRotFinal;
-  qRot.SetShortestRotation(m_vCameraStartDirection, m_vCameraTargetDirection);
-  qRotFinal.SetSlerp(ezQuat::IdentityQuaternion(), qRot, fLerpValue);
+  qRot = ezQuat::MakeShortestRotation(m_vCameraStartDirection, m_vCameraTargetDirection);
+  qRotFinal = ezQuat::MakeSlerp(ezQuat::MakeIdentity(), qRot, fLerpValue);
 
   const ezVec3 vNewDirection = qRotFinal * m_vCameraStartDirection;
   const ezVec3 vNewPosition = ezMath::Lerp(m_vCameraStartPosition, m_vCameraTargetPosition, fLerpValue);
@@ -205,7 +205,7 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
   if (bImmediate)
   {
     // make sure the next camera update interpolates all the way
-    m_LastCameraUpdate -= ezTime::Seconds(10);
+    m_LastCameraUpdate -= ezTime::MakeFromSeconds(10);
     m_fCameraLerp = 0.9f;
   }
 }
@@ -301,11 +301,11 @@ ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) cons
 {
   if (m_pViewConfig->m_Camera.IsPerspective())
   {
-    return ezPlane(ezVec3(0, 0, 1), vPointOnPlane);
+    return ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), vPointOnPlane);
   }
   else
   {
-    return ezPlane(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
+    return ezPlane::MakeFromNormalAndPoint(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
   }
 }
 

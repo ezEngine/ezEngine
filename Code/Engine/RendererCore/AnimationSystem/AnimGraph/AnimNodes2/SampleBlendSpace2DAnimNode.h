@@ -43,7 +43,7 @@ public:
 private:
   ezHashedString m_sCenterClip;                       // [ property ]
   ezHybridArray<ezAnimationClip2D, 8> m_Clips;        // [ property ]
-  ezTime m_InputResponse = ezTime::Milliseconds(100); // [ property ]
+  ezTime m_InputResponse = ezTime::MakeFromMilliseconds(100); // [ property ]
   bool m_bLoop = true;                                // [ property ]
   bool m_bApplyRootMotion = false;                    // [ property ]
   float m_fPlaybackSpeed = 1.0f;                      // [ property ]

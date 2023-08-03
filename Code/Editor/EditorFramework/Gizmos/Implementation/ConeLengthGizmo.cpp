@@ -17,7 +17,7 @@ ezConeLengthGizmo::ezConeLengthGizmo()
   m_hConeRadius.ConfigureHandle(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), ezGizmoFlags::Pickable | ezGizmoFlags::OnTop); // this gizmo should be rendered very last so it is always on top
 
   SetVisible(false);
-  SetTransformation(ezTransform::IdentityTransform());
+  SetTransformation(ezTransform::MakeIdentity());
 }
 
 void ezConeLengthGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -109,7 +109,7 @@ ezEditorInput ezConeLengthGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   const ezTime tNow = ezTime::Now();
 
-  if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
+  if (tNow - m_LastInteraction < ezTime::MakeFromSeconds(1.0 / 25.0))
     return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
@@ -122,7 +122,7 @@ ezEditorInput ezConeLengthGizmo::DoMouseMoveEvent(QMouseEvent* e)
   m_vLastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
-  const ezAngle aSpeed = ezAngle::Degree(1.0f);
+  const ezAngle aSpeed = ezAngle::MakeFromDegree(1.0f);
 
   if (m_ManipulateMode == ManipulateMode::Radius)
   {

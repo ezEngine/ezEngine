@@ -122,7 +122,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInRange(Point)")
   {
     ezDynamicOctree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -159,7 +159,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInRange(Radius)")
   {
     ezDynamicOctree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -212,7 +212,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObject(handle)")
   {
     ezDynamicOctree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -242,7 +242,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObject(index)")
   {
     ezDynamicOctree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -272,7 +272,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveObjectsOfType")
   {
     ezDynamicOctree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
@@ -314,7 +314,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAllObjects")
   {
     ezDynamicOctree o;
-    o.CreateTree(ezVec3::ZeroVector(), ezVec3(100), 1.0f);
+    o.CreateTree(ezVec3::MakeZero(), ezVec3(100), 1.0f);
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {

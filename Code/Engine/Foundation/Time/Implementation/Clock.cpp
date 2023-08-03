@@ -33,12 +33,12 @@ void ezClock::Reset(bool bEverything)
   if (bEverything)
   {
     m_pTimeStepSmoother = nullptr;
-    m_MinTimeStep = ezTime::Seconds(0.001); // 1000 FPS
-    m_MaxTimeStep = ezTime::Seconds(0.1);   //   10 FPS, many simulations will be instable at that rate already
-    m_FixedTimeStep = ezTime::Seconds(0.0);
+    m_MinTimeStep = ezTime::MakeFromSeconds(0.001); // 1000 FPS
+    m_MaxTimeStep = ezTime::MakeFromSeconds(0.1);   //   10 FPS, many simulations will be instable at that rate already
+    m_FixedTimeStep = ezTime::MakeFromSeconds(0.0);
   }
 
-  m_AccumulatedTime = ezTime::Seconds(0.0);
+  m_AccumulatedTime = ezTime::MakeFromSeconds(0.0);
   m_fSpeed = 1.0;
   m_bPaused = false;
 
@@ -60,9 +60,9 @@ void ezClock::Update()
   if (m_bPaused)
   {
     // no change during pause
-    m_LastTimeDiff = ezTime::Seconds(0.0);
+    m_LastTimeDiff = ezTime::MakeFromSeconds(0.0);
   }
-  else if (m_FixedTimeStep > ezTime::Seconds(0.0))
+  else if (m_FixedTimeStep > ezTime::MakeFromSeconds(0.0))
   {
     // scale the time step by the speed factor
     m_LastTimeDiff = m_FixedTimeStep * m_fSpeed;
@@ -96,8 +96,8 @@ void ezClock::SetAccumulatedTime(ezTime t)
 
   // this is to prevent having a time difference of zero (which might not work with some code)
   // in case the next Update() call is done right after this
-  m_LastTimeUpdate = ezTime::Now() - ezTime::Seconds(0.01);
-  m_LastTimeDiff = ezTime::Seconds(0.01);
+  m_LastTimeUpdate = ezTime::Now() - ezTime::MakeFromSeconds(0.01);
+  m_LastTimeDiff = ezTime::MakeFromSeconds(0.01);
 }
 
 void ezClock::Save(ezStreamWriter& inout_stream) const

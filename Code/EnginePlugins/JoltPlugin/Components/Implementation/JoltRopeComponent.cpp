@@ -42,8 +42,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRopeComponent, 2, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("Mass", m_fTotalMass)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 1000.0f)),
       EZ_MEMBER_PROPERTY("Thickness", m_fThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.01f, 0.5f)),
       EZ_MEMBER_PROPERTY("BendStiffness", m_fBendStiffness)->AddAttributes(new ezClampValueAttribute(0.0f,   ezVariant())),
-      EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
-      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(0.01f), ezAngle::Degree(90))),
+      EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(90))),
+      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.01f), ezAngle::MakeFromDegree(90))),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
@@ -242,7 +242,7 @@ void ezJoltRopeComponent::CreateRope()
   JPH::RotatedTranslatedShapeSettings capsOffset;
   capsOffset.mInnerShapePtr = capsule.Create().Get();
   capsOffset.mPosition = JPH::Vec3(fPieceLength * 0.5f, 0, 0);
-  capsOffset.mRotation = JPH::Quat::sRotation(JPH::Vec3::sAxisZ(), ezAngle::Degree(-90).GetRadian());
+  capsOffset.mRotation = JPH::Quat::sRotation(JPH::Vec3::sAxisZ(), ezAngle::MakeFromDegree(-90).GetRadian());
   capsOffset.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
   for (ezUInt32 idx = 0; idx < numPieces; ++idx)
@@ -513,7 +513,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
   //    transforms[p].m_vPosition = ownTrans * t0.m_vPosition;
   //    transforms[p].m_vScale.Set(1);
-  //    transforms[p].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ownTrans.m_qRotation * (t1.m_vPosition - t0.m_vPosition).GetNormalized());
+  //    transforms[p].m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ownTrans.m_qRotation * (t1.m_vPosition - t0.m_vPosition).GetNormalized());
 
   //    t0 = t1;
   //  }
@@ -625,7 +625,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
 
       transforms[idx2].m_vScale.Set(1);
       transforms[idx2].m_vPosition = ezSimdConversion::ToVec3(p0);
-      transforms[idx2].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
+      transforms[idx2].m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezSimdConversion::ToVec3(dir));
 
       ++idx2;
       p0 = p1;
@@ -648,7 +648,7 @@ ezResult ezJoltRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform
       transforms[idx2].m_qRotation = pAnchor2->GetGlobalRotation();
 
       ezVec3 dir = transforms[idx2].m_qRotation * ezVec3(1, 0, 0);
-      transforms[idx2].m_qRotation.SetShortestRotation(ezVec3(1, 0, 0), -dir);
+      transforms[idx2].m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), -dir);
 
       // transforms[idx2].m_qRotation.Flip();
       transforms[idx2].m_qRotation.Normalize();
@@ -777,7 +777,7 @@ void ezJoltRopeComponent::Update()
       global.m_vPosition = ezJoltConversionUtils::ToVec3(pBody->GetPosition());
       global.m_qRotation = ezJoltConversionUtils::ToQuat(pBody->GetRotation());
 
-      poses[i].SetLocalTransform(rootTransform, global);
+      poses[i] = ezTransform::MakeLocalTransform(rootTransform, global);
     }
   }
 
@@ -789,7 +789,7 @@ void ezJoltRopeComponent::Update()
     tLocal.SetIdentity();
     tLocal.m_vPosition.x = (poses[uiLastIdx - 1].m_vPosition - poses[uiLastIdx - 2].m_vPosition).GetLength();
 
-    poses.PeekBack().SetGlobalTransform(poses[uiLastIdx - 1], tLocal);
+    poses.PeekBack() = ezTransform::MakeGlobalTransform(poses[uiLastIdx - 1], tLocal);
   }
 
   GetOwner()->SendMessage(poseMsg);
@@ -823,11 +823,11 @@ void ezJoltRopeComponent::SendPreviewPose()
 
     for (auto& n : pieces)
     {
-      n.SetLocalTransform(tOwner, n);
+      n = ezTransform::MakeLocalTransform(tOwner, n);
     }
   }
 
-  GetOwner()->PostMessage(poseMsg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+  GetOwner()->PostMessage(poseMsg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
 }
 
 void ezJoltRopeComponent::SetGravityFactor(float fGravity)

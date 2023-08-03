@@ -36,7 +36,7 @@ public:
     InAir,    ///< Character isn't touching any ground surface (may still touch a wall or ceiling)
   };
 
-  ezAngle m_RotateSpeed = ezAngle::Degree(90.0f); ///< [ property ] How many degrees per second the character turns
+  ezAngle m_RotateSpeed = ezAngle::MakeFromDegree(90.0f); ///< [ property ] How many degrees per second the character turns
   float m_fShapeRadius = 0.25f;
   float m_fCylinderHeightCrouch = 0.9f;
   float m_fCylinderHeightStand = 1.7f;
@@ -91,7 +91,7 @@ public:
     bool m_bAllowJump = true;
     bool m_bAllowCrouch = true;
     bool m_bApplyGroundVelocity = true;
-    ezVec3 m_vVelocity = ezVec3::ZeroVector();
+    ezVec3 m_vVelocity = ezVec3::MakeZero();
     float m_fPushDownForce = 0;
     ezHashedString m_sGroundInteraction;
     float m_fGroundInteractionDistanceThreshold = 1.0f;
@@ -133,11 +133,11 @@ protected:
   ezUInt8 m_uiInputRunBit : 1;
   ezUInt8 m_uiIsCrouchingBit : 1;
   ezAngle m_InputRotateZ;
-  ezVec2 m_vInputDirection = ezVec2::ZeroVector();
+  ezVec2 m_vInputDirection = ezVec2::MakeZero();
   float m_fVelocityUp = 0.0f;
   float m_fNextCylinderHeight = 0;
   float m_fAccumulatedWalkDistance = 0.0f;
-  ezVec2 m_vVelocityLateral = ezVec2::ZeroVector();
+  ezVec2 m_vVelocityLateral = ezVec2::MakeZero();
   ezTransform m_PreviousTransform;
   bool m_bFeetOnSolidGround = false;
 
@@ -147,7 +147,7 @@ protected:
   float m_fHeadTargetHeight = 0.0f;
   ezGameObjectHandle m_hHeadObject;
 
-  ezVec3 m_vAbsoluteRootMotion = ezVec3::ZeroVector();
+  ezVec3 m_vAbsoluteRootMotion = ezVec3::MakeZero();
 
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   ezUInt32 m_uiJoltBodyID = ezInvalidIndex;

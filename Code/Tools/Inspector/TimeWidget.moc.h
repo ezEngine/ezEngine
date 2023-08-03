@@ -59,7 +59,7 @@ private:
 
     bool m_bDisplay = true;
     ezUInt8 m_uiColor = 0xFF;
-    ezTime m_MinTimestep = ezTime::Seconds(60.0);
+    ezTime m_MinTimestep = ezTime::MakeFromSeconds(60.0);
     ezTime m_MaxTimestep;
     QListWidgetItem* m_pListItem = nullptr;
   };

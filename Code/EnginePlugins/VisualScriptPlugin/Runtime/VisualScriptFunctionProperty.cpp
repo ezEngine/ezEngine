@@ -23,7 +23,7 @@ void ezVisualScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVaria
   ezVisualScriptExecutionContext context(m_pDesc);
   context.Initialize(*pVisualScriptInstance, m_LocalDataStorage, arguments);
 
-  auto result = context.Execute(ezTime::Zero());
+  auto result = context.Execute(ezTime::MakeZero());
   EZ_ASSERT_DEBUG(result.m_NextExecAndState != ezVisualScriptExecutionContext::ExecResult::State::ContinueLater, "A non-coroutine function must not return 'ContinueLater'");
 
   // TODO: return value

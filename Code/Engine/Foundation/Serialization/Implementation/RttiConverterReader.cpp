@@ -191,8 +191,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Class))
         {
-          ezUuid temp;
-          temp.CreateNewUuid();
+          const ezUuid temp = ezUuid::MakeUuid();
+
           void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
 
           for (ezUInt32 i = 0; i < array.GetCount(); ++i)
@@ -275,8 +275,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Class))
         {
-          ezUuid temp;
-          temp.CreateNewUuid();
+          const ezUuid temp = ezUuid::MakeUuid();
+
           void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
 
           for (ezUInt32 i = 0; i < array.GetCount(); ++i)
@@ -363,8 +363,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Class))
         {
-          ezUuid temp;
-          temp.CreateNewUuid();
+          const ezUuid temp = ezUuid::MakeUuid();
+
           void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
 
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)

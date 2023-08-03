@@ -36,7 +36,7 @@ struct EZ_RENDERERCORE_DLL ezReflectionProbeDesc
   float m_fSaturation = 1.0f;
   float m_fNearPlane = 0.0f;
   float m_fFarPlane = 100.0f;
-  ezVec3 m_vCaptureOffset = ezVec3::ZeroVector();
+  ezVec3 m_vCaptureOffset = ezVec3::MakeZero();
 };
 
 using ezReflectionProbeId = ezGenericId<24, 8>;

@@ -57,7 +57,7 @@ EZ_END_COMPONENT_TYPE
 
 ezSkyLightComponent::ezSkyLightComponent()
 {
-  m_Desc.m_uniqueID.CreateNewUuid();
+  m_Desc.m_uniqueID = ezUuid::MakeUuid();
 }
 
 ezSkyLightComponent::~ezSkyLightComponent() = default;

@@ -59,7 +59,7 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
   }
 
   ezMat3 rot = ezBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, 1.0f);
-  t.m_qRotation.SetFromMat3(rot);
+  t.m_qRotation = ezQuat::MakeFromMat3(rot);
 
   return t;
 }
@@ -395,7 +395,7 @@ const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditab
       modelTransform = origin.GetAsMat4();
       ezMsgAnimationPoseUpdated::ComputeFullBoneTransform(root.GetAsMat4(), modelTransform, fullTransform, pJoint->m_qGizmoOffsetRotationRO);
 
-      origin.SetGlobalTransform(origin, pJoint->m_LocalTransform);
+      origin = ezTransform::MakeGlobalTransform(origin, pJoint->m_LocalTransform);
       pJoint->m_vGizmoOffsetPositionRO = root.TransformPosition(origin.m_vPosition);
 
       for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
@@ -406,7 +406,7 @@ const ezEditableSkeleton* ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditab
 
     for (ezEditableSkeletonJoint* pChild : newSkeleton.m_Children)
     {
-      TraverseJoints(TraverseJoints, pChild, CalculateTransformationMatrix(pOldSkeleton), ezTransform::IdentityTransform());
+      TraverseJoints(TraverseJoints, pChild, CalculateTransformationMatrix(pOldSkeleton), ezTransform::MakeIdentity());
     }
   }
 

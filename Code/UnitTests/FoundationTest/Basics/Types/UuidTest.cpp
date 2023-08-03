@@ -12,12 +12,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
 
     EZ_TEST_BOOL(ShouldBeInvalid.IsValid() == false);
 
-    ezUuid FirstGenerated;
-    FirstGenerated.CreateNewUuid();
+    ezUuid FirstGenerated = ezUuid::MakeUuid();
     EZ_TEST_BOOL(FirstGenerated.IsValid());
 
-    ezUuid SecondGenerated;
-    SecondGenerated.CreateNewUuid();
+    ezUuid SecondGenerated = ezUuid::MakeUuid();
     EZ_TEST_BOOL(SecondGenerated.IsValid());
 
     EZ_TEST_BOOL(!(FirstGenerated == SecondGenerated));
@@ -29,7 +27,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
     ezUuid Uuid;
     EZ_TEST_BOOL(Uuid.IsValid() == false);
 
-    Uuid.CreateNewUuid();
+    Uuid = ezUuid::MakeUuid();
     EZ_TEST_BOOL(Uuid.IsValid());
 
     ezDefaultMemoryStreamStorage StreamStorage;
@@ -52,9 +50,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Stable Uuid From String")
   {
-    ezUuid uuid1 = ezUuid::StableUuidForString("TEST 1");
-    ezUuid uuid2 = ezUuid::StableUuidForString("TEST 2");
-    ezUuid uuid3 = ezUuid::StableUuidForString("TEST 1");
+    ezUuid uuid1 = ezUuid::MakeStableUuidFromString("TEST 1");
+    ezUuid uuid2 = ezUuid::MakeStableUuidFromString("TEST 2");
+    ezUuid uuid3 = ezUuid::MakeStableUuidFromString("TEST 1");
 
     EZ_TEST_BOOL(uuid1 == uuid3);
     EZ_TEST_BOOL(uuid1 != uuid2);
@@ -62,10 +60,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uuid Combine")
   {
-    ezUuid uuid1;
-    uuid1.CreateNewUuid();
-    ezUuid uuid2;
-    uuid2.CreateNewUuid();
+    ezUuid uuid1 = ezUuid::MakeUuid();
+    ezUuid uuid2 = ezUuid::MakeUuid();
     ezUuid combined = uuid1;
     combined.CombineWithSeed(uuid2);
     EZ_TEST_BOOL(combined != uuid1);

@@ -115,11 +115,11 @@ static int __CPP_Debug_DrawBox(duk_context* pDuk)
   switch (duk.GetFunctionMagicValue())
   {
     case 0:
-      ezDebugRenderer::DrawLineBox(pWorld, ezBoundingBox(vMin, vMax), color, transform);
+      ezDebugRenderer::DrawLineBox(pWorld, ezBoundingBox::MakeFromMinMax(vMin, vMax), color, transform);
       break;
 
     case 1:
-      ezDebugRenderer::DrawSolidBox(pWorld, ezBoundingBox(vMin, vMax), color, transform);
+      ezDebugRenderer::DrawSolidBox(pWorld, ezBoundingBox::MakeFromMinMax(vMin, vMax), color, transform);
       break;
   }
 
@@ -139,7 +139,7 @@ static int __CPP_Debug_DrawSphere(duk_context* pDuk)
   switch (duk.GetFunctionMagicValue())
   {
     case 0:
-      ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere(vCenter, fRadius), color, transform);
+      ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere::MakeFromCenterAndRadius(vCenter, fRadius), color, transform);
       break;
   }
 

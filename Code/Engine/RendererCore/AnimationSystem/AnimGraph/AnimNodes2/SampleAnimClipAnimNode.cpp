@@ -94,7 +94,7 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
 
   if ((!m_InStart.IsConnected() && !pState->m_bPlaying) || m_InStart.IsTriggered(ref_graph))
   {
-    pState->m_PlaybackTime = ezTime::Zero();
+    pState->m_PlaybackTime = ezTime::MakeZero();
     pState->m_bPlaying = true;
 
     m_OutOnStarted.SetTriggered(ref_graph);

@@ -32,7 +32,7 @@ public:
   ezDocumentRootObject(const ezRTTI* pRootType)
     : ezDocumentStorageObject(pRootType)
   {
-    m_Guid = ezUuid::StableUuidForString("DocumentRoot");
+    m_Guid = ezUuid::MakeStableUuidFromString("DocumentRoot");
   }
 
 public:

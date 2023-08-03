@@ -10,7 +10,7 @@ EZ_FORCE_INLINE bool ezFrustum::Overlaps(const ezSimdBBox& object) const
   // We're working with center and extents scaled by two - but the plane equation still works out
   // correctly since we set W = 2 here.
   center2.SetW(ezSimdFloat(2.0f));
-  extents.SetW(ezSimdFloat::Zero());
+  extents.SetW(ezSimdFloat::MakeZero());
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
   ezSimdVec4f minusZero;
@@ -29,13 +29,13 @@ EZ_FORCE_INLINE bool ezFrustum::Overlaps(const ezSimdBBox& object) const
     // Specialized for SSE - this is faster than FlipSign for multiple calls since we can preload the constant -0.0f
     maxExtent.m_v = _mm_xor_ps(extents.m_v, _mm_andnot_ps(equation.m_v, minusZero.m_v));
 #else
-    maxExtent = extents.FlipSign(equation >= ezSimdVec4f::ZeroVector());
+    maxExtent = extents.FlipSign(equation >= ezSimdVec4f::MakeZero());
 #endif
 
     // Compute AABB corner which is the furthest along the plane normal
     const ezSimdVec4f offset = center2 + maxExtent;
 
-    if (equation.Dot<4>(offset) > ezSimdFloat::Zero())
+    if (equation.Dot<4>(offset) > ezSimdFloat::MakeZero())
     {
       // outside
       return false;
@@ -109,5 +109,5 @@ EZ_FORCE_INLINE bool ezFrustum::Overlaps(const ezSimdBSphere& object) const
   minDist += radius;
 
   // If the distance is still less than zero, the sphere is completely "outside" of at least one plane.
-  return (minDist < ezSimdVec4f::ZeroVector()).NoneSet();
+  return (minDist < ezSimdVec4f::MakeZero()).NoneSet();
 }

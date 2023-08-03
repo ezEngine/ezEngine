@@ -301,8 +301,7 @@ void ezRcAgentComponent::ApplySteering(const ezVec3& vDirection, float fSpeed)
 {
   // compute new rotation
   {
-    ezQuat qDesiredNewRotation;
-    qDesiredNewRotation.SetShortestRotation(ezVec3(1, 0, 0), vDirection);
+    ezQuat qDesiredNewRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vDirection);
 
     /// \todo Pass through character controller
     GetOwner()->SetGlobalRotation(qDesiredNewRotation);
@@ -449,7 +448,7 @@ void ezRcAgentComponent::ComputeSteeringDirection(float fMaxDistance)
 
   ezVec3 vDirection = m_vNextSteps[m_iFirstNextStep] - vCurPos;
   vDirection.z = 0;
-  vDirection.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+  vDirection.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
 
   m_vCurrentSteeringDirection = vDirection;
 }
@@ -468,8 +467,7 @@ void ezRcAgentComponent::VisualizePathCorridorPosition()
   const float* pos = m_pCorridor->getPos();
   const ezVec3 vPos(pos[0], pos[2], pos[1]);
 
-  ezBoundingBox box;
-  box.SetCenterAndHalfExtents(ezVec3(0, 0, 1.0f), ezVec3(0.3f, 0.3f, 1.0f));
+  ezBoundingBox box = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3(0, 0, 1.0f), ezVec3(0.3f, 0.3f, 1.0f));
 
   ezTransform t;
   t.SetIdentity();

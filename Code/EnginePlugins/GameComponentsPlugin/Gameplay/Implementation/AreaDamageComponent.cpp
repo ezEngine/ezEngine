@@ -81,7 +81,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         else
         {
           // otherwise, if we are so close, that the distance is zero, pick a random direction away from it
-          vDirToTarget.CreateRandomDirection(GetWorld()->GetRandomNumberGenerator());
+          vDirToTarget = ezVec3::MakeRandomDirection(GetWorld()->GetRandomNumberGenerator());
         }
 
         // linearly scale damage and impulse down by distance
@@ -120,7 +120,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
           }
 
           // delay the damage a little bit for nicer chain reactions
-          pObject->PostEventMessage(msg, this, ezTime::Milliseconds(200));
+          pObject->PostEventMessage(msg, this, ezTime::MakeFromMilliseconds(200));
         }
       }
     }

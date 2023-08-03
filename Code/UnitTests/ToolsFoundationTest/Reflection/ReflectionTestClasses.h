@@ -49,8 +49,8 @@ public:
   {
     m_fFloat = 1.0f;
     m_fDouble = 1.0;
-    m_Time = ezTime::Seconds(1.0);
-    m_Angle = ezAngle::Degree(45.0f);
+    m_Time = ezTime::MakeFromSeconds(1.0);
+    m_Angle = ezAngle::MakeFromDegree(45.0f);
   }
 
   void SetFloat(float f) { m_fFloat = f; }
@@ -85,7 +85,7 @@ public:
     m_Buffer.PushBack(0xFF);
     m_Buffer.PushBack(0x0);
     m_Buffer.PushBack(0xCD);
-    m_VarianceAngle = {0.1f, ezAngle::Degree(90.0f)};
+    m_VarianceAngle = {0.1f, ezAngle::MakeFromDegree(90.0f)};
   }
 
   ezIntegerStruct m_IntegerStruct;

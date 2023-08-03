@@ -88,7 +88,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     pTestThread32->Start();
 
     // give the threads a bit of time to start
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
 
     // allow the threads to run now
     waitMutex.Unlock();
@@ -117,7 +117,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
   {
     const ezTime start = ezTime::Now();
 
-    ezTime sleepTime(ezTime::Seconds(0.3));
+    ezTime sleepTime(ezTime::MakeFromSeconds(0.3));
 
     ezThreadUtils::Sleep(sleepTime);
 

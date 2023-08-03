@@ -184,7 +184,7 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
       pShape = pScaledShape;
     }
 
-    if (!shapes[0].m_Transform.m_vPosition.IsZero(0.01f) || shapes[0].m_Transform.m_qRotation != ezQuat::IdentityQuaternion())
+    if (!shapes[0].m_Transform.m_vPosition.IsZero(0.01f) || shapes[0].m_Transform.m_qRotation != ezQuat::MakeIdentity())
     {
       JPH::RotatedTranslatedShapeSettings opt(ezJoltConversionUtils::ToVec3(shapes[0].m_Transform.m_vPosition), ezJoltConversionUtils::ToQuat(shapes[0].m_Transform.m_qRotation), pShape);
 

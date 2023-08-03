@@ -49,7 +49,7 @@ public:
 
   ezUInt64 GetCategorySortingKey(Category category, const ezCamera& camera) const;
 
-  ezTransform m_GlobalTransform = ezTransform::IdentityTransform();
+  ezTransform m_GlobalTransform = ezTransform::MakeIdentity();
   ezBoundingBoxSphere m_GlobalBounds;
 
   ezUInt32 m_uiBatchId = 0; ///< BatchId is used to group render data in batches.

@@ -130,7 +130,7 @@ static ezResult PatchAssetGuid(ezStringView sAbsFilePath, ezUuid oldGuid, ezUuid
     if (uiTries >= 5)
       return EZ_FAILURE;
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50 * (uiTries + 1)));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50 * (uiTries + 1)));
     uiTries++;
   }
 
@@ -174,7 +174,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(ezStringView sAbsFilePath, const
 
         ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", pNewAssetInfo->m_sAbsolutePath, pCurrentAssetInfo->m_sAbsolutePath);
 
-        const ezUuid mod = ezUuid::StableUuidForString(sAbsFilePath);
+        const ezUuid mod = ezUuid::MakeStableUuidFromString(sAbsFilePath);
         ezUuid replacementGuid = pNewAssetInfo->m_Info->m_DocumentID;
         replacementGuid.CombineWithSeed(mod);
 

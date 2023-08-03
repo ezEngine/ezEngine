@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 struct DocumentNodeManager_NodeMetaData
 {
-  ezVec2 m_Pos = ezVec2::ZeroVector();
+  ezVec2 m_Pos = ezVec2::MakeZero();
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, DocumentNodeManager_NodeMetaData);
 
@@ -860,9 +860,7 @@ void ezDocumentNodeManager::RestoreOldMetaDataAfterLoading(const ezAbstractObjec
     ezDocumentNodeManager::CanConnectResult res;
     if (CanConnect(pConnectionType, *pSourcePin, *pTargetPin, res).m_Result.Succeeded())
     {
-      ezUuid ObjectGuid;
-      ObjectGuid.CreateNewUuid();
-      ezDocumentObject* pConnectionObject = CreateObject(pConnectionType, ObjectGuid);
+      ezDocumentObject* pConnectionObject = CreateObject(pConnectionType, ezUuid::MakeUuid());
 
       AddObject(pConnectionObject, nullptr, "", -1);
 

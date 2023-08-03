@@ -56,9 +56,9 @@ void ezOccluderComponent::SetExtents(const ezVec3& vExtents)
 void ezOccluderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   if (GetOwner()->IsStatic())
-    msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionStatic);
+    msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), ezDefaultSpatialDataCategories::OcclusionStatic);
   else
-    msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), ezDefaultSpatialDataCategories::OcclusionDynamic);
+    msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), ezDefaultSpatialDataCategories::OcclusionDynamic);
 }
 
 void ezOccluderComponent::OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const

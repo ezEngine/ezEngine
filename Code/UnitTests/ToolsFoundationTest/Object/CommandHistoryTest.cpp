@@ -80,14 +80,14 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     TestSetValue(pMath, "Vec3I", ezVec3I32(1, 2, 3));
     TestSetValue(pMath, "Vec4I", ezVec4I32(1, 2, 3, 4));
     ezQuat qValue;
-    qValue.SetFromEulerAngles(ezAngle::Degree(30), ezAngle::Degree(30), ezAngle::Degree(30));
+    qValue = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(30), ezAngle::MakeFromDegree(30));
     TestSetValue(pMath, "Quat", qValue);
     ezMat3 mValue;
-    mValue.SetRotationMatrixX(ezAngle::Degree(30));
+    mValue = ezMat3::MakeRotationX(ezAngle::MakeFromDegree(30));
     TestSetValue(pMath, "Mat3", mValue);
     ezMat4 mValue2;
     mValue2.SetIdentity();
-    mValue2.SetRotationMatrixX(ezAngle::Degree(30));
+    mValue2 = ezMat4::MakeRotationX(ezAngle::MakeFromDegree(30));
     TestSetValue(pMath, "Mat4", mValue2);
 
     // Integer
@@ -124,8 +124,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     const ezDocumentObject* pFloat = CreateObject(ezGetStaticRTTI<ezFloatStruct>());
     TestSetValue(pFloat, "Float", -5.0f);
     TestSetValue(pFloat, "Double", -5.0);
-    TestSetValue(pFloat, "Time", ezTime::Minutes(3.0f));
-    TestSetValue(pFloat, "Angle", ezAngle::Degree(45.0f));
+    TestSetValue(pFloat, "Time", ezTime::MakeFromMinutes(3.0f));
+    TestSetValue(pFloat, "Angle", ezAngle::MakeFromDegree(45.0f));
 
     TestSetValue(pFloat, "Float", 5.0);
     TestSetValue(pFloat, "Float", ezInt8(-5));
@@ -139,7 +139,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     TestSetValue(pPOD, "ColorUB", ezColorGammaUB(200, 100, 255));
     TestSetValue(pPOD, "String", "Test");
     ezVarianceTypeAngle customFloat;
-    customFloat.m_Value = ezAngle::Degree(45.0f);
+    customFloat.m_Value = ezAngle::MakeFromDegree(45.0f);
     customFloat.m_fVariance = 1.0f;
     TestSetValue(pPOD, "VarianceAngle", customFloat);
 
@@ -431,8 +431,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
   }
 
   auto CreateGuid = [](const char* szType, ezInt32 iIndex) -> ezUuid {
-    ezUuid A = ezUuid::StableUuidForString(szType);
-    ezUuid B = ezUuid::StableUuidForInt(iIndex);
+    ezUuid A = ezUuid::MakeStableUuidFromString(szType);
+    ezUuid B = ezUuid::MakeStableUuidFromInt(iIndex);
     A.CombineWithSeed(B);
     return A;
   };

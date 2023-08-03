@@ -297,7 +297,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       clipboard->setMimeData(mimeData);
 
       ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
-        ezFmt("Copied Property Name: {}", m_pProp->GetPropertyName()), ezTime::Seconds(5));
+        ezFmt("Copied Property Name: {}", m_pProp->GetPropertyName()), ezTime::MakeFromSeconds(5));
     };
 
     QAction* pAction = m.addAction("Copy Internal Property Name:");

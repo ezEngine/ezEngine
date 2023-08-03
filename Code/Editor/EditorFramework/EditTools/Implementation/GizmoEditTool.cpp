@@ -76,7 +76,7 @@ void ezGameObjectGizmoEditTool::UpdateGizmoTransformation()
 
     /// \todo Pivot point
     const ezVec3 vPivotPoint =
-      tGlobal.m_qRotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+      tGlobal.m_qRotation * ezVec3::MakeZero(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
 
     ezTransform mt;
     mt.SetIdentity();

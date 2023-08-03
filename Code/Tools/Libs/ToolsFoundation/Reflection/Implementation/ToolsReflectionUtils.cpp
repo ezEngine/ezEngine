@@ -81,14 +81,14 @@ namespace
   template <>
   void GetVariantFunc::operator()<ezAngle>()
   {
-    m_Value = ezAngle::Degree((float)m_fValue);
+    m_Value = ezAngle::MakeFromDegree((float)m_fValue);
     m_bValid = true;
   }
 
   template <>
   void GetVariantFunc::operator()<ezTime>()
   {
-    m_Value = ezTime::Seconds(m_fValue);
+    m_Value = ezTime::MakeFromSeconds(m_fValue);
     m_bValid = true;
   }
 } // namespace

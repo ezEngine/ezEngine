@@ -254,7 +254,7 @@ struct ezSpatialSystem_RegularGrid::Grid
     , m_bCanBeCached(CanBeCached(category))
   {
     ezSimdBBox overflowBox;
-    overflowBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(ref_system.m_vCellSize.x() * MAX_CELL_INDEX)));
+    overflowBox.SetCenterAndHalfExtents(ezSimdVec4f::MakeZero(), ezSimdVec4f((float)(ref_system.m_vCellSize.x() * MAX_CELL_INDEX)));
 
     auto pOverflowCell = EZ_NEW(&m_System.m_AlignedAllocator, Cell, &m_System.m_AlignedAllocator, &m_System.m_Allocator);
     pOverflowCell->m_Bounds = overflowBox;
@@ -737,7 +737,7 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::CreateSpatialDataAlwaysVisible(
     return ezSpatialDataHandle();
 
   ezSimdBBox hugeBox;
-  hugeBox.SetCenterAndHalfExtents(ezSimdVec4f::ZeroVector(), ezSimdVec4f((float)(m_vCellSize.x() * MAX_CELL_INDEX)));
+  hugeBox.SetCenterAndHalfExtents(ezSimdVec4f::MakeZero(), ezSimdVec4f((float)(m_vCellSize.x() * MAX_CELL_INDEX)));
 
   return AddSpatialDataToGrids(hugeBox, pObject, uiCategoryBitmask, tags, true);
 }

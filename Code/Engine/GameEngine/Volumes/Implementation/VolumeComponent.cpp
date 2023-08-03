@@ -324,7 +324,7 @@ void ezVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), m_SpatialCategory);
+  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), m_SpatialCategory);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -396,5 +396,5 @@ void ezVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f), m_SpatialCategory);
+  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), m_SpatialCategory);
 }

@@ -6,7 +6,7 @@
 class ezSimpleTimeStepSmoother : public ezTimeStepSmoothing
 {
 public:
-  virtual ezTime GetSmoothedTimeStep(ezTime rawTimeStep, const ezClock* pClock) override { return ezTime::Seconds(0.42); }
+  virtual ezTime GetSmoothedTimeStep(ezTime rawTimeStep, const ezClock* pClock) override { return ezTime::MakeFromSeconds(0.42); }
 
   virtual void Reset(const ezClock* pClock) override {}
 };
@@ -25,7 +25,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_BOOL(c.GetPaused() == false);
     EZ_TEST_DOUBLE(c.GetMinimumTimeStep().GetSeconds(), 0.001, 0.0); // to ensure the tests fail if somebody changes these constants
     EZ_TEST_DOUBLE(c.GetMaximumTimeStep().GetSeconds(), 0.1, 0.0);   // to ensure the tests fail if somebody changes these constants
-    EZ_TEST_BOOL(c.GetTimeDiff() > ezTime::Seconds(0.0));
+    EZ_TEST_BOOL(c.GetTimeDiff() > ezTime::MakeFromSeconds(0.0));
 
     ezSimpleTimeStepSmoother s;
 
@@ -68,7 +68,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     const ezTime t0 = c.GetAccumulatedTime();
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
     c.Update();
 
     const ezTime t1 = c.GetAccumulatedTime();
@@ -76,7 +76,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     c.SetPaused(true);
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
     c.Update();
 
     const ezTime t2 = c.GetAccumulatedTime();
@@ -89,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     EZ_TEST_DOUBLE(c.GetFixedTimeStep().GetSeconds(), 0.0, 0.0);
 
-    c.SetFixedTimeStep(ezTime::Seconds(1.0 / 60.0));
+    c.SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 60.0));
 
     EZ_TEST_DOUBLE(c.GetFixedTimeStep().GetSeconds(), 1.0 / 60.0, 0.000001);
   }
@@ -97,15 +97,15 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Updates with fixed time step")
   {
     ezClock c("Test");
-    c.SetFixedTimeStep(ezTime::Seconds(1.0 / 60.0));
+    c.SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 60.0));
     c.Update();
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
 
     c.Update();
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), 1.0 / 60.0, 0.000001);
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
 
     c.Update();
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), 1.0 / 60.0, 0.000001);
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
   {
     ezClock c("Test");
 
-    c.SetAccumulatedTime(ezTime::Seconds(23.42));
+    c.SetAccumulatedTime(ezTime::MakeFromSeconds(23.42));
 
     EZ_TEST_DOUBLE(c.GetAccumulatedTime().GetSeconds(), 23.42, 0.000001);
 
@@ -128,7 +128,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     const ezTime t0 = c.GetAccumulatedTime();
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(5));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(5));
     c.Update();
 
     const ezTime t1 = c.GetAccumulatedTime();
@@ -142,7 +142,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     ezClock c("Test");
     EZ_TEST_DOUBLE(c.GetSpeed(), 1.0, 0.0);
 
-    c.SetFixedTimeStep(ezTime::Seconds(0.01));
+    c.SetFixedTimeStep(ezTime::MakeFromSeconds(0.01));
 
     c.SetSpeed(10.0);
     EZ_TEST_DOUBLE(c.GetSpeed(), 10.0, 0.000001);
@@ -174,8 +174,8 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), c.GetMinimumTimeStep().GetSeconds(), 0.0000000001);
 
-    c.SetMinimumTimeStep(ezTime::Seconds(0.1));
-    c.SetMaximumTimeStep(ezTime::Seconds(1.0));
+    c.SetMinimumTimeStep(ezTime::MakeFromSeconds(0.1));
+    c.SetMaximumTimeStep(ezTime::MakeFromSeconds(1.0));
 
     EZ_TEST_DOUBLE(c.GetMinimumTimeStep().GetSeconds(), 0.1, 0.0);
 
@@ -190,16 +190,16 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     ezClock c("Test");
     EZ_TEST_DOUBLE(c.GetMaximumTimeStep().GetSeconds(), 0.1, 0.0); // to ensure the tests fail if somebody changes these constants
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(200));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(200));
     c.Update();
 
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), c.GetMaximumTimeStep().GetSeconds(), 0.0000000001);
 
-    c.SetMaximumTimeStep(ezTime::Seconds(0.2));
+    c.SetMaximumTimeStep(ezTime::MakeFromSeconds(0.2));
 
     EZ_TEST_DOUBLE(c.GetMaximumTimeStep().GetSeconds(), 0.2, 0.0);
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(400));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(400));
     c.Update();
 
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), c.GetMaximumTimeStep().GetSeconds(), 0.0000000001);
@@ -216,7 +216,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     EZ_TEST_BOOL(c.GetTimeStepSmoothing() == &s);
 
-    c.SetMaximumTimeStep(ezTime::Seconds(10.0)); // this would limit the time step even after smoothing
+    c.SetMaximumTimeStep(ezTime::MakeFromSeconds(10.0)); // this would limit the time step even after smoothing
     c.Update();
 
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), 0.42, 0.0);

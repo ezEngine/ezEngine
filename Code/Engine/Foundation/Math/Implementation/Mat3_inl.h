@@ -6,7 +6,8 @@ ezMat3Template<Type>::ezMat3Template()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
-  SetElements(TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN);
+  for (ezUInt32 i = 0; i < 9; ++i)
+    m_fElementsCM[i] = TypeNaN;
 #endif
 }
 
@@ -167,9 +168,7 @@ ezMat3Template<Type> ezMat3Template<Type>::MakeRotationX(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  ezMat3Template<Type> res;
-  res.SetElements(1.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, fSin, fCos);
-  return res;
+  return ezMat3Template<Type>::MakeFromValues(1.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, fSin, fCos);
 }
 
 template <typename Type>
@@ -178,9 +177,7 @@ ezMat3Template<Type> ezMat3Template<Type>::MakeRotationY(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  ezMat3Template<Type> res;
-  res.SetElements(fCos, 0.0f, fSin, 0.0f, 1.0f, 0.0f, -fSin, 0.0f, fCos);
-  return res;
+  return ezMat3Template<Type>::MakeFromValues(fCos, 0.0f, fSin, 0.0f, 1.0f, 0.0f, -fSin, 0.0f, fCos);
 }
 
 template <typename Type>
@@ -189,9 +186,7 @@ ezMat3Template<Type> ezMat3Template<Type>::MakeRotationZ(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  ezMat3Template<Type> res;
-  res.SetElements(fCos, -fSin, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 1.0f);
-  return res;
+  return ezMat3Template<Type>::MakeFromValues(fCos, -fSin, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 template <typename Type>
@@ -241,7 +236,7 @@ void ezMat3Template<Type>::Transpose()
 template <typename Type>
 const ezMat3Template<Type> ezMat3Template<Type>::GetTranspose() const
 {
-  return ezMat3Template(m_fElementsCM, ezMatrixLayout::RowMajor);
+  return ezMat3Template::MakeFromRowMajorArray(m_fElementsCM);
 }
 
 template <typename Type>

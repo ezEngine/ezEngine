@@ -123,7 +123,7 @@ ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pC
   if (const auto pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
   {
     ezVec3 listenerPos = ezFmod::GetSingleton()->GetListenerPosition();
-    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, ezTime::Seconds(1000.0));
+    ShootOcclusionRays(occlusionState, listenerPos, 8, pPhysicsWorldModule, ezTime::MakeFromSeconds(1000.0));
   }
 
   return m_OcclusionStates.GetCount() - 1;
@@ -725,8 +725,8 @@ void ezFmodEventComponent::Update()
         pDesc->getMaximumDistance(&maxDistance);
 #  endif
 
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), minDistance), ezColor::Blue);
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
+        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(GetOwner()->GetGlobalPosition(), minDistance), ezColor::Blue);
+        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(GetOwner()->GetGlobalPosition(), maxDistance), ezColor::Cyan);
       }
 
       char path[128];
@@ -767,8 +767,8 @@ void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstan
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetLinearVelocity();
-  const auto fwd = GetOwner()->GetGlobalRotation() * ezVec3::UnitXAxis();
-  const auto up = GetOwner()->GetGlobalRotation() * ezVec3::UnitZAxis();
+  const auto fwd = GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisX();
+  const auto up = GetOwner()->GetGlobalRotation() * ezVec3::MakeAxisZ();
 
   FMOD_3D_ATTRIBUTES attr;
   attr.position.x = pos.x;

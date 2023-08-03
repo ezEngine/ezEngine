@@ -16,8 +16,7 @@ void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const
   if (vPos.IsNaN())
     vPos.SetZero();
 
-  ezUuid ObjectGuid;
-  ObjectGuid.CreateNewUuid();
+  ezUuid ObjectGuid = ezUuid::MakeUuid();
 
   ezAddObjectCommand cmd;
   cmd.m_Parent = parent;
@@ -46,8 +45,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
 {
   auto history = m_pDocument->GetCommandHistory();
 
-  ezUuid CmpGuid;
-  CmpGuid.CreateNewUuid();
+  ezUuid CmpGuid = ezUuid::MakeUuid();
 
   ezAddObjectCommand cmd;
 
@@ -115,7 +113,7 @@ void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, 
 
   if (normal.IsValid() && !m_vAlignAxisWithNormal.IsZero(0.01f))
   {
-    rot.SetShortestRotation(m_vAlignAxisWithNormal, normal);
+    rot = ezQuat::MakeShortestRotation(m_vAlignAxisWithNormal, normal);
   }
 
   for (const auto& guid : m_DraggedObjects)

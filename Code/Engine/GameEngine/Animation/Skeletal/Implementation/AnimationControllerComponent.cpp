@@ -100,7 +100,7 @@ void ezAnimationControllerComponent::OnSimulationStarted()
 
 void ezAnimationControllerComponent::Update()
 {
-  ezTime tMinStep = ezTime::Seconds(0);
+  ezTime tMinStep = ezTime::MakeFromSeconds(0);
   ezVisibilityState visType = GetOwner()->GetVisibilityState();
 
   if (visType != ezVisibilityState::Direct)
@@ -117,7 +117,7 @@ void ezAnimationControllerComponent::Update()
     return;
 
   m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner());
-  m_ElapsedTimeSinceUpdate.SetZero();
+  m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
   ezVec3 translation;
   ezAngle rotationX;

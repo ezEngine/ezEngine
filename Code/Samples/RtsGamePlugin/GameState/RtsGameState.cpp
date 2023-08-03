@@ -113,7 +113,7 @@ void RtsGameState::BeforeWorldUpdate()
     const ezVec3 dir = m_MainCamera.GetCenterDirForwards();
     const ezVec3 up = m_MainCamera.GetCenterDirUp();
 
-    pSoundInterface->SetListener(0, pos, dir, up, ezVec3::ZeroVector());
+    pSoundInterface->SetListener(0, pos, dir, up, ezVec3::MakeZero());
   }
 }
 
@@ -241,7 +241,7 @@ void RtsGameState::RenderUnitSelection() const
     t.m_vScale.Set(1.0f);
     t.m_qRotation.SetIdentity();
 
-    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
+    bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(fRadius, fRadius, 0));
     ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::White, t);
 
     RenderUnitHealthbar(pObject, fRadius);
@@ -261,7 +261,7 @@ void RtsGameState::RenderUnitSelection() const
         t.m_vScale.Set(1.0f);
         t.m_qRotation.SetIdentity();
 
-        bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
+        bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(fRadius, fRadius, 0));
         ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
 
         RenderUnitHealthbar(pObject, fRadius);
@@ -292,8 +292,7 @@ void RtsGameState::RenderUnitHealthbar(ezGameObject* pObject, float fSelectableR
     else if (percentage < 0.8f)
       c = ezColor::Yellow;
 
-    ezBoundingBox bbox;
-    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
+    ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
     ezDebugRenderer::DrawSolidBox(m_pMainWorld, bbox, c, ezTransform(pos));
   }
 }
@@ -317,7 +316,7 @@ ezResult RtsGameState::ComputePickingRay()
 ezResult RtsGameState::PickGroundPlanePosition(ezVec3& out_vPositon) const
 {
   ezPlane p;
-  p.SetFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0));
+  p = ezPlane::MakeFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0));
 
   return p.GetRayIntersection(m_vCurrentPickingRayStart, m_vCurrentPickingRayDir, nullptr, &out_vPositon) ? EZ_SUCCESS : EZ_FAILURE;
 }
@@ -360,7 +359,7 @@ ezGameObject* RtsGameState::PickSelectableObject() const
 // BEGIN-DOCS-CODE-SNIPPET: spatial-query
 void RtsGameState::InspectObjectsInArea(const ezVec2& vPosition, float fRadius, ezSpatialSystem::QueryCallback callback) const
 {
-  ezBoundingSphere sphere(vPosition.GetAsVec3(0), fRadius);
+  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(vPosition.GetAsVec3(0), fRadius);
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = RtsSelectableComponent::s_SelectableCategory.GetBitmask();
   m_pMainWorld->GetSpatialSystem()->FindObjectsInSphere(sphere, queryParams, callback);

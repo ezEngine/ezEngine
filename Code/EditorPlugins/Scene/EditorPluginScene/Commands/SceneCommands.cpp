@@ -143,8 +143,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
   ezSceneDocument* pDocument = static_cast<ezSceneDocument*>(GetDocument());
 
   // Remap
-  ezUuid seed;
-  seed.CreateNewUuid();
+  const ezUuid seed = ezUuid::MakeUuid();
   graph.ReMapNodeGuids(seed);
 
   ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
@@ -265,14 +264,12 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
 
     revolve += fStep * m_RevolveAngleStep;
 
-    ezMat3 mRevolve;
-    mRevolve.SetRotationMatrix(vRevolveAxis, revolve);
+    ezMat3 mRevolve = ezMat3::MakeAxisRotation(vRevolveAxis, revolve);
 
     vPosOffset = mRevolve * vPosOffset;
   }
 
-  ezQuat qRot;
-  qRot.SetFromEulerAngles(ezAngle::Degree(fStep * m_vAccumulativeRotation.x + vRandR.x), ezAngle::Degree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::Degree(fStep * m_vAccumulativeRotation.z + vRandR.z));
+  ezQuat qRot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.x + vRandR.x), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.z + vRandR.z));
 
   for (const auto& pi : Duplicates)
   {

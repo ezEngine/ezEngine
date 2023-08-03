@@ -667,22 +667,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMat3")
   {
-    ezVariant v(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    ezVariant v(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
     TestVariant<ezMat3>(v, ezVariantType::Matrix3);
 
-    EZ_TEST_BOOL(v.Get<ezMat3>() == ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    EZ_TEST_BOOL(v.Get<ezMat3>() == ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
 
-    EZ_TEST_BOOL(v == ezVariant(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9)));
-    EZ_TEST_BOOL(v != ezVariant(ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 8)));
+    EZ_TEST_BOOL(v == ezVariant(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9)));
+    EZ_TEST_BOOL(v != ezVariant(ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 8)));
 
-    EZ_TEST_BOOL(v == ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
-    EZ_TEST_BOOL(v != ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 8));
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9));
+    EZ_TEST_BOOL(v != ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 8));
 
-    v = ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 5);
-    EZ_TEST_BOOL(v == ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 5));
+    v = ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5);
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5));
 
-    v = ezVariant(ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
-    EZ_TEST_BOOL(v == ezMat3(5, 8, 9, 3, 1, 2, 3, 4, 4));
+    v = ezVariant(ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 4));
+    EZ_TEST_BOOL(v == ezMat3::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 4));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -691,22 +691,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMat4")
   {
-    ezVariant v(ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    ezVariant v(ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
     TestVariant<ezMat4>(v, ezVariantType::Matrix4);
 
-    EZ_TEST_BOOL(v.Get<ezMat4>() == ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    EZ_TEST_BOOL(v.Get<ezMat4>() == ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
 
-    EZ_TEST_BOOL(v == ezVariant(ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)));
-    EZ_TEST_BOOL(v != ezVariant(ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15)));
+    EZ_TEST_BOOL(v == ezVariant(ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)));
+    EZ_TEST_BOOL(v != ezVariant(ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15)));
 
-    EZ_TEST_BOOL(v == ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
-    EZ_TEST_BOOL(v != ezMat4(1, 2, 3, 4, 5, 6, 2, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    EZ_TEST_BOOL(v == ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+    EZ_TEST_BOOL(v != ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 2, 8, 9, 10, 11, 12, 13, 14, 15, 16));
 
-    v = ezMat4(5, 8, 9, 3, 1, 2, 3, 4, 5, 3, 7, 3, 6, 8, 6, 8);
-    EZ_TEST_BOOL(v == ezMat4(5, 8, 9, 3, 1, 2, 3, 4, 5, 3, 7, 3, 6, 8, 6, 8));
+    v = ezMat4::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5, 3, 7, 3, 6, 8, 6, 8);
+    EZ_TEST_BOOL(v == ezMat4::MakeFromValues(5, 8, 9, 3, 1, 2, 3, 4, 5, 3, 7, 3, 6, 8, 6, 8));
 
-    v = ezVariant(ezMat4(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
-    EZ_TEST_BOOL(v == ezMat4(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
+    v = ezVariant(ezMat4::MakeFromValues(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
+    EZ_TEST_BOOL(v == ezMat4::MakeFromValues(5, 8, 9, 3, 1, 2, 1, 4, 5, 3, 7, 3, 6, 8, 6, 8));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -839,22 +839,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
   {
-    ezVariant v(ezTime::Seconds(1337));
+    ezVariant v(ezTime::MakeFromSeconds(1337));
     TestVariant<ezTime>(v, ezVariantType::Time);
 
-    EZ_TEST_BOOL(v.Get<ezTime>() == ezTime::Seconds(1337));
+    EZ_TEST_BOOL(v.Get<ezTime>() == ezTime::MakeFromSeconds(1337));
 
-    EZ_TEST_BOOL(v == ezVariant(ezTime::Seconds(1337)));
-    EZ_TEST_BOOL(v != ezVariant(ezTime::Seconds(1336)));
+    EZ_TEST_BOOL(v == ezVariant(ezTime::MakeFromSeconds(1337)));
+    EZ_TEST_BOOL(v != ezVariant(ezTime::MakeFromSeconds(1336)));
 
-    EZ_TEST_BOOL(v == ezTime::Seconds(1337));
-    EZ_TEST_BOOL(v != ezTime::Seconds(1338));
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(1337));
+    EZ_TEST_BOOL(v != ezTime::MakeFromSeconds(1338));
 
-    v = ezTime::Seconds(8472);
-    EZ_TEST_BOOL(v == ezTime::Seconds(8472));
+    v = ezTime::MakeFromSeconds(8472);
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(8472));
 
-    v = ezVariant(ezTime::Seconds(13));
-    EZ_TEST_BOOL(v == ezTime::Seconds(13));
+    v = ezVariant(ezTime::MakeFromSeconds(13));
+    EZ_TEST_BOOL(v == ezTime::MakeFromSeconds(13));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -869,13 +869,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(v.Get<ezUuid>() == ezUuid());
 
-    ezUuid uuid;
-    uuid.CreateNewUuid();
+    const ezUuid uuid = ezUuid::MakeUuid();
     EZ_TEST_BOOL(v != ezVariant(uuid));
     EZ_TEST_BOOL(ezVariant(uuid).Get<ezUuid>() == uuid);
 
-    ezUuid uuid2;
-    uuid2.CreateNewUuid();
+    const ezUuid uuid2 = ezUuid::MakeUuid();
     EZ_TEST_BOOL(ezVariant(uuid) != ezVariant(uuid2));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
@@ -885,22 +883,22 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezAngle")
   {
-    ezVariant v(ezAngle::Degree(1337));
+    ezVariant v(ezAngle::MakeFromDegree(1337));
     TestVariant<ezAngle>(v, ezVariantType::Angle);
 
-    EZ_TEST_BOOL(v.Get<ezAngle>() == ezAngle::Degree(1337));
+    EZ_TEST_BOOL(v.Get<ezAngle>() == ezAngle::MakeFromDegree(1337));
 
-    EZ_TEST_BOOL(v == ezVariant(ezAngle::Degree(1337)));
-    EZ_TEST_BOOL(v != ezVariant(ezAngle::Degree(1336)));
+    EZ_TEST_BOOL(v == ezVariant(ezAngle::MakeFromDegree(1337)));
+    EZ_TEST_BOOL(v != ezVariant(ezAngle::MakeFromDegree(1336)));
 
-    EZ_TEST_BOOL(v == ezAngle::Degree(1337));
-    EZ_TEST_BOOL(v != ezAngle::Degree(1338));
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(1337));
+    EZ_TEST_BOOL(v != ezAngle::MakeFromDegree(1338));
 
-    v = ezAngle::Degree(8472);
-    EZ_TEST_BOOL(v == ezAngle::Degree(8472));
+    v = ezAngle::MakeFromDegree(8472);
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(8472));
 
-    v = ezVariant(ezAngle::Degree(13));
-    EZ_TEST_BOOL(v == ezAngle::Degree(13));
+    v = ezVariant(ezAngle::MakeFromDegree(13));
+    EZ_TEST_BOOL(v == ezAngle::MakeFromDegree(13));
 
     EZ_TEST_BOOL(v.IsNumber() == false);
     EZ_TEST_BOOL(!v.IsString());
@@ -1106,9 +1104,9 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTypedObject inline")
   {
-    // ezAngle::Degree(90.0f) was replaced with radian as release builds generate a different float then debug.
-    ezVarianceTypeAngle value = {0.1f, ezAngle::Radian(1.57079637f)};
-    ezVarianceTypeAngle value2 = {0.2f, ezAngle::Radian(1.57079637f)};
+    // ezAngle::MakeFromDegree(90.0f) was replaced with radian as release builds generate a different float then debug.
+    ezVarianceTypeAngle value = {0.1f, ezAngle::MakeFromRadian(1.57079637f)};
+    ezVarianceTypeAngle value2 = {0.2f, ezAngle::MakeFromRadian(1.57079637f)};
 
     ezVariant v(value);
     TestVariant<ezVarianceTypeAngle>(v, ezVariantType::TypedObject);
@@ -1131,7 +1129,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezUInt64 uiHash = v.ComputeHash(0);
     EZ_TEST_INT(uiHash, 13667342936068485827ul);
 
-    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::Radian(1.57079637f)});
+    ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::MakeFromRadian(1.57079637f)});
     ezVariant copy;
     copy.CopyTypedObject(pTypedAngle, ezGetStaticRTTI<ezVarianceTypeAngle>());
     ezVariant move;
@@ -1493,7 +1491,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezMat3)")
   {
-    ezMat3 m(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ezMat3 m = ezMat3::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
     ezVariant v(m);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Matrix3);
@@ -1511,7 +1509,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezMat4)")
   {
-    ezMat4 m(1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6);
+    ezMat4 m = ezMat4::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6);
     ezVariant v(m);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Matrix4);
@@ -1818,7 +1816,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezTime)")
   {
-    ezTime t = ezTime::Seconds(123.0);
+    ezTime t = ezTime::MakeFromSeconds(123.0);
     ezVariant v(t);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Time);
@@ -1832,8 +1830,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUuid)")
   {
-    ezUuid uuid;
-    uuid.CreateNewUuid();
+    const ezUuid uuid = ezUuid::MakeUuid();
     ezVariant v(uuid);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Uuid);
@@ -1847,7 +1844,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezAngle)")
   {
-    ezAngle t = ezAngle::Degree(123.0);
+    ezAngle t = ezAngle::MakeFromDegree(123.0);
     ezVariant v(t);
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Angle);

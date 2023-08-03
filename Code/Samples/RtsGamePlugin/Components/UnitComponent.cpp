@@ -171,7 +171,7 @@ void RtsUnitComponent::UpdateUnit()
     }
   }
 
-  m_pAiSystem->Reevaluate(GetOwner(), this, tNow, m_bModeChanged ? ezTime() : ezTime::Seconds(0.5));
+  m_pAiSystem->Reevaluate(GetOwner(), this, tNow, m_bModeChanged ? ezTime() : ezTime::MakeFromSeconds(0.5));
   m_pAiSystem->Execute(GetOwner(), this, tNow);
 
   m_bModeChanged = false;
@@ -305,7 +305,7 @@ void RtsUnitComponent::FireAt(ezGameObjectHandle hUnit)
 {
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
-  if (tNow - m_TimeLastShot >= ezTime::Seconds(0.75))
+  if (tNow - m_TimeLastShot >= ezTime::MakeFromSeconds(0.75))
   {
     m_TimeLastShot = tNow;
 
@@ -314,7 +314,7 @@ void RtsUnitComponent::FireAt(ezGameObjectHandle hUnit)
 
     ezGameObject* pSpawned = RtsGameState::GetSingleton()->SpawnNamedObjectAt(GetOwner()->GetGlobalTransform(), "ProtonTorpedo1", GetOwner()->GetTeamID());
 
-    pSpawned->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+    pSpawned->PostMessage(msg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
   }
 }
 

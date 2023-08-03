@@ -141,7 +141,7 @@ void ezJoltTriggerComponent::PostTriggerMessage(const ezGameObjectHandle& hOther
   msg.m_sMessage = m_sTriggerMessage;
   msg.m_hTriggeringObject = hOtherObject;
 
-  m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
+  m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::MakeZero(), ezObjectMsgQueueType::PostTransform);
 }
 
 

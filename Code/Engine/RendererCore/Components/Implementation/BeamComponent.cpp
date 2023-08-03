@@ -114,14 +114,13 @@ ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& 
     const ezVec3 currentTargetPosition = pTargetObject->GetGlobalPosition();
     const ezVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(currentTargetPosition);
 
-    ezVec3 pts[] = {ezVec3::ZeroVector(), targetPositionInOwnerSpace};
+    ezVec3 pts[] = {ezVec3::MakeZero(), targetPositionInOwnerSpace};
 
-    ezBoundingBox box;
-    box.SetFromPoints(pts, 2);
+    ezBoundingBox box = ezBoundingBox::MakeFromPoints(pts, 2);
     const float fHalfWidth = m_fWidth * 0.5f;
     box.m_vMin -= ezVec3(0, fHalfWidth, fHalfWidth);
     box.m_vMax += ezVec3(0, fHalfWidth, fHalfWidth);
-    ref_bounds = box;
+    ref_bounds = ezBoundingBoxSphere::MakeFromBox(box);
 
     return EZ_SUCCESS;
   }
@@ -258,16 +257,16 @@ void ezBeamComponent::CreateMeshes()
   //      x
   //
   //  4        2
-  ezVec3 crossVector1 = (0.5f * ezVec3::UnitYAxis() + 0.5f * ezVec3::UnitZAxis());
+  ezVec3 crossVector1 = (0.5f * ezVec3::MakeAxisY() + 0.5f * ezVec3::MakeAxisZ());
   crossVector1.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
-  ezVec3 crossVector2 = (0.5f * ezVec3::UnitYAxis() - 0.5f * ezVec3::UnitZAxis());
+  ezVec3 crossVector2 = (0.5f * ezVec3::MakeAxisY() - 0.5f * ezVec3::MakeAxisZ());
   crossVector2.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
-  ezVec3 crossVector3 = (-0.5f * ezVec3::UnitYAxis() + 0.5f * ezVec3::UnitZAxis());
+  ezVec3 crossVector3 = (-0.5f * ezVec3::MakeAxisY() + 0.5f * ezVec3::MakeAxisZ());
   crossVector3.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
-  ezVec3 crossVector4 = (-0.5f * ezVec3::UnitYAxis() - 0.5f * ezVec3::UnitZAxis());
+  ezVec3 crossVector4 = (-0.5f * ezVec3::MakeAxisY() - 0.5f * ezVec3::MakeAxisZ());
   crossVector4.SetLength(m_fWidth * 0.5f).IgnoreResult();
 
   const float fDistance = (m_vLastOwnerPosition - m_vLastTargetPosition).GetLength();
@@ -281,10 +280,10 @@ void ezBeamComponent::CreateMeshes()
 
     // Quad 1
     {
-      ezUInt32 index0 = g.AddVertex(ezVec3::ZeroVector() + crossVector1, ezVec3::UnitXAxis(), ezVec2(0, 0), ezColor::White);
-      ezUInt32 index1 = g.AddVertex(ezVec3::ZeroVector() + crossVector4, ezVec3::UnitXAxis(), ezVec2(0, 1), ezColor::White);
-      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector1, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
-      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector4, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
+      ezUInt32 index0 = g.AddVertex(ezVec3::MakeZero() + crossVector1, ezVec3::MakeAxisX(), ezVec2(0, 0), ezColor::White);
+      ezUInt32 index1 = g.AddVertex(ezVec3::MakeZero() + crossVector4, ezVec3::MakeAxisX(), ezVec2(0, 1), ezColor::White);
+      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector1, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
+      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector4, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
 
       ezUInt32 indices[] = {index0, index2, index3, index1};
       g.AddPolygon(ezArrayPtr(indices), false);
@@ -293,10 +292,10 @@ void ezBeamComponent::CreateMeshes()
 
     // Quad 2
     {
-      ezUInt32 index0 = g.AddVertex(ezVec3::ZeroVector() + crossVector2, ezVec3::UnitXAxis(), ezVec2(0, 0), ezColor::White);
-      ezUInt32 index1 = g.AddVertex(ezVec3::ZeroVector() + crossVector3, ezVec3::UnitXAxis(), ezVec2(0, 1), ezColor::White);
-      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector2, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
-      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector3, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
+      ezUInt32 index0 = g.AddVertex(ezVec3::MakeZero() + crossVector2, ezVec3::MakeAxisX(), ezVec2(0, 0), ezColor::White);
+      ezUInt32 index1 = g.AddVertex(ezVec3::MakeZero() + crossVector3, ezVec3::MakeAxisX(), ezVec2(0, 1), ezColor::White);
+      ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector2, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
+      ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector3, ezVec3::MakeAxisX(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
 
       ezUInt32 indices[] = {index0, index2, index3, index1};
       g.AddPolygon(ezArrayPtr(indices), false);
