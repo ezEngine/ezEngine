@@ -10,12 +10,12 @@ public:
 
   ezSimdMat4f();
 
-  /*[[deprecated("Use MakeFromColumnMajorArray() instead.")]]*/ ezSimdMat4f(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
+  [[deprecated("Use MakeFromColumnMajorArray() instead.")]] ezSimdMat4f(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
-  /*[[deprecated("Use MakeFromColumns() instead.")]]*/ ezSimdMat4f(const ezSimdVec4f& vCol0, const ezSimdVec4f& vCol1, const ezSimdVec4f& vCol2, const ezSimdVec4f& vCol3); // [tested]
+  [[deprecated("Use MakeFromColumns() instead.")]] ezSimdMat4f(const ezSimdVec4f& vCol0, const ezSimdVec4f& vCol1, const ezSimdVec4f& vCol2, const ezSimdVec4f& vCol3); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  /*[[deprecated("Use MakeFromValues() instead.")]]*/ ezSimdMat4f(float f1r1, float f2r1, float f3r1, float f4r1, float f1r2, float f2r2, float f3r2, float f4r2, float f1r3, float f2r3, float f3r3,
+  [[deprecated("Use MakeFromValues() instead.")]] ezSimdMat4f(float f1r1, float f2r1, float f3r1, float f4r1, float f1r2, float f2r2, float f3r2, float f4r2, float f1r3, float f2r3, float f3r3,
     float f4r3, float f1r4, float f2r4, float f3r4, float f4r4); // [tested]
 
   /// \brief Returns a zero matrix.
@@ -36,21 +36,21 @@ public:
   /// \brief Creates a matrix from 16 values. Naming is "column-n row-m"
   [[nodiscard]] static ezSimdMat4f MakeFromValues(float f1r1, float f2r1, float f3r1, float f4r1, float f1r2, float f2r2, float f3r2, float f4r2, float f1r3, float f2r3, float f3r3, float f4r3, float f1r4, float f2r4, float f3r4, float f4r4);
 
-  /*[[deprecated("Use MakeFromColumnMajorArray() instead.")]]*/ void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
+  [[deprecated("Use MakeFromColumnMajorArray() instead.")]] void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   void GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
-  /*[[deprecated("Use MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
+  void SetIdentity(); // [tested]
 
   /// \brief Sets all elements to zero.
-  /*[[deprecated("Use MakeZero() instead.")]]*/ void SetZero(); // [tested]
+  void SetZero(); // [tested]
 
   /// \brief Returns an Identity Matrix.
-  /*[[deprecated("Use MakeIdentity() instead.")]]*/ [[nodiscard]] static ezSimdMat4f IdentityMatrix(); // [tested]
+  [[deprecated("Use MakeIdentity() instead.")]] [[nodiscard]] static ezSimdMat4f IdentityMatrix(); // [tested]
 
   /// \brief Returns a Matrix where all elements are zero.
-  /*[[deprecated("Use MakeZero() instead.")]]*/ [[nodiscard]] static ezSimdMat4f ZeroMatrix(); // [tested]
+  [[deprecated("Use MakeZero() instead.")]] [[nodiscard]] static ezSimdMat4f ZeroMatrix(); // [tested]
 
 public:
   /// \brief Transposes this matrix.

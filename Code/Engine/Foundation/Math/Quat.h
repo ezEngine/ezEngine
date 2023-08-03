@@ -47,7 +47,7 @@ public:
 
   /// \brief Static function that returns a quaternion that represents the identity rotation (none).
   [[nodiscard]] static const ezQuatTemplate<Type> MakeIdentity(); // [tested]
-  /*[[deprecated("Use ezQuat::MakeIdentity() instead.")]]*/ static const ezQuatTemplate<Type> IdentityQuaternion() { return ezQuatTemplate<Type>::MakeIdentity(); }
+  [[deprecated("Use ezQuat::MakeIdentity() instead.")]] static const ezQuatTemplate<Type> IdentityQuaternion() { return ezQuatTemplate<Type>::MakeIdentity(); }
 
   // *** Functions to create a quaternion ***
 public:
@@ -59,19 +59,19 @@ public:
   ///
   /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
   [[nodiscard]] static ezQuatTemplate<Type> MakeFromElements(Type x, Type y, Type z, Type w); // [tested]
-  /*[[deprecated("Use ezQuat::MakeFromElements() instead.")]]*/ void SetElements(Type inX, Type inY, Type inZ, Type inW) { *this = MakeFromElements(inX, inY, inZ, inW); }
+  [[deprecated("Use ezQuat::MakeFromElements() instead.")]] void SetElements(Type inX, Type inY, Type inZ, Type inW) { *this = MakeFromElements(inX, inY, inZ, inW); }
 
   /// \brief Creates a quaternion from a rotation-axis and an angle.
   [[nodiscard]] static ezQuatTemplate<Type> MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle); // [tested]
-  /*[[deprecated("Use ezQuat::MakeFromAxisAndAngle() instead.")]]*/ void SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle) { *this = MakeFromAxisAndAngle(vRotationAxis, angle); }
+  [[deprecated("Use ezQuat::MakeFromAxisAndAngle() instead.")]] void SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle) { *this = MakeFromAxisAndAngle(vRotationAxis, angle); }
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
   [[nodiscard]] static ezQuatTemplate<Type> MakeShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]
-  /*[[deprecated("Use ezQuat::MakeShortestRotation() instead.")]]*/ void SetShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo) { *this = MakeShortestRotation(vDirFrom, vDirTo); }
+  [[deprecated("Use ezQuat::MakeShortestRotation() instead.")]] void SetShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo) { *this = MakeShortestRotation(vDirFrom, vDirTo); }
 
   /// \brief Creates a quaternion from the given matrix.
   [[nodiscard]] static ezQuatTemplate<Type> MakeFromMat3(const ezMat3Template<Type>& m); // [tested]
-  /*[[deprecated("Use ezQuat::MakeFromMat3() instead.")]]*/ void SetFromMat3(const ezMat3Template<Type>& m) { *this = MakeFromMat3(m); }
+  [[deprecated("Use ezQuat::MakeFromMat3() instead.")]] void SetFromMat3(const ezMat3Template<Type>& m) { *this = MakeFromMat3(m); }
 
   /// \brief Reconstructs a rotation quaternion from a matrix that may contain scaling and mirroring.
   ///
@@ -88,7 +88,7 @@ public:
 
   /// \brief Returns a quaternion that is the spherical linear interpolation of the other two.
   [[nodiscard]] static ezQuatTemplate<Type> MakeSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
-  /*[[deprecated("Use ezQuat::MakeSlerp() instead.")]]*/ void SetSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t) { *this = MakeSlerp(qFrom, qTo, t); }
+  [[deprecated("Use ezQuat::MakeSlerp() instead.")]] void SetSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t) { *this = MakeSlerp(qFrom, qTo, t); }
 
   // *** Common Functions ***
 public:
@@ -142,7 +142,7 @@ public:
 
   /// \brief Sets the quaternion from Euler angles
   [[nodiscard]] static ezQuatTemplate<Type> MakeFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z); // [tested]
-  /*[[deprecated("Use ezQuat::MakeFromEulerAngles() instead.")]]*/ void SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z) { *this = MakeFromEulerAngles(x, y, z); }
+  [[deprecated("Use ezQuat::MakeFromEulerAngles() instead.")]] void SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z) { *this = MakeFromEulerAngles(x, y, z); }
 };
 
 /// \brief Rotates v by q

@@ -47,10 +47,10 @@ public:
   [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>));
 
   /// \brief Resets the box to an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
-  /*[[deprecated("Use MakeInvalid() instead.")]]*/ void SetInvalid(); // [tested]
+  [[deprecated("Use MakeInvalid() instead.")]] void SetInvalid(); // [tested]
 
   /// \brief Sets the box from a center point and half-extents for each axis.
-  /*[[deprecated("Use MakeFromCenterAndHalfExtents() instead.")]]*/ void SetCenterAndHalfExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vHalfExtents); // [tested]
+  [[deprecated("Use MakeFromCenterAndHalfExtents() instead.")]] void SetCenterAndHalfExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vHalfExtents); // [tested]
 
   /// \brief Checks whether the box is in an invalid state.
   bool IsValid() const; // [tested]
@@ -59,10 +59,10 @@ public:
   bool IsNaN() const; // [tested]
 
   /// \brief Directly sets the minimum and maximum values.
-  /*[[deprecated("Use MakeFromMinMax() instead.")]]*/ void SetElements(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax); // [tested]
+  [[deprecated("Use MakeFromMinMax() instead.")]] void SetElements(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax); // [tested]
 
   /// \brief Creates a new bounding-box around the given set of points.
-  /*[[deprecated("Use MakeFromPoints() instead.")]]*/ void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
+  [[deprecated("Use MakeFromPoints() instead.")]] void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
 
   /// \brief Writes the 8 different corners of the box to the given array.
   void GetCorners(ezVec3Template<Type>* out_pCorners) const; // [tested]

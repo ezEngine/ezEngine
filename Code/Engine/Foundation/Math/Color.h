@@ -210,7 +210,7 @@ public:
 
   /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
   [[nodiscard]] static ezColor MakeZero();
-  /*[[deprecated("Use ezColor::MakeZero() instead.")]]*/ static ezColor ZeroColor() { return MakeZero(); }
+  [[deprecated("Use ezColor::MakeZero() instead.")]] static ezColor ZeroColor() { return MakeZero(); }
 
   // *** Constructors ***
 public:
@@ -248,7 +248,7 @@ public:
   void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
   /// \brief Sets all four RGBA components to zero.
-  /*[[deprecated("Use ezColor::MakeZero() instead.")]]*/ void SetZero();
+  [[deprecated("Use ezColor::MakeZero() instead.")]] void SetZero();
 
   // *** Conversion Operators/Functions ***
 public:
@@ -256,7 +256,7 @@ public:
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
   [[nodiscard]] static ezColor MakeHSV(float fHue, float fSat, float fVal); // [tested]
-  /*[[deprecated("Use ezColor::MakeHSV() instead.")]]*/ void SetHSV(float fHue, float fSat, float fVal) { *this = MakeHSV(fHue, fSat, fVal); }
+  [[deprecated("Use ezColor::MakeHSV() instead.")]] void SetHSV(float fHue, float fSat, float fVal) { *this = MakeHSV(fHue, fSat, fVal); }
 
   /// \brief Converts the color part to HSV format.
   ///

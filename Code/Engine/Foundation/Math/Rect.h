@@ -82,7 +82,7 @@ public:
   ///
   /// IsValid() will return false afterwards.
   /// It is possible to make an invalid rect valid using ExpandToInclude().
-  /*[[deprecated("Use MakeInvalid() instead.")]]*/ void SetInvalid();
+  [[deprecated("Use MakeInvalid() instead.")]] void SetInvalid();
 
   /// \brief Checks whether the position and size contain valid values.
   bool IsValid() const;
@@ -107,9 +107,9 @@ public:
   /// possible distance to the original point.
   [[nodiscard]] const ezVec2Template<Type> GetClampedPoint(const ezVec2Template<Type>& vPoint) const;
 
-  /*[[deprecated("Use MakeIntersection() instead.")]]*/ void SetIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+  [[deprecated("Use MakeIntersection() instead.")]] void SetIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
 
-  /*[[deprecated("Use MakeUnion() instead.")]]*/ void SetUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
+  [[deprecated("Use MakeUnion() instead.")]] void SetUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
 
   /// \brief Moves the rectangle
   void Translate(Type tX, Type tY);

@@ -25,10 +25,10 @@ public:
   void operator=(const ezBoundingBoxSphereTemplate& rhs);
 
   /// \brief Constructs the bounds from the center position, the box half extends and the sphere radius.
-  /*[[deprecated("Use MakeFromCenterExtents() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius); // [tested]
+  [[deprecated("Use MakeFromCenterExtents() instead.")]] ezBoundingBoxSphereTemplate(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius); // [tested]
 
   /// \brief Constructs the bounds from the given box and sphere.
-  /*[[deprecated("Use MakeFromBoxAndSphere() instead.")]]*/ ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box, const ezBoundingSphereTemplate<Type>& sphere); // [tested]
+  [[deprecated("Use MakeFromBoxAndSphere() instead.")]] ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box, const ezBoundingSphereTemplate<Type>& sphere); // [tested]
 
   /// \brief Constructs the bounds from the given box. The sphere radius is calculated from the box extends.
   ezBoundingBoxSphereTemplate(const ezBoundingBoxTemplate<Type>& box); // [tested]
@@ -70,7 +70,7 @@ public:
 #endif
 
   /// \brief Resets the bounds to an invalid state.
-  /*[[deprecated("Use MakeInvalid() instead.")]]*/ void SetInvalid(); // [tested]
+  [[deprecated("Use MakeInvalid() instead.")]] void SetInvalid(); // [tested]
 
   /// \brief Checks whether the bounds is in an invalid state.
   bool IsValid() const; // [tested]
@@ -79,7 +79,7 @@ public:
   bool IsNaN() const; // [tested]
 
   /// \brief Calculates the bounds from given set of points.
-  /*[[deprecated("Use MakeFromPoints() instead.")]]*/ void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
+  [[deprecated("Use MakeFromPoints() instead.")]] void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
 
   /// \brief Returns the bounding box.
   const ezBoundingBoxTemplate<Type> GetBox() const; // [tested]

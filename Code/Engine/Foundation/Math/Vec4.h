@@ -34,7 +34,7 @@ public:
 
   /// \brief Returns a vector with all components set to zero.
   [[nodiscard]] static ezVec4Template<Type> MakeZero() { return ezVec4Template<Type>(0); } // [tested]
-  /*[[deprecated("Use ezVec4::MakeZero() instead.")]]*/ static ezVec4Template<Type> ZeroVector() { return ezVec4Template<Type>(0); }
+  [[deprecated("Use ezVec4::MakeZero() instead.")]] static ezVec4Template<Type> ZeroVector() { return ezVec4Template<Type>(0); }
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const

@@ -40,7 +40,7 @@ public:
 
   /// \brief Creates an instance of ezTime that was initialized with zero.
   [[nodiscard]] EZ_ALWAYS_INLINE constexpr static ezTime MakeZero() { return ezTime(0.0); }
-  [[nodiscard]] /*[[deprecated("Use ezTime::MakeZero() instead.")]]*/ EZ_ALWAYS_INLINE constexpr static ezTime Zero() { return ezTime(0.0); }
+  [[nodiscard]] [[deprecated("Use ezTime::MakeZero() instead.")]] EZ_ALWAYS_INLINE constexpr static ezTime Zero() { return ezTime(0.0); }
 
   EZ_DECLARE_POD_TYPE();
 
@@ -48,7 +48,7 @@ public:
   EZ_ALWAYS_INLINE constexpr ezTime() = default;
 
   /// \brief Sets the time value to zero.
-  /*[[deprecated("Use ezTime::MakeZero() instead.")]]*/ void SetZero();
+  [[deprecated("Use ezTime::MakeZero() instead.")]] void SetZero();
 
   /// \brief Returns true if the stored time is exactly zero. That typically means the value was not changed from the default.
   EZ_ALWAYS_INLINE constexpr bool IsZero() const { return m_fTime == 0.0; }

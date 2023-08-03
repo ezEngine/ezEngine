@@ -44,7 +44,7 @@ public:
   ezTimestamp(); // [tested]
 
   /// \brief Creates an new timestamp with the given time in the given unit of time since Unix epoch.
-  /*[[deprecated("Use ezTimestamp::MakeFromInt() instead.")]]*/ ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime); // [tested]
+  [[deprecated("Use ezTimestamp::MakeFromInt() instead.")]] ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime); // [tested]
 
   /// \brief Returns an invalid timestamp
   [[nodiscard]] static ezTimestamp MakeInvalid() { return ezTimestamp(); }
@@ -55,7 +55,7 @@ public:
   // *** Public Functions ***
 public:
   /// \brief Invalidates the timestamp.
-  /*[[deprecated("Use ezTimestamp::MakeInvalid() instead.")]]*/ void Invalidate(); // [tested]
+  [[deprecated("Use ezTimestamp::MakeInvalid() instead.")]] void Invalidate(); // [tested]
 
   /// \brief Returns whether the timestamp is valid.
   bool IsValid() const; // [tested]
@@ -64,7 +64,7 @@ public:
   ezInt64 GetInt64(ezSIUnitOfTime::Enum unitOfTime) const; // [tested]
 
   /// \brief Sets the timestamp as 'iTimeValue' in 'unitOfTime' since Unix epoch.
-  /*[[deprecated("Use ezTimestamp::MakeFromInt() instead.")]]*/ void SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime) { *this = MakeFromInt(iTimeValue, unitOfTime); }
+  [[deprecated("Use ezTimestamp::MakeFromInt() instead.")]] void SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime) { *this = MakeFromInt(iTimeValue, unitOfTime); }
 
   /// \brief Returns whether this timestamp is considered equal to 'rhs' in the given mode.
   ///
@@ -124,7 +124,7 @@ public:
   [[nodiscard]] static ezDateTime MakeZero() { return ezDateTime(); }
 
   /// \brief Creates a date time instance from the given timestamp.
-  /*[[deprecated("Use MakeFromTimestamp() instead.")]]*/ ezDateTime(ezTimestamp timestamp); // [tested]
+  [[deprecated("Use MakeFromTimestamp() instead.")]] ezDateTime(ezTimestamp timestamp); // [tested]
 
   /// \brief Sets this instance to the given timestamp.
   ///

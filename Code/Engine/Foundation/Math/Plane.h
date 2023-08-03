@@ -37,17 +37,17 @@ public:
   ezPlaneTemplate(); // [tested]
 
   /// \brief Creates the plane-equation from a normal and a point on the plane.
-  /*[[deprecated("Use MakeFromNormalAndPoint() instead.")]]*/ ezPlaneTemplate(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
+  [[deprecated("Use MakeFromNormalAndPoint() instead.")]] ezPlaneTemplate(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
 
   /// \brief Creates the plane-equation from three points on the plane.
-  /*[[deprecated("Use MakeFromPoints() instead.")]]*/ ezPlaneTemplate(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
+  [[deprecated("Use MakeFromPoints() instead.")]] ezPlaneTemplate(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
 
   /// \brief Creates the plane-equation from three points on the plane, given as an array.
-  /*[[deprecated("Use SetFromPoints() instead.")]]*/ ezPlaneTemplate(const ezVec3Template<Type>* const pVertices); // [tested]
+  [[deprecated("Use SetFromPoints() instead.")]] ezPlaneTemplate(const ezVec3Template<Type>* const pVertices); // [tested]
 
   /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other
   /// for the typical algorithm.
-  /*[[deprecated("Use SetFromPoints() instead.")]]*/ ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 uiMaxVertices); // [tested]
+  [[deprecated("Use SetFromPoints() instead.")]] ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 uiMaxVertices); // [tested]
 
   /// \brief Returns an invalid plane with a zero normal.
   [[nodiscard]] static ezPlaneTemplate<Type> MakeInvalid();
@@ -76,7 +76,7 @@ public:
   ezVec4Template<Type> GetAsVec4() const;
 
   /// \brief Creates the plane-equation from a normal and a point on the plane.
-  /*[[deprecated("Use MakeFromNormalAndPoint() instead.")]]*/ void SetFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
+  [[deprecated("Use MakeFromNormalAndPoint() instead.")]] void SetFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
 
   /// \brief Creates the plane-equation from three points on the plane.
   ezResult SetFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
@@ -92,7 +92,7 @@ public:
   ezResult SetFromDirections(const ezVec3Template<Type>& vTangent1, const ezVec3Template<Type>& vTangent2, const ezVec3Template<Type>& vPointOnPlane); // [tested]
 
   /// \brief Sets the plane to an invalid state (all zero).
-  /*[[deprecated("Use MakeInvalid() instead.")]]*/ void SetInvalid(); // [tested]
+  [[deprecated("Use MakeInvalid() instead.")]] void SetInvalid(); // [tested]
 
   // *** Distance and Position ***
 public:

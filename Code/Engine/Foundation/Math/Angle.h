@@ -32,11 +32,11 @@ public:
 
   /// \brief Creates an instance of ezAngle that was initialized from degree. (Performs a conversion)
   [[nodiscard]] constexpr static ezAngle MakeFromDegree(float fDegree); // [tested]
-  /*[[deprecated("Use ezAngle::MakeFromDegree() instead.")]]*/ constexpr static ezAngle Degree(float fDegree) { return MakeFromDegree(fDegree); }
+  [[deprecated("Use ezAngle::MakeFromDegree() instead.")]] constexpr static ezAngle Degree(float fDegree) { return MakeFromDegree(fDegree); }
 
   /// \brief Creates an instance of ezAngle that was initialized from radian. (No need for any conversion)
   [[nodiscard]] constexpr static ezAngle MakeFromRadian(float fRadian); // [tested]
-  /*[[deprecated("Use ezAngle::MakeFromRadian() instead.")]]*/ constexpr static ezAngle Radian(float fRadian) { return MakeFromRadian(fRadian); }
+  [[deprecated("Use ezAngle::MakeFromRadian() instead.")]] constexpr static ezAngle Radian(float fRadian) { return MakeFromRadian(fRadian); }
 
   /// \brief Standard constructor, initializing with 0.
   constexpr ezAngle()

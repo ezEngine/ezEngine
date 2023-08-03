@@ -4,7 +4,10 @@ EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f() = default;
 
 EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const float* const pData, ezMatrixLayout::Enum layout)
 {
-  SetFromArray(pData, layout);
+  if (layout == ezMatrixLayout::ColumnMajor)
+    *this = MakeFromColumnMajorArray(pData);
+  else
+    *this = MakeFromRowMajorArray(pData);
 }
 
 EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const ezSimdVec4f& vCol0, const ezSimdVec4f& vCol1, const ezSimdVec4f& vCol2, const ezSimdVec4f& vCol3)

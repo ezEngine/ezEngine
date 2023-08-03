@@ -35,19 +35,19 @@ public:
 
   /// \brief Returns a vector with all components set to zero.
   [[nodiscard]] static ezVec3Template<Type> MakeZero() { return ezVec3Template<Type>(0); } // [tested]
-  /*[[deprecated("Use ezVec3::MakeZero() instead.")]]*/ static ezVec3Template<Type> ZeroVector() { return ezVec3Template<Type>(0); }
+  [[deprecated("Use ezVec3::MakeZero() instead.")]] static ezVec3Template<Type> ZeroVector() { return ezVec3Template<Type>(0); }
 
   /// \brief Returns a vector initialized to the X unit vector (1, 0, 0).
   [[nodiscard]] static ezVec3Template<Type> MakeAxisX() { return ezVec3Template<Type>(1, 0, 0); } // [tested]
-  /*[[deprecated("Use ezVec3::MakeAxisX() instead.")]]*/ static const ezVec3Template<Type> UnitXAxis() { return ezVec3Template(1, 0, 0); }
+  [[deprecated("Use ezVec3::MakeAxisX() instead.")]] static const ezVec3Template<Type> UnitXAxis() { return ezVec3Template(1, 0, 0); }
 
   /// \brief Returns a vector initialized to the Y unit vector (0, 1, 0).
   [[nodiscard]] static ezVec3Template<Type> MakeAxisY() { return ezVec3Template<Type>(0, 1, 0); } // [tested]
-  /*[[deprecated("Use ezVec3::MakeAxisY() instead.")]]*/ static const ezVec3Template<Type> UnitYAxis() { return ezVec3Template(0, 1, 0); }
+  [[deprecated("Use ezVec3::MakeAxisY() instead.")]] static const ezVec3Template<Type> UnitYAxis() { return ezVec3Template(0, 1, 0); }
 
   /// \brief Returns a vector initialized to the Z unit vector (0, 0, 1).
   [[nodiscard]] static ezVec3Template<Type> MakeAxisZ() { return ezVec3Template<Type>(0, 0, 1); } // [tested]
-  /*[[deprecated("Use ezVec3::MakeAxisZ() instead.")]]*/ static const ezVec3Template<Type> UnitZAxis() { return ezVec3Template(0, 0, 1); }
+  [[deprecated("Use ezVec3::MakeAxisZ() instead.")]] static const ezVec3Template<Type> UnitZAxis() { return ezVec3Template(0, 0, 1); }
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -216,32 +216,32 @@ public:
 
   /// \brief Returns a random point inside a unit sphere (radius 1).
   [[nodiscard]] static ezVec3Template<Type> MakeRandomPointInSphere(ezRandom& inout_rng);                                                          // [tested]
-  /*[[deprecated("Use ezVec3::MakeRandomPointInSphere() instead.")]]*/ static ezVec3Template<Type> CreateRandomPointInSphere(ezRandom& inout_rng); // [tested]
+  [[deprecated("Use ezVec3::MakeRandomPointInSphere() instead.")]] static ezVec3Template<Type> CreateRandomPointInSphere(ezRandom& inout_rng); // [tested]
 
   /// \brief Creates a random direction vector. The vector is normalized.
   [[nodiscard]] static ezVec3Template<Type> MakeRandomDirection(ezRandom& inout_rng);                                                      // [tested]
-  /*[[deprecated("Use ezVec3::MakeRandomDirection() instead.")]]*/ static ezVec3Template<Type> CreateRandomDirection(ezRandom& inout_rng); // [tested]
+  [[deprecated("Use ezVec3::MakeRandomDirection() instead.")]] static ezVec3Template<Type> CreateRandomDirection(ezRandom& inout_rng); // [tested]
 
   /// \brief Creates a random vector around the x axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
   [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation);                                                       // [tested]
-  /*[[deprecated("Use ezVec3::MakeRandomDeviationX() instead.")]]*/ static ezVec3Template<Type> CreateRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[deprecated("Use ezVec3::MakeRandomDeviationX() instead.")]] static ezVec3Template<Type> CreateRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the y axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
   [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation);                                                       // [tested]
-  /*[[deprecated("Use ezVec3::MakeRandomDeviationY() instead.")]]*/ static ezVec3Template<Type> CreateRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[deprecated("Use ezVec3::MakeRandomDeviationY() instead.")]] static ezVec3Template<Type> CreateRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the z axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
   [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation);                                                       // [tested]
-  /*[[deprecated("Use ezVec3::MakeRandomDeviationZ() instead.")]]*/ static ezVec3Template<Type> CreateRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  [[deprecated("Use ezVec3::MakeRandomDeviationZ() instead.")]] static ezVec3Template<Type> CreateRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the given normal with a maximum deviation.
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
   [[nodiscard]] static ezVec3Template<Type> MakeRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal);                                                      // [tested]
-  /*[[deprecated("Use ezVec3::MakeRandomDeviation() instead.")]]*/ static ezVec3Template<Type> CreateRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
+  [[deprecated("Use ezVec3::MakeRandomDeviation() instead.")]] static ezVec3Template<Type> CreateRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
 };
 
 // *** Operators ***

@@ -7,7 +7,7 @@ inline ezTimestamp::ezTimestamp() = default;
 
 inline ezTimestamp::ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
 {
-  SetInt64(iTimeValue, unitOfTime);
+  *this = MakeFromInt(iTimeValue, unitOfTime);
 }
 
 inline void ezTimestamp::Invalidate()
