@@ -1,7 +1,49 @@
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800px" height="800px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve" fill="#ffffff">
-<g id="SVGRepo_bgCarrier" stroke-width="0"/>
-<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-<g id="SVGRepo_iconCarrier"> <g> <path fill="#ffffff" d="M30.208,0H1.792C0.804,0,0,0.804,0,1.792v28.416C0,31.196,0.804,32,1.792,32h28.417 C31.196,32,32,31.196,32,30.208V1.792C32,0.804,31.196,0,30.208,0z M1,11h9v10H1V11z M11,11h10v10H11V11z M22,11h9v10h-9V11z M30.208,1C30.645,1,31,1.355,31,1.792V10h-9V1H30.208z M21,1v9H11V1H21z M1,1.792C1,1.355,1.355,1,1.792,1H10v9H1V1.792z M1.792,31C1.355,31,1,30.645,1,30.208V22h9v9H1.792z M11,31v-9h10v9H11z M31,30.208C31,30.645,30.645,31,30.208,31H22v-9h9V30.208 z"/> </g> </g>
-</svg>
+
+<svg
+   version="1.1"
+   id="Layer_1"
+   width="800px"
+   height="800px"
+   viewBox="0 0 32 32"
+   enable-background="new 0 0 32 32"
+   xml:space="preserve"
+   fill="#ffffff"
+   sodipodi:docname="Grid.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs1" /><sodipodi:namedview
+   id="namedview1"
+   pagecolor="#ffffff"
+   bordercolor="#000000"
+   borderopacity="0.25"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="true"
+   inkscape:deskcolor="#d1d1d1"
+   inkscape:zoom="1.40125"
+   inkscape:cx="399.64318"
+   inkscape:cy="400"
+   inkscape:window-width="2256"
+   inkscape:window-height="1398"
+   inkscape:window-x="-11"
+   inkscape:window-y="-11"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />&#10;&#10;<g
+   id="SVGRepo_bgCarrier"
+   stroke-width="0" />&#10;&#10;<g
+   id="SVGRepo_tracerCarrier"
+   stroke-linecap="round"
+   stroke-linejoin="round" />&#10;&#10;<g
+   id="SVGRepo_iconCarrier"
+   style="fill:#4f9ea9;fill-opacity:1"> <g
+   id="g1"
+   style="fill:#4f9ea9;fill-opacity:1"> <path
+   fill="#ffffff"
+   d="M30.208,0H1.792C0.804,0,0,0.804,0,1.792v28.416C0,31.196,0.804,32,1.792,32h28.417 C31.196,32,32,31.196,32,30.208V1.792C32,0.804,31.196,0,30.208,0z M1,11h9v10H1V11z M11,11h10v10H11V11z M22,11h9v10h-9V11z M30.208,1C30.645,1,31,1.355,31,1.792V10h-9V1H30.208z M21,1v9H11V1H21z M1,1.792C1,1.355,1.355,1,1.792,1H10v9H1V1.792z M1.792,31C1.355,31,1,30.645,1,30.208V22h9v9H1.792z M11,31v-9h10v9H11z M31,30.208C31,30.645,30.645,31,30.208,31H22v-9h9V30.208 z"
+   id="path1"
+   style="fill:#4f9ea9;fill-opacity:1" /> </g> </g>&#10;&#10;</svg>
