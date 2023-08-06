@@ -92,7 +92,7 @@ public:
   [[nodiscard]] ezSimdVec4b operator>=(const ezSimdVec4i& v) const; // [tested]
   [[nodiscard]] ezSimdVec4b operator>(const ezSimdVec4i& v) const;  // [tested]
 
-  /*[[deprecated("Use MakeZero() instead.")]]*/ [[nodiscard]] static ezSimdVec4i ZeroVector(); // [tested]
+  [[deprecated("Use MakeZero() instead.")]] [[nodiscard]] static ezSimdVec4i ZeroVector(); // [tested]
 
   [[nodiscard]] static ezSimdVec4i Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse); // [tested]
 

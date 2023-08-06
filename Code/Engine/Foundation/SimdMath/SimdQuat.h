@@ -30,20 +30,20 @@ public:
   [[nodiscard]] static ezSimdQuat MakeSlerp(const ezSimdQuat& qFrom, const ezSimdQuat& qTo, const ezSimdFloat& t); // [tested]
 
   /// \brief Static function that returns a quaternion that represents the identity rotation (none).
-  /*[[deprecated("Use MakeIdentity() instead.")]]*/ static ezSimdQuat IdentityQuaternion(); // [tested]
+  [[deprecated("Use MakeIdentity() instead.")]] static ezSimdQuat IdentityQuaternion(); // [tested]
 
 public:
   /// \brief Sets the Quaternion to the identity.
-  /*[[deprecated("Use MakeIdentity() instead.")]]*/ void SetIdentity(); // [tested]
+  void SetIdentity(); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle (angle is given in Radians or as an ezAngle)
-  /*[[deprecated("Use MakeFromAxisAndAngle() instead.")]]*/ void SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle); // [tested]
+  [[deprecated("Use MakeFromAxisAndAngle() instead.")]] void SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle); // [tested]
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
-  /*[[deprecated("Use MakeShortestRotation() instead.")]]*/ void SetShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVec4f& vDirTo); // [tested]
+  [[deprecated("Use MakeShortestRotation() instead.")]] void SetShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVec4f& vDirTo); // [tested]
 
   /// \brief Sets this quaternion to be the spherical linear interpolation of the other two.
-  /*[[deprecated("Use MakeSlerp() instead.")]]*/ void SetSlerp(const ezSimdQuat& qFrom, const ezSimdQuat& qTo, const ezSimdFloat& t); // [tested]
+  [[deprecated("Use MakeSlerp() instead.")]] void SetSlerp(const ezSimdQuat& qFrom, const ezSimdQuat& qTo, const ezSimdFloat& t); // [tested]
 
 public:
   /// \brief Normalizes the quaternion to unit length. ALL rotation-quaternions should be normalized at all times (automatically).

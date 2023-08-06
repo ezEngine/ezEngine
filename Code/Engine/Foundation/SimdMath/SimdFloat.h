@@ -29,7 +29,7 @@ public:
   /// \brief Returns the stored number as a standard float.
   operator float() const; // [tested]
 
-  /*[[deprecated("Use MakeZero() instead.")]]*/ [[nodiscard]] static ezSimdFloat Zero(); // [tested]
+  [[deprecated("Use MakeZero() instead.")]] [[nodiscard]] static ezSimdFloat Zero(); // [tested]
 
   /// \brief Creates an ezSimdFloat that is initialized to zero.
   [[nodiscard]] static ezSimdFloat MakeZero(); // [tested]

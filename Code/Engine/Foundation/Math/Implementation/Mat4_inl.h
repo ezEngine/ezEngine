@@ -23,7 +23,22 @@ template <typename Type>
 ezMat4Template<Type>::ezMat4Template(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3,
   Type c3r3, Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4)
 {
-  SetElements(c1r1, c2r1, c3r1, c4r1, c1r2, c2r2, c3r2, c4r2, c1r3, c2r3, c3r3, c4r3, c1r4, c2r4, c3r4, c4r4);
+  Element(0, 0) = c1r1;
+  Element(1, 0) = c2r1;
+  Element(2, 0) = c3r1;
+  Element(3, 0) = c4r1;
+  Element(0, 1) = c1r2;
+  Element(1, 1) = c2r2;
+  Element(2, 1) = c3r2;
+  Element(3, 1) = c4r2;
+  Element(0, 2) = c1r3;
+  Element(1, 2) = c2r3;
+  Element(2, 2) = c3r3;
+  Element(3, 2) = c4r3;
+  Element(0, 3) = c1r4;
+  Element(1, 3) = c2r4;
+  Element(2, 3) = c3r4;
+  Element(3, 3) = c4r4;
 }
 
 template <typename Type>

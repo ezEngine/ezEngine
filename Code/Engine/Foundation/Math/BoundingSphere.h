@@ -20,7 +20,7 @@ public:
   ezBoundingSphereTemplate();
 
   /// \brief Creates a sphere with the given radius around the given center.
-  /*[[deprecated("Use MakeFromCenterAndRadius() instead.")]]*/ ezBoundingSphereTemplate(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]
+  ezBoundingSphereTemplate(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]
 
   /// \brief Creates a sphere at the origin with radius zero.
   [[nodiscard]] static ezBoundingSphereTemplate<Type> MakeZero();
@@ -49,13 +49,13 @@ public:
 #endif
 
   /// \brief Sets all elements to Zero. The sphere is thus 'valid'.
-  /*[[deprecated("Use MakeZero() instead.")]]*/ void SetZero(); // [tested]
+  [[deprecated("Use MakeZero() instead.")]] void SetZero(); // [tested]
 
   /// \brief Checks whether the sphere is all zero.
   bool IsZero(Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Sets the bounding sphere to invalid values.
-  /*[[deprecated("Use MakeInvalid() instead.")]]*/ void SetInvalid(); // [tested]
+  [[deprecated("Use MakeInvalid() instead.")]] void SetInvalid(); // [tested]
 
   /// \brief Returns whether the sphere has valid values.
   bool IsValid() const; // [tested]
@@ -64,10 +64,10 @@ public:
   bool IsNaN() const; // [tested]
 
   /// \brief Sets the sphere to the given values.
-  /*[[deprecated("Use MakeFromCenterAndRadius() instead.")]]*/ void SetElements(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]
+  [[deprecated("Use MakeFromCenterAndRadius() instead.")]] void SetElements(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]
 
   /// \brief Initializes the sphere to be the bounding sphere of all the given points (not necessarily the smallest one).
-  /*[[deprecated("Use MakeFromPoints() instead.")]]*/ void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
+  [[deprecated("Use MakeFromPoints() instead.")]] void SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
 
   /// \brief Increases the sphere's radius to include this point. Does NOT change its position, thus the resulting sphere might be not a very tight
   /// fit.
