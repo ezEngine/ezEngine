@@ -72,74 +72,80 @@ void ezQtUiServices::SaveState()
   Settings.endGroup();
 }
 
-ezMutex m;
-
-const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier, ezColor color)
+const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezColor svgTintColor)
 {
-  ezStringBuilder sIdentifier = szIdentifier;
+  ezStringBuilder sFullIdentifier = sIdentifier;
   auto& map = s_IconsCache;
 
-  if (color != ezColor::MakeZero())
+  if (sIdentifier.EndsWith_NoCase(".svg") && svgTintColor != ezColor::MakeZero())
   {
-    sIdentifier.AppendFormat("-{}", ezColorGammaUB(color));
+    sFullIdentifier.AppendFormat("-{}", ezColorGammaUB(svgTintColor));
   }
 
-  auto it = map.Find(sIdentifier);
+  auto it = map.Find(sFullIdentifier);
 
   if (it.IsValid())
     return it.Value();
 
-  ezStringBuilder filename = sIdentifier.GetFileName();
-
-  if (color != ezColor::MakeZero())
+  if (sIdentifier.EndsWith_NoCase(".svg") && svgTintColor != ezColor::MakeZero())
   {
-    EZ_LOCK(m);
-
-    const ezColorGammaUB color8 = color;
-
-    ezOSFile::CreateDirectoryStructure(ezOSFile::GetTempDataFolder("QIcons")).AssertSuccess();
-    const ezStringBuilder name(ezOSFile::GetTempDataFolder("QIcons"), "/", filename, ".svg");
-
-    QFile file(szIdentifier);
-    file.open(QIODeviceBase::OpenModeFlag::ReadOnly);
-    QByteArray content = file.readAll();
-    file.close();
-
-    QString sContent = content;
-
-    const QChar c0 = '0';
-
-    sContent = sContent.replace("#ffffff", QString("#%1%2%3").arg((int)color8.r, 2, 16, c0).arg((int)color8.g, 2, 16, c0).arg((int)color8.b, 2, 16, c0), Qt::CaseInsensitive);
-
+    // read the icon from the Qt virtual file system (QResource)
+    QFile file(ezString(sIdentifier).GetData());
+    if (!file.open(QIODeviceBase::OpenModeFlag::ReadOnly))
     {
-      ezStringBuilder tmp = sContent.toUtf8().data();
+      // if it doesn't exist, return an empty QIcon
 
-      QFile fileOut(name.GetData());
+      map[sFullIdentifier] = QIcon();
+      return map[sFullIdentifier];
+    }
+
+    QString sContent = file.readAll();
+
+    const ezStringBuilder sTempFolder = ezOSFile::GetTempDataFolder("ezEditor/QIcons");
+    const ezStringBuilder sTempIconFile(sTempFolder, "/", sFullIdentifier.GetFileName(), ".svg");
+
+    // replace the occurrence of the color white ("#FFFFFF") with the desired target color
+    {
+      const QChar c0 = '0';
+      const ezColorGammaUB color8 = svgTintColor;
+      sContent.replace("#ffffff", QString("#%1%2%3").arg((int)color8.r, 2, 16, c0).arg((int)color8.g, 2, 16, c0).arg((int)color8.b, 2, 16, c0), Qt::CaseInsensitive);
+    }
+
+    // now write the new SVG file back to a dummy file
+    // yes, this is as stupid as it sounds, we really write the file BACK TO THE FILESYSTEM, rather than doing this stuff in-memory
+    // that's because I wasn't able to figure out whether we can somehow read a QIcon from a string rather than from file
+    // it doesn't appear to be easy at least, since we can only give it a path, not a memory stream or anything like that
+    {
+      const ezStringBuilder tmp = sContent.toUtf8().data();
+
+      ezOSFile::CreateDirectoryStructure(sTempFolder).AssertSuccess();
+
+      QFile fileOut(sTempIconFile.GetData());
       fileOut.open(QIODeviceBase::OpenModeFlag::WriteOnly);
       fileOut.write(tmp.GetData(), tmp.GetElementCount());
       fileOut.flush();
       fileOut.close();
     }
 
-    QIcon icon(name.GetData());
+    QIcon icon(sTempIconFile.GetData());
 
     if (!icon.pixmap(QSize(16, 16)).isNull())
-      map[sIdentifier] = icon;
+      map[sFullIdentifier] = icon;
     else
-      map[sIdentifier] = QIcon();
+      map[sFullIdentifier] = QIcon();
   }
   else
   {
-    QIcon icon(szIdentifier);
+    QIcon icon(ezString(sIdentifier).GetData());
 
     // Workaround for QIcon being stupid and treating failed to load icons as not-null.
     if (!icon.pixmap(QSize(16, 16)).isNull())
-      map[sIdentifier] = icon;
+      map[sFullIdentifier] = icon;
     else
-      map[sIdentifier] = QIcon();
+      map[sFullIdentifier] = QIcon();
   }
 
-  return map[sIdentifier];
+  return map[sFullIdentifier];
 }
 
 
