@@ -200,7 +200,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesComponent, 1, ezComponentMode::Static)
     new ezLongOpAttribute("ezLongOpProxy_BakeScene"),
     new ezTransformManipulatorAttribute("TestPosition"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
-    new ezColorAttribute(ezColorScheme::Lighting),
+    new ezUiGroupAttribute(ezColorScheme::Lighting),
   }
   EZ_END_ATTRIBUTES;
 }

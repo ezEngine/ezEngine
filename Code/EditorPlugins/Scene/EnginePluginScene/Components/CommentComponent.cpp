@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCommentComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Editing Utilities"),
-    new ezColorAttribute(ezColorScheme::Utilities),
+    new ezUiGroupAttribute(ezColorScheme::Utilities),
   }
   EZ_END_ATTRIBUTES;
 }

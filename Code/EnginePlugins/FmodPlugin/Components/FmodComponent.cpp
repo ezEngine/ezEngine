@@ -9,7 +9,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezFmodComponent, 1)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Sound/FMOD"),
-    new ezColorAttribute(ezColorScheme::Sound),
+    new ezUiGroupAttribute(ezColorScheme::Sound),
   }
   EZ_END_ATTRIBUTES;
 }

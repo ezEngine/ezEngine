@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/ColorScheme.h>
 
@@ -216,65 +217,73 @@ ezColor ezColorScheme::GetColor(float fIndex, ezUInt8 uiBrightness, float fSatur
   return ezMath::Lerp(ezColor(l, l, l), c, fSaturation).WithAlpha(fAlpha);
 }
 
-ezColor ezColorScheme::GetGroupColor(ColorGroup group, ezInt8 iBrightnessOffset, ezUInt8 uiSaturationStep)
+ezColorScheme::GroupColorFunc ezColorScheme::s_GroupColorFunc = nullptr;
+
+ezColor ezColorScheme::GetGroupColor(ezStringView sGroup, GroupColorUsage usage)
 {
+  if (s_GroupColorFunc != nullptr)
+  {
+    ezColor res = s_GroupColorFunc(sGroup, usage);
+
+    if (res != ezColor::ZeroColor())
+      return res;
+  }
+
+  ezInt8 iBrightnessOffset = -3;
+  ezUInt8 uiSaturationStep = 0;
+
   const ezUInt8 uiBrightness = (ezUInt8)ezMath::Clamp<ezInt32>(DarkUIBrightness + iBrightnessOffset, 0, 9);
   const float fSaturation = DarkUISaturation - (uiSaturationStep * 0.2f);
 
-  // Red,
-  // Pink,
-  // Grape,
-  // Violet,
-  // Indigo,
-  // Blue,
-  // Cyan,
-  // Teal,
-  // Green,
-  // Lime,
-  // Yellow,
-  // Orange,
-  // Gray,
+  if (sGroup.IsEqual_NoCase("AI"))
+    return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
 
-  switch (group)
-  {
-    case None:
-      return ezColor::ZeroColor();
-    case Ai:
-      return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
-    case Animation:
-      return ezColorScheme::GetColor(ezColorScheme::Pink, uiBrightness, fSaturation) * DarkUIFactor;
-    case Construction:
-      return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
-    case Custom:
-      return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
-    case Effects:
-      return ezColorScheme::GetColor(ezColorScheme::Grape, uiBrightness, fSaturation) * DarkUIFactor;
-    case Gameplay:
-      return ezColorScheme::GetColor(ezColorScheme::Indigo, uiBrightness, fSaturation) * DarkUIFactor;
-    case Input:
-      return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
-    case Lighting:
-      return ezColorScheme::GetColor(ezColorScheme::Violet, uiBrightness, fSaturation) * DarkUIFactor;
-    case Logic:
-      return ezColorScheme::GetColor(ezColorScheme::Teal, uiBrightness, fSaturation) * DarkUIFactor;
-    case Physics:
-      return ezColorScheme::GetColor(ezColorScheme::Blue, uiBrightness, fSaturation) * DarkUIFactor;
-    case Prefab:
-      return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
-    case Rendering:
-      return ezColorScheme::GetColor(ezColorScheme::Lime, uiBrightness, fSaturation) * DarkUIFactor;
-    case Scripting:
-      return ezColorScheme::GetColor(ezColorScheme::Green, uiBrightness, fSaturation) * DarkUIFactor;
-    case Sound:
-      return ezColorScheme::GetColor(ezColorScheme::Blue, uiBrightness, fSaturation) * DarkUIFactor;
-    case Utilities:
-      return ezColorScheme::GetColor(ezColorScheme::Gray, uiBrightness, fSaturation) * DarkUIFactor;
-    case XR:
-      return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
+  if (sGroup.IsEqual_NoCase("ANIMATION"))
+    return ezColorScheme::GetColor(ezColorScheme::Pink, uiBrightness, fSaturation) * DarkUIFactor;
 
-      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
-  }
+  if (sGroup.IsEqual_NoCase("Construction"))
+    return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
 
+  if (sGroup.IsEqual_NoCase("Custom"))
+    return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Effects"))
+    return ezColorScheme::GetColor(ezColorScheme::Grape, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Gameplay"))
+    return ezColorScheme::GetColor(ezColorScheme::Indigo, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Input"))
+    return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Lighting"))
+    return ezColorScheme::GetColor(ezColorScheme::Violet, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Logic"))
+    return ezColorScheme::GetColor(ezColorScheme::Teal, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Physics"))
+    return ezColorScheme::GetColor(ezColorScheme::Blue, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Prefab"))
+    return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Rendering"))
+    return ezColorScheme::GetColor(ezColorScheme::Lime, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Scripting"))
+    return ezColorScheme::GetColor(ezColorScheme::Green, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Sound"))
+    return ezColorScheme::GetColor(ezColorScheme::Blue, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("Utilities"))
+    return ezColorScheme::GetColor(ezColorScheme::Gray, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sGroup.IsEqual_NoCase("XR"))
+    return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
+
+  ezLog::Warning("Unknown group color '{}'", sGroup);
   return ezColor::ZeroColor();
 }
 

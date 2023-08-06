@@ -34,7 +34,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input/RmlUi"),
-    new ezColorAttribute(ezColorScheme::Input),
+    new ezUiGroupAttribute(ezColorScheme::Input),
   }
   EZ_END_ATTRIBUTES;
 }

@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 2, ezComponentMode::Dynamic)
   {
     new ezCategoryAttribute("XR"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
-    new ezColorAttribute(ezColorScheme::XR),
+    new ezUiGroupAttribute(ezColorScheme::XR),
   }
   EZ_END_ATTRIBUTES;
 }

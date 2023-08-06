@@ -30,7 +30,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects"),
-    new ezColorAttribute(ezColorScheme::Effects),
+    new ezUiGroupAttribute(ezColorScheme::Effects),
   }
   EZ_END_ATTRIBUTES;
 }

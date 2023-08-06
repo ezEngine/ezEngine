@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTriggerDelayModifierComponent, 1 /* version */, ezComp
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay/Logic"), // Component menu group
-    new ezColorAttribute(ezColorScheme::Logic),
+    new ezUiGroupAttribute(ezColorScheme::Logic),
   }
   EZ_END_ATTRIBUTES;
 }

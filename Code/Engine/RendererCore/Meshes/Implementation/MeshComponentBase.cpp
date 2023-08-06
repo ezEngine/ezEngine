@@ -85,7 +85,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 3)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
-    new ezColorAttribute(ezColorScheme::Rendering),
+    new ezUiGroupAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
-    new ezColorAttribute(ezColorScheme::Rendering),
+    new ezUiGroupAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

@@ -180,7 +180,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 10, ezComponentMode::Static)
     new ezCategoryAttribute("Rendering"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::DarkSlateBlue),
     new ezCameraVisualizerAttribute("Mode", "FOV", "Dimensions", "NearPlane", "FarPlane"),
-    new ezColorAttribute(ezColorScheme::Rendering),
+    new ezUiGroupAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
 }

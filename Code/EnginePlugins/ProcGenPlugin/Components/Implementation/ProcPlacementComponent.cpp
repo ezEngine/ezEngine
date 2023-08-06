@@ -598,7 +598,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcPlacementComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Procedural Generation"),
-    new ezColorAttribute(ezColorScheme::Construction),
+    new ezUiGroupAttribute(ezColorScheme::Construction),
   }
   EZ_END_ATTRIBUTES;
 }

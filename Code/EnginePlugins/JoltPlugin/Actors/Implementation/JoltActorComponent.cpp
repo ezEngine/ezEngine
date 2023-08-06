@@ -35,7 +35,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltActorComponent, 2)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Actors"),
-    new ezColorAttribute(ezColorScheme::Physics),
+    new ezUiGroupAttribute(ezColorScheme::Physics),
   }
   EZ_END_ATTRIBUTES;
 }

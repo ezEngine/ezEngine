@@ -38,7 +38,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezColorAttribute(ezColorScheme::Gameplay),
+    new ezUiGroupAttribute(ezColorScheme::Gameplay),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS

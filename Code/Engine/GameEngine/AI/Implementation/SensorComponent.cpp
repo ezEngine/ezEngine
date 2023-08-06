@@ -36,7 +36,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, 1)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("AI/Sensors"),
-    new ezColorAttribute(ezColorScheme::Ai),
+    new ezUiGroupAttribute(ezColorScheme::AI),
   }
   EZ_END_ATTRIBUTES;
 }

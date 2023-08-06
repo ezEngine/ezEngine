@@ -127,34 +127,37 @@ void ezQtEditorApp::SetStyleSheet()
     }
   }
 
-  ezImage img;
-  ezImageHeader hdr;
-  hdr.SetWidth(16);
-  hdr.SetHeight(150);
-  hdr.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-  img.ResetAndAlloc(hdr);
-
-  ezInt32 x = 0, y = 0;
-
-  for (ezInt32 c = 0; c <= ezColorScheme::ColorGroup::XR; ++c)
+  if (false)
   {
-    for (ezInt32 s = 0; s < 4; ++s)
+    ezImage img;
+    ezImageHeader hdr;
+    hdr.SetWidth(16);
+    hdr.SetHeight(150);
+    hdr.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+    img.ResetAndAlloc(hdr);
+
+    ezInt32 x = 0, y = 0;
+
+    for (ezInt32 c = 0; c <= ezColorScheme::ColorGroup::XR; ++c)
     {
-      x = 0;
-
-      for (ezInt32 b = -3; b <= 3; ++b)
+      for (ezInt32 s = 0; s < 4; ++s)
       {
-        const ezColor col = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)c, b, s);
+        x = 0;
 
-        *img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, x, y) = col;
-        ++x;
+        for (ezInt32 b = -3; b <= 3; ++b)
+        {
+          const ezColor col = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)c, b, s);
+
+          *img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, x, y) = col;
+          ++x;
+        }
+
+        ++y;
       }
-
-      ++y;
     }
-  }
 
-  img.SaveTo("D:\\Colors.png").IgnoreResult();
+    img.SaveTo("D:\\Colors.png").IgnoreResult();
+  }
 
   QApplication::setPalette(palette);
 }

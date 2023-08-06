@@ -25,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering/Lighting"),
-    new ezColorAttribute(ezColorScheme::Lighting),
+    new ezUiGroupAttribute(ezColorScheme::Lighting),
   }
   EZ_END_ATTRIBUTES;
 }

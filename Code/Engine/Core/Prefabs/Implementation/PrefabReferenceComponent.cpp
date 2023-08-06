@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("General"),
-    new ezColorAttribute(ezColorScheme::Prefab),
+    new ezUiGroupAttribute(ezColorScheme::Prefab),
   }
   EZ_END_ATTRIBUTES;
 }

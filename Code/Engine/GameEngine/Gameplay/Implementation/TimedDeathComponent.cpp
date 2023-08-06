@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezColorAttribute(ezColorScheme::Logic),
+    new ezUiGroupAttribute(ezColorScheme::Logic),
   }
   EZ_END_ATTRIBUTES;
 }

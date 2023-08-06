@@ -25,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFakeRopeComponent, 3, ezComponentMode::Static)
     EZ_BEGIN_ATTRIBUTES
     {
       new ezCategoryAttribute("Effects/Ropes"),
-      new ezColorAttribute(ezColorScheme::Effects),
+      new ezUiGroupAttribute(ezColorScheme::Effects),
     }
     EZ_END_ATTRIBUTES;
   }

@@ -33,7 +33,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGrabbableItemComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input"),
-    new ezColorAttribute(ezColorScheme::Input),
+    new ezUiGroupAttribute(ezColorScheme::Input),
   }
   EZ_END_ATTRIBUTES;
 }

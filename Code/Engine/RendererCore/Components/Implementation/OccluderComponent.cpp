@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezOccluderComponent, 1, ezComponentMode::Static)
     new ezCategoryAttribute("Rendering"),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::LightUI(ezColorScheme::Blue)),
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezColorAttribute(ezColorScheme::Rendering),
+    new ezUiGroupAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
 }

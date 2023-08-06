@@ -35,7 +35,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezColorAttribute(ezColorScheme::Construction),
+    new ezUiGroupAttribute(ezColorScheme::Construction),
   }
   EZ_END_ATTRIBUTES;
 }

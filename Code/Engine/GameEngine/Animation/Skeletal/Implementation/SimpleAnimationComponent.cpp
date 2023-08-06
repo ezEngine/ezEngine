@@ -32,7 +32,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Static);
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
-      new ezColorAttribute(ezColorScheme::Animation),
+      new ezUiGroupAttribute(ezColorScheme::Animation),
   }
   EZ_END_ATTRIBUTES;
 }

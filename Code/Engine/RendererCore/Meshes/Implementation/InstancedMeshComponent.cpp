@@ -194,7 +194,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezInstancedMeshComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezColorAttribute(ezColorScheme::Rendering),
+    new ezUiGroupAttribute(ezColorScheme::Rendering),
   }
   EZ_END_ATTRIBUTES;
 }

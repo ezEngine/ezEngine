@@ -77,28 +77,36 @@ public:
     return ezMath::Lerp(s_LightUIColors[uiIndexA], s_LightUIColors[uiIndexB], fFrac);
   }
 
-  enum ColorGroup
+
+  static constexpr ezStringView AI = "AI"_ezsv;
+  static constexpr ezStringView Animation = "Animation"_ezsv;
+  static constexpr ezStringView Construction = "Construction"_ezsv;
+  static constexpr ezStringView Custom = "Custom"_ezsv;
+  static constexpr ezStringView Effects = "Effects"_ezsv;
+  static constexpr ezStringView Gameplay = "Gameplay"_ezsv;
+  static constexpr ezStringView Input = "Input"_ezsv;
+  static constexpr ezStringView Lighting = "Lighting"_ezsv;
+  static constexpr ezStringView Logic = "Logic"_ezsv;
+  static constexpr ezStringView Physics = "Physics"_ezsv;
+  static constexpr ezStringView Prefab = "Prefab"_ezsv;
+  static constexpr ezStringView Rendering = "Rendering"_ezsv;
+  static constexpr ezStringView Scripting = "Scripting"_ezsv;
+  static constexpr ezStringView Sound = "Sound"_ezsv;
+  static constexpr ezStringView Utilities = "Utilities"_ezsv;
+  static constexpr ezStringView XR = "XR"_ezsv;
+
+  enum class GroupColorUsage
   {
-    None,
-    Ai,
-    Animation,
-    Construction,
-    Custom,
-    Effects,
-    Gameplay,
-    Input,
-    Lighting,
-    Logic,
-    Physics,
-    Prefab,
-    Rendering,
-    Scripting,
-    Sound,
-    Utilities,
-    XR,
+    ViewportIcon, // shape icons
+    MenuEntryIcon,
+    OverlayIcon, // over thumbnails
+    Thumbnail,
   };
 
-  static ezColor GetGroupColor(ColorGroup group, ezInt8 iBrightnessOffset = -3, ezUInt8 uiSaturationStep = 0);
+  using GroupColorFunc = ezColor(*)(ezStringView sGroup, GroupColorUsage usage);
+
+  static GroupColorFunc s_GroupColorFunc;
+  static ezColor GetGroupColor(ezStringView sGroup, GroupColorUsage usage);
 
 private:
   EZ_ALWAYS_INLINE constexpr static void GetInterpolation(float fIndex, ezUInt32& out_uiIndexA, ezUInt32& out_uiIndexB, float& out_fFrac)
