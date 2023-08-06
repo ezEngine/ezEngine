@@ -261,16 +261,14 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
     if (m_pSearchableMenu != nullptr)
     {
-      connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
-        {
+      connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant) {
         const ezRTTI* pRtti = static_cast<const ezRTTI*>(variant.value<void*>());
 
         OnAction(pRtti);
         m_pMenu->close(); });
 
       connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
-        [this](const QString& sText)
-        { s_sLastMenuSearch = sText.toUtf8().data(); });
+        [this](const QString& sText) { s_sLastMenuSearch = sText.toUtf8().data(); });
 
       m_pMenu->addAction(m_pSearchableMenu);
 

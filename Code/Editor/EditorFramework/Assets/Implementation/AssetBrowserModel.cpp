@@ -44,8 +44,7 @@ ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* 
   , m_pFilter(pFilter)
 {
   EZ_ASSERT_DEBUG(pFilter != nullptr, "ezQtAssetBrowserModel requires a valid filter.");
-  connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]()
-    { resetModel(); });
+  connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]() { resetModel(); });
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
 

@@ -689,10 +689,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       // keep this here to make live color palette editing available, when needed
       // if (false)
       {
-        QTimer::singleShot(1, [this]()
-          { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
-        QTimer::singleShot(500, [this]()
-          { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+        QTimer::singleShot(1, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+        QTimer::singleShot(500, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
       }
 
       if (m_Context.m_pDocument)
@@ -762,8 +760,7 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezStringBuilder sEngineProfilingFile;
       {
         // Wait for engine process response
-        auto callback = [&](ezProcessMessage* pMsg) -> bool
-        {
+        auto callback = [&](ezProcessMessage* pMsg) -> bool {
           auto pSimpleCfg = static_cast<ezSaveProfilingResponseToEditor*>(pMsg);
           sEngineProfilingFile = pSimpleCfg->m_sProfilingFile;
           return true;

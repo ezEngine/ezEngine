@@ -1768,8 +1768,7 @@ void ezQtVariantPropertyWidget::OnInit()
   }
 
   connect(m_pTypeList, &QComboBox::currentIndexChanged,
-    [this](int iIndex)
-    {
+    [this](int iIndex) {
       ChangeVariantType(static_cast<ezVariantType::Enum>(m_pTypeList->itemData(iIndex).toInt()));
     });
 }

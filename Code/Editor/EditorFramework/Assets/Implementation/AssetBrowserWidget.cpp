@@ -215,8 +215,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
     pMan->GetSupportedDocumentTypes(documentTypes);
   }
 
-  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool
-    { return ezStringUtils::Compare(ezTranslate(a->m_sDocumentTypeName), ezTranslate(b->m_sDocumentTypeName)) < 0; });
+  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool { return ezStringUtils::Compare(ezTranslate(a->m_sDocumentTypeName), ezTranslate(b->m_sDocumentTypeName)) < 0; });
 
   for (const ezDocumentTypeDescriptor* desc : documentTypes)
   {
@@ -648,10 +647,8 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Guid.svg")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct references to this asset"), this, [&]()
-      { OnListFindAllReferences(false); });
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]()
-      { OnListFindAllReferences(true); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/ZoomOut.svg")), QLatin1String("Filter to this Path"), this, SLOT(OnFilterToThisPath()));
   }
 

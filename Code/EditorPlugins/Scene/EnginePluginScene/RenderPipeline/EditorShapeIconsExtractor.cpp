@@ -171,8 +171,7 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
   ezStringBuilder sPath;
 
   ezRTTI::ForEachDerivedType<ezComponent>(
-    [&](const ezRTTI* pRtti)
-    {
+    [&](const ezRTTI* pRtti) {
       sPath.Set("Editor/ShapeIcons/", pRtti->GetTypeName(), ".dds");
 
       if (ezFileSystem::ExistsFile(sPath))

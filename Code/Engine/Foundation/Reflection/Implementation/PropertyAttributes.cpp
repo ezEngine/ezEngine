@@ -1074,4 +1074,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 //////////////////////////////////////////////////////////////////////////
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
-
