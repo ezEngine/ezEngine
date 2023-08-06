@@ -101,32 +101,10 @@ public:
     : m_Color(color)
   {
   }
-
-  ezColorAttribute(ezInt32 iColorGroup);
-
-  ezInt32 m_iColorGroup = -1;
-
   const ezColor& GetColor() const { return m_Color; }
 
 private:
   ezColor m_Color;
-};
-
-class EZ_FOUNDATION_DLL ezUiGroupAttribute : public ezPropertyAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezUiGroupAttribute, ezPropertyAttribute);
-
-public:
-  ezUiGroupAttribute() = default;
-  ezUiGroupAttribute(ezStringView sGroupName)
-    : m_sGroupName(sGroupName)
-  {
-  }
-
-  ezStringView GetGroupName() const { return m_sGroupName; }
-
-private:
-  ezStringView m_sGroupName;
 };
 
 /// \brief A property attribute that indicates that the alpha channel of an ezColorGammaUB or ezColor should be exposed in the UI.

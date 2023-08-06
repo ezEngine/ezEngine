@@ -13,7 +13,7 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "Skeleton";
   m_DocTypeDesc.m_sFileExtension = "ezSkeletonAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Skeleton.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::Animation;
+  m_DocTypeDesc.m_sAssetCategory = "Animation";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Skeleton");

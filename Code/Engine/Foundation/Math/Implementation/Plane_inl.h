@@ -61,7 +61,7 @@ template <typename Type>
 ezPlaneTemplate<Type> ezPlaneTemplate<Type>::MakeFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
 {
   ezPlaneTemplate<Type> res;
-  EZ_VERIFY(res.m_vNormal.CalculateNormal(v1, v2, v3).Succeeded(), "The 3 provided points to not form a plane");
+  EZ_VERIFY(res.m_vNormal.CalculateNormal(v1, v2, v3).Succeeded(), "The 3 provided points do not form a plane");
 
   res.m_fNegDistance = -res.m_vNormal.Dot(v1);
   return res;

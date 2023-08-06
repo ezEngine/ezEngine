@@ -38,7 +38,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
   ezString m_sIcon;
   const ezRTTI* m_pDocumentType = nullptr;
   ezDocumentManager* m_pManager = nullptr;
-  ezColorScheme::ColorGroup m_IconColorGroup = ezColorScheme::ColorGroup::None;
+  ezStringView m_sAssetCategory; // passed to ezColorScheme::GetCategoryColor() with CategoryColorUsage::AssetMenuIcon
 
   /// This list is used to decide which asset types can be picked from the asset browser for a property.
   /// The strings are arbitrary and don't need to be registered anywhere else.

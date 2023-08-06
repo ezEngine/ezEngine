@@ -79,7 +79,7 @@ const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier, ezC
   ezStringBuilder sIdentifier = szIdentifier;
   auto& map = s_IconsCache;
 
-  if (color != ezColor::ZeroColor())
+  if (color != ezColor::MakeZero())
   {
     sIdentifier.AppendFormat("-{}", ezColorGammaUB(color));
   }
@@ -91,7 +91,7 @@ const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier, ezC
 
   ezStringBuilder filename = sIdentifier.GetFileName();
 
-  if (color != ezColor::ZeroColor())
+  if (color != ezColor::MakeZero())
   {
     EZ_LOCK(m);
 

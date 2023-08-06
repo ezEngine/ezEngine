@@ -29,7 +29,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
     new ezCategoryAttribute("Gameplay"),
     new ezSphereVisualizerAttribute("Radius", ezColor::OrangeRed),
     new ezSphereManipulatorAttribute("Radius"),
-    new ezUiGroupAttribute(ezColorScheme::Gameplay),
   }
   EZ_END_ATTRIBUTES;
 }

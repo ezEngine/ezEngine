@@ -59,7 +59,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 8, ezComponentMode::Static)
     new ezDirectionVisualizerAttribute("ProjectionAxis", 0.5f, ezColorScheme::LightUI(ezColorScheme::Blue)),
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxVisualizerAttribute("Extents"),
-    new ezUiGroupAttribute(ezColorScheme::Effects),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

@@ -14,7 +14,7 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "PropertyAnim";
   m_DocTypeDesc.m_sFileExtension = "ezPropertyAnimAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/PropertyAnim.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::Animation;
+  m_DocTypeDesc.m_sAssetCategory = "Animation";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezPropertyAnimAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Property_Animation");

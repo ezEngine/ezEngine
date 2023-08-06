@@ -29,7 +29,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezDeviceTrackingComponent, 3, ezComponentMode::Dynamic)
   {
     new ezCategoryAttribute("XR"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Alpha),
-    new ezUiGroupAttribute(ezColorScheme::XR),
   }
   EZ_END_ATTRIBUTES;
 }

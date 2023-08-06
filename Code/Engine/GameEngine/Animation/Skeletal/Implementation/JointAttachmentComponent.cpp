@@ -21,7 +21,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
-      new ezUiGroupAttribute(ezColorScheme::Animation),
   }
   EZ_END_ATTRIBUTES;
 

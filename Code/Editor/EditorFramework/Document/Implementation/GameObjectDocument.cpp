@@ -272,14 +272,11 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
     {
       bHasIcon = true;
 
-      ezColor color = ezColor::ZeroColor();
+      ezColor color = ezColor::MakeZero();
 
-      if (auto pInDev = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezColorAttribute>())
+      if (auto pCatAttr = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezCategoryAttribute>())
       {
-        if (pInDev->m_iColorGroup != -1)
-          color = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)pInDev->m_iColorGroup, 2);
-        else
-          color = pInDev->GetColor();
+        color = ezColorScheme::GetCategoryColor(pCatAttr->GetCategory(), ezColorScheme::CategoryColorUsage::SceneTreeIcon);
       }
 
       ezStringBuilder sIconName;

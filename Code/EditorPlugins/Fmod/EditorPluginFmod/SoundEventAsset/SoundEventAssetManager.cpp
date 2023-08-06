@@ -14,7 +14,7 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "Sound Event";
   m_DocTypeDesc.m_sFileExtension = "ezSoundEventAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Event.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::ColorGroup::Sound;
+  m_DocTypeDesc.m_sAssetCategory = "Sound";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Fmod_Event");

@@ -27,8 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Debug"),
-    new ezUiGroupAttribute(ezColorScheme::Utilities),
+    new ezCategoryAttribute("Utilities/Debug"),
   }
   EZ_END_ATTRIBUTES;
 }

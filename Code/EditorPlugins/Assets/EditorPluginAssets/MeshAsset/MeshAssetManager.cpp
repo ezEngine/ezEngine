@@ -19,7 +19,7 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "Mesh";
   m_DocTypeDesc.m_sFileExtension = "ezMeshAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Mesh.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::Rendering;
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Static");

@@ -14,7 +14,7 @@ ezBlackboardTemplateAssetDocumentManager::ezBlackboardTemplateAssetDocumentManag
   m_DocTypeDesc.m_sDocumentTypeName = "BlackboardTemplate";
   m_DocTypeDesc.m_sFileExtension = "ezBlackboardTemplateAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/BlackboardTemplate.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::ColorGroup::Logic;
+  m_DocTypeDesc.m_sAssetCategory = "Logic";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezBlackboardTemplateAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_BlackboardTemplate");

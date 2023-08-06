@@ -20,7 +20,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltSettingsComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Misc"),
-    new ezUiGroupAttribute(ezColorScheme::Physics),
   }
   EZ_END_ATTRIBUTES;
 }

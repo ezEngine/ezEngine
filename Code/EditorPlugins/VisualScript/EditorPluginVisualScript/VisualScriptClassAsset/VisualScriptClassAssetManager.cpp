@@ -14,7 +14,7 @@ ezVisualScriptClassAssetManager::ezVisualScriptClassAssetManager()
   m_DocTypeDesc.m_sDocumentTypeName = "VisualScriptClass";
   m_DocTypeDesc.m_sFileExtension = "ezVisualScriptClassAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/VisualScript.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::ColorGroup::Scripting;
+  m_DocTypeDesc.m_sAssetCategory = "Scripting";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptClassAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");

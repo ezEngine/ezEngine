@@ -23,7 +23,6 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRcComponent, 1)
   {
     new ezCategoryAttribute("AI/Recast"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
-    new ezUiGroupAttribute(ezColorScheme::AI),
   }
   EZ_END_ATTRIBUTES;
 }

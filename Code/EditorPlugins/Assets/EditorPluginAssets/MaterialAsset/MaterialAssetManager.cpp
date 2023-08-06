@@ -21,7 +21,7 @@ ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "Material";
   m_DocTypeDesc.m_sFileExtension = "ezMaterialAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Material.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::Rendering;
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMaterialAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Material");

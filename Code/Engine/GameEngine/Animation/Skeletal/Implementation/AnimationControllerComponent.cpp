@@ -26,7 +26,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 2, ezComponentMode::Stat
   EZ_BEGIN_ATTRIBUTES
   {
       new ezCategoryAttribute("Animation"),
-      new ezUiGroupAttribute(ezColorScheme::Animation),
   }
   EZ_END_ATTRIBUTES;
 }

@@ -297,7 +297,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
       continue;
 
     item.m_UserValue = file.m_File;
-    item.m_Icon = ezQtUiServices::GetCachedIconResource(pTypeDesc->m_sIcon, ezColorScheme::GetGroupColor(pTypeDesc->m_IconColorGroup, 2));
+    item.m_Icon = ezQtUiServices::GetCachedIconResource(pTypeDesc->m_sIcon, ezColorScheme::GetCategoryColor(pTypeDesc->m_sAssetCategory, ezColorScheme::CategoryColorUsage::MenuEntryIcon));
 
     if (ezToolsProject::IsProjectOpen())
     {
@@ -687,7 +687,7 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezQtEditorApp::GetSingleton()->m_Events.Broadcast(e);
 
       // keep this here to make live color palette editing available, when needed
-      //if (false)
+      // if (false)
       {
         QTimer::singleShot(1, [this]()
           { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });

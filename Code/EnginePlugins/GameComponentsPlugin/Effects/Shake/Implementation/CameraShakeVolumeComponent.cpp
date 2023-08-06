@@ -29,7 +29,6 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCameraShakeVolumeComponent, 1)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects/CameraShake"),
-    new ezUiGroupAttribute(ezColorScheme::Effects),
   }
   EZ_END_ATTRIBUTES;
 }

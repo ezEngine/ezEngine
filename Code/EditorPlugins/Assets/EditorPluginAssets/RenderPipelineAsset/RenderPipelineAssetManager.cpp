@@ -14,7 +14,7 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   m_DocTypeDesc.m_sDocumentTypeName = "RenderPipeline";
   m_DocTypeDesc.m_sFileExtension = "ezRenderPipelineAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/RenderPipeline.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::Rendering;
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_RenderPipeline");

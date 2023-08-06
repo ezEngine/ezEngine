@@ -14,7 +14,7 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "Surface";
   m_DocTypeDesc.m_sFileExtension = "ezSurfaceAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::ColorGroup::Utilities;
+  m_DocTypeDesc.m_sAssetCategory = "Utilities";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Surface");

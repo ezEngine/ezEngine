@@ -171,7 +171,8 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
   ezStringBuilder sPath;
 
   ezRTTI::ForEachDerivedType<ezComponent>(
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       sPath.Set("Editor/ShapeIcons/", pRtti->GetTypeName(), ".dds");
 
       if (ezFileSystem::ExistsFile(sPath))
@@ -181,16 +182,9 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
         shapeIconInfo.m_pColorProperty = FindColorProperty(pRtti);
         shapeIconInfo.m_pColorGammaProperty = FindColorGammaProperty(pRtti);
 
-        if (auto pColorAttribute = pRtti->GetAttributeByType<ezColorAttribute>())
+        if (auto pCatAttribute = pRtti->GetAttributeByType<ezCategoryAttribute>())
         {
-          ezColor col = pColorAttribute->GetColor();
-
-          if (pColorAttribute->m_iColorGroup != -1)
-          {
-            col = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)pColorAttribute->m_iColorGroup, 2, 2);
-          }
-
-          shapeIconInfo.m_FallbackColor = col;
+          shapeIconInfo.m_FallbackColor = ezColorScheme::GetCategoryColor(pCatAttribute->GetCategory(), ezColorScheme::CategoryColorUsage::ViewportIcon);
         }
       }
     });

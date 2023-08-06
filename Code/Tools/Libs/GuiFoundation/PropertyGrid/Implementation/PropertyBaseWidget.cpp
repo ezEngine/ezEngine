@@ -1639,22 +1639,29 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
       elem.m_pSubGroup->SetTitle(sTitle);
     }
 
-    // Icon
-    {
-      ezStringBuilder sIconName;
-      sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName(), ".svg");
-      elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
-    }
+    ezColor borderIconColor = ezColor::MakeZero();
 
-    const ezColorAttribute* pColorAttrib = pCommonType->GetAttributeByType<ezColorAttribute>();
-    if (pColorAttrib && pColorAttrib->GetColor() != ezColor::ZeroColor())
+    if (const ezColorAttribute* pColorAttrib = pCommonType->GetAttributeByType<ezColorAttribute>())
     {
+      borderIconColor = pColorAttrib->GetColor();
       elem.m_pSubGroup->SetFillColor(ezToQtColor(pColorAttrib->GetColor()));
+    }
+    else if (const ezCategoryAttribute* pCatAttrib = pCommonType->GetAttributeByType<ezCategoryAttribute>())
+    {
+      borderIconColor = ezColorScheme::GetCategoryColor(pCatAttrib->GetCategory(), ezColorScheme::CategoryColorUsage::BorderIconColor);
+      elem.m_pSubGroup->SetFillColor(ezToQtColor(ezColorScheme::GetCategoryColor(pCatAttrib->GetCategory(), ezColorScheme::CategoryColorUsage::BorderColor)));
     }
     else
     {
       const QPalette& pal = palette();
       elem.m_pSubGroup->SetFillColor(pal.mid().color());
+    }
+
+    // Icon
+    {
+      ezStringBuilder sIconName;
+      sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName(), ".svg");
+      elem.m_pSubGroup->SetIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData(), borderIconColor));
     }
 
     // help URL
@@ -1761,7 +1768,8 @@ void ezQtVariantPropertyWidget::OnInit()
   }
 
   connect(m_pTypeList, &QComboBox::currentIndexChanged,
-    [this](int iIndex) {
+    [this](int iIndex)
+    {
       ChangeVariantType(static_cast<ezVariantType::Enum>(m_pTypeList->itemData(iIndex).toInt()));
     });
 }

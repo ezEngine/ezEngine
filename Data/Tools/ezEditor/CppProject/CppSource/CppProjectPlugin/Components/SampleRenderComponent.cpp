@@ -30,7 +30,6 @@ EZ_BEGIN_COMPONENT_TYPE(SampleRenderComponent, 1 /* version */, ezComponentMode:
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("CppProject"), // Component menu group
-    new ezUiGroupAttribute(ezColorScheme::Custom),
   }
   EZ_END_ATTRIBUTES;
 

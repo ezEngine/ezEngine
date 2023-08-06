@@ -18,7 +18,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezStageSpaceComponent, 1, ezComponentMode::Static)
   {
     new ezCategoryAttribute("XR"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),
-    new ezUiGroupAttribute(ezColorScheme::XR),
   }
   EZ_END_ATTRIBUTES;
 }

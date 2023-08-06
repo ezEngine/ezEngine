@@ -32,13 +32,13 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "TypeScript";
   m_DocTypeDesc.m_sFileExtension = "ezTypeScriptAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/TypeScript.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::ColorGroup::Scripting;
+  m_DocTypeDesc.m_sAssetCategory = "Scripting";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Code_TypeScript");
 
   // Typescript doesn't fully work with the new scripting infrastructure yet. Uncomment at your own risk.
-  //m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
+  // m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;

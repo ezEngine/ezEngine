@@ -13,7 +13,6 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltShapeComponent, 1)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Shapes"),
-    new ezUiGroupAttribute(ezColorScheme::Physics),
   }
   EZ_END_ATTRIBUTES;
 }

@@ -33,7 +33,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezFollowPathComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation/Paths"),
-    new ezUiGroupAttribute(ezColorScheme::Animation),
   }
   EZ_END_ATTRIBUTES;
 }

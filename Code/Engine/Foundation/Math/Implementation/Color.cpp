@@ -238,9 +238,7 @@ ezColor ezColor::GetDarker(float factor /*= 2.0f*/) const
   float h, s, v;
   GetHSV(h, s, v);
 
-  ezColor c;
-  c.SetHSV(h, s, v / factor);
-  return c;
+  return ezColor::MakeHSV(h, s, v / factor);
 }
 
 ezColor ezColor::GetComplementaryColor() const

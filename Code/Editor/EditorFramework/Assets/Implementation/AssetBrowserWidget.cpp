@@ -102,7 +102,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
     for (const auto& it : assetTypes)
     {
-      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetGroupColor(it.Value()->m_IconColorGroup, 2)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
+      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetCategoryColor(it.Value()->m_sAssetCategory, ezColorScheme::CategoryColorUsage::AssetMenuIcon)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Unchecked);
       pItem->setData(Qt::UserRole, QLatin1String(it.Value()->m_sDocumentTypeName));
@@ -121,7 +121,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
     for (const auto& it : assetTypes)
     {
-      TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetGroupColor(it.Value()->m_IconColorGroup, 2)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
+      TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetCategoryColor(it.Value()->m_sAssetCategory, ezColorScheme::CategoryColorUsage::AssetMenuIcon)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
       TypeFilter->setItemData(TypeFilter->count() - 1, QString::fromUtf8(it.Value()->m_sDocumentTypeName, it.Value()->m_sDocumentTypeName.GetElementCount()), Qt::UserRole);
     }
   }
@@ -215,7 +215,8 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
     pMan->GetSupportedDocumentTypes(documentTypes);
   }
 
-  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool { return ezStringUtils::Compare(ezTranslate(a->m_sDocumentTypeName), ezTranslate(b->m_sDocumentTypeName)) < 0; });
+  documentTypes.Sort([](const ezDocumentTypeDescriptor* a, const ezDocumentTypeDescriptor* b) -> bool
+    { return ezStringUtils::Compare(ezTranslate(a->m_sDocumentTypeName), ezTranslate(b->m_sDocumentTypeName)) < 0; });
 
   for (const ezDocumentTypeDescriptor* desc : documentTypes)
   {
@@ -223,7 +224,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
       continue;
 
     QAction* pAction = pSubMenu->addAction(ezTranslate(desc->m_sDocumentTypeName));
-    pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon, ezColorScheme::GetGroupColor(desc->m_IconColorGroup, 2)));
+    pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon, ezColorScheme::GetCategoryColor(desc->m_sAssetCategory, ezColorScheme::CategoryColorUsage::MenuEntryIcon)));
     pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
     pAction->setProperty("AssetManager", QVariant::fromValue<void*>(desc->m_pManager));
     pAction->setProperty("Extension", desc->m_sFileExtension.GetData());
@@ -647,8 +648,10 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Guid.svg")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct references to this asset"), this, [&]()
+      { OnListFindAllReferences(false); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]()
+      { OnListFindAllReferences(true); });
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/ZoomOut.svg")), QLatin1String("Filter to this Path"), this, SLOT(OnFilterToThisPath()));
   }
 

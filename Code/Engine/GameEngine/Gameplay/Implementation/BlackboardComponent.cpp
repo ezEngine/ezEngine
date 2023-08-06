@@ -101,8 +101,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBlackboardComponent, 2, ezComponentMode::Static)
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
-    new ezUiGroupAttribute(ezColorScheme::Logic),
+    new ezCategoryAttribute("Logic"),
   }
   EZ_END_ATTRIBUTES;
 }

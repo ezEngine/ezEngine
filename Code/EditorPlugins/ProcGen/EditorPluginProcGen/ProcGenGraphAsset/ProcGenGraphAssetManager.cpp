@@ -15,7 +15,7 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
   m_DocTypeDesc.m_sDocumentTypeName = "ProcGen Graph";
   m_DocTypeDesc.m_sFileExtension = "ezProcGenGraphAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/ProcGen_Graph.svg";
-  m_DocTypeDesc.m_IconColorGroup = ezColorScheme::ColorGroup::Construction;
+  m_DocTypeDesc.m_sAssetCategory = "Construction";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ProcGen_Graph");

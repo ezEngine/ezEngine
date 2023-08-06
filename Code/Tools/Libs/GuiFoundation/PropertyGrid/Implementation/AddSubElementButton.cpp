@@ -210,15 +210,15 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
       const ezInDevelopmentAttribute* pInDev = pRtti->GetAttributeByType<ezInDevelopmentAttribute>();
       const ezColorAttribute* pColA = pRtti->GetAttributeByType<ezColorAttribute>();
 
-
-      ezColor iconColor = ezColor::ZeroColor();
+      ezColor iconColor = ezColor::MakeZero();
 
       if (pColA)
       {
-        if (pColA->m_iColorGroup != -1)
-          iconColor = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)pColA->m_iColorGroup, 2);
-        else
-          iconColor = pColA->GetColor();
+        iconColor = pColA->GetColor();
+      }
+      else if (pCatA && iconColor == ezColor::MakeZero())
+      {
+        iconColor = ezColorScheme::GetCategoryColor(pCatA->GetCategory(), ezColorScheme::CategoryColorUsage::MenuEntryIcon);
       }
 
       const QIcon actionIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);

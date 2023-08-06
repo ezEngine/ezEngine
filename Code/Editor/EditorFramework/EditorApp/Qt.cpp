@@ -91,6 +91,7 @@ void ezQtEditorApp::SetStyleSheet()
     // to enable reloading on "reload resources"
     // Example Lua file:
     // SetColor(Base, 24, 24, 24)
+    // SetDisabledColor(Base, 5, 5, 5)
 
     ezOSFile file;
     if (file.Open("D:\\Style.lua", ezFileOpenMode::Read).Succeeded())
@@ -125,38 +126,6 @@ void ezQtEditorApp::SetStyleSheet()
 
       lua.ExecuteString((const char*)content.GetData(), "", ezLog::GetThreadLocalLogSystem()).IgnoreResult();
     }
-  }
-
-  if (false)
-  {
-    ezImage img;
-    ezImageHeader hdr;
-    hdr.SetWidth(16);
-    hdr.SetHeight(150);
-    hdr.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
-    img.ResetAndAlloc(hdr);
-
-    ezInt32 x = 0, y = 0;
-
-    for (ezInt32 c = 0; c <= ezColorScheme::ColorGroup::XR; ++c)
-    {
-      for (ezInt32 s = 0; s < 4; ++s)
-      {
-        x = 0;
-
-        for (ezInt32 b = -3; b <= 3; ++b)
-        {
-          const ezColor col = ezColorScheme::GetGroupColor((ezColorScheme::ColorGroup)c, b, s);
-
-          *img.GetPixelPointer<ezColorGammaUB>(0, 0, 0, x, y) = col;
-          ++x;
-        }
-
-        ++y;
-      }
-    }
-
-    img.SaveTo("D:\\Colors.png").IgnoreResult();
   }
 
   QApplication::setPalette(palette);

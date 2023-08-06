@@ -14,8 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("General"),
-    new ezUiGroupAttribute(ezColorScheme::Utilities),
+    new ezCategoryAttribute("Utilities"),
   }
   EZ_END_ATTRIBUTES;
 }
