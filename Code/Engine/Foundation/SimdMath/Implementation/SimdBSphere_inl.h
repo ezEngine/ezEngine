@@ -8,6 +8,60 @@ EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere(const ezSimdVec4f& vCenter, const 
   m_CenterAndRadius.SetW(fRadius);
 }
 
+EZ_ALWAYS_INLINE ezSimdBSphere ezSimdBSphere::MakeZero()
+{
+  ezSimdBSphere res;
+  res.m_CenterAndRadius = ezSimdVec4f::MakeZero();
+  return res;
+}
+
+EZ_ALWAYS_INLINE ezSimdBSphere ezSimdBSphere::MakeInvalid(const ezSimdVec4f& vCenter /*= ezSimdVec4f::MakeZero()*/)
+{
+  ezSimdBSphere res;
+  res.m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -ezMath::SmallEpsilon<float>());
+  return res;
+}
+
+EZ_ALWAYS_INLINE ezSimdBSphere ezSimdBSphere::MakeFromCenterAndRadius(const ezSimdVec4f& vCenter, const ezSimdFloat& fRadius)
+{
+  return ezSimdBSphere(vCenter, fRadius);
+}
+
+inline ezSimdBSphere ezSimdBSphere::MakeFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /*= sizeof(ezSimdVec4f)*/)
+{
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezSimdVec4f), "The data must not overlap.");
+  EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
+
+  ezSimdBSphere res;
+
+  const ezSimdVec4f* pCur = pPoints;
+
+  ezSimdVec4f vCenter = ezSimdVec4f::MakeZero();
+  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
+  {
+    vCenter += *pCur;
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
+  }
+
+  res.m_CenterAndRadius = vCenter / ezSimdFloat(uiNumPoints);
+
+  pCur = pPoints;
+
+  ezSimdFloat fMaxDistSquare = ezSimdFloat::MakeZero();
+  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
+  {
+    const ezSimdFloat fDistSQR = (*pCur - res.m_CenterAndRadius).GetLengthSquared<3>();
+    fMaxDistSquare = fMaxDistSquare.Max(fDistSQR);
+
+    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
+  }
+
+  res.m_CenterAndRadius.SetW(fMaxDistSquare.GetSqrt());
+
+  return res;
+}
+
 EZ_ALWAYS_INLINE void ezSimdBSphere::SetInvalid()
 {
   m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -ezMath::SmallEpsilon<float>());
@@ -33,38 +87,12 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdBSphere::GetRadius() const
   return m_CenterAndRadius.w();
 }
 
-inline void ezSimdBSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
+EZ_ALWAYS_INLINE void ezSimdBSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
 {
-  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
-  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezSimdVec4f), "The data must not overlap.");
-  EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
-
-  const ezSimdVec4f* pCur = pPoints;
-
-  ezSimdVec4f vCenter = ezSimdVec4f::MakeZero();
-  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
-  {
-    vCenter += *pCur;
-    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
-  }
-
-  m_CenterAndRadius = vCenter / ezSimdFloat(uiNumPoints);
-
-  pCur = pPoints;
-
-  ezSimdFloat fMaxDistSquare = ezSimdFloat::MakeZero();
-  for (ezUInt32 i = 0; i < uiNumPoints; ++i)
-  {
-    const ezSimdFloat fDistSQR = (*pCur - m_CenterAndRadius).GetLengthSquared<3>();
-    fMaxDistSquare = fMaxDistSquare.Max(fDistSQR);
-
-    pCur = ezMemoryUtils::AddByteOffset(pCur, uiStride);
-  }
-
-  m_CenterAndRadius.SetW(fMaxDistSquare.GetSqrt());
+  *this = MakeFromPoints(pPoints, uiNumPoints, uiStride);
 }
 
-inline void ezSimdBSphere::ExpandToInclude(const ezSimdVec4f& vPoint)
+EZ_ALWAYS_INLINE void ezSimdBSphere::ExpandToInclude(const ezSimdVec4f& vPoint)
 {
   const ezSimdFloat fDist = (vPoint - m_CenterAndRadius).GetLength<3>();
 
@@ -91,7 +119,7 @@ inline void ezSimdBSphere::ExpandToInclude(const ezSimdVec4f* pPoints, ezUInt32 
   m_CenterAndRadius.SetW(fMaxDistSquare.GetSqrt().Max(GetRadius()));
 }
 
-inline void ezSimdBSphere::ExpandToInclude(const ezSimdBSphere& rhs)
+EZ_ALWAYS_INLINE void ezSimdBSphere::ExpandToInclude(const ezSimdBSphere& rhs)
 {
   const ezSimdFloat fReqRadius = (rhs.m_CenterAndRadius - m_CenterAndRadius).GetLength<3>() + rhs.GetRadius();
 

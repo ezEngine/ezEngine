@@ -35,16 +35,16 @@ public:
   [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeZero();
 
   /// \brief Creates a box that is in an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
-  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeInvalid();
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeInvalid(); // [tested]
 
   /// \brief Creates a box from a center point and half-extents for each axis.
-  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromCenterAndHalfExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vHalfExtents);
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromCenterAndHalfExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vHalfExtents); // [tested]
 
   /// \brief Creates a box with the given minimum and maximum values.
-  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromMinMax(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax);
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromMinMax(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax); // [tested]
 
   /// \brief Creates a box around the given set of points. If uiNumPoints is zero, the returned box is invalid (same as MakeInvalid() returns).
-  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>));
+  [[nodiscard]] static ezBoundingBoxTemplate<Type> MakeFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)); // [tested]
 
   /// \brief Resets the box to an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
   [[deprecated("Use MakeInvalid() instead.")]] void SetInvalid(); // [tested]

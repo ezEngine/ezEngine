@@ -181,13 +181,12 @@ void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
   if (!selection.IsEmpty())
   {
-    m.addAction("Delete Events", this, SLOT(onDeleteControlPoints()), QKeySequence(Qt::Key_Delete));
+    m.addAction("Delete Events", QKeySequence(Qt::Key_Delete), this, SLOT(onDeleteControlPoints()));
   }
 
   m.addSeparator();
 
-  m.addAction(
-    "Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
+  m.addAction("Frame", QKeySequence(Qt::ControlModifier | Qt::Key_F), this, [this]() { FrameCurve(); });
 
   m.exec(pos);
 }

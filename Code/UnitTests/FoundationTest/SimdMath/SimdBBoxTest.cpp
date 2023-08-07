@@ -25,50 +25,48 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
     EZ_TEST_BOOL((b.m_Max == ezSimdVec4f(1, 2, 3)).AllSet<3>());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInvalid")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeInvalid")
   {
-    ezSimdBBox b;
-    b.SetInvalid();
+    ezSimdBBox b = ezSimdBBox::MakeInvalid();
 
     EZ_TEST_BOOL(!b.IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    ezSimdBBox b;
+    ezSimdBBox b = ezSimdBBox::MakeInvalid();
 
-    b.SetInvalid();
+    b = ezSimdBBox::MakeInvalid();
     EZ_TEST_BOOL(!b.IsNaN());
 
-    b.SetInvalid();
+    b = ezSimdBBox::MakeInvalid();
     b.m_Min.SetX(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
-    b.SetInvalid();
+    b = ezSimdBBox::MakeInvalid();
     b.m_Min.SetY(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
-    b.SetInvalid();
+    b = ezSimdBBox::MakeInvalid();
     b.m_Min.SetZ(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
-    b.SetInvalid();
+    b = ezSimdBBox::MakeInvalid();
     b.m_Max.SetX(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
-    b.SetInvalid();
+    b = ezSimdBBox::MakeInvalid();
     b.m_Max.SetY(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
-    b.SetInvalid();
+    b = ezSimdBBox::MakeInvalid();
     b.m_Max.SetZ(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCenterAndHalfExtents")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromCenterAndHalfExtents")
   {
-    ezSimdBBox b;
-    b.SetCenterAndHalfExtents(ezSimdVec4f(1, 2, 3), ezSimdVec4f(4, 5, 6));
+    const ezSimdBBox b = ezSimdBBox::MakeFromCenterAndHalfExtents(ezSimdVec4f(1, 2, 3), ezSimdVec4f(4, 5, 6));
 
     EZ_TEST_BOOL((b.m_Min == ezSimdVec4f(-3, -3, -3)).AllSet<3>());
     EZ_TEST_BOOL((b.m_Max == ezSimdVec4f(5, 7, 9)).AllSet<3>());
@@ -78,7 +76,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
     EZ_TEST_BOOL((b.GetHalfExtents() == ezSimdVec4f(4, 5, 6)).AllSet<3>());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromPoints")
   {
     ezSimdVec4f p[6] = {
       ezSimdVec4f(-4, 0, 0),
@@ -89,8 +87,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
       ezSimdVec4f(0, 0, 9),
     };
 
-    ezSimdBBox b;
-    b.SetFromPoints(p, 6);
+    const ezSimdBBox b = ezSimdBBox::MakeFromPoints(p, 6);
 
     EZ_TEST_BOOL((b.m_Min == ezSimdVec4f(-4, -6, -8)).AllSet<3>());
     EZ_TEST_BOOL((b.m_Max == ezSimdVec4f(5, 7, 9)).AllSet<3>());
@@ -98,8 +95,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude (Point)")
   {
-    ezSimdBBox b;
-    b.SetInvalid();
+    ezSimdBBox b = ezSimdBBox::MakeInvalid();
     b.ExpandToInclude(ezSimdVec4f(1, 2, 3));
 
     EZ_TEST_BOOL((b.m_Min == ezSimdVec4f(1, 2, 3)).AllSet<3>());
@@ -121,8 +117,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
   {
     ezSimdVec4f v[4] = {ezSimdVec4f(1, 1, 1), ezSimdVec4f(-1, -1, -1), ezSimdVec4f(2, 2, 2), ezSimdVec4f(4, 4, 4)};
 
-    ezSimdBBox b;
-    b.SetInvalid();
+    ezSimdBBox b = ezSimdBBox::MakeInvalid();
     b.ExpandToInclude(v, 2, sizeof(ezSimdVec4f) * 2);
 
     EZ_TEST_BOOL((b.m_Min == ezSimdVec4f(1, 1, 1)).AllSet<3>());
@@ -144,8 +139,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
     EZ_TEST_BOOL((b1.m_Min == ezSimdVec4f(-1, -2, -3)).AllSet<3>());
     EZ_TEST_BOOL((b1.m_Max == ezSimdVec4f(4, 5, 6)).AllSet<3>());
 
-    ezSimdBBox b3;
-    b3.SetInvalid();
+    ezSimdBBox b3 = ezSimdBBox::MakeInvalid();
     b3.ExpandToInclude(b1);
     EZ_TEST_BOOL(b3 == b1);
 
@@ -160,8 +154,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToCube")
   {
-    ezSimdBBox b;
-    b.SetCenterAndHalfExtents(ezSimdVec4f(1, 2, 3), ezSimdVec4f(4, 5, 6));
+    ezSimdBBox b = ezSimdBBox::MakeFromCenterAndHalfExtents(ezSimdVec4f(1, 2, 3), ezSimdVec4f(4, 5, 6));
 
     b.ExpandToCube();
 

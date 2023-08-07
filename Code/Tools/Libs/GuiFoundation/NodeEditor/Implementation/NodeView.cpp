@@ -60,7 +60,7 @@ void ezQtNodeView::mouseMoveEvent(QMouseEvent* event)
   {
     m_iPanCounter++;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    QPointF vViewDelta = m_StartDragView - event->localPos();
+    QPointF vViewDelta = m_StartDragView - event->position();
 #else
     QPointF vViewDelta = m_vStartDragView - event->pos();
 #endif

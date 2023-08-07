@@ -1007,10 +1007,9 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
     auto IsOccluded = [=](const ezSimdBBox& aabb) {
       // grow the bbox by some percent to counter the lower precision of the occlusion buffer
 
-      ezSimdBBox aabb2;
       const ezSimdVec4f c = aabb.GetCenter();
       const ezSimdVec4f e = aabb.GetHalfExtents();
-      aabb2.SetCenterAndHalfExtents(c, e.CompMul(ezSimdVec4f(1.0f + cvar_SpatialCullingOcclusionBoundsInlation)));
+      const ezSimdBBox aabb2 = ezSimdBBox::MakeFromCenterAndHalfExtents(c, e.CompMul(ezSimdVec4f(1.0f + cvar_SpatialCullingOcclusionBoundsInlation)));
 
       return !pRasterizer->IsVisible(aabb2);
     };

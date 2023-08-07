@@ -38,7 +38,10 @@ namespace
     return ezMath::Clamp((ezInt32)(ezMath::Log2(fLinearDepth) * s_fDepthSliceScale + s_fDepthSliceBias), 0, NUM_CLUSTERS_Z - 1);
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 GetClusterIndexFromCoord(ezUInt32 x, ezUInt32 y, ezUInt32 z) { return z * NUM_CLUSTERS_XY + y * NUM_CLUSTERS_X + x; }
+  EZ_ALWAYS_INLINE ezUInt32 GetClusterIndexFromCoord(ezUInt32 x, ezUInt32 y, ezUInt32 z)
+  {
+    return z * NUM_CLUSTERS_XY + y * NUM_CLUSTERS_X + x;
+  }
 
   // in order: tlf, trf, blf, brf, tln, trn, bln, brn
   EZ_FORCE_INLINE void GetClusterCornerPoints(
@@ -150,10 +153,7 @@ namespace
           cc[6] = cc[4] - dirUp * steps.w();
           cc[7] = cc[6] + dirRight * steps.z();
 
-          ezSimdBSphere s;
-          s.SetFromPoints(cc, 8);
-
-          clusterBoundingSpheres[GetClusterIndexFromCoord(x, y, z)] = s;
+          clusterBoundingSpheres[GetClusterIndexFromCoord(x, y, z)] = ezSimdBSphere::MakeFromPoints(cc, 8);
         }
       }
 
@@ -403,8 +403,7 @@ namespace
       bool frontCull = projected > clusterRadius + range;
       bool backCull = projected < -clusterRadius;
 
-      return !(angleCull || frontCull || backCull);
-    });
+      return !(angleCull || frontCull || backCull); });
   }
 
   template <typename Cluster>
@@ -430,8 +429,7 @@ namespace
     ezBoundingBox::MakeFromMinMax(ezVec3(-1), ezVec3(1)).GetCorners(corners);
 
     ezSimdMat4f decalToScreen = mViewProjectionMatrix * decalToWorld;
-    ezSimdBBox screenSpaceBounds;
-    screenSpaceBounds.SetInvalid();
+    ezSimdBBox screenSpaceBounds = ezSimdBBox::MakeInvalid();
     bool bInsideBox = false;
     for (ezUInt32 i = 0; i < 8; ++i)
     {
@@ -463,7 +461,6 @@ namespace
       ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];
       clusterSphere.Transform(worldToDecal);
 
-      return localDecalBounds.Overlaps(clusterSphere);
-    });
+      return localDecalBounds.Overlaps(clusterSphere); });
   }
 } // namespace

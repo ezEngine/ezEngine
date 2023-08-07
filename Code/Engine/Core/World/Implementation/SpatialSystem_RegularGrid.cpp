@@ -253,8 +253,7 @@ struct ezSpatialSystem_RegularGrid::Grid
     , m_Category(category)
     , m_bCanBeCached(CanBeCached(category))
   {
-    ezSimdBBox overflowBox;
-    overflowBox.SetCenterAndHalfExtents(ezSimdVec4f::MakeZero(), ezSimdVec4f((float)(ref_system.m_vCellSize.x() * MAX_CELL_INDEX)));
+    const ezSimdBBox overflowBox = ezSimdBBox::MakeFromCenterAndHalfExtents(ezSimdVec4f::MakeZero(), ezSimdVec4f((float)(ref_system.m_vCellSize.x() * MAX_CELL_INDEX)));
 
     auto pOverflowCell = EZ_NEW(&m_System.m_AlignedAllocator, Cell, &m_System.m_AlignedAllocator, &m_System.m_Allocator);
     pOverflowCell->m_Bounds = overflowBox;
@@ -500,7 +499,6 @@ namespace ezInternal
         }
       }
 
-      ezSimdBBox bbox;
       auto boundingSpheres = cell.m_BoundingSpheres.GetData();
       auto boundingBoxHalfExtents = cell.m_BoundingBoxHalfExtents.GetData();
       auto tagSets = cell.m_TagSets.GetData();
@@ -543,7 +541,7 @@ namespace ezInternal
 
             if constexpr (UseOcclusionCallback)
             {
-              bbox.SetCenterAndHalfExtents(boundingSpheres[i].GetCenter(), boundingBoxHalfExtents[i]);
+              const ezSimdBBox bbox = ezSimdBBox::MakeFromCenterAndHalfExtents(boundingSpheres[i].GetCenter(), boundingBoxHalfExtents[i]);
               if (pQueryData->m_IsOccludedCB(bbox))
               {
                 continue;
@@ -577,7 +575,7 @@ namespace ezInternal
 
           if constexpr (UseOcclusionCallback)
           {
-            bbox.SetCenterAndHalfExtents(boundingSpheres[i].GetCenter(), boundingBoxHalfExtents[i]);
+            const ezSimdBBox bbox = ezSimdBBox::MakeFromCenterAndHalfExtents(boundingSpheres[i].GetCenter(), boundingBoxHalfExtents[i]);
 
             if (pQueryData->m_IsOccludedCB(bbox))
             {
@@ -736,8 +734,7 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::CreateSpatialDataAlwaysVisible(
   if (uiCategoryBitmask == 0)
     return ezSpatialDataHandle();
 
-  ezSimdBBox hugeBox;
-  hugeBox.SetCenterAndHalfExtents(ezSimdVec4f::MakeZero(), ezSimdVec4f((float)(m_vCellSize.x() * MAX_CELL_INDEX)));
+  const ezSimdBBox hugeBox = ezSimdBBox::MakeFromCenterAndHalfExtents(ezSimdVec4f::MakeZero(), ezSimdVec4f((float)(m_vCellSize.x() * MAX_CELL_INDEX)));
 
   return AddSpatialDataToGrids(hugeBox, pObject, uiCategoryBitmask, tags, true);
 }
@@ -806,8 +803,8 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
   EZ_PROFILE_SCOPE("FindObjectsInSphere");
 
   ezSimdBSphere simdSphere(ezSimdConversion::ToVec3(sphere.m_vCenter), sphere.m_fRadius);
-  ezSimdBBox simdBox;
-  simdBox.SetCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
+
+  const ezSimdBBox simdBox = ezSimdBBox::MakeFromCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
 
   ezInternal::QueryHelper::ShapeQueryData<ezSimdBSphere> queryData = {simdSphere, callback};
 
@@ -848,8 +845,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
     simdCornerPoints[i] = ezSimdConversion::ToVec3(cornerPoints[i]);
   }
 
-  ezSimdBBox simdBox;
-  simdBox.SetFromPoints(simdCornerPoints, 8);
+  const ezSimdBBox simdBox = ezSimdBBox::MakeFromPoints(simdCornerPoints, 8);
 
   ezInternal::QueryHelper::FrustumQueryData queryData;
   {
