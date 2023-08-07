@@ -54,8 +54,7 @@ void ezParticleFinalizer_Volume::Process(ezUInt64 uiNumElements)
 
   const ezSimdVec4f* pPosition = m_pStreamPosition->GetData<ezSimdVec4f>();
 
-  ezSimdBBoxSphere volume;
-  volume.SetFromPoints(pPosition, static_cast<ezUInt32>(uiNumElements));
+  const ezSimdBBoxSphere volume = ezSimdBBoxSphere::MakeFromPoints(pPosition, static_cast<ezUInt32>(uiNumElements));
 
   float fMaxSize = 0;
 

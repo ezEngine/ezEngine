@@ -81,7 +81,7 @@ namespace ezSimdConversion
 
   EZ_ALWAYS_INLINE ezSimdBBoxSphere ToBBoxSphere(const ezBoundingBoxSphere& b)
   {
-    return ezSimdBBoxSphere(ToVec3(b.m_vCenter), ToVec3(b.m_vBoxHalfExtends), b.m_fSphereRadius);
+    return ezSimdBBoxSphere::MakeFromCenterExtents(ToVec3(b.m_vCenter), ToVec3(b.m_vBoxHalfExtends), b.m_fSphereRadius);
   }
 
   EZ_ALWAYS_INLINE ezBoundingSphere ToBSphere(const ezSimdBSphere& s)
