@@ -107,7 +107,7 @@ bool ezQtIconViewDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOpti
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
-  if (thumbnailRect.contains(pEvent->localPos().toPoint()))
+  if (thumbnailRect.contains(pEvent->position().toPoint()))
   {
     pEvent->accept();
     return true;
@@ -120,7 +120,7 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOp
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
-  if (thumbnailRect.contains(pEvent->localPos().toPoint()))
+  if (thumbnailRect.contains(pEvent->position().toPoint()))
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
 

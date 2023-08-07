@@ -86,8 +86,6 @@ void ezQtEditorApp::InitQt(int iArgc, char** pArgv)
 {
   qInstallMessageHandler(QtDebugMessageHandler);
 
-  QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
   if (qApp != nullptr)
   {
     m_pQtApplication = qApp;

@@ -171,13 +171,13 @@ bool ezQtLayerDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptio
   {
     const QRect visibleRect = GetVisibleIconRect(option);
     const QRect loadedRect = GetLoadedIconRect(option);
-    if (visibleRect.contains(pEvent->localPos().toPoint()))
+    if (visibleRect.contains(pEvent->position().toPoint()))
     {
       const ezUuid layerGuid = index.data(ezQtLayerAdapter::UserRoles::LayerGuid).value<ezUuid>();
       const bool bVisible = !m_pDocument->IsLayerVisible(layerGuid);
       m_pDocument->SetLayerVisible(layerGuid, bVisible).LogFailure();
     }
-    else if (loadedRect.contains(pEvent->localPos().toPoint()))
+    else if (loadedRect.contains(pEvent->position().toPoint()))
     {
       const ezUuid layerGuid = index.data(ezQtLayerAdapter::UserRoles::LayerGuid).value<ezUuid>();
       if (layerGuid != m_pDocument->GetGuid())

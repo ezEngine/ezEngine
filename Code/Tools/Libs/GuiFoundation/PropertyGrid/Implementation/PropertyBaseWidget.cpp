@@ -1101,7 +1101,7 @@ bool ezQtPropertyContainerWidget::updateDropIndex(QDropEvent* pEvent)
         pEvent->accept();
         ezInt32 iNewDropTarget = -1;
         // Find closest drop target.
-        const ezInt32 iGlobalYPos = mapToGlobal(pEvent->pos()).y();
+        const ezInt32 iGlobalYPos = mapToGlobal(pEvent->position().toPoint()).y();
         for (ezUInt32 j = 0; j < m_Elements.GetCount(); j++)
         {
           const QRect rect(m_Elements[j].m_pSubGroup->mapToGlobal(QPoint(0, 0)), m_Elements[j].m_pSubGroup->size());

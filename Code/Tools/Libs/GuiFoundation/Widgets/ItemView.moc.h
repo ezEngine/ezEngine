@@ -55,19 +55,19 @@ public:
         QModelIndex index = this->indexAt(pos);
         if (m_Hovered.isValid() && (pEv->type() == QEvent::HoverLeave || index != m_Hovered))
         {
-          QHoverEvent hoverEvent(QEvent::HoverLeave, pos, pHoeverEvent->oldPos(), pHoeverEvent->modifiers());
+          QHoverEvent hoverEvent(QEvent::HoverLeave, pos, pHoeverEvent->globalPosition(), pHoeverEvent->oldPos(), pHoeverEvent->modifiers());
           ForwardEvent(m_Hovered, &hoverEvent);
           m_Hovered = QModelIndex();
         }
         if (index.isValid() && pEv->type() != QEvent::HoverLeave && !m_Hovered.isValid())
         {
-          QHoverEvent hoverEvent(QEvent::HoverEnter, pos, pHoeverEvent->oldPos(), pHoeverEvent->modifiers());
+          QHoverEvent hoverEvent(QEvent::HoverEnter, pos, pHoeverEvent->globalPosition(), pHoeverEvent->oldPos(), pHoeverEvent->modifiers());
           m_Hovered = index;
           ForwardEvent(m_Hovered, &hoverEvent);
         }
         else if (m_Hovered.isValid())
         {
-          QHoverEvent hoverEvent(QEvent::HoverMove, pos, pHoeverEvent->oldPos(), pHoeverEvent->modifiers());
+          QHoverEvent hoverEvent(QEvent::HoverMove, pos, pHoeverEvent->globalPosition(), pHoeverEvent->oldPos(), pHoeverEvent->modifiers());
           ForwardEvent(m_Hovered, &hoverEvent);
         }
         break;
@@ -142,7 +142,7 @@ private:
     if (!index.isValid())
       return false;
 
-    if (ezQtItemDelegate* pDelegate = qobject_cast<ezQtItemDelegate*>(this->itemDelegate(m_Hovered)))
+    if (ezQtItemDelegate* pDelegate = qobject_cast<ezQtItemDelegate*>(this->itemDelegateForIndex(m_Hovered)))
     {
       QStyleOptionViewItem option;
       this->initViewItemOption(&option);
