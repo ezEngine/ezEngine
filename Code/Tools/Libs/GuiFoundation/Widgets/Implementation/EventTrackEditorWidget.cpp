@@ -90,8 +90,7 @@ void ezQtEventTrackEditorWidget::onDeleteControlPoints()
 
   Q_EMIT BeginCpChangesEvent("Delete Events");
 
-  selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool
-    { return lhs > rhs; });
+  selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool { return lhs > rhs; });
 
   // delete sorted from back to front to prevent point indices becoming invalidated
   for (ezUInt32 pt : selection)
@@ -187,8 +186,7 @@ void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
   m.addSeparator();
 
-  m.addAction("Frame", QKeySequence(Qt::ControlModifier | Qt::Key_F), this, [this]()
-    { FrameCurve(); });
+  m.addAction("Frame", QKeySequence(Qt::ControlModifier | Qt::Key_F), this, [this]() { FrameCurve(); });
 
   m.exec(pos);
 }

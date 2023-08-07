@@ -612,8 +612,7 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
 
   m_Grids.SetCount(MAX_NUM_GRIDS);
 
-  cvar_SpatialQueriesCachingThreshold.m_CVarEvents.AddEventHandler([&](const ezCVarEvent& e)
-    {
+  cvar_SpatialQueriesCachingThreshold.m_CVarEvents.AddEventHandler([&](const ezCVarEvent& e) {
     if (e.m_EventType == ezCVarEvent::ValueChanged)
     {
       RemoveAllCachedGrids();
@@ -629,8 +628,7 @@ ezResult ezSpatialSystem_RegularGrid::GetCellBoxForSpatialData(const ezSpatialDa
     return EZ_FAILURE;
 
   ForEachGrid(*pData, hData,
-    [&](Grid& ref_grid, const CellDataMapping& mapping)
-    {
+    [&](Grid& ref_grid, const CellDataMapping& mapping) {
       auto& pCell = ref_grid.m_Cells[mapping.m_uiCellIndex];
 
       out_boundingBox = pCell->GetBoundingBox();
@@ -747,8 +745,7 @@ void ezSpatialSystem_RegularGrid::DeleteSpatialData(const ezSpatialDataHandle& h
   EZ_VERIFY(m_DataTable.Remove(hData.GetInternalID(), &oldData), "Invalid spatial data handle");
 
   ForEachGrid(oldData, hData,
-    [&](Grid& ref_grid, const CellDataMapping& mapping)
-    {
+    [&](Grid& ref_grid, const CellDataMapping& mapping) {
       ref_grid.RemoveSpatialData(hData);
       return ezVisitorExecution::Continue;
     });
@@ -764,8 +761,7 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataBounds(const ezSpatialDataHan
     return;
 
   ForEachGrid(*pData, hData,
-    [&](Grid& ref_grid, const CellDataMapping& mapping)
-    {
+    [&](Grid& ref_grid, const CellDataMapping& mapping) {
       auto& pOldCell = ref_grid.m_Cells[mapping.m_uiCellIndex];
 
       if (pOldCell->m_Bounds.GetBox().Contains(bounds.GetBox()))
@@ -795,8 +791,7 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataObject(const ezSpatialDataHan
   EZ_VERIFY(m_DataTable.TryGetValue(hData.GetInternalID(), pData), "Invalid spatial data handle");
 
   ForEachGrid(*pData, hData,
-    [&](Grid& ref_grid, const CellDataMapping& mapping)
-    {
+    [&](Grid& ref_grid, const CellDataMapping& mapping) {
       auto& pCell = ref_grid.m_Cells[mapping.m_uiCellIndex];
       pCell->m_ObjectPointers[mapping.m_uiCellDataIndex] = pObject;
       return ezVisitorExecution::Continue;
@@ -916,8 +911,7 @@ ezVisibilityState ezSpatialSystem_RegularGrid::GetVisibilityState(const ezSpatia
 
   ezUInt64 uiLastVisibleFrameIdxAndVisType = 0;
   ForEachGrid(*pData, hData,
-    [&](const Grid& grid, const CellDataMapping& mapping)
-    {
+    [&](const Grid& grid, const CellDataMapping& mapping) {
       auto& pCell = grid.m_Cells[mapping.m_uiCellIndex];
       uiLastVisibleFrameIdxAndVisType = ezMath::Max<ezUInt64>(uiLastVisibleFrameIdxAndVisType, pCell->m_LastVisibleFrameIdxAndVisType[mapping.m_uiCellDataIndex]);
       return ezVisitorExecution::Continue;
@@ -1058,8 +1052,7 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
 
     Stats stats;
     pGrid->ForEachCellInBox(box,
-      [&](const Cell& cell)
-      {
+      [&](const Cell& cell) {
         return noFilterCallback(cell, queryParams, stats, pUserData, visType);
       });
 
@@ -1089,8 +1082,7 @@ void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBB
 
     Stats stats;
     pGrid->ForEachCellInBox(box,
-      [&](const Cell& cell)
-      {
+      [&](const Cell& cell) {
         return cellCallback(cell, queryParams, stats, pUserData, visType);
       });
 

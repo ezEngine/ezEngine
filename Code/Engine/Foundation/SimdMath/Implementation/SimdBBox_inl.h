@@ -15,7 +15,7 @@ EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeZero()
 
 EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeInvalid()
 {
-  return ezSimdBBox(ezSimdVec4f(ezMath::MaxValue<float>()), ezSimdVec4f (- ezMath::MaxValue<float>()));
+  return ezSimdBBox(ezSimdVec4f(ezMath::MaxValue<float>()), ezSimdVec4f(-ezMath::MaxValue<float>()));
 }
 
 EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeFromCenterAndHalfExtents(const ezSimdVec4f& vCenter, const ezSimdVec4f& vHalfExtents)
