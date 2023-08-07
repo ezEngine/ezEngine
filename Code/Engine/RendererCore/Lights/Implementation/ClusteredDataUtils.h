@@ -38,7 +38,10 @@ namespace
     return ezMath::Clamp((ezInt32)(ezMath::Log2(fLinearDepth) * s_fDepthSliceScale + s_fDepthSliceBias), 0, NUM_CLUSTERS_Z - 1);
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 GetClusterIndexFromCoord(ezUInt32 x, ezUInt32 y, ezUInt32 z) { return z * NUM_CLUSTERS_XY + y * NUM_CLUSTERS_X + x; }
+  EZ_ALWAYS_INLINE ezUInt32 GetClusterIndexFromCoord(ezUInt32 x, ezUInt32 y, ezUInt32 z)
+  {
+    return z * NUM_CLUSTERS_XY + y * NUM_CLUSTERS_X + x;
+  }
 
   // in order: tlf, trf, blf, brf, tln, trn, bln, brn
   EZ_FORCE_INLINE void GetClusterCornerPoints(
@@ -150,10 +153,7 @@ namespace
           cc[6] = cc[4] - dirUp * steps.w();
           cc[7] = cc[6] + dirRight * steps.z();
 
-          ezSimdBSphere s;
-          s.SetFromPoints(cc, 8);
-
-          clusterBoundingSpheres[GetClusterIndexFromCoord(x, y, z)] = s;
+          clusterBoundingSpheres[GetClusterIndexFromCoord(x, y, z)] = ezSimdBSphere::MakeFromPoints(cc, 8);
         }
       }
 
@@ -349,7 +349,8 @@ namespace
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
     FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters,
-      [&](ezUInt32 uiClusterIndex) { return pointLightSphere.Overlaps(pClusterBoundingSpheres[uiClusterIndex]); });
+      [&](ezUInt32 uiClusterIndex)
+      { return pointLightSphere.Overlaps(pClusterBoundingSpheres[uiClusterIndex]); });
   }
 
   struct BoundingCone
@@ -390,7 +391,8 @@ namespace
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, [&](ezUInt32 uiClusterIndex) {
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, [&](ezUInt32 uiClusterIndex)
+      {
       ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];
       ezSimdFloat clusterRadius = clusterSphere.GetRadius();
 
@@ -403,8 +405,7 @@ namespace
       bool frontCull = projected > clusterRadius + range;
       bool backCull = projected < -clusterRadius;
 
-      return !(angleCull || frontCull || backCull);
-    });
+      return !(angleCull || frontCull || backCull); });
   }
 
   template <typename Cluster>
@@ -458,11 +459,11 @@ namespace
     const ezUInt32 uiBlockIndex = uiDecalIndex / 32;
     const ezUInt32 uiMask = 1 << (uiDecalIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, [&](ezUInt32 uiClusterIndex) {
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, pClusters, [&](ezUInt32 uiClusterIndex)
+      {
       ezSimdBSphere clusterSphere = pClusterBoundingSpheres[uiClusterIndex];
       clusterSphere.Transform(worldToDecal);
 
-      return localDecalBounds.Overlaps(clusterSphere);
-    });
+      return localDecalBounds.Overlaps(clusterSphere); });
   }
 } // namespace
