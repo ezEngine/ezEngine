@@ -8,6 +8,33 @@ EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox(const ezSimdVec4f& vMin, const ezSimdVec
 {
 }
 
+EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeZero()
+{
+  return ezSimdBBox(ezSimdVec4f::MakeZero(), ezSimdVec4f::MakeZero());
+}
+
+EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeInvalid()
+{
+  return ezSimdBBox(ezSimdVec4f(ezMath::MaxValue<float>()), ezSimdVec4f (- ezMath::MaxValue<float>()));
+}
+
+EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeFromCenterAndHalfExtents(const ezSimdVec4f& vCenter, const ezSimdVec4f& vHalfExtents)
+{
+  return ezSimdBBox(vCenter - vHalfExtents, vCenter + vHalfExtents);
+}
+
+EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeFromMinMax(const ezSimdVec4f& vMin, const ezSimdVec4f& vMax)
+{
+  return ezSimdBBox(vMin, vMax);
+}
+
+EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBox::MakeFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /*= sizeof(ezSimdVec4f)*/)
+{
+  ezSimdBBox box = ezSimdBBox::MakeInvalid();
+  box.ExpandToInclude(pPoints, uiNumPoints, uiStride);
+  return box;
+}
+
 EZ_ALWAYS_INLINE void ezSimdBBox::SetInvalid()
 {
   m_Min.Set(ezMath::MaxValue<float>());
@@ -22,7 +49,7 @@ EZ_ALWAYS_INLINE void ezSimdBBox::SetCenterAndHalfExtents(const ezSimdVec4f& vCe
 
 EZ_ALWAYS_INLINE void ezSimdBBox::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
 {
-  SetInvalid();
+  *this = MakeInvalid();
   ExpandToInclude(pPoints, uiNumPoints, uiStride);
 }
 
@@ -83,7 +110,7 @@ inline void ezSimdBBox::ExpandToCube()
   const ezSimdVec4f center = GetCenter();
   const ezSimdVec4f halfExtents = center - m_Min;
 
-  SetCenterAndHalfExtents(center, ezSimdVec4f(halfExtents.HorizontalMax<3>()));
+  *this = ezSimdBBox::MakeFromCenterAndHalfExtents(center, ezSimdVec4f(halfExtents.HorizontalMax<3>()));
 }
 
 EZ_ALWAYS_INLINE bool ezSimdBBox::Contains(const ezSimdVec4f& vPoint) const
@@ -98,8 +125,7 @@ EZ_ALWAYS_INLINE bool ezSimdBBox::Contains(const ezSimdBBox& rhs) const
 
 inline bool ezSimdBBox::Contains(const ezSimdBSphere& rhs) const
 {
-  ezSimdBBox otherBox;
-  otherBox.SetCenterAndHalfExtents(rhs.GetCenter(), ezSimdVec4f(rhs.GetRadius()));
+  const ezSimdBBox otherBox = ezSimdBBox::MakeFromCenterAndHalfExtents(rhs.GetCenter(), ezSimdVec4f(rhs.GetRadius()));
 
   return Contains(otherBox);
 }
@@ -143,7 +169,7 @@ EZ_ALWAYS_INLINE void ezSimdBBox::Transform(const ezSimdMat4f& mMat)
   newHalfExtents += mMat.m_col1.Abs() * halfExtents.y();
   newHalfExtents += mMat.m_col2.Abs() * halfExtents.z();
 
-  SetCenterAndHalfExtents(newCenter, newHalfExtents);
+  *this = ezSimdBBox::MakeFromCenterAndHalfExtents(newCenter, newHalfExtents);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdBBox::GetClampedPoint(const ezSimdVec4f& vPoint) const

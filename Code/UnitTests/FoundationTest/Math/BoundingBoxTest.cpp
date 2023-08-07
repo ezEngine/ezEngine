@@ -4,7 +4,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(SetElements)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromMinMax")
   {
     ezBoundingBoxT b = ezBoundingBoxT::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
 
@@ -12,7 +12,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     EZ_TEST_BOOL(b.m_vMax == ezVec3T(1, 2, 3));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetElements")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromMinMax")
   {
     ezBoundingBoxT b = ezBoundingBox::MakeFromMinMax(ezVec3T(-1, -2, -3), ezVec3T(1, 2, 3));
 
@@ -20,7 +20,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     EZ_TEST_BOOL(b.m_vMax == ezVec3T(1, 2, 3));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromPoints")
   {
     ezVec3T p[6] = {
       ezVec3T(-4, 0, 0),
@@ -37,7 +37,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 7, 9));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInvalid")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeInvalid")
   {
     ezBoundingBoxT b;
     b = ezBoundingBox::MakeInvalid();
@@ -45,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     EZ_TEST_BOOL(!b.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCenterAndHalfExtents")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromCenterAndHalfExtents")
   {
     ezBoundingBoxT b = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(4, 5, 6));
 

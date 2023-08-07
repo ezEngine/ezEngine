@@ -48,8 +48,7 @@ inline bool ezSimdBBoxSphere::IsNaN() const
 
 inline void ezSimdBBoxSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
 {
-  ezSimdBBox box;
-  box.SetFromPoints(pPoints, uiNumPoints, uiStride);
+  ezSimdBBox box = ezSimdBBox::MakeFromPoints(pPoints, uiNumPoints, uiStride);
 
   m_CenterAndRadius = box.GetCenter();
   m_BoxHalfExtents = m_CenterAndRadius - box.m_Min;
@@ -62,9 +61,7 @@ inline void ezSimdBBoxSphere::SetFromPoints(const ezSimdVec4f* pPoints, ezUInt32
 
 EZ_ALWAYS_INLINE ezSimdBBox ezSimdBBoxSphere::GetBox() const
 {
-  ezSimdBBox box;
-  box.SetCenterAndHalfExtents(m_CenterAndRadius, m_BoxHalfExtents);
-  return box;
+  return ezSimdBBox::MakeFromCenterAndHalfExtents(m_CenterAndRadius, m_BoxHalfExtents);
 }
 
 EZ_ALWAYS_INLINE ezSimdBSphere ezSimdBBoxSphere::GetSphere() const

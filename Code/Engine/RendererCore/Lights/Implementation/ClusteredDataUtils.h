@@ -430,8 +430,7 @@ namespace
     ezBoundingBox::MakeFromMinMax(ezVec3(-1), ezVec3(1)).GetCorners(corners);
 
     ezSimdMat4f decalToScreen = mViewProjectionMatrix * decalToWorld;
-    ezSimdBBox screenSpaceBounds;
-    screenSpaceBounds.SetInvalid();
+    ezSimdBBox screenSpaceBounds = ezSimdBBox::MakeInvalid();
     bool bInsideBox = false;
     for (ezUInt32 i = 0; i < 8; ++i)
     {
