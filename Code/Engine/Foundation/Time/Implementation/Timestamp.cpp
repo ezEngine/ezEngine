@@ -127,6 +127,16 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg)
   return szTmp;
 }
 
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezTimestamp& arg0)
+{
+  const ezDateTime arg = ezDateTime::MakeFromTimestamp(arg0);
+
+  ezStringUtils::snprintf(szTmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(), arg.GetDay(), arg.GetHour(),
+    arg.GetMinute(), arg.GetSecond(), arg.GetMicroseconds() / 1000);
+
+  return szTmp;
+}
+
 namespace
 {
   // This implementation chooses a 3-character-long short name for each of the twelve months

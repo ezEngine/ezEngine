@@ -8,7 +8,7 @@ EZ_ALWAYS_INLINE ezBoundingBoxTemplate<Type>::ezBoundingBoxTemplate() = default;
 template <typename Type>
 EZ_FORCE_INLINE ezBoundingBoxTemplate<Type>::ezBoundingBoxTemplate(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax)
 {
-  SetElements(vMin, vMax);
+  *this = MakeFromMinMax(vMin, vMax);
 }
 
 template <typename Type>

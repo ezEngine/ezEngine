@@ -216,6 +216,7 @@ private:
 };
 
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezTimestamp& arg);
 
 struct ezArgDateTime
 {
@@ -240,6 +241,17 @@ struct ezArgDateTime
   /// \param bShowTimeZoneIndicator Whether to indicate the timezone of the ezDateTime object.
   inline explicit ezArgDateTime(const ezDateTime& dateTime, ezUInt32 uiFormattingFlags = Default)
     : m_Value(dateTime)
+    , m_uiFormattingFlags(uiFormattingFlags)
+  {
+  }
+
+  /// \brief Initialized a formatting object for an ezTimestamp instance.
+  /// \param timestamp The ezTimestamp instance to format.
+  /// \param bUseNames Indicates whether to use names for days of week and months (true)
+  ///        or a purely numerical representation (false).
+  /// \param bShowTimeZoneIndicator Whether to indicate the timezone of the ezDateTime object.
+  inline explicit ezArgDateTime(const ezTimestamp& timestamp, ezUInt32 uiFormattingFlags = Default)
+    : m_Value(ezDateTime::MakeFromTimestamp(timestamp))
     , m_uiFormattingFlags(uiFormattingFlags)
   {
   }

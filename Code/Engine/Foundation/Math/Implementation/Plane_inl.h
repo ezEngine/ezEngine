@@ -16,7 +16,7 @@ EZ_FORCE_INLINE ezPlaneTemplate<Type>::ezPlaneTemplate()
 template <typename Type>
 ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane)
 {
-  SetFromNormalAndPoint(vNormal, vPointOnPlane);
+  *this = MakeFromNormalAndPoint(vNormal, vPointOnPlane);
 }
 
 template <typename Type>

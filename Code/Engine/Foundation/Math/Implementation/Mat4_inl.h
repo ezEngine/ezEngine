@@ -16,7 +16,20 @@ ezMat4Template<Type>::ezMat4Template()
 template <typename Type>
 ezMat4Template<Type>::ezMat4Template(const Type* const pData, ezMatrixLayout::Enum layout)
 {
-  SetFromArray(pData, layout);
+  if (layout == ezMatrixLayout::ColumnMajor)
+  {
+    ezMemoryUtils::Copy(m_fElementsCM, pData, 16);
+  }
+  else
+  {
+    for (int i = 0; i < 4; ++i)
+    {
+      Element(0, i) = pData[i * 4 + 0];
+      Element(1, i) = pData[i * 4 + 1];
+      Element(2, i) = pData[i * 4 + 2];
+      Element(3, i) = pData[i * 4 + 3];
+    }
+  }
 }
 
 template <typename Type>
