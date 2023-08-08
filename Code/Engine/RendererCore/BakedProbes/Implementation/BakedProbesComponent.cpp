@@ -196,7 +196,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakedProbesComponent, 1, ezComponentMode::Static)
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Baking"),
+    new ezCategoryAttribute("Lighting/Baking"),
     new ezLongOpAttribute("ezLongOpProxy_BakeScene"),
     new ezTransformManipulatorAttribute("TestPosition"),
     new ezInDevelopmentAttribute(ezInDevelopmentAttribute::Phase::Beta),

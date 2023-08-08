@@ -12,7 +12,8 @@ ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Kraut Tree";
   m_DocTypeDesc.m_sFileExtension = "ezKrautTreeAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Terrain";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezKrautTreeAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Kraut_Tree");

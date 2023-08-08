@@ -362,7 +362,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Procedural Generation"),
+    new ezCategoryAttribute("Construction/Procedural Generation"),
   }
   EZ_END_ATTRIBUTES;
 }

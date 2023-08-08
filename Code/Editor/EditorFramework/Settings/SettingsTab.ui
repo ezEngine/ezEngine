@@ -77,7 +77,7 @@
        </property>
        <property name="icon">
         <iconset resource="../QtResources/resources.qrc">
-         <normaloff>:/EditorFramework/Icons/Input16.png</normaloff>:/EditorFramework/Icons/Input16.png</iconset>
+         <normaloff>:/EditorFramework/Icons/Input.svg</normaloff>:/EditorFramework/Icons/Input.svg</iconset>
        </property>
       </widget>
      </item>
@@ -106,7 +106,7 @@
        </property>
        <property name="icon">
         <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-         <normaloff>:/GuiFoundation/Icons/Project16.png</normaloff>:/GuiFoundation/Icons/Project16.png</iconset>
+         <normaloff>:/GuiFoundation/Icons/Project.svg</normaloff>:/GuiFoundation/Icons/Project.svg</iconset>
        </property>
       </widget>
      </item>

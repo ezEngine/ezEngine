@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/Icons/Fileserve16.png</normaloff>:/Icons/Fileserve16.png</iconset>
+    <normaloff>:/Icons/Fileserve.svg</normaloff>:/Icons/Fileserve.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,1,4,0">
    <item>

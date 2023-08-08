@@ -272,9 +272,16 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
     {
       bHasIcon = true;
 
+      ezColor color = ezColor::MakeZero();
+
+      if (auto pCatAttr = pChild->GetTypeAccessor().GetType()->GetAttributeByType<ezCategoryAttribute>())
+      {
+        color = ezColorScheme::GetCategoryColor(pCatAttr->GetCategory(), ezColorScheme::CategoryColorUsage::SceneTreeIcon);
+      }
+
       ezStringBuilder sIconName;
-      sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName());
-      *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
+      sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName(), ".svg");
+      *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), color);
     }
 
     if (out_sResult.IsEmpty())

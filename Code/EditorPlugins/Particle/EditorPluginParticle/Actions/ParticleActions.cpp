@@ -26,7 +26,7 @@ void ezParticleActions::RegisterActions()
   s_hAutoRestart =
     EZ_REGISTER_ACTION_1("PFX.AutoRestart", ezActionScope::Document, "Particles", "", ezParticleAction, ezParticleAction::ActionType::AutoRestart);
 
-  s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("PFX.Speed.Menu", ":/EditorPluginParticle/Icons/Speed16.png");
+  s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("PFX.Speed.Menu", ":/EditorPluginParticle/Icons/Speed.svg");
   s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2(
     "PFX.Speed.01", ezActionScope::Document, "Particles", "Ctrl+1", ezParticleAction, ezParticleAction::ActionType::SimulationSpeed, 0.1f);
   s_hSimulationSpeed[1] = EZ_REGISTER_ACTION_2(
@@ -99,20 +99,20 @@ ezParticleAction::ezParticleAction(const ezActionContext& context, const char* s
   switch (m_Type)
   {
     case ActionType::PauseEffect:
-      SetIconPath(":/EditorPluginParticle/Icons/Pause16.png");
+      SetIconPath(":/EditorPluginParticle/Icons/Pause.svg");
       break;
 
     case ActionType::RestartEffect:
-      SetIconPath(":/EditorPluginParticle/Icons/Restart16.png");
+      SetIconPath(":/EditorPluginParticle/Icons/Restart.svg");
       break;
 
     case ActionType::AutoRestart:
-      SetIconPath(":/EditorPluginParticle/Icons/Loop16.png");
+      SetIconPath(":/EditorPluginParticle/Icons/Loop.svg");
       break;
 
     case ActionType::RenderVisualizers:
       SetCheckable(true);
-      SetIconPath(":/EditorFramework/Icons/Visualizers16.png");
+      SetIconPath(":/EditorFramework/Icons/Visualizers.svg");
       SetChecked(m_pEffectDocument->GetRenderVisualizers());
       break;
 

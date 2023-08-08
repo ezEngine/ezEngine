@@ -1,6 +1,6 @@
 <RCC>
   <qresource prefix="AssetIcons">
-    <file>VisualScript.png</file>
+    <file>VisualScript.svg</file>
   </qresource>
   <qresource prefix="EditorPluginVisualScript">
     <file>Coroutine.svg</file>

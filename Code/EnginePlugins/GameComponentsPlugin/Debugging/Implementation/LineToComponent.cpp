@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezLineToComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Debug"),
+    new ezCategoryAttribute("Utilities/Debug"),
   }
   EZ_END_ATTRIBUTES;
 }

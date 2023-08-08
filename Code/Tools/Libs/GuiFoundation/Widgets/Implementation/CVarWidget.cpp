@@ -301,7 +301,7 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
   {
     if (e->m_Value.IsValid())
     {
-      return ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.png");
+      return ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.svg");
     }
   }
 

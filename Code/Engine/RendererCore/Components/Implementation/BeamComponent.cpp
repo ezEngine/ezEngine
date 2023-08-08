@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBeamComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering"),
+    new ezCategoryAttribute("Effects"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

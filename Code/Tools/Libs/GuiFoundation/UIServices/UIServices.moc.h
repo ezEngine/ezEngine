@@ -116,7 +116,12 @@ public:
 
   /// \brief Returns a cached QIcon that was created from an internal Qt resource (e.g. 'QIcon(":QtNamespace/MyIcon.png")' ). Prevents creating the
   /// object over and over.
-  static const QIcon& GetCachedIconResource(const char* szIdentifier);
+  ///
+  /// If svgTintColor is a non-zero color, and sIdentifier points to an .SVG file, then the first time the icon is requested with that color,
+  /// a copy is made, and the SVG content is modified such that white ("#FFFFFF") gets replaced by the requested color.
+  /// Thus multiple tints of the same icon can be created for different use cases.
+  /// Usually this is used to get different shades of the same icon, such that it looks good on the target background.
+  static const QIcon& GetCachedIconResource(ezStringView sIdentifier, ezColor svgTintColor = ezColor::MakeZero());
 
   /// \brief Returns a cached QImage that was created from an internal Qt resource (e.g. 'QImage(":QtNamespace/MyIcon.png")' ). Prevents creating the
   /// object over and over.

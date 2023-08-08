@@ -67,7 +67,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int i
 
     case Qt::DecorationRole:
     {
-      return ezQtUiServices::GetCachedIconResource(":/EditorPluginScene/Icons/Layer16.png");
+      return ezQtUiServices::GetCachedIconResource(":/EditorPluginScene/Icons/Layer.svg");
     }
     break;
     case Qt::ForegroundRole:
@@ -76,7 +76,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int i
       ezUuid layerGuid = pAccessor->Get<ezUuid>(pObject, "Layer");
       if (!m_pSceneDocument->IsLayerLoaded(layerGuid))
       {
-        return QColor(128, 128, 128);
+        return QVariant();
       }
     }
     break;
@@ -213,7 +213,7 @@ void ezQtLayerDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& op
         const QRect thumbnailRect = GetVisibleIconRect(opt);
         const bool bVisible = m_pDocument->IsLayerVisible(layerGuid);
         const QIcon::Mode mode = bVisible ? QIcon::Mode::Normal : QIcon::Mode::Disabled;
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerVisible16.png").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerVisible.svg").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
       }
 
       if (layerGuid != m_pDocument->GetGuid())
@@ -221,7 +221,7 @@ void ezQtLayerDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& op
         const QRect thumbnailRect = GetLoadedIconRect(opt);
         const bool bLoaded = m_pDocument->IsLayerLoaded(layerGuid);
         const QIcon::Mode mode = bLoaded ? QIcon::Mode::Normal : QIcon::Mode::Disabled;
-        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerLoaded16.png").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginScene/Icons/LayerLoaded.svg").paint(pPainter, thumbnailRect, Qt::AlignmentFlag::AlignCenter, mode);
       }
     }
   }

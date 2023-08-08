@@ -55,7 +55,7 @@ void ezSelectionActions::RegisterActions()
   s_hDetachFromParent = EZ_REGISTER_ACTION_1(
     "Selection.Detach", ezActionScope::Document, "Scene - Selection", "", ezSelectionAction, ezSelectionAction::ActionType::DetachFromParent);
 
-  s_hPrefabMenu = EZ_REGISTER_MENU_WITH_ICON("Prefabs.Menu", ":/AssetIcons/Prefab.png");
+  s_hPrefabMenu = EZ_REGISTER_MENU_WITH_ICON("Prefabs.Menu", ":/AssetIcons/Prefab.svg");
   s_hCreatePrefab =
     EZ_REGISTER_ACTION_1("Prefabs.Create", ezActionScope::Document, "Prefabs", "", ezSelectionAction, ezSelectionAction::ActionType::CreatePrefab);
   s_hRevertPrefab =
@@ -178,49 +178,49 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   switch (m_Type)
   {
     case ActionType::GroupSelectedItems:
-      SetIconPath(":/EditorPluginScene/Icons/GroupSelection16.png");
+      SetIconPath(":/EditorPluginScene/Icons/GroupSelection.svg");
       break;
     case ActionType::CreateEmptyChildObject:
-      SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
+      SetIconPath(":/EditorPluginScene/Icons/CreateNode.svg");
       break;
     case ActionType::CreateEmptyObjectAtPosition:
-      SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
+      SetIconPath(":/EditorPluginScene/Icons/CreateNode.svg");
       break;
     case ActionType::HideSelectedObjects:
-      SetIconPath(":/EditorPluginScene/Icons/HideSelected16.png");
+      SetIconPath(":/EditorPluginScene/Icons/HideSelected.svg");
       break;
     case ActionType::HideUnselectedObjects:
-      SetIconPath(":/EditorPluginScene/Icons/HideUnselected16.png");
+      SetIconPath(":/EditorPluginScene/Icons/HideUnselected.svg");
       break;
     case ActionType::ShowHiddenObjects:
-      SetIconPath(":/EditorPluginScene/Icons/ShowHidden16.png");
+      SetIconPath(":/EditorPluginScene/Icons/ShowHidden.svg");
       break;
     case ActionType::CreatePrefab:
-      SetIconPath(":/EditorPluginScene/Icons/PrefabCreate16.png");
+      SetIconPath(":/EditorPluginScene/Icons/PrefabCreate.svg");
       break;
     case ActionType::RevertPrefab:
-      SetIconPath(":/EditorPluginScene/Icons/PrefabRevert16.png");
+      SetIconPath(":/EditorPluginScene/Icons/PrefabRevert.svg");
       break;
     case ActionType::UnlinkFromPrefab:
-      SetIconPath(":/EditorPluginScene/Icons/PrefabUnlink16.png");
+      SetIconPath(":/EditorPluginScene/Icons/PrefabUnlink.svg");
       break;
     case ActionType::OpenPrefabDocument:
-      SetIconPath(":/EditorPluginScene/Icons/PrefabOpenDocument16.png");
+      SetIconPath(":/EditorPluginScene/Icons/PrefabOpenDocument.svg");
       break;
     case ActionType::DuplicateSpecial:
-      SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png");
+      SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg");
       break;
     case ActionType::DeltaTransform:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
       break;
     case ActionType::SnapObjectToCamera:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
       break;
     case ActionType::AttachToObject:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
       break;
     case ActionType::DetachFromParent:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
       break;
     case ActionType::ConvertToEditorPrefab:
       // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon

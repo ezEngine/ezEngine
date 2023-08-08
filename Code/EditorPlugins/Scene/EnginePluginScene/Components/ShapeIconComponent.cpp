@@ -7,7 +7,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezShapeIconComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Editing Utilities"),
+    new ezCategoryAttribute("Editing"),
   }
   EZ_END_ATTRIBUTES;
 }

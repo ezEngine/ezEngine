@@ -92,7 +92,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
     // 'All' Filter
     {
-      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/All")), QLatin1String("<All>"));
+      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/All.svg")), QLatin1String("<All>"));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Checked);
       pItem->setData(Qt::UserRole, QLatin1String("<All>"));
@@ -102,7 +102,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
     for (const auto& it : assetTypes)
     {
-      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
+      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetCategoryColor(it.Value()->m_sAssetCategory, ezColorScheme::CategoryColorUsage::AssetMenuIcon)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Unchecked);
       pItem->setData(Qt::UserRole, QLatin1String(it.Value()->m_sDocumentTypeName));
@@ -117,11 +117,11 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
     TypeFilter->clear();
 
     // 'All' Filter
-    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/All")), QLatin1String("<All>"));
+    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/All.svg")), QLatin1String("<All>"));
 
     for (const auto& it : assetTypes)
     {
-      TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
+      TypeFilter->addItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetCategoryColor(it.Value()->m_sAssetCategory, ezColorScheme::CategoryColorUsage::AssetMenuIcon)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
       TypeFilter->setItemData(TypeFilter->count() - 1, QString::fromUtf8(it.Value()->m_sDocumentTypeName, it.Value()->m_sDocumentTypeName.GetElementCount()), Qt::UserRole);
     }
   }
@@ -223,7 +223,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
       continue;
 
     QAction* pAction = pSubMenu->addAction(ezTranslate(desc->m_sDocumentTypeName));
-    pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
+    pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon, ezColorScheme::GetCategoryColor(desc->m_sAssetCategory, ezColorScheme::CategoryColorUsage::MenuEntryIcon)));
     pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
     pAction->setProperty("AssetManager", QVariant::fromValue<void*>(desc->m_pManager));
     pAction->setProperty("Extension", desc->m_sFileExtension.GetData());
@@ -568,7 +568,7 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
 
   if (TreeFolderFilter->currentItem())
   {
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnTreeOpenExplorer()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnTreeOpenExplorer()));
   }
 
   {
@@ -639,17 +639,17 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
   if (ListAssets->selectionModel()->hasSelection())
   {
     if (!m_bDialogMode)
-      m.setDefaultAction(m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
+      m.setDefaultAction(m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
     else
       m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
 
-    m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform16.png")), QLatin1String("Transform"), this, SLOT(OnTransform()));
+    m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform.svg")), QLatin1String("Transform"), this, SLOT(OnTransform()));
 
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search16.png")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/ZoomOut16.png")), QLatin1String("Filter to this Path"), this, SLOT(OnFilterToThisPath()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Guid.svg")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct references to this asset"), this, [&]() { OnListFindAllReferences(false); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Search.svg")), QLatin1String("Find all direct and indirect references to this asset"), this, [&]() { OnListFindAllReferences(true); });
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/ZoomOut.svg")), QLatin1String("Filter to this Path"), this, SLOT(OnFilterToThisPath()));
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));

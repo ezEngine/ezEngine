@@ -33,7 +33,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 4)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Lighting"),
+    new ezCategoryAttribute("Lighting"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS

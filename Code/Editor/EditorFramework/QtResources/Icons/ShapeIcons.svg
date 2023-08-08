@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+
+<svg
+   fill="#ffffff"
+   width="800px"
+   height="800px"
+   viewBox="0 0 32 32"
+   id="icon"
+   version="1.1"
+   sodipodi:docname="ShapeIcons.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.40125"
+     inkscape:cx="399.64318"
+     inkscape:cy="400"
+     inkscape:window-width="2256"
+     inkscape:window-height="1398"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="SVGRepo_iconCarrier" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round" />
+  <g
+     id="SVGRepo_iconCarrier">
+    <defs
+       id="defs1">
+      <style
+         id="style1">.cls-1{fill:none;}</style>
+    </defs>
+    <title
+       id="title1">dot-mark</title>
+    <circle
+       cx="16"
+       cy="16"
+       r="8"
+       id="circle1"
+       style="fill:#4f9ea9;fill-opacity:1" />
+    <rect
+       id="_Transparent_Rectangle_"
+       data-name="&lt;Transparent Rectangle&gt;"
+       class="cls-1"
+       width="32"
+       height="32" />
+  </g>
+</svg>

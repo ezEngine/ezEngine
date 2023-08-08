@@ -24,6 +24,8 @@ ezQtDataWidget::ezQtDataWidget(QWidget* pParent)
   setupUi(this);
   setWidget(DataTransferWidgetFrame);
 
+  setIcon(QIcon(":/Icons/Icons/database_refresh.svg"));
+
   ResetStats();
 }
 

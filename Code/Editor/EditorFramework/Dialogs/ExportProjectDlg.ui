@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/EditorPluginScene/Icons/SceneExport16.png</normaloff>:/EditorPluginScene/Icons/SceneExport16.png</iconset>
+    <normaloff>:/EditorPluginScene/Icons/SceneExport.svg</normaloff>:/EditorPluginScene/Icons/SceneExport.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

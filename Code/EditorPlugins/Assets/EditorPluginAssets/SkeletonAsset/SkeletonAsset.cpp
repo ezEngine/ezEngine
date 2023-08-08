@@ -445,7 +445,7 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRel
     info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
     info.m_sName = "SkeletonImport";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Skeleton.png";
+    info.m_sIcon = ":/AssetIcons/Skeleton.svg";
   }
 }
 

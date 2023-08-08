@@ -77,6 +77,35 @@ public:
     return ezMath::Lerp(s_LightUIColors[uiIndexA], s_LightUIColors[uiIndexB], fFrac);
   }
 
+  /// \see GetCategoryColor()
+  enum class CategoryColorUsage
+  {
+    ViewportIcon,    // shape icons in 3D viewport
+    MenuEntryIcon,   // tint color for icons in a menu
+    SceneTreeIcon,   // tint color for icons in a scene tree
+    OverlayIcon,     // tint color for overlay icons on top of thumbnails (asset browser)
+    BorderColor,     // color for a border frame around UI elements
+    BorderIconColor, // color for icons embedded in a border frame
+    AssetMenuIcon,   // tint color for icons in asset browser menus
+  };
+
+  using CategoryColorFunc = ezColor (*)(ezStringView sCategory, CategoryColorUsage usage);
+
+  static CategoryColorFunc s_CategoryColorFunc;
+
+  /// \brief Returns a color to use in UI for elements of a given 'category'.
+  ///
+  /// The category is typically defined via an ezCategoryAttribute.
+  /// It is simply a string. If it is a complex category, e.g. a path such as "Effects/Wind",
+  /// the default implementation only looks at the first part, ie. it treats this all as the category "Effects.
+  ///
+  /// A custom implementation can be provided through s_CategoryColorFunc, in which case it has full control
+  /// and can also use the full category name.
+  ///
+  /// The 'usage' is provided to tell the function what the color will be used for, allowing to use more or less contrast
+  /// or switch of coloring entirely.
+  static ezColor GetCategoryColor(ezStringView sCategory, CategoryColorUsage usage);
+
 private:
   EZ_ALWAYS_INLINE constexpr static void GetInterpolation(float fIndex, ezUInt32& out_uiIndexA, ezUInt32& out_uiIndexB, float& out_fFrac)
   {

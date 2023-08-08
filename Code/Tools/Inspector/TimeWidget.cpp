@@ -28,6 +28,8 @@ ezQtTimeWidget::ezQtTimeWidget(QWidget* pParent)
   setupUi(this);
   setWidget(TimeWidgetFrame);
 
+  setIcon(QIcon(":/Icons/Icons/Time.svg"));
+
   {
     ezQtScopedUpdatesDisabled _1(ComboTimeframe);
 

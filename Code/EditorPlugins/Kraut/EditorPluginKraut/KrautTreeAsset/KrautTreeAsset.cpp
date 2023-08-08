@@ -235,7 +235,7 @@ void ezKrautTreeAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRe
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "KrautTreeImport.Tree";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
+    info.m_sIcon = ":/AssetIcons/Kraut_Tree.svg";
   }
 }
 

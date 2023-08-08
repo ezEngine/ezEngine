@@ -273,9 +273,7 @@ void ezProjectActions::MapActions(ezStringView sMapping)
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 
 void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
 {
@@ -299,7 +297,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
       continue;
 
     item.m_UserValue = file.m_File;
-    item.m_Icon = ezQtUiServices::GetCachedIconResource(pTypeDesc->m_sIcon);
+    item.m_Icon = ezQtUiServices::GetCachedIconResource(pTypeDesc->m_sIcon, ezColorScheme::GetCategoryColor(pTypeDesc->m_sAssetCategory, ezColorScheme::CategoryColorUsage::MenuEntryIcon));
 
     if (ezToolsProject::IsProjectOpen())
     {
@@ -382,67 +380,67 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   switch (m_ButtonType)
   {
     case ezProjectAction::ButtonType::CreateDocument:
-      SetIconPath(":/GuiFoundation/Icons/DocumentAdd16.png");
+      SetIconPath(":/GuiFoundation/Icons/DocumentAdd.svg");
       break;
     case ezProjectAction::ButtonType::OpenDocument:
-      SetIconPath(":/GuiFoundation/Icons/Document16.png");
+      SetIconPath(":/GuiFoundation/Icons/Document.svg");
       break;
     case ezProjectAction::ButtonType::OpenDashboard:
-      SetIconPath(":/GuiFoundation/Icons/Project16.png");
+      SetIconPath(":/GuiFoundation/Icons/Project.svg");
       break;
     case ezProjectAction::ButtonType::CreateProject:
-      SetIconPath(":/GuiFoundation/Icons/ProjectAdd16.png");
+      SetIconPath(":/GuiFoundation/Icons/ProjectAdd.svg");
       break;
     case ezProjectAction::ButtonType::OpenProject:
-      SetIconPath(":/GuiFoundation/Icons/Project16.png");
+      SetIconPath(":/GuiFoundation/Icons/Project.svg");
       break;
     case ezProjectAction::ButtonType::CloseProject:
-      SetIconPath(":/GuiFoundation/Icons/ProjectClose16.png");
+      SetIconPath(":/GuiFoundation/Icons/ProjectClose.svg");
       break;
     case ezProjectAction::ButtonType::ReloadResources:
-      SetIconPath(":/GuiFoundation/Icons/ReloadResources16.png");
+      SetIconPath(":/GuiFoundation/Icons/ReloadResources.svg");
       break;
     case ezProjectAction::ButtonType::LaunchFileserve:
-      SetIconPath(":/EditorFramework/Icons/Fileserve16.png");
+      SetIconPath(":/EditorFramework/Icons/Fileserve.svg");
       break;
     case ezProjectAction::ButtonType::LaunchInspector:
-      SetIconPath(":/EditorFramework/Icons/Inspector16.png");
+      SetIconPath(":/EditorFramework/Icons/Inspector.svg");
       break;
     case ezProjectAction::ButtonType::ReloadEngine:
-      SetIconPath(":/GuiFoundation/Icons/ReloadEngine16.png");
+      SetIconPath(":/GuiFoundation/Icons/ReloadEngine.svg");
       break;
     case ezProjectAction::ButtonType::DataDirectories:
-      SetIconPath(":/EditorFramework/Icons/DataDirectories16.png");
+      SetIconPath(":/EditorFramework/Icons/DataDirectory.svg");
       break;
     case ezProjectAction::ButtonType::WindowConfig:
-      SetIconPath(":/EditorFramework/Icons/WindowConfig16.png");
+      SetIconPath(":/EditorFramework/Icons/WindowConfig.svg");
       break;
     case ezProjectAction::ButtonType::ImportAsset:
-      SetIconPath(":/GuiFoundation/Icons/DocumentImport16.png");
+      SetIconPath(":/GuiFoundation/Icons/Import.svg");
       break;
     case ezProjectAction::ButtonType::InputConfig:
-      SetIconPath(":/EditorFramework/Icons/Input16.png");
+      SetIconPath(":/EditorFramework/Icons/Input.svg");
       break;
     case ezProjectAction::ButtonType::PluginSelection:
-      SetIconPath(":/EditorFramework/Icons/Plugins16.png");
+      SetIconPath(":/EditorFramework/Icons/Plugins.svg");
       break;
     case ezProjectAction::ButtonType::PreferencesDialog:
-      SetIconPath(":/EditorFramework/Icons/StoredSettings16.png");
+      SetIconPath(":/EditorFramework/Icons/StoredSettings.svg");
       break;
     case ezProjectAction::ButtonType::TagsDialog:
-      SetIconPath(":/EditorFramework/Icons/Tag16.png");
+      SetIconPath(":/EditorFramework/Icons/Tag.svg");
       break;
     case ezProjectAction::ButtonType::ExportProject:
-      // TODO: SetIconPath(":/EditorFramework/Icons/Tag16.png");
+      // TODO: SetIconPath(":/EditorFramework/Icons/Tag.svg");
       break;
     case ezProjectAction::ButtonType::Shortcuts:
-      SetIconPath(":/GuiFoundation/Icons/Shortcuts16.png");
+      SetIconPath(":/GuiFoundation/Icons/Shortcuts.svg");
       break;
     case ezProjectAction::ButtonType::AssetProfiles:
-      SetIconPath(":/EditorFramework/Icons/AssetProfiles16.png");
+      SetIconPath(":/EditorFramework/Icons/AssetProfile.svg");
       break;
     case ezProjectAction::ButtonType::OpenVsCode:
-      SetIconPath(":/GuiFoundation/Icons/vscode16.png");
+      SetIconPath(":/GuiFoundation/Icons/vscode.svg");
       break;
     case ezProjectAction::ButtonType::SaveProfiling:
       // no icon
@@ -457,10 +455,10 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       // SetIconPath(":/EditorFramework/Icons/VisualStudio.svg"); // TODO
       break;
     case ezProjectAction::ButtonType::ShowDocsAndCommunity:
-      // SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
+      // SetIconPath(":/GuiFoundation/Icons/Project.svg"); // TODO
       break;
     case ezProjectAction::ButtonType::ClearAssetCaches:
-      // SetIconPath(":/GuiFoundation/Icons/Project16.png"); // TODO
+      // SetIconPath(":/GuiFoundation/Icons/Project.svg"); // TODO
       break;
   }
 
@@ -687,6 +685,13 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezEditorAppEvent e;
       e.m_Type = ezEditorAppEvent::Type::ReloadResources;
       ezQtEditorApp::GetSingleton()->m_Events.Broadcast(e);
+
+      // keep this here to make live color palette editing available, when needed
+      // if (false)
+      {
+        QTimer::singleShot(1, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+        QTimer::singleShot(500, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+      }
 
       if (m_Context.m_pDocument)
       {

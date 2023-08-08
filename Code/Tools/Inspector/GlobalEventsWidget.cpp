@@ -17,6 +17,8 @@ ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(QWidget* pParent)
   setupUi(this);
   setWidget(GlobalEventsFrame);
 
+  setIcon(QIcon(":/Icons/Icons/GlobalEvent.svg"));
+
   ResetStats();
 }
 
@@ -109,7 +111,7 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
       it.Value().m_iTableRow = iRow;
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/GlobalEvent.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/GlobalEvent.svg"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableEvents->setCellWidget(iRow, 0, pIcon);
 

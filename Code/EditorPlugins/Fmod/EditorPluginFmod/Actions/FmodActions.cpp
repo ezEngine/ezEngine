@@ -62,7 +62,7 @@ ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, A
   switch (m_Type)
   {
     case ActionType::ProjectSettings:
-      SetIconPath(":/AssetIcons/Sound_Event.png");
+      SetIconPath(":/AssetIcons/Sound_Event.svg");
       break;
 
     case ActionType::MuteSound:
@@ -73,9 +73,9 @@ ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, A
       pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezFmodAction::OnPreferenceChange, this));
 
       if (pPreferences->GetMute())
-        SetIconPath(":/Icons/SoundOff16.png");
+        SetIconPath(":/Icons/SoundOff.svg");
       else
-        SetIconPath(":/Icons/SoundOn16.png");
+        SetIconPath(":/Icons/SoundOn.svg");
 
       SetChecked(pPreferences->GetMute());
     }
@@ -119,9 +119,9 @@ void ezFmodAction::OnPreferenceChange(ezPreferences* pref)
   if (m_Type == ActionType::MuteSound)
   {
     if (pPreferences->GetMute())
-      SetIconPath(":/Icons/SoundOff16.png");
+      SetIconPath(":/Icons/SoundOff.svg");
     else
-      SetIconPath(":/Icons/SoundOn16.png");
+      SetIconPath(":/Icons/SoundOn.svg");
 
     SetChecked(pPreferences->GetMute());
   }

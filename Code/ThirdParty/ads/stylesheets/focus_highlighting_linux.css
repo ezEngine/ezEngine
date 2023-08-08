@@ -91,12 +91,23 @@ QScrollArea#dockWidgetScrollArea {
         background: rgba(0, 0, 0, 48);
 }
 
-
 #tabsMenuButton {
-        qproperty-icon: url(:/ads/images/tabs-menu-button.svg);
-        qproperty-iconSize: 16px;
+	margin-top: 2px;
+	background: none;
+	border: none;
+	padding: 0px -2px;
+	qproperty-icon: url(:/ads/images/tabs-menu-button.svg);
+	qproperty-iconSize: 16px;
 }
 
+#tabsMenuButton:hover {
+	border: 1px solid rgba(0, 0, 0, 32);
+	background: rgba(0, 0, 0, 16);
+}
+
+#tabsMenuButton:pressed {
+	background: rgba(0, 0, 0, 32);
+}
 
 /* Focus related styling */
 ads--CDockWidgetTab[focused="true"] {

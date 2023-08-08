@@ -273,7 +273,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay/Logic"),
+    new ezCategoryAttribute("Logic"),
   }
   EZ_END_ATTRIBUTES;
 }

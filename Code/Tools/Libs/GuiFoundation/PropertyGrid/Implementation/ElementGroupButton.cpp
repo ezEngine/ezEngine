@@ -15,16 +15,16 @@ ezQtElementGroupButton::ezQtElementGroupButton(QWidget* pParent, ezQtElementGrou
   switch (action)
   {
     case ezQtElementGroupButton::ElementAction::MoveElementUp:
-      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/MoveUp16.png")));
+      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/MoveUp.svg")));
       break;
     case ezQtElementGroupButton::ElementAction::MoveElementDown:
-      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/MoveDown16.png")));
+      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/MoveDown.svg")));
       break;
     case ezQtElementGroupButton::ElementAction::DeleteElement:
-      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Delete16.png")));
+      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Delete.svg")));
       break;
     case ezQtElementGroupButton::ElementAction::Help:
-      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Log.png")));
+      setIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/Log.svg")));
       break;
   }
 }

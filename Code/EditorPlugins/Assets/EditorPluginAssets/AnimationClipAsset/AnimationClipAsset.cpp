@@ -370,7 +370,7 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(ezStringView sParentD
     info.m_Priority = ezAssetDocGeneratorPriority::Undecided;
     info.m_sName = "AnimationClipImport";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Animation_Clip.png";
+    info.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
   }
 }
 

@@ -1,9 +1,9 @@
 <RCC>
   <qresource prefix="AssetIcons">
-    <file>Kraut_Tree.png</file>
+    <file>Kraut_Tree.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezKrautTreeComponent.png</file>
+    <file>ezKrautTreeComponent.svg</file>
   </qresource>  
 </RCC>
 

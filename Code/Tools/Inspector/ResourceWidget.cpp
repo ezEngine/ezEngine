@@ -1,8 +1,8 @@
 #include <Inspector/InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
-#include <Inspector/ResourceWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/ResourceWidget.moc.h>
 #include <QComboBox>
 #include <qgraphicsitem.h>
 
@@ -24,6 +24,8 @@ ezQtResourceWidget::ezQtResourceWidget(QWidget* pParent)
 
   setupUi(this);
   setWidget(ResourceWidgetFrame);
+
+  setIcon(QIcon(":/Icons/Icons/Resources.svg"));
 
   m_bShowDeleted = true;
 
@@ -206,22 +208,22 @@ void ezQtResourceWidget::UpdateTable()
 
       if (res.m_LoadingState.m_State == ezResourceState::LoadedResourceMissing)
       {
-        pItem->setIcon(QIcon(":/Icons/Icons/ResourceMissing.png"));
+        pItem->setIcon(QIcon(":/Icons/Icons/ResourceMissing.svg"));
         pItem->setToolTip("The resource could not be loaded.");
       }
       else if (!res.m_Flags.IsAnySet(ezResourceFlags::IsReloadable))
       {
-        pItem->setIcon(QIcon(":/Icons/Icons/ResourceCreated.png"));
+        pItem->setIcon(QIcon(":/Icons/Icons/ResourceCreated.svg"));
         pItem->setToolTip("Resource is not reloadable.");
       }
       else if (res.m_Flags.IsAnySet(ezResourceFlags::ResourceHasFallback))
       {
-        pItem->setIcon(QIcon(":/Icons/Icons/ResourceFallback.png"));
+        pItem->setIcon(QIcon(":/Icons/Icons/ResourceFallback.svg"));
         pItem->setToolTip("A fallback resource is specified.");
       }
       else
       {
-        pItem->setIcon(QIcon(":/Icons/Icons/Resource.png"));
+        pItem->setIcon(QIcon(":/Icons/Icons/Resource.svg"));
         pItem->setToolTip("Resource is reloadable but no fallback is available.");
       }
 
@@ -315,7 +317,7 @@ void ezQtResourceWidget::UpdateTable()
 
       if (res.m_LoadingState.m_State == ezResourceState::Invalid)
       {
-        Table->item(iTableRow, 7)->setIcon(QIcon(":/Icons/Icons/ResourceDeleted.png"));
+        Table->item(iTableRow, 7)->setIcon(QIcon(":/Icons/Icons/ResourceDeleted.svg"));
         // Table->item(iTableRow, 1)->setText(""); // Priority
         // Table->item(iTableRow, 3)->setText(""); // QL D
         // Table->item(iTableRow, 4)->setText(""); // QL L

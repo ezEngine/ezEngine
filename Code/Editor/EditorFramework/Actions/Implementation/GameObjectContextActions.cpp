@@ -65,13 +65,13 @@ ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& cont
   switch (m_Type)
   {
     case ActionType::PickContextScene:
-      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      SetIconPath(":/EditorPluginAssets/PickTarget.svg");
       break;
     case ActionType::PickContextObject:
-      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      SetIconPath(":/EditorPluginAssets/PickTarget.svg");
       break;
     case ActionType::ClearContextObject:
-      SetIconPath(":/EditorPluginAssets/PickTarget16.png");
+      SetIconPath(":/EditorPluginAssets/PickTarget.svg");
       break;
     default:
       break;

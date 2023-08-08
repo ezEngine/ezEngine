@@ -17,6 +17,8 @@ ezQtInputWidget::ezQtInputWidget(QWidget* pParent)
   setupUi(this);
   setWidget(InputWidgetFrame);
 
+  setIcon(QIcon(":/Icons/Icons/InputActions.svg"));
+
   ResetStats();
 }
 
@@ -182,7 +184,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
       sTemp.Format("  {0}  ", it.Key());
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputSlots.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputSlots.svg"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableInputSlots->setCellWidget(iRow, 0, pIcon);
 
@@ -322,7 +324,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
       sTemp.Format("  {0}  ", it.Key());
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputActions.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputActions.svg"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableInputActions->setCellWidget(iRow, 0, pIcon);
 

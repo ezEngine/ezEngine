@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/TypeIcons/ezFmodEventComponent.png</normaloff>:/TypeIcons/ezFmodEventComponent.png</iconset>
+    <normaloff>:/TypeIcons/ezFmodEventComponent.svg</normaloff>:/TypeIcons/ezFmodEventComponent.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -49,7 +49,7 @@
          </property>
          <property name="icon">
           <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/DocumentAdd16.png</normaloff>:/GuiFoundation/Icons/DocumentAdd16.png</iconset>
+           <normaloff>:/GuiFoundation/Icons/DocumentAdd.svg</normaloff>:/GuiFoundation/Icons/DocumentAdd.svg</iconset>
          </property>
         </widget>
        </item>
@@ -60,7 +60,7 @@
          </property>
          <property name="icon">
           <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+           <normaloff>:/GuiFoundation/Icons/Delete.svg</normaloff>:/GuiFoundation/Icons/Delete.svg</iconset>
          </property>
         </widget>
        </item>

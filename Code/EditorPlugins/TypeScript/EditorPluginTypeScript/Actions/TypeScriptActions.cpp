@@ -48,7 +48,7 @@ ezTypeScriptAction::ezTypeScriptAction(const ezActionContext& context, const cha
   switch (m_Type)
   {
     case ActionType::EditScript:
-      SetIconPath(":/GuiFoundation/Icons/vscode16.png");
+      SetIconPath(":/GuiFoundation/Icons/vscode.svg");
       break;
   }
 }

@@ -80,7 +80,7 @@ void ezQtInputConfigDlg::on_ButtonNewInputSet_clicked()
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, sResult);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
+    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input.svg"));
 
     m_InputSetToItem[sName] = pItem;
   }
@@ -220,7 +220,7 @@ void ezQtInputConfigDlg::FillList()
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, it.Key().GetData());
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
+    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input.svg"));
 
     m_InputSetToItem[it.Key()] = pItem;
   }

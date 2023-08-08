@@ -72,26 +72,80 @@ void ezQtUiServices::SaveState()
   Settings.endGroup();
 }
 
-
-const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier)
+const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezColor svgTintColor)
 {
-  const ezString sIdentifier = szIdentifier;
+  ezStringBuilder sFullIdentifier = sIdentifier;
   auto& map = s_IconsCache;
 
-  auto it = map.Find(sIdentifier);
+  if (sIdentifier.EndsWith_NoCase(".svg") && svgTintColor != ezColor::MakeZero())
+  {
+    sFullIdentifier.AppendFormat("-{}", ezColorGammaUB(svgTintColor));
+  }
+
+  auto it = map.Find(sFullIdentifier);
 
   if (it.IsValid())
     return it.Value();
 
-  QIcon icon(QString::fromUtf8(szIdentifier));
+  if (sIdentifier.EndsWith_NoCase(".svg") && svgTintColor != ezColor::MakeZero())
+  {
+    // read the icon from the Qt virtual file system (QResource)
+    QFile file(ezString(sIdentifier).GetData());
+    if (!file.open(QIODeviceBase::OpenModeFlag::ReadOnly))
+    {
+      // if it doesn't exist, return an empty QIcon
 
-  // Workaround for QIcon being stupid and treating failed to load icons as not-null.
-  if (!icon.pixmap(QSize(16, 16)).isNull())
-    map[sIdentifier] = icon;
+      map[sFullIdentifier] = QIcon();
+      return map[sFullIdentifier];
+    }
+
+    QString sContent = file.readAll();
+
+    const ezStringBuilder sTempFolder = ezOSFile::GetTempDataFolder("ezEditor/QIcons");
+    const ezStringBuilder sTempIconFile(sTempFolder, "/", sFullIdentifier.GetFileName(), ".svg");
+
+    // replace the occurrence of the color white ("#FFFFFF") with the desired target color
+    {
+      const QChar c0 = '0';
+      const ezColorGammaUB color8 = svgTintColor;
+      sContent.replace("#ffffff", QString("#%1%2%3").arg((int)color8.r, 2, 16, c0).arg((int)color8.g, 2, 16, c0).arg((int)color8.b, 2, 16, c0), Qt::CaseInsensitive);
+    }
+
+    // now write the new SVG file back to a dummy file
+    // yes, this is as stupid as it sounds, we really write the file BACK TO THE FILESYSTEM, rather than doing this stuff in-memory
+    // that's because I wasn't able to figure out whether we can somehow read a QIcon from a string rather than from file
+    // it doesn't appear to be easy at least, since we can only give it a path, not a memory stream or anything like that
+    {
+      const ezStringBuilder tmp = sContent.toUtf8().data();
+
+      ezOSFile::CreateDirectoryStructure(sTempFolder).AssertSuccess();
+
+      QFile fileOut(sTempIconFile.GetData());
+      fileOut.open(QIODeviceBase::OpenModeFlag::WriteOnly);
+      fileOut.write(tmp.GetData(), tmp.GetElementCount());
+      fileOut.flush();
+      fileOut.close();
+    }
+
+    QIcon icon(sTempIconFile.GetData());
+
+    if (!icon.pixmap(QSize(16, 16)).isNull())
+      map[sFullIdentifier] = icon;
+    else
+      map[sFullIdentifier] = QIcon();
+  }
   else
-    map[sIdentifier] = QIcon();
+  {
+    QIcon icon(ezString(sIdentifier).GetData());
 
-  return map[sIdentifier];
+    // Workaround for QIcon being stupid and treating failed to load icons as not-null.
+    if (!icon.pixmap(QSize(16, 16)).isNull())
+      map[sFullIdentifier] = icon;
+    else
+      map[sFullIdentifier] = QIcon();
+  }
+
+  return map[sFullIdentifier];
 }
 
 

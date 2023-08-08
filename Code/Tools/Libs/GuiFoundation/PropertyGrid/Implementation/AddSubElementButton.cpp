@@ -203,12 +203,25 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
     // second round: create the actions
     for (const ezRTTI* pRtti : supportedTypes)
     {
-      sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
-      const QIcon actionIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
+      sIconName.Set(":/TypeIcons/", pRtti->GetTypeName(), ".svg");
 
       // Determine current menu
       const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
       const ezInDevelopmentAttribute* pInDev = pRtti->GetAttributeByType<ezInDevelopmentAttribute>();
+      const ezColorAttribute* pColA = pRtti->GetAttributeByType<ezColorAttribute>();
+
+      ezColor iconColor = ezColor::MakeZero();
+
+      if (pColA)
+      {
+        iconColor = pColA->GetColor();
+      }
+      else if (pCatA && iconColor == ezColor::MakeZero())
+      {
+        iconColor = ezColorScheme::GetCategoryColor(pCatA->GetCategory(), ezColorScheme::CategoryColorUsage::MenuEntryIcon);
+      }
+
+      const QIcon actionIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData(), iconColor);
 
 
       if (m_pSearchableMenu != nullptr)

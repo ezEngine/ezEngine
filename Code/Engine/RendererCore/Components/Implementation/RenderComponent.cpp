@@ -6,6 +6,11 @@
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, 1)
 {
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Rendering"),
+  }
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)

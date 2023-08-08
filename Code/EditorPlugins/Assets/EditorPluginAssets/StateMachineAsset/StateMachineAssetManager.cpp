@@ -14,6 +14,7 @@ ezStateMachineAssetManager::ezStateMachineAssetManager()
   m_DocTypeDesc.m_sDocumentTypeName = "StateMachine";
   m_DocTypeDesc.m_sFileExtension = "ezStateMachineAsset";
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/StateMachine.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Logic";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezStateMachineAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_StateMachine");

@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/Icons/Icons/Search.png</normaloff>:/Icons/Icons/Search.png</iconset>
+    <normaloff>:/Icons/Icons/Search.svg</normaloff>:/Icons/Icons/Search.svg</iconset>
   </property>
   <property name="documentMode">
    <bool>false</bool>
@@ -85,7 +85,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/Log.png</normaloff>:/Icons/Icons/Log.png</iconset>
+     <normaloff>:/Icons/Icons/Log.svg</normaloff>:/Icons/Icons/Log.svg</iconset>
    </property>
    <property name="text">
     <string>Log</string>
@@ -97,7 +97,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/Memory.png</normaloff>:/Icons/Icons/Memory.png</iconset>
+     <normaloff>:/Icons/Icons/Memory.svg</normaloff>:/Icons/Icons/Memory.svg</iconset>
    </property>
    <property name="text">
     <string>Memory</string>
@@ -109,7 +109,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/InputActions.png</normaloff>:/Icons/Icons/InputActions.png</iconset>
+     <normaloff>:/Icons/Icons/InputActions.svg</normaloff>:/Icons/Icons/InputActions.svg</iconset>
    </property>
    <property name="text">
     <string>Input</string>
@@ -121,7 +121,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>:/GuiFoundation/Icons/CVar.png</normaloff>:/GuiFoundation/Icons/CVar.png</iconset>
+     <normaloff>:/GuiFoundation/Icons/CVar.svg</normaloff>:/GuiFoundation/Icons/CVar.svg</iconset>
    </property>
    <property name="text">
     <string>CVars</string>
@@ -133,7 +133,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/Subsystem.png</normaloff>:/Icons/Icons/Subsystem.png</iconset>
+     <normaloff>:/Icons/Icons/Subsystem.svg</normaloff>:/Icons/Icons/Subsystem.svg</iconset>
    </property>
    <property name="text">
     <string>Subsystems</string>
@@ -148,7 +148,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/File.png</normaloff>:/Icons/Icons/File.png</iconset>
+     <normaloff>:/Icons/Icons/File.svg</normaloff>:/Icons/Icons/File.svg</iconset>
    </property>
    <property name="text">
     <string>File Operations</string>
@@ -160,7 +160,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/Plugin.png</normaloff>:/Icons/Icons/Plugin.png</iconset>
+     <normaloff>:/Icons/Icons/Plugin.svg</normaloff>:/Icons/Icons/Plugin.svg</iconset>
    </property>
    <property name="text">
     <string>Plugins</string>
@@ -172,7 +172,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/GlobalEvent.png</normaloff>:/Icons/Icons/GlobalEvent.png</iconset>
+     <normaloff>:/Icons/Icons/GlobalEvent.svg</normaloff>:/Icons/Icons/GlobalEvent.svg</iconset>
    </property>
    <property name="text">
     <string>Global Events</string>
@@ -184,7 +184,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/Time.png</normaloff>:/Icons/Icons/Time.png</iconset>
+     <normaloff>:/Icons/Icons/Time.svg</normaloff>:/Icons/Icons/Time.svg</iconset>
    </property>
    <property name="text">
     <string>Time</string>
@@ -220,7 +220,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/Type.png</normaloff>:/Icons/Icons/Type.png</iconset>
+     <normaloff>:/Icons/Icons/Type.svg</normaloff>:/Icons/Icons/Type.svg</iconset>
    </property>
    <property name="text">
     <string>Reflection</string>
@@ -243,7 +243,7 @@
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/Resources.png</normaloff>:/Icons/Icons/Resources.png</iconset>
+     <normaloff>:/Icons/Icons/Resources.svg</normaloff>:/Icons/Icons/Resources.svg</iconset>
    </property>
    <property name="text">
     <string>Resources</string>

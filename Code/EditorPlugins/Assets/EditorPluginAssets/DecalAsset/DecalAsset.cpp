@@ -190,7 +190,7 @@ void ezDecalAssetDocumentGenerator::GetImportModes(ezStringView sParentDirRelati
     info.m_Priority = isDecal ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "DecalImport.All";
     info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Decal.png";
+    info.m_sIcon = ":/AssetIcons/Decal.svg";
   }
 }
 

@@ -16,7 +16,8 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Animation Clip";
   m_DocTypeDesc.m_sFileExtension = "ezAnimationClipAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animation_Clip.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animation_Clip.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Animation";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Keyframe_Animation");
@@ -24,7 +25,7 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezAnimationClip";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 
-  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.png"));
+  // ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.svg"));
 }
 
 ezAnimationClipAssetDocumentManager::~ezAnimationClipAssetDocumentManager()
@@ -50,8 +51,7 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-void ezAnimationClipAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   out_pDocument = new ezAnimationClipAssetDocument(szPath);
 }

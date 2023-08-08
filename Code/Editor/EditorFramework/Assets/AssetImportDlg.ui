@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-    <normaloff>:/GuiFoundation/Icons/DocumentImport16.png</normaloff>:/GuiFoundation/Icons/DocumentImport16.png</iconset>
+    <normaloff>:/GuiFoundation/Icons/Import.svg</normaloff>:/GuiFoundation/Icons/Import.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

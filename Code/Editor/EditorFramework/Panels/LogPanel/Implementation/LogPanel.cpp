@@ -15,7 +15,7 @@ ezQtLogPanel::ezQtLogPanel()
   pDummy->setContentsMargins(0, 0, 0, 0);
   pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
-  setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
+  setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.svg"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.Log")));
   setWidget(pDummy);
 

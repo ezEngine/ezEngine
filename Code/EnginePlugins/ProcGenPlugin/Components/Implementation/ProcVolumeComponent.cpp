@@ -33,6 +33,11 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
     EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged)
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Construction/Procedural Generation"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -181,7 +186,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Procedural Generation"),
     new ezSphereManipulatorAttribute("Radius"),
     new ezSphereVisualizerAttribute("Radius", ezColor::LimeGreen),
   }
@@ -272,7 +276,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Procedural Generation"),
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
     new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::LimeGreen),
   }

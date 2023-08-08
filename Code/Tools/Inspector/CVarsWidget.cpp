@@ -39,6 +39,8 @@ ezQtCVarsWidget::ezQtCVarsWidget(QWidget* pParent)
   setupUi(this);
   setWidget(CVarWidget);
 
+  setIcon(QIcon(":/GuiFoundation/Icons/CVar.svg"));
+
   connect(CVarWidget, &ezQtCVarWidget::onBoolChanged, this, &ezQtCVarsWidget::BoolChanged);
   connect(CVarWidget, &ezQtCVarWidget::onFloatChanged, this, &ezQtCVarsWidget::FloatChanged);
   connect(CVarWidget, &ezQtCVarWidget::onIntChanged, this, &ezQtCVarsWidget::IntChanged);

@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/EditorFramework/Icons/Tag16.png</normaloff>:/EditorFramework/Icons/Tag16.png</iconset>
+    <normaloff>:/EditorFramework/Icons/Tag.svg</normaloff>:/EditorFramework/Icons/Tag.svg</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

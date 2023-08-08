@@ -32,7 +32,7 @@ public:
     AssetGuid,
     AbsolutePath,
     RelativePath,
-    AssetIconPath,
+    AssetIcon,
     TransformState,
   };
 

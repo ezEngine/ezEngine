@@ -66,7 +66,7 @@ ezActionDescriptorHandle ezTextureAssetActions::s_hLodSlider;
 
 void ezTextureAssetActions::RegisterActions()
 {
-  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureAsset.ChannelMode", ezTextureChannelModeAction, ":/EditorFramework/Icons/RenderMode.svg");
   s_hLodSlider = EZ_REGISTER_ACTION_0("TextureAsset.LodSlider", ezActionScope::Document, "Texture 2D", "", ezTextureLodSliderAction);
 }
 

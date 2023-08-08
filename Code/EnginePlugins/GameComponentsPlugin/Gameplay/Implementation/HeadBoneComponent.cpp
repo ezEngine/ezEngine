@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeadBoneComponent, 1, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Transform"),
+    new ezCategoryAttribute("Animation"),
   }
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS

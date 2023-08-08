@@ -13,7 +13,8 @@ ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "ColorGradient";
   m_DocTypeDesc.m_sFileExtension = "ezColorGradientAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Animation";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_Gradient");

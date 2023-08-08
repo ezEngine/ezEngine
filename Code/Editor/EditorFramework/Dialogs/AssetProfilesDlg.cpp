@@ -49,13 +49,13 @@ public:
         switch (iPlatform)
         {
           case ezProfileTargetPlatform::PC:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows16.png");
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg");
 
           case ezProfileTargetPlatform::UWP:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows16.png"); // TODO: icon
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":EditorFramework/Icons/PlatformWindows.svg"); // TODO: icon
 
           case ezProfileTargetPlatform::Android:
-            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid16.png");
+            return ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/PlatformAndroid.svg");
         }
       }
 

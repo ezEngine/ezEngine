@@ -48,7 +48,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 3, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Rendering/Lighting"),
+    new ezCategoryAttribute("Lighting"),
   }
   EZ_END_ATTRIBUTES;
 }

@@ -30,7 +30,7 @@ ezActionDescriptorHandle ezViewLightActions::s_hSetAsDefault;
 
 void ezViewLightActions::RegisterActions()
 {
-  s_hLightMenu = EZ_REGISTER_MENU_WITH_ICON("View.LightMenu", ":/EditorFramework/Icons/ViewLightMenu.png");
+  s_hLightMenu = EZ_REGISTER_MENU_WITH_ICON("View.LightMenu", ":/EditorFramework/Icons/ViewLightMenu.svg");
   s_hSkyBox = EZ_REGISTER_ACTION_1(
     "View.SkyBox", ezActionScope::Document, "View", "", ezViewLightButtonAction, ezEngineViewLightSettingsEvent::Type::SkyBoxChanged);
   s_hSkyLight = EZ_REGISTER_ACTION_1(
@@ -103,30 +103,30 @@ ezViewLightButtonAction::ezViewLightButtonAction(const ezActionContext& context,
   {
     case ezEngineViewLightSettingsEvent::Type::SkyBoxChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezSkyBoxComponent.png");
+      SetIconPath(":/TypeIcons/ezSkyBoxComponent.svg");
       break;
     case ezEngineViewLightSettingsEvent::Type::SkyLightChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezSkyLightComponent.png");
+      SetIconPath(":/TypeIcons/ezSkyLightComponent.svg");
       break;
     case ezEngineViewLightSettingsEvent::Type::SkyLightCubeMapChanged:
-      SetIconPath(":/TypeIcons/ezSkyLightComponent.png");
+      SetIconPath(":/TypeIcons/ezSkyLightComponent.svg");
       break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.png");
+      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
       break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightShadowsChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.png");
+      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
       break;
     case ezEngineViewLightSettingsEvent::Type::FogChanged:
       SetCheckable(true);
-      SetIconPath(":/TypeIcons/ezFogComponent.png");
+      SetIconPath(":/TypeIcons/ezFogComponent.svg");
       break;
     case ezEngineViewLightSettingsEvent::Type::DefaultValuesChanged:
       SetCheckable(false);
-      SetIconPath(":/EditorFramework/Icons/ViewLightMenu.png");
+      SetIconPath(":/EditorFramework/Icons/ViewLightMenu.svg");
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -276,15 +276,15 @@ ezViewLightSliderAction::ezViewLightSliderAction(const ezActionContext& context,
   switch (m_ButtonType)
   {
     case ezEngineViewLightSettingsEvent::Type::SkyLightIntensityChanged:
-      SetIconPath(":/TypeIcons/ezSkyLightComponent.png");
+      SetIconPath(":/TypeIcons/ezSkyLightComponent.svg");
       SetRange(0, 20);
       break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightAngleChanged:
-      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.png");
+      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
       SetRange(-90, 90);
       break;
     case ezEngineViewLightSettingsEvent::Type::DirectionalLightIntensityChanged:
-      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.png");
+      SetIconPath(":/TypeIcons/ezDirectionalLightComponent.svg");
       SetRange(0, 200);
       break;
     default:

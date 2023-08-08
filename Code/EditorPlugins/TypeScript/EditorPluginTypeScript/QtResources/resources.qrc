@@ -1,12 +1,9 @@
 <RCC>
-  <qresource prefix="EditorPluginTypeScript">
-    <file>Icons/EditScript16.png</file>
-  </qresource>
   <qresource prefix="AssetIcons">
-    <file>TypeScript.png</file>
+    <file>TypeScript.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
-    <file>ezTypeScriptComponent.png</file>
+    <file>ezTypeScriptComponent.svg</file>
   </qresource>  
 </RCC>
 

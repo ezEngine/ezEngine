@@ -17,12 +17,12 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
 
   if (m_pGizmoType)
   {
-    ezStringBuilder sIcon(":/TypeIcons/", m_pGizmoType->GetTypeName());
+    ezStringBuilder sIcon(":/TypeIcons/", m_pGizmoType->GetTypeName(), ".svg");
     SetIconPath(sIcon);
   }
   else
   {
-    SetIconPath(":/EditorFramework/Icons/GizmoNone24.png");
+    SetIconPath(":/EditorFramework/Icons/GizmoNone.svg");
   }
 
   UpdateState();
@@ -169,14 +169,14 @@ ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, c
   switch (m_Type)
   {
     case ActionType::GizmoToggleWorldSpace:
-      SetIconPath(":/EditorFramework/Icons/WorldSpace16.png");
+      SetIconPath(":/EditorFramework/Icons/WorldSpace.svg");
       break;
     case ActionType::GizmoToggleMoveParentOnly:
-      SetIconPath(":/EditorFramework/Icons/TransformParent16.png");
+      SetIconPath(":/EditorFramework/Icons/TransformParent.svg");
       break;
     case ActionType::GizmoSnapSettings:
       SetCheckable(false);
-      SetIconPath(":/EditorFramework/Icons/SnapSettings16.png");
+      SetIconPath(":/EditorFramework/Icons/SnapSettings.svg");
       break;
   }
 

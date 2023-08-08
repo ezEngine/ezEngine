@@ -4,9 +4,10 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Time/Clock.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, 1, ezComponentMode::Dynamic)
-  ;
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "The radius at which an asteroid pushes ships away.");
 ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "The strength with which an asteroid pushes a ship away.");

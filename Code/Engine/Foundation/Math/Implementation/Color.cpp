@@ -233,6 +233,14 @@ void ezColor::NormalizeToLdrRange()
   ScaleRGB(1.0f / ComputeHdrMultiplier());
 }
 
+ezColor ezColor::GetDarker(float fFactor /*= 2.0f*/) const
+{
+  float h, s, v;
+  GetHSV(h, s, v);
+
+  return ezColor::MakeHSV(h, s, v / fFactor);
+}
+
 ezColor ezColor::GetComplementaryColor() const
 {
   float hue, sat, val;

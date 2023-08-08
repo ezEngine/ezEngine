@@ -101,25 +101,25 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
   switch (m_ButtonType)
   {
     case ezDocumentAction::ButtonType::Save:
-      SetIconPath(":/GuiFoundation/Icons/Save16.png");
+      SetIconPath(":/GuiFoundation/Icons/Save.svg");
       break;
     case ezDocumentAction::ButtonType::SaveAs:
       SetIconPath("");
       break;
     case ezDocumentAction::ButtonType::SaveAll:
-      SetIconPath(":/GuiFoundation/Icons/SaveAll16.png");
+      SetIconPath(":/GuiFoundation/Icons/SaveAll.svg");
       break;
     case ezDocumentAction::ButtonType::Close:
       SetIconPath("");
       break;
     case ezDocumentAction::ButtonType::OpenContainingFolder:
-      SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
+      SetIconPath(":/GuiFoundation/Icons/OpenFolder.svg");
       break;
     case ezDocumentAction::ButtonType::CopyAssetGuid:
-      SetIconPath(":/GuiFoundation/Icons/DocumentGuid16.png");
+      SetIconPath(":/GuiFoundation/Icons/Guid.svg");
       break;
     case ezDocumentAction::ButtonType::UpdatePrefabs:
-      SetIconPath(":/EditorPluginScene/Icons/PrefabUpdate16.png");
+      SetIconPath(":/EditorPluginScene/Icons/PrefabUpdate.svg");
       break;
   }
 

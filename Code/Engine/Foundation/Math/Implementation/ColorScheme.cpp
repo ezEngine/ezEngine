@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/ColorScheme.h>
 
@@ -216,5 +217,112 @@ ezColor ezColorScheme::GetColor(float fIndex, ezUInt8 uiBrightness, float fSatur
   return ezMath::Lerp(ezColor(l, l, l), c, fSaturation).WithAlpha(fAlpha);
 }
 
+ezColorScheme::CategoryColorFunc ezColorScheme::s_CategoryColorFunc = nullptr;
+
+ezColor ezColorScheme::GetCategoryColor(ezStringView sCategory, CategoryColorUsage usage)
+{
+  if (s_CategoryColorFunc != nullptr)
+  {
+    return s_CategoryColorFunc(sCategory, usage);
+  }
+
+  ezInt8 iBrightnessOffset = -3;
+  ezUInt8 uiSaturationStep = 0;
+
+  if (usage == ezColorScheme::CategoryColorUsage::BorderIconColor)
+  {
+    // don't color these icons at all
+    return ezColor::MakeZero();
+  }
+
+  if (usage == ezColorScheme::CategoryColorUsage::MenuEntryIcon || usage == ezColorScheme::CategoryColorUsage::AssetMenuIcon)
+  {
+    iBrightnessOffset = 2;
+    uiSaturationStep = 0;
+  }
+  else if (usage == ezColorScheme::CategoryColorUsage::ViewportIcon)
+  {
+    iBrightnessOffset = 2;
+    uiSaturationStep = 2;
+  }
+  else if (usage == ezColorScheme::CategoryColorUsage::OverlayIcon)
+  {
+    iBrightnessOffset = 2;
+    uiSaturationStep = 0;
+  }
+  else if (usage == ezColorScheme::CategoryColorUsage::SceneTreeIcon)
+  {
+    iBrightnessOffset = 2;
+    uiSaturationStep = 0;
+  }
+  else if (usage == ezColorScheme::CategoryColorUsage::BorderColor)
+  {
+    iBrightnessOffset = -3;
+    uiSaturationStep = 0;
+  }
+
+  const ezUInt8 uiBrightness = (ezUInt8)ezMath::Clamp<ezInt32>(DarkUIBrightness + iBrightnessOffset, 0, 9);
+  const float fSaturation = DarkUISaturation - (uiSaturationStep * 0.2f);
+
+  if (const char* sep = sCategory.FindSubString("/"))
+  {
+    // chop off everything behind the first separator
+    sCategory = ezStringView(sCategory.GetStartPointer(), sep);
+  }
+
+  if (sCategory.IsEqual_NoCase("AI"))
+    return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Animation"))
+    return ezColorScheme::GetColor(ezColorScheme::Pink, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Construction"))
+    return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Custom"))
+    return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Effects"))
+    return ezColorScheme::GetColor(ezColorScheme::Grape, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Gameplay"))
+    return ezColorScheme::GetColor(ezColorScheme::Indigo, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Input"))
+    return ezColorScheme::GetColor(ezColorScheme::Red, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Lighting"))
+    return ezColorScheme::GetColor(ezColorScheme::Violet, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Logic"))
+    return ezColorScheme::GetColor(ezColorScheme::Teal, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Physics"))
+    return ezColorScheme::GetColor(ezColorScheme::Blue, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Prefabs"))
+    return ezColorScheme::GetColor(ezColorScheme::Orange, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Rendering"))
+    return ezColorScheme::GetColor(ezColorScheme::Lime, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Terrain"))
+    return ezColorScheme::GetColor(ezColorScheme::Lime, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Scripting"))
+    return ezColorScheme::GetColor(ezColorScheme::Green, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Sound"))
+    return ezColorScheme::GetColor(ezColorScheme::Blue, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("Utilities") || sCategory.IsEqual_NoCase("Editing"))
+    return ezColorScheme::GetColor(ezColorScheme::Gray, uiBrightness, fSaturation) * DarkUIFactor;
+
+  if (sCategory.IsEqual_NoCase("XR"))
+    return ezColorScheme::GetColor(ezColorScheme::Cyan, uiBrightness, fSaturation) * DarkUIFactor;
+
+  ezLog::Warning("Color for category '{}' is undefined.", sCategory);
+  return ezColor::MakeZero();
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_ColorScheme);

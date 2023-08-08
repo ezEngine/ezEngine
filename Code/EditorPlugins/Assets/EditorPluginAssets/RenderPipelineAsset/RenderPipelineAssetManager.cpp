@@ -13,7 +13,8 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "RenderPipeline";
   m_DocTypeDesc.m_sFileExtension = "ezRenderPipelineAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RenderPipeline.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RenderPipeline.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_RenderPipeline");
@@ -21,7 +22,7 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezRenderPipelineBin";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.svg"));
 }
 
 ezRenderPipelineAssetManager::~ezRenderPipelineAssetManager()

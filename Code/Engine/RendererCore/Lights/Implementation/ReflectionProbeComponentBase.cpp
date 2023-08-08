@@ -36,6 +36,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionProbeComponentBase, 2, ezRTTINoAlloc
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
+    new ezCategoryAttribute("Rendering/Reflections"),
     new ezTransformManipulatorAttribute("CaptureOffset"),
   }
   EZ_END_ATTRIBUTES;

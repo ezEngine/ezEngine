@@ -13,7 +13,8 @@ ezVisualScriptClassAssetManager::ezVisualScriptClassAssetManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "VisualScriptClass";
   m_DocTypeDesc.m_sFileExtension = "ezVisualScriptClassAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/VisualScript.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/VisualScript.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Scripting";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptClassAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_ScriptClass");
@@ -21,7 +22,7 @@ ezVisualScriptClassAssetManager::ezVisualScriptClassAssetManager()
   m_DocTypeDesc.m_sResourceFileExtension = "ezVisualScriptClassBin";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("VisualScriptClass", QPixmap(":/AssetIcons/VisualScript.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("VisualScriptClass", QPixmap(":/AssetIcons/VisualScript.svg"));
 }
 
 ezVisualScriptClassAssetManager::~ezVisualScriptClassAssetManager()

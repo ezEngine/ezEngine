@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+
+<svg
+   fill="#ffffff"
+   width="800px"
+   height="800px"
+   viewBox="0 0 56 56"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="ezRotateGizmoEditTool.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.40125"
+     inkscape:cx="399.64318"
+     inkscape:cy="400"
+     inkscape:window-width="2256"
+     inkscape:window-height="1398"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="SVGRepo_iconCarrier" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round" />
+  <g
+     id="SVGRepo_iconCarrier">
+    <path
+       d="M 7.7265 25.1056 C 8.2656 24.8477 8.5000 24.4493 8.4765 23.7930 C 8.4062 22.9493 7.4452 21.7774 7.4452 18.6603 C 7.4452 13.6446 10.6796 10.1290 15.7421 10.1290 L 15.8124 10.1290 L 15.8124 13.3399 C 15.8124 15.1915 17.2656 15.6134 18.6718 14.5587 L 25.0702 9.8946 C 26.1484 9.1212 26.1484 8.2071 25.0702 7.4103 L 18.6718 2.7227 C 17.2421 1.6444 15.8124 2.0665 15.8124 3.9649 L 15.8124 7.4103 L 15.7187 7.4103 C 8.9921 7.4103 4.5156 11.9337 4.5156 18.6368 C 4.5156 21.1446 5.0312 23.2071 5.7578 24.4493 C 6.1562 25.1290 7.0000 25.4571 7.7265 25.1056 Z M 45.4609 54.3556 C 49.4689 54.3556 51.4844 52.4337 51.4844 48.3321 L 51.4844 25.1524 C 51.4844 21.0508 49.4689 19.1290 45.4609 19.1290 L 22.2343 19.1290 C 18.2265 19.1290 16.2109 21.0508 16.2109 25.1524 L 16.2109 48.3321 C 16.2109 52.4337 18.2265 54.3556 22.2343 54.3556 Z M 45.3905 50.5821 L 22.3046 50.5821 C 20.6874 50.5821 19.9843 49.9259 19.9843 48.2618 L 19.9843 25.2227 C 19.9843 23.5587 20.6874 22.9024 22.3046 22.9024 L 45.3905 22.9024 C 47.0080 22.9024 47.7107 23.5587 47.7107 25.2227 L 47.7107 48.2618 C 47.7107 49.9259 47.0080 50.5821 45.3905 50.5821 Z"
+       id="path1"
+       style="stroke-width:1.00002;stroke-dasharray:none;fill:#ffd800;fill-opacity:1" />
+  </g>
+</svg>

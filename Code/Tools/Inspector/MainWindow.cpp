@@ -77,7 +77,7 @@ ezQtMainWindow::ezQtMainWindow()
   QMenu* pHistoryMenu = new QMenu;
   pHistoryMenu->setTearOffEnabled(true);
   pHistoryMenu->setTitle(QLatin1String("Stat Histories"));
-  pHistoryMenu->setIcon(QIcon(":/Icons/Icons/StatHistory.png"));
+  pHistoryMenu->setIcon(QIcon(":/Icons/Icons/StatHistory.svg"));
 
   for (ezUInt32 i = 0; i < 10; ++i)
   {

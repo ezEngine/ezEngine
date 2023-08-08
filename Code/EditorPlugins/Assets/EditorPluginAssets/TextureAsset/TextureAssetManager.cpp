@@ -36,7 +36,8 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
 
   m_DocTypeDesc.m_sDocumentTypeName = "Texture 2D";
   m_DocTypeDesc.m_sFileExtension = "ezTextureAsset";
-  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_2D.svg";
+  m_DocTypeDesc.m_sAssetCategory = "Rendering";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_sResourceFileExtension = "ezTexture2D";
@@ -45,7 +46,8 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
 
   m_DocTypeDesc2.m_sDocumentTypeName = "Render Target";
   m_DocTypeDesc2.m_sFileExtension = "ezRenderTargetAsset";
-  m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Render_Target.png";
+  m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Render_Target.svg";
+  m_DocTypeDesc2.m_sAssetCategory = "Rendering";
   m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_DocTypeDesc2.m_pManager = this;
   m_DocTypeDesc2.m_sResourceFileExtension = "ezRenderTarget";
@@ -53,7 +55,7 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D"); // render targets can also be used as 2D textures
   m_DocTypeDesc2.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_Target");
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.svg"));
 }
 
 ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()

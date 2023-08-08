@@ -101,7 +101,6 @@ public:
     : m_Color(color)
   {
   }
-
   const ezColor& GetColor() const { return m_Color; }
 
 private:
