@@ -363,6 +363,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
       pState->m_fOtherPlaybackPosNorm = 1.0f;
       pState->m_bPlaying = false;
       m_OutOnFinished.SetTriggered(ref_graph);
+      break;
     }
   }
 
