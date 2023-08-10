@@ -4,8 +4,8 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <DetourCrowd.h>
+#include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <RecastPlugin/Components/RecastAgentComponent.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 #include <RecastPlugin/Utils/RcMath.h>
