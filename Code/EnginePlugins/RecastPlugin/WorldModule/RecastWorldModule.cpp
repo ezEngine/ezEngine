@@ -1,7 +1,7 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/World/World.h>
-#include <Recast/DetourCrowd.h>
+#include <DetourCrowd.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 

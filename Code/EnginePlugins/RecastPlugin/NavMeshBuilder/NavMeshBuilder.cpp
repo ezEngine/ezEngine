@@ -1,13 +1,13 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/World/World.h>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshBuilder.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
-#include <Recast/DetourNavMesh.h>
-#include <Recast/DetourNavMeshBuilder.h>
-#include <Recast/Recast.h>
+#include <Recast.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>

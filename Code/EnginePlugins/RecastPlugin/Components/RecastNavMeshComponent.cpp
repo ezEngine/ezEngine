@@ -5,7 +5,7 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Time/Stopwatch.h>
-#include <Recast/Recast.h>
+#include <Recast.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>

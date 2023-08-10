@@ -5,7 +5,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/recastnavigation/recastnavigation",
-          "commitHash": "f14896eb207b593e66ccc5762918eda0b4237516"
+          "commitHash": "af6d4758ffae1d192de50b9c6217ee58211baa6a"
         }
       }
     }
