@@ -1,7 +1,7 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Foundation/Containers/StaticArray.h>
-#include <Recast/Recast.h>
+#include <Recast.h>
 #include <RecastPlugin/NavMeshBuilder/NavMeshPointsOfInterest.h>
 
 ezNavMeshPointOfInterestGraph::ezNavMeshPointOfInterestGraph() = default;

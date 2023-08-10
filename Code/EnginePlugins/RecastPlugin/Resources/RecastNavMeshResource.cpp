@@ -1,10 +1,10 @@
 #include <RecastPlugin/RecastPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <DetourNavMesh.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <Recast/DetourNavMesh.h>
-#include <Recast/Recast.h>
-#include <Recast/RecastAlloc.h>
+#include <Recast.h>
+#include <RecastAlloc.h>
 #include <RecastPlugin/Resources/RecastNavMeshResource.h>
 
 // clang-format off

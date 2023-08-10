@@ -3,7 +3,7 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Recast/DetourCrowd.h>
+#include <DetourCrowd.h>
 #include <RecastPlugin/Components/AgentSteeringComponent.h>
 #include <RecastPlugin/Components/SoldierComponent.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
