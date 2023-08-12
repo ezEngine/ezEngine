@@ -15,6 +15,7 @@
 class ezRendererTestReadback : public ezGraphicsTest
 {
   using SUPER = ezGraphicsTest;
+
 public:
   virtual const char* GetTestName() const override { return "Readback"; }
 

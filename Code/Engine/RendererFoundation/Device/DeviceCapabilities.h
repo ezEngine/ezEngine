@@ -13,8 +13,8 @@ struct ezGALResourceFormatSupport
   enum Enum
   {
     None = 0,
-    Sample = EZ_BIT(0), ///< The format can be sampled as a texture in a shader or in case of integer textures load can be called.
-    Render = EZ_BIT(1), ///< The format can be used as a render target texture.
+    Sample = EZ_BIT(0),          ///< The format can be sampled as a texture in a shader or in case of integer textures load can be called.
+    Render = EZ_BIT(1),          ///< The format can be used as a render target texture.
     VertexAttribute = EZ_BIT(2), ///< The format can be used as a vertex attribute.
     Default = 0
   };

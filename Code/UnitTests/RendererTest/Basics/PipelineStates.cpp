@@ -437,7 +437,6 @@ void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, 
   }
 
   EndPass();
-
 }
 
 
@@ -526,7 +525,6 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
     EndRendering();
   }
   EndPass();
-
 }
 
 
@@ -585,7 +583,6 @@ void ezRendererTestPipelineStates::StructuredBufferTest()
     EndRendering();
   }
   EndPass();
-
 }
 
 void ezRendererTestPipelineStates::Texture2D()
@@ -612,7 +609,6 @@ void ezRendererTestPipelineStates::Texture2D()
     RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
   }
   EndPass();
-
 }
 
 void ezRendererTestPipelineStates::Texture2DArray()
@@ -639,7 +635,6 @@ void ezRendererTestPipelineStates::Texture2DArray()
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray_Layer1_Mip1);
   }
   EndPass();
-
 }
 
 void ezRendererTestPipelineStates::GenerateMipMaps()
@@ -669,7 +664,6 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
     RenderCube(viewport, mMVP, 0, m_hTexture2D_Mip3);
   }
   EndPass();
-
 }
 
 void ezRendererTestPipelineStates::Timestamps()
