@@ -166,9 +166,9 @@ ezImageFormat::Enum ezTextureUtils::GalFormatToImageFormat(ezGALResourceFormat::
     case ezGALResourceFormat::RGBAFloat:
       return ezImageFormat::R32G32B32A32_FLOAT;
     case ezGALResourceFormat::RGBAUInt:
-      return ezImageFormat::R8G8B8A8_UINT;
+      return ezImageFormat::R32G32B32A32_UINT;
     case ezGALResourceFormat::RGBAInt:
-      return ezImageFormat::R8G8B8A8_SINT;
+      return ezImageFormat::R32G32B32A32_SINT;
     case ezGALResourceFormat::RGBFloat:
       return ezImageFormat::R32G32B32_FLOAT;
     case ezGALResourceFormat::RGBUInt:
@@ -256,7 +256,7 @@ ezImageFormat::Enum ezTextureUtils::GalFormatToImageFormat(ezGALResourceFormat::
     case ezGALResourceFormat::AUByteNormalized:
       return ezImageFormat::R8_UNORM;
     case ezGALResourceFormat::D16:
-      return ezImageFormat::R16_FLOAT;
+      return ezImageFormat::R16_UINT;
     case ezGALResourceFormat::BC1:
       return ezImageFormat::BC1_UNORM;
     case ezGALResourceFormat::BC1sRGB:

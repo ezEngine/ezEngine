@@ -10,9 +10,6 @@ ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
   if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
     return EZ_FAILURE;
 
-  if (SetupRenderer().Failed())
-    return EZ_FAILURE;
-
   if (iIdentifier == SubTests::ST_ClearScreen)
   {
     return CreateWindow(320, 240);
@@ -43,7 +40,6 @@ ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hTextureCube.Invalidate();
 
   DestroyWindow();
-  ShutdownRenderer();
 
   if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
     return EZ_FAILURE;
@@ -55,25 +51,26 @@ ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
 ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
 {
   BeginFrame();
-
+  BeginPass("ClearScreen");
   switch (m_iFrame)
   {
     case 0:
-      ClearScreen(ezColor(1, 0, 0));
+      BeginRendering(ezColor(1, 0, 0));
       break;
     case 1:
-      ClearScreen(ezColor(0, 1, 0));
+      BeginRendering(ezColor(0, 1, 0));
       break;
     case 2:
-      ClearScreen(ezColor(0, 0, 1));
+      BeginRendering(ezColor(0, 0, 1));
       break;
     case 3:
-      ClearScreen(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
+      BeginRendering(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
       break;
   }
 
   EZ_TEST_IMAGE(m_iFrame, 1);
-
+  EndRendering();
+  EndPass();
   EndFrame();
 
   return m_iFrame < 3 ? ezTestAppRun::Continue : ezTestAppRun::Quit;

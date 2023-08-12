@@ -32,22 +32,13 @@ private:
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
 
-  void RenderToScreen(ezUInt32 uiRenderTargetClearMask, ezRectFloat viewport, ezDelegate<void(ezGALRenderCommandEncoder*)> func);
-  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV);
-
   void ReadRenderTarget();
   void VertexShaderRenderTargetArrayIndex();
 
 private:
-  ezInt32 m_iFrame = 0;
-  bool m_bCaptureImage = false;
-  ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
-
   ezShaderResourceHandle m_hShader2;
 
   ezGALTextureHandle m_hTexture2D;
   ezGALResourceViewHandle m_hTexture2DMips[4];
   ezGALTextureHandle m_hTexture2DArray;
-
-  ezMeshBufferResourceHandle m_hCubeUV;
 };

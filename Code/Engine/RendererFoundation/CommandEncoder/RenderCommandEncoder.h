@@ -26,9 +26,6 @@ public:
   void DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes);
   void DrawAuto();
 
-  void BeginStreamOut();
-  void EndStreamOut();
-
   // State functions
 
   void SetIndexBuffer(ezGALBufferHandle hIndexBuffer);
@@ -44,8 +41,6 @@ public:
 
   void SetViewport(const ezRectFloat& rect, float fMinDepth = 0.0f, float fMaxDepth = 1.0f);
   void SetScissorRect(const ezRectU32& rect);
-
-  void SetStreamOutBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer, ezUInt32 uiOffset);
 
   virtual void ClearStatisticsCounters() override;
 

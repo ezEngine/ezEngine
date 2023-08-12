@@ -5,7 +5,7 @@
 ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
 {
   BeginFrame();
-
+  BeginPass("BlendStates");
   ezGALBlendStateHandle hState;
 
   ezGALBlendStateCreationDescription StateDesc;
@@ -32,7 +32,7 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
   // if (StateDesc.m_CullMode == ezGALCullMode::Back)
   //  clear.b = 1.0f;
 
-  ClearScreen(clear);
+  BeginRendering(clear);
 
   hState = m_pDevice->CreateBlendState(StateDesc);
   EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create blend state!");
@@ -42,7 +42,8 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
   RenderObjects(ezShaderBindFlags::NoBlendState);
 
   EZ_TEST_IMAGE(m_iFrame, 150);
-
+  EndRendering();
+  EndPass();
   EndFrame();
 
   m_pDevice->DestroyBlendState(hState);

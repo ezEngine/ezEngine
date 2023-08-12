@@ -183,8 +183,10 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
   }
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result
+  {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop)
+      { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -231,8 +233,10 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   }
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> vk::Result
+  {
+    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const vk::ExtensionProperties& prop)
+      { return ezStringUtils::IsEqual(prop.extensionName.data(), extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
@@ -514,7 +518,9 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
   m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassVulkan, *this);
 
-  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainVulkan, desc); }); });
+  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
+    { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALSwapChainVulkan, desc); }); });
 
   return EZ_SUCCESS;
 }
@@ -563,7 +569,8 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
   const vk::Offset3D imageOffset = {0, 0, 0};
   const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(subResource.mipLevel);
 
-  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange {
+  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange
+  {
     vk::ImageSubresourceRange range;
     range.aspectMask = layers.aspectMask;
     range.baseMipLevel = layers.mipLevel;
@@ -1257,7 +1264,6 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 
   m_Capabilities.m_bMultithreadedResourceCreation = true;
 
-  m_Capabilities.m_bB5G6R5Textures = true;          // TODO how to check
   m_Capabilities.m_bNoOverwriteBufferUpdate = true; // TODO how to check
 
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
@@ -1269,8 +1275,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_bInstancing = true;
   m_Capabilities.m_b32BitIndices = true;
   m_Capabilities.m_bIndirectDraw = true;
-  m_Capabilities.m_bStreamOut = true;
-  m_Capabilities.m_uiMaxConstantBuffers = m_properties.limits.maxDescriptorSetUniformBuffers;
+  m_Capabilities.m_uiMaxConstantBuffers = ezMath::Min(m_properties.limits.maxDescriptorSetUniformBuffers, (ezUInt32)ezMath::MaxValue<ezUInt16>());
   m_Capabilities.m_bTextureArrays = true;
   m_Capabilities.m_bCubemapArrays = true;
   m_Capabilities.m_uiMaxTextureDimension = m_properties.limits.maxImageDimension1D;
@@ -1278,11 +1283,35 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_uiMax3DTextureDimension = m_properties.limits.maxImageDimension3D;
   m_Capabilities.m_uiMaxAnisotropy = static_cast<ezUInt16>(m_properties.limits.maxSamplerAnisotropy);
   m_Capabilities.m_uiMaxRendertargets = m_properties.limits.maxColorAttachments;
-  m_Capabilities.m_uiUAVCount = ezMath::Min(m_properties.limits.maxDescriptorSetStorageBuffers, m_properties.limits.maxDescriptorSetStorageImages);
+  m_Capabilities.m_uiUAVCount = ezMath::Min(ezMath::Min(m_properties.limits.maxDescriptorSetStorageBuffers, m_properties.limits.maxDescriptorSetStorageImages), (ezUInt32)ezMath::MaxValue<ezUInt16>());
   m_Capabilities.m_bAlphaToCoverage = true;
   m_Capabilities.m_bVertexShaderRenderTargetArrayIndex = m_extensions.m_bShaderViewportIndexLayer;
 
   m_Capabilities.m_bConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
+
+  m_Capabilities.m_FormatSupport.SetCount(ezGALResourceFormat::ENUM_COUNT);
+  for (ezUInt32 i = 0; i < ezGALResourceFormat::ENUM_COUNT; i++)
+  {
+    ezGALResourceFormat::Enum format = (ezGALResourceFormat::Enum)i;
+    const ezGALFormatLookupEntryVulkan& entry = m_FormatLookupTable.GetFormatInfo(format);
+    const vk::FormatProperties formatProps = GetVulkanPhysicalDevice().getFormatProperties(entry.m_format);
+
+    if (formatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage)
+      m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Sample);
+
+    if (formatProps.bufferFeatures & vk::FormatFeatureFlagBits::eVertexBuffer)
+      m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::VertexAttribute);
+    if (ezGALResourceFormat::IsDepthFormat(format))
+    {
+      if (formatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment)
+        m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Render);
+    }
+    else
+    {
+      if (formatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment)
+        m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Render);
+    }
+  }
 }
 
 void ezGALDeviceVulkan::WaitIdlePlatform()
@@ -1511,7 +1540,8 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
 
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::AUByteNormalized, ezGALFormatLookupEntryVulkan(vk::Format::eR8Unorm));
 
-  auto SelectDepthFormat = [&](const std::vector<vk::Format>& list) -> vk::Format {
+  auto SelectDepthFormat = [&](const std::vector<vk::Format>& list) -> vk::Format
+  {
     for (auto& format : list)
     {
       vk::FormatProperties formatProperties;
@@ -1522,7 +1552,8 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     return vk::Format::eUndefined;
   };
 
-  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format {
+  auto SelectStorageFormat = [](vk::Format depthFormat) -> vk::Format
+  {
     switch (depthFormat)
     {
       case vk::Format::eD16Unorm:

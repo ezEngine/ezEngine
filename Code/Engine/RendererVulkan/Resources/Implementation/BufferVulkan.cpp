@@ -60,14 +60,6 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
     m_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
   }
 
-  if (m_Description.m_bStreamOutputTarget)
-  {
-    m_usage |= vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
-    //#TODO_VULKAN will need to create a counter buffer.
-    m_stages |= vk::PipelineStageFlagBits::eTransformFeedbackEXT;
-    m_access |= vk::AccessFlagBits::eTransformFeedbackWriteEXT;
-  }
-
   if (m_Description.m_bUseForIndirectArguments)
   {
     m_usage |= vk::BufferUsageFlagBits::eIndirectBuffer;

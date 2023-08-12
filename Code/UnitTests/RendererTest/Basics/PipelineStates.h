@@ -53,11 +53,6 @@ private:
 
   void RenderBlock(ezMeshBufferResourceHandle mesh, ezColor clearColor = ezColor::CornflowerBlue, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
 
-  ezGALRenderCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
-  void EndRendering();
-
-  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV);
-
   void MostBasicTriangleTest();
   void ViewportScissorTest();
   void VertexBufferTest();
@@ -70,9 +65,6 @@ private:
   void Timestamps();
 
 private:
-  ezInt32 m_iFrame = 0;
-  bool m_bCaptureImage = false;
-  ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
 
   ezShaderResourceHandle m_hMostBasicTriangleShader;
   ezShaderResourceHandle m_hNDCPositionOnlyShader;
@@ -99,7 +91,6 @@ private:
   ezGALResourceViewHandle m_hTexture2DArray_Layer0_Mip1;
   ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
   ezGALResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
-  ezMeshBufferResourceHandle m_hCubeUV;
 
   bool m_bTimestampsValid = false;
   ezTime m_CPUTime[2];

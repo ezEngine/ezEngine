@@ -150,6 +150,7 @@ void ezTestFramework::Initialize()
   ezSetAssertHandler(TestAssertHandler);
 
   CreateOutputFolder();
+  ezFileSystem::DetectSdkRootDirectory().IgnoreResult();
 
   ezCommandLineUtils& cmd = *ezCommandLineUtils::GetGlobalInstance();
   // figure out which tests exist
@@ -174,8 +175,6 @@ void ezTestFramework::Initialize()
   AutoSaveTestOrder();
 
   m_bIsInitialized = true;
-
-  ezFileSystem::DetectSdkRootDirectory().IgnoreResult();
 }
 
 void ezTestFramework::DeInitialize()
@@ -1525,13 +1524,41 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
   sImgPathResult.Format(":imgout/Images_Result/{0}.png", sImgName);
 
+  auto SaveResultImage = [&]() {
+    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+    ezStringBuilder sAbsPath;
+    if (ezFileSystem::ResolvePath(sImgPathResult, &sAbsPath, nullptr).Failed())
+    {
+      ezLog::Warning("Failed to resolve absolute path of '{}'. Image will not be compressed with optipng.", sImgPathResult);
+      return;
+    }
+
+    ezStringBuilder sOptiPng = ezFileSystem::GetSdkRootDirectory();
+    sOptiPng.AppendPath("Data/Tools/Precompiled/optipng/optipng.exe");
+
+    if (ezOSFile::ExistsFile(sOptiPng))
+    {
+      ezProcessOptions opt;
+      opt.m_sProcess = sOptiPng;
+      opt.m_Arguments.PushBack(sAbsPath);
+      ezInt32 iReturnCode = 0;
+      if (ezProcess::Execute(opt, &iReturnCode).Failed() || iReturnCode != 0)
+      {
+        ezLog::Warning("Failed to run optipng with return code {}. Image will not be compressed with optipng.", iReturnCode);
+      }
+    }
+#endif
+  };
+
   // if a previous output image exists, get rid of it
   ezFileSystem::DeleteFile(sImgPathResult);
 
   ezImage imgExp, imgExpRgba;
   if (imgExp.LoadFrom(sImgPathReference).Failed())
   {
-    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
+    SaveResultImage();
 
     safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
     return false;
@@ -1539,7 +1566,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
   if (ezImageConversion::Convert(imgExp, imgExpRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
-    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
+    SaveResultImage();
 
     safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be converted to RGBA8", sImgPathReference.GetData());
     return false;
@@ -1547,7 +1574,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
   if (imgRgba.GetWidth() != imgExpRgba.GetWidth() || imgRgba.GetHeight() != imgExpRgba.GetHeight())
   {
-    imgRgba.SaveTo(sImgPathResult).IgnoreResult();
+    SaveResultImage();
 
     safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)", sImgPathReference.GetData(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
     return false;

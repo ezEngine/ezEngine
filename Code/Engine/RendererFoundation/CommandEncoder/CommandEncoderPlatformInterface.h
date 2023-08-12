@@ -76,9 +76,6 @@ public:
   virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
   virtual void DrawAutoPlatform() = 0;
 
-  virtual void BeginStreamOutPlatform() = 0;
-  virtual void EndStreamOutPlatform() = 0;
-
   // State functions
 
   virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) = 0;
@@ -92,8 +89,6 @@ public:
 
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) = 0;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) = 0;
-
-  virtual void SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset) = 0;
 };
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderComputePlatformInterface

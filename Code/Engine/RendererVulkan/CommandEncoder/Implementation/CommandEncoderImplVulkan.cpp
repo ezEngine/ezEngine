@@ -1093,16 +1093,6 @@ void ezGALCommandEncoderImplVulkan::DrawAutoPlatform()
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALCommandEncoderImplVulkan::BeginStreamOutPlatform()
-{
-  FlushDeferredStateChanges();
-}
-
-void ezGALCommandEncoderImplVulkan::EndStreamOutPlatform()
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
 void ezGALCommandEncoderImplVulkan::SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer)
 {
   if (m_pIndexBuffer != pIndexBuffer)
@@ -1205,11 +1195,6 @@ void ezGALCommandEncoderImplVulkan::SetScissorRectPlatform(const ezRectU32& rect
     m_scissor = scissor;
     m_bViewportDirty = true;
   }
-}
-
-void ezGALCommandEncoderImplVulkan::SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 //////////////////////////////////////////////////////////////////////////

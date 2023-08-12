@@ -246,6 +246,7 @@ const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUN
   4, // BC7UNormalized
   4  // BC7UNormalizedsRGB
 };
+
 // clang-format off
 
 

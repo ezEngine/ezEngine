@@ -11,9 +11,6 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
   if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
     return EZ_FAILURE;
 
-  if (SetupRenderer().Failed())
-    return EZ_FAILURE;
-
   m_CurrentWindowSize = ezSizeU32(320, 240);
 
   // Window
@@ -66,7 +63,6 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
 ezResult ezRendererTestSwapChain::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   DestroyWindow();
-  ShutdownRenderer();
 
   if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
     return EZ_FAILURE;
@@ -109,9 +105,8 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
 
 ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
-  m_pDevice->BeginFrame(uiInvocationCount);
-  m_pDevice->BeginPipeline("GraphicsTest", m_hSwapChain);
-  m_pPass = m_pDevice->BeginPass("SwapChainTest");
+  BeginFrame();
+  BeginPass("SwapChainTest");
   {
     const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
@@ -132,12 +127,8 @@ ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUIn
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
   }
-  m_pDevice->EndPass(m_pPass);
-  m_pPass = nullptr;
-  m_pDevice->EndPipeline(m_hSwapChain);
-  m_pDevice->EndFrame();
-
-  ezTaskSystem::FinishFrameTasks();
+  EndPass();
+  EndFrame();
 
   return m_iFrame < 120 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }

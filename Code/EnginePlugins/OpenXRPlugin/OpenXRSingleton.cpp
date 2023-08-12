@@ -476,7 +476,7 @@ XrResult ezOpenXR::InitSession()
     spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
   }
 
-  spaceCreateInfo.poseInReferenceSpace = ConvertTransform(ezTransform::IdentityTransform());
+  spaceCreateInfo.poseInReferenceSpace = ConvertTransform(ezTransform::MakeIdentity());
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_sceneSpace), DeinitSession);
 
   spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
@@ -730,10 +730,10 @@ void ezOpenXR::UpdatePoses()
   };
 
   auto IdentityFov = [](XrFovf& fov) {
-    fov.angleLeft = -ezAngle::Degree(45.0f).GetRadian();
-    fov.angleRight = ezAngle::Degree(45.0f).GetRadian();
-    fov.angleUp = ezAngle::Degree(45.0f).GetRadian();
-    fov.angleDown = -ezAngle::Degree(45.0f).GetRadian();
+    fov.angleLeft = -ezAngle::MakeFromDegree(45.0f).GetRadian();
+    fov.angleRight = ezAngle::MakeFromDegree(45.0f).GetRadian();
+    fov.angleUp = ezAngle::MakeFromDegree(45.0f).GetRadian();
+    fov.angleDown = -ezAngle::MakeFromDegree(45.0f).GetRadian();
   };
 
   if (FovIsNull(m_views[0].fov) || FovIsNull(m_views[1].fov))
@@ -773,8 +773,8 @@ void ezOpenXR::UpdateCamera()
     m_projectionChanged = false;
     const float fAspectRatio = (float)m_Info.m_vEyeRenderTargetSize.width / (float)m_Info.m_vEyeRenderTargetSize.height;
     auto CreateProjection = [](const XrView& view, ezCamera* cam) {
-      return ezGraphicsUtils::CreatePerspectiveProjectionMatrix(ezMath::Tan(ezAngle::Radian(view.fov.angleLeft)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::Radian(view.fov.angleRight)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::Radian(view.fov.angleDown)) * cam->GetNearPlane(),
-        ezMath::Tan(ezAngle::Radian(view.fov.angleUp)) * cam->GetNearPlane(), cam->GetNearPlane(), cam->GetFarPlane());
+      return ezGraphicsUtils::CreatePerspectiveProjectionMatrix(ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleLeft)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleRight)) * cam->GetNearPlane(), ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleDown)) * cam->GetNearPlane(),
+        ezMath::Tan(ezAngle::MakeFromRadian(view.fov.angleUp)) * cam->GetNearPlane(), cam->GetNearPlane(), cam->GetFarPlane());
     };
 
     // Update projection with newest near/ far values. If not sync camera is set, just use the last value from XR
@@ -811,9 +811,7 @@ void ezOpenXR::UpdateCamera()
     if (m_Input->m_DeviceState[0].m_bGripPoseIsValid)
     {
       // Update device state (average of both eyes).
-      ezQuat rot;
-      rot.SetIdentity();
-      rot.SetSlerp(ConvertOrientation(m_views[0].pose.orientation), ConvertOrientation(m_views[1].pose.orientation), 0.5f);
+      const ezQuat rot = ezQuat::MakeSlerp(ConvertOrientation(m_views[0].pose.orientation), ConvertOrientation(m_views[1].pose.orientation), 0.5f);
       const ezVec3 pos = ezMath::Lerp(ConvertPosition(m_views[0].pose.position), ConvertPosition(m_views[1].pose.position), 0.5f);
 
       m_Input->m_DeviceState[0].m_vGripPosition = pos;
@@ -834,7 +832,7 @@ void ezOpenXR::UpdateCamera()
       const ezMat4 poseRight = mStageTransform * ConvertPoseToMatrix(m_views[1].pose);
 
       // EZ Forward is +X, need to add this to align the forward projection
-      const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::ZeroVector(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+      const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
       const ezMat4 mViewTransformLeft = viewMatrix * poseLeft.GetInverse();
       const ezMat4 mViewTransformRight = viewMatrix * poseRight.GetInverse();
 
@@ -1042,7 +1040,7 @@ XrPosef ezOpenXR::ConvertTransform(const ezTransform& tr)
 
 XrQuaternionf ezOpenXR::ConvertOrientation(const ezQuat& q)
 {
-  return {q.v.y, q.v.z, -q.v.x, -q.w};
+  return {q.y, q.z, -q.x, -q.w};
 }
 
 XrVector3f ezOpenXR::ConvertPosition(const ezVec3& pos)

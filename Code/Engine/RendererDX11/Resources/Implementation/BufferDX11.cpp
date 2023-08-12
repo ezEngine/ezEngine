@@ -48,9 +48,6 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ez
   if (m_Description.m_bAllowUAV)
     BufferDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-  if (m_Description.m_bStreamOutputTarget)
-    BufferDesc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
-
   BufferDesc.ByteWidth = m_Description.m_uiTotalSize;
   BufferDesc.CPUAccessFlags = 0;
   BufferDesc.MiscFlags = 0;

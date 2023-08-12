@@ -111,21 +111,6 @@ void ezGALRenderCommandEncoder::DrawAuto()
   CountDrawCall();
 }
 
-void ezGALRenderCommandEncoder::BeginStreamOut()
-{
-  AssertRenderingThread();
-  /// \todo Assert for streamout support
-
-  m_RenderImpl.BeginStreamOutPlatform();
-}
-
-void ezGALRenderCommandEncoder::EndStreamOut()
-{
-  AssertRenderingThread();
-
-  m_RenderImpl.EndStreamOutPlatform();
-}
-
 void ezGALRenderCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
 {
   if (m_RenderState.m_hIndexBuffer == hIndexBuffer)
@@ -291,13 +276,6 @@ void ezGALRenderCommandEncoder::SetScissorRect(const ezRectU32& rect)
   m_RenderImpl.SetScissorRectPlatform(rect);
 
   m_RenderState.m_ScissorRect = rect;
-
-  CountStateChange();
-}
-
-void ezGALRenderCommandEncoder::SetStreamOutBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer, ezUInt32 uiOffset)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
 
   CountStateChange();
 }
