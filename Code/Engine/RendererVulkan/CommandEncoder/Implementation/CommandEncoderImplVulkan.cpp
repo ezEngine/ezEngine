@@ -897,27 +897,35 @@ void ezGALCommandEncoderImplVulkan::FlushPlatform()
 
 void ezGALCommandEncoderImplVulkan::PushMarkerPlatform(const char* szMarker)
 {
-  // TODO early out if device doesn't support debug markers
-  constexpr float markerColor[4] = {1, 1, 1, 1};
-  vk::DebugUtilsLabelEXT markerInfo = {};
-  ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
-  markerInfo.pLabelName = szMarker;
+  if (m_GALDeviceVulkan.GetExtensions().m_bDebugUtilsMarkers)
+  {
+    constexpr float markerColor[4] = {1, 1, 1, 1};
+    vk::DebugUtilsLabelEXT markerInfo = {};
+    ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
+    markerInfo.pLabelName = szMarker;
 
-  m_pCommandBuffer->beginDebugUtilsLabelEXT(markerInfo);
+    m_pCommandBuffer->beginDebugUtilsLabelEXT(markerInfo);
+  }
 }
 
 void ezGALCommandEncoderImplVulkan::PopMarkerPlatform()
 {
-  m_pCommandBuffer->endDebugUtilsLabelEXT();
+  if (m_GALDeviceVulkan.GetExtensions().m_bDebugUtilsMarkers)
+  {
+    m_pCommandBuffer->endDebugUtilsLabelEXT();
+  }
 }
 
 void ezGALCommandEncoderImplVulkan::InsertEventMarkerPlatform(const char* szMarker)
 {
-  constexpr float markerColor[4] = {1, 1, 1, 1};
-  vk::DebugUtilsLabelEXT markerInfo = {};
-  ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
-  markerInfo.pLabelName = szMarker;
-  m_pCommandBuffer->insertDebugUtilsLabelEXT(markerInfo);
+  if (m_GALDeviceVulkan.GetExtensions().m_bDebugUtilsMarkers)
+  {
+    constexpr float markerColor[4] = {1, 1, 1, 1};
+    vk::DebugUtilsLabelEXT markerInfo = {};
+    ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
+    markerInfo.pLabelName = szMarker;
+    m_pCommandBuffer->insertDebugUtilsLabelEXT(markerInfo);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
