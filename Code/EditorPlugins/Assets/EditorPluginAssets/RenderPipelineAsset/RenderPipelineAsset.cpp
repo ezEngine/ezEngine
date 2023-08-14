@@ -90,53 +90,19 @@ ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin& source, co
 }
 
 ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), ezAssetDocEngineConnection::None)
+  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), ezAssetDocEngineConnection::FullObjectMirroring)
 {
+}
+ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+{
+  return ezAssetDocument::RemoteExport(AssetHeader, szTargetFile);
 }
 
 ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-
-  const ezUInt8 uiVersion = 2;
-  stream << uiVersion;
-
-  ezAbstractObjectGraph graph;
-  ezAbstractObjectGraph typeGraph;
-  ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager());
-
-  auto& children = GetObjectManager()->GetRootObject()->GetChildren();
-  ezSet<const ezRTTI*> types;
-  for (ezDocumentObject* pObject : children)
-  {
-    auto pType = pObject->GetTypeAccessor().GetType();
-    if (pType->IsDerivedFrom<ezRenderPipelinePass>())
-    {
-      objectConverter.AddObjectToGraph(pObject, "Pass");
-      ezToolsReflectionUtils::GatherObjectTypes(pObject, types);
-    }
-    else if (pType->IsDerivedFrom<ezExtractor>())
-    {
-      objectConverter.AddObjectToGraph(pObject, "Extractor");
-      ezToolsReflectionUtils::GatherObjectTypes(pObject, types);
-    }
-    else if (pManager->IsConnection(pObject))
-    {
-      objectConverter.AddObjectToGraph(pObject, "Connection");
-      ezToolsReflectionUtils::GatherObjectTypes(pObject, types);
-    }
-  }
-
-  pManager->AttachMetaDataBeforeSaving(graph);
-
-  ezDefaultMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezToolsSerializationUtils::SerializeTypes(types, typeGraph);
-  ezAbstractGraphBinarySerializer::Write(writer, &graph, &typeGraph);
-
-  ezUInt32 uiSize = storage.GetStorageSize32();
-  stream << uiSize;
-  return storage.CopyToStream(stream);
+  EZ_REPORT_FAILURE("Should not be called");
+  return ezTransformStatus();
 }
 
 void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const

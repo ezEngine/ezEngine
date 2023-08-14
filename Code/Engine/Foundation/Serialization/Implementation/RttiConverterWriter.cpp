@@ -106,6 +106,11 @@ ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, const void* pO
   return guid;
 }
 
+const ezRTTI* ezRttiConverterContext::FindTypeByName(ezStringView sName) const
+{
+  return ezRTTI::FindTypeByName(sName);
+}
+
 ezUuid ezRttiConverterContext::EnqueObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
 {
   EZ_ASSERT_DEBUG(guid.IsValid(), "For stable serialization, guid must be well defined");

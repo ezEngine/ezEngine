@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/Serialization/BinarySerializer.h>
+#include <Foundation/IO/SerializationContext.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -11,104 +12,39 @@
 // ezDocumentNodeManager Internal
 ////////////////////////////////////////////////////////////////////////
 
-struct RenderPipelineResourceLoaderConnectionInternal
-{
-  ezUuid m_Source;
-  ezUuid m_Target;
-  ezString m_SourcePin;
-  ezString m_TargetPin;
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, RenderPipelineResourceLoaderConnectionInternal);
-
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(RenderPipelineResourceLoaderConnectionInternal, ezNoBase, 1, ezRTTIDefaultAllocator<RenderPipelineResourceLoaderConnectionInternal>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineResourceLoaderConnection, ezNoBase, 1, ezRTTIDefaultAllocator<ezRenderPipelineResourceLoaderConnection>)
 {
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Connection::Source", m_Source),
-    EZ_MEMBER_PROPERTY("Connection::Target", m_Target),
-    EZ_MEMBER_PROPERTY("Connection::SourcePin", m_SourcePin),    
-    EZ_MEMBER_PROPERTY("Connection::TargetPin", m_TargetPin),
-  }
-  EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezRenderPipelineRttiConverterContext::Clear()
+ezResult ezRenderPipelineResourceLoaderConnection::Serialize(ezStreamWriter& inout_stream)
 {
-  ezRttiConverterContext::Clear();
+  inout_stream << m_uiSource;
+  inout_stream << m_uiTarget;
+  inout_stream << m_sSourcePin;
+  inout_stream << m_sTargetPin;
 
-  m_pRenderPipeline = nullptr;
+  return EZ_SUCCESS;
 }
 
-ezInternal::NewInstance<void> ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+ezResult ezRenderPipelineResourceLoaderConnection::Deserialize(ezStreamReader& inout_stream)
 {
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Object type is unknown");
+  EZ_VERIFY(ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI()) == 1, "Unknown version");
 
-  if (pRtti->IsDerivedFrom<ezRenderPipelinePass>())
-  {
-    if (!pRtti->GetAllocator()->CanAllocate())
-    {
-      ezLog::Error("Failed to create ezRenderPipelinePass because '{0}' cannot allocate!", pRtti->GetTypeName());
-      return nullptr;
-    }
+  inout_stream >> m_uiSource;
+  inout_stream >> m_uiTarget;
+  inout_stream >> m_sSourcePin;
+  inout_stream >> m_sTargetPin;
 
-    auto pass = pRtti->GetAllocator()->Allocate<ezRenderPipelinePass>();
-    m_pRenderPipeline->AddPass(pass);
-
-    RegisterObject(guid, pRtti, pass);
-    return pass;
-  }
-  else if (pRtti->IsDerivedFrom<ezExtractor>())
-  {
-    if (!pRtti->GetAllocator()->CanAllocate())
-    {
-      ezLog::Error("Failed to create ezExtractor because '{0}' cannot allocate!", pRtti->GetTypeName());
-      return nullptr;
-    }
-
-    auto extractor = pRtti->GetAllocator()->Allocate<ezExtractor>();
-    m_pRenderPipeline->AddExtractor(extractor);
-
-    RegisterObject(guid, pRtti, extractor);
-    return extractor;
-  }
-  else
-  {
-    return ezRttiConverterContext::CreateObject(guid, pRtti);
-  }
-}
-
-void ezRenderPipelineRttiConverterContext::DeleteObject(const ezUuid& guid)
-{
-  ezRttiConverterObject object = GetObjectByGUID(guid);
-  const ezRTTI* pRtti = object.m_pType;
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Object does not exist!");
-  if (pRtti->IsDerivedFrom<ezRenderPipelinePass>())
-  {
-    ezRenderPipelinePass* pPass = static_cast<ezRenderPipelinePass*>(object.m_pObject);
-
-    UnregisterObject(guid);
-    m_pRenderPipeline->RemovePass(pPass);
-  }
-  else if (pRtti->IsDerivedFrom<ezExtractor>())
-  {
-    ezExtractor* pExtractor = static_cast<ezExtractor*>(object.m_pObject);
-
-    UnregisterObject(guid);
-    m_pRenderPipeline->RemoveExtractor(pExtractor);
-  }
-  else
-  {
-    ezRttiConverterContext::DeleteObject(guid);
-  }
+  return EZ_SUCCESS;
 }
 
 // static
 ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
 {
-  auto pPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+  /*auto pPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
   ezRenderPipelineRttiConverterContext context;
   context.m_pRenderPipeline = pPipeline;
 
@@ -179,13 +115,14 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
     }
   }
 
-  return pPipeline;
+  return pPipeline;*/
+  return nullptr; // TODO
 }
 
 // static
 void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& ref_desc)
 {
-  ezRenderPipelineRttiConverterContext context;
+  /*ezRenderPipelineRttiConverterContext context;
 
   ezAbstractObjectGraph graph;
 
@@ -249,7 +186,7 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
 
   ezAbstractObjectGraph typeGraph; // empty type graph required for binary compatibility
   ezMemoryStreamWriter memoryWriter(&storage);
-  ezAbstractGraphBinarySerializer::Write(memoryWriter, &graph, &typeGraph);
+  ezAbstractGraphBinarySerializer::Write(memoryWriter, &graph, &typeGraph);*/
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);

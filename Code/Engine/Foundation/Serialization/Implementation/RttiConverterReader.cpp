@@ -13,7 +13,7 @@ ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph
 
 ezInternal::NewInstance<void> ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
 {
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
+  const ezRTTI* pRtti = m_pContext->FindTypeByName(pNode->GetType());
   if (pRtti == nullptr)
   {
     m_pContext->OnUnknownTypeError(pNode->GetType());
