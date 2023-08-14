@@ -90,7 +90,7 @@ ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngi
   m_RenderPipelineContext.GetObjectsByType(connections);
 
   ezHashTable<ezUuid, ezUInt32> passUuidToIndex;
-  for(ezUInt32 i=0; i < passUuids.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < passUuids.GetCount(); ++i)
   {
     passUuidToIndex.Insert(passUuids[i], i);
   }
@@ -105,7 +105,7 @@ ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngi
     const ezUInt32 uiNumPasses = passes.GetCount();
     stream << uiNumPasses;
 
-    for (auto& pass: passes)
+    for (auto& pass : passes)
     {
       auto pPassType = pass->GetDynamicRTTI();
       typeVersionWriteContext.AddType(pPassType);

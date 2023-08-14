@@ -1,7 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/IO/SerializationContext.h>
+#include <Foundation/Serialization/BinarySerializer.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>

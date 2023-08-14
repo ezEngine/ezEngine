@@ -16,8 +16,8 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRenderPipelineContextLoaderConnecti
 
 class ezRenderPipelineRttiConverterContext : public ezWorldRttiConverterContext
 {
-  public:
-    const ezRTTI* FindTypeByName(ezStringView sName) const override;
+public:
+  const ezRTTI* FindTypeByName(ezStringView sName) const override;
 };
 
 class EZ_ENGINEPLUGINASSETS_DLL ezRenderPipelineContext : public ezEngineProcessDocumentContext
