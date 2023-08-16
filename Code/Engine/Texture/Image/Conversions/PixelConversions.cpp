@@ -1526,7 +1526,7 @@ public:
     static ezImageConversionEntry supportedConversions[] = {
       ezImageConversionEntry(ezImageFormat::R32_UINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
       ezImageConversionEntry(ezImageFormat::R32G32_UINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_UINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R32G32B32_UINT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
       ezImageConversionEntry(ezImageFormat::R32G32B32A32_UINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
     };
     return supportedConversions;
@@ -1541,7 +1541,7 @@ public:
     static ezImageConversionEntry supportedConversions[] = {
       ezImageConversionEntry(ezImageFormat::R32_SINT, ezImageFormat::R32_FLOAT, ezImageConversionFlags::Default),
       ezImageConversionEntry(ezImageFormat::R32G32_SINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
-      ezImageConversionEntry(ezImageFormat::R32G32B32_SINT, ezImageFormat::R32G32_FLOAT, ezImageConversionFlags::Default),
+      ezImageConversionEntry(ezImageFormat::R32G32B32_SINT, ezImageFormat::R32G32B32_FLOAT, ezImageConversionFlags::Default),
       ezImageConversionEntry(ezImageFormat::R32G32B32A32_SINT, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::Default),
     };
     return supportedConversions;
