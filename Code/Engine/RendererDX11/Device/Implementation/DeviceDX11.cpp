@@ -218,7 +218,7 @@ retry:
       }
   }
 
-  //#TODO_DX11 Replace ring buffer with proper pool like in Vulkan to prevent buffer overrun.
+  // #TODO_DX11 Replace ring buffer with proper pool like in Vulkan to prevent buffer overrun.
   m_Timestamps.SetCountUninitialized(2048);
   for (ezUInt32 i = 0; i < m_Timestamps.GetCount(); ++i)
   {
@@ -827,7 +827,6 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
   switch (m_uiFeatureLevel)
   {
     case D3D_FEATURE_LEVEL_11_1:
-      m_Capabilities.m_bB5G6R5Textures = true;
       m_Capabilities.m_bNoOverwriteBufferUpdate = true;
       [[fallthrough]];
 
@@ -841,7 +840,6 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       m_Capabilities.m_bInstancing = true;
       m_Capabilities.m_b32BitIndices = true;
       m_Capabilities.m_bIndirectDraw = true;
-      m_Capabilities.m_bStreamOut = true;
       m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
       m_Capabilities.m_bTextureArrays = true;
       m_Capabilities.m_bCubemapArrays = true;
@@ -865,7 +863,6 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       m_Capabilities.m_bInstancing = true;
       m_Capabilities.m_b32BitIndices = true;
       m_Capabilities.m_bIndirectDraw = false;
-      m_Capabilities.m_bStreamOut = true;
       m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
       m_Capabilities.m_bTextureArrays = true;
       m_Capabilities.m_bCubemapArrays = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_10_1 ? true : false);
@@ -888,7 +885,6 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       m_Capabilities.m_bInstancing = true;
       m_Capabilities.m_b32BitIndices = true;
       m_Capabilities.m_bIndirectDraw = false;
-      m_Capabilities.m_bStreamOut = false;
       m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
       m_Capabilities.m_bTextureArrays = false;
       m_Capabilities.m_bCubemapArrays = false;
@@ -918,6 +914,54 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     if (SUCCEEDED(m_pDevice3->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureOpts3, sizeof(featureOpts3))))
     {
       m_Capabilities.m_bVertexShaderRenderTargetArrayIndex = featureOpts3.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer != 0;
+    }
+  }
+
+  m_Capabilities.m_FormatSupport.SetCount(ezGALResourceFormat::ENUM_COUNT);
+  for (ezUInt32 i = 0; i < ezGALResourceFormat::ENUM_COUNT; i++)
+  {
+    ezGALResourceFormat::Enum format = (ezGALResourceFormat::Enum)i;
+    const ezGALFormatLookupEntryDX11& entry = m_FormatLookupTable.GetFormatInfo(format);
+    const bool bIsDepth = ezGALResourceFormat::IsDepthFormat(format);
+    if (bIsDepth)
+    {
+      UINT uiSampleSupport;
+      if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eDepthOnlyType, &uiSampleSupport)))
+      {
+        if (uiSampleSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_SHADER_SAMPLE)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Sample);
+      }
+
+      UINT uiRenderSupport;
+      if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eDepthStencilType, &uiRenderSupport)))
+      {
+        if (uiRenderSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_DEPTH_STENCIL)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Render);
+      }
+    }
+    else
+    {
+      UINT uiSampleSupport;
+      if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eResourceViewType, &uiSampleSupport)))
+      {
+        UINT uiSampleFlag = ezGALResourceFormat::IsIntegerFormat(format) ? D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_SHADER_LOAD : D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_SHADER_SAMPLE;
+        if (uiSampleSupport & uiSampleFlag)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Sample);
+      }
+
+      UINT uiVertexSupport;
+      if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eVertexAttributeType, &uiVertexSupport)))
+      {
+        if (uiVertexSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_IA_VERTEX_BUFFER)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::VertexAttribute);
+      }
+
+      UINT uiRenderSupport;
+      if (SUCCEEDED(m_pDevice3->CheckFormatSupport(entry.m_eRenderTarget, &uiRenderSupport)))
+      {
+        if (uiRenderSupport & D3D11_FORMAT_SUPPORT::D3D11_FORMAT_SUPPORT_RENDER_TARGET)
+          m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Render);
+      }
     }
   }
 }

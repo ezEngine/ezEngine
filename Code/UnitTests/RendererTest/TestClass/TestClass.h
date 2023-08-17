@@ -30,8 +30,8 @@ protected:
   virtual void SetupSubTests() override {}
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override { return ezTestAppRun::Quit; }
 
-  virtual ezResult InitializeTest() override { return EZ_SUCCESS; }
-  virtual ezResult DeInitializeTest() override { return EZ_SUCCESS; }
+  virtual ezResult InitializeTest() override;
+  virtual ezResult DeInitializeTest() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
 
@@ -39,15 +39,30 @@ protected:
 
 protected:
   ezResult SetupRenderer();
-  ezResult CreateWindow(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
-
   void ShutdownRenderer();
+
+  ezResult CreateWindow(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void DestroyWindow();
-  void ClearScreen(const ezColor& color = ezColor::Black);
-  void SetClipSpace();
 
   void BeginFrame();
   void EndFrame();
+
+  void BeginPass(const char* szPassName);
+  void EndPass();
+
+  ezGALRenderCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
+  void EndRendering();
+  void SetClipSpace();
+
+  /// \brief Renders a unit cube and makes an image comparison if m_bCaptureImage is set and the current frame is in m_ImgCompFrames.
+  /// \param viewport Viewport to render into.
+  /// \param mMVP Model View Projection matrix for camera. Use CreateSimpleMVP for convenience.
+  /// \param uiRenderTargetClearMask What render targets if any should be cleared.
+  /// \param hSRV The texture to render onto the cube.
+  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALResourceViewHandle hSRV);
+
+  ezMat4 CreateSimpleMVP(float fAspectRatio);
+
 
   ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName);
   ezMeshBufferResourceHandle CreateSphere(ezInt32 iSubDivs, float fRadius);
@@ -58,10 +73,16 @@ protected:
 
   ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
-  ezGALSwapChainHandle m_hSwapChain;
   ezGALPass* m_pPass = nullptr;
+
+  ezGALSwapChainHandle m_hSwapChain;
+  ezGALTextureHandle m_hDepthStencilTexture;
 
   ezConstantBufferStorageHandle m_hObjectTransformCB;
   ezShaderResourceHandle m_hShader;
-  ezGALTextureHandle m_hDepthStencilTexture;
+  ezMeshBufferResourceHandle m_hCubeUV;
+
+  ezInt32 m_iFrame = 0;
+  bool m_bCaptureImage = false;
+  ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
 };

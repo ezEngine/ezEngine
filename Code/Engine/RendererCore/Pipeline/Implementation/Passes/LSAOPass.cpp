@@ -380,7 +380,6 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_bUseForIndirectArguments = false;
       bufferDesc.m_bUseAsStructuredBuffer = false;
       bufferDesc.m_bAllowRawViews = false;
-      bufferDesc.m_bStreamOutputTarget = false;
       bufferDesc.m_bAllowShaderResourceView = true;
       bufferDesc.m_bAllowUAV = true;
       bufferDesc.m_ResourceAccess.m_bReadBack = false;
@@ -415,7 +414,6 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_bUseForIndirectArguments = false;
       bufferDesc.m_bUseAsStructuredBuffer = true;
       bufferDesc.m_bAllowRawViews = false;
-      bufferDesc.m_bStreamOutputTarget = false;
       bufferDesc.m_bAllowShaderResourceView = true;
       bufferDesc.m_bAllowUAV = false;
       bufferDesc.m_ResourceAccess.m_bReadBack = false;

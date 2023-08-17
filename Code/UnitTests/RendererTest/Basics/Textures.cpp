@@ -9,6 +9,7 @@
 ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 {
   BeginFrame();
+  BeginPass("Textures2D");
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
@@ -88,12 +89,13 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_hTexture2D);
 
-  ClearScreen(ezColor::Black);
+  BeginRendering(ezColor::Black);
 
   RenderObjects(ezShaderBindFlags::Default);
 
   EZ_TEST_IMAGE(m_iFrame, 100);
-
+  EndRendering();
+  EndPass();
   EndFrame();
 
   return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
@@ -103,7 +105,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 {
   BeginFrame();
-
+  BeginPass("Textures3D");
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
   const ezInt32 iNumFrames = 1;
@@ -117,12 +119,13 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_hTexture2D);
 
-  ClearScreen(ezColor::Black);
+  BeginRendering(ezColor::Black);
 
   RenderObjects(ezShaderBindFlags::Default);
 
   EZ_TEST_IMAGE(m_iFrame, 100);
-
+  EndRendering();
+  EndPass();
   EndFrame();
 
   return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;
@@ -132,6 +135,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 {
   BeginFrame();
+  BeginPass("TexturesCube");
 
   ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
 
@@ -201,12 +205,13 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   ezRenderContext::GetDefaultInstance()->BindTextureCube("DiffuseTexture", m_hTextureCube);
 
-  ClearScreen(ezColor::Black);
+  BeginRendering(ezColor::Black);
 
   RenderObjects(ezShaderBindFlags::Default);
 
   EZ_TEST_IMAGE(m_iFrame, 100);
-
+  EndRendering();
+  EndPass();
   EndFrame();
 
   return m_iFrame < (iNumFrames - 1) ? ezTestAppRun::Continue : ezTestAppRun::Quit;

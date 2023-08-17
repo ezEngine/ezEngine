@@ -210,6 +210,7 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
 #  error "Vulkan platform not supported"
 #endif
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, m_extensions.m_bDebugUtils));
+  m_extensions.m_bDebugUtilsMarkers = m_extensions.m_bDebugUtils;
 
   return vk::Result::eSuccess;
 }
@@ -333,13 +334,15 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       {
         ezLog::Warning("The khronos validation layer is not supported on this device. Will run without validation layer.");
       }
-      instanceCreateInfo.pNext = &debugCreateInfo;
+
+      if (m_extensions.m_bDebugUtils)
+        instanceCreateInfo.pNext = &debugCreateInfo;
     }
 
     m_instance = vk::createInstance(instanceCreateInfo);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (m_Description.m_bDebugDevice)
+    if (m_extensions.m_bDebugUtils)
     {
       EZ_GET_INSTANCE_PROC_ADDR(vkCreateDebugUtilsMessengerEXT);
       EZ_GET_INSTANCE_PROC_ADDR(vkDestroyDebugUtilsMessengerEXT);
@@ -374,6 +377,13 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     m_physicalDevice = physicalDevices[0];
     m_properties = m_physicalDevice.getProperties();
     ezLog::Info("Selected physical device \"{}\" for device creation.", m_properties.deviceName);
+
+    // This is a workaround for broken lavapipe drivers which cannot handle label scopes that span across multiple command buffers.
+    ezStringBuilder sDeviceName = ezStringUtf8(m_properties.deviceName).GetView();
+    if (sDeviceName.Compare_NoCase("LLVMPIPE"))
+    {
+      m_extensions.m_bDebugUtilsMarkers = false;
+    }
   }
 
   ezHybridArray<vk::QueueFamilyProperties, 4> queueFamilyProperties;
@@ -522,7 +532,10 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 void ezGALDeviceVulkan::SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation allocation)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  m_device.setDebugUtilsObjectNameEXT(info);
+  if (m_extensions.m_bDebugUtils)
+  {
+    m_device.setDebugUtilsObjectNameEXT(info);
+  }
   if (allocation)
     ezMemoryAllocatorVulkan::SetAllocationUserData(allocation, info.pObjectName);
 #endif
@@ -658,7 +671,7 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   m_device.destroy();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT != nullptr)
+  if (m_extensions.m_bDebugUtils && m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT != nullptr)
   {
     m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
   }
@@ -1257,7 +1270,6 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 
   m_Capabilities.m_bMultithreadedResourceCreation = true;
 
-  m_Capabilities.m_bB5G6R5Textures = true;          // TODO how to check
   m_Capabilities.m_bNoOverwriteBufferUpdate = true; // TODO how to check
 
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
@@ -1269,8 +1281,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_bInstancing = true;
   m_Capabilities.m_b32BitIndices = true;
   m_Capabilities.m_bIndirectDraw = true;
-  m_Capabilities.m_bStreamOut = true;
-  m_Capabilities.m_uiMaxConstantBuffers = m_properties.limits.maxDescriptorSetUniformBuffers;
+  m_Capabilities.m_uiMaxConstantBuffers = ezMath::Min(m_properties.limits.maxDescriptorSetUniformBuffers, (ezUInt32)ezMath::MaxValue<ezUInt16>());
   m_Capabilities.m_bTextureArrays = true;
   m_Capabilities.m_bCubemapArrays = true;
   m_Capabilities.m_uiMaxTextureDimension = m_properties.limits.maxImageDimension1D;
@@ -1278,11 +1289,35 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_uiMax3DTextureDimension = m_properties.limits.maxImageDimension3D;
   m_Capabilities.m_uiMaxAnisotropy = static_cast<ezUInt16>(m_properties.limits.maxSamplerAnisotropy);
   m_Capabilities.m_uiMaxRendertargets = m_properties.limits.maxColorAttachments;
-  m_Capabilities.m_uiUAVCount = ezMath::Min(m_properties.limits.maxDescriptorSetStorageBuffers, m_properties.limits.maxDescriptorSetStorageImages);
+  m_Capabilities.m_uiUAVCount = ezMath::Min(ezMath::Min(m_properties.limits.maxDescriptorSetStorageBuffers, m_properties.limits.maxDescriptorSetStorageImages), (ezUInt32)ezMath::MaxValue<ezUInt16>());
   m_Capabilities.m_bAlphaToCoverage = true;
   m_Capabilities.m_bVertexShaderRenderTargetArrayIndex = m_extensions.m_bShaderViewportIndexLayer;
 
   m_Capabilities.m_bConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
+
+  m_Capabilities.m_FormatSupport.SetCount(ezGALResourceFormat::ENUM_COUNT);
+  for (ezUInt32 i = 0; i < ezGALResourceFormat::ENUM_COUNT; i++)
+  {
+    ezGALResourceFormat::Enum format = (ezGALResourceFormat::Enum)i;
+    const ezGALFormatLookupEntryVulkan& entry = m_FormatLookupTable.GetFormatInfo(format);
+    const vk::FormatProperties formatProps = GetVulkanPhysicalDevice().getFormatProperties(entry.m_format);
+
+    if (formatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage)
+      m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Sample);
+
+    if (formatProps.bufferFeatures & vk::FormatFeatureFlagBits::eVertexBuffer)
+      m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::VertexAttribute);
+    if (ezGALResourceFormat::IsDepthFormat(format))
+    {
+      if (formatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment)
+        m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Render);
+    }
+    else
+    {
+      if (formatProps.optimalTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment)
+        m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Render);
+    }
+  }
 }
 
 void ezGALDeviceVulkan::WaitIdlePlatform()

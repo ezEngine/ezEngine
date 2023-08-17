@@ -48,7 +48,7 @@ private:
 
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override
   {
-    ++m_iFrame;
+    m_iFrame = uiInvocationCount;
 
     if (iIdentifier == SubTests::ST_ClearScreen)
       return SubtestClearScreen();
@@ -74,7 +74,6 @@ private:
     return ezTestAppRun::Quit;
   }
 
-  ezInt32 m_iFrame;
   ezMeshBufferResourceHandle m_hSphere;
   ezMeshBufferResourceHandle m_hSphere2;
   ezMeshBufferResourceHandle m_hTorus;

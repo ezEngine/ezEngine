@@ -114,7 +114,7 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
 
     depthAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
-    if (renderingSetup.m_bDiscardDepth)
+    if (renderingSetup.m_bDiscardDepth && !renderingSetup.m_bClearDepth)
     {
       depthAttachment.initialLayout = vk::ImageLayout::eUndefined;
       depthAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;
@@ -159,7 +159,7 @@ void ezResourceCacheVulkan::GetRenderPassDesc(const ezGALRenderingSetup& renderi
 
     colorAttachment.samples = ezConversionUtilsVulkan::GetSamples(texDesc.m_SampleCount);
 
-    if (renderingSetup.m_bDiscardColor)
+    if (renderingSetup.m_bDiscardColor && !(renderingSetup.m_uiRenderTargetClearMask & (1u << i)))
     {
       colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
       colorAttachment.loadOp = vk::AttachmentLoadOp::eDontCare;

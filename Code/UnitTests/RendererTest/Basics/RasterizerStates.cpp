@@ -6,7 +6,7 @@
 ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 {
   BeginFrame();
-
+  BeginPass("RasterizerStates");
   ezGALRasterizerStateHandle hState;
 
   ezGALRasterizerStateCreationDescription RasterStateDesc;
@@ -115,7 +115,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   if (RasterStateDesc.m_CullMode == ezGALCullMode::Back)
     clear.b = 1.0f;
 
-  ClearScreen(clear);
+  BeginRendering(clear);
 
   hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
   EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
@@ -130,7 +130,8 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
     EZ_TEST_LINE_IMAGE(m_iFrame, 300);
   else
     EZ_TEST_IMAGE(m_iFrame, 150);
-
+  EndRendering();
+  EndPass();
   EndFrame();
 
   m_pDevice->DestroyRasterizerState(hState);

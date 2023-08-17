@@ -88,7 +88,6 @@ void ezFallbackResourcesVulkan::GALDeviceEventHandler(const ezGALDeviceEvent& e)
         desc.m_bUseForIndirectArguments = false;
         desc.m_bUseAsStructuredBuffer = true;
         desc.m_bAllowRawViews = true;
-        desc.m_bStreamOutputTarget = false;
         desc.m_bAllowShaderResourceView = true;
         desc.m_bAllowUAV = true;
         desc.m_uiStructSize = 128;

@@ -142,7 +142,7 @@ public:
 
   /// \brief Sets the quaternion from Euler angles
   [[nodiscard]] static ezQuatTemplate<Type> MakeFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z); // [tested]
-  [[deprecated("Use ezQuat::MakeFromEulerAngles() instead.")]] void SetFromEulerAngles(const ezAngle& xAngle, const ezAngle& yAngle, const ezAngle& zAngle) { *this = MakeFromEulerAngles(xAngle, yAngle, zAngle); }
+  [[deprecated("Use ezQuat::MakeFromEulerAngles() instead.")]] void SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z) { *this = MakeFromEulerAngles(x, y, z); }
 };
 
 /// \brief Rotates v by q

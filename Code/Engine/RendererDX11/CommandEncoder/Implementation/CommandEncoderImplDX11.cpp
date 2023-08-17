@@ -641,18 +641,6 @@ void ezGALCommandEncoderImplDX11::DrawAutoPlatform()
   m_pDXContext->DrawAuto();
 }
 
-void ezGALCommandEncoderImplDX11::BeginStreamOutPlatform()
-{
-  FlushDeferredStateChanges();
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
-void ezGALCommandEncoderImplDX11::EndStreamOutPlatform()
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
 void ezGALCommandEncoderImplDX11::SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer)
 {
   if (pIndexBuffer != nullptr)
@@ -734,11 +722,6 @@ void ezGALCommandEncoderImplDX11::SetScissorRectPlatform(const ezRectU32& rect)
   ScissorRect.bottom = rect.y + rect.height;
 
   m_pDXContext->RSSetScissorRects(1, &ScissorRect);
-}
-
-void ezGALCommandEncoderImplDX11::SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 //////////////////////////////////////////////////////////////////////////

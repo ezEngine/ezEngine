@@ -101,9 +101,6 @@ public:
   virtual void DrawInstancedIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) override;
   virtual void DrawAutoPlatform() override;
 
-  virtual void BeginStreamOutPlatform() override;
-  virtual void EndStreamOutPlatform() override;
-
   // State functions
 
   virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) override;
@@ -117,9 +114,6 @@ public:
 
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
-
-  virtual void SetStreamOutBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pBuffer, ezUInt32 uiOffset) override;
-
 
   // ezGALCommandEncoderComputePlatformInterface
   // Dispatch

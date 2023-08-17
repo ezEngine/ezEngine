@@ -18,7 +18,6 @@ ezGALDeviceCapabilities::ezGALDeviceCapabilities()
   m_bInstancing = false;
   m_b32BitIndices = false;
   m_bIndirectDraw = false;
-  m_bStreamOut = false;
   m_bConservativeRasterization = false;
   m_uiMaxConstantBuffers = 0;
 
@@ -26,7 +25,6 @@ ezGALDeviceCapabilities::ezGALDeviceCapabilities()
   // Texture related capabilities
   m_bTextureArrays = false;
   m_bCubemapArrays = false;
-  m_bB5G6R5Textures = false;
   m_uiMaxTextureDimension = 0;
   m_uiMaxCubemapDimension = 0;
   m_uiMax3DTextureDimension = 0;

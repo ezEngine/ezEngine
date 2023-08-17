@@ -267,7 +267,6 @@ struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreat
   bool m_bUseForIndirectArguments = false;
   bool m_bUseAsStructuredBuffer = false;
   bool m_bAllowRawViews = false;
-  bool m_bStreamOutputTarget = false;
   bool m_bAllowShaderResourceView = false;
   bool m_bAllowUAV = false;
 

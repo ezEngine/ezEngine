@@ -30,6 +30,49 @@ EZ_FORCE_INLINE bool ezGALResourceFormat::IsSrgb(ezGALResourceFormat::Enum forma
          format == BC7UNormalizedsRGB;
 }
 
+EZ_FORCE_INLINE bool ezGALResourceFormat::IsIntegerFormat(Enum format)
+{
+  switch (format)
+  {
+    // D16 is actually a 16 bit unorm format
+    case ezGALResourceFormat::D16:
+    // 32bit, 4 channel
+    case ezGALResourceFormat::RGBAUInt:
+    case ezGALResourceFormat::RGBAInt:
+    // 32bit, 3 channel
+    case ezGALResourceFormat::RGBUInt:
+    case ezGALResourceFormat::RGBInt:
+    // 16bit, 4 channel
+    case ezGALResourceFormat::RGBAUShort:
+    case ezGALResourceFormat::RGBAShort:
+    // 16bit, 2 channel
+    case ezGALResourceFormat::RGUInt:
+    case ezGALResourceFormat::RGInt:
+    // packed 32bit, 4 channel
+    case ezGALResourceFormat::RGB10A2UInt:
+    // 8bit, 4 channel
+    case ezGALResourceFormat::RGBAUByte:
+    case ezGALResourceFormat::RGBAByte:
+    // 16bit, 2 channel
+    case ezGALResourceFormat::RGUShort:
+    case ezGALResourceFormat::RGShort:
+    // 8bit, 2 channel
+    case ezGALResourceFormat::RGUByte:
+    case ezGALResourceFormat::RGByte:
+    // 32bit, 1 channel
+    case ezGALResourceFormat::RUInt:
+    case ezGALResourceFormat::RInt:
+    // 16bit, 1 channel
+    case ezGALResourceFormat::RUShort:
+    case ezGALResourceFormat::RShort:
+    // 8bit, 1 channel
+    case ezGALResourceFormat::RUByte:
+    case ezGALResourceFormat::RByte:
+      return true;
+    default:
+      return false;
+  }
+}
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
 ezGALFormatLookupEntry<NativeFormatType, InvalidFormat>::ezGALFormatLookupEntry()
