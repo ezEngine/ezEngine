@@ -311,8 +311,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
   ezSimdMat4f toLocalSpace = pOwner->GetGlobalTransformSimd().GetAsMat4().GetInverse();
   ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
-    {
+  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject) {
     ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
     const bool bInRadius = localSpacePos.GetLengthSquared<3>() <= radiusSquared;
 
@@ -390,8 +389,7 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
   ezSimdFloat radiusSquared = m_fRadius * m_fRadius;
   ezSimdFloat halfHeight = m_fHeight * 0.5f;
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
-    {
+  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject) {
     ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
     const bool bInRadius = localSpacePos.GetLengthSquared<2>() <= radiusSquared;
     const bool bInHeight = localSpacePos.Abs().z() <= halfHeight;
@@ -473,8 +471,7 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
   const ezSimdFloat farSquared = m_fFarDistance * m_fFarDistance;
   const ezSimdFloat cosAngle = ezMath::Cos(m_Angle * 0.5f);
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject)
-    {
+  GetWorld()->GetSpatialSystem()->FindObjectsInSphere(sphere, params, [&](ezGameObject* pObject) {
     ezSimdVec4f localSpacePos = toLocalSpace.TransformPosition(pObject->GetGlobalPositionSimd());
     const ezSimdFloat fDistanceSquared = localSpacePos.GetLengthSquared<3>();
     const bool bInDistance = fDistanceSquared >= nearSquared && fDistanceSquared <= farSquared;
@@ -654,15 +651,14 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
     return;
 
   const ezTime deltaTime = GetWorld()->GetClock().GetTimeDiff();
-  m_Scheduler.Update(deltaTime, [this](const ezComponentHandle& hComponent, ezTime deltaTime)
-    {
-      const ezWorld* pWorld = GetWorld();
-      const ezSensorComponent* pSensorComponent = nullptr;
-      EZ_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
+  m_Scheduler.Update(deltaTime, [this](const ezComponentHandle& hComponent, ezTime deltaTime) {
+    const ezWorld* pWorld = GetWorld();
+    const ezSensorComponent* pSensorComponent = nullptr;
+    EZ_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
 
-      pSensorComponent->RunSensorCheck(m_pPhysicsWorldModule, m_ObjectsInSensorVolume, m_DetectedObjects, true);
-      //
-    });
+    pSensorComponent->RunSensorCheck(m_pPhysicsWorldModule, m_ObjectsInSensorVolume, m_DetectedObjects, true);
+    //
+  });
 }
 
 void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& context)
