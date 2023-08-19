@@ -149,9 +149,9 @@ public:
 
   /// \brief Creates a file reader to the given file. Will also link the document and hash it in a file-system-atomic operation.
   /// \param sAbsolutePath Path to the document. Must be in the model.
-  /// \param callback Called once the file was opened and hashed. The ezFileStatus contains the up to date info for the file, including hash. This function should return the document Id as it will automatically call LinkDocument.
+  /// \param callback Called once the file was opened and hashed. The ezFileStatus contains the up to date info for the file, including hash.
   /// \return Returns EZ_SUCCESS if the file existed and could be opened. Returns EZ_FAILURE if the file is not in the model or the file can't be opened for read access. On read failure, the file will be marked as locked.
-  ezResult ReadDocument(ezStringView sAbsolutePath, const ezDelegate<ezUuid(const ezFileStatus&, ezStreamReader&)>& callback);
+  ezResult ReadDocument(ezStringView sAbsolutePath, const ezDelegate<void(const ezFileStatus&, ezStreamReader&)>& callback);
 
   /// \brief Returns an up-to-date hash for the given file. Will trigger m_FileChangedEvents if the file has been modified since the last check. Hashes are cached so in the best case this will just check the timestamp on disk against the model and then return the cached hash. This function will also work on files outside of the data directories.
   /// \param sAbsolutePath Path to the document. Must be in the model.
@@ -162,8 +162,8 @@ public:
   ///@}
 
 public:
-  ezEvent<const ezFolderChangedEvent&, ezMutex> m_FolderChangedEvents;
-  ezEvent<const ezFileChangedEvent&, ezMutex> m_FileChangedEvents;
+  ezCopyOnBroadcastEvent<const ezFolderChangedEvent&, ezMutex> m_FolderChangedEvents;
+  ezCopyOnBroadcastEvent<const ezFileChangedEvent&, ezMutex> m_FileChangedEvents;
 
 private:
   void SetAllStatusUnknown();

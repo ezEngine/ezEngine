@@ -276,8 +276,30 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
         e.m_Type = ezAssetCuratorEvent::Type::AssetAdded;
         m_Events.Broadcast(e);
       }
+      else if (pInfo->m_ExistanceState == ezAssetExistanceState::FileMoved)
+      {
+        if (pInfo->m_bMainAsset)
+        {
+          // Make sure the document knows that its underlying file was renamed.
+          if (ezDocument* pDoc = ezDocumentManager::GetDocumentByGuid(guid))
+            pDoc->DocumentRenamed(pInfo->m_pAssetInfo->m_sAbsolutePath);
+        }
+
+        pInfo->m_ExistanceState = ezAssetExistanceState::FileUnchanged;
+        if (pInfo->m_bMainAsset)
+          pInfo->m_pAssetInfo->m_ExistanceState = ezAssetExistanceState::FileUnchanged;
+        e.m_Type = ezAssetCuratorEvent::Type::AssetMoved;
+        m_Events.Broadcast(e);
+      }
       else if (pInfo->m_ExistanceState == ezAssetExistanceState::FileRemoved)
       {
+        // this is a bit tricky:
+        // when the document is deleted on disk, it would be nicer not to close it (discarding modifications!)
+        // instead we could set it as modified
+        // but then when it was only moved or renamed that means we have another document with the same GUID
+        // so once the user would save the now modified document, we would end up with two documents with the same GUID
+        // so, for now, since this is probably a rare case anyway, we just close the document without asking
+        ezDocumentManager::EnsureDocumentIsClosedInAllManagers(pInfo->m_pAssetInfo->m_sAbsolutePath);
         e.m_Type = ezAssetCuratorEvent::Type::AssetRemoved;
         m_Events.Broadcast(e);
 
@@ -1584,17 +1606,10 @@ void ezAssetCurator::OnAssetFilesEvent(const ezFileChangedEvent& e)
       ezUuid guid0 = e.m_Status.m_DocumentID;
       if (guid0.IsValid())
       {
-        // this is a bit tricky:
-        // when the document is deleted on disk, it would be nicer not to close it (discarding modifications!)
-        // instead we could set it as modified
-        // but then when it was only moved or renamed that means we have another document with the same GUID
-        // so once the user would save the now modified document, we would end up with two documents with the same GUID
-        // so, for now, since this is probably a rare case anyway, we just close the document without asking
-        ezDocumentManager::EnsureDocumentIsClosedInAllManagers(e.m_sPath);
-
         if (auto it = m_KnownAssets.Find(guid0); it.IsValid())
         {
           ezAssetInfo* pAssetInfo = it.Value();
+          EZ_ASSERT_DEBUG(ezFileSystemModel::IsSameFile(e.m_sPath, pAssetInfo->m_sAbsolutePath), "");
           UntrackDependencies(pAssetInfo);
           RemoveAssetTransformState(guid0);
           SetAssetExistanceState(*pAssetInfo, ezAssetExistanceState::FileRemoved);

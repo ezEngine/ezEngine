@@ -175,6 +175,15 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {
+    case ezDocumentEvent::Type::DocumentRenamed:
+    {
+      m_sUniqueName = m_pDocument->GetDocumentPath();
+      setObjectName(GetUniqueName());
+      ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+      pContainer->DocumentWindowRenamed(this);
+
+      [[fallthrough]];
+    }
     case ezDocumentEvent::Type::ModifiedChanged:
     {
       ezQtDocumentWindowEvent dwe;

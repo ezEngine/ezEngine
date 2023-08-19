@@ -163,6 +163,18 @@ ezTaskGroupID ezDocument::SaveDocumentAsync(AfterSaveCallback callback, bool bFo
   return m_ActiveSaveTask;
 }
 
+void ezDocument::DocumentRenamed(ezStringView sNewDocumentPath)
+{
+  m_sDocumentPath = sNewDocumentPath;
+
+  ezDocumentEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezDocumentEvent::Type::DocumentRenamed;
+
+  m_EventsOne.Broadcast(e);
+  s_EventsAny.Broadcast(e);
+}
+
 void ezDocument::EnsureVisible()
 {
   ezDocumentEvent e;
@@ -228,7 +240,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   return afterSaveID;
 }
 
-ezStatus ezDocument::ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
+ezStatus ezDocument::ReadDocument(ezStringView sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
   ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes)
 {
   ezDefaultMemoryStreamStorage storage;
@@ -237,7 +249,7 @@ ezStatus ezDocument::ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbst
   {
     EZ_PROFILE_SCOPE("Read File");
     ezFileReader file;
-    if (file.Open(szDocumentPath) == EZ_FAILURE)
+    if (file.Open(sDocumentPath) == EZ_FAILURE)
     {
       return ezStatus("Unable to open file for reading!");
     }

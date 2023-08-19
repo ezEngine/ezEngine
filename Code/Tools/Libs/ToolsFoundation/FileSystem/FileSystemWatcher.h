@@ -46,8 +46,11 @@ public:
   ezEvent<const ezFileSystemWatcherEvent&, ezMutex> m_Events;
 
 private:
+  // On file move / rename operations we want the new file to be seen first before the old file delete event so that we can correctly detect this as a move instead of a delete operation. We achieve this by delaying each event by a fixed number of frames.
   static constexpr ezUInt32 s_AddedFrameDelay = 5;
   static constexpr ezUInt32 s_RemovedFrameDelay = 10;
+  // Sometimes moving a file triggers a modified event on the old file. To prevent this from triggering the removal to be seen before the addition, we also delay modified events by the same amount as remove events.
+  static constexpr ezUInt32 s_ModifiedFrameDelay = 10;
 
   struct WatcherResult
   {

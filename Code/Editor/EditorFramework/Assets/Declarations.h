@@ -14,10 +14,13 @@ class ezAssetFileHeader;
 
 struct ezAssetExistanceState
 {
+  using StorageType = ezUInt8;
+
   enum Enum : ezUInt8
   {
     FileAdded,
     FileRemoved,
+    FileMoved,
     FileModified,
     FileUnchanged,
   };
