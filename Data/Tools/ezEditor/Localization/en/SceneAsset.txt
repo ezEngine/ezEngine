@@ -195,6 +195,7 @@ ezUpdateRate::Max10fps;Max 10 FPS
 ezUpdateRate::Max5fps;Max 5 FPS
 ezUpdateRate::Max2fps;Max 2 FPS
 ezUpdateRate::Max1fps;Max 1 FPS
+ezUpdateRate::Never;Never
 
 ezRootMotionMode::SendMoveCharacterMsg;Send MoveCharacterMsg
 

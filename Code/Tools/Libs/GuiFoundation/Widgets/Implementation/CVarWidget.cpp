@@ -290,7 +290,10 @@ QVariant ezQtCVarModel::data(const QModelIndex& index, int iRole) const
         return e->m_sDisplayString;
 
       case 1:
-        return e->m_Value.ConvertTo<ezString>().GetData();
+        if (e->m_Value.IsValid())
+          return e->m_Value.ConvertTo<ezString>().GetData();
+        else
+          return QVariant();
 
       case 2:
         return e->m_sDescription;

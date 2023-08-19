@@ -101,8 +101,7 @@ void ezRcNavMeshComponent::Update()
   VisualizePointsOfInterest();
 }
 
-EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(
-  const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
+EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
 {
   const ezUInt16* v = &pMesh->verts[uiVertex * 3];
   const float x = vMeshOrigin.x + v[0] * fCellSize;

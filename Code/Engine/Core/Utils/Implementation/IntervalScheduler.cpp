@@ -7,6 +7,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezUpdateRate, 1)
   EZ_ENUM_CONSTANTS(ezUpdateRate::EveryFrame)
   EZ_ENUM_CONSTANTS(ezUpdateRate::Max30fps, ezUpdateRate::Max20fps, ezUpdateRate::Max10fps)
   EZ_ENUM_CONSTANTS(ezUpdateRate::Max5fps, ezUpdateRate::Max2fps, ezUpdateRate::Max1fps)
+  EZ_ENUM_CONSTANTS(ezUpdateRate::Never)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 

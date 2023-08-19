@@ -350,7 +350,7 @@ struct rcCompactSpan
 
 /// A compact, static heightfield representing unobstructed space.
 /// @ingroup recast
-struct rcCompactHeightfield
+struct RECAST_API rcCompactHeightfield
 {
 	rcCompactHeightfield();
 	~rcCompactHeightfield();
@@ -402,7 +402,7 @@ struct rcHeightfieldLayer
 /// Represents a set of heightfield layers.
 /// @ingroup recast
 /// @see rcAllocHeightfieldLayerSet, rcFreeHeightfieldLayerSet 
-struct rcHeightfieldLayerSet
+struct RECAST_API rcHeightfieldLayerSet
 {
 	rcHeightfieldLayerSet();
 	~rcHeightfieldLayerSet();
@@ -429,7 +429,7 @@ struct rcContour
 
 /// Represents a group of related contours.
 /// @ingroup recast
-struct rcContourSet
+struct RECAST_API rcContourSet
 {
 	rcContourSet();
 	~rcContourSet();
@@ -483,7 +483,7 @@ private:
 /// Contains triangle meshes that represent detailed height data associated 
 /// with the polygons in its associated polygon mesh object.
 /// @ingroup recast
-struct rcPolyMeshDetail
+struct RECAST_API rcPolyMeshDetail
 {
 	rcPolyMeshDetail();
 	

@@ -16,6 +16,7 @@ struct EZ_CORE_DLL ezUpdateRate
     Max5fps,
     Max2fps,
     Max1fps,
+    Never,
 
     Default = Max30fps
   };
