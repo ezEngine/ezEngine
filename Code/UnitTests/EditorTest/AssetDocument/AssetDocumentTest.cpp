@@ -184,19 +184,17 @@ void ezEditorAssetDocumentTest::FileOperations()
   class EventHandler : public ezRefCounted
   {
   public:
-    EventHandler() {}
-
-    void Init(const ezSharedPtr<EventHandler>& strongThis)
+    void Init(const ezSharedPtr<EventHandler>& pStrongThis)
     {
       // Multi-threaded event subscription can outlive the target lifetime if we don't capture a string reference to it.
-      m_uiFileID = ezFileSystemModel::GetSingleton()->m_FileChangedEvents.AddEventHandler([strongThis](const ezFileChangedEvent& e) { strongThis->OnAssetFilesEvent(e); });
-      m_uiAssetID = ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&EventHandler::OnAssetEvent, this));
+      m_FileID = ezFileSystemModel::GetSingleton()->m_FileChangedEvents.AddEventHandler([pStrongThis](const ezFileChangedEvent& e) { pStrongThis->OnAssetFilesEvent(e); });
+      m_AssetID = ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&EventHandler::OnAssetEvent, this));
     }
 
     void DeInit()
     {
-      ezFileSystemModel::GetSingleton()->m_FileChangedEvents.RemoveEventHandler(m_uiFileID);
-      ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(m_uiAssetID);
+      ezFileSystemModel::GetSingleton()->m_FileChangedEvents.RemoveEventHandler(m_FileID);
+      ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(m_AssetID);
     }
 
     void OnAssetFilesEvent(const ezFileChangedEvent& e)
@@ -204,7 +202,7 @@ void ezEditorAssetDocumentTest::FileOperations()
       if (e.m_sPath.GetFileExtension().IsEqual_NoCase("ezAidlt"_ezsv))
         return;
 
-      if (m_uiFileID == 0)
+      if (m_FileID == 0)
         return;
 
       EZ_LOCK(m_EventMutex);
@@ -223,8 +221,8 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezHybridArray<AssetEvent, 4> m_AssetEvents;
 
   private:
-    ezEventSubscriptionID m_uiFileID = 0;
-    ezEventSubscriptionID m_uiAssetID = 0;
+    ezEventSubscriptionID m_FileID = 0;
+    ezEventSubscriptionID m_AssetID = 0;
   };
 
   ezSharedPtr<EventHandler> events = EZ_DEFAULT_NEW(EventHandler);
