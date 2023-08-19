@@ -305,7 +305,6 @@ ezResult ezFileSystemModel::LinkDocument(ezStringView sAbsolutePath, const ezUui
       // Store status before updates so we can fire the unlink if a guid was already set.
       fileStatus = it.Value();
       it.Value().m_DocumentID = documentId;
-
     }
     else
     {
@@ -682,8 +681,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
   }
 
   // Delete sub-folders before parent folders.
-  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool
-    { return ezStringUtils::Compare(lhs, rhs) > 0; });
+  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool { return ezStringUtils::Compare(lhs, rhs) > 0; });
   for (const ezString& sFolder : missingFolders)
   {
     HandleSingleFile(sFolder, false);

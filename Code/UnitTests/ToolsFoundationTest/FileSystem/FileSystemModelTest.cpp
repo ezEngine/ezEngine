@@ -621,23 +621,23 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
       ezUuid guid = ezUuid::MakeUuid();
       ezUuid guid2 = ezUuid::MakeUuid();
-    {
-      EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
-      EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
-      EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid2));
+      {
+        EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
+        EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
+        EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid2));
 
-      ezFileStatus stat;
-      stat.m_DocumentID = guid;
-      ezFileStatus stat2;
-      stat2.m_DocumentID = guid2;
+        ezFileStatus stat;
+        stat.m_DocumentID = guid;
+        ezFileStatus stat2;
+        stat2.m_DocumentID = guid2;
 
-      ezFileChangedEvent expected[] = {
-        ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentLinked),
-        ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentUnlinked),
-        ezFileChangedEvent(sFilePathNew, stat2, ezFileChangedEvent::Type::DocumentLinked)};
-      CompareFiles(ezMakeArrayPtr(expected));
-      ClearFiles();
-    }
+        ezFileChangedEvent expected[] = {
+          ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentLinked),
+          ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentUnlinked),
+          ezFileChangedEvent(sFilePathNew, stat2, ezFileChangedEvent::Type::DocumentLinked)};
+        CompareFiles(ezMakeArrayPtr(expected));
+        ClearFiles();
+      }
     {
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->UnlinkDocument(sFilePathNew));
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->UnlinkDocument(sFilePathNew));
