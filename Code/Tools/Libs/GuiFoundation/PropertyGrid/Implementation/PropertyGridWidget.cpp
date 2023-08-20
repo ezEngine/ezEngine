@@ -214,6 +214,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezColorGammaUB>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAngle>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVariant>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezHashedString>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezEnumBase>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezBitflagsBase>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>());

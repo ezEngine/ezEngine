@@ -106,8 +106,9 @@ public:
   ezStatus SaveDocument(bool bForce = false);
   using AfterSaveCallback = ezDelegate<void(ezDocument*, ezStatus)>;
   ezTaskGroupID SaveDocumentAsync(AfterSaveCallback callback, bool bForce = false);
+  void DocumentRenamed(ezStringView sNewDocumentPath);
 
-  static ezStatus ReadDocument(const char* szDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
+  static ezStatus ReadDocument(ezStringView sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
     ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes);
   static ezStatus ReadAndRegisterTypes(const ezAbstractObjectGraph& types);
 

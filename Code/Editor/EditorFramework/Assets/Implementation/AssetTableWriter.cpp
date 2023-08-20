@@ -276,6 +276,7 @@ void ezAssetTableWriter::AssetCuratorEvents(const ezAssetCuratorEvent& e)
         return;
       [[fallthrough]];*/
     case ezAssetCuratorEvent::Type::AssetAdded:
+    case ezAssetCuratorEvent::Type::AssetMoved:
     {
       ezUInt32 uiDataDirIndex = FindDataDir(*e.m_pInfo);
       if (ezAssetTable* pTable = GetAssetTable(uiDataDirIndex, pProfile))

@@ -395,6 +395,22 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   QMetaObject::invokeMethod(this, "SlotUpdateWindowDecoration", Qt::ConnectionType::QueuedConnection, Q_ARG(void*, pDocWindow));
 }
 
+void ezQtContainerWindow::DocumentWindowRenamed(ezQtDocumentWindow* pDocWindow)
+{
+  const ezUInt32 uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
+  if (uiListIndex == ezInvalidIndex)
+    return;
+
+  ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
+  EZ_ASSERT_DEV(m_DockNames.contains(dock->objectName()), "Object name must not change during lifetime.");
+  m_DockNames.remove(dock->objectName());
+
+  dock->setObjectName(pDocWindow->GetUniqueName());
+  EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
+  EZ_ASSERT_DEV(!m_DockNames.contains(dock->objectName()), "Dock name must be unique.");
+  m_DockNames.insert(dock->objectName());
+}
+
 void ezQtContainerWindow::AddApplicationPanel(ezQtApplicationPanel* pPanel)
 {
   // panel already in container window ?

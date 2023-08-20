@@ -103,7 +103,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       {
         EZ_TEST_INT((int)expected[i].m_Type, (int)fileEvents[i].m_Type);
         EZ_TEST_STRING(expected[i].m_sPath, fileEvents[i].m_sPath);
-        // Ignore stats
+        EZ_TEST_BOOL(expected[i].m_Status.m_DocumentID == fileEvents[i].m_Status.m_DocumentID);
+        // Ignore stats besudes GUID.
       }
     }
   };
@@ -598,14 +599,17 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ezStringBuilder sFilePathNew(sOutputFolder);
     sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
 
-    auto callback = [](const ezFileStatus& status, ezStreamReader& ref_reader) -> ezUuid {
+    ezUuid docGuid = ezUuid::MakeUuid();
+    auto callback = [&](const ezFileStatus& status, ezStreamReader& ref_reader) {
       EZ_TEST_INT((ezInt64)status.m_uiHash, (ezInt64)10983861097202158394u);
-      return ezUuid::MakeUuid();
+      ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, docGuid).IgnoreResult();
     };
 
     EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->ReadDocument(sFilePathNew, callback));
 
-    ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::DocumentLinked)};
+    ezFileStatus stat;
+    stat.m_DocumentID = docGuid;
+    ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentLinked)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
   }
@@ -615,20 +619,33 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ezStringBuilder sFilePathNew(sOutputFolder);
     sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
 
-    {
       ezUuid guid = ezUuid::MakeUuid();
-      EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
-      EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
+      ezUuid guid2 = ezUuid::MakeUuid();
+      {
+        EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
+        EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid));
+        EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->LinkDocument(sFilePathNew, guid2));
 
-      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::DocumentLinked)};
-      CompareFiles(ezMakeArrayPtr(expected));
-      ClearFiles();
-    }
+        ezFileStatus stat;
+        stat.m_DocumentID = guid;
+        ezFileStatus stat2;
+        stat2.m_DocumentID = guid2;
+
+        ezFileChangedEvent expected[] = {
+          ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentLinked),
+          ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentUnlinked),
+          ezFileChangedEvent(sFilePathNew, stat2, ezFileChangedEvent::Type::DocumentLinked)};
+        CompareFiles(ezMakeArrayPtr(expected));
+        ClearFiles();
+      }
     {
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->UnlinkDocument(sFilePathNew));
       EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->UnlinkDocument(sFilePathNew));
 
-      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::DocumentUnlinked)};
+      ezFileStatus stat2;
+      stat2.m_DocumentID = guid2;
+
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, stat2, ezFileChangedEvent::Type::DocumentUnlinked)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
     }

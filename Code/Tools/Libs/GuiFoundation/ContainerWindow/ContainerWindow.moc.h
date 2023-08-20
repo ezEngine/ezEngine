@@ -36,6 +36,7 @@ public:
   static ezQtContainerWindow* GetContainerWindow() { return s_pContainerWindow; }
 
   void AddDocumentWindow(ezQtDocumentWindow* pDocWindow);
+  void DocumentWindowRenamed(ezQtDocumentWindow* pDocWindow);
   void AddApplicationPanel(ezQtApplicationPanel* pPanel);
 
   ads::CDockManager* GetDockManager() { return m_pDockManager; }

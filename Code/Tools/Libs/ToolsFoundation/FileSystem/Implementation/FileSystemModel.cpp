@@ -220,11 +220,10 @@ void ezFileSystemModel::CheckFileSystem()
   if (ezThreadUtils::IsMainThread())
   {
     range = nullptr;
-    // Broadcast reset only if we are on the main thread.
-    // Otherwise we are on the init task thread and the reset will be called on the main thread by WaitForInitialize.
-    FireFileChangedEvent({}, {}, ezFileChangedEvent::Type::ModelReset);
-    FireFolderChangedEvent({}, ezFolderChangedEvent::Type::ModelReset);
   }
+
+  FireFileChangedEvent({}, {}, ezFileChangedEvent::Type::ModelReset);
+  FireFolderChangedEvent({}, ezFolderChangedEvent::Type::ModelReset);
 }
 
 
@@ -298,15 +297,14 @@ ezResult ezFileSystemModel::LinkDocument(ezStringView sAbsolutePath, const ezUui
     return EZ_FAILURE;
 
   ezFileStatus fileStatus;
-  bool bDocumentLinkChanged = false;
   {
     EZ_LOCK(m_FilesMutex);
     auto it = m_ReferencedFiles.Find(sAbsolutePath);
     if (it.IsValid())
     {
-      bDocumentLinkChanged = it.Value().m_DocumentID != documentId;
-      it.Value().m_DocumentID = documentId;
+      // Store status before updates so we can fire the unlink if a guid was already set.
       fileStatus = it.Value();
+      it.Value().m_DocumentID = documentId;
     }
     else
     {
@@ -314,8 +312,13 @@ ezResult ezFileSystemModel::LinkDocument(ezStringView sAbsolutePath, const ezUui
     }
   }
 
-  if (bDocumentLinkChanged)
+  if (fileStatus.m_DocumentID != documentId)
   {
+    if (fileStatus.m_DocumentID.IsValid())
+    {
+      FireFileChangedEvent(sAbsolutePath, fileStatus, ezFileChangedEvent::Type::DocumentUnlinked);
+    }
+    fileStatus.m_DocumentID = documentId;
     FireFileChangedEvent(sAbsolutePath, fileStatus, ezFileChangedEvent::Type::DocumentLinked);
   }
   return EZ_SUCCESS;
@@ -334,8 +337,8 @@ ezResult ezFileSystemModel::UnlinkDocument(ezStringView sAbsolutePath)
     if (it.IsValid())
     {
       bDocumentLinkChanged = it.Value().m_DocumentID != ezUuid();
-      it.Value().m_DocumentID = ezUuid::MakeInvalid();
       fileStatus = it.Value();
+      it.Value().m_DocumentID = ezUuid::MakeInvalid();
     }
     else
     {
@@ -482,7 +485,7 @@ ezUInt64 ezFileSystemModel::HashFile(ezStreamReader& ref_inputStream, ezStreamWr
   return hsw.GetHashValue();
 }
 
-ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDelegate<ezUuid(const ezFileStatus&, ezStreamReader&)>& callback)
+ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDelegate<void(const ezFileStatus&, ezStreamReader&)>& callback)
 {
   if (!m_bInitialized)
     return EZ_FAILURE;
@@ -526,11 +529,10 @@ ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDel
 
   if (callback.IsValid())
   {
-    stat.m_DocumentID = callback(stat, MemReader);
+    callback(stat, MemReader);
   }
 
   bool bFileChanged = false;
-  bool bDocumentLinkChanged = false;
   {
     // Update state. No need to compare timestamps we hold a lock on the file via the reader.
     EZ_LOCK(m_FilesMutex);
@@ -538,7 +540,6 @@ ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDel
     if (it.IsValid())
     {
       bFileChanged = !it.Value().m_LastModified.Compare(stat.m_LastModified, ezTimestamp::CompareMode::Identical);
-      bDocumentLinkChanged = it.Value().m_DocumentID != stat.m_DocumentID;
       it.Value() = stat;
     }
     else
@@ -549,10 +550,6 @@ ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDel
     if (bFileChanged)
     {
       FireFileChangedEvent(sAbsolutePath, stat, ezFileChangedEvent::Type::FileChanged);
-    }
-    if (bDocumentLinkChanged)
-    {
-      FireFileChangedEvent(sAbsolutePath, stat, ezFileChangedEvent::Type::DocumentLinked);
     }
   }
 
@@ -861,7 +858,9 @@ void ezFileSystemModel::FireFileChangedEvent(ezStringView sFile, ezFileStatus fi
 
   for (ezUInt32 i = 0; i < g_PostponedFiles.GetCount(); i++)
   {
-    m_FileChangedEvents.Broadcast(g_PostponedFiles[i]);
+    // Need to make a copy as new elements can be added and the array resized during broadcast.
+    ezFileChangedEvent tempEvent = std::move(g_PostponedFiles[i]);
+    m_FileChangedEvents.Broadcast(tempEvent);
   }
   g_PostponedFiles.Clear();
 }
@@ -883,7 +882,9 @@ void ezFileSystemModel::FireFolderChangedEvent(ezStringView sFile, ezFolderChang
 
   for (ezUInt32 i = 0; i < g_PostponedFolders.GetCount(); i++)
   {
-    m_FolderChangedEvents.Broadcast(g_PostponedFolders[i]);
+    // Need to make a copy as new elements can be added and the array resized during broadcast.
+    ezFolderChangedEvent tempEvent = std::move(g_PostponedFolders[i]);
+    m_FolderChangedEvents.Broadcast(tempEvent);
   }
   g_PostponedFolders.Clear();
 }

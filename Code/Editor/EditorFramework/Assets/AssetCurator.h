@@ -124,6 +124,7 @@ struct ezAssetCuratorEvent
   {
     AssetAdded,
     AssetRemoved,
+    AssetMoved,
     AssetUpdated,
     AssetListReset,
     ActivePlatformChanged,

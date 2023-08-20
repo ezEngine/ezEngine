@@ -162,7 +162,7 @@ void ezFileSystemWatcher::HandleWatcherChange(const WatcherResult& res)
       }
       else
       {
-        AddEntry(m_FileChanged, res.m_sFile, s_AddedFrameDelay);
+        AddEntry(m_FileChanged, res.m_sFile, s_ModifiedFrameDelay);
       }
     }
     break;

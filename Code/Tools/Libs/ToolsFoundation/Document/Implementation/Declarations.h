@@ -57,6 +57,7 @@ struct ezDocumentEvent
     ReadOnlyChanged,
     EnsureVisible,
     DocumentSaved,
+    DocumentRenamed,
     DocumentStatusMsg,
   };
 
