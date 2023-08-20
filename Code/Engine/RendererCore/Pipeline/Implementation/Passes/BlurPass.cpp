@@ -94,6 +94,21 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   }
 }
 
+ezResult ezBlurPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_iRadius;
+  return EZ_SUCCESS;
+}
+
+ezResult ezBlurPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_iRadius;
+  return EZ_SUCCESS;
+}
+
 void ezBlurPass::SetRadius(ezInt32 iRadius)
 {
   m_iRadius = iRadius;

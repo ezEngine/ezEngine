@@ -96,7 +96,7 @@ void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
   }
 }
 
-void ezRenderPipeline::GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& ref_passes) const
+void ezRenderPipeline::GetPasses(ezDynamicArray<const ezRenderPipelinePass*>& ref_passes) const
 {
   ref_passes.Reserve(m_Passes.GetCount());
 
@@ -106,7 +106,7 @@ void ezRenderPipeline::GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>&
   }
 }
 
-void ezRenderPipeline::GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& ref_passes)
+void ezRenderPipeline::GetPasses(ezDynamicArray<ezRenderPipelinePass*>& ref_passes)
 {
   ref_passes.Reserve(m_Passes.GetCount());
 
@@ -258,7 +258,7 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
   return true;
 }
 
-const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const
+const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(const ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const
 {
   auto it = m_Connections.Find(pPass);
   if (!it.IsValid())
@@ -272,7 +272,7 @@ const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(ezRen
   return data.m_Inputs[pPin->m_uiInputIndex];
 }
 
-const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const
+const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(const ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const
 {
   auto it = m_Connections.Find(pPass);
   if (!it.IsValid())
@@ -732,7 +732,7 @@ void ezRenderPipeline::RemoveExtractor(ezExtractor* pExtractor)
   }
 }
 
-void ezRenderPipeline::GetExtractors(ezHybridArray<const ezExtractor*, 16>& ref_extractors) const
+void ezRenderPipeline::GetExtractors(ezDynamicArray<const ezExtractor*>& ref_extractors) const
 {
   ref_extractors.Reserve(m_Extractors.GetCount());
 
@@ -742,7 +742,7 @@ void ezRenderPipeline::GetExtractors(ezHybridArray<const ezExtractor*, 16>& ref_
   }
 }
 
-void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& ref_extractors)
+void ezRenderPipeline::GetExtractors(ezDynamicArray<ezExtractor*>& ref_extractors)
 {
   ref_extractors.Reserve(m_Extractors.GetCount());
 

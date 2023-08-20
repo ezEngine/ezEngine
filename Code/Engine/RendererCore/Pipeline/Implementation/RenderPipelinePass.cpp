@@ -53,6 +53,23 @@ void ezRenderPipelinePass::ExecuteInactive(const ezRenderViewContext& renderView
 
 void ezRenderPipelinePass::ReadBackProperties(ezView* pView) {}
 
+ezResult ezRenderPipelinePass::Serialize(ezStreamWriter& inout_stream) const
+{
+  inout_stream << m_bActive;
+  inout_stream << m_sName;
+  return EZ_SUCCESS;
+}
+
+ezResult ezRenderPipelinePass::Deserialize(ezStreamReader& inout_stream)
+{
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_ASSERT_DEBUG(uiVersion == 1, "Unknown version encountered");
+
+  inout_stream >> m_bActive;
+  inout_stream >> m_sName;
+  return EZ_SUCCESS;
+}
+
 void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)
 {
   EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetCommandEncoder(), ezRenderData::GetCategoryName(category));

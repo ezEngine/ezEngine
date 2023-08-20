@@ -84,14 +84,27 @@ void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, co
   renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 }
 
+ezResult ezMsaaUpscalePass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_MsaaMode;
+  return EZ_SUCCESS;
+}
 
+ezResult ezMsaaUpscalePass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_MsaaMode;
+  return EZ_SUCCESS;
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezMsaaUpscalePassPatch_1_2 : public ezGraphPatch
 {

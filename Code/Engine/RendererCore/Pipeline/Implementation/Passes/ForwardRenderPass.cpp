@@ -80,6 +80,21 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   pDevice->EndPass(pGALPass);
 }
 
+ezResult ezForwardRenderPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_ShadingQuality;
+  return EZ_SUCCESS;
+}
+
+ezResult ezForwardRenderPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_ShadingQuality;
+  return EZ_SUCCESS;
+}
+
 void ezForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();

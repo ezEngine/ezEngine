@@ -64,6 +64,23 @@ void ezEditorShapeIconsExtractor::Extract(
   }
 }
 
+ezResult ezEditorShapeIconsExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_fSize;
+  inout_stream << m_fMaxScreenSize;
+  return EZ_SUCCESS;
+}
+
+ezResult ezEditorShapeIconsExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_fSize;
+  inout_stream >> m_fMaxScreenSize;
+  return EZ_SUCCESS;
+}
+
 void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
 {
   static const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");

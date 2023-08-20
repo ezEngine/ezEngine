@@ -122,6 +122,21 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::GUI);
 }
 
+ezResult ezSimpleRenderPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_sMessage;
+  return EZ_SUCCESS;
+}
+
+ezResult ezSimpleRenderPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_sMessage;
+  return EZ_SUCCESS;
+}
+
 void ezSimpleRenderPass::SetMessage(const char* szMessage)
 {
   m_sMessage = szMessage;

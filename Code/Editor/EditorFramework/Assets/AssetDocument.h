@@ -180,6 +180,7 @@ protected:
   /// \brief Implements auto transform on save
   virtual void InternalAfterSaveDocument() override;
 
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void InitializeAfterLoadingAndSaving() override;
 
   ///@}
@@ -276,11 +277,10 @@ protected:
   void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
 
 protected:
-  ezIPCObjectMirrorEditor m_Mirror;
+  ezUniquePtr<ezIPCObjectMirrorEditor> m_Mirror;
 
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
-private:
   ezTransformStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
 
   EngineStatus m_EngineStatus;

@@ -166,6 +166,27 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
   auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
 }
 
+ezResult ezSourcePass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_Format;
+  inout_stream << m_MsaaMode;
+  inout_stream << m_ClearColor;
+  inout_stream << m_bClear;
+  return EZ_SUCCESS;
+}
+
+ezResult ezSourcePass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_Format;
+  inout_stream >> m_MsaaMode;
+  inout_stream >> m_ClearColor;
+  inout_stream >> m_bClear;
+  return EZ_SUCCESS;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

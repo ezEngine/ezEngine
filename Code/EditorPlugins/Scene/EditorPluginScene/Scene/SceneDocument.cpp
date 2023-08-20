@@ -79,14 +79,15 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType docume
 
 void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
+
   // (Local mirror only mirrors settings)
   m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool
     { return pManager->IsUnderRootProperty("Settings", pObject, szProperty); });
   // (Remote IPC mirror only sends scene)
-  m_Mirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool
+  m_Mirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool
     { return pManager->IsUnderRootProperty("Children", pObject, szProperty); });
 
-  SUPER::InitializeAfterLoading(bFirstTimeCreation);
   EnsureSettingsObjectExist();
 
   m_DocumentObjectMetaData->m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));

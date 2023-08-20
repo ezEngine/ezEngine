@@ -300,6 +300,37 @@ void ezAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, con
   auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
 }
 
+ezResult ezAOPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_fRadius;
+  inout_stream << m_fMaxScreenSpaceRadius;
+  inout_stream << m_fContrast;
+  inout_stream << m_fIntensity;
+  inout_stream << m_fFadeOutStart;
+  inout_stream << m_fFadeOutEnd;
+  inout_stream << m_fPositionBias;
+  inout_stream << m_fMipLevelScale;
+  inout_stream << m_fDepthBlurThreshold;
+  return EZ_SUCCESS;
+}
+
+ezResult ezAOPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_fRadius;
+  inout_stream >> m_fMaxScreenSpaceRadius;
+  inout_stream >> m_fContrast;
+  inout_stream >> m_fIntensity;
+  inout_stream >> m_fFadeOutStart;
+  inout_stream >> m_fFadeOutEnd;
+  inout_stream >> m_fPositionBias;
+  inout_stream >> m_fMipLevelScale;
+  inout_stream >> m_fDepthBlurThreshold;
+  return EZ_SUCCESS;
+}
+
 void ezAOPass::SetFadeOutStart(float fStart)
 {
   m_fFadeOutStart = ezMath::Clamp(fStart, 0.0f, m_fFadeOutEnd);

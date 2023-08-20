@@ -144,6 +144,25 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
   }
 }
 
+ezResult ezSeparatedBilateralBlurPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_uiRadius;
+  inout_stream << m_fGaussianSigma;
+  inout_stream << m_fSharpness;
+  return EZ_SUCCESS;
+}
+
+ezResult ezSeparatedBilateralBlurPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_uiRadius;
+  inout_stream >> m_fGaussianSigma;
+  inout_stream >> m_fSharpness;
+  return EZ_SUCCESS;
+}
+
 void ezSeparatedBilateralBlurPass::SetRadius(ezUInt32 uiRadius)
 {
   m_uiRadius = uiRadius;
@@ -189,8 +208,8 @@ float ezSeparatedBilateralBlurPass::GetSharpness() const
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
 
 class ezSeparatedBilateralBlurPassPatch_1_2 : public ezGraphPatch
 {

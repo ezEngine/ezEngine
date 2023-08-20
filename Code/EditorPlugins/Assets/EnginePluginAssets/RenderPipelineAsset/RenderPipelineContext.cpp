@@ -2,6 +2,10 @@
 
 #include <EnginePluginAssets/RenderPipelineAsset/RenderPipelineContext.h>
 
+#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
@@ -13,7 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineContextLoaderConnection, ezNoBase
   {
     EZ_MEMBER_PROPERTY("Connection::Source", m_Source),
     EZ_MEMBER_PROPERTY("Connection::Target", m_Target),
-    EZ_MEMBER_PROPERTY("Connection::SourcePin", m_SourcePin),    
+    EZ_MEMBER_PROPERTY("Connection::SourcePin", m_SourcePin),
     EZ_MEMBER_PROPERTY("Connection::TargetPin", m_TargetPin),
   }
   EZ_END_PROPERTIES;
@@ -81,73 +85,62 @@ const ezWorldRttiConverterContext& ezRenderPipelineContext::GetContext() const
 ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 {
   ezDynamicArray<ezRenderPipelinePass*> passes;
-  ezDynamicArray<ezUuid> passUuids;
   ezDynamicArray<ezExtractor*> extractors;
-  ezDynamicArray<ezRenderPipelineContextLoaderConnection*> connections;
+  ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
+
+  ezDynamicArray<ezUuid> passUuids;
+  ezDynamicArray<ezRenderPipelineContextLoaderConnection*> toolConnections;
 
   m_RenderPipelineContext.GetObjectsByType(passes, &passUuids);
   m_RenderPipelineContext.GetObjectsByType(extractors);
-  m_RenderPipelineContext.GetObjectsByType(connections);
+  m_RenderPipelineContext.GetObjectsByType(toolConnections);
 
   ezHashTable<ezUuid, ezUInt32> passUuidToIndex;
   for (ezUInt32 i = 0; i < passUuids.GetCount(); ++i)
   {
     passUuidToIndex.Insert(passUuids[i], i);
   }
-
-
-  ezStringDeduplicationWriteContext stringDeduplicationWriteContext(ref_originalStream);
-  ezTypeVersionWriteContext typeVersionWriteContext;
-  auto& stream = typeVersionWriteContext.Begin(stringDeduplicationWriteContext.Begin());
-
-  // passes
+  connections.SetCount(toolConnections.GetCount());
+  for (ezUInt32 i = 0; i < toolConnections.GetCount(); i++)
   {
-    const ezUInt32 uiNumPasses = passes.GetCount();
-    stream << uiNumPasses;
-
-    for (auto& pass : passes)
-    {
-      auto pPassType = pass->GetDynamicRTTI();
-      typeVersionWriteContext.AddType(pPassType);
-
-      stream << pPassType->GetTypeName();
-      EZ_SUCCEED_OR_RETURN(pass->Serialize(stream));
-    }
+    ezRenderPipelineContextLoaderConnection* pConnection = toolConnections[i];
+    ezRenderPipelineResourceLoaderConnection& engineConnection = connections[i];
+    EZ_VERIFY(passUuidToIndex.TryGetValue(pConnection->m_Source, engineConnection.m_uiSource), "");
+    EZ_VERIFY(passUuidToIndex.TryGetValue(pConnection->m_Target, engineConnection.m_uiTarget), "");
+    engineConnection.m_sSourcePin = pConnection->m_SourcePin;
+    engineConnection.m_sTargetPin = pConnection->m_TargetPin;
   }
 
-  // extractors
+  ezDefaultMemoryStreamStorage storage;
   {
-    const ezUInt32 uiNumExtractors = extractors.GetCount();
-    stream << uiNumExtractors;
-
-    for (auto& extractor : extractors)
-    {
-      auto pExtractorType = pass->GetDynamicRTTI();
-      typeVersionWriteContext.AddType(pExtractorType);
-
-      stream << pExtractorType->GetTypeName();
-      EZ_SUCCEED_OR_RETURN(extractor->Serialize(stream));
-    }
+    // Export Resource Data
+    ezMemoryStreamWriter writer(&storage);
+    EZ_SUCCEED_OR_RETURN(ezRenderPipelineResourceLoader::ExportPipeline(passes.GetArrayPtr(), extractors.GetArrayPtr(), connections.GetArrayPtr(), writer));
   }
 
-  // Connections
+  ezDeferredFileWriter file;
+  file.SetOutput(pMsg->m_sOutputFile);
+
   {
-    const ezUInt32 uiNumConnections = connections.GetCount();
-    stream << uiNumConnections;
+    // File Header
+    ezAssetFileHeader header;
+    header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
+    header.Write(file).IgnoreResult();
 
-    typeVersionWriteContext.AddType(ezGetStaticRTTI<ezRenderPipelineResourceLoaderConnection>());
-
-    for (auto& connection : connections)
-    {
-      ezRenderPipelineResourceLoaderConnection engineConnection;
-      EZ_VERIFY(passUuidsToIndex.TryGetValue(connection.m_Source, engineConnection.m_uiSource));
-      EZ_VERIFY(passUuidToIndex.TryGetValue(connection.m_Target, engineConnection.m_uiTarget));
-      engineConnection.m_sSourcePin = connection.m_SourcePin;
-      engineConnection.m_sTargetPin = connection.m_TargetPin;
-
-      EZ_SUCCEED_OR_RETURN(engineConnection.Serialize(stream));
-    }
+    ezUInt8 uiVersion = 2;
+    file << uiVersion;
   }
+
+  {
+    // Resource Data
+    ezUInt32 uiSize = storage.GetStorageSize32();
+    file << uiSize;
+    storage.CopyToStream(file).AssertSuccess("Failed to copy to file writer");
+  }
+
+  // do the actual file writing
+  if (file.Close().Failed())
+    return ezStatus(ezFmt("Writing to '{}' failed.", pMsg->m_sOutputFile));
 
   return ezStatus(EZ_SUCCESS);
 }

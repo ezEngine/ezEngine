@@ -97,6 +97,17 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, c
   renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 }
 
+ezResult ezAntialiasingPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
 
+ezResult ezAntialiasingPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  return EZ_SUCCESS;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_AntialiasingPass);

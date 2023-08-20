@@ -172,6 +172,45 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 }
 
+ezResult ezTonemapPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+
+  ezStringBuilder sTemp = GetVignettingTextureFile();
+  inout_stream << sTemp;
+  inout_stream << m_MoodColor;
+  inout_stream << m_fMoodStrength;
+  inout_stream << m_fSaturation;
+  inout_stream << m_fContrast;
+  inout_stream << m_fLut1Strength;
+  inout_stream << m_fLut2Strength;
+  sTemp = GetLUT1TextureFile();
+  inout_stream << sTemp;
+  sTemp = GetLUT2TextureFile();
+  inout_stream << sTemp;
+  return EZ_SUCCESS;
+}
+
+ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  ezStringBuilder sTemp;
+  inout_stream >> sTemp;
+  SetVignettingTextureFile(sTemp);
+  inout_stream >> m_MoodColor;
+  inout_stream >> m_fMoodStrength;
+  inout_stream >> m_fSaturation;
+  inout_stream >> m_fContrast;
+  inout_stream >> m_fLut1Strength;
+  inout_stream >> m_fLut2Strength;
+  inout_stream >> sTemp;
+  SetLUT1TextureFile(sTemp);
+  inout_stream >> sTemp;
+  SetLUT2TextureFile(sTemp);
+  return EZ_SUCCESS;
+}
+
 void ezTonemapPass::SetVignettingTextureFile(const char* szFile)
 {
   if (!ezStringUtils::IsNullOrEmpty(szFile))

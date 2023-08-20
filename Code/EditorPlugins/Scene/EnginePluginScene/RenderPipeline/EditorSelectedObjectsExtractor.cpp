@@ -84,6 +84,19 @@ void ezEditorSelectedObjectsExtractor::Extract(
   ezSelectedObjectsExtractorBase::Extract(view, visibleObjects, ref_extractedRenderData);
 }
 
+ezResult ezEditorSelectedObjectsExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+ezResult ezEditorSelectedObjectsExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  return EZ_SUCCESS;
+}
+
 void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& view)
 {
   if (m_hRenderTarget.IsValid())

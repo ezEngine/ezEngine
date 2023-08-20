@@ -159,6 +159,28 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   }
 }
 
+ezResult ezReflectionFilterPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_fIntensity;
+  inout_stream << m_fSaturation;
+  inout_stream << m_uiSpecularOutputIndex;
+  inout_stream << m_uiIrradianceOutputIndex;
+  // inout_stream << m_hInputCubemap; Runtime only property
+  return EZ_SUCCESS;
+}
+
+ezResult ezReflectionFilterPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  inout_stream >> m_fIntensity;
+  inout_stream >> m_fSaturation;
+  inout_stream >> m_uiSpecularOutputIndex;
+  inout_stream >> m_uiIrradianceOutputIndex;
+  return EZ_SUCCESS;
+}
+
 ezUInt32 ezReflectionFilterPass::GetInputCubemap() const
 {
   return m_hInputCubemap.GetInternalID().m_Data;

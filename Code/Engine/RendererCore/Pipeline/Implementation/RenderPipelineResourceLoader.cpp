@@ -7,6 +7,9 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <Foundation/IO/TypeVersionContext.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentNodeManager Internal
@@ -19,7 +22,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRenderPipelineResourceLoaderConnection, ezNoBas
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezResult ezRenderPipelineResourceLoaderConnection::Serialize(ezStreamWriter& inout_stream)
+ezResult ezRenderPipelineResourceLoaderConnection::Serialize(ezStreamWriter& inout_stream) const
 {
   inout_stream << m_uiSource;
   inout_stream << m_uiTarget;
@@ -31,7 +34,7 @@ ezResult ezRenderPipelineResourceLoaderConnection::Serialize(ezStreamWriter& ino
 
 ezResult ezRenderPipelineResourceLoaderConnection::Deserialize(ezStreamReader& inout_stream)
 {
-  EZ_VERIFY(ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI()) == 1, "Unknown version");
+  EZ_VERIFY(ezTypeVersionReadContext::GetContext()->GetTypeVersion(ezGetStaticRTTI<ezRenderPipelineResourceLoaderConnection>()) == 1, "Unknown version");
 
   inout_stream >> m_uiSource;
   inout_stream >> m_uiTarget;
@@ -41,130 +44,121 @@ ezResult ezRenderPipelineResourceLoaderConnection::Deserialize(ezStreamReader& i
   return EZ_SUCCESS;
 }
 
+constexpr ezTypeVersion s_RenderPipelineDescriptorVersion = 1;
+
 // static
 ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
 {
-  /*auto pPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-  ezRenderPipelineRttiConverterContext context;
-  context.m_pRenderPipeline = pPipeline;
+  auto pPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
 
-  ezRawMemoryStreamReader memoryReader(desc.m_SerializedPipeline);
+  ezRawMemoryStreamReader inout_stream(desc.m_SerializedPipeline);
 
-  ezAbstractObjectGraph graph, typeGraph;
-  ezAbstractGraphBinarySerializer::Read(memoryReader, &graph, &typeGraph, true);
+  const auto uiVersion = inout_stream.ReadVersion(s_RenderPipelineDescriptorVersion);
+  EZ_IGNORE_UNUSED(uiVersion);
 
-  ezRttiConverterReader rttiConverter(&graph, &context);
+  ezStringDeduplicationReadContext stringDeduplicationReadContext(inout_stream);
+  ezTypeVersionReadContext typeVersionReadContext(inout_stream);
 
-  auto& nodes = graph.GetAllNodes();
-  for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+  ezStringBuilder sTypeName;
+
+  ezHybridArray<ezRenderPipelinePass*, 16> passes;
+
+  // Passes
   {
-    auto pNode = it.Value();
-    const ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
-    if (pType && pType->IsDerivedFrom<ezRenderPipelinePass>())
+    ezUInt32 uiNumPasses = 0;
+    inout_stream >> uiNumPasses;
+
+    for (ezUInt32 i = 0; i < uiNumPasses; ++i)
     {
-      auto pPass = rttiConverter.CreateObjectFromNode(pNode);
-      if (!pPass)
+      inout_stream >> sTypeName;
+      if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
       {
-        ezLog::Error("Failed to deserialize ezRenderPipelinePass!");
+        ezUniquePtr<ezRenderPipelinePass> pPass = pType->GetAllocator()->Allocate<ezRenderPipelinePass>();
+        pPass->Deserialize(inout_stream).AssertSuccess("");
+        passes.PushBack(pPass.Borrow());
+        pPipeline->AddPass(std::move(pPass));
       }
-    }
-    else if (pType && pType->IsDerivedFrom<ezExtractor>())
-    {
-      auto pExtractor = rttiConverter.CreateObjectFromNode(pNode);
-      if (!pExtractor)
+      else
       {
-        ezLog::Error("Failed to deserialize ezExtractor!");
+        ezLog::Error("Unknown render pipeline pass type '{}'", sTypeName);
+        return nullptr;
       }
     }
   }
 
-  auto pType = ezGetStaticRTTI<RenderPipelineResourceLoaderConnectionInternal>();
-  ezStringBuilder tmp;
-
-  for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+  // Extractors
   {
-    auto* pNode = it.Value();
-    const ezUuid& guid = pNode->GetGuid();
+    ezUInt32 uiNumExtractors = 0;
+    inout_stream >> uiNumExtractors;
 
-    if (pNode->GetNodeName() != "Connection")
-      continue;
-
-    RenderPipelineResourceLoaderConnectionInternal data;
-    rttiConverter.ApplyPropertiesToObject(pNode, pType, &data);
-
-    auto objectSource = context.GetObjectByGUID(data.m_Source);
-    if (objectSource.m_pObject == nullptr || !objectSource.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
+    for (ezUInt32 i = 0; i < uiNumExtractors; ++i)
     {
-      ezLog::Error("Failed to retrieve connection target '{0}' with pin '{1}'", ezConversionUtils::ToString(guid, tmp), data.m_TargetPin);
-      continue;
-    }
-
-    auto objectTarget = context.GetObjectByGUID(data.m_Target);
-    if (objectTarget.m_pObject == nullptr || !objectTarget.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
-    {
-      ezLog::Error("Failed to retrieve connection target '{0}' with pin '{1}'", ezConversionUtils::ToString(guid, tmp), data.m_TargetPin);
-      continue;
-    }
-
-    ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(objectSource.m_pObject);
-    ezRenderPipelinePass* pTarget = static_cast<ezRenderPipelinePass*>(objectTarget.m_pObject);
-
-    if (!pPipeline->Connect(pSource, data.m_SourcePin, pTarget, data.m_TargetPin))
-    {
-      ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), data.m_SourcePin, pTarget->GetName(), data.m_TargetPin);
+      inout_stream >> sTypeName;
+      if (const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName))
+      {
+        ezUniquePtr<ezExtractor> pExtractor = pType->GetAllocator()->Allocate<ezExtractor>();
+        pExtractor->Deserialize(inout_stream).AssertSuccess("");
+        pPipeline->AddExtractor(std::move(pExtractor));
+      }
+      else
+      {
+        ezLog::Error("Unknown render pipeline extractor type '{}'", sTypeName);
+        return nullptr;
+      }
     }
   }
 
-  return pPipeline;*/
-  return nullptr; // TODO
+  // Connections
+  {
+    ezUInt32 uiNumConnections = 0;
+    inout_stream >> uiNumConnections;
+
+    for (ezUInt32 i = 0; i < uiNumConnections; ++i)
+    {
+      ezRenderPipelineResourceLoaderConnection data;
+      data.Deserialize(inout_stream).AssertSuccess("Failed to deserialize render pipeline connection");
+
+      ezRenderPipelinePass* pSource = passes[data.m_uiSource];
+      ezRenderPipelinePass* pTarget = passes[data.m_uiTarget];
+
+      if (!pPipeline->Connect(pSource, data.m_sSourcePin, pTarget, data.m_sTargetPin))
+      {
+        ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), data.m_sSourcePin, pTarget->GetName(), data.m_sTargetPin);
+      }
+    }
+  }
+  return pPipeline;
 }
 
 // static
 void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& ref_desc)
 {
-  /*ezRenderPipelineRttiConverterContext context;
-
-  ezAbstractObjectGraph graph;
-
-  ezRttiConverterWriter rttiConverter(&graph, &context, false, true);
-
   ezHybridArray<const ezRenderPipelinePass*, 16> passes;
-  pPipeline->GetPasses(passes);
-
-  // Need to serialize all passes first so we have guids for each to be referenced in the connections.
-  for (auto pPass : passes)
-  {
-    context.RegisterObject(ezUuid::MakeUuid(), pPass->GetDynamicRTTI(), const_cast<ezRenderPipelinePass*>(pPass));
-    rttiConverter.AddObjectToGraph(const_cast<ezRenderPipelinePass*>(pPass));
-  }
   ezHybridArray<const ezExtractor*, 16> extractors;
+  ezHybridArray<ezRenderPipelineResourceLoaderConnection, 16> connections;
+
+  ezHashTable<const ezRenderPipelineNode*, ezUInt32> passToIndex;
+  pPipeline->GetPasses(passes);
   pPipeline->GetExtractors(extractors);
-  for (auto pExtractor : extractors)
+
+  passToIndex.Reserve(passes.GetCount());
+  for (ezUInt32 i = 0; i < passes.GetCount(); i++)
   {
-    context.RegisterObject(ezUuid::MakeUuid(), pExtractor->GetDynamicRTTI(), const_cast<ezExtractor*>(pExtractor));
-    rttiConverter.AddObjectToGraph(const_cast<ezExtractor*>(pExtractor));
+    passToIndex.Insert(passes[i], i);
   }
 
-  auto pType = ezGetStaticRTTI<RenderPipelineResourceLoaderConnectionInternal>();
-  auto& nodes = graph.GetAllNodes();
-  for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+
+  for (ezUInt32 i = 0; i < passes.GetCount(); i++)
   {
-    auto* pNode = it.Value();
-    auto objectSoure = context.GetObjectByGUID(pNode->GetGuid());
+    const ezRenderPipelinePass* pSource = passes[i];
 
-    if (objectSoure.m_pObject == nullptr || !objectSoure.m_pType->IsDerivedFrom<ezRenderPipelinePass>())
-    {
-      continue;
-    }
-    ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(objectSoure.m_pObject);
-
-    RenderPipelineResourceLoaderConnectionInternal data;
-    data.m_Source = pNode->GetGuid();
+    ezRenderPipelineResourceLoaderConnection data;
+    data.m_uiSource = i;
 
     auto outputs = pSource->GetOutputPins();
     for (const ezRenderPipelineNodePin* pPinSource : outputs)
     {
-      data.m_SourcePin = pSource->GetPinName(pPinSource).GetView();
+      data.m_sSourcePin = pSource->GetPinName(pPinSource).GetView();
 
       const ezRenderPipelinePassConnection* pConnection = pPipeline->GetOutputConnection(pSource, pSource->GetPinName(pPinSource));
       if (!pConnection)
@@ -172,21 +166,74 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
 
       for (const ezRenderPipelineNodePin* pPinTarget : pConnection->m_Inputs)
       {
-        data.m_Target = context.GetObjectGUID(pPinTarget->m_pParent->GetDynamicRTTI(), pPinTarget->m_pParent);
-        data.m_TargetPin = pPinTarget->m_pParent->GetPinName(pPinTarget).GetView();
+        EZ_VERIFY(passToIndex.TryGetValue(pPinTarget->m_pParent, data.m_uiTarget), "Failed to resolve render pass to index");
+        data.m_sTargetPin = pPinTarget->m_pParent->GetPinName(pPinTarget).GetView();
 
-        const ezUuid connectionGuid = ezUuid::MakeUuid();
-        context.RegisterObject(connectionGuid, pType, &data);
-        rttiConverter.AddObjectToGraph(pType, &data, "Connection");
+        connections.PushBack(data);
       }
     }
   }
 
   ezMemoryStreamContainerWrapperStorage<ezDynamicArray<ezUInt8>> storage(&ref_desc.m_SerializedPipeline);
-
-  ezAbstractObjectGraph typeGraph; // empty type graph required for binary compatibility
   ezMemoryStreamWriter memoryWriter(&storage);
-  ezAbstractGraphBinarySerializer::Write(memoryWriter, &graph, &typeGraph);*/
+  ExportPipeline(passes.GetArrayPtr(), extractors.GetArrayPtr(), connections.GetArrayPtr(), memoryWriter).AssertSuccess("Failed to serialize pipeline");
+}
+
+ezResult ezRenderPipelineResourceLoader::ExportPipeline(ezArrayPtr<const ezRenderPipelinePass* const> passes, ezArrayPtr<const ezExtractor* const> extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections, ezMemoryStreamWriter& ref_StreamWriter)
+{
+  ref_StreamWriter.WriteVersion(s_RenderPipelineDescriptorVersion);
+
+  ezStringDeduplicationWriteContext stringDeduplicationWriteContext(ref_StreamWriter);
+  ezTypeVersionWriteContext typeVersionWriteContext;
+  auto& stream = typeVersionWriteContext.Begin(stringDeduplicationWriteContext.Begin());
+
+  // passes
+  {
+    const ezUInt32 uiNumPasses = passes.GetCount();
+    stream << uiNumPasses;
+
+    for (auto& pass : passes)
+    {
+      auto pPassType = pass->GetDynamicRTTI();
+      typeVersionWriteContext.AddType(pPassType);
+
+      stream << pPassType->GetTypeName();
+      EZ_SUCCEED_OR_RETURN(pass->Serialize(stream));
+    }
+  }
+
+  // extractors
+  {
+    const ezUInt32 uiNumExtractors = extractors.GetCount();
+    stream << uiNumExtractors;
+
+    for (auto& extractor : extractors)
+    {
+      auto pExtractorType = extractor->GetDynamicRTTI();
+      typeVersionWriteContext.AddType(pExtractorType);
+
+      stream << pExtractorType->GetTypeName();
+      EZ_SUCCEED_OR_RETURN(extractor->Serialize(stream));
+    }
+  }
+
+  // Connections
+  {
+    const ezUInt32 uiNumConnections = connections.GetCount();
+    stream << uiNumConnections;
+
+    typeVersionWriteContext.AddType(ezGetStaticRTTI<ezRenderPipelineResourceLoaderConnection>());
+
+    for (auto& connection : connections)
+    {
+      EZ_SUCCEED_OR_RETURN(connection.Serialize(stream));
+    }
+  }
+
+  EZ_SUCCEED_OR_RETURN(typeVersionWriteContext.End());
+  EZ_SUCCEED_OR_RETURN(stringDeduplicationWriteContext.End());
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);
