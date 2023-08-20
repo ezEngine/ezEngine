@@ -18,6 +18,7 @@ public:
 class ezRenderPipelineObjectMirrorEditor : public ezIPCObjectMirrorEditor
 {
   using SUPER = ezIPCObjectMirrorEditor;
+
 public:
   void InitNodeSender(const ezDocumentNodeManager* pNodeManager);
   void DeInitNodeSender();

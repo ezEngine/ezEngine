@@ -3,12 +3,12 @@
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <Foundation/IO/TypeVersionContext.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_SpatialVisBounds("Spatial.VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");

@@ -1,15 +1,15 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/IO/SerializationContext.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
+#include <Foundation/IO/TypeVersionContext.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
-#include <Foundation/IO/TypeVersionContext.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/IO/StringDeduplicationContext.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentNodeManager Internal
