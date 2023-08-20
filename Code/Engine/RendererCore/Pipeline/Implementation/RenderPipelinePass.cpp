@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/Renderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
 // clang-format off

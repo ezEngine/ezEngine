@@ -179,11 +179,11 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
   ExportPipeline(passes.GetArrayPtr(), extractors.GetArrayPtr(), connections.GetArrayPtr(), memoryWriter).AssertSuccess("Failed to serialize pipeline");
 }
 
-ezResult ezRenderPipelineResourceLoader::ExportPipeline(ezArrayPtr<const ezRenderPipelinePass* const> passes, ezArrayPtr<const ezExtractor* const> extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections, ezMemoryStreamWriter& ref_StreamWriter)
+ezResult ezRenderPipelineResourceLoader::ExportPipeline(ezArrayPtr<const ezRenderPipelinePass* const> passes, ezArrayPtr<const ezExtractor* const> extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections, ezStreamWriter& ref_streamWriter)
 {
-  ref_StreamWriter.WriteVersion(s_RenderPipelineDescriptorVersion);
+  ref_streamWriter.WriteVersion(s_RenderPipelineDescriptorVersion);
 
-  ezStringDeduplicationWriteContext stringDeduplicationWriteContext(ref_StreamWriter);
+  ezStringDeduplicationWriteContext stringDeduplicationWriteContext(ref_streamWriter);
   ezTypeVersionWriteContext typeVersionWriteContext;
   auto& stream = typeVersionWriteContext.Begin(stringDeduplicationWriteContext.Begin());
 

@@ -96,14 +96,14 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 
 ezRenderPipelineAssetDocument::~ezRenderPipelineAssetDocument()
 {
-  static_cast<ezRenderPipelineObjectMirrorEditor*>(m_Mirror.Borrow())->DeInitNodeSender();
+  static_cast<ezRenderPipelineObjectMirrorEditor*>(m_pMirror.Borrow())->DeInitNodeSender();
 }
 
 
 void ezRenderPipelineAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  m_Mirror = EZ_DEFAULT_NEW(ezRenderPipelineObjectMirrorEditor);
-  static_cast<ezRenderPipelineObjectMirrorEditor*>(m_Mirror.Borrow())->InitNodeSender(static_cast<const ezDocumentNodeManager*>(GetObjectManager()));
+  m_pMirror = EZ_DEFAULT_NEW(ezRenderPipelineObjectMirrorEditor);
+  static_cast<ezRenderPipelineObjectMirrorEditor*>(m_pMirror.Borrow())->InitNodeSender(static_cast<const ezDocumentNodeManager*>(GetObjectManager()));
 }
 
 ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,

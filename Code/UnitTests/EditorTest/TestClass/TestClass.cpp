@@ -86,16 +86,16 @@ ezEditorTestApplication* ezEditorTest::CreateApplication()
 {
   ezEditorTestApplication* pTestApplication = EZ_DEFAULT_NEW(ezEditorTestApplication);
 
-  m_commandLineArguments = ezCommandLineUtils::GetGlobalInstance()->GetCommandLineArray();
-  EZ_ASSERT_DEV(m_commandLineArguments.GetCount() > 0, "There should always be at least 1 command line argument (the executable name)");
+  m_CommandLineArguments = ezCommandLineUtils::GetGlobalInstance()->GetCommandLineArray();
+  EZ_ASSERT_DEV(m_CommandLineArguments.GetCount() > 0, "There should always be at least 1 command line argument (the executable name)");
 
-  m_commandLineArgumentPointers.Clear();
-  for (auto& s : m_commandLineArguments)
+  m_CommandLineArgumentPointers.Clear();
+  for (auto& s : m_CommandLineArguments)
   {
-    m_commandLineArgumentPointers.PushBack(s.GetData());
+    m_CommandLineArgumentPointers.PushBack(s.GetData());
   }
 
-  pTestApplication->SetCommandLineArguments(m_commandLineArgumentPointers.GetCount(), m_commandLineArgumentPointers.GetData());
+  pTestApplication->SetCommandLineArguments(m_CommandLineArgumentPointers.GetCount(), m_CommandLineArgumentPointers.GetData());
 
   return pTestApplication;
 }

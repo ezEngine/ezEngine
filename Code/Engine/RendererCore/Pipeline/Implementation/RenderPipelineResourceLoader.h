@@ -6,6 +6,8 @@
 class ezRenderPipeline;
 struct ezRenderPipelineResourceDescriptor;
 class ezStreamWriter;
+class ezRenderPipelinePass;
+class ezExtractor;
 
 struct EZ_RENDERERCORE_DLL ezRenderPipelineResourceLoaderConnection
 {
@@ -23,5 +25,5 @@ struct EZ_RENDERERCORE_DLL ezRenderPipelineResourceLoader
 {
   static ezInternal::NewInstance<ezRenderPipeline> CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc);
   static void CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& ref_desc);
-  static ezResult ExportPipeline(ezArrayPtr<const ezRenderPipelinePass* const> passes, ezArrayPtr<const ezExtractor* const> extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections, ezMemoryStreamWriter& ref_StreamWriter);
+  static ezResult ExportPipeline(ezArrayPtr<const ezRenderPipelinePass* const> passes, ezArrayPtr<const ezExtractor* const> extractors, ezArrayPtr<const ezRenderPipelineResourceLoaderConnection> connections, ezStreamWriter& ref_streamWriter);
 };

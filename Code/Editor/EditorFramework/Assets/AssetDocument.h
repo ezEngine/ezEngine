@@ -277,7 +277,7 @@ protected:
   void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
 
 protected:
-  ezUniquePtr<ezIPCObjectMirrorEditor> m_Mirror;
+  ezUniquePtr<ezIPCObjectMirrorEditor> m_pMirror;
 
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
