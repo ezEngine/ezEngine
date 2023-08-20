@@ -239,11 +239,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(ezStringView sAbsFilePath, const
   UpdateSubAssets(*pCurrentAssetInfo);
 
   InvalidateAssetTransformState(newGuid);
-  if (pFiles->LinkDocument(sAbsFilePath, pCurrentAssetInfo->m_Info->m_DocumentID).Failed())
-  {
-    // #TODO_ASSET
-    ezLog::Error("Failed to link asset: {}", sAbsFilePath);
-  }
+  pFiles->LinkDocument(sAbsFilePath, pCurrentAssetInfo->m_Info->m_DocumentID).AssertSuccess("Failed to link document in file system model");
   return EZ_SUCCESS;
 }
 
