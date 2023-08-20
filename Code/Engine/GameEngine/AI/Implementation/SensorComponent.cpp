@@ -151,23 +151,23 @@ ezColorGammaUB ezSensorComponent::GetColor() const
   return m_Color;
 }
 
-bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_ObjectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_DetectedObjects, bool bPostChangeMsg) const
+bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_objectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_detectedObjects, bool bPostChangeMsg) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_LastOccludedObjectPositions.Clear();
 #endif
 
-  out_ObjectsInSensorVolume.Clear();
+  out_objectsInSensorVolume.Clear();
 
-  GetObjectsInSensorVolume(out_ObjectsInSensorVolume);
+  GetObjectsInSensorVolume(out_objectsInSensorVolume);
   const ezGameObject* pSensorOwner = GetOwner();
 
-  ref_DetectedObjects.Clear();
+  ref_detectedObjects.Clear();
 
   if (m_bTestVisibility && pPhysicsWorldModule)
   {
     const ezVec3 rayStart = pSensorOwner->GetGlobalPosition();
-    for (auto pObject : out_ObjectsInSensorVolume)
+    for (auto pObject : out_objectsInSensorVolume)
     {
       const ezVec3 rayEnd = pObject->GetGlobalPosition();
       ezVec3 rayDir = rayEnd - rayStart;
@@ -195,22 +195,22 @@ bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWo
         continue;
       }
 
-      ref_DetectedObjects.PushBack(pObject->GetHandle());
+      ref_detectedObjects.PushBack(pObject->GetHandle());
     }
   }
   else
   {
-    for (auto pObject : out_ObjectsInSensorVolume)
+    for (auto pObject : out_objectsInSensorVolume)
     {
-      ref_DetectedObjects.PushBack(pObject->GetHandle());
+      ref_detectedObjects.PushBack(pObject->GetHandle());
     }
   }
 
-  ref_DetectedObjects.Sort();
-  if (ref_DetectedObjects == m_LastDetectedObjects)
+  ref_detectedObjects.Sort();
+  if (ref_detectedObjects == m_LastDetectedObjects)
     return false;
 
-  ref_DetectedObjects.Swap(m_LastDetectedObjects);
+  ref_detectedObjects.Swap(m_LastDetectedObjects);
 
   if (bPostChangeMsg)
   {

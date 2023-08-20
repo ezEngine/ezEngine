@@ -71,15 +71,15 @@ public:
   /// If the update rate isn't set to 'Never', this is periodically done automatically.
   /// Otherwise, it has to be called manually to update the state on demand.
   ///
-  /// Afterwards out_ObjectsInSensorVolume will contain all objects that were found inside the volume.
-  /// ref_DetectedObjects needs to be provided as a temp array, but will not contain a usable result afterwards,
+  /// Afterwards out_objectsInSensorVolume will contain all objects that were found inside the volume.
+  /// ref_detectedObjects needs to be provided as a temp array, but will not contain a usable result afterwards,
   /// call GetLastDetectedObjects() instead.
   ///
   /// If bPostChangeMsg is true, ezMsgSensorDetectedObjectsChanged is posted in case there is a change.
   /// Physical visibility checks are skipped in case pPhysicsWorldModule is null.
   ///
   /// Returns true, if there was a change in detected objects, false if the same objects were detected as last time.
-  bool RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_ObjectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_DetectedObjects, bool bPostChangeMsg) const;
+  bool RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_objectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_detectedObjects, bool bPostChangeMsg) const;
 
 protected:
   void UpdateSpatialCategory();
