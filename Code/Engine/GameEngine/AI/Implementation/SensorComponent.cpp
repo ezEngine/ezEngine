@@ -85,8 +85,9 @@ void ezSensorComponent::OnDeactivated()
 {
   auto pModule = GetWorld()->GetOrCreateModule<ezSensorWorldModule>();
   pModule->RemoveComponentToSchedule(this);
+  pModule->RemoveComponentForDebugRendering(this);
 
-  UpdateDebugInfo();
+  SUPER::OnDeactivated();
 }
 
 void ezSensorComponent::SetSpatialCategory(const char* szCategory)
@@ -150,6 +151,77 @@ ezColorGammaUB ezSensorComponent::GetColor() const
   return m_Color;
 }
 
+bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_objectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_detectedObjects, bool bPostChangeMsg) const
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_LastOccludedObjectPositions.Clear();
+#endif
+
+  out_objectsInSensorVolume.Clear();
+
+  GetObjectsInSensorVolume(out_objectsInSensorVolume);
+  const ezGameObject* pSensorOwner = GetOwner();
+
+  ref_detectedObjects.Clear();
+
+  if (m_bTestVisibility && pPhysicsWorldModule)
+  {
+    const ezVec3 rayStart = pSensorOwner->GetGlobalPosition();
+    for (auto pObject : out_objectsInSensorVolume)
+    {
+      const ezVec3 rayEnd = pObject->GetGlobalPosition();
+      ezVec3 rayDir = rayEnd - rayStart;
+      const float fDistance = rayDir.GetLengthAndNormalize();
+
+      ezPhysicsCastResult hitResult;
+      ezPhysicsQueryParameters params(m_uiCollisionLayer);
+      params.m_bIgnoreInitialOverlap = true;
+      params.m_ShapeTypes = ezPhysicsShapeType::Default;
+
+      // TODO: probably best to expose the ezPhysicsShapeType bitflags on the component
+      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Rope);
+      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Ragdoll);
+      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Trigger);
+      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Query);
+      params.m_ShapeTypes.Remove(ezPhysicsShapeType::Character);
+
+      if (pPhysicsWorldModule->Raycast(hitResult, rayStart, rayDir, fDistance, params))
+      {
+        // hit something in between -> not visible
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+        m_LastOccludedObjectPositions.PushBack(rayEnd);
+#endif
+
+        continue;
+      }
+
+      ref_detectedObjects.PushBack(pObject->GetHandle());
+    }
+  }
+  else
+  {
+    for (auto pObject : out_objectsInSensorVolume)
+    {
+      ref_detectedObjects.PushBack(pObject->GetHandle());
+    }
+  }
+
+  ref_detectedObjects.Sort();
+  if (ref_detectedObjects == m_LastDetectedObjects)
+    return false;
+
+  ref_detectedObjects.Swap(m_LastDetectedObjects);
+
+  if (bPostChangeMsg)
+  {
+    ezMsgSensorDetectedObjectsChanged msg;
+    msg.m_DetectedObjects = m_LastDetectedObjects;
+    pSensorOwner->PostEventMessage(msg, this, ezTime::MakeZero(), ezObjectMsgQueueType::PostAsync);
+  }
+
+  return true;
+}
+
 void ezSensorComponent::UpdateSpatialCategory()
 {
   if (!m_sSpatialCategory.IsEmpty())
@@ -165,7 +237,11 @@ void ezSensorComponent::UpdateSpatialCategory()
 void ezSensorComponent::UpdateScheduling()
 {
   auto pModule = GetWorld()->GetOrCreateModule<ezSensorWorldModule>();
-  pModule->AddComponentToSchedule(this, m_UpdateRate);
+
+  if (m_UpdateRate == ezUpdateRate::Never)
+    pModule->RemoveComponentToSchedule(this);
+  else
+    pModule->AddComponentToSchedule(this, m_UpdateRate);
 }
 
 void ezSensorComponent::UpdateDebugInfo()
@@ -227,7 +303,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
   const ezGameObject* pOwner = GetOwner();
 
   const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
-  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fRadius * scale);
+  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), m_fRadius * scale);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -249,7 +325,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
 
 void ezSensorSphereComponent::DebugDrawSensorShape() const
 {
-  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius);
+  ezBoundingSphere sphere = ezBoundingSphere(ezVec3::MakeZero(), m_fRadius);
   ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, GetOwner()->GetGlobalTransform());
 }
 
@@ -304,7 +380,7 @@ void ezSensorCylinderComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameOb
   const float xyScale = ezMath::Max(scale.x, scale.y);
 
   const float sphereRadius = ezVec2(m_fRadius * xyScale, m_fHeight * 0.5f * scale.z).GetLength();
-  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), sphereRadius);
+  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), sphereRadius);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -385,7 +461,7 @@ void ezSensorConeComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObject
   const ezGameObject* pOwner = GetOwner();
 
   const float scale = pOwner->GetGlobalTransformSimd().GetMaxScale();
-  ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
+  ezBoundingSphere sphere = ezBoundingSphere(pOwner->GetGlobalPosition(), m_fFarDistance * scale);
 
   ezSpatialSystem::QueryParams params;
   params.m_uiCategoryBitmask = m_SpatialCategory.GetBitmask();
@@ -546,6 +622,7 @@ void ezSensorWorldModule::Initialize()
 
 void ezSensorWorldModule::AddComponentToSchedule(ezSensorComponent* pComponent, ezUpdateRate::Enum updateRate)
 {
+  EZ_ASSERT_DEBUG(updateRate != ezUpdateRate::Never, "Invalid update rate for scheduling");
   m_Scheduler.AddOrUpdateWork(pComponent->GetHandle(), ezUpdateRate::GetInterval(updateRate));
 }
 
@@ -579,69 +656,9 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
     const ezSensorComponent* pSensorComponent = nullptr;
     EZ_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    pSensorComponent->m_LastOccludedObjectPositions.Clear();
-#endif
-
-    m_ObjectsInSensorVolume.Clear();
-
-    pSensorComponent->GetObjectsInSensorVolume(m_ObjectsInSensorVolume);
-    const ezGameObject* pSensorOwner = pSensorComponent->GetOwner();
-
-    m_DetectedObjects.Clear();
-
-    if (pSensorComponent->m_bTestVisibility)
-    {
-      const ezVec3 rayStart = pSensorOwner->GetGlobalPosition();
-      for (auto pObject : m_ObjectsInSensorVolume)
-      {
-        const ezVec3 rayEnd = pObject->GetGlobalPosition();
-        ezVec3 rayDir = rayEnd - rayStart;
-        const float fDistance = rayDir.GetLengthAndNormalize();
-
-        ezPhysicsCastResult hitResult;
-        ezPhysicsQueryParameters params(pSensorComponent->m_uiCollisionLayer);
-        params.m_bIgnoreInitialOverlap = true;
-        params.m_ShapeTypes = ezPhysicsShapeType::Default;
-
-        // TODO: probably best to expose the ezPhysicsShapeType bitflags on the component
-        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Rope);
-        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Ragdoll);
-        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Trigger);
-        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Query);
-        params.m_ShapeTypes.Remove(ezPhysicsShapeType::Character);
-
-        if (m_pPhysicsWorldModule->Raycast(hitResult, rayStart, rayDir, fDistance, params))
-        {
-          // hit something in between -> not visible
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-          pSensorComponent->m_LastOccludedObjectPositions.PushBack(rayEnd);
-#endif
-
-          continue;
-        }
-
-        m_DetectedObjects.PushBack(pObject->GetHandle());
-      }
-    }
-    else
-    {
-      for (auto pObject : m_ObjectsInSensorVolume)
-      {
-        m_DetectedObjects.PushBack(pObject->GetHandle());
-      }
-    }
-
-    m_DetectedObjects.Sort();
-    if (m_DetectedObjects != pSensorComponent->m_LastDetectedObjects)
-    {
-      m_DetectedObjects.Swap(pSensorComponent->m_LastDetectedObjects);
-
-      ezMsgSensorDetectedObjectsChanged msg;
-      msg.m_DetectedObjects = pSensorComponent->m_LastDetectedObjects;
-
-      pSensorOwner->PostEventMessage(msg, pSensorComponent, ezTime::MakeZero(), ezObjectMsgQueueType::PostAsync);
-    } });
+    pSensorComponent->RunSensorCheck(m_pPhysicsWorldModule, m_ObjectsInSensorVolume, m_DetectedObjects, true);
+    //
+  });
 }
 
 void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& context)

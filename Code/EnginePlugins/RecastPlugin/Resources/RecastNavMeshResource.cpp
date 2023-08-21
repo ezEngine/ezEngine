@@ -157,6 +157,7 @@ ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
   res.m_State = ezResourceState::Unloaded;
 
   m_DetourNavmeshData.Clear();
+  m_DetourNavmeshData.Compact();
   EZ_DEFAULT_DELETE(m_pNavMesh);
   EZ_DEFAULT_DELETE(m_pNavMeshPolygons);
 
