@@ -166,43 +166,43 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(ezStringView sAbsFilePath, const
   if (bNewAssetFile && pCurrentAssetInfo != nullptr)
   {
     ezFileStats fsOldLocation;
-    if (!ezFileSystemModel::IsSameFile(pNewAssetInfo->m_sAbsolutePath, pCurrentAssetInfo->m_sAbsolutePath))
+    const bool IsSameFile = ezFileSystemModel::IsSameFile(pNewAssetInfo->m_sAbsolutePath, pCurrentAssetInfo->m_sAbsolutePath);
+    const ezResult statCheckOldLocation = ezOSFile::GetFileStats(pCurrentAssetInfo->m_sAbsolutePath, fsOldLocation);
+
+    if (statCheckOldLocation.Succeeded() && !IsSameFile)
     {
-      if (ezOSFile::GetFileStats(pCurrentAssetInfo->m_sAbsolutePath, fsOldLocation).Succeeded())
+      // DUPLICATED
+      // Unfortunately we only know about duplicates in the order in which the filesystem tells us about files
+      // That means we currently always adjust the GUID of the second, third, etc. file that we look at
+      // even if we might know that changing another file makes more sense
+      // This works well for when the editor is running and someone copies a file.
+
+      ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", pNewAssetInfo->m_sAbsolutePath, pCurrentAssetInfo->m_sAbsolutePath);
+
+      const ezUuid mod = ezUuid::MakeStableUuidFromString(sAbsFilePath);
+      ezUuid replacementGuid = pNewAssetInfo->m_Info->m_DocumentID;
+      replacementGuid.CombineWithSeed(mod);
+
+      if (PatchAssetGuid(sAbsFilePath, pNewAssetInfo->m_Info->m_DocumentID, replacementGuid).Failed())
       {
-        // DUPLICATED
-        // Unfortunately we only know about duplicates in the order in which the filesystem tells us about files
-        // That means we currently always adjust the GUID of the second, third, etc. file that we look at
-        // even if we might know that changing another file makes more sense
-        // This works well for when the editor is running and someone copies a file.
-
-        ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", pNewAssetInfo->m_sAbsolutePath, pCurrentAssetInfo->m_sAbsolutePath);
-
-        const ezUuid mod = ezUuid::MakeStableUuidFromString(sAbsFilePath);
-        ezUuid replacementGuid = pNewAssetInfo->m_Info->m_DocumentID;
-        replacementGuid.CombineWithSeed(mod);
-
-        if (PatchAssetGuid(sAbsFilePath, pNewAssetInfo->m_Info->m_DocumentID, replacementGuid).Failed())
-        {
-          ezLog::Error("Failed to adjust GUID of asset: '{0}'", sAbsFilePath);
-          pFiles->NotifyOfChange(sAbsFilePath);
-          return EZ_FAILURE;
-        }
-
-        ezLog::Warning("Adjusted GUID of asset to make it unique: '{0}'", sAbsFilePath);
-
-        // now let's try that again
+        ezLog::Error("Failed to adjust GUID of asset: '{0}'", sAbsFilePath);
         pFiles->NotifyOfChange(sAbsFilePath);
-        return EZ_SUCCESS;
+        return EZ_FAILURE;
       }
-      else
-      {
-        // MOVED
-        // Notify old location to removed stale entry.
-        pFiles->UnlinkDocument(pCurrentAssetInfo->m_sAbsolutePath).IgnoreResult();
-        pFiles->NotifyOfChange(pCurrentAssetInfo->m_sAbsolutePath);
-        newExistanceState = ezAssetExistanceState::FileMoved;
-      }
+
+      ezLog::Warning("Adjusted GUID of asset to make it unique: '{0}'", sAbsFilePath);
+
+      // now let's try that again
+      pFiles->NotifyOfChange(sAbsFilePath);
+      return EZ_SUCCESS;
+    }
+    else
+    {
+      // MOVED
+      // Notify old location to removed stale entry.
+      pFiles->UnlinkDocument(pCurrentAssetInfo->m_sAbsolutePath).IgnoreResult();
+      pFiles->NotifyOfChange(pCurrentAssetInfo->m_sAbsolutePath);
+      newExistanceState = ezAssetExistanceState::FileMoved;
     }
   }
 
@@ -443,9 +443,8 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(ezStringView sAbsFilePath, const 
 
   // try to read the asset file
   ezStatus infoStatus;
-  ezResult res = pFiles->ReadDocument(sAbsFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& ref_reader) {
-    infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, ref_reader);
-  });
+  ezResult res = pFiles->ReadDocument(sAbsFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& ref_reader)
+    { infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, ref_reader); });
 
   if (infoStatus.Failed())
   {
@@ -656,7 +655,8 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
 
   // Only the main thread tick function is allowed to change from FileAdded / FileRenamed to FileModified to inform views.
   // A modified 'added' file is still added until the added state was addressed.
-  auto IsModifiedAfterAddOrRename = [](ezAssetExistanceState::Enum oldState, ezAssetExistanceState::Enum newState) -> bool {
+  auto IsModifiedAfterAddOrRename = [](ezAssetExistanceState::Enum oldState, ezAssetExistanceState::Enum newState) -> bool
+  {
     return oldState == ezAssetExistanceState::FileAdded && newState == ezAssetExistanceState::FileModified ||
            oldState == ezAssetExistanceState::FileMoved && newState == ezAssetExistanceState::FileModified;
   };

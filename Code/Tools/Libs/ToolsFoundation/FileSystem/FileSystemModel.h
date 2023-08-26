@@ -172,6 +172,9 @@ private:
   void OnAssetWatcherEvent(const ezFileSystemWatcherEvent& e);
   ezFileStatus HandleSingleFile(const ezString& sAbsolutePath, bool bRecurseIntoFolders);
   ezFileStatus HandleSingleFile(const ezString& sAbsolutePath, const ezFileStats& FileStat, bool bRecurseIntoFolders);
+
+  void RemoveFileOrFolder(const ezString& sAbsolutePath, bool bRecurseIntoFolders);
+
   void MarkFileLocked(ezStringView sAbsolutePath);
 
   void FireFileChangedEvent(ezStringView sFile, ezFileStatus fileStatus, ezFileChangedEvent::Type type);
