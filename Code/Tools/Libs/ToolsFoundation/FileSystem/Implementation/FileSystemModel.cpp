@@ -681,8 +681,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
   }
 
   // Delete sub-folders before parent folders.
-  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool
-    { return ezStringUtils::Compare(lhs, rhs) > 0; });
+  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool { return ezStringUtils::Compare(lhs, rhs) > 0; });
   for (const ezString& sFolder : missingFolders)
   {
     HandleSingleFile(sFolder, false);

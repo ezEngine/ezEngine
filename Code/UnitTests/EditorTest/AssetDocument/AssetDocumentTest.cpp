@@ -445,7 +445,7 @@ void ezEditorAssetDocumentTest::FileOperations()
       ezFileChangedEvent(sAbsAssetRenamedPath, {}, ezFileChangedEvent::Type::FileRemoved),
       ezFileChangedEvent(sAbsAssetRenamedPath2, stat, ezFileChangedEvent::Type::DocumentLinked)};
     AssetEvent expected2[] = {
-      AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetMoved),   // Moved
+      AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetMoved),    // Moved
       AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetUpdated)}; // Asset transform state updated
     CompareFiles(ezMakeArrayPtr(expected), ezMakeArrayPtr(expected2));
     EZ_TEST_BOOL(!ezAssetCurator::GetSingleton()->FindSubAsset(sAbsAssetPath));

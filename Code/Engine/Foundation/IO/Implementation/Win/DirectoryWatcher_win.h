@@ -133,8 +133,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
   ezFileSystemMirrorType* mirror = m_pImpl->m_mirror.Borrow();
   // Renaming a file to the same filename with different casing triggers the events REMOVED (old casing) -> RENAMED_OLD_NAME -> _RENAMED_NEW_NAME.
   // Thus, we need to cache every remove event to make sure the very next event is not a rename of the exact same file.
-  auto FirePendingRemove = [&]()
-  {
+  auto FirePendingRemove = [&]() {
     if (!pendingRemoveOrRename.IsEmpty())
     {
       if (pendingRemoveOrRename.isDirectory)
@@ -143,8 +142,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         {
           if (mirror && whatToWatch.IsSet(Watch::Subdirectories))
           {
-            mirror->Enumerate(pendingRemoveOrRename.path, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type)
-                    { func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory); })
+            mirror->Enumerate(pendingRemoveOrRename.path, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type) { func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory); })
               .AssertSuccess();
           }
           func(pendingRemoveOrRename.path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
