@@ -45,7 +45,7 @@ void ezQueryPoolVulkan::Calibrate()
   cb.waitEvents(1, &event, vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eHost | vk::PipelineStageFlagBits::eTopOfPipe, 0, nullptr, 0, nullptr, 0, nullptr);
   auto hTimestamp = GetTimestamp();
   InsertTimestamp(cb, hTimestamp, vk::PipelineStageFlagBits::eTopOfPipe);
-  vk::Fence fence = m_pDevice->Submit({}, {}, {});
+  vk::Fence fence = m_pDevice->Submit();
 
   ezTime systemTS;
   ezThreadUtils::Sleep(ezTime::Milliseconds(100)); // Waiting for 100ms should be enough for the GPU to have gotten stuck on the event right?

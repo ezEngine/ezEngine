@@ -7,7 +7,7 @@
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererTest/Basics/Readback.h>
-
+#include <RendererFoundation/RendererReflection.h>
 
 void ezRendererTestReadback::SetupSubTests()
 {

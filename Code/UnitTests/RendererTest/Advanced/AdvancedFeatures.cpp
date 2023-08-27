@@ -2,7 +2,29 @@
 
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererTest/Advanced/AdvancedFeatures.h>
+
+#undef CreateWindow
+
+
+void ezRendererTestAdvancedFeatures::SetupSubTests()
+{
+  ezStartup::StartupCoreSystems();
+  SetupRenderer().AssertSuccess();
+  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+
+  AddSubTest("01 - ReadRenderTarget", SubTests::ST_ReadRenderTarget);
+  AddSubTest("02 - VertexShaderRenderTargetArrayIndex", SubTests::ST_VertexShaderRenderTargetArrayIndex);
+
+  if (caps.m_bSharedTextures)
+  {
+    AddSubTest("03 - SharedTexture", SubTests::ST_SharedTexture);
+  }
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+}
 
 ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
 {
@@ -46,6 +68,76 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_hShader2 = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/StereoPreview.ezShader");
   }
 
+  if (iIdentifier == ST_SharedTexture)
+  {
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+
+    const ezStringBuilder pathToSelf = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
+
+    ezProcessOptions opt;
+    opt.m_sProcess = pathToSelf;
+
+    ezStringBuilder sIPC;
+    ezConversionUtils::ToString(ezUuid::MakeUuid(), sIPC);
+
+    ezStringBuilder sPID;
+    ezConversionUtils::ToString(ezProcess::GetCurrentProcessID(), sPID);
+
+#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+    constexpr const char* szDefaultRenderer = "Vulkan";
+#else
+    constexpr const char* szDefaultRenderer = "DX11";
+#endif
+    ezStringView sRendererName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer", 0, szDefaultRenderer);
+
+    opt.m_Arguments.PushBack("-offscreen");
+    opt.m_Arguments.PushBack("-IPC");
+    opt.m_Arguments.PushBack(sIPC);
+    opt.m_Arguments.PushBack("-PID");
+    opt.m_Arguments.PushBack(sPID);
+    opt.m_Arguments.PushBack("-renderer");
+    opt.m_Arguments.PushBack(sRendererName);
+
+    m_OffscreenProcess = EZ_DEFAULT_NEW(ezProcess);
+    EZ_SUCCEED_OR_RETURN(m_OffscreenProcess->Launch(opt));
+
+    m_bExiting = false;
+    m_pChannel = ezIpcChannel::CreatePipeChannel(sIPC, ezIpcChannel::Mode::Server);
+    m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
+    m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
+    m_pChannel->Connect();
+
+    m_SharedTextureDesc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
+    m_SharedTextureDesc.m_Type = ezGALTextureType::Texture2DShared;
+
+    m_SharedTextureQueue.Clear();
+    for (ezUInt32 i = 0; i < s_SharedTextureCount; i++)
+    {
+      m_hSharedTextures[i] = m_pDevice->CreateSharedTexture(m_SharedTextureDesc);
+      EZ_TEST_BOOL(!m_hSharedTextures[i].IsInvalidated());
+      m_SharedTextureQueue.PushBack({i, 0});
+    }
+
+    while (!m_pChannel->IsConnected())
+    {
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+    }
+
+    ezOffscreenTest_OpenMsg msg;
+    msg.m_TextureDesc = m_SharedTextureDesc;
+    for (auto& hSharedTexture : m_hSharedTextures)
+    {
+      const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(hSharedTexture);
+      if (pSharedTexture == nullptr)
+      {
+        return EZ_FAILURE;
+      }
+
+      msg.m_TextureHandles.PushBack(pSharedTexture->GetSharedHandle());
+    }
+    m_pProtocol->Send(&msg);
+  }
+
   switch (iIdentifier)
   {
     case SubTests::ST_ReadRenderTarget:
@@ -53,6 +145,9 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
       break;
     case SubTests::ST_VertexShaderRenderTargetArrayIndex:
       m_ImgCompFrames.PushBack(ImageCaptureFrames::DefaultCapture);
+      break;
+    case SubTests::ST_SharedTexture:
+      m_ImgCompFrames.PushBack(100000000);
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -64,6 +159,24 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier)
 {
+  if (iIdentifier == ST_SharedTexture)
+  {
+    EZ_TEST_BOOL(m_OffscreenProcess->WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
+    EZ_TEST_BOOL(m_OffscreenProcess->GetState() == ezProcessState::Finished);
+    EZ_TEST_INT(m_OffscreenProcess->GetExitCode(), 0);
+    m_OffscreenProcess = nullptr;
+
+    m_pProtocol = nullptr;
+    m_pChannel = nullptr;
+
+    for (ezUInt32 i = 0; i < s_SharedTextureCount; i++)
+    {
+      m_pDevice->DestroySharedTexture(m_hSharedTextures[i]);
+      m_hSharedTextures[i].Invalidate();
+    }
+    m_SharedTextureQueue.Clear();
+  }
+
   m_hShader2.Invalidate();
 
   if (!m_hTexture2D.IsInvalidated())
@@ -87,6 +200,12 @@ ezTestAppRun ezRendererTestAdvancedFeatures::RunSubTest(ezInt32 iIdentifier, ezU
 {
   m_iFrame = uiInvocationCount;
   m_bCaptureImage = false;
+
+  if (iIdentifier == ST_SharedTexture)
+  {
+    return SharedTexture();
+  }
+
   BeginFrame();
 
   switch (iIdentifier)
@@ -206,6 +325,89 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
     EndRendering();
   }
   EndPass();
+}
+
+ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
+{
+  if (m_OffscreenProcess->GetState() != ezProcessState::Running)
+  {
+    EZ_TEST_BOOL(m_bExiting);
+    return ezTestAppRun::Quit;
+  }
+
+  m_pProtocol->ProcessMessages();
+
+  ezOffscreenTest_SharedTexture texture = m_SharedTextureQueue.PeekFront();
+  m_SharedTextureQueue.PopFront();
+
+  BeginFrame();
+  {
+    const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
+    EZ_ASSERT_DEV(pSharedTexture != nullptr, "Shared texture did not resolve");
+
+    pSharedTexture->WaitSemaphoreGPU(texture.m_uiCurrentSemaphoreValue);
+
+    const float fWidth = (float)m_pWindow->GetClientAreaSize().width;
+    const float fHeight = (float)m_pWindow->GetClientAreaSize().height;
+    const ezUInt32 uiColumns = 1;
+    const ezUInt32 uiRows = 1;
+    const float fElementWidth = fWidth / uiColumns;
+    const float fElementHeight = fHeight / uiRows;
+
+    const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
+    BeginPass("Texture2D");
+    {
+      ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+      m_bCaptureImage = true;
+      viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+
+      ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF, &viewport);
+
+      ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hSharedTextures[texture.m_uiCurrentTextureIndex]));
+      RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+
+
+      if (!m_bExiting && texture.m_uiCurrentSemaphoreValue > 10)
+      {
+        EZ_TEST_IMAGE(0, 10);
+
+        ezOffscreenTest_CloseMsg msg;
+        EZ_TEST_BOOL(m_pProtocol->Send(&msg));
+        m_bExiting = true;
+      }
+      EndRendering();
+
+      // RenderCube(viewport, mMVP, 0xFFFFFFFF, m_pDevice->GetDefaultResourceView(m_hSharedTextures[texture.m_uiCurrentTextureIndex]));
+    }
+    EndPass();
+
+    texture.m_uiCurrentSemaphoreValue++;
+    pSharedTexture->SignalSemaphoreGPU(texture.m_uiCurrentSemaphoreValue);
+    ezRenderContext::GetDefaultInstance()->ResetContextState();
+  }
+  EndFrame();
+
+  if (m_SharedTextureQueue.IsEmpty() || !m_pChannel->IsConnected())
+  {
+    m_SharedTextureQueue.PushBack(texture);
+  }
+  else if (!m_bExiting)
+  {
+    ezOffscreenTest_RenderMsg msg;
+    msg.m_Texture = texture;
+    EZ_TEST_BOOL(m_pProtocol->Send(&msg));
+  }
+
+  return ezTestAppRun::Continue;
+}
+
+
+void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const ezProcessMessage* pMsg)
+{
+  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderResponseMsg*>(pMsg))
+  {
+    m_SharedTextureQueue.PushBack(pAction->m_Texture);
+  }
 }
 
 static ezRendererTestAdvancedFeatures g_AdvancedFeaturesTest;

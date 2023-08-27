@@ -22,6 +22,10 @@ struct ObjectCB
 class ezGraphicsTest : public ezTestBaseClass
 {
 public:
+  static ezResult CreateRenderer(ezGALDevice*& out_pDevice);
+  static void SetClipSpace();
+
+public:
   ezGraphicsTest();
 
   virtual ezResult GetImage(ezImage& ref_img) override;
@@ -52,7 +56,6 @@ protected:
 
   ezGALRenderCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
   void EndRendering();
-  void SetClipSpace();
 
   /// \brief Renders a unit cube and makes an image comparison if m_bCaptureImage is set and the current frame is in m_ImgCompFrames.
   /// \param viewport Viewport to render into.

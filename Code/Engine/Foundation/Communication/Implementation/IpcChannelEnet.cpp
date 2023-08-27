@@ -90,7 +90,7 @@ void ezIpcChannelEnet::Tick()
 
 void ezIpcChannelEnet::NetworkMessageHandler(ezRemoteMessage& msg)
 {
-  ReceiveMessageData(msg.GetMessageData());
+  ReceiveData(msg.GetMessageData());
 }
 
 void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)

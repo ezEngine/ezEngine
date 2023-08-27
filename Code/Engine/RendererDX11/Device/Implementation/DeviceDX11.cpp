@@ -11,6 +11,7 @@
 #include <RendererDX11/Resources/QueryDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
+#include <RendererDX11/Resources/SharedTextureDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
@@ -231,7 +232,9 @@ retry:
 
   m_SyncTimeDiff = ezTime::MakeZero();
 
-  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
+  ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
+    { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain*
+        { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
 
   return EZ_SUCCESS;
 }
@@ -397,6 +400,11 @@ void ezGALDeviceDX11::EndPassPlatform(ezGALPass* pPass)
   m_pDefaultPass->EndPass();
 }
 
+void ezGALDeviceDX11::FlushPlatform()
+{
+  m_pImmediateContext->Flush();
+}
+
 // State creation functions
 
 ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendStateCreationDescription& Description)
@@ -546,6 +554,26 @@ ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationD
 void ezGALDeviceDX11::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureDX11* pDX11Texture = static_cast<ezGALTextureDX11*>(pTexture);
+  pDX11Texture->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11Texture);
+}
+
+ezGALTexture* ezGALDeviceDX11::CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle)
+{
+  ezGALSharedTextureDX11* pTexture = EZ_NEW(&m_Allocator, ezGALSharedTextureDX11, Description, sharedType, handle);
+
+  if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pTexture);
+    return nullptr;
+  }
+
+  return pTexture;
+}
+
+void ezGALDeviceDX11::DestroySharedTexturePlatform(ezGALTexture* pTexture)
+{
+  ezGALSharedTextureDX11* pDX11Texture = static_cast<ezGALSharedTextureDX11*>(pTexture);
   pDX11Texture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }
@@ -843,6 +871,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
       m_Capabilities.m_bTextureArrays = true;
       m_Capabilities.m_bCubemapArrays = true;
+      m_Capabilities.m_bSharedTextures = true;
       m_Capabilities.m_uiMaxTextureDimension = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
       m_Capabilities.m_uiMaxCubemapDimension = D3D11_REQ_TEXTURECUBE_DIMENSION;
       m_Capabilities.m_uiMax3DTextureDimension = D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
@@ -970,6 +999,18 @@ void ezGALDeviceDX11::WaitIdlePlatform()
 {
   m_pImmediateContext->Flush();
   DestroyDeadObjects();
+}
+
+const ezGALSharedTexture* ezGALDeviceDX11::GetSharedTexture(ezGALTextureHandle hTexture) const
+{
+  auto pTexture = GetTexture(hTexture);
+  if (pTexture == nullptr)
+  {
+    return nullptr;
+  }
+
+  // Resolve proxy texture if any
+  return static_cast<const ezGALSharedTextureDX11*>(pTexture->GetParentResource());
 }
 
 ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)

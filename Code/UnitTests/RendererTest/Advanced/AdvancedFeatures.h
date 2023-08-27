@@ -2,6 +2,8 @@
 
 #include "../TestClass/TestClass.h"
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <Foundation/Communication/IpcChannel.h>
+#include <RendererTest/Advanced/OffscreenRenderer.h>
 
 class ezRendererTestAdvancedFeatures : public ezGraphicsTest
 {
@@ -13,7 +15,7 @@ private:
   {
     ST_ReadRenderTarget,
     ST_VertexShaderRenderTargetArrayIndex,
-    //ST_BackgroundResourceLoading,
+    ST_SharedTexture,
   };
 
   enum ImageCaptureFrames
@@ -22,11 +24,7 @@ private:
 
   };
 
-  virtual void SetupSubTests() override
-  {
-    AddSubTest("01 - ReadRenderTarget", SubTests::ST_ReadRenderTarget);
-    AddSubTest("02 - VertexShaderRenderTargetArrayIndex", SubTests::ST_VertexShaderRenderTargetArrayIndex);
-  }
+  virtual void SetupSubTests() override;
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
@@ -34,6 +32,9 @@ private:
 
   void ReadRenderTarget();
   void VertexShaderRenderTargetArrayIndex();
+  ezTestAppRun SharedTexture();
+  void OffscreenProcessMessageFunc(const ezProcessMessage* pMsg);
+
 
 private:
   ezShaderResourceHandle m_hShader2;
@@ -41,4 +42,18 @@ private:
   ezGALTextureHandle m_hTexture2D;
   ezGALResourceViewHandle m_hTexture2DMips[4];
   ezGALTextureHandle m_hTexture2DArray;
+
+  // Shared Texture Test
+  ezUniquePtr<ezProcess> m_OffscreenProcess;
+  ezUniquePtr<ezIpcChannel> m_pChannel;
+  ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;
+
+  ezGALTextureCreationDescription m_SharedTextureDesc;
+
+  static constexpr ezUInt32 s_SharedTextureCount = 3;
+  bool m_bExiting = false;
+  ezGALTextureHandle m_hSharedTextures[s_SharedTextureCount];
+  ezDeque<ezOffscreenTest_SharedTexture> m_SharedTextureQueue;
+
+  ezShaderUtils::ezBuiltinShader m_CopyShader;
 };

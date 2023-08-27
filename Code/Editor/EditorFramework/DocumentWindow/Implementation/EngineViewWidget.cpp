@@ -73,18 +73,21 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
     // Ensure the engine process swap chain is destroyed before the window.
     ezViewDestroyedMsgToEngine msg;
     msg.m_uiViewID = GetViewID();
-    m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
-
-    // Wait for engine process response
-    auto callback = [&](ezProcessMessage* pMsg) -> bool {
-      auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
-      return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
-    };
-    ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
-
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::MakeFromSeconds(5), &cb).Failed())
+    // If we fail to send the message the engine process is down and we don't need to clean up.
+    if (m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg))
     {
-      ezLog::Error("Timeout while waiting for engine process to destroy view.");
+      // Wait for engine process response
+      auto callback = [&](ezProcessMessage* pMsg) -> bool
+      {
+        auto pResponse = static_cast<ezViewDestroyedResponseMsgToEditor*>(pMsg);
+        return pResponse->m_DocumentGuid == m_pDocumentWindow->GetDocument()->GetGuid() && pResponse->m_uiViewID == msg.m_uiViewID;
+      };
+      ezProcessCommunicationChannel::WaitForMessageCallback cb = callback;
+
+      if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewDestroyedResponseMsgToEditor>(), ezTime::MakeFromSeconds(5), &cb).Failed())
+      {
+        ezLog::Error("Timeout while waiting for engine process to destroy view.");
+      }
     }
   }
 
@@ -289,8 +292,7 @@ void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
     return;
   }
-
-  if (const ezViewMarqueePickingResultMsgToEditor* pFullMsg = ezDynamicCast<const ezViewMarqueePickingResultMsgToEditor*>(pMsg))
+  else if (const ezViewMarqueePickingResultMsgToEditor* pFullMsg = ezDynamicCast<const ezViewMarqueePickingResultMsgToEditor*>(pMsg))
   {
     HandleMarqueePickingResult(pFullMsg);
     return;

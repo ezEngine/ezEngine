@@ -146,6 +146,19 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const
 
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+struct ezArgErrno
+{
+  inline explicit ezArgErrno(ezInt32 iErrno)
+    : m_iErrno(iErrno)
+  {
+  }
+
+  ezInt32 m_iErrno;
+};
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg);
+#endif
+
 /// \brief Wraps a string that may contain sensitive information, such as user file paths.
 ///
 /// The application can specify a function to scramble this type of information. By default no such function is set.

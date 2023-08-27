@@ -69,7 +69,6 @@ public:
       StorageType Headless : 1;
       StorageType SafeMode : 1;
       StorageType NoRecent : 1;
-      StorageType Debug : 1;
       StorageType UnitTest : 1;
       StorageType Background : 1;
     };

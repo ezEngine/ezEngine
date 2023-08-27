@@ -122,7 +122,7 @@ public:
   virtual ezVariant GetCreateEngineMetaData() const { return ezVariant(); }
 
   /// \brief Sends a message to the corresponding ezEngineProcessDocumentContext on the engine process.
-  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
+  bool SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
 
   /// \brief Handles all messages received from the corresponding ezEngineProcessDocumentContext on the engine process.
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);

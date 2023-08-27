@@ -149,8 +149,8 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
   float m_fDepthBiasClamp = 0.0f;                         ///< The pixel depth bias clamp. Default is 0
   float m_fSlopeScaledDepthBias = 0.0f;                   ///< The pixel slope scaled depth bias clamp. Default is 0
   bool m_bWireFrame = false;                              ///< Whether triangles are rendered filled or as wireframe. Default is false
-  bool m_bFrontCounterClockwise = false; ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
-                                         ///< is the one where the vertices appear in counter clockwise order. Default is false
+  bool m_bFrontCounterClockwise = false;                  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
+                                                          ///< is the one where the vertices appear in counter clockwise order. Default is false
   bool m_bScissorTest = false;
   bool m_bConservativeRasterization = false; ///< Whether conservative rasterization is enabled
 };
@@ -400,6 +400,31 @@ struct ezGALDeviceEvent
 
   Type m_Type;
   class ezGALDevice* m_pDevice;
+};
+
+// Type of the shared texture
+struct ezGALSharedTextureType
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : ezUInt8
+  {
+    None,     ///< Not shared
+    Exported, ///< Allocation owned by this process
+    Imported, ///< Allocation owned by a different process
+    Default = None
+  };
+};
+
+// Opaque platform specific handle
+// Typically holds a platform specific handle for the texture and it's synchronization primitive
+struct ezGALPlatformSharedHandle : public ezHashableStruct<ezGALPlatformSharedHandle>
+{
+  ezUInt64 m_hSharedTexture = 0;
+  ezUInt64 m_hSemaphore = 0;
+  ezUInt32 m_uiProcessId = 0;
+  ezUInt32 m_uiMemoryTypeIndex = 0;
+  ezUInt64 m_uiSize = 0;
 };
 
 #include <RendererFoundation/Descriptors/Implementation/Descriptors_inl.h>

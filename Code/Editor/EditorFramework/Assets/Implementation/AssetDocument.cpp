@@ -820,9 +820,9 @@ ezUInt16 ezAssetDocument::GetAssetTypeVersion() const
   return (ezUInt16)GetDynamicRTTI()->GetTypeVersion();
 }
 
-void ezAssetDocument::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage /*= false*/) const
+bool ezAssetDocument::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage /*= false*/) const
 {
-  GetEditorEngineConnection()->SendMessage(pMessage);
+  return GetEditorEngineConnection()->SendMessage(pMessage);
 }
 
 void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)

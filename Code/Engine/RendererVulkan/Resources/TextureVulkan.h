@@ -52,16 +52,20 @@ protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool bLinearCPU = false, bool bStaging = false);
+  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool bLinearCPU, bool bStaging);
 
   ~ezGALTextureVulkan();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
-
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
-  StagingMode ComputeStagingMode(const vk::ImageCreateInfo& createInfo) const;
+  static vk::Format ComputeImageFormat(ezGALDeviceVulkan* pDevice, ezEnum<ezGALResourceFormat> galFormat, vk::ImageCreateInfo& ref_createInfo, vk::ImageFormatListCreateInfo& ref_imageFormats, bool bStaging);
+  static void ComputeCreateInfo(ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, vk::ImageCreateInfo& ref_createInfo, vk::PipelineStageFlags& ref_stages, vk::AccessFlags& ref_access, vk::ImageLayout& ref_preferredLayout);
+  static void ComputeCreateInfoLinear(vk::ImageCreateInfo& ref_createInfo, vk::PipelineStageFlags& ref_stages, vk::AccessFlags& ref_access);
+  static void ComputeAllocInfo(bool bLinearCPU, ezVulkanAllocationCreateInfo& ref_allocInfo);
+  static StagingMode ComputeStagingMode(ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, const vk::ImageCreateInfo& createInfo);
+
   ezResult CreateStagingBuffer(const vk::ImageCreateInfo& createInfo);
 
   vk::Image m_image;
@@ -74,7 +78,6 @@ protected:
   ezVulkanAllocationInfo m_allocInfo;
 
   ezGALDeviceVulkan* m_pDevice = nullptr;
-  void* m_pExisitingNativeObject = nullptr;
 
   bool m_bLinearCPU = false;
   bool m_bStaging = false;
@@ -83,5 +86,7 @@ protected:
   ezGALTextureHandle m_hStagingTexture;
   ezGALBufferHandle m_hStagingBuffer;
 };
+
+
 
 #include <RendererVulkan/Resources/Implementation/TextureVulkan_inl.h>

@@ -94,10 +94,6 @@ ezPipeChannel_linux::~ezPipeChannel_linux()
   }
 }
 
-void ezPipeChannel_linux::AddToMessageLoop(ezMessageLoop* pMessageLoop)
-{
-}
-
 void ezPipeChannel_linux::InternalConnect()
 {
   if (m_bConnected || m_Connecting)
@@ -153,7 +149,7 @@ void ezPipeChannel_linux::InternalDisconnect()
   m_bConnected = false;
   m_Connecting = false;
 
-  m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Server ? ezIpcChannelEvent::DisconnectedFromClient : ezIpcChannelEvent::DisconnectedFromServer, this));
+  m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Disconnected, this));
 
   m_IncomingMessages.RaiseSignal(); // Wakeup anyone still waiting for messages
 }
@@ -228,7 +224,7 @@ void ezPipeChannel_linux::AcceptIncomingConnection()
   else
   {
     m_bConnected = true;
-    m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::ConnectedToClient, this));
+    m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Connected, this));
 
     // We are connected. Register for incoming messages events.
     static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::IncomingMessage, m_clientSocketFd);
@@ -244,7 +240,7 @@ void ezPipeChannel_linux::ProcessConnectSuccessfull()
 {
   m_Connecting = false;
   m_bConnected = true;
-  m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::ConnectedToServer, this));
+  m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Connected, this));
 
   // We are connected. Register for incoming messages events.
   static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::IncomingMessage, m_clientSocketFd);
@@ -276,7 +272,7 @@ void ezPipeChannel_linux::ProcessIncomingPackages()
       return;
     }
 
-    ReceiveMessageData(ezArrayPtr(m_InputBuffer, static_cast<ezUInt32>(recieveResult)));
+    ReceiveData(ezArrayPtr(m_InputBuffer, static_cast<ezUInt32>(recieveResult)));
   }
 }
 

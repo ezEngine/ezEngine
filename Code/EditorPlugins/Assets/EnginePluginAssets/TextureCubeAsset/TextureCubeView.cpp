@@ -5,6 +5,7 @@
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/RendererReflection.h>
 
 ezTextureCubeViewContext::ezTextureCubeViewContext(ezTextureCubeContext* pContext)
   : ezEngineProcessViewContext(pContext)

@@ -115,7 +115,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   ezStringBuilder tmp;
 
   QStringList args = QCoreApplication::arguments();
-  args.pop_front();
+  args.pop_front(); // Remove first argument which is the name of the path to the editor executable
 
   {
     ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
@@ -274,14 +274,15 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   s_Events.Broadcast(e);
 }
 
-void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
+bool ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 {
-  m_IPC.SendMessage(pMessage);
+  bool res = m_IPC.SendMessage(pMessage);
 
   if (m_pRemoteProcess)
   {
     m_pRemoteProcess->SendMessage(pMessage);
   }
+  return res;
 }
 
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
@@ -428,14 +429,14 @@ void ezEditorEngineProcessConnection::Update()
   }
 }
 
-void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
+bool ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
   EZ_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does "
                                  "not enable the engine-connection through the constructor of ezAssetDocument."); // NOLINT
 
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
-  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(pMessage);
+  return ezEditorEngineProcessConnection::GetSingleton()->SendMessage(pMessage);
 }
 
 void ezEditorEngineConnection::SendHighlightObjectMessage(ezViewHighlightMsgToEngine* pMessage)

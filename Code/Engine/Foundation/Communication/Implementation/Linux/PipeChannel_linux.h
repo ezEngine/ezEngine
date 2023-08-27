@@ -22,8 +22,6 @@ private:
   friend class ezMessageLoop;
   friend class ezMessageLoop_linux;
 
-  virtual void AddToMessageLoop(ezMessageLoop* pMsgLoop) override;
-
   // All functions from here on down are run from worker thread only
   virtual void InternalConnect() override;
   virtual void InternalDisconnect() override;

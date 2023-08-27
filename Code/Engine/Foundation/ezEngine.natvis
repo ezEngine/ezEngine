@@ -297,9 +297,9 @@
 	</Type>
 
 	<Type Name="ezResource">
-		<DisplayString>{{ID = {m_UniqueID} }}</DisplayString>
+		<DisplayString>{{ID = {m_sUniqueID} }}</DisplayString>
 		<Expand>
-			<Item Name="ID">m_UniqueID</Item>
+			<Item Name="ID">m_sUniqueID</Item>
 			<Item Name="Desc">m_sResourceDescription</Item>
 			<Item Name="State">m_LoadingState</Item>
 			<Item Name="RefCount">m_iReferenceCount</Item>

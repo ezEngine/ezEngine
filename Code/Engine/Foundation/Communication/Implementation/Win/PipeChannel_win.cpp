@@ -24,7 +24,6 @@ ezPipeChannel_win::ezPipeChannel_win(ezStringView sAddress, Mode::Enum mode)
   , m_InputState(this)
   , m_OutputState(this)
 {
-  CreatePipe(sAddress);
   m_pOwner->AddChannel(this);
 }
 
@@ -38,7 +37,6 @@ ezPipeChannel_win::~ezPipeChannel_win()
   {
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }
-
   m_pOwner->RemoveChannel(this);
 }
 
@@ -68,23 +66,23 @@ bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
     return false;
   }
 
-  return true;
-}
-
-void ezPipeChannel_win::AddToMessageLoop(ezMessageLoop* pMsgLoop)
-{
   if (m_hPipeHandle != INVALID_HANDLE_VALUE)
   {
-    ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(pMsgLoop);
+    ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(m_pOwner);
 
     ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
     HANDLE port = CreateIoCompletionPort(m_hPipeHandle, pMsgLoopWin->GetPort(), key, 1);
     EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
   }
+  return true;
 }
 
 void ezPipeChannel_win::InternalConnect()
 {
+  if (!CreatePipe(m_sAddress)) 
+    return;
+
+
   if (m_hPipeHandle == INVALID_HANDLE_VALUE)
     return;
   if (m_bConnected)
@@ -111,7 +109,9 @@ void ezPipeChannel_win::InternalConnect()
   if (m_bConnected)
   {
     ProcessOutgoingMessages(0);
-    m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
+
+    if (m_Mode == Mode::Client)
+      m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Connected, this));
   }
 
   return;
@@ -139,16 +139,21 @@ void ezPipeChannel_win::InternalDisconnect()
     FlushPendingOperations();
   }
 
+  bool bWasConnected = false;
   {
     EZ_LOCK(m_OutputQueueMutex);
     m_OutputQueue.Clear();
+    bWasConnected = m_bConnected;
     m_bConnected = false;
   }
 
-  m_Events.Broadcast(
-    ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::DisconnectedFromServer : ezIpcChannelEvent::DisconnectedFromClient, this));
-  // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
-  m_IncomingMessages.RaiseSignal();
+  if (bWasConnected)
+  {
+    m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Disconnected, this));
+    // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
+    m_IncomingMessages.RaiseSignal();
+  }
+
 }
 
 void ezPipeChannel_win::InternalSend()
@@ -186,7 +191,7 @@ bool ezPipeChannel_win::ProcessConnection()
       break;
     case ERROR_PIPE_CONNECTED:
       m_bConnected = true;
-      m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
+      m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Connected, this));
       break;
     case ERROR_NO_DATA:
       return false;
@@ -237,7 +242,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
     }
 
     EZ_ASSERT_DEBUG(uiBytesRead != 0, "We really should have data at this point.");
-    ReceiveMessageData(ezArrayPtr<ezUInt8>(m_InputBuffer, uiBytesRead));
+    ReceiveData(ezArrayPtr<ezUInt8>(m_InputBuffer, uiBytesRead));
     uiBytesRead = 0;
   }
   return true;

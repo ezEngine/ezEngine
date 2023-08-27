@@ -79,6 +79,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DProxy:
+    case ezGALTextureType::Texture2DShared:
       range.layerCount = viewDesc.m_uiArraySize;
       range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
       break;
@@ -117,6 +118,7 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DProxy:
+    case ezGALTextureType::Texture2DShared:
       range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
       break;
     case ezGALTextureType::TextureCube:
@@ -156,6 +158,7 @@ EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezE
   {
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DProxy:
+    case ezGALTextureType::Texture2DShared:
       if (!bIsArrayView)
       {
         return vk::ImageViewType::e2D;

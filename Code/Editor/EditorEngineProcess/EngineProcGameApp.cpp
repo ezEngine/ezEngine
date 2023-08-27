@@ -115,7 +115,6 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 
 ezApplication::Execution ezEngineProcessGameApplication::Run()
 {
-  ezRenderWorld::ClearMainViews();
   bool bPendingOpInProgress = false;
   do
   {
@@ -127,7 +126,11 @@ ezApplication::Execution ezEngineProcessGameApplication::Run()
   } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
 
   m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
-  return SUPER::Run();
+
+  // Normally rendering is done in EventHandlerIPC as a response to ezSyncWithProcessMsgToEngine. However, when playing or when pending operations are in progress we need to render even if we didn't receive a draw request.
+  ezApplication::Execution res = SUPER::Run();
+  ezRenderWorld::ClearMainViews();
+  return res;
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
@@ -226,6 +229,11 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     ezSyncWithProcessMsgToEditor msg;
     msg.m_uiRedrawCount = pMsg->m_uiRedrawCount;
     m_uiRedrawCountReceived = msg.m_uiRedrawCount;
+
+    // We must clear the main views after rendering so that if the editor runs in lock step with the engine we don't render a view twice or request update again without rendering being done.
+    RunOneFrame();
+    ezRenderWorld::ClearMainViews();
+
     m_IPC.SendMessage(&msg);
     return;
   }

@@ -7,34 +7,19 @@
 
 ezGALTextureDX11::ezGALTextureDX11(const ezGALTextureCreationDescription& Description)
   : ezGALTexture(Description)
-  , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
 {
 }
 
 ezGALTextureDX11::~ezGALTextureDX11() = default;
 
-EZ_DEFINE_AS_POD_TYPE(D3D11_SUBRESOURCE_DATA);
-
 ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
-  if (m_pExisitingNativeObject != nullptr)
+  if (m_Description.m_pExisitingNativeObject != nullptr)
   {
-    /// \todo Validation if interface of corresponding texture object exists
-    m_pDXTexture = static_cast<ID3D11Resource*>(m_pExisitingNativeObject);
-    if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-    {
-      ezResult res = CreateStagingTexture(pDXDevice);
-      if (res == EZ_FAILURE)
-      {
-        m_pDXTexture = nullptr;
-        return res;
-      }
-    }
-    return EZ_SUCCESS;
+    return InitFromNativeObject(pDXDevice);
   }
-
 
   switch (m_Description.m_Type)
   {
@@ -42,73 +27,14 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
     case ezGALTextureType::TextureCube:
     {
       D3D11_TEXTURE2D_DESC Tex2DDesc;
-      Tex2DDesc.ArraySize = (m_Description.m_Type == ezGALTextureType::Texture2D ? m_Description.m_uiArraySize : (m_Description.m_uiArraySize * 6));
-      Tex2DDesc.BindFlags = 0;
-
-      if (m_Description.m_bAllowShaderResourceView || m_Description.m_bAllowDynamicMipGeneration)
-        Tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-      if (m_Description.m_bAllowUAV)
-        Tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
-
-      if (m_Description.m_bCreateRenderTarget || m_Description.m_bAllowDynamicMipGeneration)
-        Tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
-
-      Tex2DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
-      Tex2DDesc.Usage = m_Description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
-
-      if (m_Description.m_bCreateRenderTarget || m_Description.m_bAllowUAV)
-        Tex2DDesc.Usage = D3D11_USAGE_DEFAULT;
-
-      Tex2DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
-
-      if (Tex2DDesc.Format == DXGI_FORMAT_UNKNOWN)
-      {
-        ezLog::Error("No storage format available for given format: {0}", m_Description.m_Format);
-        return EZ_FAILURE;
-      }
-
-      Tex2DDesc.Width = m_Description.m_uiWidth;
-      Tex2DDesc.Height = m_Description.m_uiHeight;
-      Tex2DDesc.MipLevels = m_Description.m_uiMipLevelCount;
-
-      Tex2DDesc.MiscFlags = 0;
-
-      if (m_Description.m_bAllowDynamicMipGeneration)
-        Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-      if (m_Description.m_Type == ezGALTextureType::TextureCube)
-        Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
-
-      Tex2DDesc.SampleDesc.Count = m_Description.m_SampleCount;
-      Tex2DDesc.SampleDesc.Quality = 0;
+      EZ_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
 
       ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
-      if (!pInitialData.IsEmpty())
-      {
-        ezUInt32 uiInitialDataCount = (m_Description.m_uiMipLevelCount * Tex2DDesc.ArraySize);
-        EZ_ASSERT_DEV(pInitialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
+      ConvertInitialData(m_Description, pInitialData, InitialData);
 
-        InitialData.SetCountUninitialized(uiInitialDataCount);
-
-        for (ezUInt32 i = 0; i < uiInitialDataCount; i++)
-        {
-          InitialData[i].pSysMem = pInitialData[i].m_pData;
-          InitialData[i].SysMemPitch = pInitialData[i].m_uiRowPitch;
-          InitialData[i].SysMemSlicePitch = pInitialData[i].m_uiSlicePitch;
-        }
-      }
-
-      if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(
-            &Tex2DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
+      if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
       {
         return EZ_FAILURE;
-      }
-      else
-      {
-        if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-          return CreateStagingTexture(pDXDevice);
-
-        return EZ_SUCCESS;
       }
     }
     break;
@@ -116,70 +42,14 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
     case ezGALTextureType::Texture3D:
     {
       D3D11_TEXTURE3D_DESC Tex3DDesc;
-      Tex3DDesc.BindFlags = 0;
-
-      if (m_Description.m_bAllowShaderResourceView)
-        Tex3DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-      if (m_Description.m_bAllowUAV)
-        Tex3DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
-
-      if (m_Description.m_bCreateRenderTarget)
-        Tex3DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
-
-      Tex3DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
-      Tex3DDesc.Usage = m_Description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
-
-      if (m_Description.m_bCreateRenderTarget || m_Description.m_bAllowUAV)
-        Tex3DDesc.Usage = D3D11_USAGE_DEFAULT;
-
-      Tex3DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_eStorage;
-
-      if (Tex3DDesc.Format == DXGI_FORMAT_UNKNOWN)
-      {
-        ezLog::Error("No storage format available for given format: {0}", m_Description.m_Format);
-        return EZ_FAILURE;
-      }
-
-      Tex3DDesc.Width = m_Description.m_uiWidth;
-      Tex3DDesc.Height = m_Description.m_uiHeight;
-      Tex3DDesc.Depth = m_Description.m_uiDepth;
-      Tex3DDesc.MipLevels = m_Description.m_uiMipLevelCount;
-
-      Tex3DDesc.MiscFlags = 0;
-
-      if (m_Description.m_bAllowDynamicMipGeneration)
-        Tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-      if (m_Description.m_Type == ezGALTextureType::TextureCube)
-        Tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+      EZ_SUCCEED_OR_RETURN(Create3DDesc(m_Description, pDXDevice, Tex3DDesc));
 
       ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
-      if (!pInitialData.IsEmpty())
-      {
-        const ezUInt32 uiInitialDataCount = m_Description.m_uiMipLevelCount;
-        EZ_ASSERT_DEV(pInitialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
+      ConvertInitialData(m_Description, pInitialData, InitialData);
 
-        InitialData.SetCountUninitialized(uiInitialDataCount);
-
-        for (ezUInt32 i = 0; i < uiInitialDataCount; i++)
-        {
-          InitialData[i].pSysMem = pInitialData[i].m_pData;
-          InitialData[i].SysMemPitch = pInitialData[i].m_uiRowPitch;
-          InitialData[i].SysMemSlicePitch = pInitialData[i].m_uiSlicePitch;
-        }
-      }
-
-      if (FAILED(pDXDevice->GetDXDevice()->CreateTexture3D(
-            &Tex3DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture3D**>(&m_pDXTexture))))
+      if (FAILED(pDXDevice->GetDXDevice()->CreateTexture3D(&Tex3DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture3D**>(&m_pDXTexture))))
       {
         return EZ_FAILURE;
-      }
-      else
-      {
-        if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-          return CreateStagingTexture(pDXDevice);
-
-        return EZ_SUCCESS;
       }
     }
     break;
@@ -189,8 +59,147 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       return EZ_FAILURE;
   }
 
+  if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
+    return CreateStagingTexture(pDXDevice);
 
-  return EZ_FAILURE;
+  return EZ_SUCCESS;
+}
+
+
+ezResult ezGALTextureDX11::InitFromNativeObject(ezGALDeviceDX11* pDXDevice)
+{
+  /// \todo Validation if interface of corresponding texture object exists
+  m_pDXTexture = static_cast<ID3D11Resource*>(m_Description.m_pExisitingNativeObject);
+  if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
+  {
+    ezResult res = CreateStagingTexture(pDXDevice);
+    if (res == EZ_FAILURE)
+    {
+      m_pDXTexture = nullptr;
+      return res;
+    }
+  }
+  return EZ_SUCCESS;
+}
+
+
+ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE2D_DESC& out_Tex2DDesc)
+{
+  out_Tex2DDesc.ArraySize = (description.m_Type == ezGALTextureType::Texture2D ? description.m_uiArraySize : (description.m_uiArraySize * 6));
+  out_Tex2DDesc.BindFlags = 0;
+
+  if (description.m_bAllowShaderResourceView || description.m_bAllowDynamicMipGeneration)
+    out_Tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+  if (description.m_bAllowUAV)
+    out_Tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+
+  if (description.m_bCreateRenderTarget || description.m_bAllowDynamicMipGeneration)
+    out_Tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
+
+  out_Tex2DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
+  out_Tex2DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
+
+  if (description.m_bCreateRenderTarget || description.m_bAllowUAV)
+    out_Tex2DDesc.Usage = D3D11_USAGE_DEFAULT;
+
+  out_Tex2DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
+
+  if (out_Tex2DDesc.Format == DXGI_FORMAT_UNKNOWN)
+  {
+    ezLog::Error("No storage format available for given format: {0}", description.m_Format);
+    return EZ_FAILURE;
+  }
+
+  out_Tex2DDesc.Width = description.m_uiWidth;
+  out_Tex2DDesc.Height = description.m_uiHeight;
+  out_Tex2DDesc.MipLevels = description.m_uiMipLevelCount;
+
+  out_Tex2DDesc.MiscFlags = 0;
+
+  if (description.m_bAllowDynamicMipGeneration)
+    out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+  if (description.m_Type == ezGALTextureType::TextureCube)
+    out_Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+
+  out_Tex2DDesc.SampleDesc.Count = description.m_SampleCount;
+  out_Tex2DDesc.SampleDesc.Quality = 0;
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& description, ezGALDeviceDX11* pDXDevice, D3D11_TEXTURE3D_DESC& out_Tex3DDesc)
+{
+  out_Tex3DDesc.BindFlags = 0;
+
+  if (description.m_bAllowShaderResourceView)
+    out_Tex3DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+  if (description.m_bAllowUAV)
+    out_Tex3DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+
+  if (description.m_bCreateRenderTarget)
+    out_Tex3DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
+
+  out_Tex3DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
+  out_Tex3DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
+
+  if (description.m_bCreateRenderTarget || description.m_bAllowUAV)
+    out_Tex3DDesc.Usage = D3D11_USAGE_DEFAULT;
+
+  out_Tex3DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
+
+  if (out_Tex3DDesc.Format == DXGI_FORMAT_UNKNOWN)
+  {
+    ezLog::Error("No storage format available for given format: {0}", description.m_Format);
+    return EZ_FAILURE;
+  }
+
+  out_Tex3DDesc.Width = description.m_uiWidth;
+  out_Tex3DDesc.Height = description.m_uiHeight;
+  out_Tex3DDesc.Depth = description.m_uiDepth;
+  out_Tex3DDesc.MipLevels = description.m_uiMipLevelCount;
+
+  out_Tex3DDesc.MiscFlags = 0;
+
+  if (description.m_bAllowDynamicMipGeneration)
+    out_Tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+  if (description.m_Type == ezGALTextureType::TextureCube)
+    out_Tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+
+  return EZ_SUCCESS;
+}
+
+
+void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezHybridArray<D3D11_SUBRESOURCE_DATA, 16>& out_InitialData)
+{
+  if (!pInitialData.IsEmpty())
+  {
+    ezUInt32 uiArraySize = 1;
+    switch (description.m_Type)
+    {
+      case ezGALTextureType::Texture2D:
+        uiArraySize = description.m_uiArraySize;
+        break;
+      case ezGALTextureType::TextureCube:
+        uiArraySize = description.m_uiArraySize * 6;
+        break;
+      case ezGALTextureType::Texture3D:
+      default:
+        break;
+    }
+    const ezUInt32 uiInitialDataCount = (description.m_uiMipLevelCount * uiArraySize);
+
+    EZ_ASSERT_DEV(pInitialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
+
+    out_InitialData.SetCountUninitialized(uiInitialDataCount);
+
+    for (ezUInt32 i = 0; i < uiInitialDataCount; i++)
+    {
+      out_InitialData[i].pSysMem = pInitialData[i].m_pData;
+      out_InitialData[i].SysMemPitch = pInitialData[i].m_uiRowPitch;
+      out_InitialData[i].SysMemSlicePitch = pInitialData[i].m_uiSlicePitch;
+    }
+  }
 }
 
 ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
@@ -248,7 +257,6 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
 
   return EZ_SUCCESS;
 }
-
 
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_TextureDX11);

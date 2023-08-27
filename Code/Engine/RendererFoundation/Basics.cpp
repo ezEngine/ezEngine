@@ -17,9 +17,4 @@ const char* ezGALShaderStage::Names[ENUM_COUNT] = {
   "ComputeShader",
 };
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALMSAASampleCount, 1)
-  EZ_ENUM_CONSTANTS(
-    ezGALMSAASampleCount::None, ezGALMSAASampleCount::TwoSamples, ezGALMSAASampleCount::FourSamples, ezGALMSAASampleCount::EightSamples)
-EZ_END_STATIC_REFLECTED_ENUM;
-
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Basics);
