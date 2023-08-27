@@ -1,11 +1,11 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/BloomPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
-#include <Foundation/IO/TypeVersionContext.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BloomConstants.h>
 

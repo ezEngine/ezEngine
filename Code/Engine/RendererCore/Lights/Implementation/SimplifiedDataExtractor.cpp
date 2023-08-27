@@ -1,9 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
 #include <RendererCore/Lights/SimplifiedDataExtractor.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Foundation/IO/TypeVersionContext.h>
 
 //////////////////////////////////////////////////////////////////////////
 

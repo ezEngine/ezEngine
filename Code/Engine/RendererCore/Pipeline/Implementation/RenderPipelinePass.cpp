@@ -1,10 +1,10 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/Renderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/IO/TypeVersionContext.h>
 
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>

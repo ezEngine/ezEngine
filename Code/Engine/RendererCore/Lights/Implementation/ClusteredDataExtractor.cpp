@@ -2,6 +2,7 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -10,7 +11,6 @@
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Foundation/IO/TypeVersionContext.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_RenderingLightingVisClusterData("Rendering.Lighting.VisClusterData", false, ezCVarFlags::Default, "Enables debug visualization of clustered light data");

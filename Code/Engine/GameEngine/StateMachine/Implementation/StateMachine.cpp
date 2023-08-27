@@ -6,7 +6,6 @@
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/IO/TypeVersionContext.h>
 #include <GameEngine/StateMachine/StateMachine.h>
-#include <Foundation/IO/TypeVersionContext.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState, 1, ezRTTINoAllocator)

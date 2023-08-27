@@ -1,9 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/Passes/BlurPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/IO/TypeVersionContext.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BlurConstants.h>

@@ -2,9 +2,9 @@
 
 #include <EnginePluginScene/RenderPipeline/EditorShapeIconsExtractor.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Foundation/IO/TypeVersionContext.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorShapeIconsExtractor, 1, ezRTTIDefaultAllocator<ezEditorShapeIconsExtractor>)
