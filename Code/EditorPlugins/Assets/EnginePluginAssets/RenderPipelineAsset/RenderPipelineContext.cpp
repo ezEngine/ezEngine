@@ -135,7 +135,8 @@ ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngi
     // Resource Data
     ezUInt32 uiSize = storage.GetStorageSize32();
     file << uiSize;
-    storage.CopyToStream(file).AssertSuccess("Failed to copy to file writer");
+    if (storage.CopyToStream(file).Failed())
+      return ezStatus(ezFmt("Failed to copy content to file writer for '{}'", pMsg->m_sOutputFile));
   }
 
   // do the actual file writing

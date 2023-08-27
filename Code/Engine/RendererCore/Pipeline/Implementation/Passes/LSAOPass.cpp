@@ -6,6 +6,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezLSAODepthCompareFunction, 1)
@@ -270,7 +271,8 @@ ezResult ezLSAOPass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezLSAOPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_iLineToLinePixelOffset;
   inout_stream >> m_iLineSamplePixelOffsetFactor;
   inout_stream >> m_fOcclusionFalloff;

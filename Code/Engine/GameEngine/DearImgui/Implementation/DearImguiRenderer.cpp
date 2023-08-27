@@ -2,6 +2,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
+#  include <Foundation/IO/TypeVersionContext.h>
 #  include <GameEngine/DearImgui/DearImgui.h>
 #  include <GameEngine/DearImgui/DearImguiRenderer.h>
 #  include <Imgui/imgui_internal.h>
@@ -124,7 +125,8 @@ ezResult ezImguiExtractor::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezImguiExtractor::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   return EZ_SUCCESS;
 }
 

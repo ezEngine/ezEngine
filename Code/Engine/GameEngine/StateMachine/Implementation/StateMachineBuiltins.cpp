@@ -84,7 +84,8 @@ ezResult ezStateMachineState_NestedStateMachine::Serialize(ezStreamWriter& inout
 ezResult ezStateMachineState_NestedStateMachine::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_hResource;
   inout_stream >> m_sInitialState;
@@ -213,7 +214,8 @@ ezResult ezStateMachineState_Compound::Serialize(ezStreamWriter& inout_stream) c
 ezResult ezStateMachineState_Compound::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
 
   ezUInt32 uiNumSubStates = 0;
   inout_stream >> uiNumSubStates;
@@ -410,7 +412,8 @@ ezResult ezStateMachineTransition_Compound::Serialize(ezStreamWriter& inout_stre
 ezResult ezStateMachineTransition_Compound::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_Operator;
 

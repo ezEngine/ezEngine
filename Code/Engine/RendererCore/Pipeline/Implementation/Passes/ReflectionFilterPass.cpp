@@ -6,6 +6,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/ReflectionFilteredSpecularConstants.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/ReflectionIrradianceConstants.h>
@@ -173,7 +174,8 @@ ezResult ezReflectionFilterPass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezReflectionFilterPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_fIntensity;
   inout_stream >> m_fSaturation;
   inout_stream >> m_uiSpecularOutputIndex;

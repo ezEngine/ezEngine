@@ -3,6 +3,7 @@
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
 #include <RendererCore/Lights/SimplifiedDataExtractor.h>
 #include <RendererCore/Pipeline/View.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +46,8 @@ ezResult ezSimplifiedDataExtractor::Serialize(ezStreamWriter& inout_stream) cons
 ezResult ezSimplifiedDataExtractor::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   return EZ_SUCCESS;
 }
 

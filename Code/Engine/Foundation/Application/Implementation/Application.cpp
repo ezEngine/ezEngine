@@ -40,7 +40,7 @@ ezResult ezApplication::BeforeCoreSystemsStartup()
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(1));
     }
 
-    //EZ_DEBUG_BREAK;
+    EZ_DEBUG_BREAK;
   }
 
   return EZ_SUCCESS;

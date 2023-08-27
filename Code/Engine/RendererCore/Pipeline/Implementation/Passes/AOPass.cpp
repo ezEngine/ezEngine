@@ -6,6 +6,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/DownscaleDepthConstants.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/SSAOConstants.h>
@@ -318,7 +319,8 @@ ezResult ezAOPass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezAOPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_fRadius;
   inout_stream >> m_fMaxScreenSpaceRadius;
   inout_stream >> m_fContrast;

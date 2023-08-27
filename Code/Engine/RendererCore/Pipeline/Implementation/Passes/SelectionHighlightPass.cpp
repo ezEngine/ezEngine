@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
@@ -135,7 +136,8 @@ ezResult ezSelectionHighlightPass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezSelectionHighlightPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_HighlightColor;
   inout_stream >> m_fOverlayOpacity;
   return EZ_SUCCESS;

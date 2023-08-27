@@ -5,6 +5,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -194,7 +195,8 @@ ezResult ezTonemapPass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   ezStringBuilder sTemp;
   inout_stream >> sTemp;
   SetVignettingTextureFile(sTemp);

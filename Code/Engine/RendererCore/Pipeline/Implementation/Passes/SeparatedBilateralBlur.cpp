@@ -4,6 +4,7 @@
 #include <RendererCore/Pipeline/Passes/SeparatedBilateralBlur.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BilateralBlurConstants.h>
@@ -156,7 +157,8 @@ ezResult ezSeparatedBilateralBlurPass::Serialize(ezStreamWriter& inout_stream) c
 ezResult ezSeparatedBilateralBlurPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_uiRadius;
   inout_stream >> m_fGaussianSigma;
   inout_stream >> m_fSharpness;

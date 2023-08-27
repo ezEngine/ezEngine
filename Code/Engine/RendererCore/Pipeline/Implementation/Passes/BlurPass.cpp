@@ -3,6 +3,7 @@
 #include <RendererCore/Pipeline/Passes/BlurPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #include <Core/Graphics/Geometry.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BlurConstants.h>
@@ -104,7 +105,8 @@ ezResult ezBlurPass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezBlurPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_iRadius;
   return EZ_SUCCESS;
 }

@@ -10,6 +10,7 @@
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_RenderingLightingVisClusterData("Rendering.Lighting.VisClusterData", false, ezCVarFlags::Default, "Enables debug visualization of clustered light data");
@@ -418,7 +419,8 @@ ezResult ezClusteredDataExtractor::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezClusteredDataExtractor::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   return EZ_SUCCESS;
 }
 

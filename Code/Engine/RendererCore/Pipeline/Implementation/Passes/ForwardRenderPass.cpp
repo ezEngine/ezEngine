@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -90,7 +91,8 @@ ezResult ezForwardRenderPass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezForwardRenderPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_ShadingQuality;
   return EZ_SUCCESS;
 }

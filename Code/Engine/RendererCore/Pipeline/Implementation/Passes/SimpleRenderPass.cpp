@@ -3,6 +3,7 @@
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -132,7 +133,8 @@ ezResult ezSimpleRenderPass::Serialize(ezStreamWriter& inout_stream) const
 ezResult ezSimpleRenderPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_sMessage;
   return EZ_SUCCESS;
 }

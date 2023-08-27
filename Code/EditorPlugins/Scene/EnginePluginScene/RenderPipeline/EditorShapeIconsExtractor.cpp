@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Pipeline/View.h>
+#include <Foundation/IO/TypeVersionContext.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorShapeIconsExtractor, 1, ezRTTIDefaultAllocator<ezEditorShapeIconsExtractor>)
@@ -75,7 +76,8 @@ ezResult ezEditorShapeIconsExtractor::Serialize(ezStreamWriter& inout_stream) co
 ezResult ezEditorShapeIconsExtractor::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_fSize;
   inout_stream >> m_fMaxScreenSize;
   return EZ_SUCCESS;
