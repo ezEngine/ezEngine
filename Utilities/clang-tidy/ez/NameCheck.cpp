@@ -44,10 +44,10 @@ namespace clang
         if (name.size() > 1 && (isUppercase(name[1]) || isDigit(name[1])))
         {
           // x, y and z are not considered invalid prefixes and should be kept.
-          if(name[0] != 'x' && name[0] != 'y' && name[0] != 'z')
+          if (name[0] != 'x' && name[0] != 'y' && name[0] != 'z')
           {
-		    result = std::string(name.begin(), name.begin() + 1);
-		    name.erase(0, 1);
+            result = std::string(name.begin(), name.begin() + 1);
+            name.erase(0, 1);
           }
         }
         else if (name.size() > 2 && (isUppercase(name[2]) || isDigit(name[2])))
@@ -136,9 +136,9 @@ namespace clang
         std::string newName = baseName;
         auto oldPrefix = StripPrefix(newName);
 
-        if(auto elaboratedType = dyn_cast<ElaboratedType>(type); elaboratedType)
+        if (auto elaboratedType = dyn_cast<ElaboratedType>(type); elaboratedType)
         {
-            type = elaboratedType->desugar().getTypePtr();
+          type = elaboratedType->desugar().getTypePtr();
         }
 
         auto templateParamType = dyn_cast<TemplateTypeParmType>(type);
@@ -223,13 +223,13 @@ namespace clang
             {
               return newName;
             }
-            else if(auto declTemplate = dyn_cast<ClassTemplateSpecializationDecl>(recordDecl); declTemplate && recordName == "atomic")
+            else if (auto declTemplate = dyn_cast<ClassTemplateSpecializationDecl>(recordDecl); declTemplate && recordName == "atomic")
             {
-               auto& templateArgs = declTemplate->getTemplateArgs();
-               if(templateArgs.size() == 1)
-               {
-                   return AddPrefix(baseName, templateArgs.get(0).getAsType().getTypePtr(), prefixAdded);
-               }
+              auto& templateArgs = declTemplate->getTemplateArgs();
+              if (templateArgs.size() == 1)
+              {
+                return AddPrefix(baseName, templateArgs.get(0).getAsType().getTypePtr(), prefixAdded);
+              }
             }
           }
           else
@@ -373,13 +373,13 @@ namespace clang
             return std::nullopt;
           }
 
-          if(auto cxxMethodDecl = dyn_cast<CXXMethodDecl>(owningFunc); cxxMethodDecl)
+          if (auto cxxMethodDecl = dyn_cast<CXXMethodDecl>(owningFunc); cxxMethodDecl)
           {
-              if(cxxMethodDecl->getParent()->isLambda())
-              {
-                  // Do not check parameter names for lambdas, as they are implementation detail.
-                  return std::nullopt;
-              }
+            if (cxxMethodDecl->getParent()->isLambda())
+            {
+              // Do not check parameter names for lambdas, as they are implementation detail.
+              return std::nullopt;
+            }
           }
 
           std::string newName = param->getNameAsString();
