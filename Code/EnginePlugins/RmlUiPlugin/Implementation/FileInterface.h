@@ -12,7 +12,7 @@ namespace ezRmlUiInternal
   {
     using ezGenericId::ezGenericId;
 
-    static FileId FromRml(Rml::FileHandle file) { return FileId(static_cast<ezUInt32>(file)); }
+    static FileId FromRml(Rml::FileHandle hFile) { return FileId(static_cast<ezUInt32>(hFile)); }
 
     Rml::FileHandle ToRml() const { return m_Data; }
   };
@@ -26,14 +26,14 @@ namespace ezRmlUiInternal
     virtual ~FileInterface();
 
     virtual Rml::FileHandle Open(const Rml::String& sPath) override;
-    virtual void Close(Rml::FileHandle file) override;
+    virtual void Close(Rml::FileHandle hFile) override;
 
-    virtual size_t Read(void* pBuffer, size_t uiSize, Rml::FileHandle file) override;
+    virtual size_t Read(void* pBuffer, size_t uiSize, Rml::FileHandle hFile) override;
 
-    virtual bool Seek(Rml::FileHandle file, long iOffset, int iOrigin) override;
-    virtual size_t Tell(Rml::FileHandle file) override;
+    virtual bool Seek(Rml::FileHandle hFile, long iOffset, int iOrigin) override;
+    virtual size_t Tell(Rml::FileHandle hFile) override;
 
-    virtual size_t Length(Rml::FileHandle file) override;
+    virtual size_t Length(Rml::FileHandle hFile) override;
 
   private:
     struct OpenFile

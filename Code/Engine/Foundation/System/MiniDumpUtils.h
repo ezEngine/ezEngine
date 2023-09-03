@@ -37,12 +37,12 @@ struct EZ_FOUNDATION_DLL ezMiniDumpUtils
   /// \brief Windows-specific implementation for writing a mini-dump of another process.
   ///
   /// \sa WriteProcessMiniDump()
-  static ezStatus WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess);
+  static ezStatus WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess);
 
   /// \brief Windows-specific implementation for writing a mini-dump of the running process.
   ///
   /// \note On Windows: If the command line option '-fullcrashdumps' is specified, a crash-dump with a full memory capture is made.
-  static ezStatus WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE pProcess, struct _EXCEPTION_POINTERS* pExceptionInfo);
+  static ezStatus WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo);
 
 #endif
 };

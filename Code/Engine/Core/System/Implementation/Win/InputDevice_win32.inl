@@ -375,7 +375,7 @@ void ezStandardInputDevice::SetClipMouseCursor(ezMouseCursorClipMode::Enum mode)
 #define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
 void ezStandardInputDevice::WindowMessage(
-  ezMinWindows::HWND pWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+  ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
 {
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
   static ezInt32 s_iMouseCaptureCount = 0;
@@ -401,7 +401,7 @@ void ezStandardInputDevice::WindowMessage(
     case WM_MOUSEMOVE:
     {
       RECT area;
-      GetClientRect(ezMinWindows::ToNative(pWnd), &area);
+      GetClientRect(ezMinWindows::ToNative(hWnd), &area);
 
       const ezUInt32 uiResX = area.right - area.left;
       const ezUInt32 uiResY = area.bottom - area.top;
@@ -415,7 +415,7 @@ void ezStandardInputDevice::WindowMessage(
 
       if (m_ClipCursorMode == ezMouseCursorClipMode::ClipToPosition || m_ClipCursorMode == ezMouseCursorClipMode::ClipToWindowImmediate)
       {
-        ApplyClipRect(m_ClipCursorMode, pWnd);
+        ApplyClipRect(m_ClipCursorMode, hWnd);
       }
 
       break;
@@ -424,13 +424,13 @@ void ezStandardInputDevice::WindowMessage(
     case WM_SETFOCUS:
     {
       m_bApplyClipRect = true;
-      ApplyClipRect(m_ClipCursorMode, pWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
       break;
     }
 
     case WM_KILLFOCUS:
     {
-      OnFocusLost(pWnd);
+      OnFocusLost(hWnd);
       return;
     }
 
@@ -458,7 +458,7 @@ void ezStandardInputDevice::WindowMessage(
       m_uiMouseButtonReceivedDown[0]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(pWnd));
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
 
@@ -466,7 +466,7 @@ void ezStandardInputDevice::WindowMessage(
 
     case WM_LBUTTONUP:
       m_uiMouseButtonReceivedUp[0]++;
-      ApplyClipRect(m_ClipCursorMode, pWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -478,14 +478,14 @@ void ezStandardInputDevice::WindowMessage(
       m_uiMouseButtonReceivedDown[1]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(pWnd));
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
 
     case WM_RBUTTONUP:
       m_uiMouseButtonReceivedUp[1]++;
-      ApplyClipRect(m_ClipCursorMode, pWnd);
+      ApplyClipRect(m_ClipCursorMode, hWnd);
 
       --s_iMouseCaptureCount;
       if (s_iMouseCaptureCount <= 0)
@@ -498,7 +498,7 @@ void ezStandardInputDevice::WindowMessage(
       m_uiMouseButtonReceivedDown[2]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(pWnd));
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
       return;
 
@@ -518,7 +518,7 @@ void ezStandardInputDevice::WindowMessage(
         m_uiMouseButtonReceivedDown[4]++;
 
       if (s_iMouseCaptureCount == 0)
-        SetCapture(ezMinWindows::ToNative(pWnd));
+        SetCapture(ezMinWindows::ToNative(hWnd));
       ++s_iMouseCaptureCount;
 
       return;
