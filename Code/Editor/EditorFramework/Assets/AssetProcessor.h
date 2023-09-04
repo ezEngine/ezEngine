@@ -129,7 +129,7 @@ private:
 
   // Process thread and its state
   ezUniquePtr<ezProcessThread> m_pThread;
-  std::atomic<bool> m_ForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
+  std::atomic<bool> m_bForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
 
   // Locks writes to m_ProcessTaskState to make sure the state machine does not go from running to stopped before having fired stopping.
   mutable ezMutex m_ProcessorMutex;

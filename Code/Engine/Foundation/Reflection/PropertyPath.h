@@ -6,6 +6,7 @@
 
 class ezAbstractProperty;
 
+
 ///\brief Reflected property step that can be used to init an ezPropertyPath
 struct EZ_FOUNDATION_DLL ezPropertyPathStep
 {

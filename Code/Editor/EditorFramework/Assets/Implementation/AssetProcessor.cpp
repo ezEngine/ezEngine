@@ -143,7 +143,7 @@ void ezAssetProcessor::StopProcessTask(bool bForce)
 
   if (bForce)
   {
-    m_ForceStop = true;
+    m_bForceStop = true;
     m_pThread->Join();
     m_pThread.Clear();
     EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Process task shoul have set the state to stopped.");
@@ -186,7 +186,7 @@ void ezAssetProcessor::Run()
     {
       if (m_ProcessRunning[i])
       {
-        if (m_ForceStop)
+        if (m_bForceStop)
           m_ProcessTasks[i].ShutdownProcess();
 
         m_ProcessRunning[i] = !m_ProcessTasks[i].FinishExecute();
@@ -204,7 +204,7 @@ void ezAssetProcessor::Run()
   m_ProcessRunning.Clear();
   m_ProcessTasks.Clear();
   m_ProcessTaskState = ProcessTaskState::Stopped;
-  m_ForceStop = false;
+  m_bForceStop = false;
   {
     ezAssetProcessorEvent e;
     e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;
