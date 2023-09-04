@@ -20,7 +20,6 @@ EZ_END_STATIC_REFLECTED_TYPE;
 ezPropertyPath::ezPropertyPath() = default;
 ezPropertyPath::~ezPropertyPath() = default;
 
-
 bool ezPropertyPath::IsValid() const
 {
   return m_bIsValid;
