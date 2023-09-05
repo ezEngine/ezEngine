@@ -48,6 +48,8 @@ public:
 
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   ezUInt32 GetLineToLinePixelOffset() const { return m_iLineToLinePixelOffset; }
   void SetLineToLinePixelOffset(ezUInt32 uiPixelOffset);
@@ -77,6 +79,7 @@ protected:
   ezConstantBufferStorageHandle m_hLineSweepCB;
 
   bool m_bSweepDataDirty = true;
+  bool m_bConstantsDirty = true;
 
   /// Output of the line sweep pass.
   ezGALBufferHandle m_hLineSweepOutputBuffer;
@@ -92,6 +95,9 @@ protected:
 
   ezInt32 m_iLineToLinePixelOffset = 2;
   ezInt32 m_iLineSamplePixelOffsetFactor = 1;
+  float m_fOcclusionFalloff = 0.2f;
+  float m_fDepthCutoffDistance = 4.0f;
+
   ezEnum<ezLSAODepthCompareFunction> m_DepthCompareFunction;
   bool m_bDistributedGathering = true;
 

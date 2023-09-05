@@ -22,17 +22,21 @@
 
 namespace
 {
-  ezResult GetAlternativeFormat(vk::Format& format, vk::ComponentMapping& componentMapping)
+  ezResult GetAlternativeFormat(ezGALResourceFormat::Enum& format)
   {
     switch (format)
     {
-      case vk::Format::eR8G8B8A8Srgb:
-        format = vk::Format::eB8G8R8A8Srgb;
-        componentMapping = vk::ComponentMapping{vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eA};
+      case ezGALResourceFormat::RGBAUByteNormalizedsRGB:
+        format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
         return EZ_SUCCESS;
-      case vk::Format::eR8G8B8A8Unorm:
-        format = vk::Format::eB8G8R8A8Unorm;
-        componentMapping = vk::ComponentMapping{vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eA};
+      case ezGALResourceFormat::RGBAUByteNormalized:
+        format = ezGALResourceFormat::BGRAUByteNormalized;
+        return EZ_SUCCESS;
+      case ezGALResourceFormat::BGRAUByteNormalizedsRGB:
+        format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+        return EZ_SUCCESS;
+      case ezGALResourceFormat::BGRAUByteNormalized:
+        format = ezGALResourceFormat::RGBAUByteNormalized;
         return EZ_SUCCESS;
       default:
         return EZ_FAILURE;
@@ -243,8 +247,9 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     }
   }
 
-  if (!formatFound && GetAlternativeFormat(desiredFormat, backBufferComponentMapping).Succeeded())
+  if (!formatFound && GetAlternativeFormat(m_WindowDesc.m_BackBufferFormat).Succeeded())
   {
+    desiredFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_format;
     for (vk::SurfaceFormatKHR& supportedFormat : supportedFormats)
     {
       if (supportedFormat.format == desiredFormat && supportedFormat.colorSpace == desiredColorSpace)
@@ -334,7 +339,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     TexDesc.m_bCreateRenderTarget = true;
     TexDesc.m_ResourceAccess.m_bImmutable = true;
     TexDesc.m_ResourceAccess.m_bReadBack = m_WindowDesc.m_bAllowScreenshots;
-    m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>(), desiredFormat));
+    m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
   }
   m_CurrentSize = ezSizeU32(swapChainCreateInfo.imageExtent.width, swapChainCreateInfo.imageExtent.height);
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[0];

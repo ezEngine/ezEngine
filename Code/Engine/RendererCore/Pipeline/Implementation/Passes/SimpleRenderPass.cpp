@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -120,6 +121,22 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::GUI);
+}
+
+ezResult ezSimpleRenderPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_sMessage;
+  return EZ_SUCCESS;
+}
+
+ezResult ezSimpleRenderPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  inout_stream >> m_sMessage;
+  return EZ_SUCCESS;
 }
 
 void ezSimpleRenderPass::SetMessage(const char* szMessage)

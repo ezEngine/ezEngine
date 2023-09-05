@@ -36,20 +36,12 @@ vk::ImageAspectFlags ezGALTextureVulkan::GetAspectMask() const
   return mask;
 }
 
-ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description)
+ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool bLinearCPU, bool bStaging)
   : ezGALTexture(Description)
   , m_image(nullptr)
   , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
-{
-}
-
-ezGALTextureVulkan::ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, vk::Format OverrideFormat, bool bLinearCPU)
-  : ezGALTexture(Description)
-  , m_image(nullptr)
-  , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
-  , m_imageFormat(OverrideFormat)
-  , m_formatOverride(true)
   , m_bLinearCPU(bLinearCPU)
+  , m_bStaging(bStaging)
 {
 }
 
@@ -62,30 +54,19 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   vk::ImageFormatListCreateInfo imageFormats;
   vk::ImageCreateInfo createInfo = {};
 
-  if (m_imageFormat == vk::Format::eUndefined)
-  {
-    const ezGALFormatLookupEntryVulkan& format = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format);
-    m_imageFormat = format.m_format;
 
-    createInfo.flags |= vk::ImageCreateFlagBits::eMutableFormat;
-    if (m_pDevice->GetExtensions().m_bImageFormatList && !format.m_mutableFormats.IsEmpty())
-    {
-      createInfo.pNext = &imageFormats;
+  const ezGALFormatLookupEntryVulkan& format = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format);
+  m_imageFormat = m_bStaging ? format.m_readback : format.m_format;
 
-      imageFormats.viewFormatCount = format.m_mutableFormats.GetCount();
-      imageFormats.pViewFormats = format.m_mutableFormats.GetData();
-    }
-  }
-  else
+  createInfo.flags |= vk::ImageCreateFlagBits::eMutableFormat;
+  if (m_pDevice->GetExtensions().m_bImageFormatList && !format.m_mutableFormats.IsEmpty())
   {
-    // #TODO_VULKAN if m_imageFormat is set, than means that we are replacing the texture format with another because the swapchain surface does not support the target format. This creates a bit of a conundrum: If we want to support mutable formats in this case, we would need to swap the texture view's format as well and this hack would continue ripple through the code base. Probably best to revisit the GetAlternativeFormat logic in ezGALSwapChainVulkan.
-    // For now, don't support mutable formats until we run into problems.
+    createInfo.pNext = &imageFormats;
+
+    imageFormats.viewFormatCount = format.m_mutableFormats.GetCount();
+    imageFormats.pViewFormats = format.m_mutableFormats.GetData();
   }
 
-  if ((m_imageFormat == vk::Format::eR8G8B8A8Srgb || m_imageFormat == vk::Format::eB8G8R8A8Unorm) && m_Description.m_bCreateRenderTarget)
-  {
-    // printf("");
-  }
   createInfo.format = m_imageFormat;
   if (createInfo.format == vk::Format::eUndefined)
   {
@@ -294,9 +275,8 @@ ezResult ezGALTextureVulkan::CreateStagingBuffer(const vk::ImageCreateInfo& crea
     stagingDesc.m_pExisitingNativeObject = nullptr;
 
     const bool bLinearCPU = m_stagingMode == StagingMode::Texture;
-    const vk::Format stagingFormat = m_pDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_Format).m_readback;
 
-    m_hStagingTexture = m_pDevice->CreateTextureInternal(stagingDesc, {}, stagingFormat, bLinearCPU);
+    m_hStagingTexture = m_pDevice->CreateTextureInternal(stagingDesc, {}, bLinearCPU, true);
     if (m_hStagingTexture.IsInvalidated())
     {
       ezLog::Error("Failed to create staging texture for read-back");

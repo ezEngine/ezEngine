@@ -3,6 +3,8 @@
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
+class ezStreamWriter;
+
 class EZ_RENDERERCORE_DLL ezExtractor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezExtractor, ezReflectedClass);
@@ -21,6 +23,9 @@ public:
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData);
 
   virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData);
+
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream);
 
 protected:
   /// \brief returns true if the given object should be filtered by view tags.
@@ -55,6 +60,8 @@ public:
   ~ezVisibleObjectsExtractor();
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 };
 
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractorBase : public ezExtractor
@@ -66,7 +73,6 @@ public:
   ~ezSelectedObjectsExtractorBase();
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
-
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
 
   ezRenderData::Category m_OverrideCategory;
@@ -110,6 +116,8 @@ public:
   ~ezSelectedObjectsExtractor();
 
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   /// \brief The context is typically set through an ezView, through ezView::SetExtractorProperty("<name>", "SelectionContext", pointer);
   void SetSelectionContext(ezSelectedObjectsContext* pSelectionContext) { m_pSelectionContext = pSelectionContext; } // [ property ]

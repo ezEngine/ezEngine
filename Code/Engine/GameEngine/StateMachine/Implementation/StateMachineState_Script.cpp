@@ -196,8 +196,8 @@ ezResult ezStateMachineState_Script::Serialize(ezStreamWriter& inout_stream) con
 ezResult ezStateMachineState_Script::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_sScriptClassFile;
 
   ezUInt16 uiNumParams = 0;

@@ -2,6 +2,7 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -406,6 +407,21 @@ void ezClusteredDataExtractor::PostSortAndBatch(
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VisualizeClusteredData(view, pData, m_ClusterBoundingSpheres);
 #endif
+}
+
+ezResult ezClusteredDataExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+
+ezResult ezClusteredDataExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  return EZ_SUCCESS;
 }
 
 namespace

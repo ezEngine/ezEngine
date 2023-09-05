@@ -36,7 +36,6 @@ public:
   EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
 
-  EZ_ALWAYS_INLINE bool GetFormatOverrideEnabled() const;
   EZ_ALWAYS_INLINE bool IsLinearLayout() const;
 
   vk::Extent3D GetMipLevelSize(ezUInt32 uiMipLevel) const;
@@ -53,8 +52,7 @@ protected:
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description);
-  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, vk::Format OverrideFormat, bool bLinearCPU);
+  ezGALTextureVulkan(const ezGALTextureCreationDescription& Description, bool bLinearCPU = false, bool bStaging = false);
 
   ~ezGALTextureVulkan();
 
@@ -78,8 +76,8 @@ protected:
   ezGALDeviceVulkan* m_pDevice = nullptr;
   void* m_pExisitingNativeObject = nullptr;
 
-  bool m_formatOverride = false;
   bool m_bLinearCPU = false;
+  bool m_bStaging = false;
 
   StagingMode m_stagingMode = StagingMode::None;
   ezGALTextureHandle m_hStagingTexture;

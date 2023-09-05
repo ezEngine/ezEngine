@@ -14,7 +14,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 // #define DEBUG_FILE_WATCHER
 
 #ifdef DEBUG_FILE_WATCHER
-#  define DEBUG_LOG(...) ezLog::Debug(__VA_ARGS__)
+#  define DEBUG_LOG(...) ezLog::Warning(__VA_ARGS__)
 #else
 #  define DEBUG_LOG(...)
 #endif
@@ -128,6 +128,48 @@ void ezDirectoryWatcherImpl::DoRead()
 
 void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime waitUpTo)
 {
+  MoveEvent pendingRemoveOrRename;
+  const ezBitflags<ezDirectoryWatcher::Watch> whatToWatch = m_pImpl->m_whatToWatch;
+  ezFileSystemMirrorType* mirror = m_pImpl->m_mirror.Borrow();
+  // Renaming a file to the same filename with different casing triggers the events REMOVED (old casing) -> RENAMED_OLD_NAME -> _RENAMED_NEW_NAME.
+  // Thus, we need to cache every remove event to make sure the very next event is not a rename of the exact same file.
+  auto FirePendingRemove = [&]() {
+    if (!pendingRemoveOrRename.IsEmpty())
+    {
+      if (pendingRemoveOrRename.isDirectory)
+      {
+        if (whatToWatch.IsSet(Watch::Deletes))
+        {
+          if (mirror && whatToWatch.IsSet(Watch::Subdirectories))
+          {
+            mirror->Enumerate(pendingRemoveOrRename.path, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type) { func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory); })
+              .AssertSuccess();
+          }
+          func(pendingRemoveOrRename.path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
+        }
+        if (mirror)
+        {
+          mirror->RemoveDirectory(pendingRemoveOrRename.path).AssertSuccess();
+        }
+      }
+      else
+      {
+        if (mirror)
+        {
+          mirror->RemoveFile(pendingRemoveOrRename.path).AssertSuccess();
+        }
+        if (whatToWatch.IsSet(ezDirectoryWatcher::Watch::Deletes))
+        {
+          func(pendingRemoveOrRename.path, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File);
+        }
+      }
+      pendingRemoveOrRename.Clear();
+    }
+  };
+
+  EZ_SCOPE_EXIT(FirePendingRemove());
+
+
   EZ_ASSERT_DEV(!m_sDirectoryPath.IsEmpty(), "No directory opened!");
   while (WaitForSingleObject(m_pImpl->m_overlappedEvent, static_cast<DWORD>(waitUpTo.GetMilliseconds())) == WAIT_OBJECT_0)
   {
@@ -149,10 +191,6 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
       return;
     }
 
-    const ezBitflags<ezDirectoryWatcher::Watch> whatToWatch = m_pImpl->m_whatToWatch;
-
-    ezFileSystemMirrorType* mirror = m_pImpl->m_mirror.Borrow();
-
     MoveEvent lastMoveFrom;
 
     // Progress the messages
@@ -173,7 +211,15 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         eventFilePath.AppendPath(ezStringView(dir.GetData(), dir.GetCount()));
         eventFilePath.MakeCleanPath();
 
-        if ((info->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+        const bool isFile = (info->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
+        if (!pendingRemoveOrRename.IsEmpty() && isFile == !pendingRemoveOrRename.isDirectory && info->Action == FILE_ACTION_RENAMED_OLD_NAME && pendingRemoveOrRename.path == eventFilePath)
+        {
+          // This is the bogus removed event because we changed the casing of a file / directory, ignore.
+          pendingRemoveOrRename.Clear();
+        }
+        FirePendingRemove();
+
+        if (isFile)
         {
           switch (info->Action)
           {
@@ -194,11 +240,8 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
             case FILE_ACTION_REMOVED:
               DEBUG_LOG("FILE_ACTION_REMOVED {} ({})", eventFilePath, info->LastModificationTime.QuadPart);
               action = ezDirectoryWatcherAction::Removed;
-              fireEvent = whatToWatch.IsSet(ezDirectoryWatcher::Watch::Deletes);
-              if (mirror)
-              {
-                mirror->RemoveFile(eventFilePath.GetData()).AssertSuccess();
-              }
+              fireEvent = false;
+              pendingRemoveOrRename = {eventFilePath, false};
               break;
             case FILE_ACTION_MODIFIED:
             {
@@ -305,21 +348,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
             break;
             case FILE_ACTION_REMOVED:
               DEBUG_LOG("DIR_ACTION_REMOVED {}", eventFilePath);
-              if (whatToWatch.IsSet(Watch::Deletes))
-              {
-                if (mirror && whatToWatch.IsSet(Watch::Subdirectories))
-                {
-                  mirror->Enumerate(eventFilePath, [&](const ezStringBuilder& sPath, ezFileSystemMirrorType::Type type) {
-                          func(sPath, ezDirectoryWatcherAction::Removed, (type == ezFileSystemMirrorType::Type::File) ? ezDirectoryWatcherType::File : ezDirectoryWatcherType::Directory);
-                        })
-                    .AssertSuccess();
-                }
-                func(eventFilePath, ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::Directory);
-              }
-              if (mirror)
-              {
-                mirror->RemoveDirectory(eventFilePath).AssertSuccess();
-              }
+              pendingRemoveOrRename = {eventFilePath, true};
               break;
             case FILE_ACTION_RENAMED_OLD_NAME:
               DEBUG_LOG("DIR_ACTION_OLD_NAME {}", eventFilePath);
@@ -346,7 +375,9 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
         }
       }
       if (info->NextEntryOffset == 0)
+      {
         break;
+      }
       else
         info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
     }

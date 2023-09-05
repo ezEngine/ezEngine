@@ -95,14 +95,14 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
 ezEngineProcessDocumentContext::ezEngineProcessDocumentContext(ezBitflags<ezEngineProcessDocumentContextFlags> flags)
   : m_Flags(flags)
 {
-  m_Context.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
+  GetContext().m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
 ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
 {
   EZ_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
 
-  m_Context.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
+  GetContext().m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
 void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, const ezVariant& metaData, ezEngineProcessCommunicationChannel* pIPC, ezStringView sDocumentType)
@@ -125,8 +125,8 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& documentGuid, cons
     m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
     m_pWorld->SetGameObjectReferenceResolver(ezMakeDelegate(&ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle, this));
 
-    m_Context.m_pWorld = m_pWorld;
-    m_Mirror.InitReceiver(&m_Context);
+    GetContext().m_pWorld = m_pWorld;
+    m_Mirror.InitReceiver(&GetContext());
   }
   OnInitialize();
 }
@@ -138,7 +138,7 @@ void ezEngineProcessDocumentContext::Deinitialize()
   ClearViewContexts();
   m_Mirror.Clear();
   m_Mirror.DeInit();
-  m_Context.Clear();
+  GetContext().Clear();
 
   CleanUpContextSyncObjects();
   if (m_Flags.IsSet(ezEngineProcessDocumentContextFlags::CreateWorld))
@@ -164,7 +164,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     const ezEntityMsgToEngine* pMsg2 = static_cast<const ezEntityMsgToEngine*>(pMsg);
     m_Mirror.ApplyOp(const_cast<ezObjectChange&>(pMsg2->m_change));
 
-    ezRttiConverterObject target = m_Context.GetObjectByGUID(pMsg2->m_change.m_Root);
+    ezRttiConverterObject target = GetContext().GetObjectByGUID(pMsg2->m_change.m_Root);
 
     if (target.m_pType == nullptr || target.m_pObject == nullptr)
       return;
@@ -289,10 +289,10 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
     const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
 
-    m_Context.m_uiHighlightID = m_Context.m_ComponentPickingMap.GetHandle(pMsg2->m_HighlightObject);
+    GetContext().m_uiHighlightID = GetContext().m_ComponentPickingMap.GetHandle(pMsg2->m_HighlightObject);
 
-    if (m_Context.m_uiHighlightID == 0)
-      m_Context.m_uiHighlightID = m_Context.m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
+    if (GetContext().m_uiHighlightID == 0)
+      GetContext().m_uiHighlightID = GetContext().m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
   }
 }
 
@@ -396,7 +396,7 @@ void ezEngineProcessDocumentContext::Reset()
 
 void ezEngineProcessDocumentContext::ClearExistingObjects()
 {
-  m_Context.DeleteExistingObjects();
+  GetContext().DeleteExistingObjects();
 }
 
 void ezEngineProcessDocumentContext::OnInitialize() {}
@@ -612,7 +612,7 @@ void ezEngineProcessDocumentContext::OnDestroyThumbnailViewContext() {}
 
 void ezEngineProcessDocumentContext::SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive)
 {
-  ezGameObjectHandle hObject = m_Context.m_GameObjectMap.GetHandle(object);
+  ezGameObjectHandle hObject = GetContext().m_GameObjectMap.GetHandle(object);
 
   const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
 
@@ -676,7 +676,7 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
         continue;
 
       // check whether the object that references the new object is already known (may be dead or not yet created as well)
-      ezComponentHandle hRefComp = m_Context.m_ComponentMap.GetHandle(compGuid);
+      ezComponentHandle hRefComp = GetContext().m_ComponentMap.GetHandle(compGuid);
 
       if (hRefComp.IsInvalidated())
         continue;
@@ -758,12 +758,12 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
       return ezGameObjectHandle();
 
     // convert string to GUID and check if references a known object
-    return m_Context.m_GameObjectMap.GetHandle(ezConversionUtils::ConvertStringToUuid(szTargetGuid));
+    return GetContext().m_GameObjectMap.GetHandle(ezConversionUtils::ConvertStringToUuid(szTargetGuid));
   }
 
 
 
-  ezUuid srcComponentGuid = m_Context.m_ComponentMap.GetGuid(hThis);
+  ezUuid srcComponentGuid = GetContext().m_ComponentMap.GetGuid(hThis);
   if (!srcComponentGuid.IsValid())
   {
     // if we do not know hThis, it is usually a component that was created by a prefab instance
@@ -780,7 +780,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     // search the parents for a known game object
     while (pOwner)
     {
-      srcComponentGuid = m_Context.m_GameObjectMap.GetGuid(pOwner->GetHandle());
+      srcComponentGuid = GetContext().m_GameObjectMap.GetGuid(pOwner->GetHandle());
 
       if (srcComponentGuid.IsValid())
         break;
@@ -797,7 +797,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     ezPrefabReferenceComponent* pPrefabComponent;
     if (pOwner->TryGetComponentOfBaseType(pPrefabComponent))
     {
-      srcComponentGuid = m_Context.m_ComponentMap.GetGuid(pPrefabComponent->GetHandle());
+      srcComponentGuid = GetContext().m_ComponentMap.GetGuid(pPrefabComponent->GetHandle());
       EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "");
 
       // tag this reference as being special
@@ -828,7 +828,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
 
   if (sComponentProperty.IsEmpty())
   {
-    return m_Context.m_GameObjectMap.GetHandle(newTargetGuid);
+    return GetContext().m_GameObjectMap.GetHandle(newTargetGuid);
   }
 
   // overview for the steps below:
@@ -922,7 +922,7 @@ ref_to_is_updated:
   if (!newTargetGuid.IsValid())
     return ezGameObjectHandle();
 
-  return m_Context.m_GameObjectMap.GetHandle(newTargetGuid);
+  return GetContext().m_GameObjectMap.GetHandle(newTargetGuid);
 }
 
 void ezEngineProcessDocumentContext::UpdateSyncObjects()
@@ -938,10 +938,10 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 
       EZ_LOCK(m_pWorld->GetWriteMarker());
 
-      if (pSyncObject->SetupForEngine(m_pWorld, m_Context.m_uiNextComponentPickingID))
+      if (pSyncObject->SetupForEngine(m_pWorld, GetContext().m_uiNextComponentPickingID))
       {
-        m_Context.m_OtherPickingMap.RegisterObject(pSyncObject->GetGuid(), m_Context.m_uiNextComponentPickingID);
-        ++m_Context.m_uiNextComponentPickingID;
+        GetContext().m_OtherPickingMap.RegisterObject(pSyncObject->GetGuid(), GetContext().m_uiNextComponentPickingID);
+        ++GetContext().m_uiNextComponentPickingID;
       }
 
       pSyncObject->UpdateForEngine(m_pWorld);

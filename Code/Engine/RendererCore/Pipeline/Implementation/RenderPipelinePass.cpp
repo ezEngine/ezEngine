@@ -1,10 +1,12 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/Renderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
 // clang-format off
@@ -52,6 +54,23 @@ void ezRenderPipelinePass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipel
 void ezRenderPipelinePass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {}
 
 void ezRenderPipelinePass::ReadBackProperties(ezView* pView) {}
+
+ezResult ezRenderPipelinePass::Serialize(ezStreamWriter& inout_stream) const
+{
+  inout_stream << m_bActive;
+  inout_stream << m_sName;
+  return EZ_SUCCESS;
+}
+
+ezResult ezRenderPipelinePass::Deserialize(ezStreamReader& inout_stream)
+{
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_ASSERT_DEBUG(uiVersion == 1, "Unknown version encountered");
+
+  inout_stream >> m_bActive;
+  inout_stream >> m_sName;
+  return EZ_SUCCESS;
+}
 
 void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)
 {

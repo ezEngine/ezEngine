@@ -430,7 +430,31 @@ void ezEditorAssetDocumentTest::FileOperations()
     EZ_TEST_STRING(pDoc->GetDocumentPath(), sAbsAssetRenamedPath);
   }
 
-  // OVERWRITTEN TEST
+  ezStringBuilder sAbsAssetRenamedPath2 = sAbsAssetPath;
+  sAbsAssetRenamedPath2.ChangeFileName("MeshRenameD");
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Rename Asset Casing Only")
+  {
+    ezOSFile::MoveFileOrDirectory(sAbsAssetRenamedPath, sAbsAssetRenamedPath2).AssertSuccess("Failed to rename file");
+
+    WaitForFileEvents(4, 2);
+    ezFileStatus stat;
+    stat.m_DocumentID = documentGuid;
+    ezFileChangedEvent expected[] = {
+      ezFileChangedEvent(sAbsAssetRenamedPath2, {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(sAbsAssetRenamedPath, stat, ezFileChangedEvent::Type::DocumentUnlinked),
+      ezFileChangedEvent(sAbsAssetRenamedPath, {}, ezFileChangedEvent::Type::FileRemoved),
+      ezFileChangedEvent(sAbsAssetRenamedPath2, stat, ezFileChangedEvent::Type::DocumentLinked)};
+    AssetEvent expected2[] = {
+      AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetMoved),    // Moved
+      AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetUpdated)}; // Asset transform state updated
+    CompareFiles(ezMakeArrayPtr(expected), ezMakeArrayPtr(expected2));
+    EZ_TEST_BOOL(!ezAssetCurator::GetSingleton()->FindSubAsset(sAbsAssetPath));
+    CheckSubAsset(ezAssetCurator::GetSingleton()->GetSubAsset(documentGuid), documentGuid, sAbsAssetRenamedPath2);
+
+    EZ_TEST_STRING(pDoc->GetDocumentPath(), sAbsAssetRenamedPath2);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overwrite asset with a different asset")
   {
     const ezDocumentTypeDescriptor* pTypeDesc = pDoc->GetAssetDocumentTypeDescriptor();
 
@@ -439,11 +463,11 @@ void ezEditorAssetDocumentTest::FileOperations()
 
     ezStringBuilder sTemp;
     ezStringBuilder sTempTarget = ezOSFile::GetTempDataFolder();
-    sTempTarget.AppendPath(ezPathUtils::GetFileNameAndExtension(sAbsAssetRenamedPath));
+    sTempTarget.AppendPath(ezPathUtils::GetFileNameAndExtension(sAbsAssetRenamedPath2));
     sTempTarget.ChangeFileName(ezConversionUtils::ToString(overwriteGuid, sTemp));
 
-    EZ_TEST_RESULT(pTypeDesc->m_pManager->CloneDocument(sAbsAssetRenamedPath, sTempTarget, overwriteGuid).m_Result);
-    EZ_TEST_RESULT(ezOSFile::CopyFile(sTempTarget, sAbsAssetRenamedPath));
+    EZ_TEST_RESULT(pTypeDesc->m_pManager->CloneDocument(sAbsAssetRenamedPath2, sTempTarget, overwriteGuid).m_Result);
+    EZ_TEST_RESULT(ezOSFile::CopyFile(sTempTarget, sAbsAssetRenamedPath2));
     ezOSFile::DeleteFile(sTempTarget).IgnoreResult();
 
     WaitForFileEvents(3, 2);
@@ -453,15 +477,15 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezFileStatus newStat;
     stat.m_DocumentID = overwriteGuid;
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sAbsAssetRenamedPath, stat, ezFileChangedEvent::Type::FileChanged),
-      ezFileChangedEvent(sAbsAssetRenamedPath, stat, ezFileChangedEvent::Type::DocumentUnlinked),
-      ezFileChangedEvent(sAbsAssetRenamedPath, newStat, ezFileChangedEvent::Type::DocumentLinked)};
+      ezFileChangedEvent(sAbsAssetRenamedPath2, stat, ezFileChangedEvent::Type::FileChanged),
+      ezFileChangedEvent(sAbsAssetRenamedPath2, stat, ezFileChangedEvent::Type::DocumentUnlinked),
+      ezFileChangedEvent(sAbsAssetRenamedPath2, newStat, ezFileChangedEvent::Type::DocumentLinked)};
     AssetEvent expected2[] = {
-      AssetEvent(sAbsAssetRenamedPath, documentGuid, ezAssetCuratorEvent::Type::AssetRemoved),
-      AssetEvent(sAbsAssetRenamedPath, overwriteGuid, ezAssetCuratorEvent::Type::AssetAdded)};
+      AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetRemoved),
+      AssetEvent(sAbsAssetRenamedPath2, overwriteGuid, ezAssetCuratorEvent::Type::AssetAdded)};
     CompareFiles(ezMakeArrayPtr(expected), ezMakeArrayPtr(expected2));
-    EZ_TEST_BOOL(ezAssetCurator::GetSingleton()->FindSubAsset(sAbsAssetRenamedPath));
+    EZ_TEST_BOOL(ezAssetCurator::GetSingleton()->FindSubAsset(sAbsAssetRenamedPath2));
     EZ_TEST_BOOL(!ezAssetCurator::GetSingleton()->GetSubAsset(documentGuid));
-    CheckSubAsset(ezAssetCurator::GetSingleton()->GetSubAsset(overwriteGuid), overwriteGuid, sAbsAssetRenamedPath);
+    CheckSubAsset(ezAssetCurator::GetSingleton()->GetSubAsset(overwriteGuid), overwriteGuid, sAbsAssetRenamedPath2);
   }
 }

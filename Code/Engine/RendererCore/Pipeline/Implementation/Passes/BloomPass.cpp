@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/BloomPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -259,6 +260,32 @@ void ezBloomPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, 
   renderingSetup.m_ClearColor = ezColor::Black;
 
   auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, "Clear");
+}
+
+ezResult ezBloomPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_fRadius;
+  inout_stream << m_fThreshold;
+  inout_stream << m_fIntensity;
+  inout_stream << m_InnerTintColor;
+  inout_stream << m_MidTintColor;
+  inout_stream << m_OuterTintColor;
+  return EZ_SUCCESS;
+}
+
+ezResult ezBloomPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  inout_stream >> m_fRadius;
+  inout_stream >> m_fThreshold;
+  inout_stream >> m_fIntensity;
+  inout_stream >> m_InnerTintColor;
+  inout_stream >> m_MidTintColor;
+  inout_stream >> m_OuterTintColor;
+  return EZ_SUCCESS;
 }
 
 void ezBloomPass::UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColor)

@@ -707,57 +707,25 @@ ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, 
   FILESYSTEM_PROFILE("HandleSingleFile");
 
   ezFileStats Stats;
-  if (ezOSFile::GetFileStats(sAbsolutePath, Stats).Failed())
+  const ezResult statCheck = ezOSFile::GetFileStats(sAbsolutePath, Stats);
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (statCheck.Succeeded() && Stats.m_sName != ezPathUtils::GetFileNameAndExtension(sAbsolutePath))
   {
-    ezFileStatus fileStatus;
-    bool bFileExisted = false;
-    bool bFolderExisted = false;
-    {
-      EZ_LOCK(m_FilesMutex);
-      if (auto it = m_ReferencedFiles.Find(sAbsolutePath); it.IsValid())
-      {
-        bFileExisted = true;
-        fileStatus = it.Value();
-        m_ReferencedFiles.Remove(it);
-      }
-      if (auto it = m_ReferencedFolders.Find(sAbsolutePath); it.IsValid())
-      {
-        bFolderExisted = true;
-        m_ReferencedFolders.Remove(it);
-      }
-    }
+    // Casing has changed.
+    ezStringBuilder sCorrectCasingPath = sAbsolutePath;
+    sCorrectCasingPath.ChangeFileNameAndExtension(Stats.m_sName);
+    // Add new casing
+    ezFileStatus res = HandleSingleFile(sCorrectCasingPath, Stats, bRecurseIntoFolders);
+    // Remove old casing
+    RemoveFileOrFolder(sAbsolutePath, bRecurseIntoFolders);
+    return res;
+  }
+#  endif
 
-    if (bFileExisted)
-    {
-      FireFileChangedEvent(sAbsolutePath, fileStatus, ezFileChangedEvent::Type::FileRemoved);
-    }
-
-    if (bFolderExisted)
-    {
-      if (bRecurseIntoFolders)
-      {
-        ezSet<ezString> previouslyKnownFiles;
-        {
-          FILESYSTEM_PROFILE("FindReferencedFiles");
-          EZ_LOCK(m_FilesMutex);
-          auto itlowerBound = m_ReferencedFiles.LowerBound(sAbsolutePath);
-          while (itlowerBound.IsValid() && itlowerBound.Key().StartsWith(sAbsolutePath))
-          {
-            previouslyKnownFiles.Insert(itlowerBound.Key());
-            ++itlowerBound;
-          }
-        }
-        {
-          FILESYSTEM_PROFILE("HandleRemovedFiles");
-          for (const ezString& sFile : previouslyKnownFiles)
-          {
-            HandleSingleFile(sFile, false);
-          }
-        }
-      }
-      FireFolderChangedEvent(sAbsolutePath, ezFolderChangedEvent::Type::FolderRemoved);
-    }
-
+  if (statCheck.Failed())
+  {
+    RemoveFileOrFolder(sAbsolutePath, bRecurseIntoFolders);
     return {};
   }
 
@@ -823,6 +791,58 @@ ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, 
       FireFileChangedEvent(sAbsolutePath, status, ezFileChangedEvent::Type::FileChanged);
     }
     return status;
+  }
+}
+
+void ezFileSystemModel::RemoveFileOrFolder(const ezString& sAbsolutePath, bool bRecurseIntoFolders)
+{
+  ezFileStatus fileStatus;
+  bool bFileExisted = false;
+  bool bFolderExisted = false;
+  {
+    EZ_LOCK(m_FilesMutex);
+    if (auto it = m_ReferencedFiles.Find(sAbsolutePath); it.IsValid())
+    {
+      bFileExisted = true;
+      fileStatus = it.Value();
+      m_ReferencedFiles.Remove(it);
+    }
+    if (auto it = m_ReferencedFolders.Find(sAbsolutePath); it.IsValid())
+    {
+      bFolderExisted = true;
+      m_ReferencedFolders.Remove(it);
+    }
+  }
+
+  if (bFileExisted)
+  {
+    FireFileChangedEvent(sAbsolutePath, fileStatus, ezFileChangedEvent::Type::FileRemoved);
+  }
+
+  if (bFolderExisted)
+  {
+    if (bRecurseIntoFolders)
+    {
+      ezSet<ezString> previouslyKnownFiles;
+      {
+        FILESYSTEM_PROFILE("FindReferencedFiles");
+        EZ_LOCK(m_FilesMutex);
+        auto itlowerBound = m_ReferencedFiles.LowerBound(sAbsolutePath);
+        while (itlowerBound.IsValid() && itlowerBound.Key().StartsWith(sAbsolutePath))
+        {
+          previouslyKnownFiles.Insert(itlowerBound.Key());
+          ++itlowerBound;
+        }
+      }
+      {
+        FILESYSTEM_PROFILE("HandleRemovedFiles");
+        for (const ezString& sFile : previouslyKnownFiles)
+        {
+          RemoveFileOrFolder(sFile, false);
+        }
+      }
+    }
+    FireFolderChangedEvent(sAbsolutePath, ezFolderChangedEvent::Type::FolderRemoved);
   }
 }
 

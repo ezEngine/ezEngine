@@ -73,6 +73,8 @@ public:
 
   ezIPCObjectMirrorEngine m_Mirror;
   ezWorldRttiConverterContext m_Context; // TODO: Move actual context into the EngineProcessDocumentContext
+  virtual ezWorldRttiConverterContext& GetContext() { return m_Context; }
+  virtual const ezWorldRttiConverterContext& GetContext() const { return m_Context; }
 
   ezWorld* GetWorld() const { return m_pWorld; }
 

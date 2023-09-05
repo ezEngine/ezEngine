@@ -76,3 +76,13 @@ ezGALMSAASampleCount::EightSamples;8 Samples
 ezLSAODepthCompareFunction::NormalAndSampleDistance;Normal And Sample-Distance
 
 ezImguiExtractor;ImGUI Extractor
+
+ezSourceFormat::Color4Channel8BitNormalized_sRGB;Color 4-Channel 8-Bit Normalized sRGB
+ezSourceFormat::Color4Channel8BitNormalized;Color 4-Channel 8-Bit Normalized
+ezSourceFormat::Color4Channel16BitFloat;Color 4-Channel 16-Bit Float
+ezSourceFormat::Color4Channel32BitFloat;Color 4-Channel 32-Bit Float
+ezSourceFormat::Color3Channel11_11_10BitFloat;Color 3-Channel 11-11-10-Bit Float
+ezSourceFormat::Color3Channel32BitFloat;Color 3-Channel 32-Bit Float
+ezSourceFormat::Depth16Bit;Depth 16-Bit
+ezSourceFormat::Depth24BitStencil8Bit;Depth 24-Bit Stencil 8-Bit
+ezSourceFormat::Depth32BitFloat;Depth 32-Bit Float

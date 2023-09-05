@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Pipeline/Passes/AOPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -298,6 +299,38 @@ void ezAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, con
   renderingSetup.m_ClearColor = ezColor::White;
 
   auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+}
+
+ezResult ezAOPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_fRadius;
+  inout_stream << m_fMaxScreenSpaceRadius;
+  inout_stream << m_fContrast;
+  inout_stream << m_fIntensity;
+  inout_stream << m_fFadeOutStart;
+  inout_stream << m_fFadeOutEnd;
+  inout_stream << m_fPositionBias;
+  inout_stream << m_fMipLevelScale;
+  inout_stream << m_fDepthBlurThreshold;
+  return EZ_SUCCESS;
+}
+
+ezResult ezAOPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  inout_stream >> m_fRadius;
+  inout_stream >> m_fMaxScreenSpaceRadius;
+  inout_stream >> m_fContrast;
+  inout_stream >> m_fIntensity;
+  inout_stream >> m_fFadeOutStart;
+  inout_stream >> m_fFadeOutEnd;
+  inout_stream >> m_fPositionBias;
+  inout_stream >> m_fMipLevelScale;
+  inout_stream >> m_fDepthBlurThreshold;
+  return EZ_SUCCESS;
 }
 
 void ezAOPass::SetFadeOutStart(float fStart)

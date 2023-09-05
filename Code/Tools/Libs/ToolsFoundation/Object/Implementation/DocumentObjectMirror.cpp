@@ -472,7 +472,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       change.GetGraph(graph);
       ezRttiConverterReader reader(&graph, m_pContext);
       const ezAbstractObjectNode* pNode = graph.GetNodeByName("Object");
-      const ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
+      const ezRTTI* pType = m_pContext->FindTypeByName(pNode->GetType());
       void* pValue = reader.CreateObjectFromNode(pNode);
       if (!pValue)
       {

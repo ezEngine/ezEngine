@@ -65,12 +65,6 @@ ezResult ezGALResourceViewVulkan::InitPlatform(ezGALDevice* pDevice)
     m_resourceImageInfo.imageLayout = bIsDepth ? vk::ImageLayout::eDepthStencilReadOnlyOptimal : vk::ImageLayout::eShaderReadOnlyOptimal;
     m_resourceImageInfoArray.imageLayout = m_resourceImageInfo.imageLayout;
 
-    if (pParentTexture->GetFormatOverrideEnabled())
-    {
-      EZ_ASSERT_DEV(m_Description.m_OverrideViewFormat == ezGALResourceFormat::Invalid, "Resource views on this texture can not use a override view format (not implemented)");
-      viewCreateInfo.format = pParentTexture->GetImageFormat();
-    }
-
     m_range = viewCreateInfo.subresourceRange;
     if (texDesc.m_Type == ezGALTextureType::Texture3D) // no array support
     {

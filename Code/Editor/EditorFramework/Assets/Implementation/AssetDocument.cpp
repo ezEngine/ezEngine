@@ -33,7 +33,7 @@ ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectMan
 
 ezAssetDocument::~ezAssetDocument()
 {
-  m_Mirror.DeInit();
+  m_pMirror->DeInit();
 
   if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
   {
@@ -149,6 +149,11 @@ void ezAssetDocument::InternalAfterSaveDocument()
   }
 }
 
+void ezAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+{
+  m_pMirror = EZ_DEFAULT_NEW(ezIPCObjectMirrorEditor);
+}
+
 void ezAssetDocument::InitializeAfterLoadingAndSaving()
 {
   if (m_EngineConnectionType != ezAssetDocEngineConnection::None)
@@ -158,8 +163,8 @@ void ezAssetDocument::InitializeAfterLoadingAndSaving()
 
     if (m_EngineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring)
     {
-      m_Mirror.SetIPC(m_pEngineConnection);
-      m_Mirror.InitSender(GetObjectManager());
+      m_pMirror->SetIPC(m_pEngineConnection);
+      m_pMirror->InitSender(GetObjectManager());
     }
   }
 }
@@ -831,7 +836,7 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
       msgClear.m_DocumentGuid = GetGuid();
       SendMessageToEngine(&msgClear);
 
-      m_Mirror.SendDocument();
+      m_pMirror->SendDocument();
     }
     m_EngineStatus = EngineStatus::Loaded;
     // make sure all sync objects are 'modified' so that they will get resent as well

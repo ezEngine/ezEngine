@@ -35,11 +35,6 @@ const ezVulkanAllocationInfo& ezGALTextureVulkan::GetAllocationInfo() const
   return m_allocInfo;
 }
 
-bool ezGALTextureVulkan::GetFormatOverrideEnabled() const
-{
-  return m_formatOverride;
-}
-
 bool ezGALTextureVulkan::IsLinearLayout() const
 {
   return m_bLinearCPU;

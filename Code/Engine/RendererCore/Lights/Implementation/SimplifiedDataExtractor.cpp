@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
 #include <RendererCore/Lights/SimplifiedDataExtractor.h>
 #include <RendererCore/Pipeline/View.h>
@@ -34,6 +35,20 @@ void ezSimplifiedDataExtractor::PostSortAndBatch(
   pData->m_cameraUsageHint = view.GetCameraUsageHint();
 
   ref_extractedRenderData.AddFrameData(pData);
+}
+
+ezResult ezSimplifiedDataExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+ezResult ezSimplifiedDataExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SimplifiedDataExtractor);

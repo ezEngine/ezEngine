@@ -356,8 +356,7 @@ ezMat4 ezGraphicsTest::CreateSimpleMVP(float fAspectRatio)
   cam.GetProjectionMatrix(fAspectRatio, mProj);
   ezMat4 mView = cam.GetViewMatrix();
 
-  ezMat4 mTransform;
-  mTransform.SetTranslationMatrix(ezVec3(0.0f, 0.0f, -1.2f));
+  ezMat4 mTransform = ezMat4::MakeTranslation(ezVec3(0.0f, 0.0f, -1.2f));
   return mProj * mView * mTransform;
 }
 

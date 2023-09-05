@@ -1,6 +1,7 @@
 #include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <EnginePluginScene/RenderPipeline/EditorSelectedObjectsExtractor.h>
+#include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
@@ -82,6 +83,20 @@ void ezEditorSelectedObjectsExtractor::Extract(
   }
 
   ezSelectedObjectsExtractorBase::Extract(view, visibleObjects, ref_extractedRenderData);
+}
+
+ezResult ezEditorSelectedObjectsExtractor::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  return EZ_SUCCESS;
+}
+
+ezResult ezEditorSelectedObjectsExtractor::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
+  return EZ_SUCCESS;
 }
 
 void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& view)

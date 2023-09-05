@@ -47,6 +47,24 @@ public:
   virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const;
   virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, const void* pObject) const;
 
+  virtual const ezRTTI* FindTypeByName(ezStringView sName) const;
+
+  template <typename T>
+  void GetObjectsByType(ezDynamicArray<T*>& out_objects, ezDynamicArray<ezUuid>* out_pUuids = nullptr)
+  {
+    for (auto it : m_GuidToObject)
+    {
+      if (it.Value().m_pType->IsDerivedFrom(ezGetStaticRTTI<T>()))
+      {
+        out_objects.PushBack(static_cast<T*>(it.Value().m_pObject));
+        if (out_pUuids)
+        {
+          out_pUuids->PushBack(it.Key());
+        }
+      }
+    }
+  }
+
   virtual ezUuid EnqueObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
   virtual ezRttiConverterObject DequeueObject();
 

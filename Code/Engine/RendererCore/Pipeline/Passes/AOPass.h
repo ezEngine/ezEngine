@@ -17,6 +17,8 @@ public:
 
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
   void SetFadeOutStart(float fStart);
   float GetFadeOutStart() const;

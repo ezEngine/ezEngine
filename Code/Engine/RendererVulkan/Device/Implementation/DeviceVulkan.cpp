@@ -733,9 +733,9 @@ ezProxyAllocator& ezGALDeviceVulkan::GetAllocator()
   return m_Allocator;
 }
 
-ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, vk::Format OverrideFormat, bool bStaging)
+ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, bool bLinearCPU, bool bStaging)
 {
-  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, OverrideFormat, bStaging);
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, bLinearCPU, bStaging);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {

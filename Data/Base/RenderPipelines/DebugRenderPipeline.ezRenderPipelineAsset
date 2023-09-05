@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{13609082908593033659}
+		u4 %Hash{16978541282207761730}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -243,16 +243,16 @@ o
 {
 	Uuid %id{u4{9243292612955302813,4959285495207360110}}
 	s %t{"ezSourcePass"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %Clear{1}
 		Color %ClearColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		s %Format{"ezGALResourceFormat::D24S8"}
+		s %Format{"ezSourceFormat::Depth24BitStencil8Bit"}
 		s %MSAA_Mode{"ezGALMSAASampleCount::FourSamples"}
 		s %Name{"DepthStencil"}
-		Vec2 %Node::Pos{f{0x6A81ECC4,0x0731DFC3}}
+		Vec2 %Node::Pos{f{0x6A81ECC4,0x3320D8C3}}
 		Uuid %Output{u4{12435465676689222153,5086440773997006539}}
 	}
 }
@@ -287,13 +287,13 @@ o
 {
 	Uuid %id{u4{12997711664840392612,5104512574058420876}}
 	s %t{"ezSourcePass"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %Clear{1}
 		Color %ClearColor{f{0xC7B6543C,0xC7B6543C,0xC7B6543C,0x0000803F}}
-		s %Format{"ezGALResourceFormat::RGBAUByteNormalizedsRGB"}
+		s %Format{"ezSourceFormat::Color4Channel8BitNormalized_sRGB"}
 		s %MSAA_Mode{"ezGALMSAASampleCount::FourSamples"}
 		s %Name{"ColorSource"}
 		Vec2 %Node::Pos{f{0xA89E9EC4,0x320B1BC4}}
@@ -840,6 +840,7 @@ o
 	u3 %v{1}
 	p
 	{
+		Invalid %Max{}
 		f %Min{0}
 	}
 }
@@ -945,26 +946,10 @@ o
 			Uuid{u4{13464367766382260898,5589621617876684292}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"MaxScreenSize"}
 		s %Type{"float"}
-	}
-}
-o
-{
-	Uuid %id{u4{16494060757066149471,3508695807418134535}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezGALResourceFormat"}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1101,6 +1086,23 @@ o
 }
 o
 {
+	Uuid %id{u4{1171764224113832221,8086341435307155030}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSourceFormat"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{15216058421323166906,8231784628729714341}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1123,6 +1125,7 @@ o
 	u3 %v{1}
 	p
 	{
+		Invalid %Max{}
 		f %Min{0}
 	}
 }
@@ -1184,6 +1187,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
@@ -1198,6 +1202,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
@@ -1278,7 +1283,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSourcePass"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1468,6 +1473,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
@@ -1487,6 +1493,7 @@ o
 			Uuid{u4{1148550348897643934,17331620673674670316}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Size"}
 		s %Type{"float"}

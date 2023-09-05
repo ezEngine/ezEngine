@@ -49,7 +49,8 @@ ezResult ezStateMachineState::Serialize(ezStreamWriter& inout_stream) const
 
 ezResult ezStateMachineState::Deserialize(ezStreamReader& inout_stream)
 {
-  // const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+  EZ_IGNORE_UNUSED(uiVersion);
 
   inout_stream >> m_sName;
   return EZ_SUCCESS;
