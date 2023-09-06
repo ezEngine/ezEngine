@@ -62,7 +62,7 @@ ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
 
-  ezUInt32 uiTemp = *reinterpret_cast<const ezUInt16*>(pDWordValue);
+  ezUInt32 uiTemp = *reinterpret_cast<const ezUInt32*>(pDWordValue);
   uiTemp = ezEndianHelper::Switch(uiTemp);
 
   return WriteBytes(reinterpret_cast<ezUInt8*>(&uiTemp), sizeof(T));

@@ -8,9 +8,7 @@
 ezQtConnection::ezQtConnection(QGraphicsItem* pParent)
   : QGraphicsPathItem(pParent)
 {
-  auto palette = QApplication::palette();
-
-  QPen pen(palette.highlightedText().color(), 3, Qt::SolidLine);
+  QPen pen(ezToQtColor(ezColor::White), 3, Qt::SolidLine);
   setPen(pen);
   setBrush(Qt::NoBrush);
 

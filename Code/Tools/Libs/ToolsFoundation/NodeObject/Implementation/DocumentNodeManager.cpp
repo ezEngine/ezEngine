@@ -647,11 +647,20 @@ void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, 
     auto& a = value.Get<ezVariantArray>();
     const ezUInt32 uiCount = a.GetCount();
 
-    if (pArrayProp->GetSpecificType() == ezGetStaticRTTI<ezString>())
+    auto variantType = pArrayProp->GetSpecificType()->GetVariantType();
+    if (variantType >= ezVariantType::Int8 && variantType <= ezVariantType::UInt64)
     {
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        out_Names.PushBack(a[i].Get<ezString>());
+        sTemp.Format("{}", a[i]);
+        out_Names.PushBack(sTemp);
+      }
+    }
+    else if (variantType == ezVariantType::String || variantType == ezVariantType::HashedString)
+    {
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        out_Names.PushBack(a[i].ConvertTo<ezString>());
       }
     }
     else
