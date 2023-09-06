@@ -111,8 +111,8 @@ protected:
 
   struct Impulse
   {
-    ezVec3 m_vPos = ezVec3::ZeroVector();
-    ezVec3 m_vImpulse = ezVec3::ZeroVector();
+    ezVec3 m_vPos = ezVec3::MakeZero();
+    ezVec3 m_vImpulse = ezVec3::MakeZero();
     physx::PxRigidBody* m_pRigidBody = nullptr;
   };
 

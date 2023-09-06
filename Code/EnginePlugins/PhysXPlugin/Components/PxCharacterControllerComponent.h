@@ -59,7 +59,7 @@ public:
   float m_fCrouchSpeed = 2.0f;                    ///< [ property ] How many meters the character walks per second while crouching
   float m_fAirSpeed = 2.5f;                       ///< [ property ] How fast the character can change direction while not standing on solid round
   float m_fAirFriction = 0.5f;                    ///< [ property ] How much damping is applied to the velocity when the character is jumping
-  ezAngle m_RotateSpeed = ezAngle::Degree(90.0f); ///< [ property ] How many degrees per second the character turns
+  ezAngle m_RotateSpeed = ezAngle::MakeFromDegree(90.0f); ///< [ property ] How many degrees per second the character turns
   float m_fJumpImpulse = 6.0f;                    ///< [ property ] How high the character will be able to jump
   float m_fPushingForce = 500.0f;                 ///< [ property ] Force to push other rigid bodies
   ezHashedString m_sWalkSurfaceInteraction;       ///< [ property ] The surface interaction to spawn regularly when walking
@@ -87,8 +87,8 @@ protected:
 
   ezUInt8 m_uiInputStateBits = 0;
   ezComponentHandle m_hCharacterShape;
-  ezVec3 m_vRelativeMoveDirection = ezVec3::ZeroVector();
-  ezVec3 m_vAbsoluteRootMotion = ezVec3::ZeroVector();
+  ezVec3 m_vRelativeMoveDirection = ezVec3::MakeZero();
+  ezVec3 m_vAbsoluteRootMotion = ezVec3::MakeZero();
   ezAngle m_RotateZ;
   bool m_bIsTouchingGround = true;
   bool m_bWantsCrouch = false;
@@ -96,7 +96,7 @@ protected:
   bool m_bWantsTeleport = false;
   float m_fStandingHeight = 1.0f;
   float m_fVelocityUp = 0.0f;
-  ezVec3 m_vVelocityLateral = ezVec3::ZeroVector();
+  ezVec3 m_vVelocityLateral = ezVec3::MakeZero();
   float m_fAccumulatedWalkDistance = 0.0f;
   ezVec3 m_vTeleportTo;
 

@@ -12,7 +12,7 @@ ezCollisionMeshViewContext::ezCollisionMeshViewContext(ezCollisionMeshContext* p
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.05f, 10000.0f);
-  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::MakeZero(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
 ezCollisionMeshViewContext::~ezCollisionMeshViewContext() = default;

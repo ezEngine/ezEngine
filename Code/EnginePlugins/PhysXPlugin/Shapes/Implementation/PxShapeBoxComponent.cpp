@@ -65,7 +65,7 @@ void ezPxShapeBoxComponent::ExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 
 void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
 {
-  m_vExtents = value.CompMax(ezVec3::ZeroVector());
+  m_vExtents = value.CompMax(ezVec3::MakeZero());
 
   if (IsActiveAndInitialized())
   {

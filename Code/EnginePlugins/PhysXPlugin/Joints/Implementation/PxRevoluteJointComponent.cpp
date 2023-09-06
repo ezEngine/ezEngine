@@ -15,8 +15,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 5, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("LimitMode", ezPxJointLimitMode, GetLimitMode, SetLimitMode),
-    EZ_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitAngle, SetLowerLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(-360), ezAngle::Degree(+360))),
-    EZ_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitAngle, SetUpperLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(-360), ezAngle::Degree(+360))),
+    EZ_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitAngle, SetLowerLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(-360), ezAngle::MakeFromDegree(+360))),
+    EZ_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitAngle, SetUpperLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(-360), ezAngle::MakeFromDegree(+360))),
     EZ_ACCESSOR_PROPERTY("SpringStiffness", GetSpringStiffness, SetSpringStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SpringDamping", GetSpringDamping, SetSpringDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_ACCESSOR_PROPERTY("DriveMode", ezPxJointDriveMode, GetDriveMode, SetDriveMode),
@@ -180,7 +180,7 @@ void ezPxRevoluteJointComponent::ApplySettings()
 
     // PhysX disables any rotation if the two angles are identical, even if it is a soft ('springy') joint
     if (low == high)
-      high = low + ezAngle::Degree(1.0f).GetRadian();
+      high = low + ezAngle::MakeFromDegree(1.0f).GetRadian();
 
     const float range = ezMath::Min(high - low, 1.99f * ezMath::Pi<float>());
     high = low + range;

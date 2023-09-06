@@ -76,7 +76,8 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(ref_task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      pTask->ConfigureTask(ref_task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask)
+        { FinishTask(pTask); });
       static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &ref_task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
@@ -246,7 +247,7 @@ void ezPhysXWorldModule::Initialize()
 {
   ezPhysX::GetSingleton()->LoadCollisionFilters();
 
-  m_AccumulatedTimeSinceUpdate.SetZero();
+  m_AccumulatedTimeSinceUpdate = ezTime::MakeZero();
 
   m_pSimulationEventCallback = EZ_DEFAULT_NEW(ezPxSimulationEventCallback);
   m_pSimulationEventCallback->m_pWorld = GetWorld();
@@ -497,7 +498,7 @@ bool ezPhysXWorldModule::SweepTestSphere(ezPhysicsCastResult& out_result, float 
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
 
-  PxTransform transform = ezPxConversionUtils::ToTransform(vStart, ezQuat::IdentityQuaternion());
+  PxTransform transform = ezPxConversionUtils::ToTransform(vStart, ezQuat::MakeIdentity());
 
   return SweepTest(out_result, sphere, transform, vDir, fDistance, params, collection);
 }
@@ -517,8 +518,7 @@ bool ezPhysXWorldModule::SweepTestCapsule(ezPhysicsCastResult& out_result, float
   capsule.halfHeight = fCapsuleHeight * 0.5f;
   EZ_ASSERT_DEBUG(capsule.isValid(), "Invalid capsule parameter. Radius = {0}, Height = {1}", ezArgF(fCapsuleRadius, 2), ezArgF(fCapsuleHeight, 2));
 
-  ezQuat qFixRot;
-  qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
+  ezQuat qFixRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90.0f));
 
   ezQuat qRot;
   qRot = transform.m_qRotation;
@@ -570,7 +570,7 @@ bool ezPhysXWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vP
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
 
-  PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::IdentityQuaternion());
+  PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::MakeIdentity());
 
   return OverlapTest(sphere, transform, params);
 }
@@ -582,8 +582,7 @@ bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsule
   capsule.halfHeight = fCapsuleHeight * 0.5f;
   EZ_ASSERT_DEBUG(capsule.isValid(), "Invalid capsule parameter. Radius = {0}, Height = {1}", ezArgF(fCapsuleRadius, 2), ezArgF(fCapsuleHeight, 2));
 
-  ezQuat qFixRot;
-  qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
+  ezQuat qFixRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(90.0f));
 
   ezQuat qRot;
   qRot = transform.m_qRotation;
@@ -646,7 +645,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_re
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
 
-  PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::IdentityQuaternion());
+  PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::MakeIdentity());
 
   ezArrayPtr<PxOverlapHit> overlapHits = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), PxOverlapHit, 256);
   PxOverlapBuffer overlapHitsBuffer(overlapHits.GetPtr(), overlapHits.GetCount());
@@ -717,7 +716,7 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
       }
 
       m_Settings = pSettings->GetSettings();
-      m_AccumulatedTimeSinceUpdate.SetZero();
+      m_AccumulatedTimeSinceUpdate = ezTime::MakeZero();
 
       m_ScratchMemory.SetCountUninitialized(ezMemoryUtils::AlignSize(m_Settings.m_uiScratchMemorySize, 16u * 1024u));
 
@@ -838,7 +837,7 @@ void ezPhysXWorldModule::HandleBrokenConstraints()
         ezMsgPhysicsJointBroke msg;
         msg.m_hJointObject = pJoint->GetOwner()->GetHandle();
 
-        pJoint->GetOwner()->PostEventMessage(msg, pJoint, ezTime::Zero());
+        pJoint->GetOwner()->PostEventMessage(msg, pJoint, ezTime::MakeZero());
       }
 
       // it can't break twice
@@ -935,7 +934,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
+    ezTaskSystem::WaitForCondition([&]
+      { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 

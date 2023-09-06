@@ -49,7 +49,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.001f, ezVariant()), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("Density", GetDensity, SetDensity)->AddAttributes(new ezDefaultValueAttribute(1500.0f), new ezClampValueAttribute(1.0f, ezVariant()), new ezSuffixAttribute(" kg/m^3")),
     EZ_ACCESSOR_PROPERTY("NumPieces", GetNumPieces, SetNumPieces)->AddAttributes(new ezDefaultValueAttribute(32), new ezClampValueAttribute(5, 1024)),
-    EZ_ACCESSOR_PROPERTY("DisappearTimeout", GetDisappearTimeout, SetDisappearTimeout)->AddAttributes(new ezClampValueAttribute(ezTime::Zero(), ezVariant()), new ezMinValueTextAttribute("Never"), new ezSuffixAttribute(" s")),
+    EZ_ACCESSOR_PROPERTY("DisappearTimeout", GetDisappearTimeout, SetDisappearTimeout)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant()), new ezMinValueTextAttribute("Never"), new ezSuffixAttribute(" s")),
     EZ_ACCESSOR_PROPERTY("BreakImpulseStrength", GetBreakImpulseStrength, SetBreakImpulseStrength)->AddAttributes(new ezDefaultValueAttribute(25.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("FixedBorder", GetFixedBorder, SetFixedBorder),
     EZ_ACCESSOR_PROPERTY("FixedRandomSeed", GetFixedRandomSeed, SetFixedRandomSeed),
@@ -545,7 +545,7 @@ void ezBreakableSheetComponent::BreakNow(const ezMsgCollision* pMessage /*= null
   m_TimeUntilDisappear = m_DisappearTimeout;
 
   DestroyUnbrokenPhysicsObject();
-  CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(), pMessage ? pMessage->m_vPosition : GetOwner()->GetGlobalPosition());
+  CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::MakeZero(), pMessage ? pMessage->m_vPosition : GetOwner()->GetGlobalPosition());
 
   ezMsgBreakableSheetBroke msg;
 
@@ -562,7 +562,7 @@ void ezBreakableSheetComponent::BreakNow(const ezMsgCollision* pMessage /*= null
     }
   }
 
-  m_BreakEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostAsync);
+  m_BreakEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::MakeZero(), ezObjectMsgQueueType::PostAsync);
 }
 
 void ezBreakableSheetComponent::CreateMeshes()
@@ -693,7 +693,7 @@ void ezBreakableSheetComponent::CreateMeshes()
 
         if (m_bFixedBorder)
         {
-          m_SkinningState.m_Transforms.ExpandAndGetRef() = ezMat4::IdentityMatrix();
+          m_SkinningState.m_Transforms.ExpandAndGetRef() = ezMat4::MakeIdentity();
         }
 
         // Build geometry from cells
@@ -712,7 +712,7 @@ void ezBreakableSheetComponent::CreateMeshes()
           {
             iNonBorderPieces++;
             iPieceMatrixIndex = iNonBorderPieces;
-            m_SkinningState.m_Transforms.ExpandAndGetRef() = ezMat4::IdentityMatrix();
+            m_SkinningState.m_Transforms.ExpandAndGetRef() = ezMat4::MakeIdentity();
           }
 
           EZ_ASSERT_DEV(iPieceMatrixIndex >= 0 && iPieceMatrixIndex <= ezMath::MaxValue<ezUInt16>(), "Bone index cannot be stored in 16bit unsigned int");
@@ -759,7 +759,7 @@ void ezBreakableSheetComponent::CreateMeshes()
 
         for (auto& Box : m_PieceBoundingBoxes)
         {
-          Box.SetInvalid();
+          Box = ezBoundingBox::MakeInvalid();
         }
 
         for (const auto& vertex : g.GetVertices())
@@ -770,7 +770,7 @@ void ezBreakableSheetComponent::CreateMeshes()
           }
           else
           {
-            m_PieceBoundingBoxes[vertex.m_BoneIndices.x].SetFromPoints(&vertex.m_vPosition, 1);
+            m_PieceBoundingBoxes[vertex.m_BoneIndices.x] = ezBoundingBox::MakeFromPoints(&vertex.m_vPosition, 1);
           }
         }
 
@@ -844,7 +844,7 @@ void ezBreakableSheetComponent::BuildMeshResourceFromGeometry(ezGeometry& Geomet
 
 void ezBreakableSheetComponent::UpdateBrokenPiecesBoundingSphere()
 {
-  m_BrokenPiecesBoundingSphere.SetZero();
+  m_BrokenPiecesBoundingSphere = ezBoundingSphere::MakeInvalid();
 
   for (ezUInt32 i = 0; i < m_PieceBoundingBoxes.GetCount(); ++i)
   {
@@ -1114,8 +1114,7 @@ void ezBreakableSheetComponent::SetPieceTransform(const physx::PxTransform& tran
 
   ezSimdTransform globalTransform = GetOwner()->GetGlobalTransformSimd();
 
-  ezSimdTransform localTransform;
-  localTransform.SetLocalTransform(globalTransform, t);
+  ezSimdTransform localTransform = ezSimdTransform::MakeLocalTransform(globalTransform, t);
 
   m_SkinningState.m_Transforms[uiPieceIndex] = ezSimdConversion::ToMat4(localTransform.GetAsMat4());
   m_SkinningState.TransformsChanged();

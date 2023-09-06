@@ -32,7 +32,7 @@ public:
     ezHashedString m_sRollInteractionPrefab;
   };
 
-  ezVec3 m_vMainCameraPosition = ezVec3::ZeroVector();
+  ezVec3 m_vMainCameraPosition = ezVec3::MakeZero();
   ezHybridArray<InteractionContact, 8> m_InteractionContacts; // these are spawned PER FRAME, so only a low number is necessary
   ezHybridArray<SlideAndRollInfo, 4> m_SlidingOrRollingActors;
   ezDeque<PxConstraint*> m_BrokenConstraints;

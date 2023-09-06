@@ -115,9 +115,9 @@ protected:
   float m_fLinearStiffness = 0.0f;
   float m_fLinearDamping = 0.0f;
 
-  ezVec2 m_vLinearRangeX = ezVec2::ZeroVector();
-  ezVec2 m_vLinearRangeY = ezVec2::ZeroVector();
-  ezVec2 m_vLinearRangeZ = ezVec2::ZeroVector();
+  ezVec2 m_vLinearRangeX = ezVec2::MakeZero();
+  ezVec2 m_vLinearRangeY = ezVec2::MakeZero();
+  ezVec2 m_vLinearRangeZ = ezVec2::MakeZero();
 
   ezBitflags<ezPxAxis> m_FreeAngularAxis;
 

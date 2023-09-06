@@ -27,12 +27,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezPx6DOFJointComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("LinearDamping", GetLinearDamping, SetLinearDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_BITFLAGS_ACCESSOR_PROPERTY("FreeAngularAxis", ezPxAxis, GetFreeAngularAxis, SetFreeAngularAxis),
     EZ_ENUM_ACCESSOR_PROPERTY("SwingLimitMode", ezPxJointLimitMode, GetSwingLimitMode, SetSwingLimitMode),
-    EZ_ACCESSOR_PROPERTY("SwingLimit", GetSwingLimit, SetSwingLimit)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(175))),
+    EZ_ACCESSOR_PROPERTY("SwingLimit", GetSwingLimit, SetSwingLimit)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(175))),
     EZ_ACCESSOR_PROPERTY("SwingStiffness", GetSwingStiffness, SetSwingStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SwingDamping", GetSwingDamping, SetSwingDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_ACCESSOR_PROPERTY("TwistLimitMode", ezPxJointLimitMode, GetTwistLimitMode, SetTwistLimitMode),
-    EZ_ACCESSOR_PROPERTY("LowerTwistLimit", GetLowerTwistLimit, SetLowerTwistLimit)->AddAttributes(new ezClampValueAttribute(-ezAngle::Degree(175), ezAngle::Degree(175))),
-    EZ_ACCESSOR_PROPERTY("UpperTwistLimit", GetUpperTwistLimit, SetUpperTwistLimit)->AddAttributes(new ezClampValueAttribute(-ezAngle::Degree(175), ezAngle::Degree(175))),
+    EZ_ACCESSOR_PROPERTY("LowerTwistLimit", GetLowerTwistLimit, SetLowerTwistLimit)->AddAttributes(new ezClampValueAttribute(-ezAngle::MakeFromDegree(175), ezAngle::MakeFromDegree(175))),
+    EZ_ACCESSOR_PROPERTY("UpperTwistLimit", GetUpperTwistLimit, SetUpperTwistLimit)->AddAttributes(new ezClampValueAttribute(-ezAngle::MakeFromDegree(175), ezAngle::MakeFromDegree(175))),
     EZ_ACCESSOR_PROPERTY("TwistStiffness", GetTwistStiffness, SetTwistStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("TwistDamping", GetTwistDamping, SetTwistDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
   }
@@ -219,7 +219,7 @@ void ezPx6DOFJointComponent::ApplySettings()
 
     if (freeAxis.IsAnySet(ezPxAxis::Y | ezPxAxis::Z))
     {
-      const float fSwingLimit = ezMath::Max(ezAngle::Degree(0.5f).GetRadian(), m_SwingLimit.GetRadian());
+      const float fSwingLimit = ezMath::Max(ezAngle::MakeFromDegree(0.5f).GetRadian(), m_SwingLimit.GetRadian());
 
       PxJointLimitCone l(fSwingLimit, fSwingLimit);
 
@@ -265,10 +265,10 @@ void ezPx6DOFJointComponent::ApplySettings()
         ezMath::Swap(l.lower, l.upper);
       }
 
-      if (ezMath::IsEqual(l.lower, l.upper, ezAngle::Degree(0.5f).GetRadian()))
+      if (ezMath::IsEqual(l.lower, l.upper, ezAngle::MakeFromDegree(0.5f).GetRadian()))
       {
-        l.lower -= ezAngle::Degree(0.5f).GetRadian();
-        l.upper += ezAngle::Degree(0.5f).GetRadian();
+        l.lower -= ezAngle::MakeFromDegree(0.5f).GetRadian();
+        l.upper += ezAngle::MakeFromDegree(0.5f).GetRadian();
       }
 
       if (m_TwistLimitMode == ezPxJointLimitMode::SoftLimit)

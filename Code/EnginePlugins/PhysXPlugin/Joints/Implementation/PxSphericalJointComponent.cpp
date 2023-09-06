@@ -13,8 +13,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxSphericalJointComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("LimitMode", ezPxJointLimitMode, GetLimitMode, SetLimitMode),
-    EZ_ACCESSOR_PROPERTY("ConeLimitY", GetConeLimitY, SetConeLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(+179))),
-    EZ_ACCESSOR_PROPERTY("ConeLimitZ", GetConeLimitZ, SetConeLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(+179))),
+    EZ_ACCESSOR_PROPERTY("ConeLimitY", GetConeLimitY, SetConeLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(+179))),
+    EZ_ACCESSOR_PROPERTY("ConeLimitZ", GetConeLimitZ, SetConeLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(+179))),
     EZ_ACCESSOR_PROPERTY("SpringStiffness", GetSpringStiffness, SetSpringStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SpringDamping", GetSpringDamping, SetSpringDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
   }

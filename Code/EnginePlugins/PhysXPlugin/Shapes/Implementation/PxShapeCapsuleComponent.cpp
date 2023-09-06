@@ -85,7 +85,7 @@ void ezPxShapeCapsuleComponent::CreateShapes(ezDynamicArray<physx::PxShape*>& ou
 {
   const float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
 
-  out_ShapeTransform.q = PxQuat(ezAngle::Degree(90.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f));
+  out_ShapeTransform.q = PxQuat(ezAngle::MakeFromDegree(90.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f));
 
   PxCapsuleGeometry capsule;
   capsule.radius = ezMath::Max(m_fRadius * fScale, 0.01f);

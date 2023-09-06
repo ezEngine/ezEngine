@@ -384,8 +384,7 @@ void ezPxRagdollComponent::RetrievePhysicsPose()
   const ezTransform rootTransform = pSkeleton->GetDescriptor().m_RootTransform;
   const ezMat4 invRootTransform = rootTransform.GetAsMat4().GetInverse();
 
-  ezMat4 scale;
-  scale.SetScalingMatrix(rootTransform.m_vScale);
+  ezMat4 scale = ezMat4::MakeScaling(rootTransform.m_vScale);
 
   ezMsgAnimationPoseUpdated poseMsg;
   poseMsg.m_ModelTransforms = m_LimbPoses;
@@ -422,7 +421,7 @@ void ezPxRagdollComponent::RetrievePhysicsPose()
         const ezTransform jointLocalPose = ezPxConversionUtils::ToTransform(joint->getParentPose());
 
         ezTransform jointGlobalPose;
-        jointGlobalPose.SetGlobalTransform(jointParentPose, jointLocalPose);
+        jointGlobalPose = ezTransform::MakeGlobalTransform(jointParentPose, jointLocalPose);
 
         const float s = 0.1f;
 
@@ -442,7 +441,7 @@ void ezPxRagdollComponent::RetrievePhysicsPose()
         const ezTransform jointLocalPose = ezPxConversionUtils::ToTransform(joint->getChildPose());
 
         ezTransform jointGlobalPose;
-        jointGlobalPose.SetGlobalTransform(jointChildPose, jointLocalPose);
+        jointGlobalPose = ezTransform::MakeGlobalTransform(jointChildPose, jointLocalPose);
 
         const float s = 0.05f;
 
@@ -525,7 +524,7 @@ void ezPxRagdollComponent::CreateConstraints()
 
       const ezTransform pos(ownTransform.TransformPosition(constraint.m_vRelativePosition));
 
-      auto pJoint = PxSphericalJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), nullptr, ezPxConversionUtils::ToTransform(pos), limb.m_pPxBody, ezPxConversionUtils::ToTransform(ezTransform::IdentityTransform()));
+      auto pJoint = PxSphericalJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), nullptr, ezPxConversionUtils::ToTransform(pos), limb.m_pPxBody, ezPxConversionUtils::ToTransform(ezTransform::MakeIdentity()));
 
       pJoint->setConstraintFlag(physx::PxConstraintFlag::ePROJECTION, true);
       pJoint->setProjectionLinearTolerance(0.05f);
@@ -638,7 +637,7 @@ void ezPxRagdollComponent::SetupLimbBodiesAndGeometry(const ezSkeletonResource* 
       if (m_pPxRootBody == nullptr)
       {
         m_pPxRootBody = thisLimb.m_pPxBody;
-        m_RootBodyLocalTransform.SetLocalTransform(GetOwner()->GetGlobalTransform(), thisLimb.m_GlobalTransform);
+        m_RootBodyLocalTransform = ezTransform::MakeLocalTransform(GetOwner()->GetGlobalTransform(), thisLimb.m_GlobalTransform);
       }
     }
 
@@ -693,7 +692,7 @@ void ezPxRagdollComponent::SetupLimbJoints(const ezSkeletonResource* pSkeleton)
     const ezTransform thisTransform = ezPxConversionUtils::ToTransform(thisLimb.m_pPxBody->getGlobalPose());
 
     ezTransform parentJointFrame;
-    parentJointFrame.SetLocalTransform(parentTransform, thisTransform); // TODO this should just be the constant local offset from child to parent (rotation is overridden anyway, position should never differ)
+    parentJointFrame = ezTransform::MakeLocalTransform(parentTransform, thisTransform); // TODO this should just be the constant local offset from child to parent (rotation is overridden anyway, position should never differ)
     parentJointFrame.m_qRotation = thisJoint.GetLocalOrientation() * qBoneDirAdjustment;
 
     ezTransform thisJointFrame;
@@ -718,7 +717,7 @@ void ezPxRagdollComponent::ComputeLimbGlobalTransform(ezTransform& transform, co
 {
   ezTransform local;
   ComputeLimbModelSpaceTransform(local, pose, uiIndex);
-  transform.SetGlobalTransform(GetOwner()->GetGlobalTransform(), local);
+  transform = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), local);
 }
 
 void ezPxRagdollComponent::AddLimbGeometry(ezBasisAxis::Enum srcBoneDir, physx::PxRigidActor& actor, const ezSkeletonResourceGeometry& geo)

@@ -50,7 +50,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 6, ezComponentMode::Dy
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
+    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(90.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1.0f), ezAngle::MakeFromDegree(360.0f))),
     EZ_MEMBER_PROPERTY("WalkSpeed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("RunSpeed", m_fRunSpeed)->AddAttributes(new ezDefaultValueAttribute(15.0f), new ezClampValueAttribute(0.01f, 20.0f)),
     EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
@@ -241,7 +241,7 @@ void ezPxCharacterControllerComponent::Update()
   //  // auto-crouch functionality
 
   //  ezVec3 vWalkDir = vIntendedMovement;
-  //  vWalkDir.NormalizeIfNotZero(ezVec3::ZeroVector());
+  //  vWalkDir.NormalizeIfNotZero(ezVec3::MakeZero());
 
   //  ezTransform tDestination;
   //  tDestination.m_Rotation.SetIdentity();
@@ -378,8 +378,7 @@ void ezPxCharacterControllerComponent::Update()
 
   if (m_RotateZ.GetRadian() != 0.0f)
   {
-    ezQuat qRotZ;
-    qRotZ.SetFromAxisAndAngle(ezVec3(0, 0, 1), m_RotateZ);
+    ezQuat qRotZ = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), m_RotateZ);
 
     GetOwner()->SetGlobalRotation(qRotZ * GetOwner()->GetGlobalRotation());
 
@@ -465,7 +464,7 @@ void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterControlle
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards)), ezMath::Abs((float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft)));
 
   m_vRelativeMoveDirection += ezVec3((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft), 0);
-  m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::ZeroVector()).IgnoreResult();
+  m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::MakeZero()).IgnoreResult();
   m_vRelativeMoveDirection *= fDistanceToMove;
 
   m_RotateZ += m_RotateSpeed * (float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft);

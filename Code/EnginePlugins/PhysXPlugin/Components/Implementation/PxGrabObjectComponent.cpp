@@ -113,7 +113,7 @@ bool ezPxGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTra
     if (hit.m_fDistance > m_fMaxGrabPointDistance)
       return false;
 
-    out_localGrabPoint = ezTransform::IdentityTransform();
+    out_localGrabPoint = ezTransform::MakeIdentity();
   }
 
   out_pObject = const_cast<ezGameObject*>(pActorObj);
@@ -199,7 +199,7 @@ void ezPxGrabObjectComponent::BreakObjectGrab()
   ezMsgPhysicsJointBroke msg;
   msg.m_hJointObject = GetOwner()->GetHandle();
 
-  GetOwner()->PostEventMessage(msg, this, ezTime::Zero());
+  GetOwner()->PostEventMessage(msg, this, ezTime::MakeZero());
 }
 
 void ezPxGrabObjectComponent::SetAttachToReference(const char* szReference)
@@ -287,17 +287,17 @@ ezResult ezPxGrabObjectComponent::DetermineGrabPoint(const ezComponent* pActorCo
 
       grabPoints.SetCount(4);
       grabPoints[0].m_vLocalPosition.Set(-halfExt.x, 0, 0);
-      grabPoints[0].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitXAxis());
+      grabPoints[0].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezVec3::MakeAxisX());
       grabPoints[1].m_vLocalPosition.Set(+halfExt.x, 0, 0);
-      grabPoints[1].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitXAxis());
+      grabPoints[1].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), -ezVec3::MakeAxisX());
       grabPoints[2].m_vLocalPosition.Set(0, -halfExt.y, 0);
-      grabPoints[2].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitYAxis());
+      grabPoints[2].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezVec3::MakeAxisY());
       grabPoints[3].m_vLocalPosition.Set(0, +halfExt.y, 0);
-      grabPoints[3].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitYAxis());
+      grabPoints[3].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), -ezVec3::MakeAxisY());
       // grabPoints[4].m_vLocalPosition.Set(0, 0, -halfExt.z);
-      // grabPoints[4].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezVec3::UnitZAxis());
+      // grabPoints[4].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
       // grabPoints[5].m_vLocalPosition.Set(0, 0, +halfExt.z);
-      // grabPoints[5].m_qLocalRotation.SetShortestRotation(ezVec3::UnitXAxis(), -ezVec3::UnitZAxis());
+      // grabPoints[5].m_qLocalRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), -ezVec3::MakeAxisZ());
 
       for (ezUInt32 i = 0; i < grabPoints.GetCount(); ++i)
       {
@@ -370,7 +370,7 @@ void ezPxGrabObjectComponent::CreateJoint(ezPxDynamicActorComponent* pParent, ez
 
   ezTransform tAnchor = m_ChildAnchorLocal;
   tAnchor.m_vPosition = tAnchor.m_vPosition.CompMul(pChild->GetOwner()->GetGlobalScaling());
-  pJoint->SetActors(pParent->GetOwner()->GetHandle(), ezTransform::IdentityTransform(), pChild->GetOwner()->GetHandle(), tAnchor);
+  pJoint->SetActors(pParent->GetOwner()->GetHandle(), ezTransform::MakeIdentity(), pChild->GetOwner()->GetHandle(), tAnchor);
 }
 
 void ezPxGrabObjectComponent::DetectDistanceViolation(ezPxDynamicActorComponent* pGrabbedActor, ezPx6DOFJointComponent* pJoint)
