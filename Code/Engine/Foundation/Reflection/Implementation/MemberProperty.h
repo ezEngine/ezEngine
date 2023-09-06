@@ -43,10 +43,10 @@ public:
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
-  virtual void SetValue(void* pInstance, Type value) = 0; // [tested]
+  virtual void SetValue(void* pInstance, Type value) const = 0; // [tested]
 
   virtual void GetValuePtr(const void* pInstance, void* pObject) const override { *static_cast<Type*>(pObject) = GetValue(pInstance); };
-  virtual void SetValuePtr(void* pInstance, const void* pObject) override { SetValue(pInstance, *static_cast<const Type*>(pObject)); };
+  virtual void SetValuePtr(void* pInstance, const void* pObject) const override { SetValue(pInstance, *static_cast<const Type*>(pObject)); };
 };
 
 /// \brief Specialization of ezTypedMemberProperty for const char*.
@@ -70,9 +70,9 @@ public:
   }
 
   virtual const char* GetValue(const void* pInstance) const = 0;
-  virtual void SetValue(void* pInstance, const char* value) = 0;
+  virtual void SetValue(void* pInstance, const char* value) const = 0;
   virtual void GetValuePtr(const void* pInstance, void* pObject) const override { *static_cast<const char**>(pObject) = GetValue(pInstance); };
-  virtual void SetValuePtr(void* pInstance, const void* pObject) override { SetValue(pInstance, *static_cast<const char* const*>(pObject)); };
+  virtual void SetValuePtr(void* pInstance, const void* pObject) const override { SetValue(pInstance, *static_cast<const char* const*>(pObject)); };
 };
 
 
@@ -118,7 +118,7 @@ public:
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
-  virtual void SetValue(void* pInstance, RealType value) override // [tested]
+  virtual void SetValue(void* pInstance, RealType value) const override // [tested]
   {
     EZ_ASSERT_DEV(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
@@ -179,7 +179,7 @@ public:
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
-  virtual void SetValue(void* pInstance, Type value) override
+  virtual void SetValue(void* pInstance, Type value) const override
   {
     EZ_ASSERT_DEV(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 

@@ -968,6 +968,22 @@ private:
   ezHybridArray<ezUInt8, 6> m_ArgTypes;
 };
 
+/// \brief Wrapper Attribute to add an attribute to a function argument
+class EZ_FOUNDATION_DLL ezFunctionArgumentAttributes : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezFunctionArgumentAttributes, ezPropertyAttribute);
+
+  ezFunctionArgumentAttributes() = default;
+  ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, const ezPropertyAttribute* pAttribute1, const ezPropertyAttribute* pAttribute2 = nullptr, const ezPropertyAttribute* pAttribute3 = nullptr, const ezPropertyAttribute* pAttribute4 = nullptr);
+
+  ezUInt32 GetArgumentIndex() const { return m_uiArgIndex; }
+  ezArrayPtr<const ezPropertyAttribute* const> GetArgumentAttributes() const { return m_ArgAttributes; }
+
+private:
+  ezUInt32 m_uiArgIndex = 0;
+  ezHybridArray<const ezPropertyAttribute*, 4> m_ArgAttributes;
+};
+
 /// \brief Used to annotate properties to which pin or function parameter they belong (if necessary)
 class EZ_FOUNDATION_DLL ezVisScriptMappingAttribute : public ezPropertyAttribute
 {

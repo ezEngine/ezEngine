@@ -23,14 +23,14 @@ public:
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
-  virtual void SetValue(void* pInstance, ezInt64 value) = 0;
+  virtual void SetValue(void* pInstance, ezInt64 value) const = 0;
 
   virtual void GetValuePtr(const void* pInstance, void* pObject) const override
   {
     *static_cast<ezInt64*>(pObject) = GetValue(pInstance);
   }
 
-  virtual void SetValuePtr(void* pInstance, const void* pObject) override
+  virtual void SetValuePtr(void* pInstance, const void* pObject) const override
   {
     SetValue(pInstance, *static_cast<const ezInt64*>(pObject));
   }
@@ -92,7 +92,7 @@ public:
     return enumTemp.GetValue();
   }
 
-  virtual void SetValue(void* pInstance, ezInt64 value) override // [tested]
+  virtual void SetValue(void* pInstance, ezInt64 value) const override // [tested]
   {
     EZ_ASSERT_DEV(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     if (m_Setter)
@@ -137,7 +137,7 @@ public:
     return enumTemp.GetValue();
   }
 
-  virtual void SetValue(void* pInstance, ezInt64 value) override // [tested]
+  virtual void SetValue(void* pInstance, ezInt64 value) const override // [tested]
   {
     EZ_ASSERT_DEV(m_Setter != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
