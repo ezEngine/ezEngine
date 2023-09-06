@@ -3,16 +3,22 @@
 
 EZ_ALWAYS_INLINE ezUInt32 ezIntervalSchedulerBase::GetHistogramIndex(ezTime value)
 {
+  if (value.IsZero())
+    return 0;
+
   constexpr ezUInt32 maxSlotIndex = HistogramSize - 1;
   const double x = ezMath::Max((value - m_MinInterval).GetSeconds() * m_fInvIntervalRange, 0.0);
-  const double i = ezMath::Sqrt(x) * maxSlotIndex;
+  const double i = ezMath::Sqrt(x) * (maxSlotIndex - 1) + 1;
   return ezMath::Min(static_cast<ezUInt32>(i), maxSlotIndex);
 }
 
 EZ_ALWAYS_INLINE ezTime ezIntervalSchedulerBase::GetHistogramSlotValue(ezUInt32 uiIndex)
 {
-  constexpr double norm = 1.0 / (HistogramSize - 1.0);
-  const double x = uiIndex * norm;
+  if (uiIndex == 0)
+    return ezTime::MakeZero();
+
+  constexpr double norm = 1.0 / (HistogramSize - 2.0);
+  const double x = (uiIndex - 1) * norm;
   return (x * x) * (m_MaxInterval - m_MinInterval) + m_MinInterval;
 }
 
@@ -114,7 +120,7 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
   else
   {
     double fNumWork = 0;
-    for (ezUInt32 i = 0; i < HistogramSize; ++i)
+    for (ezUInt32 i = 1; i < HistogramSize; ++i)
     {
       fNumWork += (1.0 / ezMath::Max(m_HistogramSlotValues[i], deltaTime).GetSeconds()) * m_Histogram[i];
     }
@@ -133,12 +139,11 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
     const float fRemainder = static_cast<float>(ezMath::Fraction(m_fNumWorkToSchedule));
     const int pos = static_cast<int>(m_CurrentTime.GetNanoseconds());
     const ezUInt32 extra = GetRandomZeroToOne(pos, m_uiSeed) < fRemainder ? 1 : 0;
-    const ezUInt32 uiScheduleCount = ezMath::Min(static_cast<ezUInt32>(m_fNumWorkToSchedule) + extra, m_Data.GetCount());
+    const ezUInt32 uiScheduleCount = ezMath::Min(static_cast<ezUInt32>(m_fNumWorkToSchedule) + extra + m_Histogram[0], m_Data.GetCount());
 
     // schedule work
     {
-      auto it = m_Data.GetIterator();
-      for (ezUInt32 i = 0; i < uiScheduleCount; ++i, ++it)
+      auto RunWork = [&](typename DataMap::Iterator it, ezUInt32 uiIndex)
       {
         auto& data = it.Value();
         if (data.IsValid())
@@ -149,11 +154,31 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
           }
 
           // add a little bit of random jitter so we don't end up with perfect timings that might collide with other work
-          data.m_DueTime = m_CurrentTime + ezMath::Max(data.m_Interval, deltaTime) + GetRandomTimeJitter(i, m_uiSeed);
+          data.m_DueTime = m_CurrentTime + data.m_Interval + GetRandomTimeJitter(uiIndex, m_uiSeed);
           data.m_LastScheduledTime = m_CurrentTime;
         }
 
         m_ScheduledWork.PushBack(it);
+      };
+
+      auto it = m_Data.GetIterator();
+      for (ezUInt32 i = 0; i < uiScheduleCount; ++i, ++it)
+      {
+        RunWork(it, i);
+      }
+
+      // check if the next works have a zero interval if so execute them as well to fulfill the every frame guarantee
+      ezUInt32 uiNumExtras = 0;
+      while (it.IsValid())
+      {
+        auto& data = it.Value();
+        if (data.m_Interval.IsPositive())
+          break;
+
+        RunWork(it, uiNumExtras);
+
+        ++uiNumExtras;
+        ++it;
       }
     }
 
