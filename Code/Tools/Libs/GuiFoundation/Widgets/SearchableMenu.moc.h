@@ -25,8 +25,8 @@ public:
   /// \brief The parent should usually be a QMenu into which this QWidgetAction is inserted as an action.
   ezQtSearchableMenu(QObject* pParent);
 
-  /// \brief Use slashes to separate sub-items.
-  void AddItem(const char* szName, const QVariant& variant, QIcon icon = QIcon());
+  /// \brief Use slashes in the szInternalPath to separate sub-items.
+  void AddItem(const char* szDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon = QIcon());
 
   /// \brief Returns the currently entered search text.
   QString GetSearchText() const;
@@ -52,7 +52,7 @@ protected:
   virtual bool eventFilter(QObject*, QEvent*) override;
 
 private:
-  QStandardItem* CreateCategoryMenu(const char* szCategory);
+  QStandardItem* CreateCategoryMenu(ezStringView sCategory);
   bool SelectFirstLeaf(QModelIndex parent);
 
   QWidget* m_pGroup;

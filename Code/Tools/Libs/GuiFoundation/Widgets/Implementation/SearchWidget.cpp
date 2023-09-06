@@ -51,6 +51,11 @@ void ezQtSearchWidget::setPlaceholderText(const QString& sText)
   m_pLineEdit->setPlaceholderText(sText);
 }
 
+void ezQtSearchWidget::selectAll()
+{
+  QTimer::singleShot(0, m_pLineEdit, &QLineEdit::selectAll);
+}
+
 void ezQtSearchWidget::onLineEditTextChanged(const QString& text)
 {
   m_pClearButton->setEnabled(!text.isEmpty());
