@@ -260,7 +260,7 @@ const char* ezTranslatorMakeMoreReadable::Translate(const char* szString, ezUInt
   {
     tmp.Shrink(0, sComponent.GetElementCount());
   }
-  
+
   auto IsUpper = [](ezUInt32 c) { return c == ezStringUtils::ToUpperChar(c); };
   auto IsNumber = [](ezUInt32 c) { return c >= '0' && c <= '9'; };
 
