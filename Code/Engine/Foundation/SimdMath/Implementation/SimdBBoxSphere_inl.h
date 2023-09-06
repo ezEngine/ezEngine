@@ -30,16 +30,16 @@ EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdBSphere& sphere)
 EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeZero()
 {
   ezSimdBBoxSphere res;
-  res.m_BoxHalfExtents = ezSimdVec4f::MakeZero();
   res.m_CenterAndRadius = ezSimdVec4f::MakeZero();
+  res.m_BoxHalfExtents = ezSimdVec4f::MakeZero();
   return res;
 }
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeInvalid(const ezSimdVec4f& vCenter /*= ezSimdVec4f::MakeZero()*/)
+EZ_ALWAYS_INLINE ezSimdBBoxSphere ezSimdBBoxSphere::MakeInvalid()
 {
   ezSimdBBoxSphere res;
-  res.m_BoxHalfExtents.Set(-ezMath::MaxValue<float>());
   res.m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -ezMath::SmallEpsilon<float>());
+  res.m_BoxHalfExtents.Set(-ezMath::MaxValue<float>());
   return res;
 }
 

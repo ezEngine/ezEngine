@@ -25,11 +25,8 @@ public:
   /// \brief Creates an object with all zero values. These are valid bounds around the origin with no volume.
   [[nodiscard]] static ezSimdBBoxSphere MakeZero();
 
-  /// \brief Creates an 'invalid' object, ie one with negative extents/radius.
-  ///
-  /// Invalid objects can be made valid through ExpandToInclude().
-  /// Be aware that such expanded objects will always include the originally given center point.
-  [[nodiscard]] static ezSimdBBoxSphere MakeInvalid(const ezSimdVec4f& vCenter = ezSimdVec4f::MakeZero()); // [tested]
+  /// \brief Creates an 'invalid' object, ie one with negative extents/radius. Invalid objects can be made valid through ExpandToInclude().
+  [[nodiscard]] static ezSimdBBoxSphere MakeInvalid(); // [tested]
 
   /// \brief Creates an object from the given center point and extents.
   [[nodiscard]] static ezSimdBBoxSphere MakeFromCenterExtents(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents, const ezSimdFloat& fSphereRadius);
