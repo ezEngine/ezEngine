@@ -39,11 +39,8 @@ public:
   /// \brief Creates an object with all zero values. These are valid bounds around the origin with no volume.
   [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeZero();
 
-  /// \brief Creates an 'invalid' object, ie one with negative extents/radius.
-  ///
-  /// Invalid objects can be made valid through ExpandToInclude().
-  /// Be aware that such expanded objects will always include the originally given center point.
-  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeInvalid(const ezVec3Template<Type>& vCenter = ezVec3Template<Type>::MakeZero());
+  /// \brief Creates an 'invalid' object, ie one with negative extents/radius. Invalid objects can be made valid through ExpandToInclude().
+  [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeInvalid();
 
   /// \brief Creates an object from the given center point and extents.
   [[nodiscard]] static ezBoundingBoxSphereTemplate<Type> MakeFromCenterExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius);

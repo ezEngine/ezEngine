@@ -398,7 +398,7 @@ ezVec3 ezPxDynamicActorComponent::GetLocalCenterOfMass() const
     return ezPxConversionUtils::ToVec3(m_pActor->getCMassLocalPose().p);
   }
 
-  return ezVec3::ZeroVector();
+  return ezVec3::MakeZero();
 }
 
 ezVec3 ezPxDynamicActorComponent::GetGlobalCenterOfMass() const
@@ -411,7 +411,7 @@ ezVec3 ezPxDynamicActorComponent::GetGlobalCenterOfMass() const
     return ezPxConversionUtils::ToVec3(globalPose.transform(m_pActor->getCMassLocalPose().p));
   }
 
-  return ezVec3::ZeroVector();
+  return ezVec3::MakeZero();
 }
 
 void ezPxDynamicActorComponent::AddLinearForce(const ezVec3& vForce)

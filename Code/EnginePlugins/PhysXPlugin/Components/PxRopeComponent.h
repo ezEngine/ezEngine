@@ -67,8 +67,8 @@ public:
   float m_fSlack = 0.3f;                    // [ property ]
   bool m_bAttachToOrigin = true;            // [ property ]
   bool m_bAttachToAnchor = true;            // [ property ]
-  ezAngle m_MaxBend = ezAngle::Degree(30);  // [ property ]
-  ezAngle m_MaxTwist = ezAngle::Degree(15); // [ property ]
+  ezAngle m_MaxBend = ezAngle::MakeFromDegree(30);  // [ property ]
+  ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15); // [ property ]
 
   void SetAnchorReference(const char* szReference); // [ property ]
   void SetAnchor(ezGameObjectHandle hActor);
@@ -100,7 +100,7 @@ private:
   ezUInt32 m_uiShapeID = ezInvalidIndex;
   bool m_bSelfCollision = false;
   bool m_bDisableGravity = false;
-  ezVec3 m_vPreviewRefPos = ezVec3::ZeroVector();
+  ezVec3 m_vPreviewRefPos = ezVec3::MakeZero();
 
   physx::PxAggregate* m_pAggregate = nullptr;
   physx::PxArticulation* m_pArticulation = nullptr;

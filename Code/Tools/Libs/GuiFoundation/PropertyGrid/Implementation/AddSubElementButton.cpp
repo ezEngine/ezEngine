@@ -226,16 +226,17 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
       if (m_pSearchableMenu != nullptr)
       {
-        ezStringBuilder fullName;
-        fullName = pCatA ? pCatA->GetCategory() : "";
-        fullName.AppendPath(ezTranslate(pRtti->GetTypeName().GetData(tmp)));
+        ezStringBuilder sFullPath;
+        sFullPath = pCatA ? pCatA->GetCategory() : "";
+        sFullPath.AppendPath(pRtti->GetTypeName());
 
+        ezStringBuilder sDisplayName = ezTranslate(pRtti->GetTypeName().GetData(tmp));
         if (pInDev)
         {
-          fullName.AppendFormat(" [ {} ]", pInDev->GetString());
+          sDisplayName.AppendFormat(" [ {} ]", pInDev->GetString());
         }
 
-        m_pSearchableMenu->AddItem(fullName, QVariant::fromValue((void*)pRtti), actionIcon);
+        m_pSearchableMenu->AddItem(sDisplayName, sFullPath, QVariant::fromValue((void*)pRtti), actionIcon);
       }
       else
       {

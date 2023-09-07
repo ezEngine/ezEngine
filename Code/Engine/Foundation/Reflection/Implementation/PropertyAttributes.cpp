@@ -1014,6 +1014,50 @@ ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType argType1 /*
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFunctionArgumentAttributes, 1, ezRTTIDefaultAllocator<ezFunctionArgumentAttributes>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ArgIndex", m_uiArgIndex),
+    EZ_ARRAY_MEMBER_PROPERTY("ArgAttributes", m_ArgAttributes),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezFunctionArgumentAttributes::ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, const ezPropertyAttribute* pAttribute1, const ezPropertyAttribute* pAttribute2 /*= nullptr*/, const ezPropertyAttribute* pAttribute3 /*= nullptr*/, const ezPropertyAttribute* pAttribute4 /*= nullptr*/)
+  : m_uiArgIndex(uiArgIndex)
+{
+  {
+    if (pAttribute1 == nullptr)
+      return;
+
+    m_ArgAttributes.PushBack(pAttribute1);
+  }
+  {
+    if (pAttribute2 == nullptr)
+      return;
+
+    m_ArgAttributes.PushBack(pAttribute2);
+  }
+  {
+    if (pAttribute3 == nullptr)
+      return;
+
+    m_ArgAttributes.PushBack(pAttribute3);
+  }
+  {
+    if (pAttribute4 == nullptr)
+      return;
+
+    m_ArgAttributes.PushBack(pAttribute4);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptMappingAttribute, 1, ezRTTIDefaultAllocator<ezVisScriptMappingAttribute>)
 {
   EZ_BEGIN_PROPERTIES

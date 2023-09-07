@@ -57,10 +57,10 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
   ezStringBuilder sCleanText = szText;
   sCleanText.MakeCleanPath();
 
-  if (m_sTextFilter == sCleanText)
+  if (m_SearchFilter.GetSearchText() == sCleanText)
     return;
 
-  m_sTextFilter = sCleanText;
+  m_SearchFilter.SetSearchText(sCleanText);
   // Clear uses search cache
   m_bUsesSearchActive = false;
   m_bTransitive = false;
@@ -134,7 +134,7 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
       return true;
   }
 
-  if (!m_sTextFilter.IsEmpty())
+  if (!m_SearchFilter.IsEmpty())
   {
     if (m_bUsesSearchActive)
     {
@@ -144,12 +144,12 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
     else
     {
       // if the string is not found in the path, ignore this asset
-      if (pInfo->m_pAssetInfo->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
+      if (m_SearchFilter.PassesFilters(pInfo->m_pAssetInfo->m_sDataDirRelativePath) == false)
       {
-        if (pInfo->GetName().FindSubString_NoCase(m_sTextFilter) == nullptr)
+        if (m_SearchFilter.PassesFilters(pInfo->GetName()) == false)
         {
           ezConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
-          if (m_sTemp.FindSubString_NoCase(m_sTextFilter) == nullptr)
+          if (m_SearchFilter.PassesFilters(m_sTemp) == false)
             return true;
 
           // we could actually (partially) match the GUID

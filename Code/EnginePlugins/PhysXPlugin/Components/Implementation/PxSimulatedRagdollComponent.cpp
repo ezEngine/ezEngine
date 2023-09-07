@@ -111,18 +111,18 @@ void ezPxSimulatedRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, co
   pJoint->setParentPose(ezPxConversionUtils::ToTransform(parentFrame));
   pJoint->setChildPose(ezPxConversionUtils::ToTransform(thisFrame));
 
-  if (thisJoint.GetHalfSwingLimitZ() >= ezAngle::Degree(1) || thisJoint.GetHalfSwingLimitY() >= ezAngle::Degree(1))
+  if (thisJoint.GetHalfSwingLimitZ() >= ezAngle::MakeFromDegree(1) || thisJoint.GetHalfSwingLimitY() >= ezAngle::MakeFromDegree(1))
   {
     pJoint->setSwingLimitEnabled(true);
-    pJoint->setSwingLimit(ezMath::Max(ezAngle::Degree(1), thisJoint.GetHalfSwingLimitZ()).GetRadian(), ezMath::Max(ezAngle::Degree(1), thisJoint.GetHalfSwingLimitY()).GetRadian());
-    pJoint->setSwingLimitContactDistance(ezAngle::Degree(10).GetRadian()); // ??
+    pJoint->setSwingLimit(ezMath::Max(ezAngle::MakeFromDegree(1), thisJoint.GetHalfSwingLimitZ()).GetRadian(), ezMath::Max(ezAngle::MakeFromDegree(1), thisJoint.GetHalfSwingLimitY()).GetRadian());
+    pJoint->setSwingLimitContactDistance(ezAngle::MakeFromDegree(10).GetRadian()); // ??
   }
   else
   {
     pJoint->setSwingLimitEnabled(false);
   }
 
-  if (thisJoint.GetTwistLimitHalfAngle() > ezAngle::Degree(0))
+  if (thisJoint.GetTwistLimitHalfAngle() > ezAngle::MakeFromDegree(0))
   {
     const ezAngle low = thisJoint.GetTwistLimitLow();
     const ezAngle high = thisJoint.GetTwistLimitHigh();

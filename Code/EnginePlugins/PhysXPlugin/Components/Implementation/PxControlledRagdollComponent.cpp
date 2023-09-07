@@ -85,12 +85,12 @@ void ezPxControlledRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, c
 
   pJoint->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
   pJoint->setProjectionLinearTolerance(0.01f);
-  pJoint->setProjectionAngularTolerance(ezAngle::Degree(1.0f).GetRadian());
+  pJoint->setProjectionAngularTolerance(ezAngle::MakeFromDegree(1.0f).GetRadian());
   pJoint->setMotion(PxD6Axis::eX, PxD6Motion::eLOCKED);
   pJoint->setMotion(PxD6Axis::eY, PxD6Motion::eLOCKED);
   pJoint->setMotion(PxD6Axis::eZ, PxD6Motion::eLOCKED);
 
-  if (thisJoint.GetHalfSwingLimitZ() >= ezAngle::Degree(1) || thisJoint.GetHalfSwingLimitY() >= ezAngle::Degree(1))
+  if (thisJoint.GetHalfSwingLimitZ() >= ezAngle::MakeFromDegree(1) || thisJoint.GetHalfSwingLimitY() >= ezAngle::MakeFromDegree(1))
   {
     pJoint->setMotion(PxD6Axis::eSWING1, PxD6Motion::eLIMITED);
     pJoint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eLIMITED);
@@ -101,8 +101,8 @@ void ezPxControlledRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, c
     const physx::PxSpring spring(stiffness, damping);
 
     const physx::PxJointLimitCone limit(
-      ezMath::Max(ezAngle::Degree(1), thisJoint.GetHalfSwingLimitY()).GetRadian(),
-      ezMath::Max(ezAngle::Degree(1), thisJoint.GetHalfSwingLimitZ()).GetRadian(),
+      ezMath::Max(ezAngle::MakeFromDegree(1), thisJoint.GetHalfSwingLimitY()).GetRadian(),
+      ezMath::Max(ezAngle::MakeFromDegree(1), thisJoint.GetHalfSwingLimitZ()).GetRadian(),
       spring);
 
     pJoint->setSwingLimit(limit);
@@ -113,7 +113,7 @@ void ezPxControlledRagdollComponent::CreateLimbJoint(physx::PxPhysics* pPxApi, c
     pJoint->setMotion(PxD6Axis::eSWING2, PxD6Motion::eFREE);
   }
 
-  if (thisJoint.GetTwistLimitHalfAngle() >= ezAngle::Degree(0))
+  if (thisJoint.GetTwistLimitHalfAngle() >= ezAngle::MakeFromDegree(0))
   {
     pJoint->setMotion(PxD6Axis::eTWIST, PxD6Motion::eLIMITED);
 

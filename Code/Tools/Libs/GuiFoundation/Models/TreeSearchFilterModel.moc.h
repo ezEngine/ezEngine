@@ -2,6 +2,8 @@
 
 #include <Foundation/Containers/Map.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
+#include <ToolsFoundation/Utilities/SearchPatternFilter.h>
+
 #include <QSortFilterProxyModel>
 
 class QWidget;
@@ -26,7 +28,6 @@ protected:
 
   bool m_bIncludeChildren;
   QAbstractItemModel* m_pSourceModel;
-  QString m_sFilterText;
+  ezSearchPatternFilter m_Filter;
   ezMap<QModelIndex, bool> m_Visible;
 };
-

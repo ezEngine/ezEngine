@@ -330,7 +330,7 @@ namespace
   struct SetValueFunc
   {
     template <typename T>
-    EZ_FORCE_INLINE void operator()(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
+    EZ_FORCE_INLINE void operator()(const ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
     {
       ezVariantToProperty<T> setter(value, pProp);
       pProp->SetValuePtr(pObject, setter);
@@ -690,7 +690,7 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
   return res;
 }
 
-void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
+void ezReflectionUtils::SetMemberPropertyValue(const ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
 {
   EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "SetMemberPropertyValue: missing data!");
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -698,7 +698,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
 
   if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Bitflags | ezPropertyFlags::IsEnum))
   {
-    ezAbstractEnumerationProperty* pEnumerationProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
+    auto pEnumerationProp = static_cast<const ezAbstractEnumerationProperty*>(pProp);
 
     // Value can either be an integer or a string (human readable value)
     if (value.IsA<ezString>())

@@ -145,8 +145,7 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
 
   const ezSimdTransform& ownerTransform = GetOwner()->GetGlobalTransformSimd();
 
-  ezSimdTransform localTransform;
-  localTransform.SetLocalTransform(parentTransform, ownerTransform);
+  ezSimdTransform localTransform = ezSimdTransform::MakeLocalTransform(parentTransform, ownerTransform);
 
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 

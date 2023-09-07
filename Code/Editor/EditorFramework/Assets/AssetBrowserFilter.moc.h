@@ -2,7 +2,7 @@
 
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Foundation/Strings/String.h>
+#include <ToolsFoundation/Utilities/SearchPatternFilter.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserFilter : public ezQtAssetFilter
 {
@@ -23,7 +23,7 @@ public:
   bool GetSortByRecentUse() const { return m_bSortByRecentUse; }
 
   void SetTextFilter(const char* szText);
-  const char* GetTextFilter() const { return m_sTextFilter; }
+  const char* GetTextFilter() const { return m_SearchFilter.GetSearchText(); }
 
   void SetPathFilter(const char* szPath);
   const char* GetPathFilter() const { return m_sPathFilter; }
@@ -42,7 +42,8 @@ public:
   virtual bool Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const override;
 
 private:
-  ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;
+  ezString m_sTypeFilter, m_sPathFilter;
+  ezSearchPatternFilter m_SearchFilter;
   bool m_bShowItemsInSubFolders = true;
   bool m_bShowItemsInHiddenFolders = false;
   bool m_bSortByRecentUse = false;
@@ -53,4 +54,3 @@ private:
   bool m_bTransitive = false;
   ezSet<ezUuid> m_Uses;
 };
-

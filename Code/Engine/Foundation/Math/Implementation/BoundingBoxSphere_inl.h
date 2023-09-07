@@ -69,10 +69,10 @@ EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type> ezBoundingBoxSphereTemplate<Ty
 }
 
 template <typename Type>
-EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type> ezBoundingBoxSphereTemplate<Type>::MakeInvalid(const ezVec3Template<Type>& vCenter /*= ezVec3Template<Type>::MakeZero()*/)
+EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type> ezBoundingBoxSphereTemplate<Type>::MakeInvalid()
 {
   ezBoundingBoxSphereTemplate<Type> res;
-  res.m_vCenter = vCenter;
+  res.m_vCenter.SetZero();
   res.m_fSphereRadius = -ezMath::SmallEpsilon<Type>(); // has to be very small for ExpandToInclude to work
   res.m_vBoxHalfExtends.Set(-ezMath::MaxValue<Type>());
   return res;

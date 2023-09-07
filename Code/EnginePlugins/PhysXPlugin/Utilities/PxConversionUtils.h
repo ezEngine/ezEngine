@@ -32,12 +32,12 @@ namespace ezPxConversionUtils
 
   EZ_ALWAYS_INLINE ezSimdQuat ToSimdQuat(const physx::PxQuat& q) { return ezSimdQuat(ezSimdVec4f(q.x, q.y, q.z, q.w)); }
 
-  EZ_ALWAYS_INLINE physx::PxQuat ToQuat(const ezQuat& q) { return physx::PxQuat(q.v.x, q.v.y, q.v.z, q.w); }
+  EZ_ALWAYS_INLINE physx::PxQuat ToQuat(const ezQuat& q) { return physx::PxQuat(q.x, q.y, q.z, q.w); }
 
   EZ_ALWAYS_INLINE physx::PxQuat ToQuat(const ezSimdQuat& q)
   {
     ezQuat tmp;
-    q.m_v.Store<4>(&tmp.v.x);
+    q.m_v.Store<4>(&tmp.x);
     return ToQuat(tmp);
   }
 

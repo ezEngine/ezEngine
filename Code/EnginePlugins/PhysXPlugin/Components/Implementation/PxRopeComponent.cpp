@@ -32,8 +32,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRopeComponent, 2, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("TwistStiffness", m_fTwistStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_MEMBER_PROPERTY("BendDamping", m_fBendDamping)->AddAttributes(new ezDefaultValueAttribute(300.0f), new ezClampValueAttribute(0.0f,   ezVariant())),
       EZ_MEMBER_PROPERTY("TwistDamping", m_fTwistDamping)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f,   ezVariant())),
-      EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(30)), new ezClampValueAttribute(ezAngle::Degree(5), ezAngle::Degree(90))),
-      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(15)), new ezClampValueAttribute(ezAngle::Degree(0.01f), ezAngle::Degree(90))),
+      EZ_MEMBER_PROPERTY("MaxBend", m_MaxBend)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(90))),
+      EZ_MEMBER_PROPERTY("MaxTwist", m_MaxTwist)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(15)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.01f), ezAngle::MakeFromDegree(90))),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface")),
       EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
@@ -229,7 +229,7 @@ void ezPxRopeComponent::CreateRope()
     if (pPrevLink != nullptr)
     {
       ezTransform parentFrameJoint;
-      parentFrameJoint.SetLocalTransform(pieces[idx - 1], pieces[idx]);
+      parentFrameJoint = ezTransform::MakeLocalTransform(pieces[idx - 1], pieces[idx]);
       parentFrameJoint.m_qRotation.SetIdentity();
 
       PxArticulationJoint* inb = reinterpret_cast<PxArticulationJoint*>(pLink->getInboundJoint());
@@ -275,7 +275,7 @@ void ezPxRopeComponent::CreateRope()
 
   if (m_bAttachToOrigin)
   {
-    m_pJointOrigin = CreateJoint(GetOwner()->GetHandle(), pieces[0], m_ArticulationLinks[0], ezTransform::IdentityTransform());
+    m_pJointOrigin = CreateJoint(GetOwner()->GetHandle(), pieces[0], m_ArticulationLinks[0], ezTransform::MakeIdentity());
   }
 
   if (m_bAttachToAnchor)
@@ -284,8 +284,7 @@ void ezPxRopeComponent::CreateRope()
     localTransform.SetIdentity();
     localTransform.m_vPosition.x = fPieceLength;
 
-    ezTransform lastPiece;
-    lastPiece.SetGlobalTransform(pieces.PeekBack(), localTransform);
+    ezTransform lastPiece = ezTransform::MakeGlobalTransform(pieces.PeekBack(), localTransform);
 
     localTransform.m_qRotation = -localTransform.m_qRotation;
 
@@ -321,7 +320,7 @@ PxJoint* ezPxRopeComponent::CreateJoint(const ezGameObjectHandle& hTarget, const
     ezTransform tParent = pObject->GetGlobalTransform();
     tParent.m_vScale.Set(1.0f);
 
-    parentLocal.SetLocalTransform(tParent, location);
+    parentLocal = ezTransform::MakeLocalTransform(tParent, location);
   }
   else
   {
@@ -423,7 +422,7 @@ ezResult ezPxRopeComponent::CreateSegmentTransforms(ezDynamicArray<ezTransform>&
 
     transforms[idx].m_vScale.Set(1);
     transforms[idx].m_vPosition = ezSimdConversion::ToVec3(p0);
-    transforms[idx].m_qRotation.SetShortestRotation(ezVec3::UnitXAxis(), ezSimdConversion::ToVec3(dir));
+    transforms[idx].m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezSimdConversion::ToVec3(dir));
   }
 
   out_fPieceLength /= m_uiPieces;
@@ -569,7 +568,7 @@ void ezPxRopeComponent::Update()
 
   for (ezUInt32 i = 0; i < m_ArticulationLinks.GetCount(); ++i)
   {
-    poses[i].SetLocalTransform(rootTransform, ezPxConversionUtils::ToTransform(m_ArticulationLinks[i]->getGlobalPose()));
+    poses[i] = ezTransform::MakeLocalTransform(rootTransform, ezPxConversionUtils::ToTransform(m_ArticulationLinks[i]->getGlobalPose()));
   }
 
   // last pose
@@ -580,7 +579,7 @@ void ezPxRopeComponent::Update()
     tLocal.SetIdentity();
     tLocal.m_vPosition.x = (poses[uiLastIdx - 1].m_vPosition - poses[uiLastIdx - 2].m_vPosition).GetLength();
 
-    poses.PeekBack().SetGlobalTransform(poses[uiLastIdx - 1], tLocal);
+    poses.PeekBack() = ezTransform::MakeGlobalTransform(poses[uiLastIdx - 1], tLocal);
   }
 
   GetOwner()->SendMessage(poseMsg);
@@ -603,11 +602,11 @@ void ezPxRopeComponent::SendPreviewPose()
 
     for (auto& n : pieces)
     {
-      n.SetLocalTransform(tOwner, n);
+      n = ezTransform::MakeLocalTransform(tOwner, n);
     }
   }
 
-  GetOwner()->PostMessage(poseMsg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
+  GetOwner()->PostMessage(poseMsg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
 }
 
 void ezPxRopeComponent::SetDisableGravity(bool b)

@@ -25,8 +25,8 @@ namespace ezBakingInternal
     ezBoundingBox m_Bounds;
     ezArrayPtr<const Volume> m_Volumes;
 
-    ezVec3 m_vGridOrigin = ezVec3::ZeroVector();
-    ezVec3U32 m_vProbeCount = ezVec3U32::ZeroVector();
+    ezVec3 m_vGridOrigin = ezVec3::MakeZero();
+    ezVec3U32 m_vProbeCount = ezVec3U32::MakeZero();
     ezDynamicArray<ezVec3> m_ProbePositions;
   };
 } // namespace ezBakingInternal

@@ -8,6 +8,15 @@
 #include <QStandardItemModel>
 #include <QTreeWidget>
 
+namespace
+{
+  enum CustomRoles
+  {
+    InternalPathRole = Qt::UserRole + 1,
+    VariantRole = Qt::UserRole + 2
+  };
+}
+
 
 class QNullWidget : public QWidget
 {
@@ -60,16 +69,16 @@ ezQtSearchableMenu::ezQtSearchableMenu(QObject* pParent)
   setDefaultWidget(m_pGroup);
 }
 
-QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(const char* szCategory)
+QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(ezStringView sCategory)
 {
-  if (ezStringUtils::IsNullOrEmpty(szCategory))
+  if (sCategory.IsEmpty())
     return m_pItemModel->invisibleRootItem();
 
-  auto it = m_Hierarchy.Find(szCategory);
+  auto it = m_Hierarchy.Find(sCategory);
   if (it.IsValid())
     return it.Value();
 
-  ezStringBuilder sPath = szCategory;
+  ezStringBuilder sPath = sCategory;
   sPath.PathParentDirectory();
   sPath.Trim("/");
 
@@ -80,7 +89,7 @@ QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(const char* szCategory)
     pParentMenu = CreateCategoryMenu(sPath);
   }
 
-  sPath = szCategory;
+  sPath = sCategory;
   sPath = sPath.GetFileName();
 
   QStandardItem* pThisItem = new QStandardItem(sPath.GetData());
@@ -88,7 +97,7 @@ QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(const char* szCategory)
 
   pParentMenu->appendRow(pThisItem);
 
-  m_Hierarchy[szCategory] = pThisItem;
+  m_Hierarchy[sCategory] = pThisItem;
 
   return pThisItem;
 }
@@ -103,7 +112,7 @@ bool ezQtSearchableMenu::SelectFirstLeaf(QModelIndex parent)
 
     if (!m_pFilterModel->hasChildren(child))
     {
-      if (m_pFilterModel->data(child, Qt::UserRole + 1).isValid())
+      if (m_pFilterModel->data(child, VariantRole).isValid())
       {
         // set this one item as the new selection
         m_pTreeView->selectionModel()->setCurrentIndex(
@@ -141,24 +150,22 @@ bool ezQtSearchableMenu::eventFilter(QObject* pObject, QEvent* event)
   return false;
 }
 
-void ezQtSearchableMenu::AddItem(const char* szName, const QVariant& variant, QIcon icon)
+void ezQtSearchableMenu::AddItem(const char* szDisplayName, const char* szInternalPath, const QVariant& variant, QIcon icon)
 {
   QStandardItem* pParent = m_pItemModel->invisibleRootItem();
 
-  const char* szLastCat = ezStringUtils::FindLastSubString(szName, "/");
+  const char* szLastCat = ezStringUtils::FindLastSubString(szInternalPath, "/");
   if (szLastCat != nullptr)
   {
-    ezStringBuilder sCategory;
-    sCategory.SetSubString_FromTo(szName, szLastCat);
+    ezStringView sCategory(szInternalPath, szLastCat);
 
     pParent = CreateCategoryMenu(sCategory);
-
-    szName = szLastCat + 1;
   }
 
-  QStandardItem* pThisItem = new QStandardItem(szName);
+  QStandardItem* pThisItem = new QStandardItem(szDisplayName);
   pThisItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-  pThisItem->setData(variant, Qt::UserRole + 1);
+  pThisItem->setData(szInternalPath, InternalPathRole);
+  pThisItem->setData(variant, VariantRole);
   pThisItem->setIcon(icon);
 
   pParent->appendRow(pThisItem);
@@ -175,6 +182,7 @@ void ezQtSearchableMenu::Finalize(const QString& sSearchText)
 
   m_pSearch->setText(sSearchText);
   m_pSearch->setFocus();
+  m_pSearch->selectAll();
 }
 
 void ezQtSearchableMenu::OnItemActivated(const QModelIndex& index)
@@ -185,7 +193,7 @@ void ezQtSearchableMenu::OnItemActivated(const QModelIndex& index)
   QModelIndex realIndex = m_pFilterModel->mapToSource(index);
 
   QString sName = m_pItemModel->data(realIndex, Qt::DisplayRole).toString();
-  QVariant variant = m_pItemModel->data(realIndex, Qt::UserRole + 1);
+  QVariant variant = m_pItemModel->data(realIndex, VariantRole);
 
   // potentially only a folder item
   if (!variant.isValid())
@@ -228,4 +236,5 @@ void ezQtSearchableMenu::OnSearchChanged(const QString& text)
 void ezQtSearchableMenu::OnShow()
 {
   m_pSearch->setFocus();
+  m_pSearch->selectAll();
 }

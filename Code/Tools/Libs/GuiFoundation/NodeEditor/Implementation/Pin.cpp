@@ -183,7 +183,7 @@ void ezQtPin::SetActive(bool bActive)
 bool ezQtPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
 {
   ezColorGammaUB pinColor = pOverwriteColor != nullptr ? *pOverwriteColor : GetPin()->GetColor();
-  QColor base = QApplication::palette().base().color();
+  QColor base = QApplication::palette().window().color();
 
   if (!m_bIsActive)
     pinColor = ezMath::Lerp<ezColor>(ezColorGammaUB(base.red(), base.green(), base.blue()), pinColor, 0.2f);

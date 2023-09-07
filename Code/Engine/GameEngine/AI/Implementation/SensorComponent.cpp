@@ -497,7 +497,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
   ezDebugRenderer::Line lines[NUM_LINES];
   ezUInt32 curLine = 0;
 
-  const ezUInt32 numSegments = ezMath::Clamp(static_cast<ezUInt32>(m_Angle / ezAngle::MakeFromDegree(180)) * MAX_SEGMENTS, MIN_SEGMENTS, MAX_SEGMENTS);
+  const ezUInt32 numSegments = ezMath::Clamp(static_cast<ezUInt32>(m_Angle / ezAngle::MakeFromDegree(180) * MAX_SEGMENTS), MIN_SEGMENTS, MAX_SEGMENTS);
   const ezAngle stepAngle = m_Angle / static_cast<float>(numSegments);
   const ezAngle circleStepAngle = ezAngle::MakeFromDegree(360.0f / CIRCLE_SEGMENTS);
 

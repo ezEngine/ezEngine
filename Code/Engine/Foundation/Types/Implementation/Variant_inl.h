@@ -637,5 +637,8 @@ struct ezHashHelper<ezVariant>
     return (ezUInt32)uiHash;
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezVariant& a, const ezVariant& b) { return a == b; }
+  EZ_ALWAYS_INLINE static bool Equal(const ezVariant& a, const ezVariant& b)
+  {
+    return a.GetType() == b.GetType() && a == b;
+  }
 };

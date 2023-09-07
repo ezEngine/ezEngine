@@ -1127,7 +1127,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v != v2);
 
     ezUInt64 uiHash = v.ComputeHash(0);
-    EZ_TEST_INT(uiHash, 13667342936068485827ul);
+    EZ_TEST_INT(uiHash, 8527525522777555267ul);
 
     ezVarianceTypeAngle* pTypedAngle = EZ_DEFAULT_NEW(ezVarianceTypeAngle, {0.1f, ezAngle::MakeFromRadian(1.57079637f)});
     ezVariant copy;

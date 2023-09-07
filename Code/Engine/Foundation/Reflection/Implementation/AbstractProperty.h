@@ -264,7 +264,7 @@ public:
 
   /// \brief Sets the value of pObject to the property in pInstance.
   /// pObject needs to point to an instance of this property's type.
-  virtual void SetValuePtr(void* pInstance, const void* pObject) = 0;
+  virtual void SetValuePtr(void* pInstance, const void* pObject) const = 0;
 };
 
 

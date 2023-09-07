@@ -34,6 +34,9 @@ ezIntervalSchedulerBase::ezIntervalSchedulerBase(ezTime minInterval, ezTime maxI
   : m_MinInterval(minInterval)
   , m_MaxInterval(maxInterval)
 {
+  EZ_ASSERT_DEV(m_MinInterval.IsPositive(), "Min interval must be greater than zero");
+  EZ_ASSERT_DEV(m_MaxInterval > m_MinInterval, "Max interval must be greater than min interval");
+
   m_fInvIntervalRange = 1.0 / (m_MaxInterval - m_MinInterval).GetSeconds();
 
   for (ezUInt32 i = 0; i < HistogramSize; ++i)

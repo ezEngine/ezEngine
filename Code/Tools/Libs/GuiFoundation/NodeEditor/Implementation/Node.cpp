@@ -19,7 +19,7 @@ ezQtNode::ezQtNode()
   setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
   setBrush(palette.window());
-  QPen pen(palette.light().color(), 3, Qt::SolidLine);
+  QPen pen(palette.mid().color(), 3, Qt::SolidLine);
   setPen(pen);
 
   {
@@ -340,7 +340,7 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
     p.setColor(palette.highlight().color());
     painter->setPen(p);
 
-    labelColor = palette.highlightedText().color();
+    labelColor = ezToQtColor(ezColor::White);
   }
   else
   {
