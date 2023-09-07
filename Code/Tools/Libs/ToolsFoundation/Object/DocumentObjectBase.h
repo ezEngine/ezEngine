@@ -37,7 +37,7 @@ public:
   ezDocumentObject* GetChild(const ezUuid& guid);
   const ezDocumentObject* GetChild(const ezUuid& guid) const;
   const char* GetParentProperty() const { return m_sParentProperty; }
-  ezAbstractProperty* GetParentPropertyType() const;
+  const ezAbstractProperty* GetParentPropertyType() const;
   ezVariant GetPropertyIndex() const;
   bool IsOnHeap() const;
   ezUInt32 GetChildIndex(const ezDocumentObject* pChild) const;

@@ -196,7 +196,7 @@ public:
   };
 
   /// \brief Returns the array of property attributes.
-  const ezArrayPtr<ezPropertyAttribute* const> GetAttributes() const { return m_Attributes.GetArrayPtr(); }
+  ezArrayPtr<const ezPropertyAttribute* const> GetAttributes() const { return m_Attributes; }
 
   /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template <typename Type>
@@ -205,7 +205,7 @@ public:
 protected:
   ezBitflags<ezPropertyFlags> m_Flags;
   const char* m_szPropertyName;
-  ezHybridArray<ezPropertyAttribute*, 2, ezStaticAllocatorWrapper> m_Attributes; // Do not track RTTI data.
+  ezHybridArray<const ezPropertyAttribute*, 2, ezStaticAllocatorWrapper> m_Attributes; // Do not track RTTI data.
 };
 
 /// \brief This is the base class for all constant properties that are stored inside the RTTI data.
@@ -288,21 +288,21 @@ public:
   virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const = 0;
 
   /// \brief Writes the target of pObject to the element at index uiIndex.
-  virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) = 0;
+  virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) const = 0;
 
   /// \brief Inserts the target of pObject into the array at index uiIndex.
-  virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) = 0;
+  virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) const = 0;
 
   /// \brief Removes the element in the array at index uiIndex.
-  virtual void Remove(void* pInstance, ezUInt32 uiIndex) = 0;
+  virtual void Remove(void* pInstance, ezUInt32 uiIndex) const = 0;
 
   /// \brief Clears the array.
-  virtual void Clear(void* pInstance) = 0;
+  virtual void Clear(void* pInstance) const = 0;
 
   /// \brief Resizes the array to uiCount.
-  virtual void SetCount(void* pInstance, ezUInt32 uiCount) = 0;
+  virtual void SetCount(void* pInstance, ezUInt32 uiCount) const = 0;
 
-  virtual void* GetValuePointer(void* pInstance, ezUInt32 uiIndex) { return nullptr; }
+  virtual void* GetValuePointer(void* pInstance, ezUInt32 uiIndex) const { return nullptr; }
 };
 
 
@@ -325,13 +325,13 @@ public:
   virtual bool IsEmpty(const void* pInstance) const = 0;
 
   /// \brief Clears the set.
-  virtual void Clear(void* pInstance) = 0;
+  virtual void Clear(void* pInstance) const = 0;
 
   /// \brief Inserts the target of pObject into the set.
-  virtual void Insert(void* pInstance, const void* pObject) = 0;
+  virtual void Insert(void* pInstance, const void* pObject) const = 0;
 
   /// \brief Removes the target of pObject from the set.
-  virtual void Remove(void* pInstance, const void* pObject) = 0;
+  virtual void Remove(void* pInstance, const void* pObject) const = 0;
 
   /// \brief Returns whether the target of pObject is in the set.
   virtual bool Contains(const void* pInstance, const void* pObject) const = 0;
@@ -360,13 +360,13 @@ public:
   virtual bool IsEmpty(const void* pInstance) const = 0;
 
   /// \brief Clears the set.
-  virtual void Clear(void* pInstance) = 0;
+  virtual void Clear(void* pInstance) const = 0;
 
   /// \brief Inserts the target of pObject into the set.
-  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) = 0;
+  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const = 0;
 
   /// \brief Removes the target of pObject from the set.
-  virtual void Remove(void* pInstance, const char* szKey) = 0;
+  virtual void Remove(void* pInstance, const char* szKey) const = 0;
 
   /// \brief Returns whether the target of pObject is in the set.
   virtual bool Contains(const void* pInstance, const char* szKey) const = 0;

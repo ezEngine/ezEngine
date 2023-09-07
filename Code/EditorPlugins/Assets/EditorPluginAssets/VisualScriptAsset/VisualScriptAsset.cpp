@@ -182,7 +182,7 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
 
     ObjectToIndex[pObject] = i;
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pObject->GetType()->GetAllProperties(properties);
 
     for (const ezAbstractProperty* pProp : properties)

@@ -30,7 +30,7 @@ protected:
   QHBoxLayout* m_pLayout = nullptr;
   ezQtDoubleSpinBox* m_pValueWidget = nullptr;
   QSlider* m_pVarianceWidget = nullptr;
-  ezAbstractMemberProperty* m_pValueProp = nullptr;
-  ezAbstractMemberProperty* m_pVarianceProp = nullptr;
+  const ezAbstractMemberProperty* m_pValueProp = nullptr;
+  const ezAbstractMemberProperty* m_pVarianceProp = nullptr;
 };
 

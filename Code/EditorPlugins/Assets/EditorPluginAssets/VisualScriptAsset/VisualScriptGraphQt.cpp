@@ -262,7 +262,7 @@ void ezQtVisualScriptNode_Legacy::UpdateState()
   {
     ezStringBuilder temp;
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     GetObject()->GetType()->GetAllProperties(properties);
 
     sTitle = pDesc->m_sTitle;

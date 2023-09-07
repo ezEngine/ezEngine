@@ -452,7 +452,7 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
 
 void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjectChange& change)
 {
-  ezAbstractProperty* pProp = nullptr;
+  const ezAbstractProperty* pProp = nullptr;
 
   if (object.m_pType != nullptr)
   {
@@ -488,7 +488,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
 
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
-        auto pSpecificProp = static_cast<ezAbstractMemberProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractMemberProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           pSpecificProp->SetValuePtr(object.m_pObject, &pValue);
@@ -500,7 +500,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
-        auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), &pValue);
@@ -513,12 +513,12 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
-        auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
         ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(pValue, pType));
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
-        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.Get<ezString>(), &pValue);
@@ -546,7 +546,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
 
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
-        auto pSpecificProp = static_cast<ezAbstractMemberProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractMemberProperty*>(pProp);
         if (!pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
         {
           ezLog::Error("Property '{0}' not a pointer, can't remove object!", change.m_Change.m_sProperty);
@@ -558,19 +558,19 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
-        auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
         ezReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
-        auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
         auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
         ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, ezVariant(valueObject.m_pObject, valueObject.m_pType));
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
-        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
         pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.Get<ezString>());
       }
 
@@ -584,23 +584,23 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
     {
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
-        auto pSpecificProp = static_cast<ezAbstractMemberProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractMemberProperty*>(pProp);
         ezReflectionUtils::SetMemberPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
-        auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
         ezReflectionUtils::SetArrayPropertyValue(
           pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), change.m_Change.m_Value);
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
-        auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
         ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
-        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
         ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(), change.m_Change.m_Value);
       }
     }
@@ -616,17 +616,17 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
 
       if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
-        auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
         ezReflectionUtils::InsertArrayPropertyValue(pSpecificProp, object.m_pObject, value, change.m_Change.m_Index.ConvertTo<ezUInt32>());
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
-        auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
         ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, value);
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
-        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
         ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(), value);
       }
     }
@@ -635,7 +635,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
     {
       if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
-        auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractArrayProperty*>(pProp);
         ezReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
@@ -647,12 +647,12 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
           value = ezTypedPointer(valueObject.m_pObject, valueObject.m_pType);
         }
 
-        auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractSetProperty*>(pProp);
         ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, value);
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Map)
       {
-        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        auto pSpecificProp = static_cast<const ezAbstractMapProperty*>(pProp);
         pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.Get<ezString>());
       }
     }

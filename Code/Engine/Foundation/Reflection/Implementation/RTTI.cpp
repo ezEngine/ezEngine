@@ -52,8 +52,8 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezRTTI::ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
-  ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions,
-  ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
+  ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<const ezAbstractProperty*> properties, ezArrayPtr<const ezAbstractFunctionProperty*> functions,
+  ezArrayPtr<const ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
   const ezRTTI* (*fnVerifyParent)())
   : m_sTypeName(sName)
   , m_Properties(properties)
@@ -184,7 +184,7 @@ void ezRTTI::VerifyCorrectness() const
   }
 
   {
-    for (ezAbstractProperty* pFunc : m_Functions)
+    for (const ezAbstractProperty* pFunc : m_Functions)
     {
       EZ_ASSERT_DEV(pFunc->GetCategory() == ezPropertyCategory::Function, "Invalid function property '{}'", pFunc->GetPropertyName());
     }
@@ -233,7 +233,7 @@ void ezRTTI::UnregisterType()
   }
 }
 
-void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_properties) const
+void ezRTTI::GetAllProperties(ezDynamicArray<const ezAbstractProperty*>& out_properties) const
 {
   out_properties.Clear();
 
@@ -286,7 +286,7 @@ const ezRTTI* ezRTTI::FindTypeIf(PredicateFunc func)
   return nullptr;
 }
 
-ezAbstractProperty* ezRTTI::FindPropertyByName(ezStringView sName, bool bSearchBaseTypes /* = true */) const
+const ezAbstractProperty* ezRTTI::FindPropertyByName(ezStringView sName, bool bSearchBaseTypes /* = true */) const
 {
   const ezRTTI* pInstance = this;
 

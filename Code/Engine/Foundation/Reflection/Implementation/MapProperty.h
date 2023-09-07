@@ -59,7 +59,7 @@ public:
     return begin(c) == end(c);
   }
 
-  virtual void Clear(void* pInstance) override
+  virtual void Clear(void* pInstance) const override
   {
     while (true)
     {
@@ -74,13 +74,13 @@ public:
     }
   }
 
-  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
+  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const override
   {
     EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
   }
 
-  virtual void Remove(void* pInstance, const char* szKey) override
+  virtual void Remove(void* pInstance, const char* szKey) const override
   {
     EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
@@ -142,7 +142,7 @@ public:
 
   virtual bool IsEmpty(const void* pInstance) const override { return (static_cast<const Class*>(pInstance)->*m_GetContainer)().IsEmpty(); }
 
-  virtual void Clear(void* pInstance) override
+  virtual void Clear(void* pInstance) const override
   {
     decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetContainer)();
     while (!IsEmpty(pInstance))
@@ -152,13 +152,13 @@ public:
     }
   }
 
-  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
+  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const override
   {
     EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
   }
 
-  virtual void Remove(void* pInstance, const char* szKey) override
+  virtual void Remove(void* pInstance, const char* szKey) const override
   {
     EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
@@ -232,21 +232,21 @@ public:
 
   virtual bool IsEmpty(const void* pInstance) const override { return m_ConstGetter(static_cast<const Class*>(pInstance)).IsEmpty(); }
 
-  virtual void Clear(void* pInstance) override
+  virtual void Clear(void* pInstance) const override
   {
     EZ_ASSERT_DEBUG(
       m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
-  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
+  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const override
   {
     EZ_ASSERT_DEBUG(
       m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Insert(szKey, *static_cast<const RealType*>(pObject));
   }
 
-  virtual void Remove(void* pInstance, const char* szKey) override
+  virtual void Remove(void* pInstance, const char* szKey) const override
   {
     EZ_ASSERT_DEBUG(
       m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());

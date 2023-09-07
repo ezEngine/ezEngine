@@ -43,7 +43,7 @@ public:
 
   ///\brief Applies the path up to the last step and allows a functor to write to the final property.
   ezResult WriteProperty(
-    void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, ezAbstractProperty* pProp, const ezVariant& index)> func) const;
+    void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
   ///\brief Applies the path up to the last step and allows a functor to read from the final property.
   ezResult ReadProperty(
     void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const;
@@ -69,7 +69,7 @@ public:
 private:
   struct ResolvedStep
   {
-    ezAbstractProperty* m_pProperty = nullptr;
+    const ezAbstractProperty* m_pProperty = nullptr;
     ezVariant m_Index;
   };
 

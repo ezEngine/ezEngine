@@ -59,7 +59,7 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
       sIndex.Clear();
     }
 
-    ezAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(sFieldName);
+    const ezAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(sFieldName);
 
     if (pAbsProp == nullptr)
       return EZ_FAILURE;
@@ -113,7 +113,7 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI* pRootObjectRtti, const
   const ezRTTI* pCurRtti = pRootObjectRtti;
   for (const ezPropertyPathStep& pathStep : path)
   {
-    ezAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(pathStep.m_sProperty);
+    const ezAbstractProperty* pAbsProp = pCurRtti->FindPropertyByName(pathStep.m_sProperty);
     if (pAbsProp == nullptr)
       return EZ_FAILURE;
 
@@ -145,7 +145,7 @@ ezResult ezPropertyPath::ReadFromLeafObject(void* pRootObject, const ezRTTI& typ
 }
 
 ezResult ezPropertyPath::WriteProperty(
-  void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, ezAbstractProperty* pProp, const ezVariant& index)> func) const
+  void* pRootObject, const ezRTTI& type, ezDelegate<void(void* pLeafObject, const ezRTTI& pLeafType, const ezAbstractProperty* pProp, const ezVariant& index)> func) const
 {
   EZ_ASSERT_DEBUG(!m_PathSteps.IsEmpty(), "Call InitializeFromPath before WriteToObject");
   return ResolvePath(pRootObject, &type, m_PathSteps.GetArrayPtr().GetSubArray(0, m_PathSteps.GetCount() - 1), true,
@@ -172,17 +172,17 @@ void ezPropertyPath::SetValue(void* pRootObject, const ezRTTI& type, const ezVar
   //                    value.CanConvertTo(m_PathSteps[m_PathSteps.GetCount() - 1].m_pProperty->GetSpecificType()->GetVariantType()),
   //                "The given value does not match the type at the given path.");
 
-  WriteProperty(pRootObject, type, [&value](void* pLeaf, const ezRTTI& type, ezAbstractProperty* pProp, const ezVariant& index) {
+  WriteProperty(pRootObject, type, [&value](void* pLeaf, const ezRTTI& type, const ezAbstractProperty* pProp, const ezVariant& index) {
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:
-        ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pLeaf, value);
+        ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pLeaf, value);
         break;
       case ezPropertyCategory::Array:
-        ezReflectionUtils::SetArrayPropertyValue(static_cast<ezAbstractArrayProperty*>(pProp), pLeaf, index.Get<ezInt32>(), value);
+        ezReflectionUtils::SetArrayPropertyValue(static_cast<const ezAbstractArrayProperty*>(pProp), pLeaf, index.Get<ezInt32>(), value);
         break;
       case ezPropertyCategory::Map:
-        ezReflectionUtils::SetMapPropertyValue(static_cast<ezAbstractMapProperty*>(pProp), pLeaf, index.Get<ezString>(), value);
+        ezReflectionUtils::SetMapPropertyValue(static_cast<const ezAbstractMapProperty*>(pProp), pLeaf, index.Get<ezString>(), value);
         break;
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
@@ -227,14 +227,14 @@ ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, 
   }
   else // Recurse
   {
-    ezAbstractProperty* pProp = path[0].m_pProperty;
+    const ezAbstractProperty* pProp = path[0].m_pProperty;
     const ezRTTI* pPropType = pProp->GetSpecificType();
 
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:
       {
-        ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
+        auto pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
         if (pPropType->GetProperties().GetCount() > 0)
         {
           void* pSubObject = pSpecific->GetPropertyPointer(pCurrentObject);
@@ -266,7 +266,7 @@ ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, 
       break;
       case ezPropertyCategory::Array:
       {
-        ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
+        auto pSpecific = static_cast<const ezAbstractArrayProperty*>(pProp);
 
         if (pPropType->GetAllocator()->CanAllocate())
         {
@@ -293,7 +293,7 @@ ezResult ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, 
       break;
       case ezPropertyCategory::Map:
       {
-        ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
+        auto pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
         const ezString& sKey = path[0].m_Index.Get<ezString>();
         if (!pSpecific->Contains(pCurrentObject, sKey))
           return EZ_FAILURE;

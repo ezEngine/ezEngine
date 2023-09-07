@@ -21,7 +21,7 @@ void ezVisualScriptNode::HandleMessage(ezMessage* pMsg) {}
 
 bool ezVisualScriptNode::IsManuallyStepped() const
 {
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   GetDynamicRTTI()->GetAllProperties(properties);
 
   for (auto prop : properties)

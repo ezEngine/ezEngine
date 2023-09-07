@@ -691,7 +691,7 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
         // so we can just re-apply the reference (by setting the property again)
         // and thus trigger that the other object updates/fixes its internal state
 
-        ezAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_sComponentProperty);
+        const ezAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_sComponentProperty);
         if (pAbsProp == nullptr)
           continue;
 
@@ -700,7 +700,7 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
 
         ezConversionUtils::ToString(e.m_ObjectGuid, tmp);
 
-        ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbsProp), pRefComp, tmp.GetData());
+        ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pAbsProp), pRefComp, tmp.GetData());
       }
       else
       {

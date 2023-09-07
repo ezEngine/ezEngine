@@ -36,7 +36,7 @@ void ezRenderPipelineNode::InitializePins()
 
   const ezRTTI* pType = GetDynamicRTTI();
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   for (auto pProp : properties)
@@ -44,7 +44,7 @@ void ezRenderPipelineNode::InitializePins()
     if (pProp->GetCategory() != ezPropertyCategory::Member || !pProp->GetSpecificType()->IsDerivedFrom(ezGetStaticRTTI<ezRenderPipelineNodePin>()))
       continue;
 
-    auto pPinProp = static_cast<ezAbstractMemberProperty*>(pProp);
+    auto pPinProp = static_cast<const ezAbstractMemberProperty*>(pProp);
     ezRenderPipelineNodePin* pPin = static_cast<ezRenderPipelineNodePin*>(pPinProp->GetPropertyPointer(this));
 
     pPin->m_pParent = this;

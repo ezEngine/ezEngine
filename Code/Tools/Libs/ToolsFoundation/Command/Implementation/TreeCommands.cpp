@@ -716,7 +716,7 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     m_OldValue = accessor0.GetValue(m_sProperty, m_Index, &res);
     if (res.Failed())
       return res;
-    ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
+    const ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
     if (pProp == nullptr)
       return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
 

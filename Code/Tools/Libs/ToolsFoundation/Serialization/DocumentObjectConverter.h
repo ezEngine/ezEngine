@@ -55,8 +55,8 @@ public:
 
 private:
   void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
-  void ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource);
-  static void ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezAbstractProperty* pProp,
+  void ApplyProperty(ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource);
+  static void ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
     ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff);
 
   Mode m_Mode;

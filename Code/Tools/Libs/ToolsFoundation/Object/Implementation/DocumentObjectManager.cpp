@@ -397,7 +397,7 @@ ezStatus ezDocumentObjectManager::CanRemove(const ezDocumentObject* pObject) con
 
   if (pObject->GetParent())
   {
-    ezAbstractProperty* pProp = pObject->GetParentPropertyType();
+    const ezAbstractProperty* pProp = pObject->GetParentPropertyType();
     EZ_ASSERT_DEV(pProp != nullptr, "Parent property should always be valid!");
     if (pProp->GetCategory() == ezPropertyCategory::Member && !pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       return ezStatus("Non pointer members can't be deleted!");

@@ -212,7 +212,7 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
       {
         if (pOtherAttr->IsInstanceOf(pAttribute->GetDynamicRTTI()))
         {
-          ezManipulatorAttribute* pOtherManip = static_cast<ezManipulatorAttribute*>(pOtherAttr);
+          auto pOtherManip = static_cast<const ezManipulatorAttribute*>(pOtherAttr);
 
           if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 && pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
               pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 && pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&
@@ -240,7 +240,7 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
         {
           if (pOtherAttr->IsInstanceOf(pAttribute->GetDynamicRTTI()))
           {
-            ezManipulatorAttribute* pOtherManip = static_cast<ezManipulatorAttribute*>(pOtherAttr);
+            auto pOtherManip = static_cast<const ezManipulatorAttribute*>(pOtherAttr);
 
             if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 && pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
                 pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 && pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&

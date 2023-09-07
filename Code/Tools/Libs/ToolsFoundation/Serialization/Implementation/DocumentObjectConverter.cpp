@@ -126,10 +126,10 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
 
 void ezDocumentObjectConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezDocumentObject* pObject)
 {
-  ezHybridArray<ezAbstractProperty*, 32> Properties;
-  pObject->GetTypeAccessor().GetType()->GetAllProperties(Properties);
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  pObject->GetTypeAccessor().GetType()->GetAllProperties(properties);
 
-  for (const auto* pProp : Properties)
+  for (const auto* pProp : properties)
   {
     AddProperty(pNode, pProp, pObject);
   }
@@ -186,10 +186,10 @@ void ezDocumentObjectConverterReader::AddObject(ezDocumentObject* pObject, ezDoc
 void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObject* pObject)
 {
   // EZ_ASSERT_DEV(pObject->GetChildren().GetCount() == 0, "Can only apply properties to empty objects!");
-  ezHybridArray<ezAbstractProperty*, 32> Properties;
-  pObject->GetTypeAccessor().GetType()->GetAllProperties(Properties);
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  pObject->GetTypeAccessor().GetType()->GetAllProperties(properties);
 
-  for (auto* pProp : Properties)
+  for (auto* pProp : properties)
   {
     auto* pOtherProp = pNode->FindProperty(pProp->GetPropertyName());
     if (pOtherProp == nullptr)
@@ -211,7 +211,7 @@ void ezDocumentObjectConverterReader::ApplyDiffToObject(ezObjectAccessorBase* pO
 
   for (auto* op : change)
   {
-    ezAbstractProperty* pProp = pObject->GetTypeAccessor().GetType()->FindPropertyByName(op->m_sProperty);
+    const ezAbstractProperty* pProp = pObject->GetTypeAccessor().GetType()->FindPropertyByName(op->m_sProperty);
     if (!pProp)
       continue;
 
@@ -225,8 +225,7 @@ void ezDocumentObjectConverterReader::ApplyDiffToObject(ezObjectAccessorBase* pO
   }
 }
 
-void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezAbstractProperty* pProp,
-  ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff)
+void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff)
 {
   ezStringBuilder sTemp;
 
@@ -404,8 +403,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
   }
 }
 
-void ezDocumentObjectConverterReader::ApplyProperty(
-  ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
+void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
 {
   ezStringBuilder sTemp;
 

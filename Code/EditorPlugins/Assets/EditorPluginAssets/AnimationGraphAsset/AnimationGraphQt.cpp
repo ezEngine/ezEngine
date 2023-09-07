@@ -30,7 +30,7 @@ void ezQtAnimationGraphNode::UpdateState()
 
       // replace enum properties with translated strings
       {
-        ezHybridArray<ezAbstractProperty*, 32> properties;
+        ezHybridArray<const ezAbstractProperty*, 32> properties;
         pRtti->GetAllProperties(properties);
 
         for (const auto& prop : properties)

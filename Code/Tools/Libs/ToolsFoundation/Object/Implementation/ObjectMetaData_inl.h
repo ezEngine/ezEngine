@@ -112,7 +112,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
         continue;
 
       DefaultValues[pProp->GetPropertyName()] =
-        ezReflectionUtils::GetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), &m_DefaultValue);
+        ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), &m_DefaultValue);
     }
   }
 
@@ -134,7 +134,7 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
         if (pProp->GetCategory() != ezPropertyCategory::Member)
           continue;
 
-        value = ezReflectionUtils::GetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pMeta);
+        value = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pMeta);
 
         if (value.IsValid() && DefaultValues[pProp->GetPropertyName()] != value)
         {
@@ -178,7 +178,7 @@ void ezObjectMetaData<KEY, VALUE>::RestoreMetaDataFromAbstractGraph(const ezAbst
         VALUE* pValue = &m_pMetaStorage->m_MetaData[guid];
 
         ezReflectionUtils::SetMemberPropertyValue(
-          static_cast<ezAbstractMemberProperty*>(pValue->GetDynamicRTTI()->FindPropertyByName(name)), pValue, pProp->m_Value);
+          static_cast<const ezAbstractMemberProperty*>(pValue->GetDynamicRTTI()->FindPropertyByName(name)), pValue, pProp->m_Value);
       }
     }
   }

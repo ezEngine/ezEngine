@@ -37,13 +37,11 @@ void ezVisualScriptNode_GetNumberProperty::Execute(ezVisualScriptInstance* pInst
   ezComponent* pComponent = nullptr;
   if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
-    ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
+    const ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
     if (pAbsProp && pAbsProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbsProp);
-
-      ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pMember, pComponent);
+      ezVariant var = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pAbsProp), pComponent);
 
       if (var.CanConvertTo<double>())
       {
@@ -96,13 +94,11 @@ void ezVisualScriptNode_SetNumberProperty::Execute(ezVisualScriptInstance* pInst
   ezComponent* pComponent = nullptr;
   if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
-    ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
+    const ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
     if (pAbsProp && pAbsProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbsProp);
-
-      ezReflectionUtils::SetMemberPropertyValue(pMember, pComponent, m_fValue);
+      ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pAbsProp), pComponent, m_fValue);
     }
   }
 
@@ -154,13 +150,11 @@ void ezVisualScriptNode_GetBoolProperty::Execute(ezVisualScriptInstance* pInstan
   ezComponent* pComponent = nullptr;
   if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
-    ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
+    const ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
     if (pAbsProp && pAbsProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbsProp);
-
-      ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pMember, pComponent);
+      ezVariant var = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pAbsProp), pComponent);
 
       if (var.CanConvertTo<bool>())
       {
@@ -212,13 +206,11 @@ void ezVisualScriptNode_SetBoolProperty::Execute(ezVisualScriptInstance* pInstan
   ezComponent* pComponent = nullptr;
   if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
-    ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
+    const ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
     if (pAbsProp && pAbsProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbsProp);
-
-      ezReflectionUtils::SetMemberPropertyValue(pMember, pComponent, m_bValue);
+      ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pAbsProp), pComponent, m_bValue);
     }
   }
 
@@ -270,13 +262,11 @@ void ezVisualScriptNode_GetStringProperty::Execute(ezVisualScriptInstance* pInst
   ezComponent* pComponent = nullptr;
   if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
-    ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
+    const ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
     if (pAbsProp && pAbsProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbsProp);
-
-      ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pMember, pComponent);
+      ezVariant var = ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pAbsProp), pComponent);
 
       if (var.CanConvertTo<ezString>())
       {
@@ -328,13 +318,11 @@ void ezVisualScriptNode_SetStringProperty::Execute(ezVisualScriptInstance* pInst
   ezComponent* pComponent = nullptr;
   if (pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
   {
-    ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
+    const ezAbstractProperty* pAbsProp = pComponent->GetDynamicRTTI()->FindPropertyByName(m_sVariable);
 
     if (pAbsProp && pAbsProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbsProp);
-
-      ezReflectionUtils::SetMemberPropertyValue(pMember, pComponent, m_sValue);
+      ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pAbsProp), pComponent, m_sValue);
     }
   }
 

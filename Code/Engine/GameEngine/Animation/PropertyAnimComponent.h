@@ -61,7 +61,7 @@ protected:
 
   struct Binding
   {
-    ezAbstractMemberProperty* m_pMemberProperty = nullptr;
+    const ezAbstractMemberProperty* m_pMemberProperty = nullptr;
     mutable void* m_pObject = nullptr; // needs to be updated in case components / objects get relocated in memory
   };
 

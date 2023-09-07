@@ -237,7 +237,7 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
   if (m_pMessageToSend != nullptr)
   {
     // fill message properties from inputs
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
 
     const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
@@ -277,7 +277,7 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
           EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
       }
 
-      ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+      auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(properties[uiProp]);
       ezReflectionUtils::SetMemberPropertyValue(pAbsMember, m_pMessageToSend.Borrow(), var);
     }
 
@@ -320,7 +320,7 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
           if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
               properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
           {
-            ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+            auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(properties[uiProp]);
 
             const ezRTTI* pType = pAbsMember->GetSpecificType();
             if (ezVisualScriptDataPinType::IsTypeSupported(pType))
@@ -394,7 +394,7 @@ void ezVisualScriptNode_MessageSender::SetMessageToSend(ezUniquePtr<ezMessage>&&
   // Calculate scratch memory size and build mapping from property index to memory offset
   ezUInt32 uiScratchMemorySize = 0;
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
 
   const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
@@ -405,7 +405,7 @@ void ezVisualScriptNode_MessageSender::SetMessageToSend(ezUniquePtr<ezMessage>&&
   {
     if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member)
     {
-      ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+      auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(properties[uiProp]);
 
       const ezRTTI* pType = pAbsMember->GetSpecificType();
       auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(pType);
@@ -432,7 +432,7 @@ void ezVisualScriptNode_MessageSender::SetMessageToSend(ezUniquePtr<ezMessage>&&
     ezUInt32 uiOffset = m_PropertyIndexToMemoryOffset[uiProp];
     void* ptr = &m_ScratchMemory.GetByteBlobPtr()[uiOffset];
 
-    ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+    auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(properties[uiProp]);
     ezVariant var = ezReflectionUtils::GetMemberPropertyValue(pAbsMember, m_pMessageToSend.Borrow());
     ezVisualScriptDataPinType::EnforceSupportedType(var);
 
@@ -475,7 +475,7 @@ void ezVisualScriptNode_MessageHandler::Execute(ezVisualScriptInstance* pInstanc
   if (m_pMsgCopy == nullptr)
     return;
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   m_pMsgCopy->GetDynamicRTTI()->GetAllProperties(properties);
 
   const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
@@ -485,7 +485,7 @@ void ezVisualScriptNode_MessageHandler::Execute(ezVisualScriptInstance* pInstanc
 
     if (prop->GetCategory() == ezPropertyCategory::Member)
     {
-      ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(prop);
+      auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(prop);
 
       const ezRTTI* pType = pAbsMember->GetSpecificType();
       if (ezVisualScriptDataPinType::IsTypeSupported(pType))

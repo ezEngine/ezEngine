@@ -130,12 +130,12 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
   ezStringBuilder sProp;
   ezStringBuilder sDefault;
 
-  for (ezAbstractProperty* pProp : pRtti->GetProperties())
+  for (const ezAbstractProperty* pProp : pRtti->GetProperties())
   {
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+    auto pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
 
     const char* szTypeName = TsType(pMember->GetSpecificType());
     if (szTypeName == nullptr)

@@ -91,8 +91,8 @@ void ezQtVarianceTypeWidget::SlotVarianceChanged()
 
 void ezQtVarianceTypeWidget::OnInit()
 {
-  m_pValueProp = static_cast<ezAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Value"));
-  m_pVarianceProp = static_cast<ezAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Variance"));
+  m_pValueProp = static_cast<const ezAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Value"));
+  m_pVarianceProp = static_cast<const ezAbstractMemberProperty*>(GetProperty()->GetSpecificType()->FindPropertyByName("Variance"));
 
   // Property type adjustments
   ezQtScopedBlockSignals bs(m_pValueWidget);

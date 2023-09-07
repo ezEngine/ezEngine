@@ -55,7 +55,7 @@ namespace ReflectionDetail
     msg.GetWriter() << pRTTI->GetPluginName();
 
     {
-      const ezArrayPtr<ezAbstractProperty*>& properties = pRTTI->GetProperties();
+      auto properties = pRTTI->GetProperties();
 
       msg.GetWriter() << properties.GetCount();
 

@@ -366,11 +366,11 @@ void ezVisualScriptResourceDescriptor::AssignNodeProperties(ezVisualScriptNode& 
     const ezUInt32 uiProp = properties.m_uiFirstProperty + i;
     const auto& prop = m_Properties[uiProp];
 
-    ezAbstractProperty* pAbstract = ref_node.GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+    const ezAbstractProperty* pAbstract = ref_node.GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
     if (pAbstract->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+    auto pMember = static_cast<const ezAbstractMemberProperty*>(pAbstract);
     ezReflectionUtils::SetMemberPropertyValue(pMember, &ref_node, prop.m_Value);
   }
 }

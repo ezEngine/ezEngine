@@ -193,7 +193,7 @@ void ezVisualScriptInstance::CreateMessageSenderNode(ezUInt32 uiNodeIdx, const e
       const ezUInt32 uiProp = node.m_uiFirstProperty + i;
       const auto& prop = resource.m_Properties[uiProp];
 
-      ezAbstractProperty* pAbstract = pMessage->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+      const ezAbstractProperty* pAbstract = pMessage->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
       if (pAbstract == nullptr)
       {
         if (prop.m_sName == "Delay" && prop.m_Value.CanConvertTo<ezTime>())
@@ -211,7 +211,7 @@ void ezVisualScriptInstance::CreateMessageSenderNode(ezUInt32 uiNodeIdx, const e
       if (pAbstract->GetCategory() != ezPropertyCategory::Member)
         continue;
 
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+      auto pMember = static_cast<const ezAbstractMemberProperty*>(pAbstract);
       ezReflectionUtils::SetMemberPropertyValue(pMember, pMessage, prop.m_Value);
     }
   }
@@ -312,7 +312,7 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
   m_Nodes.PushBack(pNode);
 }
 
-ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
+const ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
 {
   if (sFuncName.IsEmpty())
     return nullptr;

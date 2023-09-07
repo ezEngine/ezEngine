@@ -16,7 +16,7 @@ private:
 
   void SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>& properties);
   void SetFunctions(ezDynamicArray<ezReflectedFunctionDescriptor>& functions);
-  void SetAttributes(ezHybridArray<ezPropertyAttribute*, 2>& attributes);
+  void SetAttributes(ezDynamicArray<const ezPropertyAttribute*>& attributes);
   bool IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc);
 
   void UpdateType(ezReflectedTypeDescriptor& desc);
@@ -26,5 +26,5 @@ private:
   ezString m_sPluginNameStorage;
   ezDynamicArray<ezAbstractProperty*> m_PropertiesStorage;
   ezDynamicArray<ezAbstractFunctionProperty*> m_FunctionsStorage;
-  ezDynamicArray<ezPropertyAttribute*> m_AttributesStorage;
+  ezDynamicArray<const ezPropertyAttribute*> m_AttributesStorage;
 };

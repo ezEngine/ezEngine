@@ -6,8 +6,8 @@
 
 ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
   ezBitflags<ezTypeFlags> flags, const char* szPluginName)
-  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<ezAbstractProperty*>(),
-      ezArrayPtr<ezAbstractFunctionProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(),
+  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<const ezAbstractProperty*>(),
+      ezArrayPtr<const ezAbstractFunctionProperty*>(), ezArrayPtr<const ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(),
       ezArrayPtr<ezMessageSenderInfo>(), nullptr)
 {
   m_sTypeNameStorage = szName;
@@ -34,7 +34,8 @@ ezPhantomRTTI::~ezPhantomRTTI()
   }
   for (auto pAttrib : m_AttributesStorage)
   {
-    EZ_DEFAULT_DELETE(pAttrib);
+    auto pAttribNonConst = const_cast<ezPropertyAttribute*>(pAttrib);
+    EZ_DEFAULT_DELETE(pAttribNonConst);
   }
 }
 
@@ -83,7 +84,7 @@ void ezPhantomRTTI::SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>&
     }
   }
 
-  m_Properties = m_PropertiesStorage;
+  m_Properties = m_PropertiesStorage.GetArrayPtr();
 }
 
 
@@ -103,14 +104,15 @@ void ezPhantomRTTI::SetFunctions(ezDynamicArray<ezReflectedFunctionDescriptor>& 
     m_FunctionsStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomFunctionProperty, &functions[i]));
   }
 
-  m_Functions = m_FunctionsStorage;
+  m_Functions = m_FunctionsStorage.GetArrayPtr();
 }
 
-void ezPhantomRTTI::SetAttributes(ezHybridArray<ezPropertyAttribute*, 2>& attributes)
+void ezPhantomRTTI::SetAttributes(ezDynamicArray<const ezPropertyAttribute*>& attributes)
 {
   for (auto pAttrib : m_AttributesStorage)
   {
-    EZ_DEFAULT_DELETE(pAttrib);
+    auto pAttribNonConst = const_cast<ezPropertyAttribute*>(pAttrib);
+    EZ_DEFAULT_DELETE(pAttribNonConst);
   }
   m_AttributesStorage.Clear();
   m_AttributesStorage = attributes;

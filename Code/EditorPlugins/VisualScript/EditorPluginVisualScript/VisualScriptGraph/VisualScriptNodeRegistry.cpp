@@ -807,7 +807,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
   ezHashSet<ezStringView> dynamicPins;
   for (auto pAttribute : pFunction->GetAttributes())
   {
-    if (auto pDynamicPinAttribute = ezDynamicCast<ezDynamicPinAttribute*>(pAttribute))
+    if (auto pDynamicPinAttribute = ezDynamicCast<const ezDynamicPinAttribute*>(pAttribute))
     {
       dynamicPins.Insert(pDynamicPinAttribute->GetProperty());
     }

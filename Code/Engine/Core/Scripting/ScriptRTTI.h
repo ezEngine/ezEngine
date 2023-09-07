@@ -30,7 +30,7 @@ private:
   ezString m_sTypeNameStorage;
   FunctionList m_FunctionStorage;
   MessageHandlerList m_MessageHandlerStorage;
-  ezSmallArray<ezAbstractFunctionProperty*, NumInplaceFunctions> m_FunctionRawPtrs;
+  ezSmallArray<const ezAbstractFunctionProperty*, NumInplaceFunctions> m_FunctionRawPtrs;
   ezSmallArray<ezAbstractMessageHandler*, NumInplaceFunctions> m_MessageHandlerRawPtrs;
 };
 

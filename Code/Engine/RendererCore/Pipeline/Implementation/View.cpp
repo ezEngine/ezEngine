@@ -465,7 +465,7 @@ void ezView::ApplyExtractorProperties()
 
 void ezView::ApplyProperty(ezReflectedClass* pObject, PropertyValue& data, const char* szTypeName)
 {
-  ezAbstractProperty* pAbstractProperty = pObject->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
+  const ezAbstractProperty* pAbstractProperty = pObject->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
   if (pAbstractProperty == nullptr)
   {
     ezLog::Error("The {0} '{1}' does not have a property called '{2}', it cannot be applied.", szTypeName, data.m_sObjectName, data.m_sPropertyName);
@@ -482,7 +482,7 @@ void ezView::ApplyProperty(ezReflectedClass* pObject, PropertyValue& data, const
     return;
   }
 
-  auto pMemberProperty = static_cast<ezAbstractMemberProperty*>(pAbstractProperty);
+  auto pMemberProperty = static_cast<const ezAbstractMemberProperty*>(pAbstractProperty);
   if (data.m_DefaultValue.IsValid() == false)
   {
     data.m_DefaultValue = ezReflectionUtils::GetMemberPropertyValue(pMemberProperty, pObject);

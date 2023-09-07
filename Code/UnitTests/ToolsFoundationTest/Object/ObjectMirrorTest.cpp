@@ -241,9 +241,9 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
 
 void RecursiveModifyObject(const ezDocumentObject* pObject, ezObjectAccessorBase* pAccessor)
 {
-  ezHybridArray<ezAbstractProperty*, 32> Properties;
-  pObject->GetTypeAccessor().GetType()->GetAllProperties(Properties);
-  for (const auto* pProp : Properties)
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  pObject->GetTypeAccessor().GetType()->GetAllProperties(properties);
+  for (const auto* pProp : properties)
   {
     RecursiveModifyProperty(pObject, pProp, pAccessor);
   }
