@@ -135,9 +135,9 @@ void ezLongOpsAdapter::ObjectAdded(const ezDocumentObject* pObject)
     {
       while (pRtti)
       {
-        for (ezPropertyAttribute* pAttr : pRtti->GetAttributes())
+        for (const ezPropertyAttribute* pAttr : pRtti->GetAttributes())
         {
-          if (auto pOpAttr = ezDynamicCast<ezLongOpAttribute*>(pAttr))
+          if (auto pOpAttr = ezDynamicCast<const ezLongOpAttribute*>(pAttr))
           {
             ezLongOpControllerManager::GetSingleton()->RegisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }
@@ -169,9 +169,9 @@ void ezLongOpsAdapter::ObjectRemoved(const ezDocumentObject* pObject)
     {
       while (pRtti)
       {
-        for (ezPropertyAttribute* pAttr : pRtti->GetAttributes())
+        for (const ezPropertyAttribute* pAttr : pRtti->GetAttributes())
         {
-          if (auto pOpAttr = ezDynamicCast<ezLongOpAttribute*>(pAttr))
+          if (auto pOpAttr = ezDynamicCast<const ezLongOpAttribute*>(pAttr))
           {
             ezLongOpControllerManager::GetSingleton()->UnregisterLongOp(pObject->GetDocumentObjectManager()->GetDocument()->GetGuid(), pObject->GetGuid(), pOpAttr->m_sOpTypeName);
           }

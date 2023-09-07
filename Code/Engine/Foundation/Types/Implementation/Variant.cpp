@@ -252,7 +252,7 @@ struct IndexFunc
   EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
   {
     const ezRTTI* pRtti = m_pThis->GetReflectedType();
-    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_uiIndex);
+    const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_uiIndex);
     if (!pProp)
       return ezVariant();
 
@@ -290,7 +290,7 @@ struct KeyFunc
   EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
   {
     const ezRTTI* pRtti = m_pThis->GetReflectedType();
-    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_szKey);
+    const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_szKey);
     if (!pProp)
       return ezVariant();
     if (m_pThis->GetType() == ezVariantType::TypedPointer)

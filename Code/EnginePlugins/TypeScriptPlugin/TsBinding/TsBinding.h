@@ -103,13 +103,13 @@ private:
 public:
   struct FunctionBinding
   {
-    ezAbstractFunctionProperty* m_pFunc = nullptr;
+    const ezAbstractFunctionProperty* m_pFunc = nullptr;
   };
 
   static const FunctionBinding* FindFunctionBinding(ezUInt32 uiFunctionHash);
 
 private:
-  static ezUInt32 ComputeFunctionBindingHash(const ezRTTI* pType, ezAbstractFunctionProperty* pFunc);
+  static ezUInt32 ComputeFunctionBindingHash(const ezRTTI* pType, const ezAbstractFunctionProperty* pFunc);
   static void SetupRttiFunctionBindings();
   static const char* TsType(const ezRTTI* pRtti);
   static int __CPP_Binding_RegisterMessageHandler(duk_context* pDuk);
@@ -124,7 +124,7 @@ private:
 public:
   struct PropertyBinding
   {
-    ezAbstractMemberProperty* m_pMember = nullptr;
+    const ezAbstractMemberProperty* m_pMember = nullptr;
   };
 
   static const PropertyBinding* FindPropertyBinding(ezUInt32 uiHash);
@@ -133,7 +133,7 @@ public:
   static void SyncTsObjectEzTsObject(duk_context* pDuk, const ezRTTI* pRtti, void* pObject, ezInt32 iObjIdx);
 
 private:
-  static ezUInt32 ComputePropertyBindingHash(const ezRTTI* pType, ezAbstractMemberProperty* pMember);
+  static ezUInt32 ComputePropertyBindingHash(const ezRTTI* pType, const ezAbstractMemberProperty* pMember);
   static void SetupRttiPropertyBindings();
 
   static ezHashTable<ezUInt32, PropertyBinding> s_BoundProperties;

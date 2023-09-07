@@ -59,7 +59,7 @@ void ezAnimationGraphNodeManager::InternalCreatePins(const ezDocumentObject* pOb
   if (!pType->IsDerivedFrom<ezAnimGraphNode>())
     return;
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   const ezColor triggerPinColor = ezColorScheme::DarkUI(ezColorScheme::Yellow);
@@ -72,7 +72,7 @@ void ezAnimationGraphNodeManager::InternalCreatePins(const ezDocumentObject* pOb
 
   ezHybridArray<ezString, 16> pinNames;
 
-  for (ezAbstractProperty* pProp : properties)
+  for (auto pProp : properties)
   {
     if (!pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphPin>())
       continue;

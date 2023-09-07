@@ -212,9 +212,9 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
   }
 
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
-  ezHybridArray<ezAbstractProperty*, 32> Properties;
+  ezHybridArray<const ezAbstractProperty*, 32> Properties;
   pType->GetAllProperties(Properties);
-  for (const auto* pProp : Properties)
+  for (auto pProp : Properties)
   {
     if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
       continue;

@@ -56,7 +56,7 @@ void ezVisualizerAdapterRegistry::CreateAdapters(const ezDocument* pDocument, co
       if (pAdapter)
       {
         m_DocumentAdapters[pDocument].m_Adapters.PushBack(pAdapter);
-        pAdapter->SetVisualizer(static_cast<ezVisualizerAttribute*>(pAttr), pObject);
+        pAdapter->SetVisualizer(static_cast<const ezVisualizerAttribute*>(pAttr), pObject);
       }
     }
   }

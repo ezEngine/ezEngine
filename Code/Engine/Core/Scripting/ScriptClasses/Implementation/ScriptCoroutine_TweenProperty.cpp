@@ -53,7 +53,7 @@ void ezScriptCoroutine_TweenProperty::Start(ezComponentHandle hComponent, ezStri
     return;
   }
 
-  m_pProperty = static_cast<ezAbstractMemberProperty*>(pProp);
+  m_pProperty = static_cast<const ezAbstractMemberProperty*>(pProp);
   m_hComponent = hComponent;
   m_SourceValue = ezReflectionUtils::GetMemberPropertyValue(m_pProperty, pComponent);
   m_Easing = easing;

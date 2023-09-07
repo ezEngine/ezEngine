@@ -155,7 +155,7 @@ void ezQtPreferencesDlg::AllPreferencesToObject()
   ezHybridArray<ezPreferences*, 16> AllPrefs;
   ezPreferences::GatherAllPreferences(AllPrefs);
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
 
   ezMap<ezString, ezPreferences*> appPref;
   ezMap<ezString, ezPreferences*> projPref;

@@ -33,19 +33,19 @@ public:
   static void SetMemberPropertyValue(const ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
 
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
-  static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
+  static void SetArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
 
-  static void InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
-  static void RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
+  static void InsertSetPropertyValue(const ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
+  static void RemoveSetPropertyValue(const ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
 
   static ezVariant GetMapPropertyValue(const ezAbstractMapProperty* pProp, const void* pObject, const char* szKey);
-  static void SetMapPropertyValue(ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value);
+  static void SetMapPropertyValue(const ezAbstractMapProperty* pProp, void* pObject, const char* szKey, const ezVariant& value);
 
-  static void InsertArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, const ezVariant& value, ezUInt32 uiIndex);
-  static void RemoveArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex);
+  static void InsertArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, const ezVariant& value, ezUInt32 uiIndex);
+  static void RemoveArrayPropertyValue(const ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex);
 
-  static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex);
-  static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName); // [tested] via ToolsFoundation
+  static const ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex);
+  static const ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName); // [tested] via ToolsFoundation
 
   /// \brief Gathers all RTTI types that are derived from pRtti.
   ///
@@ -148,10 +148,10 @@ public:
   static bool IsEqual(const void* pObject, const void* pObject2, const ezRTTI* pType); // [tested]
 
   /// \brief Compares property pProp of pObject and pObject2 and returns whether it is equal in both.
-  static bool IsEqual(const void* pObject, const void* pObject2, ezAbstractProperty* pProp);
+  static bool IsEqual(const void* pObject, const void* pObject2, const ezAbstractProperty* pProp);
 
   /// \brief Deletes pObject using the allocator found in the owning property's type.
-  static void DeleteObject(void* pObject, ezAbstractProperty* pOwnerProperty);
+  static void DeleteObject(void* pObject, const ezAbstractProperty* pOwnerProperty);
 
   /// \brief Returns a global default initialization value for the given variant type.
   static ezVariant GetDefaultVariantFromType(ezVariant::Type::Enum type); // [tested]

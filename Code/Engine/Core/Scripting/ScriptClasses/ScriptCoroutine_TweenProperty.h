@@ -11,7 +11,7 @@ public:
   virtual Result Update(ezTime deltaTimeSinceLastUpdate) override;
 
 private:
-  ezAbstractMemberProperty* m_pProperty = nullptr;
+  const ezAbstractMemberProperty* m_pProperty = nullptr;
   ezComponentHandle m_hComponent;
   ezVariant m_SourceValue;
   ezVariant m_TargetValue;

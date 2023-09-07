@@ -153,7 +153,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
 
 const ezTypedMemberProperty<ezColor>* ezEditorShapeIconsExtractor::FindColorProperty(const ezRTTI* pRtti) const
 {
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   for (const ezAbstractProperty* pProperty : properties)
@@ -169,7 +169,7 @@ const ezTypedMemberProperty<ezColor>* ezEditorShapeIconsExtractor::FindColorProp
 
 const ezTypedMemberProperty<ezColorGammaUB>* ezEditorShapeIconsExtractor::FindColorGammaProperty(const ezRTTI* pRtti) const
 {
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   for (const ezAbstractProperty* pProperty : properties)

@@ -475,13 +475,13 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
         auto* pProp = pRtti->FindPropertyByName("DocumentType");
         if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
         {
-          const ezStringBuilder sDocTypes(";", static_cast<ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>(), ";");
+          const ezStringBuilder sDocTypes(";", static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>(), ";");
           const ezStringBuilder sRequestedType(";", pMsg->m_sDocumentType, ";");
 
           if (sDocTypes.FindSubString(sRequestedType) != nullptr)
           {
             ezLog::Dev("Created Context of type '{0}' for '{1}'", pRtti->GetTypeName(), pMsg->m_sDocumentType);
-            for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
+            for (auto pFunc : pRtti->GetFunctions())
             {
               if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "AllocateContext"))
               {

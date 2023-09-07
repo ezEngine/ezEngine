@@ -145,7 +145,7 @@ void ezReflectionSerializer::ReadObjectPropertiesFromBinary(ezStreamReader& inou
 
 namespace
 {
-  static void CloneProperty(const void* pObject, void* pClone, ezAbstractProperty* pProp)
+  static void CloneProperty(const void* pObject, void* pClone, const ezAbstractProperty* pProp)
   {
     if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       return;
@@ -159,7 +159,7 @@ namespace
     {
       case ezPropertyCategory::Member:
       {
-        ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
+        auto pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
 
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
@@ -207,7 +207,7 @@ namespace
       break;
       case ezPropertyCategory::Array:
       {
-        ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
+        auto pSpecific = static_cast<const ezAbstractArrayProperty*>(pProp);
         // Delete old values
         if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
         {
@@ -265,7 +265,7 @@ namespace
       break;
       case ezPropertyCategory::Set:
       {
-        ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
+        auto pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
 
         // Delete old values
         if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
@@ -310,7 +310,7 @@ namespace
       break;
       case ezPropertyCategory::Map:
       {
-        ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
+        auto pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
 
         // Delete old values
         if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))

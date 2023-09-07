@@ -170,7 +170,7 @@ namespace
     return pType;
   }
 
-  void AddAttributes(ezShaderParser::ParameterDefinition& ref_def, const ezRTTI* pType, ezHybridArray<ezPropertyAttribute*, 2>& ref_attributes)
+  void AddAttributes(ezShaderParser::ParameterDefinition& ref_def, const ezRTTI* pType, ezHybridArray<const ezPropertyAttribute*, 2>& ref_attributes)
   {
     if (ref_def.m_sType.StartsWith_NoCase("texture"))
     {

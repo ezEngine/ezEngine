@@ -203,7 +203,7 @@ ezStatus ezObjectPropertyPath::ResolvePropertyPath(
     {
       return ezStatus(ezFmt("Malformed property path part: {0}", sPart));
     }
-    ezAbstractProperty* pProperty = pObject->GetType()->FindPropertyByName(parts2[0]);
+    const ezAbstractProperty* pProperty = pObject->GetType()->FindPropertyByName(parts2[0]);
     if (!pProperty)
       return ezStatus(ezFmt("Property not found: {0}", parts2[0]));
     ezVariant index;

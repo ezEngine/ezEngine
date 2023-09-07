@@ -13,7 +13,7 @@ ezResult ezTypeScriptBinding::Init_FunctionBinding()
   return EZ_SUCCESS;
 }
 
-ezUInt32 ezTypeScriptBinding::ComputeFunctionBindingHash(const ezRTTI* pType, ezAbstractFunctionProperty* pFunc)
+ezUInt32 ezTypeScriptBinding::ComputeFunctionBindingHash(const ezRTTI* pType, const ezAbstractFunctionProperty* pFunc)
 {
   ezStringBuilder sFuncName;
 
@@ -29,7 +29,7 @@ void ezTypeScriptBinding::SetupRttiFunctionBindings()
 
   ezRTTI::ForEachDerivedType<ezComponent>(
     [&](const ezRTTI* pRtti) {
-      for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
+      for (const ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
       {
         // TODO: static members ?
         if (pFunc->GetFunctionType() != ezFunctionType::Member)
@@ -151,7 +151,7 @@ void ezTypeScriptBinding::GenerateExposedFunctionsCode(ezStringBuilder& out_Code
 {
   ezStringBuilder sFunc;
 
-  for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
+  for (const ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
   {
     // TODO: static members ?
     if (pFunc->GetFunctionType() != ezFunctionType::Member)

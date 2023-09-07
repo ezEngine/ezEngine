@@ -551,9 +551,9 @@ void ezEditorSceneDocumentTest::PrefabOperations()
     const char* szExpectedProvider = pChild == pPrefab3 ? "Attribute" : "Prefab";
     EZ_TEST_STRING(defaultState.GetStateProviderName(), szExpectedProvider);
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pChild->GetType()->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Hidden | ezPropertyFlags::ReadOnly))
         continue;
@@ -725,9 +725,9 @@ void ezEditorSceneDocumentTest::ComponentOperations()
     selection.PushBack({pChild, ezVariant()});
     ezDefaultObjectState defaultState(pAccessor, selection);
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pChild->GetType()->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Hidden | ezPropertyFlags::ReadOnly))
         continue;

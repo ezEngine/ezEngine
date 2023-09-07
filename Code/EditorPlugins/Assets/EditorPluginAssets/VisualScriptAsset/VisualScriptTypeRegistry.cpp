@@ -186,7 +186,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
     nd.m_Color = pAttr->GetColor();
   }
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   ezSet<ezInt32> usedInputDataPinIDs;
@@ -264,7 +264,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
       pd.m_sName = prop->GetPropertyName();
       pd.m_sType = prop->GetSpecificType()->GetTypeName();
 
-      for (ezPropertyAttribute* const pAttr : prop->GetAttributes())
+      for (auto pAttr : prop->GetAttributes())
       {
         pd.m_Attributes.PushBack(ezReflectionSerializer::Clone(pAttr));
       }
@@ -311,7 +311,7 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
     nd.m_Color = pAttr->GetColor();
   }
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   // Add an input execution pin
@@ -407,7 +407,7 @@ void ezVisualScriptTypeRegistry::CreateMessageSenderNodeType(const ezRTTI* pRtti
       prd.m_sName = prop->GetPropertyName();
       prd.m_sType = prop->GetSpecificType()->GetTypeName();
 
-      for (ezPropertyAttribute* const pAttr : prop->GetAttributes())
+      for (auto pAttr : prop->GetAttributes())
       {
         prd.m_Attributes.PushBack(ezReflectionSerializer::Clone(pAttr));
       }
@@ -452,7 +452,7 @@ void ezVisualScriptTypeRegistry::CreateMessageHandlerNodeType(const ezRTTI* pRtt
     nd.m_Color = pAttr->GetColor();
   }
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   // Add an output execution pin

@@ -23,10 +23,10 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
   if (!pType->IsDerivedFrom<ezRenderPipelinePass>())
     return;
 
-  ezHybridArray<ezAbstractProperty*, 32> properties;
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
-  for (ezAbstractProperty* pProp : properties)
+  for (auto pProp : properties)
   {
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;

@@ -116,7 +116,7 @@ const ezDocumentObject* ezDocumentObject::GetChild(const ezUuid& guid) const
   return nullptr;
 }
 
-ezAbstractProperty* ezDocumentObject::GetParentPropertyType() const
+const ezAbstractProperty* ezDocumentObject::GetParentPropertyType() const
 {
   if (!m_pParent)
     return nullptr;

@@ -129,7 +129,7 @@ namespace
       }
 
       // find matching constructor
-      auto& functions = pType->GetFunctions();
+      auto functions = pType->GetFunctions();
       for (auto pFunc : functions)
       {
         if (pFunc->GetFunctionType() == ezFunctionType::Constructor && pFunc->GetArgumentCount() == constructorArgs.GetCount())

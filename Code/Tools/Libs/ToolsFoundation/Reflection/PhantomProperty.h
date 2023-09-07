@@ -66,11 +66,11 @@ public:
   virtual const ezRTTI* GetSpecificType() const override;
   virtual ezUInt32 GetCount(const void* pInstance) const override { return 0; }
   virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const override {}
-  virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) override {}
-  virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) override {}
-  virtual void Remove(void* pInstance, ezUInt32 uiIndex) override {}
-  virtual void Clear(void* pInstance) override {}
-  virtual void SetCount(void* pInstance, ezUInt32 uiCount) override {}
+  virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) const override {}
+  virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) const override {}
+  virtual void Remove(void* pInstance, ezUInt32 uiIndex) const override {}
+  virtual void Clear(void* pInstance) const override {}
+  virtual void SetCount(void* pInstance, ezUInt32 uiCount) const override {}
 
 
 private:
@@ -87,9 +87,9 @@ public:
 
   virtual const ezRTTI* GetSpecificType() const override;
   virtual bool IsEmpty(const void* pInstance) const override { return true; }
-  virtual void Clear(void* pInstance) override {}
-  virtual void Insert(void* pInstance, const void* pObject) override {}
-  virtual void Remove(void* pInstance, const void* pObject) override {}
+  virtual void Clear(void* pInstance) const override {}
+  virtual void Insert(void* pInstance, const void* pObject) const override {}
+  virtual void Remove(void* pInstance, const void* pObject) const override {}
   virtual bool Contains(const void* pInstance, const void* pObject) const override { return false; }
   virtual void GetValues(const void* pInstance, ezDynamicArray<ezVariant>& out_keys) const override {}
 
@@ -107,9 +107,9 @@ public:
 
   virtual const ezRTTI* GetSpecificType() const override;
   virtual bool IsEmpty(const void* pInstance) const override { return true; }
-  virtual void Clear(void* pInstance) override {}
-  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override {}
-  virtual void Remove(void* pInstance, const char* szKey) override {}
+  virtual void Clear(void* pInstance) const override {}
+  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) const override {}
+  virtual void Remove(void* pInstance, const char* szKey) const override {}
   virtual bool Contains(const void* pInstance, const char* szKey) const override { return false; }
   virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const override { return false; }
   virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override {}

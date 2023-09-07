@@ -70,7 +70,7 @@ void ezScriptCoroutine::Deinitialize()
 // static
 const ezAbstractFunctionProperty* ezScriptCoroutine::GetUpdateFunctionProperty()
 {
-  static const ezAbstractFunctionProperty* pUpdateFunctionProperty = []() -> ezAbstractFunctionProperty* {
+  static const ezAbstractFunctionProperty* pUpdateFunctionProperty = []() -> const ezAbstractFunctionProperty* {
     const ezRTTI* pType = ezGetStaticRTTI<ezScriptCoroutine>();
     auto functions = pType->GetFunctions();
     for (auto pFunc : functions)
@@ -97,7 +97,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 //////////////////////////////////////////////////////////////////////////
 
 ezScriptCoroutineRTTI::ezScriptCoroutineRTTI(ezStringView sName, ezUniquePtr<ezRTTIAllocator>&& pAllocator)
-  : ezRTTI(nullptr, ezGetStaticRTTI<ezScriptCoroutine>(), 0, 1, ezVariantType::Invalid, ezTypeFlags::Class, nullptr, ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezAbstractFunctionProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
+  : ezRTTI(nullptr, ezGetStaticRTTI<ezScriptCoroutine>(), 0, 1, ezVariantType::Invalid, ezTypeFlags::Class, nullptr, ezArrayPtr<const ezAbstractProperty*>(), ezArrayPtr<const ezAbstractFunctionProperty*>(), ezArrayPtr<const ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
   , m_sTypeNameStorage(sName)
   , m_pAllocatorStorage(std::move(pAllocator))
 {

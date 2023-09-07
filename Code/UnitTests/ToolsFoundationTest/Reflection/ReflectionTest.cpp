@@ -13,7 +13,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
 void VariantToPropertyTest(void* pIntStruct, const ezRTTI* pRttiInt, const char* szPropName, ezVariant::Type::Enum type)
 {
-  ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRttiInt, szPropName);
+  const ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRttiInt, szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
   if (pProp)
   {
@@ -141,7 +141,7 @@ void AccessorPropertyTest(ezIReflectedTypeAccessor& ref_accessor, const char* sz
   EZ_TEST_BOOL(oldValue.IsValid());
   EZ_TEST_BOOL(oldValue.GetType() == type);
 
-  ezAbstractProperty* pProp = ref_accessor.GetType()->FindPropertyByName(szProperty);
+  const ezAbstractProperty* pProp = ref_accessor.GetType()->FindPropertyByName(szProperty);
   ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pProp);
   EZ_TEST_BOOL(defaultValue.GetType() == type);
   bool bSetSuccess = ref_accessor.SetValue(szProperty, defaultValue);
@@ -168,14 +168,14 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor, const ez
   ezUInt32 uiPropCount = pType->GetProperties().GetCount();
   for (ezUInt32 i = 0; i < uiPropCount; ++i)
   {
-    ezAbstractProperty* pProp = pType->GetProperties()[i];
+    const ezAbstractProperty* pProp = pType->GetProperties()[i];
     const bool bIsValueType = ezReflectionUtils::IsValueType(pProp);
 
     switch (pProp->GetCategory())
     {
       case ezPropertyCategory::Member:
       {
-        ezAbstractMemberProperty* pProp3 = static_cast<ezAbstractMemberProperty*>(pProp);
+        auto pProp3 = static_cast<const ezAbstractMemberProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum))
         {
           AccessorPropertyTest(ref_accessor, pProp->GetPropertyName(), ezVariant::Type::Int64);

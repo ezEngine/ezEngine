@@ -30,8 +30,8 @@ class EZ_FOUNDATION_DLL ezRTTI
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
   ezRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
-    ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions,
-    ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers,
+    ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<const ezAbstractProperty*> properties, ezArrayPtr<const ezAbstractFunctionProperty*> functions,
+    ezArrayPtr<const ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers,
     ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI* (*fnVerifyParent)());
 
 
@@ -75,18 +75,18 @@ public:
   EZ_ALWAYS_INLINE ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
 
   /// \brief Returns the array of properties that this type has. Does NOT include properties from base classes.
-  EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractProperty*>& GetProperties() const { return m_Properties; } // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezAbstractProperty* const> GetProperties() const { return m_Properties; } // [tested]
 
-  EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractFunctionProperty*>& GetFunctions() const { return m_Functions; }
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezAbstractFunctionProperty* const> GetFunctions() const { return m_Functions; }
 
-  EZ_ALWAYS_INLINE const ezArrayPtr<ezPropertyAttribute*>& GetAttributes() const { return m_Attributes; }
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezPropertyAttribute* const> GetAttributes() const { return m_Attributes; }
 
   /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template <typename Type>
   const Type* GetAttributeByType() const;
 
   /// \brief Returns the list of properties that this type has, including derived properties from all base classes.
-  void GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_properties) const; // [tested]
+  void GetAllProperties(ezDynamicArray<const ezAbstractProperty*>& out_properties) const; // [tested]
 
   /// \brief Returns the size (in bytes) of an instance of this type.
   EZ_ALWAYS_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
@@ -109,7 +109,7 @@ public:
   static const ezRTTI* FindTypeIf(PredicateFunc func);
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
-  ezAbstractProperty* FindPropertyByName(ezStringView sName, bool bSearchBaseTypes = true) const; // [tested]
+  const ezAbstractProperty* FindPropertyByName(ezStringView sName, bool bSearchBaseTypes = true) const; // [tested]
 
   /// \brief Returns the name of the plugin which this type is declared in.
   EZ_ALWAYS_INLINE ezStringView GetPluginName() const { return m_sPluginName; } // [tested]
@@ -178,9 +178,9 @@ public:
 protected:
   ezStringView m_sPluginName;
   ezStringView m_sTypeName;
-  ezArrayPtr<ezAbstractProperty*> m_Properties;
-  ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
-  ezArrayPtr<ezPropertyAttribute*> m_Attributes;
+  ezArrayPtr<const ezAbstractProperty* const> m_Properties;
+  ezArrayPtr<const ezAbstractFunctionProperty* const> m_Functions;
+  ezArrayPtr<const ezPropertyAttribute* const> m_Attributes;
   void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType, ezBitflags<ezTypeFlags> flags);
   void RegisterType();
   void UnregisterType();

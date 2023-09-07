@@ -114,9 +114,9 @@ ezStatus ezDefaultObjectState::RevertObject()
   {
     ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
 
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     m_Selection[i].m_pObject->GetType()->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Hidden | ezPropertyFlags::ReadOnly))
         continue;

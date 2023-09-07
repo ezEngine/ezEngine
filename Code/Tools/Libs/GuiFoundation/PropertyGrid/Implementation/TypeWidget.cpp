@@ -249,7 +249,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     const auto& attr = pCurrentType->GetAttributes();
 
     // Traverse type attributes
-    for (ezPropertyAttribute* pAttr : attr)
+    for (auto pAttr : attr)
     {
       if (pAttr->GetDynamicRTTI()->IsDerivedFrom<ezManipulatorAttribute>())
       {

@@ -16,7 +16,7 @@ ezResult ezTypeScriptBinding::Init_PropertyBinding()
   return EZ_SUCCESS;
 }
 
-ezUInt32 ezTypeScriptBinding::ComputePropertyBindingHash(const ezRTTI* pType, ezAbstractMemberProperty* pMember)
+ezUInt32 ezTypeScriptBinding::ComputePropertyBindingHash(const ezRTTI* pType, const ezAbstractMemberProperty* pMember)
 {
   ezStringBuilder sFuncName;
 
@@ -32,15 +32,15 @@ void ezTypeScriptBinding::SetupRttiPropertyBindings()
 
   ezRTTI::ForEachDerivedType<ezComponent>(
     [&](const ezRTTI* pRtti) {
-      for (ezAbstractProperty* pProp : pRtti->GetProperties())
+      for (const ezAbstractProperty* pProp : pRtti->GetProperties())
       {
         if (pProp->GetCategory() != ezPropertyCategory::Member)
           continue;
 
-        const ezUInt32 uiHash = ComputePropertyBindingHash(pRtti, static_cast<ezAbstractMemberProperty*>(pProp));
+        const ezUInt32 uiHash = ComputePropertyBindingHash(pRtti, static_cast<const ezAbstractMemberProperty*>(pProp));
         EZ_ASSERT_DEV(!s_BoundProperties.Contains(uiHash), "Hash collision for bound property name!");
 
-        s_BoundProperties[uiHash].m_pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+        s_BoundProperties[uiHash].m_pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
       }
     });
 }
@@ -49,12 +49,12 @@ void ezTypeScriptBinding::GeneratePropertiesCode(ezStringBuilder& out_Code, cons
 {
   ezStringBuilder sProp;
 
-  for (ezAbstractProperty* pProp : pRtti->GetProperties())
+  for (const ezAbstractProperty* pProp : pRtti->GetProperties())
   {
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+    auto pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
     const ezRTTI* pPropType = pProp->GetSpecificType();
 
     const ezUInt32 uiHash = ComputePropertyBindingHash(pRtti, pMember);

@@ -968,7 +968,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
           if (!pChildElement->HasName())
             continue;
 
-          if (ezAbstractProperty* pProp = pRTTI->FindPropertyByName(pChildElement->GetName()))
+          if (const ezAbstractProperty* pProp = pRTTI->FindPropertyByName(pChildElement->GetName()))
           {
             // Custom types should be POD and only consist of member properties.
             if (pProp->GetCategory() == ezPropertyCategory::Member)
@@ -976,7 +976,7 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
               ezVariant subValue;
               if (ConvertToVariant(pChildElement, subValue).Succeeded())
               {
-                ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pObject, subValue);
+                ezReflectionUtils::SetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), pObject, subValue);
               }
             }
           }
@@ -1507,7 +1507,7 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
       {
         ref_writer.BeginObject(obj.m_pType->GetTypeName(), sName, bGlobalName);
         {
-          ezHybridArray<ezAbstractProperty*, 32> properties;
+          ezHybridArray<const ezAbstractProperty*, 32> properties;
           obj.m_pType->GetAllProperties(properties);
           for (const ezAbstractProperty* pProp : properties)
           {

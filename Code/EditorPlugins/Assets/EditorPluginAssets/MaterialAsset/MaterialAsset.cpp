@@ -80,7 +80,7 @@ namespace
       EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine("TRUE 1"));
       EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine("FALSE 0"));
 
-      ezHybridArray<ezAbstractProperty*, 32> properties;
+      ezHybridArray<const ezAbstractProperty*, 32> properties;
       pShaderPropertyObject->GetType()->GetAllProperties(properties);
 
       ezStringBuilder sDefine;
@@ -406,9 +406,9 @@ void ezMaterialAssetProperties::SaveOldValues()
   {
     const ezIReflectedTypeAccessor& accessor = pPropObject->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pType->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
@@ -426,9 +426,9 @@ void ezMaterialAssetProperties::LoadOldValues()
   {
     const ezIReflectedTypeAccessor& accessor = pPropObject->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    ezHybridArray<ezAbstractProperty*, 32> properties;
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
     pType->GetAllProperties(properties);
-    for (ezAbstractProperty* pProp : properties)
+    for (auto pProp : properties)
     {
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
@@ -984,24 +984,24 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
     ezString sRelativeShaderPath = pProp->ResolveRelativeShaderPath();
     stream << sRelativeShaderPath;
 
-    ezHybridArray<ezAbstractProperty*, 16> Textures2D;
-    ezHybridArray<ezAbstractProperty*, 16> TexturesCube;
-    ezHybridArray<ezAbstractProperty*, 16> Permutations;
-    ezHybridArray<ezAbstractProperty*, 16> Constants;
+    ezHybridArray<const ezAbstractProperty*, 16> Textures2D;
+    ezHybridArray<const ezAbstractProperty*, 16> TexturesCube;
+    ezHybridArray<const ezAbstractProperty*, 16> Permutations;
+    ezHybridArray<const ezAbstractProperty*, 16> Constants;
 
     const ezDocumentObject* pObject = GetShaderPropertyObject();
     if (pObject != nullptr)
     {
       bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData).IsValid();
       auto pType = pObject->GetTypeAccessor().GetType();
-      ezHybridArray<ezAbstractProperty*, 32> properties;
+      ezHybridArray<const ezAbstractProperty*, 32> properties;
       pType->GetAllProperties(properties);
 
       ezHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pObject, ezVariant()});
       ezDefaultObjectState defaultState(GetObjectAccessor(), selection.GetArrayPtr());
 
-      for (auto* pProp : properties)
+      for (auto pProp : properties)
       {
         if (hasBaseMaterial && defaultState.IsDefaultValue(pProp))
           continue;
@@ -1128,7 +1128,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
         ezDynamicArray<ezUInt32> content;
 
         // embed 2D texture data
-        for (ezAbstractProperty* prop : Textures2D)
+        for (auto prop : Textures2D)
         {
           const char* szName = prop->GetPropertyName();
           sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
