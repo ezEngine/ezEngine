@@ -650,7 +650,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   The name of the member variable that should get exposed as a message sender.
 ///
 /// \note A message sender must be derived from ezMessageSenderBase.
-#define EZ_MESSAGE_SENDER(MemberName)                                                \
-  {                                                                                  \
-    #MemberName, ezGetStaticRTTI<EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType>() \
+#define EZ_MESSAGE_SENDER(MemberName)                                                  \
+  {                                                                                    \
+#    MemberName, ezGetStaticRTTI < EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType>() \
   }
