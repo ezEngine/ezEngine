@@ -327,6 +327,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicStringEnumAttribute, 1, ezRTTIDefaultAl
   EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicBitflagsAttribute, 1, ezRTTIDefaultAllocator<ezDynamicBitflagsAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+   EZ_MEMBER_PROPERTY("DynamicBitflags", m_sDynamicBitflagsName),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+   EZ_CONSTRUCTOR_PROPERTY(const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////

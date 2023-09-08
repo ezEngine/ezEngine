@@ -284,11 +284,14 @@ private Q_SLOTS:
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
+  void SetAllChecked(bool bChecked);
 
 protected:
   ezMap<ezInt64, QCheckBox*> m_Constants;
   QHBoxLayout* m_pLayout;
   QPushButton* m_pWidget;
+  QPushButton* m_pAllButton;
+  QPushButton* m_pClearButton;
   QMenu* m_pMenu;
   ezInt64 m_iCurrentBitflags;
 };

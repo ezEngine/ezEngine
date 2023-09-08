@@ -1223,6 +1223,21 @@ void ezQtPropertyEditorBitflagsWidget::OnInit()
     m_Constants[pConstant->GetConstant().ConvertTo<ezInt64>()] = pCheckBox;
     m_pMenu->addAction(pAction);
   }
+
+  // sets all bits to clear or set
+  {
+    QWidgetAction* pAllAction = new QWidgetAction(m_pMenu);
+    m_pAllButton = new QPushButton(QString::fromUtf8("All"), m_pMenu);
+    connect(m_pAllButton, &QPushButton::clicked, this, [this](bool bChecked){ SetAllChecked(true); });
+    pAllAction->setDefaultWidget(m_pAllButton);
+    m_pMenu->addAction(pAllAction);
+
+    QWidgetAction* pClearAction = new QWidgetAction(m_pMenu);
+    m_pClearButton = new QPushButton(QString::fromUtf8("Clear"), m_pMenu);
+    connect(m_pClearButton, &QPushButton::clicked, this, [this](bool bChecked){ SetAllChecked(false); });
+    pClearAction->setDefaultWidget(m_pClearButton);
+    m_pMenu->addAction(pClearAction);
+  }
 }
 
 void ezQtPropertyEditorBitflagsWidget::InternalSetValue(const ezVariant& value)
@@ -1245,6 +1260,14 @@ void ezQtPropertyEditorBitflagsWidget::InternalSetValue(const ezVariant& value)
     sText = sText.left(sText.size() - 1);
 
   m_pWidget->setText(sText);
+}
+
+void ezQtPropertyEditorBitflagsWidget::SetAllChecked(bool bChecked)
+{
+  for (auto& pCheckBox : m_Constants)
+  {
+    pCheckBox.Value()->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
+  }
 }
 
 void ezQtPropertyEditorBitflagsWidget::on_Menu_aboutToShow()
