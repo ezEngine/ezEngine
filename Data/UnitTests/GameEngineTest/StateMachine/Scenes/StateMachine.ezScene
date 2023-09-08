@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1558508307185436176,10609967440189914702}}
-		u4 %Hash{10361797624014393972}
+		u4 %Hash{5931762455997462026}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -32,6 +32,16 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{10737442309187499179,4712949365219075405}}
+	s %t{"ezAlwaysVisibleComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
 o
 {
 	Uuid %id{u4{12830434942879952291,4758636009054212018}}
@@ -86,6 +96,22 @@ o
 }
 o
 {
+	Uuid %id{u4{11856741845498439842,5317329336562501005}}
+	s %t{"ezDebugTextComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Text{"Test"}
+		f %Value0{0}
+		f %Value1{0}
+		f %Value2{0}
+		f %Value3{0}
+	}
+}
+o
+{
 	Uuid %id{u4{1636266979762940322,5369291078132738926}}
 	s %t{"ezBlackboardComponent"}
 	u3 %v{2}
@@ -128,7 +154,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarArray %Children{}
+		VarArray %Children
+		{
+			Uuid{u4{14889524236931100573,5744614519559275459}}
+		}
 		VarArray %Components
 		{
 			Uuid{u4{12830434942879952291,4758636009054212018}}
@@ -143,6 +172,30 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"StateMachine"}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{14889524236931100573,5744614519559275459}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11856741845498439842,5317329336562501005}}
+			Uuid{u4{10737442309187499179,4712949365219075405}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000003F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Text"}
 		VarArray %Tags{}
 	}
 }
@@ -291,6 +344,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{912538319015526284,3456678183054942297}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDebugTextComponent"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -528,6 +598,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBlackboardEntryFlags"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2566484675337934134,10906360683877419076}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAlwaysVisibleComponent"}
 		u3 %TypeVersion{1}
 	}
 }

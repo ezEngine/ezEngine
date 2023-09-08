@@ -12,6 +12,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex)
   : ezPin(type, sName, pinDesc.GetColor(), pObject)
   , m_pDataType(pinDesc.m_pDataType)
+  , m_DeductTypeFunc(pinDesc.m_DeductTypeFunc)
   , m_uiDataPinIndex(uiDataPinIndex)
   , m_ScriptDataType(pinDesc.m_ScriptDataType)
   , m_bRequired(pinDesc.m_bRequired)
@@ -28,38 +29,50 @@ ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisu
   }
 }
 
-ezStringView ezVisualScriptPin::GetDataTypeName(ezVisualScriptDataType::Enum deductedType) const
+ezVisualScriptPin::~ezVisualScriptPin()
 {
-  if (m_ScriptDataType == ezVisualScriptDataType::TypedPointer || m_ScriptDataType == ezVisualScriptDataType::EnumValue)
+  auto pManager = static_cast<ezVisualScriptNodeManager*>(const_cast<ezDocumentObjectManager*>(GetParent()->GetDocumentObjectManager()));
+  pManager->RemoveDeductedPinType(*this);
+}
+
+ezVisualScriptDataType::Enum ezVisualScriptPin::GetResolvedScriptDataType() const
+{
+  if (m_ScriptDataType == ezVisualScriptDataType::AnyPointer || m_ScriptDataType == ezVisualScriptDataType::Any)
+  {
+    auto pManager = static_cast<const ezVisualScriptNodeManager*>(GetParent()->GetDocumentObjectManager());
+    return pManager->GetDeductedType(*this);
+  }
+
+  return m_ScriptDataType;
+}
+
+ezStringView ezVisualScriptPin::GetDataTypeName() const
+{
+  ezVisualScriptDataType::Enum resolvedDataType = GetResolvedScriptDataType();
+  if (resolvedDataType == ezVisualScriptDataType::Invalid)
+  {
+    return ezVisualScriptDataType::GetName(m_ScriptDataType);
+  }
+
+  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer || resolvedDataType == ezVisualScriptDataType::EnumValue) && m_pDataType != nullptr)
   {
     return m_pDataType->GetTypeName();
   }
-  
-  ezVisualScriptDataType::Enum finalDataType = m_ScriptDataType;
-  if (finalDataType == ezVisualScriptDataType::Any && deductedType != ezVisualScriptDataType::Invalid)
-    finalDataType = deductedType;
 
-  return ezVisualScriptDataType::GetName(finalDataType);
+  return ezVisualScriptDataType::GetName(resolvedDataType);
 }
 
-bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, ezVisualScriptDataType::Enum deductedSourceDataType /*= ezVisualScriptDataType::Invalid*/, ezVisualScriptDataType::Enum deductedTargetDataType /*= ezVisualScriptDataType::Invalid*/) const
+bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bUseResolvedDataTypes /*= true*/) const
 {
-  ezVisualScriptDataType::Enum sourceScriptDataType = m_ScriptDataType;
-  const ezRTTI* pSourceDataType = m_pDataType;
-  if (sourceScriptDataType == ezVisualScriptDataType::Any && deductedSourceDataType != ezVisualScriptDataType::Invalid)
-  {
-    sourceScriptDataType = deductedSourceDataType;
-    pSourceDataType = ezVisualScriptDataType::GetRtti(sourceScriptDataType);
-  }
+  ezVisualScriptDataType::Enum sourceScriptDataType = bUseResolvedDataTypes ? GetResolvedScriptDataType() : GetScriptDataType();
+  ezVisualScriptDataType::Enum targetScriptDataType = bUseResolvedDataTypes ? targetPin.GetResolvedScriptDataType() : targetPin.GetScriptDataType();
 
-  ezVisualScriptDataType::Enum targetScriptDataType = targetPin.GetScriptDataType();
+  const ezRTTI* pSourceDataType = m_pDataType;
   const ezRTTI* pTargetDataType = targetPin.GetDataType();
-  EZ_ASSERT_DEV(targetScriptDataType != ezVisualScriptDataType::Invalid, "Invalid script data type '{}'", targetPin.GetDataTypeName(deductedTargetDataType));
-  if (targetScriptDataType == ezVisualScriptDataType::Any && deductedTargetDataType != ezVisualScriptDataType::Invalid)
-  {
-    targetScriptDataType = deductedTargetDataType;
-    pTargetDataType = ezVisualScriptDataType::GetRtti(targetScriptDataType);
-  }
+
+  if (ezVisualScriptDataType::IsPointer(sourceScriptDataType) &&
+      targetScriptDataType == ezVisualScriptDataType::AnyPointer)
+    return true;
 
   if (sourceScriptDataType == ezVisualScriptDataType::TypedPointer && pSourceDataType != nullptr &&
       targetScriptDataType == ezVisualScriptDataType::TypedPointer && pTargetDataType != nullptr)
@@ -282,28 +295,9 @@ ezStringView ezVisualScriptNodeManager::GetNiceFunctionName(const ezDocumentObje
 
 ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetDeductedType(const ezVisualScriptPin& pin) const
 {
-  if (pin.GetType() == ezPin::Type::Input)
-  {
-    auto connections = GetConnections(pin);
-    if (connections.IsEmpty() == false)
-    {
-      return GetDeductedType(static_cast<const ezVisualScriptPin&>(connections[0]->GetSourcePin()));
-    }
-    else
-    {
-      ezVariant var = pin.GetParent()->GetTypeAccessor().GetValue(pin.GetName());
-      return ezVisualScriptDataType::FromVariantType(var.GetType());
-    }
-
-    return ezVisualScriptDataType::Invalid;
-  }
-
-  if (pin.GetScriptDataType() == ezVisualScriptDataType::Any)
-  {
-    return GetDeductedType(pin.GetParent());
-  }
-
-  return pin.GetScriptDataType();
+  ezEnum<ezVisualScriptDataType> dataType = ezVisualScriptDataType::Invalid;
+  m_PinToDeductedType.TryGetValue(&pin, dataType);
+  return dataType;
 }
 
 ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetDeductedType(const ezDocumentObject* pObject) const
@@ -367,7 +361,7 @@ ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin& source, cons
     return ezStatus("Cannot connect data pins with execution pins.");
   }
 
-  if (pinSource.IsDataPin() && pinSource.CanConvertTo(pinTarget) == false)
+  if (pinSource.IsDataPin() && pinSource.CanConvertTo(pinTarget, false) == false)
   {
     out_result = CanConnectResult::ConnectNever;
     return ezStatus(ezFmt("The pin data types are incompatible."));
@@ -468,8 +462,8 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
     {
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
-      DeductType(targetPin.GetParent(), &targetPin, true);
-      UpdateCoroutine(targetPin.GetParent(), connection, true);
+      DeductNodeTypeAndAllPinTypes(targetPin.GetParent());
+      UpdateCoroutine(targetPin.GetParent(), connection);
     }
     break;
 
@@ -477,14 +471,20 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
     {
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
-      DeductType(targetPin.GetParent(), &targetPin, false);
+      DeductNodeTypeAndAllPinTypes(targetPin.GetParent(), &targetPin);
       UpdateCoroutine(targetPin.GetParent(), connection, false);
     }
     break;
 
     case ezDocumentNodeManagerEvent::Type::AfterNodeAdded:
     {
-      DeductType(e.m_pObject);
+      DeductNodeTypeAndAllPinTypes(e.m_pObject);
+    }
+    break;
+
+    case ezDocumentNodeManagerEvent::Type::BeforeNodeRemoved:
+    {
+      m_ObjectToDeductedType.Remove(e.m_pObject);
     }
     break;
 
@@ -497,7 +497,7 @@ void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectProp
 {
   if (IsNode(e.m_pObject))
   {
-    DeductType(e.m_pObject);
+    DeductNodeTypeAndAllPinTypes(e.m_pObject);
   }
   else if (e.m_sProperty == "Name" || e.m_sProperty == "DefaultValue") // a variable's name or default value has changed, re-run type deduction
   {
@@ -506,86 +506,86 @@ void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectProp
       if (IsNode(pObject) == false)
         continue;
 
-      DeductType(pObject);
+      DeductNodeTypeAndAllPinTypes(pObject);
     }
   }
 }
 
-void ezVisualScriptNodeManager::DeductType(const ezDocumentObject* pObject, const ezPin* pChangedPin, bool bConnected)
+void ezVisualScriptNodeManager::RemoveDeductedPinType(const ezVisualScriptPin& pin)
+{
+  m_PinToDeductedType.Remove(&pin);
+}
+
+void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezPin* pDisconnectedPin /*= nullptr*/)
 {
   auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
   if (pNodeDesc == nullptr || pNodeDesc->NeedsTypeDeduction() == false)
     return;
 
-  if (pChangedPin != nullptr)
+  if (pDisconnectedPin != nullptr && static_cast<const ezVisualScriptPin*>(pDisconnectedPin)->NeedsTypeDeduction() == false)
+    return;
+
+  bool bNodeTypeChanged = false;
   {
-    auto pVsPin = ezStaticCast<const ezVisualScriptPin*>(pChangedPin);
-    if (pVsPin->GetScriptDataType() != ezVisualScriptDataType::Any)
-      return;
+    ezEnum<ezVisualScriptDataType> newDeductedType = pNodeDesc->m_DeductTypeFunc(pObject, static_cast<const ezVisualScriptPin*>(pDisconnectedPin));
+    ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
+    m_ObjectToDeductedType.Insert(pObject, newDeductedType, &oldDeductedType);
+
+    bNodeTypeChanged = (newDeductedType != oldDeductedType);
   }
 
-  ezVisualScriptDataType::Enum deductedType = ezVisualScriptDataType::Invalid;
+  bool bAnyInputPinChanged = false;
   ezHybridArray<const ezVisualScriptPin*, 16> pins;
-
-  if (pNodeDesc->m_TypeDeductionMode == ezVisualScriptNodeRegistry::NodeDesc::TypeDeductionMode::FromInputPins)
+  GetInputDataPins(pObject, pins);
+  for (auto pPin : pins)
   {
-    GetInputDataPins(pObject, pins);
-    for (auto pPin : pins)
+    if (auto pFunc = pPin->GetDeductTypeFunc())
     {
-      if (pPin->GetScriptDataType() != ezVisualScriptDataType::Any)
-        continue;
+      ezEnum<ezVisualScriptDataType> newDeductedType = pFunc(*pPin);
+      ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
+      m_PinToDeductedType.Insert(pPin, newDeductedType, &oldDeductedType);
 
-      // the pin is about to be disconnected so we ignore it here
-      if (bConnected == false && pPin == pChangedPin)
-        continue;
-
-      deductedType = ezMath::Max(deductedType, GetDeductedType(*pPin));
-    }
-  }
-  else if (pNodeDesc->m_TypeDeductionMode == ezVisualScriptNodeRegistry::NodeDesc::TypeDeductionMode::FromTypeProperty)
-  {
-    auto typeVar = pObject->GetTypeAccessor().GetValue("Type");
-    if (typeVar.IsA<ezInt64>())
-    {
-      deductedType = static_cast<ezVisualScriptDataType::Enum>(typeVar.Get<ezInt64>());
-    }
-  }
-  else if (pNodeDesc->m_TypeDeductionMode == ezVisualScriptNodeRegistry::NodeDesc::TypeDeductionMode::FromNameProperty)
-  {
-    auto nameVar = pObject->GetTypeAccessor().GetValue("Name");
-    if (nameVar.IsA<ezString>())
-    {
-      deductedType = GetVariableType(ezTempHashedString(nameVar.Get<ezString>()));
+      bAnyInputPinChanged |= (newDeductedType != oldDeductedType);
     }
   }
 
-  ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
-  m_ObjectToDeductedType.Insert(pObject, deductedType, &oldDeductedType);
+  bool bAnyOutputPinChanged = false;
+  GetOutputDataPins(pObject, pins);
+  for (auto pPin : pins)
+  {
+    if (auto pFunc = pPin->GetDeductTypeFunc())
+    {
+      ezEnum<ezVisualScriptDataType> newDeductedType = pFunc(*pPin);
+      ezEnum<ezVisualScriptDataType> oldDeductedType = ezVisualScriptDataType::Invalid;
+      m_PinToDeductedType.Insert(pPin, newDeductedType, &oldDeductedType);
 
-  if (deductedType != oldDeductedType)
+      bAnyOutputPinChanged |= (newDeductedType != oldDeductedType);
+    }
+  }
+
+  if (bNodeTypeChanged || bAnyInputPinChanged || bAnyOutputPinChanged)
   {
     m_NodeChangedEvent.Broadcast(pObject);
   }
 
-  GetOutputDataPins(pObject, pins);
-  for (auto pPin : pins)
+  // propagate to connected nodes
+  if (bAnyOutputPinChanged)
   {
-    if (pPin->GetScriptDataType() != ezVisualScriptDataType::Any)
-      continue;
-
-    auto connections = GetConnections(*pPin);
-    if (connections.IsEmpty() == false)
+    for (auto pPin : pins)
     {
+      if (pPin->NeedsTypeDeduction() == false)
+        continue;
+
+      auto connections = GetConnections(*pPin);
       for (auto& connection : connections)
       {
-        auto& targetPin = connection->GetTargetPin();
-        DeductType(targetPin.GetParent(), &targetPin);
+        DeductNodeTypeAndAllPinTypes(connection->GetTargetPin().GetParent());
       }
     }
   }
 }
 
-void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezConnection& changedConnection, bool bConnected)
+void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezConnection& changedConnection, bool bIsAboutToDisconnect)
 {
   auto vsPin = static_cast<const ezVisualScriptPin&>(changedConnection.GetTargetPin());
   if (vsPin.IsExecutionPin() == false)
@@ -597,7 +597,7 @@ void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetN
   for (auto pEntryNode : entryNodes)
   {
     const bool bWasCoroutine = m_CoroutineObjects.Contains(pEntryNode);
-    const bool bIsCoroutine = IsConnectedToCoroutine(pEntryNode, changedConnection, bConnected);
+    const bool bIsCoroutine = IsConnectedToCoroutine(pEntryNode, changedConnection, bIsAboutToDisconnect);
 
     if (bWasCoroutine != bIsCoroutine)
     {
@@ -615,7 +615,7 @@ void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetN
   }
 }
 
-bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezConnection& changedConnection, bool bConnected) const
+bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezConnection& changedConnection, bool bIsAboutToDisconnect) const
 {
   ezHybridArray<const ezDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pEntryNode);
@@ -644,7 +644,7 @@ bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* p
       for (auto pConnection : connections)
       {
         // the connection is about to be disconnected so we ignore it here
-        if (bConnected == false && pConnection == &changedConnection)
+        if (bIsAboutToDisconnect && pConnection == &changedConnection)
           continue;
 
         const ezDocumentObject* pTargetNode = pConnection->GetTargetPin().GetParent();

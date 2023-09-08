@@ -16,6 +16,8 @@ namespace
     "MessageHandler",
     "MessageHandler_Coroutine",
     "ReflectedFunction",
+    "GetReflectedProperty",
+    "SetReflectedProperty",
     "InplaceCoroutine",
     "GetScriptOwner",
     "SendMessage",

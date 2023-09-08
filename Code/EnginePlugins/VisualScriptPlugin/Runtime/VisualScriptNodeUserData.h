@@ -111,9 +111,8 @@ namespace
 
       if (out_pProp == nullptr)
       {
-        ezLog::Error("{} '{}' not found on type '{}'",
-          std::is_same<T, ezAbstractFunctionProperty>::value ? "Function" : "Property",
-          sPropName, pType->GetTypeName());
+        constexpr bool isFunction = std::is_same_v<T, const ezAbstractFunctionProperty* const>;
+        ezLog::Error("{} '{}' not found on type '{}'", isFunction ? "Function" : "Property", sPropName, pType->GetTypeName());
         return EZ_FAILURE;
       }
 
@@ -161,13 +160,13 @@ namespace
   {
     ezUInt32 m_uiNumProperties;
 
-    #if EZ_ENABLED(EZ_PLATFORM_32BIT)
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
     ezUInt32 m_uiPadding0;
 #endif
 
     const ezAbstractProperty* m_Properties[1];
 
-    #if EZ_ENABLED(EZ_PLATFORM_32BIT)
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
     ezUInt32 m_uiPadding1;
 #endif
 
@@ -224,7 +223,7 @@ namespace
     }
   };
 
-    static_assert(sizeof(NodeUserData_TypeAndProperties) == 24);
+  static_assert(sizeof(NodeUserData_TypeAndProperties) == 24);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -369,6 +368,12 @@ namespace
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<true>,
       &NodeUserData_TypeAndProperty::ToString}, // ReflectedFunction,
+    {&NodeUserData_TypeAndProperty::Serialize,
+      &NodeUserData_TypeAndProperty::Deserialize<false>,
+      &NodeUserData_TypeAndProperty::ToString}, // GetReflectedProperty,
+    {&NodeUserData_TypeAndProperty::Serialize,
+      &NodeUserData_TypeAndProperty::Deserialize<false>,
+      &NodeUserData_TypeAndProperty::ToString}, // SetReflectedProperty,
     {&NodeUserData_TypeAndProperty::Serialize,
       &NodeUserData_TypeAndProperty::Deserialize<true>,
       &NodeUserData_TypeAndProperty::ToString}, // InplaceCoroutine,

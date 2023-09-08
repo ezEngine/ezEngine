@@ -282,7 +282,11 @@ ezUInt32 ezVisualScriptDataType::GetStorageAlignment(Enum dataType)
 // static
 const char* ezVisualScriptDataType::GetName(Enum dataType)
 {
-  if (dataType == Any)
+  if (dataType == AnyPointer)
+  {
+    return "Pointer";
+  }
+  else if (dataType == Any)
   {
     return "Any";
   }

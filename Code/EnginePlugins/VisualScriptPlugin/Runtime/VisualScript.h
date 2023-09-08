@@ -20,6 +20,8 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       MessageHandler,
       MessageHandler_Coroutine,
       ReflectedFunction,
+      GetReflectedProperty,
+      SetReflectedProperty,
       InplaceCoroutine,
       GetScriptOwner,
       SendMessage,

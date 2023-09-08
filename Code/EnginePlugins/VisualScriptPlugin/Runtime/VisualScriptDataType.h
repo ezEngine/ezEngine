@@ -39,6 +39,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
 
     ExtendedCount,
 
+    AnyPointer = 0xFE,
     Any = 0xFF,
 
     Default = Invalid,

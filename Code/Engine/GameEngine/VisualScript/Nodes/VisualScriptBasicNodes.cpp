@@ -380,8 +380,6 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
       void* pPropertyPointer = &m_ScratchMemory.GetByteBlobPtr()[uiOffset];
       return pPropertyPointer;
     }
-
-    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   return nullptr;
@@ -403,20 +401,21 @@ void ezVisualScriptNode_MessageSender::SetMessageToSend(ezUniquePtr<ezMessage>&&
 
   for (ezUInt8 uiProp = 0; uiProp < uiPropCount; ++uiProp)
   {
-    if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member)
-    {
-      auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(properties[uiProp]);
+    auto pProp = properties[uiProp];
+    if (pProp->GetCategory() != ezPropertyCategory::Member || pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+      continue;
 
-      const ezRTTI* pType = pAbsMember->GetSpecificType();
-      auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(pType);
-      if (dataPinType == ezVisualScriptDataPinType::None)
-        continue;
+    auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(pProp);
 
-      m_PropertyIndexToMemoryOffset[uiProp] = static_cast<ezUInt16>(uiScratchMemorySize);
-      m_PropertyIndexToDataPinType[uiProp] = dataPinType;
+    const ezRTTI* pType = pAbsMember->GetSpecificType();
+    auto dataPinType = ezVisualScriptDataPinType::GetDataPinTypeForType(pType);
+    if (dataPinType == ezVisualScriptDataPinType::None)
+      continue;
 
-      uiScratchMemorySize += ezMath::Max<ezUInt32>(ezVisualScriptDataPinType::GetStorageByteSize(dataPinType), EZ_ALIGNMENT_MINIMUM);
-    }
+    m_PropertyIndexToMemoryOffset[uiProp] = static_cast<ezUInt16>(uiScratchMemorySize);
+    m_PropertyIndexToDataPinType[uiProp] = dataPinType;
+
+    uiScratchMemorySize += ezMath::Max<ezUInt32>(ezVisualScriptDataPinType::GetStorageByteSize(dataPinType), EZ_ALIGNMENT_MINIMUM);
   }
 
   m_ScratchMemory.SetCountUninitialized(uiScratchMemorySize);

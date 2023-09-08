@@ -4,6 +4,7 @@
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
 struct ezScriptBaseClassAttribute_Function;
+class ezVisualScriptPin;
 
 class ezVisualScriptNodeRegistry
 {
@@ -15,6 +16,10 @@ public:
     ezHashedString m_sName;
     ezHashedString m_sDynamicPinProperty;
     const ezRTTI* m_pDataType = nullptr;
+
+    using DeductTypeFunc = ezVisualScriptDataType::Enum (*)(const ezVisualScriptPin& pin);
+    DeductTypeFunc m_DeductTypeFunc = nullptr;
+
     ezEnum<ezVisualScriptDataType> m_ScriptDataType;
     bool m_bRequired = false;
     bool m_bSplitExecution = false;
@@ -28,38 +33,26 @@ public:
 
   struct NodeDesc
   {
-    struct TypeDeductionMode
-    {
-      using StorageType = ezUInt8;
-
-      enum Enum
-      {
-        None,
-        FromInputPins,
-        FromTypeProperty,
-        FromNameProperty,
-
-        Default = None
-      };
-    };
-
     ezSmallArray<PinDesc, 4> m_InputPins;
     ezSmallArray<PinDesc, 4> m_OutputPins;
     ezHashedString m_sFilterByBaseClass;
     const ezRTTI* m_pTargetType = nullptr;
     ezSmallArray<const ezAbstractProperty*, 1> m_TargetProperties;
+
+    using DeductTypeFunc = ezVisualScriptDataType::Enum (*)(const ezDocumentObject* pObject, const ezVisualScriptPin* pDisconnectedPin);
+    DeductTypeFunc m_DeductTypeFunc = nullptr;
+
     ezEnum<ezVisualScriptNodeDescription::Type> m_Type;
-    ezEnum<TypeDeductionMode> m_TypeDeductionMode;
-    bool m_bImplicitExecution = false;
+    bool m_bImplicitExecution = true;
     bool m_bHasDynamicPins = false;
 
     void AddInputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString());
     void AddOutputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty = ezHashedString(), bool bSplitExecution = false);
 
-    void AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty = ezHashedString());
-    void AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty = ezHashedString());
+    void AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty = ezHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
+    void AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty = ezHashedString(), PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
 
-    EZ_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_TypeDeductionMode != TypeDeductionMode::None; }
+    EZ_ALWAYS_INLINE bool NeedsTypeDeduction() const { return m_DeductTypeFunc != nullptr; }
   };
 
   ezVisualScriptNodeRegistry();
@@ -82,11 +75,11 @@ private:
   ezVisualScriptDataType::Enum GetScriptDataType(const ezAbstractProperty* pProp);
 
   template <typename T>
-  void AddInputDataPin(ezReflectedTypeDescriptor& ref_typeDesc, ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName);
-  void AddInputDataPin_Any(ezReflectedTypeDescriptor& ref_typeDesc, ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName, bool bRequired, bool bAddVariantProperty = false);
+  void AddInputDataPin(ezReflectedTypeDescriptor& ref_typeDesc, NodeDesc& ref_nodeDesc, ezStringView sName);
+  void AddInputDataPin_Any(ezReflectedTypeDescriptor& ref_typeDesc, NodeDesc& ref_nodeDesc, ezStringView sName, bool bRequired, bool bAddVariantProperty = false, PinDesc::DeductTypeFunc deductTypeFunc = nullptr);
 
   template <typename T>
-  void AddOutputDataPin(ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName);
+  void AddOutputDataPin(NodeDesc& ref_nodeDesc, ezStringView sName);
 
   void CreateBuiltinTypes();
   void CreateGetOwnerNodeType(const ezRTTI* pRtti);

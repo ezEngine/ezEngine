@@ -27,6 +27,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezImguiExtractor::ezImguiExtractor(const char* szName)
   : ezExtractor(szName)
 {
+  m_DependsOn.PushBack(ezMakeHashedString("ezVisibleObjectsExtractor"));
 }
 
 void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)

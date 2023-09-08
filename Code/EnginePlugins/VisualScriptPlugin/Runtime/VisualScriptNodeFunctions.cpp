@@ -130,6 +130,93 @@ namespace
     return ExecResult::RunNext(0);
   }
 
+  template <typename T>
+  static ExecResult NodeFunction_GetReflectedProperty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
+    auto pProperty = userData.m_pProperty;
+
+    ezTypedPointer pInstance;
+    pInstance = inout_context.GetPointerData(node.GetInputDataOffset(0));
+
+    if (pInstance.m_pType->IsDerivedFrom(userData.m_pType) == false)
+    {
+      ezLog::Error("Visual script get property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
+      return ExecResult::Error();
+    }
+
+    if (pProperty->GetCategory() == ezPropertyCategory::Member)
+    {
+      auto pMemberProperty = static_cast<const ezAbstractMemberProperty*>(pProperty);
+
+      if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
+                    std::is_same_v<T, ezComponentHandle> ||
+                    std::is_same_v<T, ezTypedPointer>)
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+      else
+      {
+        EZ_ASSERT_DEBUG(pProperty->GetSpecificType() == ezGetStaticRTTI<T>(), "");
+
+        T value;
+        pMemberProperty->GetValuePtr(pInstance.m_pObject, &value);
+        inout_context.SetData(node.GetOutputDataOffset(0), value);
+      }
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_GetReflectedProperty);
+
+  template <typename T>
+  static ExecResult NodeFunction_SetReflectedProperty(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
+    auto pProperty = userData.m_pProperty;
+    
+    ezTypedPointer pInstance;
+    pInstance = inout_context.GetPointerData(node.GetInputDataOffset(0));
+
+    if (pInstance.m_pType->IsDerivedFrom(userData.m_pType) == false)
+    {
+      ezLog::Error("Visual script get property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
+      return ExecResult::Error();
+    }
+
+    if (pProperty->GetCategory() == ezPropertyCategory::Member)
+    {
+      auto pMemberProperty = static_cast<const ezAbstractMemberProperty*>(pProperty);
+
+      if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
+                    std::is_same_v<T, ezComponentHandle> ||
+                    std::is_same_v<T, ezTypedPointer>)
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+      else
+      {
+        EZ_ASSERT_DEBUG(pProperty->GetSpecificType() == ezGetStaticRTTI<T>(), "");
+
+        const T& value = inout_context.GetData<T>(node.GetInputDataOffset(1));
+        pMemberProperty->SetValuePtr(pInstance.m_pObject, &value);
+      }
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_SetReflectedProperty);
+
   static ExecResult NodeFunction_InplaceCoroutine(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     ezScriptCoroutine* pCoroutine = inout_context.GetCurrentCoroutine();
@@ -1067,15 +1154,17 @@ namespace
   };
 
   static ExecuteFunctionContext s_TypeToExecuteFunctions[] = {
-    {},                                // Invalid,
-    {},                                // EntryCall,
-    {},                                // EntryCall_Coroutine,
-    {},                                // MessageHandler,
-    {},                                // MessageHandler_Coroutine,
-    {&NodeFunction_ReflectedFunction}, // ReflectedFunction,
-    {&NodeFunction_InplaceCoroutine},  // InplaceCoroutine,
-    {&NodeFunction_GetScriptOwner},    // GetScriptOwner,
-    {&NodeFunction_SendMessage},       // SendMessage,
+    {},                                                   // Invalid,
+    {},                                                   // EntryCall,
+    {},                                                   // EntryCall_Coroutine,
+    {},                                                   // MessageHandler,
+    {},                                                   // MessageHandler_Coroutine,
+    {&NodeFunction_ReflectedFunction},                    // ReflectedFunction,
+    {nullptr, &NodeFunction_GetReflectedProperty_Getter}, // GetReflectedProperty,
+    {nullptr, &NodeFunction_SetReflectedProperty_Getter}, // SetReflectedProperty,
+    {&NodeFunction_InplaceCoroutine},                     // InplaceCoroutine,
+    {&NodeFunction_GetScriptOwner},                       // GetScriptOwner,
+    {&NodeFunction_SendMessage},                          // SendMessage,
 
     {}, // FirstBuiltin,
 

@@ -1,6 +1,7 @@
 #include <EditorPluginVisualScript/EditorPluginVisualScriptPCH.h>
 
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptNodeRegistry.h>
+#include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptTypeDeduction.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 
 #include <Core/Messages/EventMessage.h>
@@ -199,18 +200,28 @@ void AddExecutionPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStr
 void ezVisualScriptNodeRegistry::NodeDesc::AddInputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/)
 {
   AddExecutionPin(*this, sName, sDynamicPinProperty, false, m_InputPins);
+
+  m_bImplicitExecution = false;
 }
 
 void ezVisualScriptNodeRegistry::NodeDesc::AddOutputExecutionPin(ezStringView sName, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/, bool bSplitExecution /*= false*/)
 {
   AddExecutionPin(*this, sName, sDynamicPinProperty, bSplitExecution, m_OutputPins);
+
+  m_bImplicitExecution = false;
 }
 
-void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& inout_pins)
+void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, ezHashedString sDynamicPinProperty, ezVisualScriptNodeRegistry::PinDesc::DeductTypeFunc deductTypeFunc, ezSmallArray<ezVisualScriptNodeRegistry::PinDesc, 4>& inout_pins)
 {
+  if ((scriptDataType == ezVisualScriptDataType::AnyPointer || scriptDataType == ezVisualScriptDataType::Any) && deductTypeFunc == nullptr)
+  {
+    deductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromNodeDataType;
+  }
+
   auto& pin = inout_pins.ExpandAndGetRef();
   pin.m_sName.Assign(sName);
   pin.m_sDynamicPinProperty = sDynamicPinProperty;
+  pin.m_DeductTypeFunc = deductTypeFunc;
   pin.m_pDataType = pDataType;
   pin.m_ScriptDataType = scriptDataType;
   pin.m_bRequired = bRequired;
@@ -218,14 +229,14 @@ void AddDataPin(ezVisualScriptNodeRegistry::NodeDesc& inout_nodeDesc, ezStringVi
   inout_nodeDesc.m_bHasDynamicPins |= (sDynamicPinProperty.IsEmpty() == false);
 }
 
-void ezVisualScriptNodeRegistry::NodeDesc::AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/)
+void ezVisualScriptNodeRegistry::NodeDesc::AddInputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, bool bRequired, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/, PinDesc::DeductTypeFunc deductTypeFunc /*= nullptr*/)
 {
-  AddDataPin(*this, sName, pDataType, scriptDataType, bRequired, sDynamicPinProperty, m_InputPins);
+  AddDataPin(*this, sName, pDataType, scriptDataType, bRequired, sDynamicPinProperty, deductTypeFunc, m_InputPins);
 }
 
-void ezVisualScriptNodeRegistry::NodeDesc::AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/)
+void ezVisualScriptNodeRegistry::NodeDesc::AddOutputDataPin(ezStringView sName, const ezRTTI* pDataType, ezVisualScriptDataType::Enum scriptDataType, const ezHashedString& sDynamicPinProperty /*= ezHashedString()*/, PinDesc::DeductTypeFunc deductTypeFunc /*= nullptr*/)
 {
-  AddDataPin(*this, sName, pDataType, scriptDataType, false, sDynamicPinProperty, m_OutputPins);
+  AddDataPin(*this, sName, pDataType, scriptDataType, false, sDynamicPinProperty, deductTypeFunc, m_OutputPins);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -384,7 +395,7 @@ ezVisualScriptDataType::Enum ezVisualScriptNodeRegistry::GetScriptDataType(const
 }
 
 template <typename T>
-void ezVisualScriptNodeRegistry::AddInputDataPin(ezReflectedTypeDescriptor& ref_typeDesc, ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName)
+void ezVisualScriptNodeRegistry::AddInputDataPin(ezReflectedTypeDescriptor& ref_typeDesc, NodeDesc& ref_nodeDesc, ezStringView sName)
 {
   const ezRTTI* pDataType = ezGetStaticRTTI<T>();
 
@@ -396,23 +407,18 @@ void ezVisualScriptNodeRegistry::AddInputDataPin(ezReflectedTypeDescriptor& ref_
   ref_nodeDesc.AddInputDataPin(sName, pDataType, scriptDataType, false);
 };
 
-void ezVisualScriptNodeRegistry::AddInputDataPin_Any(ezReflectedTypeDescriptor& ref_typeDesc, ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName, bool bRequired, bool bAddVariantProperty /*= false*/)
+void ezVisualScriptNodeRegistry::AddInputDataPin_Any(ezReflectedTypeDescriptor& ref_typeDesc, NodeDesc& ref_nodeDesc, ezStringView sName, bool bRequired, bool bAddVariantProperty /*= false*/, PinDesc::DeductTypeFunc deductTypeFunc /*= nullptr*/)
 {
   if (bAddVariantProperty)
   {
     AddInputProperty(ref_typeDesc, sName, ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant);
   }
 
-  ref_nodeDesc.AddInputDataPin(sName, nullptr, ezVisualScriptDataType::Any, bRequired);
-
-  if (ref_nodeDesc.NeedsTypeDeduction() == false)
-  {
-    ref_nodeDesc.m_TypeDeductionMode = ezVisualScriptNodeRegistry::NodeDesc::TypeDeductionMode::FromInputPins;
-  }
+  ref_nodeDesc.AddInputDataPin(sName, nullptr, ezVisualScriptDataType::Any, bRequired, ezHashedString(), deductTypeFunc);
 }
 
 template <typename T>
-void ezVisualScriptNodeRegistry::AddOutputDataPin(ezVisualScriptNodeRegistry::NodeDesc& ref_nodeDesc, ezStringView sName)
+void ezVisualScriptNodeRegistry::AddOutputDataPin(NodeDesc& ref_nodeDesc, ezStringView sName)
 {
   const ezRTTI* pDataType = ezGetStaticRTTI<T>();
 
@@ -431,26 +437,61 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
   const ezColorGammaUB variantColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Variant);
   const ezColorGammaUB coroutineColor = PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Coroutine);
 
+  // GetReflectedProperty
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "GetProperty", "Properties", logicColor);
+
+    AddInputProperty(typeDesc, "Type", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
+    AddInputProperty(typeDesc, "Property", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "{Type}::Get {Property}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::GetReflectedProperty;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromPropertyProperty;
+    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::AnyPointer, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
+    nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // SetReflectedProperty
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "SetProperty", "Properties", logicColor);
+
+    AddInputProperty(typeDesc, "Type", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
+    AddInputProperty(typeDesc, "Property", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "{Type}::Set {Property}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::SetReflectedProperty;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromPropertyProperty;
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::AnyPointer, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
+    nodeDesc.AddInputDataPin("Value", nullptr, ezVisualScriptDataType::Any, false);
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
   // Builtin_GetVariable
   {
     ezReflectedTypeDescriptor typeDesc;
     FillDesc(typeDesc, "Builtin_GetVariable", "Variables", logicColor);
 
-    {
-      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-      propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sName = "Name";
-      propDesc.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
-      propDesc.m_Flags = ezPropertyFlags::StandardType;
-    }
+    AddInputProperty(typeDesc, "Name", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
 
     auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Get {Name}");
     typeDesc.m_Attributes.PushBack(pAttr);
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_GetVariable;
-    nodeDesc.m_TypeDeductionMode = NodeDesc::TypeDeductionMode::FromNameProperty;
-    nodeDesc.m_bImplicitExecution = true;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromVariableNameProperty;
     nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
@@ -461,20 +502,14 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     ezReflectedTypeDescriptor typeDesc;
     FillDesc(typeDesc, "Builtin_SetVariable", "Variables", logicColor);
 
-    {
-      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-      propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sName = "Name";
-      propDesc.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
-      propDesc.m_Flags = ezPropertyFlags::StandardType;
-    }
+    AddInputProperty(typeDesc, "Name", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
 
     auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Set {Name}");
     typeDesc.m_Attributes.PushBack(pAttr);
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_SetVariable;
-    nodeDesc.m_TypeDeductionMode = NodeDesc::TypeDeductionMode::FromNameProperty;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromVariableNameProperty;
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddOutputExecutionPin("");
     AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
@@ -501,20 +536,14 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
       ezReflectedTypeDescriptor typeDesc;
       FillDesc(typeDesc, ezVisualScriptNodeDescription::Type::GetName(nodeTypes[i]), "Variables", logicColor);
 
-      {
-        auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-        propDesc.m_Category = ezPropertyCategory::Member;
-        propDesc.m_sName = "Name";
-        propDesc.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
-        propDesc.m_Flags = ezPropertyFlags::StandardType;
-      }
+      AddInputProperty(typeDesc, "Name", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
 
       auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, szNodeTitles[i]);
       typeDesc.m_Attributes.PushBack(pAttr);
 
       NodeDesc nodeDesc;
       nodeDesc.m_Type = nodeTypes[i];
-      nodeDesc.m_TypeDeductionMode = NodeDesc::TypeDeductionMode::FromNameProperty;
+      nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromVariableNameProperty;
       nodeDesc.AddInputExecutionPin("");
       nodeDesc.AddOutputExecutionPin("");
       nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
@@ -605,7 +634,6 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_And;
-    nodeDesc.m_bImplicitExecution = true;
 
     AddInputDataPin<bool>(typeDesc, nodeDesc, "A");
     AddInputDataPin<bool>(typeDesc, nodeDesc, "B");
@@ -624,7 +652,6 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Or;
-    nodeDesc.m_bImplicitExecution = true;
 
     AddInputDataPin<bool>(typeDesc, nodeDesc, "A");
     AddInputDataPin<bool>(typeDesc, nodeDesc, "B");
@@ -643,7 +670,6 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Not;
-    nodeDesc.m_bImplicitExecution = true;
 
     AddInputDataPin<bool>(typeDesc, nodeDesc, "A");
     AddOutputDataPin<bool>(nodeDesc, "");
@@ -656,20 +682,14 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     ezReflectedTypeDescriptor typeDesc;
     FillDesc(typeDesc, "Builtin_Compare", "Logic", logicColor);
 
-    {
-      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-      propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sName = "Operator";
-      propDesc.m_sType = ezGetStaticRTTI<ezComparisonOperator>()->GetTypeName();
-      propDesc.m_Flags = ezPropertyFlags::IsEnum;
-    }
+    AddInputProperty(typeDesc, "Operator", ezGetStaticRTTI<ezComparisonOperator>(), ezVisualScriptDataType::Int64);
 
     auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "{A} {Operator} {B}");
     typeDesc.m_Attributes.PushBack(pAttr);
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Compare;
-    nodeDesc.m_bImplicitExecution = true;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
 
     AddInputDataPin_Any(typeDesc, nodeDesc, "A", false, true);
     AddInputDataPin_Any(typeDesc, nodeDesc, "B", false, true);
@@ -685,7 +705,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_IsValid;
-    nodeDesc.m_bImplicitExecution = true;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
 
     AddInputDataPin_Any(typeDesc, nodeDesc, "", true);
     AddOutputDataPin<bool>(nodeDesc, "");
@@ -721,7 +741,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
       NodeDesc nodeDesc;
       nodeDesc.m_Type = mathNodeTypes[i];
-      nodeDesc.m_bImplicitExecution = true;
+      nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
 
       AddInputDataPin_Any(typeDesc, nodeDesc, "A", false, true);
       AddInputDataPin_Any(typeDesc, nodeDesc, "B", false, true);
@@ -733,22 +753,22 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
   // Builtin_ToBool, Builtin_ToByte, Builtin_ToInt, Builtin_ToInt64, Builtin_ToFloat, Builtin_ToDouble, Builtin_ToString, Builtin_ToVariant,
   {
-    struct ConversionNodeDesc // NOLINT(*Padding): Don't care about excessive padding here.
+    struct ConversionNodeDesc
     {
-      ezVisualScriptDataType::Enum m_DataType;
       const char* m_szCategory;
       ezColorGammaUB m_Color;
+      ezVisualScriptDataType::Enum m_DataType;
     };
 
     ConversionNodeDesc conversionNodeDescs[] = {
-      {ezVisualScriptDataType::Bool, "Logic", logicColor},
-      {ezVisualScriptDataType::Byte, "Math", mathColor},
-      {ezVisualScriptDataType::Int, "Math", mathColor},
-      {ezVisualScriptDataType::Int64, "Math", mathColor},
-      {ezVisualScriptDataType::Float, "Math", mathColor},
-      {ezVisualScriptDataType::Double, "Math", mathColor},
-      {ezVisualScriptDataType::String, "String", stringColor},
-      {ezVisualScriptDataType::Variant, "Variant", variantColor},
+      {"Logic", logicColor, ezVisualScriptDataType::Bool},
+      {"Math", mathColor, ezVisualScriptDataType::Byte},
+      {"Math", mathColor, ezVisualScriptDataType::Int},
+      {"Math", mathColor, ezVisualScriptDataType::Int64},
+      {"Math", mathColor, ezVisualScriptDataType::Float},
+      {"Math", mathColor, ezVisualScriptDataType::Double},
+      {"String", stringColor, ezVisualScriptDataType::String},
+      {"Variant", variantColor, ezVisualScriptDataType::Variant},
     };
 
     for (auto& conversionNodeDesc : conversionNodeDescs)
@@ -760,7 +780,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
       NodeDesc nodeDesc;
       nodeDesc.m_Type = nodeType;
-      nodeDesc.m_bImplicitExecution = true;
+      nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
 
       AddInputDataPin_Any(typeDesc, nodeDesc, "", true);
       nodeDesc.AddOutputDataPin("", ezVisualScriptDataType::GetRtti(conversionNodeDesc.m_DataType), conversionNodeDesc.m_DataType);
@@ -779,7 +799,6 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_String_Format;
-    nodeDesc.m_bImplicitExecution = true;
 
     AddInputDataPin<ezString>(typeDesc, nodeDesc, "Text");
     AddInputProperty(typeDesc, "Params", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array);
@@ -810,7 +829,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Variant_ConvertTo;
-    nodeDesc.m_TypeDeductionMode = NodeDesc::TypeDeductionMode::FromTypeProperty;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromScriptDataTypeProperty;
 
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddOutputExecutionPin("Succeeded");
@@ -843,7 +862,6 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_MakeArray;
-    nodeDesc.m_bImplicitExecution = true;
 
     nodeDesc.AddInputDataPin("", ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant, false, sCount);
     nodeDesc.AddOutputDataPin("", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array);
@@ -872,7 +890,6 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_TryGetComponentOfBaseType;
-    nodeDesc.m_bImplicitExecution = true;
 
     nodeDesc.AddInputDataPin("GameObject", ezGetStaticRTTI<ezGameObject>(), ezVisualScriptDataType::GameObject, false);
     AddOutputDataPin<ezComponent>(nodeDesc, "Component");
@@ -885,13 +902,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     ezReflectedTypeDescriptor typeDesc;
     FillDesc(typeDesc, "Builtin_StartCoroutine", szCoroutinesCategory, coroutineColor);
 
-    {
-      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-      propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sName = "CoroutineMode";
-      propDesc.m_sType = ezGetStaticRTTI<ezScriptCoroutineCreationMode>()->GetTypeName();
-      propDesc.m_Flags = ezPropertyFlags::IsEnum;
-    }
+    AddInputProperty(typeDesc, "CoroutineMode", ezGetStaticRTTI<ezScriptCoroutineCreationMode>(), ezVisualScriptDataType::Int64);
 
     auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "StartCoroutine {Name}");
     typeDesc.m_Attributes.PushBack(pAttr);
@@ -1018,7 +1029,6 @@ void ezVisualScriptNodeRegistry::CreateGetOwnerNodeType(const ezRTTI* pRtti)
   nodeDesc.m_sFilterByBaseClass.Assign(sBaseClass);
   nodeDesc.m_pTargetType = pRtti;
   nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::GetScriptOwner;
-  nodeDesc.m_bImplicitExecution = true;
 
   ezVisualScriptDataType::Enum scriptDataType;
   if (GetScriptDataType(pRtti, scriptDataType, "GetScriptOwner", "").Failed())
@@ -1081,11 +1091,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
     if (bIsEntryFunction)
     {
-      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-      propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sName = "CoroutineMode";
-      propDesc.m_sType = ezGetStaticRTTI<ezScriptCoroutineCreationMode>()->GetTypeName();
-      propDesc.m_Flags = ezPropertyFlags::IsEnum;
+      AddInputProperty(typeDesc, "CoroutineMode", ezGetStaticRTTI<ezScriptCoroutineCreationMode>(), ezVisualScriptDataType::Int64);
     }
 
     if (auto pTitleAttribute = pFunction->GetAttributeByType<ezTitleAttribute>())
@@ -1111,11 +1117,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
   }
 
   {
-    if (pFunction->GetFlags().IsSet(ezPropertyFlags::Const))
-    {
-      nodeDesc.m_bImplicitExecution = true;
-    }
-    else
+    if (pFunction->GetFlags().IsSet(ezPropertyFlags::Const) == false)
     {
       if (bIsEntryFunction == false)
       {
@@ -1357,11 +1359,7 @@ void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
       temp.Set(s_szTypeNamePrefix, "On", GetTypeName(pRtti));
       typeDesc.m_sTypeName = temp;
 
-      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-      propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sName = "CoroutineMode";
-      propDesc.m_sType = ezGetStaticRTTI<ezScriptCoroutineCreationMode>()->GetTypeName();
-      propDesc.m_Flags = ezPropertyFlags::IsEnum;
+      AddInputProperty(typeDesc, "CoroutineMode", ezGetStaticRTTI<ezScriptCoroutineCreationMode>(), ezVisualScriptDataType::Int64);
     }
 
     NodeDesc nodeDesc;
@@ -1469,7 +1467,6 @@ void ezVisualScriptNodeRegistry::CreateEnumNodeTypes(const ezRTTI* pRtti)
     NodeDesc nodeDesc;
     nodeDesc.m_pTargetType = pRtti;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Constant;
-    nodeDesc.m_bImplicitExecution = true;
     nodeDesc.AddOutputDataPin("Value", pRtti, ezVisualScriptDataType::EnumValue);
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));

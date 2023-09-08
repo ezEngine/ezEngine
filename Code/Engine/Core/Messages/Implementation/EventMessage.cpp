@@ -8,12 +8,12 @@
 EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEventMessage>)
 {
-  EZ_BEGIN_PROPERTIES
+  /*EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY_READ_ONLY("SenderObject", m_hSenderObject),
     EZ_MEMBER_PROPERTY_READ_ONLY("SenderComponent", m_hSenderComponent)
   }
-  EZ_END_PROPERTIES;
+  EZ_END_PROPERTIES;*/
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
