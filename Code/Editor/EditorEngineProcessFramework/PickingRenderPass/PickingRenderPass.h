@@ -27,14 +27,14 @@ public:
   bool m_bPickSelected = true;
   bool m_bPickTransparent = true;
 
-  ezVec2 m_PickingPosition;
-  ezUInt32 m_PickingIdOut;
-  float m_PickingDepthOut;
-  ezVec2 m_MarqueePickPosition0;
-  ezVec2 m_MarqueePickPosition1;
+  ezVec2 m_PickingPosition = ezVec2(-1);
+  ezUInt32 m_PickingIdOut = 0;
+  float m_PickingDepthOut = 0.0f;
+  ezVec2 m_MarqueePickPosition0 = ezVec2(-1);
+  ezVec2 m_MarqueePickPosition1 = ezVec2(-1);
   ezUInt32 m_uiMarqueeActionID = 0xFFFFFFFF; // used to prevent reusing an old result for a new marquee action
-  ezUInt32 m_uiWindowWidth;
-  ezUInt32 m_uiWindowHeight;
+  ezUInt32 m_uiWindowWidth = 0;
+  ezUInt32 m_uiWindowHeight = 0;
 
 private:
   void CreateTarget();
@@ -54,7 +54,7 @@ private:
 
 
   /// we need this matrix to compute the world space position of picked pixels
-  ezMat4 m_mPickingInverseViewProjectionMatrix;
+  ezMat4 m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
 
   /// stores the 2D depth buffer image (32 Bit depth precision), to compute pixel positions from
   ezDynamicArray<float> m_PickingResultsDepth;

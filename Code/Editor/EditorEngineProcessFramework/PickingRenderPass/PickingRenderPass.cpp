@@ -26,9 +26,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPickingRenderPass::ezPickingRenderPass()
   : ezRenderPipelinePass("EditorPickingRenderPass")
 {
-  m_PickingPosition.Set(-1);
-  m_MarqueePickPosition0.Set(-1);
-  m_MarqueePickPosition1.Set(-1);
 }
 
 ezPickingRenderPass::~ezPickingRenderPass()
@@ -102,7 +99,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   }
 
   // filter out all selected objects
-  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData) { return m_SelectionSet.Contains(pRenderData->m_hOwner); });
+  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData)
+    { return m_SelectionSet.Contains(pRenderData->m_hOwner); });
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);
@@ -139,109 +137,65 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
 
   // download the picking information from the GPU
+  if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
   {
-    if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
+    pCommandEncoder->ReadbackTexture(GetPickingDepthRT());
+    pCommandEncoder->ReadbackTexture(GetPickingIdRT());
+
+    ezMat4 mProj;
+    renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
+    ezMat4 mView = renderViewContext.m_pCamera->GetViewMatrix();
+
+    if (mProj.IsNaN())
+      return;
+
+    // Double precision version
+    /*
     {
-      pCommandEncoder->ReadbackTexture(GetPickingDepthRT());
+      ezMat4d dView, dProj, dMVP;
+      CopyMatD(dView, mView);
+      CopyMatD(dProj, mProj);
 
-      ezMat4 mProj;
-      renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
-      ezMat4 mView = renderViewContext.m_pCamera->GetViewMatrix();
+      dMVP = dProj * dView;
+      auto res = dMVP.Invert(0.00000001);
 
-      if (mProj.IsNaN())
-        return;
+      if (res.Failed())
+        ezLog::Debug("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
 
-      // Double precision version
-      /*
-      {
-        ezMat4d dView, dProj, dMVP;
-        CopyMatD(dView, mView);
-        CopyMatD(dProj, mProj);
+      m_PickingInverseViewProjectionMatrix = dMVP;
+    }
+    */
 
-        dMVP = dProj * dView;
-        auto res = dMVP.Invert(0.00000001);
+    ezMat4 inv = mProj * mView;
+    if (inv.Invert(0).Failed())
+    {
+      ezLog::Warning("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+      return;
+    }
 
-        if (res.Failed())
-          ezLog::Debug("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+    m_mPickingInverseViewProjectionMatrix = inv;
 
-        m_PickingInverseViewProjectionMatrix = dMVP;
-      }
-      */
+    ezGALSystemMemoryDescription MemDesc;
+    MemDesc.m_uiRowPitch = 4 * m_uiWindowWidth;
+    MemDesc.m_uiSlicePitch = 4 * m_uiWindowWidth * m_uiWindowHeight;
+    ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
 
-      ezMat4 inv = mProj * mView;
-      if (inv.Invert(0).Failed())
-      {
-        ezLog::Warning("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
-        return;
-      }
+    ezGALTextureSubresource sourceSubResource;
+    ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
 
-      m_mPickingInverseViewProjectionMatrix = inv;
-
+    {
       m_PickingResultsDepth.Clear();
       m_PickingResultsDepth.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
 
-      ezGALSystemMemoryDescription MemDesc;
-      MemDesc.m_uiRowPitch = 4 * m_uiWindowWidth;
-      MemDesc.m_uiSlicePitch = 4 * m_uiWindowWidth * m_uiWindowHeight;
-
       MemDesc.m_pData = m_PickingResultsDepth.GetData();
-      ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-      ezGALTextureSubresource sourceSubResource;
-      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-      pCommandEncoder->CopyTextureReadbackResult(GetPickingDepthRT(), sourceSubResources, SysMemDescsDepth);
+      pCommandEncoder->CopyTextureReadbackResult(GetPickingDepthRT(), sourceSubResources, SysMemDescs);
     }
-  }
 
-  {
-    // download the picking information from the GPU
-    if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
     {
-      pCommandEncoder->ReadbackTexture(GetPickingIdRT());
-
-      ezMat4 mProj;
-      renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
-      ezMat4 mView = renderViewContext.m_pCamera->GetViewMatrix();
-
-      if (mProj.IsNaN())
-        return;
-
-      // Double precision version
-      /*
-      {
-        ezMat4d dView, dProj, dMVP;
-        CopyMatD(dView, mView);
-        CopyMatD(dProj, mProj);
-
-        dMVP = dProj * dView;
-        auto res = dMVP.Invert(0.00000001);
-
-        if (res.Failed())
-          ezLog::Debug("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
-
-        m_PickingInverseViewProjectionMatrix = dMVP;
-      }
-      */
-
-      ezMat4 inv = mProj * mView;
-      if (inv.Invert(0).Failed())
-      {
-        ezLog::Warning("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
-        return;
-      }
-
-      m_mPickingInverseViewProjectionMatrix = inv;
-
       m_PickingResultsID.Clear();
       m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
 
-      ezGALSystemMemoryDescription MemDesc;
-      MemDesc.m_uiRowPitch = 4 * m_uiWindowWidth;
-      MemDesc.m_uiSlicePitch = 4 * m_uiWindowWidth * m_uiWindowHeight;
-
       MemDesc.m_pData = m_PickingResultsID.GetData();
-      ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-      ezGALTextureSubresource sourceSubResource;
-      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
       pCommandEncoder->CopyTextureReadbackResult(GetPickingIdRT(), sourceSubResources, SysMemDescs);
     }
   }
@@ -380,12 +334,12 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
   done:;
   }
 
-  pView->SetRenderPassReadBackProperty(GetName(), "PickingMatrix", m_mPickingInverseViewProjectionMatrix);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickingID", uiPickID);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickingDepth", m_PickingResultsDepth[uiIndex]);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickingNormal", vNormal);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickingRayStartPosition", vPickingRayStartPosition);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickingPosition", vPickedPosition);
+  pView->SetRenderPassReadBackProperty(GetName(), "PickedMatrix", m_mPickingInverseViewProjectionMatrix);
+  pView->SetRenderPassReadBackProperty(GetName(), "PickedID", uiPickID);
+  pView->SetRenderPassReadBackProperty(GetName(), "PickedDepth", m_PickingResultsDepth[uiIndex]);
+  pView->SetRenderPassReadBackProperty(GetName(), "PickedNormal", vNormal);
+  pView->SetRenderPassReadBackProperty(GetName(), "PickedRayStartPosition", vPickingRayStartPosition);
+  pView->SetRenderPassReadBackProperty(GetName(), "PickedPosition", vPickedPosition);
 }
 
 void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)

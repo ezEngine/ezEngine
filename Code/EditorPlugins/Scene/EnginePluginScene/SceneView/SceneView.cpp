@@ -229,57 +229,59 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
     return;
 
   ezViewPickingResultMsgToEditor res;
+  EZ_SCOPE_EXIT(SendViewMessage(&res));
 
   ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hView, pView) && pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickingMatrix"))
+  if (ezRenderWorld::TryGetView(m_hView, pView) == false)
+    return;
+
+  pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
+
+  if (pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickedPosition") == false)
+    return;
+
+  ezVariant varPickedPos = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedPosition");
+  if (varPickedPos.IsA<ezVec3>() == false)
+    return;
+
+  const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedID").ConvertTo<ezUInt32>();
+  res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedNormal").ConvertTo<ezVec3>();
+  res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedRayStartPosition").ConvertTo<ezVec3>();
+  res.m_vPickedPosition = varPickedPos.ConvertTo<ezVec3>();
+
+  EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
+
+  const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
+  const ezUInt32 uiPartIndex = (uiPickingID >> 24) & 0x7F; // highest bit indicates whether the object is dynamic, ignore this
+
+  ezArrayPtr<ezWorldRttiConverterContext*> contexts = m_pSceneContext->GetAllContexts();
+  for (ezWorldRttiConverterContext* pContext : contexts)
   {
-    pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
-    ezVariant varMat = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingMatrix");
+    res.m_ComponentGuid = pContext->m_ComponentPickingMap.GetGuid(uiComponentID);
+    if (res.m_ComponentGuid.IsValid() == false)
+      continue;
 
-    if (varMat.IsA<ezMat4>())
+    ezComponentHandle hComponent = pContext->m_ComponentMap.GetHandle(res.m_ComponentGuid);
+
+    ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+
+    // check whether the component is still valid
+    ezComponent* pComponent = nullptr;
+    if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
     {
-      const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingID").ConvertTo<ezUInt32>();
-      // const float fPickingDepth = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingDepth").ConvertTo<float>();
-      res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingNormal").ConvertTo<ezVec3>();
-      res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
-      res.m_vPickedPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingPosition").ConvertTo<ezVec3>();
-
-      EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
-
-      const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
-      const ezUInt32 uiPartIndex = (uiPickingID >> 24) & 0x7F; // highest bit indicates whether the object is dynamic, ignore this
-
-      ezArrayPtr<ezWorldRttiConverterContext*> contexts = m_pSceneContext->GetAllContexts();
-      for (ezWorldRttiConverterContext* pContext : contexts)
-      {
-        res.m_ComponentGuid = pContext->m_ComponentPickingMap.GetGuid(uiComponentID);
-        if (res.m_ComponentGuid.IsValid())
-        {
-          ezComponentHandle hComponent = pContext->m_ComponentMap.GetHandle(res.m_ComponentGuid);
-
-          ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-
-          // check whether the component is still valid
-          ezComponent* pComponent = nullptr;
-          if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
-          {
-            // if yes, fill out the parent game object guid
-            res.m_ObjectGuid = pContext->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
-            res.m_uiPartIndex = uiPartIndex;
-          }
-          else
-          {
-            res.m_ComponentGuid = ezUuid();
-          }
-          break;
-        }
-      }
-      // Always take the other picking ID from the scene itself as gizmos are handled by the window and only the scene itself has one.
-      res.m_OtherGuid = m_pSceneContext->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
+      // if yes, fill out the parent game object guid
+      res.m_ObjectGuid = pContext->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
+      res.m_uiPartIndex = uiPartIndex;
     }
+    else
+    {
+      res.m_ComponentGuid = ezUuid();
+    }
+    break;
   }
 
-  SendViewMessage(&res);
+  // Always take the other picking ID from the scene itself as gizmos are handled by the window and only the scene itself has one.
+  res.m_OtherGuid = m_pSceneContext->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
 }
 
 void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngine* pMsg)
