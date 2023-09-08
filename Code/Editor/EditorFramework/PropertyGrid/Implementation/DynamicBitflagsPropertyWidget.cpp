@@ -107,10 +107,8 @@ void ezQtDynamicBitflagsPropertyWidget::SetAll(bool bChecked)
 
 void ezQtDynamicBitflagsPropertyWidget::ClearMenu()
 {
-  //for (auto action : m_pMenu->actions())
-    //delete action;
-  m_pMenu->clear();
   m_Constants.Clear();
+  m_pMenu->clear();
 }
 
 void ezQtDynamicBitflagsPropertyWidget::BuildMenu()

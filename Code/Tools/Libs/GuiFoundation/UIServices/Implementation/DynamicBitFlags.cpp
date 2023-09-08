@@ -11,12 +11,14 @@ void ezDynamicBitflags::Clear()
 
 void ezDynamicBitflags::SetBitPosAndName(ezInt32 iBitPos, const char* szNewName)
 {
+  EZ_ASSERT_DEV(iBitPos >= 0 && iBitPos < 64, "Only up to 64 bits is supported.");
   auto it = m_ValidValues.FindOrAdd(EZ_BIT(iBitPos));
   it.Value() = szNewName;
 }
 
 void ezDynamicBitflags::RemoveValue(ezInt32 iBitPos)
 {
+  EZ_ASSERT_DEV(iBitPos >= 0 && iBitPos < 64, "Only up to 64 bits is supported.");
   m_ValidValues.Remove(EZ_BIT(iBitPos));
 }
 
@@ -30,7 +32,7 @@ const char* ezDynamicBitflags::GetBitName(ezInt32 iBitPos) const
   auto it = m_ValidValues.Find(EZ_BIT(iBitPos));
 
   if (!it.IsValid())
-    return "<invalid value>";
+    return nullptr;
 
   return it.Value();
 }
