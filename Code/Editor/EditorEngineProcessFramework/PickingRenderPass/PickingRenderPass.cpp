@@ -148,23 +148,6 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     if (mProj.IsNaN())
       return;
 
-    // Double precision version
-    /*
-    {
-      ezMat4d dView, dProj, dMVP;
-      CopyMatD(dView, mView);
-      CopyMatD(dProj, mProj);
-
-      dMVP = dProj * dView;
-      auto res = dMVP.Invert(0.00000001);
-
-      if (res.Failed())
-        ezLog::Debug("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
-
-      m_PickingInverseViewProjectionMatrix = dMVP;
-    }
-    */
-
     ezMat4 inv = mProj * mView;
     if (inv.Invert(0).Failed())
     {
