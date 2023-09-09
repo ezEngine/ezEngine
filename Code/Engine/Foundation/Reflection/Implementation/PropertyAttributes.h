@@ -531,12 +531,12 @@ class EZ_FOUNDATION_DLL ezDynamicBitflagsAttribute : public ezTypeWidgetAttribut
 
 public:
   ezDynamicBitflagsAttribute() = default;
-  ezDynamicBitflagsAttribute(const char* szDynamicName)
-    : m_sDynamicBitflagsName(szDynamicName)
+  ezDynamicBitflagsAttribute(ezStringView sDynamicName)
+    : m_sDynamicBitflagsName(sDynamicName)
   {
   }
 
-  const char* GetDynamicBitflagsName() const { return m_sDynamicBitflagsName; }
+  ezStringView GetDynamicBitflagsName() const { return m_sDynamicBitflagsName; }
 
 private:
   ezUntrackedString m_sDynamicBitflagsName;

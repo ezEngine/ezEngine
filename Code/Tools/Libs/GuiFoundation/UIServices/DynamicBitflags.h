@@ -14,28 +14,28 @@ class EZ_GUIFOUNDATION_DLL ezDynamicBitflags
 {
 public:
   /// \brief Returns a ezDynamicBitflags under the given name. Creates a new one, if the name has not been used before.
-  static ezDynamicBitflags& GetDynamicBitflags(const char* szName);
+  static ezDynamicBitflags& GetDynamicBitflags(ezStringView sName);
 
   /// \brief Returns all bitflag values and current names.
-  const ezMap<ezInt64, ezString>& GetAllValidValues() const { return m_ValidValues; }
+  const ezMap<ezUInt64, ezString>& GetAllValidValues() const { return m_ValidValues; }
 
-  /// \brief Resets the internal data.
+  /// \brief Resets stored values.
   void Clear();
 
   /// \brief Sets the name for the given bit position.
-  void SetBitPosAndName(ezInt32 iBitPos, const char* szNewName);
+  void SetValueAndName(ezUInt32 uiBitPos, ezStringView sName);
 
-  /// \brief Removes a certain bit value, if it exists.
-  void RemoveValue(ezInt32 iBitPos);
+  /// \brief Removes a value, if it exists.
+  void RemoveValue(ezUInt32 uiBitPos);
 
   /// \brief Returns whether a certain value is known.
-  bool IsValueValid(ezInt32 iBitPos) const;
+  bool IsValueValid(ezUInt32 uiBitPos) const;
 
-  /// \brief Returns the name for the given value. Returns "<invalid value>" if the value is not in use.
-  const char* GetBitName(ezInt32 iBitPos) const;
+  /// \brief Returns the name for the given value
+  bool TryGetValueName(ezUInt32 uiBitPos, ezStringView& out_sName) const;
 
 private:
-  ezMap<ezInt64, ezString> m_ValidValues;
+  ezMap<ezUInt64, ezString> m_ValidValues;
 
   static ezMap<ezString, ezDynamicBitflags> s_DynamicBitflags;
 };

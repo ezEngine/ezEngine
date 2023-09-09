@@ -29,12 +29,12 @@ protected:
 
 protected:
   ezMap<ezInt64, QCheckBox*> m_Constants;
-  QHBoxLayout* m_pLayout;
-  QPushButton* m_pWidget;
-  QPushButton* m_pAllButton;
-  QPushButton* m_pClearButton;
-  QHBoxLayout* m_pBottomLayout;
-  QMenu* m_pMenu;
-  ezInt64 m_iCurrentBitflags;
+  QHBoxLayout* m_pLayout = nullptr;
+  QPushButton* m_pWidget = nullptr;
+  QPushButton* m_pAllButton = nullptr;
+  QPushButton* m_pClearButton = nullptr;
+  QHBoxLayout* m_pBottomLayout = nullptr;
+  QMenu* m_pMenu = nullptr;
+  ezInt64 m_iCurrentBitflags = 0;
 };
 

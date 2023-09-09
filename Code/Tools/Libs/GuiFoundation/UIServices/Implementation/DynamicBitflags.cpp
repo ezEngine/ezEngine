@@ -9,35 +9,36 @@ void ezDynamicBitflags::Clear()
   m_ValidValues.Clear();
 }
 
-void ezDynamicBitflags::SetBitPosAndName(ezInt32 iBitPos, const char* szNewName)
+void ezDynamicBitflags::SetValueAndName(ezUInt32 uiBitPos, ezStringView sName)
 {
-  EZ_ASSERT_DEV(iBitPos >= 0 && iBitPos < 64, "Only up to 64 bits is supported.");
-  auto it = m_ValidValues.FindOrAdd(EZ_BIT(iBitPos));
-  it.Value() = szNewName;
+  EZ_ASSERT_DEV(uiBitPos < 64, "Only up to 64 bits is supported.");
+  auto it = m_ValidValues.FindOrAdd(EZ_BIT(uiBitPos));
+  it.Value() = sName;
 }
 
-void ezDynamicBitflags::RemoveValue(ezInt32 iBitPos)
+void ezDynamicBitflags::RemoveValue(ezUInt32 uiBitPos)
 {
-  EZ_ASSERT_DEV(iBitPos >= 0 && iBitPos < 64, "Only up to 64 bits is supported.");
-  m_ValidValues.Remove(EZ_BIT(iBitPos));
+  EZ_ASSERT_DEV(uiBitPos < 64, "Only up to 64 bits is supported.");
+  m_ValidValues.Remove(EZ_BIT(uiBitPos));
 }
 
-bool ezDynamicBitflags::IsValueValid(ezInt32 iBitPos) const
+bool ezDynamicBitflags::IsValueValid(ezUInt32 uiBitPos) const
 {
-  return m_ValidValues.Find(EZ_BIT(iBitPos)).IsValid();
+  return m_ValidValues.Find(EZ_BIT(uiBitPos)).IsValid();
 }
 
-const char* ezDynamicBitflags::GetBitName(ezInt32 iBitPos) const
+bool ezDynamicBitflags::TryGetValueName(ezUInt32 uiBitPos, ezStringView& out_sName) const
 {
-  auto it = m_ValidValues.Find(EZ_BIT(iBitPos));
-
-  if (!it.IsValid())
-    return nullptr;
-
-  return it.Value();
+  auto it = m_ValidValues.Find(EZ_BIT(uiBitPos));
+  if (it.IsValid())
+  {
+    out_sName = it.Value();
+    return true;
+  }
+  return false;
 }
 
-ezDynamicBitflags& ezDynamicBitflags::GetDynamicBitflags(const char* szName)
+ezDynamicBitflags& ezDynamicBitflags::GetDynamicBitflags(ezStringView sName)
 {
-  return s_DynamicBitflags[szName];
+  return s_DynamicBitflags[sName];
 }
