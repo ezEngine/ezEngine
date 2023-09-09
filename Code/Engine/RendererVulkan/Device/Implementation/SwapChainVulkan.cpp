@@ -4,8 +4,8 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/System/PlatformFeatures.h>
-#include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/RendererReflection.h>
+#include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
@@ -90,7 +90,7 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
       }
       else
       {
-        if(retryCount > 0)
+        if (retryCount > 0)
         {
           ezLog::Error("Automatic swap-chain re-creation didn't have an effect");
           break;
@@ -98,7 +98,7 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
         else
         {
           // It is not a size issue, re-create automatically
-          if(CreateSwapChainInternal().Failed())
+          if (CreateSwapChainInternal().Failed())
           {
             ezLog::Error("Failed automatic swapchain re-creation");
           }

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <Foundation/Communication/RemoteInterface.h>
 
 class ezIpcChannel;
 class ezMessageLoop;

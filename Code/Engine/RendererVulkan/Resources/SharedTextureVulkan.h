@@ -25,4 +25,3 @@ protected:
   ezGALPlatformSharedHandle m_sharedHandle;
   vk::Semaphore m_sharedSemaphore;
 };
-

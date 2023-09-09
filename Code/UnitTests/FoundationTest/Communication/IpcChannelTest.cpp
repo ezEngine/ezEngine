@@ -86,8 +86,7 @@ private:
 
 void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcChannel* pClient, ChannelTester* pClientTester)
 {
-  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool
-  {
+  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool {
     ezStringView sTemp(reinterpret_cast<const char*>(msg.GetData()), msg.GetCount());
     return sTemp == sReference;
   };
@@ -217,7 +216,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, IpcChannel_Pipe)
   ezUniquePtr<ChannelTester> pClientTester = EZ_DEFAULT_NEW(ChannelTester, pClient.Borrow(), false);
 
   TestIPCChannel(pServer.Borrow(), pServerTester.Borrow(), pClient.Borrow(), pClientTester.Borrow());
-  
+
   pClientTester.Clear();
   pClient.Clear();
 

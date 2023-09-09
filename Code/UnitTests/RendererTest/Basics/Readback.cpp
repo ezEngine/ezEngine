@@ -5,9 +5,9 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/Textures/TextureUtils.h>
+#include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererTest/Basics/Readback.h>
-#include <RendererFoundation/RendererReflection.h>
 
 void ezRendererTestReadback::SetupSubTests()
 {

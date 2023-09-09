@@ -79,7 +79,7 @@ bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
 
 void ezPipeChannel_win::InternalConnect()
 {
-  if (!CreatePipe(m_sAddress)) 
+  if (!CreatePipe(m_sAddress))
     return;
 
 
@@ -153,7 +153,6 @@ void ezPipeChannel_win::InternalDisconnect()
     // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
     m_IncomingMessages.RaiseSignal();
   }
-
 }
 
 void ezPipeChannel_win::InternalSend()

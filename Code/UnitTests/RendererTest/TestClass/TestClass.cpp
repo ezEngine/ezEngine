@@ -107,7 +107,7 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     ezGALDevice::SetDefaultDevice(out_pDevice);
   }
 
-   if (sRendererName.IsEqual_NoCase("DX11"))
+  if (sRendererName.IsEqual_NoCase("DX11"))
   {
     if (out_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || out_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
     {

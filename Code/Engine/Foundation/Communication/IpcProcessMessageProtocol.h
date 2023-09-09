@@ -37,5 +37,3 @@ private:
   ezMutex m_IncomingQueueMutex;
   ezDeque<ezUniquePtr<ezProcessMessage>> m_IncomingQueue;
 };
-
-

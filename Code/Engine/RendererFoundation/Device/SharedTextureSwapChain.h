@@ -19,6 +19,7 @@ struct ezGALSharedTextureSwapChainCreationDescription : public ezHashableStruct<
 class EZ_RENDERERFOUNDATION_DLL ezGALSharedTextureSwapChain : public ezGALSwapChain
 {
   friend class ezGALDevice;
+
 public:
   using Functor = ezDelegate<ezGALSwapChainHandle(const ezGALSharedTextureSwapChainCreationDescription&)>;
   static void SetFactoryMethod(Functor factory);

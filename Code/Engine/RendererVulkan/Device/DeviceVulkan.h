@@ -5,8 +5,8 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererVulkan/RendererVulkanDLL.h>
 #include <RendererVulkan/Device/DispatchContext.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -174,7 +174,7 @@ public:
 
   void DeleteLater(vk::Image& image, vk::DeviceMemory& externalMemory)
   {
-    if(image)
+    if (image)
     {
       PendingDeletion del = {vk::ObjectType::eImage, {PendingDeletionFlags::UsesExternalMemory}, (void*)image, nullptr};
       del.m_pContext = (void*)externalMemory;

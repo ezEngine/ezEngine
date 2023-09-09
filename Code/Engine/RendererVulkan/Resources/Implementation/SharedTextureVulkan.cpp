@@ -353,7 +353,7 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
   auto res = SUPER::DeInitPlatform(pDevice);
 
-  #if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
   if (m_sharedHandle.m_hSharedTexture != 0)
   {
     pVulkanDevice->DeleteLaterImpl({vk::ObjectType::eUnknown, {ezGALDeviceVulkan::PendingDeletionFlags::IsFileDescriptor}, (void*)static_cast<size_t>(m_sharedHandle.m_hSharedTexture), nullptr});

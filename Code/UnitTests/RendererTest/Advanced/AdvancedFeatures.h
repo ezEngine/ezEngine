@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../TestClass/TestClass.h"
-#include <RendererCore/Textures/Texture2DResource.h>
 #include <Foundation/Communication/IpcChannel.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererTest/Advanced/OffscreenRenderer.h>
 
 class ezRendererTestAdvancedFeatures : public ezGraphicsTest

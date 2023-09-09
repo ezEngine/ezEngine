@@ -33,7 +33,7 @@ ezGALSharedTextureSwapChain::ezGALSharedTextureSwapChain(const ezGALSharedTextur
 void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurrentSemaphoreValue)
 {
   ezLog::Warning("AAA Arm {}, {}", uiTextureIndex, uiCurrentSemaphoreValue);
-  if(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>())
+  if (m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>())
   {
     // We did not use the previous texture index.
     m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
@@ -81,7 +81,7 @@ ezResult ezGALSharedTextureSwapChain::InitPlatform(ezGALDevice* pDevice)
   {
     ezGALPlatformSharedHandle handle = m_Desc.m_Textures[i];
     ezGALTextureHandle hTexture = pDevice->OpenSharedTexture(m_Desc.m_TextureDesc, handle);
-    if(hTexture.IsInvalidated())
+    if (hTexture.IsInvalidated())
     {
       ezLog::Error("Failed to open shared texture");
       return EZ_FAILURE;

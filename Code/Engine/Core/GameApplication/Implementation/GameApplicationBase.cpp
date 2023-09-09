@@ -379,7 +379,7 @@ ezApplication::Execution ezGameApplicationBase::Run()
   if (m_bWasQuitRequested)
     return ezApplication::Execution::Quit;
 
-  RunOneFrame(); 
+  RunOneFrame();
   return ezApplication::Execution::Continue;
 }
 

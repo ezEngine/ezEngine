@@ -140,8 +140,7 @@ ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
 
   ezThreadSignal waitForConnectionSignal;
 
-  ezEventSubscriptionID eventSubscriptionId = m_pChannel->m_Events.AddEventHandler([&](const ezIpcChannelEvent& event)
-    {
+  ezEventSubscriptionID eventSubscriptionId = m_pChannel->m_Events.AddEventHandler([&](const ezIpcChannelEvent& event) {
     switch (event.m_Type)
     {
       case ezIpcChannelEvent::Connected:

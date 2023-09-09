@@ -7,6 +7,7 @@ struct IDXGIKeyedMutex;
 class ezGALSharedTextureDX11 : public ezGALTextureDX11, public ezGALSharedTexture
 {
   using SUPER = ezGALTextureDX11;
+
 protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
