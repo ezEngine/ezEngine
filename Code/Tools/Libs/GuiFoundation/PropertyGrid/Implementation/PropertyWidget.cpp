@@ -1179,7 +1179,6 @@ ezQtPropertyEditorBitflagsWidget::ezQtPropertyEditorBitflagsWidget()
 
   m_pWidget = new QPushButton(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-  m_pMenu = nullptr;
   m_pMenu = new QMenu(m_pWidget);
   m_pWidget->setMenu(m_pMenu);
   m_pLayout->addWidget(m_pWidget);
@@ -1190,11 +1189,8 @@ ezQtPropertyEditorBitflagsWidget::ezQtPropertyEditorBitflagsWidget()
 
 ezQtPropertyEditorBitflagsWidget::~ezQtPropertyEditorBitflagsWidget()
 {
-  m_Constants.Clear();
   m_pWidget->setMenu(nullptr);
-
   delete m_pMenu;
-  m_pMenu = nullptr;
 }
 
 void ezQtPropertyEditorBitflagsWidget::OnInit()
