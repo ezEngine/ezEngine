@@ -67,13 +67,13 @@ public:
   /// \brief Sets the reference to the game object on which an ezPathComponent should be attached.
   void SetPathObject(const char* szReference); // [ property ]
 
-  ezEnum<ezPropertyAnimMode> m_Mode;     ///< [ property ] How the path should be traversed.
-  ezEnum<ezFollowPathMode> m_FollowMode; ///< [ property ] How the transform of the follower should be affected by the path.
-  float m_fSpeed = 1.0f;                 ///< [ property ] How fast to move along the path.
-  float m_fLookAhead = 1.0f;             ///< [ property ] How far along the path to 'look ahead' to smooth the rotation. A small distance means rotations are very abrupt.
-  float m_fSmoothing = 0.5f;             ///< [ property ] How much to combine the current position with the new position. 0 to 1. At zero, the position follows the path perfectly, but therefore also has very abrupt changes. With a lot of smoothing, the path becomes very sluggish.
-  ezAngle m_TiltAmount;                 ///< [ property ] How much to tilt when turning.
-  ezAngle m_MaxTilt;                    ///< [ property ] The max tilt of the object.
+  ezEnum<ezPropertyAnimMode> m_Mode;                    ///< [ property ] How the path should be traversed.
+  ezEnum<ezFollowPathMode> m_FollowMode;                ///< [ property ] How the transform of the follower should be affected by the path.
+  float m_fSpeed = 1.0f;                                ///< [ property ] How fast to move along the path.
+  float m_fLookAhead = 1.0f;                            ///< [ property ] How far along the path to 'look ahead' to smooth the rotation. A small distance means rotations are very abrupt.
+  float m_fSmoothing = 0.5f;                            ///< [ property ] How much to combine the current position with the new position. 0 to 1. At zero, the position follows the path perfectly, but therefore also has very abrupt changes. With a lot of smoothing, the path becomes very sluggish.
+  float m_fTiltAmount = 5.0f;                           ///< [ property ] How much to tilt when turning.
+  ezAngle m_MaxTilt = ezAngle::MakeFromDegree(30.0f);   ///< [ property ] The max tilt angle of the object.
 
   /// \brief Distance along the path at which the ezFollowPathComponent should start off.
   void SetDistanceAlongPath(float fDistance); // [ property ]

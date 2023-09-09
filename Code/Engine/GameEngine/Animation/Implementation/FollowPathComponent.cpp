@@ -28,7 +28,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFollowPathComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("LookAhead", m_fLookAhead)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("Smoothing", m_fSmoothing)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_MEMBER_PROPERTY("TiltAmount", m_TiltAmount)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(5.0f))),
+    EZ_MEMBER_PROPERTY("TiltAmount", m_fTiltAmount)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
     EZ_MEMBER_PROPERTY("MaxTilt", m_MaxTilt)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(90.0f))),
   }
   EZ_END_PROPERTIES;
@@ -149,25 +149,27 @@ void ezFollowPathComponent::Update(bool bForce)
   vUp = vRight.CrossRH(vTarget);
   vUp.NormalizeIfNotZero(ezVec3::MakeAxisZ()).IgnoreResult();
 
-  if (m_FollowMode == ezFollowPathMode::AlignUpZ && !ezMath::IsEqual(m_TiltAmount, ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(0.001f)))
+  // check if we want to tilt the platform when turning
+  ezAngle deltaAngle = ezAngle::MakeFromDegree(0.0f);
+  if (m_FollowMode == ezFollowPathMode::AlignUpZ && !ezMath::IsZero(m_fTiltAmount, 0.0001f) && !ezMath::IsZero(m_MaxTilt.GetDegree(), 0.0001f))
   {
-    ezAngle deltaAngle;
     if (m_bLastStateValid)
     {
-      ezPlane plane(ezVec3::MakeAxisZ(), transform.m_vPosition);
       ezVec3 vLastTarget = m_vLastTargetPosition - m_vLastPosition;
-      vLastTarget = plane.GetCoplanarDirection(vLastTarget);
-      vLastTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
+      {
+        ezPlane plane(ezVec3::MakeAxisZ(), transform.m_vPosition);
+        vLastTarget = plane.GetCoplanarDirection(vLastTarget);
+        vLastTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
+      }
 
-      const float right = ezMath::Sign((vTarget - vLastTarget).Dot(vRight)) * 5.0f;
-      ezAngle tiltAngle = ezMath::Min(vLastTarget.GetAngleBetween(vTarget), m_MaxTilt);
-      deltaAngle = ezMath::Lerp(tiltAngle * right, m_vLastTiltAngle, 0.85f);
+      const float fTiltStrength = ezMath::Sign((vTarget - vLastTarget).Dot(vRight)) * ezMath::Sign(m_fTiltAmount);
+      ezAngle tiltAngle = ezMath::Min(vLastTarget.GetAngleBetween(vTarget) * ezMath::Abs(m_fTiltAmount), m_MaxTilt);
+      deltaAngle = ezMath::Lerp(tiltAngle * fTiltStrength, m_vLastTiltAngle, 0.85f); // this smooths out the tilting from being jittery
 
       ezQuat rot = ezQuat::MakeFromAxisAndAngle(vTarget, deltaAngle);
       vUp = rot * vUp;
       vRight = rot * vRight;
     }
-    m_vLastTiltAngle = deltaAngle;
   }
 
   {
@@ -175,14 +177,11 @@ void ezFollowPathComponent::Update(bool bForce)
     m_vLastPosition = transform.m_vPosition;
     m_vLastUpDir = transform.m_vUpDirection;
     m_vLastTargetPosition = transformAhead.m_vPosition;
+    m_vLastTiltAngle = deltaAngle;
   }
 
-  ezMat3 mRot;
-  if (m_FollowMode == ezFollowPathMode::OnlyPosition)
-  {
-    mRot = ezMat3::MakeIdentity();
-  }
-  else
+  ezMat3 mRot = ezMat3::MakeIdentity();
+  if (m_FollowMode != ezFollowPathMode::OnlyPosition)
   {
     mRot.SetColumn(0, vTarget);
     mRot.SetColumn(1, -vRight);
@@ -256,7 +255,7 @@ void ezFollowPathComponent::SerializeComponent(ezWorldWriter& ref_stream) const
   s << m_bIsRunning;
   s << m_bIsRunningForwards;
   s << m_FollowMode;
-  s << m_TiltAmount;
+  s << m_fTiltAmount;
   s << m_MaxTilt;
 }
 
@@ -276,7 +275,7 @@ void ezFollowPathComponent::DeserializeComponent(ezWorldReader& ref_stream)
   s >> m_bIsRunning;
   s >> m_bIsRunningForwards;
   s >> m_FollowMode;
-  s >> m_TiltAmount;
+  s >> m_fTiltAmount;
   s >> m_MaxTilt;
 }
 
