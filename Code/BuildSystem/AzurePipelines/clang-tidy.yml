@@ -26,7 +26,7 @@ jobs:
       $rcExe = "C:\Program Files (x86)\Windows Kits\10\bin\$WindowsSdkVersion\x64\rc.exe" -replace "\\","/"
       $clangCppExe = "$pwd\llvm\bin\clang++.exe" -replace "\\","/"
       $clangExe = "$pwd\llvm\bin\clang.exe" -replace "\\","/"
-      .\Data\Tools\Precompiled\cmake\bin\cmake.exe -G Ninja -B workspace-clang -S . "-DCMAKE_CXX_COMPILER=$clangCppExe" "-DCMAKE_C_COMPILER=$clangExe" "-DCMAKE_RC_COMPILER=$rcExe" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DEZ_USE_PCH=OFF -DEZ_ENABLE_FOLDER_UNITY_FILES=OFF
+      .\Data\Tools\Precompiled\cmake\bin\cmake.exe -G Ninja -B workspace-clang -S . "-DCMAKE_CXX_COMPILER=$clangCppExe" "-DCMAKE_C_COMPILER=$clangExe" "-DCMAKE_RC_COMPILER=$rcExe" -DCMAKE_RC_COMPILER_INIT=rc -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DEZ_USE_PCH=OFF -DEZ_ENABLE_FOLDER_UNITY_FILES=OFF
     displayName: 'Download LLVM & CMake'
   - task: PowerShell@2
     displayName: 'Run clang-tidy'

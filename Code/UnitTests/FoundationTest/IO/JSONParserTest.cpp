@@ -665,4 +665,22 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Array Document")
+  {
+    const char* szTestData = "[\"a\",\"b\"]";
+
+    StringStream stream(szTestData);
+
+    TestReader reader;
+
+    reader.Add(ParseResult(BeginArray));
+    reader.Add(ParseResult("a"));
+    reader.Add(ParseResult("b"));
+    reader.Add(ParseResult(EndArray));
+
+    reader.ParseStream(stream);
+
+    EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
+  }
 }

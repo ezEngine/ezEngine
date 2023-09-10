@@ -984,8 +984,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const bool bRecordStats = cvar_SpatialCullingShowStats && bIsMainView;
   ezSpatialSystem::QueryStats stats;
 #endif

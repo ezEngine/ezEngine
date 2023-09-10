@@ -132,7 +132,7 @@ public:
     const ezStringView includeSource = "includeSource";
     const ezStringView byName = "byName";
 
-    auto topLevel = jsonReader.GetTopLevelObject();
+    auto topLevel = jsonReader.GetTopLevelDictonary();
     for (auto it = topLevel.GetIterator(); it.IsValid(); it.Next())
     {
       if (it.Key() == includeTarget || it.Key() == includeSource)

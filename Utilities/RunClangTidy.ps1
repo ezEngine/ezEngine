@@ -15,6 +15,8 @@ param
     [string]
     $ClangTidy = "$PSScriptRoot\..\Data\Tools\Precompiled\clang-tidy\clang-tidy.exe",
     [string]
+    $DependencyAnalysis = "$PSScriptRoot\..\Data\Tools\Precompiled\DependencyAnalysis.exe",
+    [string]
     $LogFile,
     [string]
     $DiffTo,
@@ -135,6 +137,60 @@ if($DiffTo)
             return $diffMap.ContainsKey($mocCpp) -or $diffMap.ContainsKey($mocH1) -or $diffMap.ContainsKey($mocH2)
         } else {
             return $diffMap.ContainsKey($_)
+        }
+    }
+    
+
+    $headersInDiff = $diffFiles | ? { $_.EndsWith(".h") }
+    if ($headersInDiff.Length -gt 0)
+    {
+        $originalNumFiles = $files.Length
+        Write-Host "Looking dependencies of all headers in diff"
+        . $DependencyAnalysis -i "Qt6-6" -i "VulkanSDK" -i "ThirdParty" -i ".moc.cpp" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json
+        if($lastexitcode -ne 0)
+        {
+            Write-Error "Dependency analysis faild. Command used: $DependencyAnalysis -i `"Qt6-6`" -i `"VulkanSDK`" -i `"ThirdParty`" -i `".moc.cpp`" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json"
+            exit 1
+        }
+        
+        if(!(Test-Path $Workspace/cpp_dependencies.json))
+        {
+            Write-Error "Dependency analysis did not write expected output file $Workspace/cpp_dependencies.json"
+            exit 1
+        }
+        
+        $cppDependencies = (Get-Content $Workspace/cpp_dependencies.json | ConvertFrom-Json -Depth 4).files
+        $headerDependencies = @{}
+        foreach ($cpp in $cppDependencies)
+        {
+            foreach ($dep in $cpp.dependencies)
+            {
+                $headerDependencies[$dep] += @($cpp.name)
+            }
+        }
+        $headerDependencies | ConvertTo-Json | Out-File test.json
+        
+        foreach($header in $headersInDiff)
+        {
+            $absHeader = (Resolve-Path $header) -replace "\\","/"
+            if($headerDependencies.ContainsKey($absHeader))
+            {
+                foreach($cppFile in $headerDependencies[$absHeader])
+                {
+                   $path = $cppFile -replace "/","\"
+                   $files += @($path)
+                }
+            }
+            else
+            {
+                Write-Host "Warning: No dependency information for $absHeader" -foreground yellow
+            }
+        }
+        $files = $files | Sort-Object | Get-Unique
+        $numFilesAdded = $files.Length - $originalNumFiles
+        if($numFilesAdded -gt 0)
+        {
+            Write-Host "Added $numFilesAdded cpp files due to header changes"
         }
     }
 }
