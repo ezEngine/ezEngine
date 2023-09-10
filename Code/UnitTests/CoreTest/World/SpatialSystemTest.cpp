@@ -8,6 +8,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 
 namespace
 {
@@ -283,14 +284,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
-    ezFileWriter fileWriter;
-    if (fileWriter.Open(":output/profiling.json") == EZ_SUCCESS)
-    {
-      ezProfilingSystem::ProfilingData profilingData;
-      ezProfilingSystem::Capture(profilingData);
-      profilingData.Write(fileWriter).IgnoreResult();
-      ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-    }
+    ezProfilingUtils::SaveProfilingCapture(":output/profiling.json").IgnoreResult();
   }
 
   // Test multiple categories for spatial data

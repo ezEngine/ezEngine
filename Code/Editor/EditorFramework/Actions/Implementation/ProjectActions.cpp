@@ -17,6 +17,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hCatProjectGeneral;
@@ -689,8 +690,10 @@ void ezProjectAction::Execute(const ezVariant& value)
       // keep this here to make live color palette editing available, when needed
       // if (false)
       {
-        QTimer::singleShot(1, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
-        QTimer::singleShot(500, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+        QTimer::singleShot(1, [this]()
+          { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+        QTimer::singleShot(500, [this]()
+          { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
       }
 
       if (m_Context.m_pDocument)
@@ -735,32 +738,14 @@ void ezProjectAction::Execute(const ezVariant& value)
         msg.m_sPayload = ":appdata/profilingEngine.json";
         ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
       }
-      {
-        // Capture profiling data on editor process
-        ezFileWriter fileWriter;
-        if (fileWriter.Open(szEditorProfilingFile) == EZ_SUCCESS)
-        {
-          ezProfilingSystem::ProfilingData profilingData;
-          ezProfilingSystem::Capture(profilingData);
-          // Set sort index to -1 so that the editor is always on top when opening the trace.
-          profilingData.m_uiProcessSortIndex = -1;
-          if (profilingData.Write(fileWriter).Failed())
-          {
-            ezLog::Error("Failed to write editor profiling capture: {}.", szEditorProfilingFile);
-            return;
-          }
+      if (ezProfilingUtils::SaveProfilingCapture(szEditorProfilingFile).Failed())
+        return;
 
-          ezLog::Info("Editor profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        }
-        else
-        {
-          ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        }
-      }
       ezStringBuilder sEngineProfilingFile;
       {
         // Wait for engine process response
-        auto callback = [&](ezProcessMessage* pMsg) -> bool {
+        auto callback = [&](ezProcessMessage* pMsg) -> bool
+        {
           auto pSimpleCfg = static_cast<ezSaveProfilingResponseToEditor*>(pMsg);
           sEngineProfilingFile = pSimpleCfg->m_sProfilingFile;
           return true;
@@ -779,50 +764,14 @@ void ezProjectAction::Execute(const ezVariant& value)
         }
       }
 
-      // Merge editor and engine profiling files by simply merging the arrays inside
-      {
-        ezString sEngineProfilingJson;
-        {
-          ezFileReader reader;
-          if (reader.Open(sEngineProfilingFile).Failed())
-          {
-            ezLog::Error("Failed to read engine profiling capture: {}.", sEngineProfilingFile);
-            return;
-          }
-          sEngineProfilingJson.ReadAll(reader);
-        }
-        ezString sEditorProfilingJson;
-        {
-          ezFileReader reader;
-          if (reader.Open(szEditorProfilingFile).Failed())
-          {
-            ezLog::Error("Failed to read editor profiling capture: {}.", sEngineProfilingFile);
-            return;
-          }
-          sEditorProfilingJson.ReadAll(reader);
-        }
+      ezStringBuilder sMergedFile;
+      const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
+      sMergedFile.AppendFormat(":appdata/profiling_{0}-{1}-{2}_{3}-{4}-{5}-{6}.json", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 
-        ezStringBuilder sMergedProfilingJson;
-        {
-          // Just glue the array together
-          sMergedProfilingJson.Reserve(sEngineProfilingJson.GetElementCount() + 1 + sEditorProfilingJson.GetElementCount());
-          const char* szEndArray = sEngineProfilingJson.FindLastSubString("]");
-          sMergedProfilingJson.Append(ezStringView(sEngineProfilingJson.GetData(), szEndArray - sEngineProfilingJson.GetData()));
-          sMergedProfilingJson.Append(",");
-          const char* szStartArray = sEditorProfilingJson.FindSubString("[") + 1;
-          sMergedProfilingJson.Append(ezStringView(szStartArray, sEditorProfilingJson.GetElementCount() - (szStartArray - sEditorProfilingJson.GetData())));
-        }
-        ezStringBuilder sMergedFile;
-        const ezDateTime dt = ezDateTime::MakeFromTimestamp(ezTimestamp::CurrentTimestamp());
-        sMergedFile.AppendFormat(":appdata/profiling_{0}-{1}-{2}_{3}-{4}-{5}-{6}.json", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true), ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
-        ezFileWriter fileWriter;
-        if (fileWriter.Open(sMergedFile).Failed() || fileWriter.WriteBytes(sMergedProfilingJson.GetData(), sMergedProfilingJson.GetElementCount()).Failed())
-        {
-          ezLog::Error("Failed to write merged profiling capture: {}.", sMergedFile);
-          return;
-        }
-        ezLog::Info("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Merged profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::MakeFromSeconds(5.0));
+      ezStringBuilder sAbsPath;
+      if (ezProfilingUtils::MergeProfilingCaptures(sEngineProfilingFile, szEditorProfilingFile, sMergedFile).Succeeded() && ezFileSystem::ResolvePath(sMergedFile, &sAbsPath, nullptr).Succeeded())
+      {
+        ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Merged profiling capture saved to '{0}'.", sAbsPath), ezTime::MakeFromSeconds(5.0));
       }
     }
     break;

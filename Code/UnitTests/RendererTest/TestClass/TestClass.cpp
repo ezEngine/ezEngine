@@ -259,10 +259,10 @@ void ezGraphicsTest::DestroyWindow()
   }
 }
 
-void ezGraphicsTest::BeginFrame()
+void ezGraphicsTest::BeginFrame(const char* szPipe)
 {
   m_pDevice->BeginFrame(m_iFrame);
-  m_pDevice->BeginPipeline("GraphicsTest", m_hSwapChain);
+  m_pDevice->BeginPipeline(szPipe, m_hSwapChain);
 }
 
 void ezGraphicsTest::EndFrame()

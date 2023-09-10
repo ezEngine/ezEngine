@@ -15,6 +15,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 
 ezEditorTestApplication::ezEditorTestApplication()
   : ezApplication("ezEditor")
@@ -320,13 +321,7 @@ void ezEditorTest::CloseCurrentProject()
 
 void ezEditorTest::SafeProfilingData()
 {
-  ezFileWriter fileWriter;
-  if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
-  {
-    ezProfilingSystem::ProfilingData profilingData;
-    ezProfilingSystem::Capture(profilingData);
-    profilingData.Write(fileWriter).IgnoreResult();
-  }
+  ezProfilingUtils::SaveProfilingCapture(":appdata/profiling.json").IgnoreResult();
 }
 
 void ezEditorTest::ProcessEvents(ezUInt32 uiIterations)

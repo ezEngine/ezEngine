@@ -17,6 +17,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <shellscalingapi.h>
 #endif
+#include <Foundation/Profiling/ProfilingUtils.h>
 
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
@@ -336,18 +337,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     }
     else if (pMsg1->m_sWhatToDo == "SaveProfiling")
     {
-      ezProfilingSystem::ProfilingData profilingData;
-      ezProfilingSystem::Capture(profilingData);
-      ezFileWriter fileWriter;
-      if (fileWriter.Open(pMsg1->m_sPayload) == EZ_SUCCESS)
-      {
-        profilingData.Write(fileWriter).IgnoreResult();
-        ezLog::Info("Engine profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-      }
-      else
-      {
-        ezLog::Error("Could not write profiling capture to '{0}'.", pMsg1->m_sPayload);
-      }
+      ezProfilingUtils::SaveProfilingCapture(pMsg1->m_sPayload).IgnoreResult();
 
       ezSaveProfilingResponseToEditor response;
       ezStringBuilder sAbsPath;

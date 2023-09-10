@@ -1,5 +1,8 @@
 #include <RendererTest/RendererTestPCH.h>
 
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <Foundation/Time/Clock.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Device/Device.h>
@@ -64,6 +67,8 @@ ezOffscreenRendererTest::~ezOffscreenRendererTest() = default;
 
 ezApplication::Execution ezOffscreenRendererTest::Run()
 {
+  EZ_PROFILE_SCOPE("Run");
+
   ezClock::GetGlobalClock()->Update();
 
   if (!m_pProtocol->ProcessMessages())
@@ -84,13 +89,16 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
     EZ_ANALYSIS_ASSUME(pSwapChain != nullptr);
     pSwapChain->Arm(action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
 
+    ezStringBuilder sTemp;
+    sTemp.Format("Render {}|{}", action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
+    EZ_PROFILE_SCOPE(sTemp);
 
     // Before starting to render in a frame call this function
     device->BeginFrame();
 
-    device->BeginPipeline("ComputeShaderHistogramSample", m_hSwapChain);
+    device->BeginPipeline(sTemp, m_hSwapChain);
 
-    ezGALPass* pGALPass = device->BeginPass("ezComputeShaderHistogram");
+    ezGALPass* pGALPass = device->BeginPass("OffscreenRender");
 
     ezGALRenderingSetup renderingSetup;
     ezGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pSwapChain->GetRenderTargets().m_hRTs[0]);
@@ -135,6 +143,10 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
 
 void ezOffscreenRendererTest::OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue)
 {
+  ezStringBuilder sTemp;
+  sTemp.Format("Response {}|{}", uiCurrentTexture, uiCurrentSemaphoreValue);
+  EZ_PROFILE_SCOPE(sTemp);
+
   ezOffscreenTest_RenderResponseMsg msg = {};
   msg.m_Texture.m_uiCurrentSemaphoreValue = uiCurrentSemaphoreValue;
   msg.m_Texture.m_uiCurrentTextureIndex = uiCurrentTexture;
@@ -188,10 +200,15 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
   }
+
+  ezStartup::StartupHighLevelSystems();
 }
 
 void ezOffscreenRendererTest::BeforeHighLevelSystemsShutdown()
 {
+  ezStringView sPath = ":imgout/Profiling/offscreenProfiling.json"_ezsv;
+  EZ_TEST_RESULT(ezProfilingUtils::SaveProfilingCapture(sPath));
+
   auto pDevice = ezGALDevice::GetDefaultDevice();
 
   pDevice->DestroySwapChain(m_hSwapChain);

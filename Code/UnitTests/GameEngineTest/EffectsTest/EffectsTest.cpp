@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 
 static ezGameEngineTestEffects s_GameEngineTestEffects;
 
@@ -107,22 +108,9 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
     {
       if (false)
       {
-        ezProfilingSystem::ProfilingData profilingData;
-        ezProfilingSystem::Capture(profilingData);
-
         ezStringBuilder sPath(":appdata/Profiling/", ezApplication::GetApplicationInstance()->GetApplicationName());
         sPath.AppendPath("effectsProfiling.json");
-
-        ezFileWriter fileWriter;
-        if (fileWriter.Open(sPath) == EZ_SUCCESS)
-        {
-          profilingData.Write(fileWriter).IgnoreResult();
-          ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        }
-        else
-        {
-          ezLog::Error("Could not write profiling capture to '{0}'.", sPath);
-        }
+        ezProfilingUtils::SaveProfilingCapture(sPath).IgnoreResult();
       }
       return ezTestAppRun::Quit;
     }

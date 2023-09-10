@@ -5,6 +5,10 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererTest/Advanced/AdvancedFeatures.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 
 #undef CreateWindow
 
@@ -70,6 +74,11 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == ST_SharedTexture)
   {
+    ezCVarFloat* pProfilingThreshold = (ezCVarFloat*)ezCVar::FindCVarByName("Profiling.DiscardThresholdMS");
+    EZ_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
+    m_fOldProfilingThreshold = *pProfilingThreshold;
+    *pProfilingThreshold = 0.0f;
+
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
 
     const ezStringBuilder pathToSelf = ezCommandLineUtils::GetGlobalInstance()->GetParameter(0);
@@ -102,6 +111,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
 
     m_bExiting = false;
+    m_uiReceivedTextures = 0;
     m_pChannel = ezIpcChannel::CreatePipeChannel(sIPC, ezIpcChannel::Mode::Server);
     m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
     m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
@@ -175,6 +185,16 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
       m_hSharedTextures[i].Invalidate();
     }
     m_SharedTextureQueue.Clear();
+
+    ezStringView sPath = ":imgout/Profiling/sharedTexture.json"_ezsv;
+    EZ_TEST_RESULT(ezProfilingUtils::SaveProfilingCapture(sPath));
+    ezStringView sPath2 = ":imgout/Profiling/offscreenProfiling.json"_ezsv;
+    ezStringView sMergedFile = ":imgout/Profiling/sharedTexturesMerged.json"_ezsv;
+    EZ_TEST_RESULT(ezProfilingUtils::MergeProfilingCaptures(sPath, sPath2, sMergedFile));
+
+    ezCVarFloat* pProfilingThreshold = (ezCVarFloat*)ezCVar::FindCVarByName("Profiling.DiscardThresholdMS");
+    EZ_ASSERT_DEBUG(pProfilingThreshold, "Profiling.cpp cvar was renamed");
+    *pProfilingThreshold = m_fOldProfilingThreshold;
   }
 
   m_hShader2.Invalidate();
@@ -335,12 +355,15 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
     return ezTestAppRun::Quit;
   }
 
-  m_pProtocol->ProcessMessages();
+  m_pProtocol->WaitForMessages(ezTime::MakeFromMilliseconds(16));
 
   ezOffscreenTest_SharedTexture texture = m_SharedTextureQueue.PeekFront();
   m_SharedTextureQueue.PopFront();
 
-  BeginFrame();
+  ezStringBuilder sTemp;
+  sTemp.Format("Render {}:{}|{}", m_uiReceivedTextures, texture.m_uiCurrentTextureIndex, texture.m_uiCurrentSemaphoreValue);
+  EZ_PROFILE_SCOPE(sTemp);
+  BeginFrame(sTemp);
   {
     const ezGALSharedTexture* pSharedTexture = m_pDevice->GetSharedTexture(m_hSharedTextures[texture.m_uiCurrentTextureIndex]);
     EZ_ASSERT_DEV(pSharedTexture != nullptr, "Shared texture did not resolve");
@@ -367,7 +390,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
 
 
-      if (!m_bExiting && texture.m_uiCurrentSemaphoreValue > 20)
+      if (!m_bExiting && m_uiReceivedTextures > 10)
       {
         EZ_TEST_IMAGE(0, 10);
 
@@ -404,6 +427,10 @@ void ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc(const ezProcess
 {
   if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderResponseMsg*>(pMsg))
   {
+    m_uiReceivedTextures++;
+    ezStringBuilder sTemp;
+    sTemp.Format("Receive {}|{}", pAction->m_Texture.m_uiCurrentTextureIndex, pAction->m_Texture.m_uiCurrentSemaphoreValue);
+    EZ_PROFILE_SCOPE(sTemp);
     m_SharedTextureQueue.PushBack(pAction->m_Texture);
   }
 }

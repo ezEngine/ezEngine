@@ -54,6 +54,8 @@ private:
   bool m_bExiting = false;
   ezGALTextureHandle m_hSharedTextures[s_SharedTextureCount];
   ezDeque<ezOffscreenTest_SharedTexture> m_SharedTextureQueue;
+  ezUInt32 m_uiReceivedTextures = 0;
+  float m_fOldProfilingThreshold = 0.0f;
 
   ezShaderUtils::ezBuiltinShader m_CopyShader;
 };

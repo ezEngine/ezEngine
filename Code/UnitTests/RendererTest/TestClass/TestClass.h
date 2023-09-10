@@ -48,7 +48,7 @@ protected:
   ezResult CreateWindow(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void DestroyWindow();
 
-  void BeginFrame();
+  void BeginFrame(const char* szPipe = "GraphicsTest");
   void EndFrame();
 
   void BeginPass(const char* szPassName);
