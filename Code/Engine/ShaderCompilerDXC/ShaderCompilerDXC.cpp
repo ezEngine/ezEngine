@@ -3,6 +3,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Strings/StringConversion.h>
+#include <Foundation/Configuration/Startup.h>
 
 #include <ShaderCompilerDXC/SpirvMetaData.h>
 #include <spirv_reflect.h>
@@ -12,11 +13,6 @@
 #endif
 
 #include <dxc/dxcapi.h>
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerDXC, 1, ezRTTIDefaultAllocator<ezShaderCompilerDXC>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
 
 template <typename T>
 struct ezComPtr
@@ -66,6 +62,31 @@ private:
 
 ezComPtr<IDxcUtils> s_pDxcUtils;
 ezComPtr<IDxcCompiler3> s_pDxcCompiler;
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(ShaderCompilerDXC, ShaderCompilerDXCPlugin)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(s_pDxcUtils.put()));
+    DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(s_pDxcCompiler.put()));
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    s_pDxcUtils = {};
+    s_pDxcCompiler = {};
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerDXC, 1, ezRTTIDefaultAllocator<ezShaderCompilerDXC>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 static ezResult CompileVulkanShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode);
 
@@ -131,12 +152,7 @@ ezResult ezShaderCompilerDXC::Initialize()
     m_VertexInputMapping["in.var.BONEWEIGHTS1"] = ezGALVertexAttributeSemantic::BoneWeights1;
   }
 
-  if (s_pDxcUtils != nullptr)
-    return EZ_SUCCESS;
-
-  DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(s_pDxcUtils.put()));
-  DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(s_pDxcCompiler.put()));
-
+  EZ_ASSERT_DEV(s_pDxcUtils != nullptr && s_pDxcCompiler != nullptr, "ShaderCompiler SubSystem init should have initialized library pointers.");
   return EZ_SUCCESS;
 }
 

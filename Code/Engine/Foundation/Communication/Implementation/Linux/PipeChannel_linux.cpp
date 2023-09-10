@@ -28,39 +28,8 @@ ezPipeChannel_linux::ezPipeChannel_linux(ezStringView sAddress, Mode::Enum Mode)
   pipePath.Append(".client");
   m_clientSocketPath = pipePath;
 
-  const char* thisSocketPath = (Mode == Mode::Server) ? m_serverSocketPath.GetData() : m_clientSocketPath.GetData();
 
-  int& targetSocket = (Mode == Mode::Server) ? m_serverSocketFd : m_clientSocketFd;
-
-  targetSocket = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
-  if (targetSocket == -1)
-  {
-    ezLog::Error("[IPC]Failed to create unix domain socket. error {}", errno);
-    return;
-  }
-
-  // If the socket file already exists, delete it
-  ezOSFile::DeleteFile(thisSocketPath).IgnoreResult();
-
-  struct sockaddr_un addr = {};
-  addr.sun_family = AF_UNIX;
-
-  if (strlen(thisSocketPath) >= EZ_ARRAY_SIZE(addr.sun_path) - 1)
-  {
-    ezLog::Error("[IPC]Given ipc channel address is to long. Resulting path '{}' path length limit {}", strlen(thisSocketPath), EZ_ARRAY_SIZE(addr.sun_path) - 1);
-    close(targetSocket);
-    targetSocket = -1;
-    return;
-  }
-
-  strcpy(addr.sun_path, thisSocketPath);
-  if (bind(targetSocket, (struct sockaddr*)&addr, SUN_LEN(&addr)) == -1)
-  {
-    ezLog::Error("[IPC]Failed to bind unix domain socket to '{}' error {}", thisSocketPath, errno);
-    close(targetSocket);
-    targetSocket = -1;
-    return;
-  }
+  
 
   m_pOwner->AddChannel(this);
 }
@@ -101,6 +70,42 @@ void ezPipeChannel_linux::InternalConnect()
     return;
   }
 
+  int& targetSocket = (m_Mode == Mode::Server) ? m_serverSocketFd : m_clientSocketFd;
+
+  if (targetSocket < 0)
+  {
+      const char* thisSocketPath = (m_Mode == Mode::Server) ? m_serverSocketPath.GetData() : m_clientSocketPath.GetData();
+
+    targetSocket = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+    if (targetSocket == -1)
+    {
+      ezLog::Error("[IPC]Failed to create unix domain socket. error {}", errno);
+      return;
+    }
+
+    // If the socket file already exists, delete it
+    ezOSFile::DeleteFile(thisSocketPath).IgnoreResult();
+
+    struct sockaddr_un addr = {};
+    addr.sun_family = AF_UNIX;
+
+    if (strlen(thisSocketPath) >= EZ_ARRAY_SIZE(addr.sun_path) - 1)
+    {
+      ezLog::Error("[IPC]Given ipc channel address is to long. Resulting path '{}' path length limit {}", strlen(thisSocketPath), EZ_ARRAY_SIZE(addr.sun_path) - 1);
+      close(targetSocket);
+      targetSocket = -1;
+      return;
+    }
+
+    strcpy(addr.sun_path, thisSocketPath);
+    if (bind(targetSocket, (struct sockaddr*)&addr, SUN_LEN(&addr)) == -1)
+    {
+      ezLog::Error("[IPC]Failed to bind unix domain socket to '{}' error {}", thisSocketPath, errno);
+      close(targetSocket);
+      targetSocket = -1;
+      return;
+    }
+  }
 
   if (m_Mode == Mode::Server)
   {
