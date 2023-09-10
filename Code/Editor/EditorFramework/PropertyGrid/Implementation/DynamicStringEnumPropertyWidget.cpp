@@ -42,7 +42,7 @@ void ezQtDynamicStringEnumPropertyWidget::OnInit()
     m_pWidget->addItem(QString::fromUtf8(val.GetData()));
   }
 
-  if (!ezStringUtils::IsNullOrEmpty(m_pEnum->GetStorageFile()))
+  if (!m_pEnum->GetStorageFile().IsEmpty())
   {
     m_pWidget->addItem("< Edit Values... >", QString("<edit>"));
   }

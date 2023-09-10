@@ -9,9 +9,9 @@ void ezDynamicEnum::Clear()
   m_ValidValues.Clear();
 }
 
-void ezDynamicEnum::SetValueAndName(ezInt32 iValue, const char* szNewName)
+void ezDynamicEnum::SetValueAndName(ezInt32 iValue, ezStringView sNewName)
 {
-  m_ValidValues[iValue] = szNewName;
+  m_ValidValues[iValue] = sNewName;
 }
 
 void ezDynamicEnum::RemoveValue(ezInt32 iValue)
@@ -24,7 +24,7 @@ bool ezDynamicEnum::IsValueValid(ezInt32 iValue) const
   return m_ValidValues.Find(iValue).IsValid();
 }
 
-const char* ezDynamicEnum::GetValueName(ezInt32 iValue) const
+ezStringView ezDynamicEnum::GetValueName(ezInt32 iValue) const
 {
   auto it = m_ValidValues.Find(iValue);
 

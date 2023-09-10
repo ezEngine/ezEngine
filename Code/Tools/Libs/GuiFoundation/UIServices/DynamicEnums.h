@@ -23,7 +23,7 @@ public:
   void Clear();
 
   /// \brief Sets the name for the given enum value.
-  void SetValueAndName(ezInt32 iValue, const char* szNewName);
+  void SetValueAndName(ezInt32 iValue, ezStringView sNewName);
 
   /// \brief Removes a certain enum value, if it exists.
   void RemoveValue(ezInt32 iValue);
@@ -32,7 +32,7 @@ public:
   bool IsValueValid(ezInt32 iValue) const;
 
   /// \brief Returns the name for the given value. Returns "<invalid value>" if the value is not in use.
-  const char* GetValueName(ezInt32 iValue) const;
+  ezStringView GetValueName(ezInt32 iValue) const;
 
 private:
   ezMap<ezInt32, ezString> m_ValidValues;

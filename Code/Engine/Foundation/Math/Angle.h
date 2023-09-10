@@ -28,7 +28,7 @@ public:
   constexpr static Type RadToDeg(Type f); // [tested]
 
   /// \brief Returns a zero initialized angle. Same as a default constructed object.
-  [[nodiscard]] constexpr static ezAngle MakeZero(float fDegree) { return ezAngle(); }
+  [[nodiscard]] constexpr static ezAngle MakeZero() { return ezAngle(); }
 
   /// \brief Creates an instance of ezAngle that was initialized from degree. (Performs a conversion)
   [[nodiscard]] constexpr static ezAngle MakeFromDegree(float fDegree); // [tested]
