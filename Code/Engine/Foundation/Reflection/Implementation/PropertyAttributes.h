@@ -524,6 +524,23 @@ private:
   ezUntrackedString m_sDynamicEnumName;
 };
 
+/// \brief Can be used on integer properties to display them as bitflags. The valid bitflags and their names may change at runtime.
+class EZ_FOUNDATION_DLL ezDynamicBitflagsAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicBitflagsAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezDynamicBitflagsAttribute() = default;
+  ezDynamicBitflagsAttribute(ezStringView sDynamicName)
+    : m_sDynamicBitflagsName(sDynamicName)
+  {
+  }
+
+  ezStringView GetDynamicBitflagsName() const { return m_sDynamicBitflagsName; }
+
+private:
+  ezUntrackedString m_sDynamicBitflagsName;
+};
 
 //////////////////////////////////////////////////////////////////////////
 
