@@ -1476,9 +1476,6 @@ void ezGALDevice::DestroyDeadObjects()
           case ezGALTextureType::Texture2DShared:
             DestroySharedTexturePlatform(pTexture);
             break;
-          case ezGALTextureType::Texture2DProxy:
-            EZ_ASSERT_NOT_IMPLEMENTED;
-            break;
           default:
             DestroyTexturePlatform(pTexture);
             break;

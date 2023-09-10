@@ -98,8 +98,8 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     opt.m_Arguments.PushBack("-renderer");
     opt.m_Arguments.PushBack(sRendererName);
 
-    m_OffscreenProcess = EZ_DEFAULT_NEW(ezProcess);
-    EZ_SUCCEED_OR_RETURN(m_OffscreenProcess->Launch(opt));
+    m_pOffscreenProcess = EZ_DEFAULT_NEW(ezProcess);
+    EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
 
     m_bExiting = false;
     m_pChannel = ezIpcChannel::CreatePipeChannel(sIPC, ezIpcChannel::Mode::Server);
@@ -161,10 +161,10 @@ ezResult ezRendererTestAdvancedFeatures::DeInitializeSubTest(ezInt32 iIdentifier
 {
   if (iIdentifier == ST_SharedTexture)
   {
-    EZ_TEST_BOOL(m_OffscreenProcess->WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
-    EZ_TEST_BOOL(m_OffscreenProcess->GetState() == ezProcessState::Finished);
-    EZ_TEST_INT(m_OffscreenProcess->GetExitCode(), 0);
-    m_OffscreenProcess = nullptr;
+    EZ_TEST_BOOL(m_pOffscreenProcess->WaitToFinish(ezTime::MakeFromSeconds(5)).Succeeded());
+    EZ_TEST_BOOL(m_pOffscreenProcess->GetState() == ezProcessState::Finished);
+    EZ_TEST_INT(m_pOffscreenProcess->GetExitCode(), 0);
+    m_pOffscreenProcess = nullptr;
 
     m_pProtocol = nullptr;
     m_pChannel = nullptr;
@@ -329,7 +329,7 @@ void ezRendererTestAdvancedFeatures::VertexShaderRenderTargetArrayIndex()
 
 ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
 {
-  if (m_OffscreenProcess->GetState() != ezProcessState::Running)
+  if (m_pOffscreenProcess->GetState() != ezProcessState::Running)
   {
     EZ_TEST_BOOL(m_bExiting);
     return ezTestAppRun::Quit;
@@ -367,7 +367,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
 
 
-      if (!m_bExiting && texture.m_uiCurrentSemaphoreValue > 10)
+      if (!m_bExiting && texture.m_uiCurrentSemaphoreValue > 20)
       {
         EZ_TEST_IMAGE(0, 10);
 
@@ -376,8 +376,6 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
         m_bExiting = true;
       }
       EndRendering();
-
-      // RenderCube(viewport, mMVP, 0xFFFFFFFF, m_pDevice->GetDefaultResourceView(m_hSharedTextures[texture.m_uiCurrentTextureIndex]));
     }
     EndPass();
 

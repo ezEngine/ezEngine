@@ -42,7 +42,7 @@ void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurren
   m_uiCurrentTexture = uiTextureIndex;
   m_uiCurrentSemaphoreValue = uiCurrentSemaphoreValue;
 
-  m_RenderTargets.m_hRTs[0] = m_hSharedTextures[m_uiCurrentTexture];
+  m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[m_uiCurrentTexture];
 }
 
 void ezGALSharedTextureSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
@@ -50,8 +50,8 @@ void ezGALSharedTextureSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
   ezLog::Warning("AAA AcquireNextRenderTarget {}, {}", m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
   EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Acquire called without calling Arm first.");
 
-  m_RenderTargets.m_hRTs[0] = m_hSharedTextures[m_uiCurrentTexture];
-  m_pSharedTextures[m_uiCurrentTexture]->WaitSemaphoreGPU(m_uiCurrentSemaphoreValue);
+  m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[m_uiCurrentTexture];
+  m_SharedTextureInterfaces[m_uiCurrentTexture]->WaitSemaphoreGPU(m_uiCurrentSemaphoreValue);
 }
 
 void ezGALSharedTextureSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
@@ -61,7 +61,7 @@ void ezGALSharedTextureSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
 
   EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Present called without calling Arm first.");
 
-  m_pSharedTextures[m_uiCurrentTexture]->SignalSemaphoreGPU(m_uiCurrentSemaphoreValue + 1);
+  m_SharedTextureInterfaces[m_uiCurrentTexture]->SignalSemaphoreGPU(m_uiCurrentSemaphoreValue + 1);
   m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue + 1);
 
   pDevice->Flush();
@@ -86,17 +86,17 @@ ezResult ezGALSharedTextureSwapChain::InitPlatform(ezGALDevice* pDevice)
       ezLog::Error("Failed to open shared texture");
       return EZ_FAILURE;
     }
-    m_hSharedTextures.PushBack(hTexture);
+    m_SharedTextureHandles.PushBack(hTexture);
     const ezGALSharedTexture* pSharedTexture = pDevice->GetSharedTexture(hTexture);
     if (pSharedTexture == nullptr)
     {
       ezLog::Error("Created texture is not a shared texture");
       return EZ_FAILURE;
     }
-    m_pSharedTextures.PushBack(pSharedTexture);
+    m_SharedTextureInterfaces.PushBack(pSharedTexture);
     m_CurrentSemaphoreValue.PushBack(0);
   }
-  m_RenderTargets.m_hRTs[0] = m_hSharedTextures[0];
+  m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[0];
   m_CurrentSize = {m_Desc.m_TextureDesc.m_uiWidth, m_Desc.m_TextureDesc.m_uiHeight};
   return EZ_SUCCESS;
 }

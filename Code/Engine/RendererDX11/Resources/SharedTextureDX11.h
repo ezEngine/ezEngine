@@ -23,7 +23,7 @@ protected:
   virtual void SignalSemaphoreGPU(ezUInt64 uiValue) const override;
 
 protected:
-  ezEnum<ezGALSharedTextureType> m_sharedType = ezGALSharedTextureType::None;
-  ezGALPlatformSharedHandle m_sharedHandle;
+  ezEnum<ezGALSharedTextureType> m_SharedType = ezGALSharedTextureType::None;
+  ezGALPlatformSharedHandle m_SharedHandle;
   IDXGIKeyedMutex* m_pKeyedMutex = nullptr;
 };

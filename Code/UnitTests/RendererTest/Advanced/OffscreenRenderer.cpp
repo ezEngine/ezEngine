@@ -54,7 +54,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOffscreenTest_RenderResponseMsg, 1, ezRTTIDefa
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-
 ezOffscreenRendererTest::ezOffscreenRendererTest()
   : ezApplication("ezOffscreenRendererTest")
 
@@ -239,5 +238,3 @@ void ezOffscreenRendererTest::MessageFunc(const ezProcessMessage* pMsg)
     m_RequestedFrames.PushBack(*pAction);
   }
 }
-
-// EZ_APPLICATION_ENTRY_POINT(ezOffscreenRendererTest);

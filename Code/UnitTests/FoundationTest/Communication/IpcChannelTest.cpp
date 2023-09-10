@@ -24,7 +24,7 @@ public:
 
   void OnIpcEventReceived(const ezIpcChannelEvent& e)
   {
-    EZ_LOCK(m_mutex);
+    EZ_LOCK(m_Mutex);
     m_ReceivedEvents.ExpandAndGetRef() = e;
   }
 
@@ -35,7 +35,7 @@ public:
     while (sw.GetRunningTotal() < timeout)
     {
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
-      EZ_LOCK(m_mutex);
+      EZ_LOCK(m_Mutex);
       if (!m_ReceivedEvents.IsEmpty())
       {
         ezIpcChannelEvent e = m_ReceivedEvents.PeekFront();
@@ -49,7 +49,7 @@ public:
 
   void ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
   {
-    EZ_LOCK(m_mutex);
+    EZ_LOCK(m_Mutex);
     if (m_bPing)
     {
       m_pChannel->Send(data);
@@ -65,7 +65,7 @@ public:
     ezResult res = m_pChannel->WaitForMessages(timeout);
     if (res.Succeeded())
     {
-      EZ_LOCK(m_mutex);
+      EZ_LOCK(m_Mutex);
       if (m_ReceivedMessages.GetCount() > 0)
       {
         auto res = m_ReceivedMessages.PeekFront();
@@ -78,7 +78,7 @@ public:
 
 private:
   bool m_bPing = false;
-  ezMutex m_mutex;
+  ezMutex m_Mutex;
   ezIpcChannel* m_pChannel = nullptr;
   ezDeque<ezDynamicArray<ezUInt8>> m_ReceivedMessages;
   ezDeque<ezIpcChannelEvent> m_ReceivedEvents;

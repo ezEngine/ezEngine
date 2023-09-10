@@ -47,8 +47,8 @@ protected:
 protected:
   ezUInt32 m_uiCurrentTexture = ezMath::MaxValue<ezUInt32>();
   ezUInt64 m_uiCurrentSemaphoreValue = 0;
-  ezHybridArray<ezGALTextureHandle, 3> m_hSharedTextures;
-  ezHybridArray<const ezGALSharedTexture*, 3> m_pSharedTextures;
+  ezHybridArray<ezGALTextureHandle, 3> m_SharedTextureHandles;
+  ezHybridArray<const ezGALSharedTexture*, 3> m_SharedTextureInterfaces;
   ezHybridArray<ezUInt64, 3> m_CurrentSemaphoreValue;
   ezGALSharedTextureSwapChainCreationDescription m_Desc = {};
 };

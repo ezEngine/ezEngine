@@ -44,7 +44,7 @@ private:
   ezGALTextureHandle m_hTexture2DArray;
 
   // Shared Texture Test
-  ezUniquePtr<ezProcess> m_OffscreenProcess;
+  ezUniquePtr<ezProcess> m_pOffscreenProcess;
   ezUniquePtr<ezIpcChannel> m_pChannel;
   ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;
 

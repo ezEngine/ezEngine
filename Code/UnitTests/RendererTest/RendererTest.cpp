@@ -1,11 +1,11 @@
 #include <RendererTest/RendererTestPCH.h>
 
-#include <Foundation/Application/Implementation/Win/ApplicationEntryPoint_win.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <RendererTest/Advanced/OffscreenRenderer.h>
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>
+
+#include <RendererTest/Advanced/OffscreenRenderer.h>
 
 EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN("RendererTest", "Renderer Tests")
 {
