@@ -96,7 +96,7 @@ if($DiffTo)
         exit 1
     }
     
-	$diffFiles = (git diff --name-only HEAD $mergeBase) -replace "/","\"
+	$diffFiles = @(git diff --name-only HEAD $mergeBase) -replace "/","\"
     if($lastexitcode -ne 0)
     {
         Write-Error "Git diff failed: $diffFiles"
