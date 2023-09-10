@@ -263,7 +263,7 @@ void ezRcAgentComponent::PlanNextSteps()
   dtPolyRef stepPolys[16];
 
   m_iFirstNextStep = 0;
-  m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, stepFlags, stepPolys, 4, m_pQuery.Borrow(), &m_QueryFilter);
+  m_iNumNextSteps = m_pCorridor->findCorners(&m_vNextSteps[0].x, stepFlags, stepPolys, 4, m_pQuery.Borrow());
 
   // convert from Recast convention (Y up) to ez (Z up)
   for (ezInt32 i = 0; i < m_iNumNextSteps; ++i)

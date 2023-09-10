@@ -35,9 +35,10 @@
 /// @ingroup detour
 class RECAST_API dtQueryFilter
 {
-	float m_areaCost[DT_MAX_AREAS];		///< Cost per area type. (Used by default implementation.)
-	unsigned short m_includeFlags;		///< Flags for polygons that can be visited. (Used by default implementation.)
-	unsigned short m_excludeFlags;		///< Flags for polygons that should not be visted. (Used by default implementation.)
+	float m_areaCost[DT_MAX_AREAS];			///< Cost per area type. (Used by default implementation.)
+	unsigned short m_includeFlags;			///< Flags for polygons that can be visited. (Used by default implementation.)
+	unsigned short m_excludeFlags;			///< Flags for polygons that should not be visted. (Used by default implementation.)
+	unsigned long long m_includeAreaBits;	///< Only polygons with these area IDs are included. Each bit represents one area ID, with a maximum of 64 area IDs.
 	
 public:
 	dtQueryFilter();
@@ -103,9 +104,14 @@ public:
 	/// included in the operation.
 	inline unsigned short getIncludeFlags() const { return m_includeFlags; }
 
+	inline unsigned long long getIncludeAreaBits() const { return m_includeAreaBits; }
+
 	/// Sets the include flags for the filter.
 	/// @param[in]		flags	The new flags.
 	inline void setIncludeFlags(const unsigned short flags) { m_includeFlags = flags; }
+	
+	/// Sets which area IDs to include. Each bit represents one area. E.g. for area 15 set the bits to (1 << 15).
+	inline void setIncludeAreaBits(const unsigned long long bits) { m_includeAreaBits = bits; }
 
 	/// Returns the exclude flags for the filter.
 	/// Any polygons that include one ore more of these flags will be

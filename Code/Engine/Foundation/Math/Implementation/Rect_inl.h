@@ -140,6 +140,38 @@ void ezRectTemplate<Type>::ExpandToInclude(const ezRectTemplate<Type>& other)
 }
 
 template <typename Type>
+void ezRectTemplate<Type>::ExpandToInclude(const ezVec2Template<Type>& other)
+{
+  Type thisRight = Right();
+  Type thisBottom = Bottom();
+
+  if (other.x < x)
+    x = other.x;
+
+  if (other.y < y)
+    y = other.y;
+
+  if (other.x > thisRight)
+    width = other.x - x;
+  else
+    width = thisRight - x;
+
+  if (other.y > thisBottom)
+    height = other.y - y;
+  else
+    height = thisBottom - y;
+}
+
+template <typename Type>
+void ezRectTemplate<Type>::Grow(Type xy)
+{
+  x -= xy;
+  y -= xy;
+  width += xy * 2;
+  height += xy * 2;
+}
+
+template <typename Type>
 EZ_ALWAYS_INLINE void ezRectTemplate<Type>::Clip(const ezRectTemplate<Type>& clipRect)
 {
   Type newLeft = ezMath::Max<Type>(x, clipRect.x);

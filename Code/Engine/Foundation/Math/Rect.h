@@ -72,6 +72,18 @@ public:
   /// The larger value along y. Same as Bottom().
   Type GetY2() const { return y + height; }
 
+  /// \brief Returns the center point of the rectangle.
+  ezVec2Template<Type> GetCenter() const { return ezVec2Template<Type>(x + width / 2, y + height / 2); }
+
+  /// \brief Returns the width and height as a vec2.
+  ezVec2Template<Type> GetExtents() const { return ezVec2Template<Type>(width, height); }
+
+  /// \brief Returns the half width and half height as a vec2.
+  ezVec2Template<Type> GetHalfExtents() const { return ezVec2Template<Type>(width / 2, height / 2); }
+
+  /// \brief Increases the size of the rect in all directions.
+  void Grow(Type xy);
+
   // *** Common Functions ***
 public:
   bool operator==(const ezRectTemplate<Type>& rhs) const;
@@ -99,6 +111,9 @@ public:
 
   /// \brief Extends this rectangle so that the provided rectangle is completely contained within it.
   void ExpandToInclude(const ezRectTemplate<Type>& other);
+
+  /// \brief Extends this rectangle so that the provided point is contained within it.
+  void ExpandToInclude(const ezVec2Template<Type>& other);
 
   /// \brief Clips this rect so that it is fully inside the provided rectangle.
   void Clip(const ezRectTemplate<Type>& clipRect);
