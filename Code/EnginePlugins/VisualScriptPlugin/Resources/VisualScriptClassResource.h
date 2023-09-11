@@ -21,5 +21,5 @@ private:
 
   ezSharedPtr<ezVisualScriptDataStorage> m_pConstantDataStorage;
   ezSharedPtr<const ezVisualScriptDataDescription> m_pInstanceDataDesc;
-  ezSharedPtr < ezVisualScriptInstanceDataMapping> m_pInstanceDataMapping;
+  ezSharedPtr<ezVisualScriptInstanceDataMapping> m_pInstanceDataMapping;
 };

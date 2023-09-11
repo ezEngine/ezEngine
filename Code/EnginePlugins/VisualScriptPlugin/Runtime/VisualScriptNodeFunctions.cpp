@@ -179,7 +179,7 @@ namespace
   {
     auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
     auto pProperty = userData.m_pProperty;
-    
+
     ezTypedPointer pInstance;
     pInstance = inout_context.GetPointerData(node.GetInputDataOffset(0));
 

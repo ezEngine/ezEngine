@@ -34,7 +34,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Coroutine,
 
     Count,
-    
+
     EnumValue,
 
     ExtendedCount,

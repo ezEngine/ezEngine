@@ -177,7 +177,7 @@ void ezQtVisualScriptNode::UpdateState()
 
       temp.Set("{?", prop->GetPropertyName(), "}");
       if (val == ezVariant(0))
-      {        
+      {
         sTitle.ReplaceAll(temp, "");
       }
       else

@@ -399,8 +399,7 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
     return;
 
   ezHybridArray<ezString, 16> dynamicPinNames;
-  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex)
-  {
+  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex) {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
     {
       GetDynamicPinNames(pObject, pinDesc.m_sDynamicPinProperty, pinDesc.m_sName, dynamicPinNames);

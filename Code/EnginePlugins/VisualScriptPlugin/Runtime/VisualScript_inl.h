@@ -31,7 +31,7 @@ T* ezVisualScriptGraphDescription::EmbeddedArrayOrPointer<T, Size>::Init(ezUInt8
 
   inout_pAdditionalData = ezMemoryUtils::AlignForwards(inout_pAdditionalData, EZ_ALIGNMENT_OF(T));
   m_Ptr = reinterpret_cast<T*>(inout_pAdditionalData);
-  inout_pAdditionalData += uiCount * sizeof(T);  
+  inout_pAdditionalData += uiCount * sizeof(T);
   return m_Ptr;
 }
 

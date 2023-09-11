@@ -1,8 +1,8 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
+#include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptFunctionProperty.h>
-#include <Core/Scripting/ScriptComponent.h>
 
 ezVisualScriptFunctionProperty::ezVisualScriptFunctionProperty(ezStringView sName, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
   : ezScriptFunctionProperty(sName)
@@ -51,7 +51,7 @@ void ezVisualScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, voi
   auto pHandler = static_cast<ezVisualScriptMessageHandler*>(pSelf);
   auto pComponent = static_cast<ezScriptComponent*>(pInstance);
   auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(pComponent->GetScriptInstance());
-  
+
   ezHybridArray<ezVariant, 8> arguments;
   pHandler->FillMessagePropertyValues(ref_msg, arguments);
 

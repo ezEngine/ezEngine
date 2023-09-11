@@ -551,8 +551,7 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildAST(const ezDocume
   ezHashTable<const ezDocumentObject*, AstNode*> objectToAstNode;
   ezHybridArray<const ezVisualScriptPin*, 16> pins;
 
-  auto CreateAstNode = [&](const ezDocumentObject* pObject) -> AstNode*
-  {
+  auto CreateAstNode = [&](const ezDocumentObject* pObject) -> AstNode* {
     auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
     EZ_ASSERT_DEV(pNodeDesc != nullptr, "Invalid node type");
 
@@ -812,8 +811,7 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
   ezHashSet<const AstNode*> nodesWithInsertedMakeArrayNode;
 
   return TraverseAst(pEntryAstNode, ConnectionType::All,
-    [&](const Connection& connection)
-    {
+    [&](const Connection& connection) {
       if (connection.m_Type == ConnectionType::Data)
       {
         auto& dataInput = connection.m_pPrev->m_Inputs[connection.m_uiPrevPinIndex];
@@ -850,8 +848,7 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
 ezResult ezVisualScriptCompiler::InlineConstants(AstNode* pEntryAstNode)
 {
   return TraverseAst(pEntryAstNode, ConnectionType::All,
-    [&](const Connection& connection)
-    {
+    [&](const Connection& connection) {
       auto pCurrentNode = connection.m_pCurrent;
       for (auto& dataInput : pCurrentNode->m_Inputs)
       {
@@ -892,8 +889,7 @@ ezResult ezVisualScriptCompiler::InlineConstants(AstNode* pEntryAstNode)
 ezResult ezVisualScriptCompiler::InlineVariables(AstNode* pEntryAstNode)
 {
   return TraverseAst(pEntryAstNode, ConnectionType::All,
-    [&](const Connection& connection)
-    {
+    [&](const Connection& connection) {
       auto pCurrentNode = connection.m_pCurrent;
       for (auto& dataInput : pCurrentNode->m_Inputs)
       {
@@ -965,8 +961,7 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
   out_Stack.Clear();
 
   EZ_SUCCEED_OR_RETURN(TraverseAst(pEntryAstNode, ConnectionType::Data,
-    [&](const Connection& connection)
-    {
+    [&](const Connection& connection) {
       if (visitedNodes.Insert(connection.m_pCurrent))
         return VisitorResult::Stop;
 
@@ -1070,8 +1065,7 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
   ezHybridArray<Connection, 64> allExecConnections;
 
   EZ_SUCCEED_OR_RETURN(TraverseAst(pEntryAstNode, ConnectionType::Execution,
-    [&](const Connection& connection)
-    {
+    [&](const Connection& connection) {
       allExecConnections.PushBack(connection);
       return VisitorResult::Continue;
     }));
@@ -1109,8 +1103,7 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
 ezResult ezVisualScriptCompiler::FillDataOutputConnections(AstNode* pEntryAstNode)
 {
   return TraverseAst(pEntryAstNode, ConnectionType::All,
-    [&](const Connection& connection)
-    {
+    [&](const Connection& connection) {
       if (connection.m_Type == ConnectionType::Data)
       {
         auto& dataInput = connection.m_pPrev->m_Inputs[connection.m_uiPrevPinIndex];
@@ -1132,8 +1125,7 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
   ezDynamicArray<DataOffset> freeDataOffsets;
 
   return TraverseAst(pEntryAstNode, ConnectionType::Execution,
-    [&](const Connection& connection)
-    {
+    [&](const Connection& connection) {
       // Outputs first so we don't end up using the same data as input and output
       for (auto& dataOutput : connection.m_pCurrent->m_Outputs)
       {
@@ -1201,8 +1193,7 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
   ezHashTable<const AstNode*, ezUInt32> astNodeToNodeDescIndices;
   out_NodeDescriptions.Clear();
 
-  auto CreateNodeDesc = [&](const AstNode& astNode, ezUInt32& out_uiNodeDescIndex) -> ezResult
-  {
+  auto CreateNodeDesc = [&](const AstNode& astNode, ezUInt32& out_uiNodeDescIndex) -> ezResult {
     out_uiNodeDescIndex = out_NodeDescriptions.GetCount();
 
     auto& nodeDesc = out_NodeDescriptions.ExpandAndGetRef();
@@ -1233,8 +1224,7 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
   EZ_SUCCEED_OR_RETURN(CreateNodeDesc(*pEntryAstNode, uiNodeDescIndex));
 
   return TraverseAst(pEntryAstNode, ConnectionType::Execution,
-    [&](const Connection& connection)
-    {
+    [&](const Connection& connection) {
       ezUInt32 uiCurrentIndex = 0;
       EZ_VERIFY(astNodeToNodeDescIndices.TryGetValue(connection.m_pCurrent, uiCurrentIndex), "Implementation error");
       auto pNodeDesc = &out_NodeDescriptions[uiCurrentIndex];
@@ -1347,8 +1337,7 @@ ezResult ezVisualScriptCompiler::FinalizeDataOffsets()
   m_Module.m_InstanceDataDesc.CalculatePerTypeStartOffsets();
   m_Module.m_ConstantDataDesc.CalculatePerTypeStartOffsets();
 
-  auto GetDataDesc = [this](const CompiledFunction& function, DataOffset dataOffset) -> const ezVisualScriptDataDescription*
-  {
+  auto GetDataDesc = [this](const CompiledFunction& function, DataOffset dataOffset) -> const ezVisualScriptDataDescription* {
     switch (dataOffset.GetSource())
     {
       case DataOffset::Source::Local:
@@ -1423,8 +1412,7 @@ void ezVisualScriptCompiler::DumpAST(AstNode* pEntryAstNode, ezStringView sOutpu
   {
     ezHashTable<const AstNode*, ezUInt32> nodeCache;
     TraverseAst(pEntryAstNode, ConnectionType::All,
-      [&](const Connection& connection)
-      {
+      [&](const Connection& connection) {
         ezUInt32 uiGraphNode = 0;
         if (nodeCache.TryGetValue(connection.m_pCurrent, uiGraphNode) == false)
         {

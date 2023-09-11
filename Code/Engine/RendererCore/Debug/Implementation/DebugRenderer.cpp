@@ -928,8 +928,7 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
 ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Left*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Top*/)
 {
-  return AddTextLines(context, text, vPositionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
-    {
+  return AddTextLines(context, text, vPositionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
     auto& textLine = ref_data.m_textLines2D.ExpandAndGetRef();
     textLine.m_text = sLine;
     textLine.m_topLeftCorner = vTopLeftCorner;
@@ -954,8 +953,7 @@ void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ezDebu
 
 ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Center*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Bottom*/)
 {
-  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner)
-    {
+  return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
     auto& textLine = ref_data.m_textLines3D.ExpandAndGetRef();
     textLine.m_text = sLine;
     textLine.m_topLeftCorner = vTopLeftCorner;
@@ -1363,8 +1361,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       auto& cd = pData->m_infoTextData[corner];
 
       // InsertionSort is stable
-      ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool
-        { return lhs.m_group < rhs.m_group; });
+      ezSorting::InsertionSort(cd, [](const InfoTextData& lhs, const InfoTextData& rhs) -> bool { return lhs.m_group < rhs.m_group; });
 
       ezVec2I32 pos = anchor[corner];
 

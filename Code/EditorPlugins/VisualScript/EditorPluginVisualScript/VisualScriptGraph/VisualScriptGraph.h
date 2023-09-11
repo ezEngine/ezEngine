@@ -65,7 +65,7 @@ public:
   ezVisualScriptDataType::Enum GetDeductedType(const ezDocumentObject* pObject) const;
 
   bool IsCoroutine(const ezDocumentObject* pObject) const;
-  
+
   ezEvent<const ezDocumentObject*> m_NodeChangedEvent;
 
 private:

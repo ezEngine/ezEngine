@@ -109,7 +109,7 @@ private:
   ezResult BuildDataStack(AstNode* pEntryAstNode, ezDynamicArray<AstNode*>& out_Stack);
   ezResult BuildDataExecutions(AstNode* pEntryAstNode);
   ezResult FillDataOutputConnections(AstNode* pEntryAstNode);
-  ezResult AssignLocalVariables(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc);  
+  ezResult AssignLocalVariables(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc);
   ezResult BuildNodeDescriptions(AstNode* pEntryAstNode, ezDynamicArray<ezVisualScriptNodeDescription>& out_NodeDescriptions);
 
   struct ConnectionType
