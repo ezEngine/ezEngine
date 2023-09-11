@@ -464,7 +464,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     AddInputProperty(typeDesc, "Type", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
     AddInputProperty(typeDesc, "Property", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
 
-    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "{Type}::Set {Property}");
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "{Type}::Set {Property} = {Value}");
     typeDesc.m_Attributes.PushBack(pAttr);
 
     NodeDesc nodeDesc;
@@ -473,7 +473,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddOutputExecutionPin("");
     nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::AnyPointer, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
-    nodeDesc.AddInputDataPin("Value", nullptr, ezVisualScriptDataType::Any, false);
+    AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }
@@ -503,7 +503,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
     AddInputProperty(typeDesc, "Name", ezGetStaticRTTI<ezString>(), ezVisualScriptDataType::String);
 
-    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Set {Name}");
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Set {Name} = {Value}");
     typeDesc.m_Attributes.PushBack(pAttr);
 
     NodeDesc nodeDesc;

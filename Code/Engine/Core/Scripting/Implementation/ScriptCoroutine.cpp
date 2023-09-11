@@ -1,5 +1,6 @@
 #include <Core/CorePCH.h>
 
+#include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptCoroutine.h>
 #include <Core/Scripting/ScriptWorldModule.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
@@ -70,7 +71,8 @@ void ezScriptCoroutine::Deinitialize()
 // static
 const ezAbstractFunctionProperty* ezScriptCoroutine::GetUpdateFunctionProperty()
 {
-  static const ezAbstractFunctionProperty* pUpdateFunctionProperty = []() -> const ezAbstractFunctionProperty* {
+  static const ezAbstractFunctionProperty* pUpdateFunctionProperty = []() -> const ezAbstractFunctionProperty*
+  {
     const ezRTTI* pType = ezGetStaticRTTI<ezScriptCoroutine>();
     auto functions = pType->GetFunctions();
     for (auto pFunc : functions)

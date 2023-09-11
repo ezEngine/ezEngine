@@ -584,10 +584,24 @@ void ezVisualScriptDataStorage::SetDataFromVariant(DataOffset dataOffset, const 
       }
       break;
     case ezVisualScriptDataType::GameObject:
-      SetPointerData(dataOffset, value.Get<ezGameObject*>(), ezGetStaticRTTI<ezGameObject>(), uiExecutionCounter);
+      if (value.IsA<ezGameObjectHandle>())
+      {
+        SetData(dataOffset, value.Get<ezGameObjectHandle>());
+      }
+      else
+      {
+        SetPointerData(dataOffset, value.Get<ezGameObject*>(), ezGetStaticRTTI<ezGameObject>(), uiExecutionCounter);
+      }
       break;
     case ezVisualScriptDataType::Component:
-      SetPointerData(dataOffset, value.Get<ezComponent*>(), ezGetStaticRTTI<ezComponent>(), uiExecutionCounter);
+      if (value.IsA<ezComponentHandle>())
+      {
+        SetData(dataOffset, value.Get<ezComponentHandle>());
+      }
+      else
+      {
+        SetPointerData(dataOffset, value.Get<ezComponent*>(), ezGetStaticRTTI<ezComponent>(), uiExecutionCounter);
+      }
       break;
     case ezVisualScriptDataType::TypedPointer:
     {
