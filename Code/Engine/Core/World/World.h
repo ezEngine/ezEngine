@@ -360,6 +360,9 @@ private:
   friend class ezWorldModule;
   friend class ezComponentManagerBase;
   friend class ezComponent;
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezWorld);
+
+  ezGameObject* Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey);
 
   void CheckForReadAccess() const;
   void CheckForWriteAccess() const;

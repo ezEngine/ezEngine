@@ -48,7 +48,7 @@ public:
   bool IsFilteredByBaseClass(const ezRTTI* pNodeType, const ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, const ezHashedString& sBaseClass, bool bLogWarning = false) const;
 
   ezVisualScriptDataType::Enum GetVariableType(ezTempHashedString sName) const;
-  ezResult GetVariableDefaultValue(ezTempHashedString sName, ezVariant& out_Value) const;
+  ezResult GetVariableDefaultValue(ezTempHashedString sName, ezVariant& out_value) const;
 
   void GetInputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
   void GetOutputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;

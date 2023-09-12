@@ -1,3 +1,6 @@
+#include <VisualScriptPlugin/VisualScriptPluginPCH.h>
+
+#include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>

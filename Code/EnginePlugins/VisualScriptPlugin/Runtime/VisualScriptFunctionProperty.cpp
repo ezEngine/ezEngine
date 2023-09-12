@@ -3,6 +3,7 @@
 #include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptFunctionProperty.h>
+#include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
 ezVisualScriptFunctionProperty::ezVisualScriptFunctionProperty(ezStringView sName, const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
   : ezScriptFunctionProperty(sName)

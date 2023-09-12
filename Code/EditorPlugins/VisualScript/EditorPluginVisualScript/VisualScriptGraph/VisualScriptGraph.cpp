@@ -139,7 +139,7 @@ ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetVariableType(ezTempHa
   return ezVisualScriptDataType::FromVariantType(defaultValue.GetType());
 }
 
-ezResult ezVisualScriptNodeManager::GetVariableDefaultValue(ezTempHashedString sName, ezVariant& out_Value) const
+ezResult ezVisualScriptNodeManager::GetVariableDefaultValue(ezTempHashedString sName, ezVariant& out_value) const
 {
   if (GetRootObject()->GetChildren().IsEmpty() == false)
   {
@@ -159,7 +159,7 @@ ezResult ezVisualScriptNodeManager::GetVariableDefaultValue(ezTempHashedString s
       if (nameVar.IsA<ezHashedString>() == false || nameVar.Get<ezHashedString>() != sName)
         continue;
 
-      out_Value = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
+      out_value = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
       return EZ_SUCCESS;
     }
   }

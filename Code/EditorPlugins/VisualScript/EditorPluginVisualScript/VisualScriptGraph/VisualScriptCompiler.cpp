@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <Core/World/World.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptCompiler.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptTypeDeduction.h>
 #include <Foundation/IO/ChunkStream.h>
