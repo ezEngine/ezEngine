@@ -38,9 +38,35 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   EZ_BEGIN_FUNCTIONS
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(IsActive),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetCreatedByPrefab),
+    EZ_SCRIPT_FUNCTION_PROPERTY(WasCreatedByPrefab),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(HasName, In, "Name"),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetParent),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::Const),
     EZ_SCRIPT_FUNCTION_PROPERTY(FindChildByPath, In, "Path")->AddFlags(ezPropertyFlags::Const),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalPosition, In, "Position"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalPosition),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalRotation, In, "Rotation"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalRotation),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalScaling, In, "Scaling"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalScaling),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalTransform, In, "Transform"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalTransform),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirForwards),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirRight),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalDirUp),
+
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetLinearVelocity),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetAngularVelocity),
+#endif
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetTeamID, In, "Id"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTeamID),    
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -145,9 +171,29 @@ void ezGameObject::Reflection_SetMode(ezObjectMode::Enum mode)
   }
 }
 
-ezGameObject* ezGameObject::Reflection_FindChildByName(ezStringView sName, bool bRecursive)
+ezGameObject* ezGameObject::Reflection_GetParent() const
 {
-  return FindChildByName(ezTempHashedString(sName), bRecursive);
+  return GetWorld()->GetObjectUnchecked(m_uiParentIndex);
+}
+
+void ezGameObject::Reflection_SetGlobalPosition(const ezVec3& vPosition)
+{
+  SetGlobalPosition(vPosition);
+}
+
+void ezGameObject::Reflection_SetGlobalRotation(const ezQuat& qRotation)
+{
+  SetGlobalRotation(qRotation);
+}
+
+void ezGameObject::Reflection_SetGlobalScaling(const ezVec3& vScaling)
+{
+  SetGlobalScaling(vScaling);
+}
+
+void ezGameObject::Reflection_SetGlobalTransform(const ezTransform& transform)
+{
+  SetGlobalTransform(transform);
 }
 
 bool ezGameObject::DetermineDynamicMode(ezComponent* pComponentToIgnore /*= nullptr*/) const
@@ -949,7 +995,7 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezOb
   GetWorld()->PostMessageRecursive(GetHandle(), msg, delay, queueType);
 }
 
-void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent)
+bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent)
 {
   if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&ref_msg))
   {
@@ -969,13 +1015,15 @@ void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSend
   }
 #endif
 
+  bool bResult = false;
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->SendMessage(ref_msg);
+    bResult |= pEventMsgHandler->SendMessage(ref_msg);
   }
+  return bResult;
 }
 
-void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const
+bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const
 {
   if (auto pEventMsg = ezDynamicCast<ezEventMessage*>(&ref_msg))
   {
@@ -985,10 +1033,12 @@ void ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSend
   ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(ref_msg, this, eventMsgHandlers);
 
+  bool bResult = false;
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->SendMessage(ref_msg);
+    bResult |= pEventMsgHandler->SendMessage(ref_msg);
   }
+  return bResult;
 }
 
 void ezGameObject::PostEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
@@ -1003,7 +1053,7 @@ void ezGameObject::PostEventMessage(ezMessage& ref_msg, const ezComponent* pSend
 
   for (auto pEventMsgHandler : eventMsgHandlers)
   {
-    pEventMsgHandler->PostMessage(ref_msg);
+    pEventMsgHandler->PostMessage(ref_msg, delay, queueType);
   }
 }
 

@@ -6,6 +6,22 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariable, ezNoBase, 1, ezRTTIDefaultAllocator<ezVisualScriptVariable>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(0), new ezVisualScriptVariableAttribute()),
+    EZ_MEMBER_PROPERTY("Expose", m_bExpose),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptVariableAttribute, 1, ezRTTIDefaultAllocator<ezVisualScriptVariableAttribute>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -47,7 +63,8 @@ ezResult ezQtVisualScriptVariableWidget::GetVariantTypeDisplayName(ezVariantType
       type == ezVariantType::UInt16 ||
       type == ezVariantType::UInt32 ||
       type == ezVariantType::UInt64 ||
-      type == ezVariantType::StringView)
+      type == ezVariantType::StringView ||
+      type == ezVariantType::TempHashedString)
     return EZ_FAILURE;
 
   ezVisualScriptDataType::Enum dataType = ezVisualScriptDataType::FromVariantType(type);

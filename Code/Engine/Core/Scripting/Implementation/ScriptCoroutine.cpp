@@ -1,5 +1,6 @@
 #include <Core/CorePCH.h>
 
+#include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptCoroutine.h>
 #include <Core/Scripting/ScriptWorldModule.h>
 #include <Foundation/Types/VariantTypeRegistry.h>
@@ -150,5 +151,48 @@ void ezScriptCoroutineFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVa
     finalArgs.PushBack(hCoroutine);
 
     pModule->StartCoroutine(hCoroutine, finalArgs);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezScriptCoroutineMessageHandler::ezScriptCoroutineMessageHandler(ezStringView sName, const ezScriptMessageDesc& desc, const ezSharedPtr<ezScriptCoroutineRTTI>& pType, ezScriptCoroutineCreationMode::Enum creationMode)
+  : ezScriptMessageHandler(desc)
+  , m_pType(pType)
+  , m_CreationMode(creationMode)
+{
+  m_sName.Assign(sName);
+  m_DispatchFunc = &Dispatch;
+}
+
+ezScriptCoroutineMessageHandler::~ezScriptCoroutineMessageHandler() = default;
+
+// static
+void ezScriptCoroutineMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, void* pInstance, ezMessage& ref_msg)
+{
+  EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
+  auto pHandler = static_cast<ezScriptCoroutineMessageHandler*>(pSelf);
+  auto pComponent = static_cast<ezScriptComponent*>(pInstance);
+  auto pScriptInstance = pComponent->GetScriptInstance();
+
+  ezWorld* pWorld = pScriptInstance->GetWorld();
+  if (pWorld == nullptr)
+  {
+    ezLog::Error("Script coroutines need a script instance with a valid ezWorld");
+    return;
+  }
+
+  auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
+
+  ezScriptCoroutine* pCoroutine = nullptr;
+  auto hCoroutine = pModule->CreateCoroutine(pHandler->m_pType.Borrow(), pHandler->m_sName, *pScriptInstance, pHandler->m_CreationMode, pCoroutine);
+
+  if (pCoroutine != nullptr)
+  {
+    ezHybridArray<ezVariant, 8> arguments;
+    pHandler->FillMessagePropertyValues(ref_msg, arguments);
+    arguments.PushBack(hCoroutine);
+
+    pModule->StartCoroutine(hCoroutine, arguments);
   }
 }

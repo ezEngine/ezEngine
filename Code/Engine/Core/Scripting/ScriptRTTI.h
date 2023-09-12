@@ -44,6 +44,24 @@ private:
   ezHashedString m_sPropertyNameStorage;
 };
 
+struct ezScriptMessageDesc
+{
+  const ezRTTI* m_pType = nullptr;
+  ezArrayPtr<const ezAbstractProperty* const> m_Properties;
+};
+
+class EZ_CORE_DLL ezScriptMessageHandler : public ezAbstractMessageHandler
+{
+public:
+  ezScriptMessageHandler(const ezScriptMessageDesc& desc);
+  ~ezScriptMessageHandler();
+
+  void FillMessagePropertyValues(const ezMessage& msg, ezDynamicArray<ezVariant>& out_propertyValues);
+
+private:
+  ezArrayPtr<const ezAbstractProperty* const> m_Properties;
+};
+
 class EZ_CORE_DLL ezScriptInstance
 {
 public:

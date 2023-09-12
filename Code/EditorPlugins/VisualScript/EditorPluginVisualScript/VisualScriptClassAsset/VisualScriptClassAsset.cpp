@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginVisualScript/VisualScriptClassAsset/VisualScriptClassAsset.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptCompiler.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
@@ -12,6 +13,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetProperties, 1, ezRTTIDef
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("BaseClass", m_sBaseClass)->AddAttributes(new ezDefaultValueAttribute(ezStringView("Component")), new ezDynamicStringEnumAttribute("ScriptBaseClasses")),
+    EZ_ARRAY_MEMBER_PROPERTY("Variables", m_Variables),
+    EZ_MEMBER_PROPERTY("DumpAST", m_bDumpAST),
   }
   EZ_END_PROPERTIES;
 }
@@ -77,7 +80,7 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
   }
 
   ezStringBuilder sDumpPath;
-  if (false)
+  if (GetProperties()->m_bDumpAST)
   {
     sDumpPath.Format(":appdata/{}_AST.dgml", sScriptClassName);
   }
@@ -87,6 +90,28 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
   EZ_SUCCEED_OR_RETURN(compiledModule.Serialize(stream));
 
   return ezStatus(EZ_SUCCESS);
+}
+
+void ezVisualScriptClassAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+
+  for (const auto& v : GetProperties()->m_Variables)
+  {
+    if (v.m_bExpose == false)
+      continue;
+
+    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+    param->m_sName = v.m_sName.GetString();
+    param->m_DefaultValue = v.m_DefaultValue;
+
+    pExposedParams->m_Parameters.PushBack(param);
+  }
+
+  // Info takes ownership of meta data.
+  pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
 void ezVisualScriptClassAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const

@@ -1,6 +1,8 @@
 #include <Core/CorePCH.h>
 
 #include <Core/Scripting/ScriptRTTI.h>
+#include <Foundation/Communication/Message.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 
 ezScriptRTTI::ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers)
   : ezRTTI(nullptr, pParentType, 0, 1, ezVariantType::Invalid, ezTypeFlags::Class, nullptr, ezArrayPtr<const ezAbstractProperty*>(), ezArrayPtr<const ezAbstractFunctionProperty*>(), ezArrayPtr<const ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
@@ -61,6 +63,36 @@ ezScriptFunctionProperty::ezScriptFunctionProperty(ezStringView sName)
 }
 
 ezScriptFunctionProperty::~ezScriptFunctionProperty() = default;
+
+//////////////////////////////////////////////////////////////////////////
+
+ezScriptMessageHandler::ezScriptMessageHandler(const ezScriptMessageDesc& desc)
+  : m_Properties(desc.m_Properties)
+{
+  ezUniquePtr<ezMessage> pMessage = desc.m_pType->GetAllocator()->Allocate<ezMessage>();
+
+  m_Id = pMessage->GetId();
+  m_bIsConst = false;
+}
+
+ezScriptMessageHandler::~ezScriptMessageHandler() = default;
+
+void ezScriptMessageHandler::FillMessagePropertyValues(const ezMessage& msg, ezDynamicArray<ezVariant>& out_propertyValues)
+{
+  out_propertyValues.Clear();
+
+  for (auto pProp : m_Properties)
+  {
+    if (pProp->GetCategory() == ezPropertyCategory::Member)
+    {
+      out_propertyValues.PushBack(ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), &msg));
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 

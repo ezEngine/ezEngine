@@ -20,8 +20,8 @@ EZ_END_STATIC_REFLECTED_BITFLAGS;
 // clang-format on
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMsgPathChanged);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMsgPathChanged, 1, ezRTTIDefaultAllocator<ezEventMsgPathChanged>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPathChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPathChanged, 1, ezRTTIDefaultAllocator<ezMsgPathChanged>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -60,7 +60,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPathComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezEventMsgPathChanged, OnEventMsgPathChanged),
+    EZ_MESSAGE_HANDLER(ezMsgPathChanged, OnMsgPathChanged),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -293,7 +293,7 @@ void ezPathComponent::EnsureLinearizedRepresentationIsUpToDate()
   m_bLinearizedRepresentationChanged = false;
 }
 
-void ezPathComponent::OnEventMsgPathChanged(ezEventMsgPathChanged& ref_msg)
+void ezPathComponent::OnMsgPathChanged(ezMsgPathChanged& ref_msg)
 {
   m_bControlPointsChanged = true;
   m_bLinearizedRepresentationChanged = true;
@@ -785,7 +785,7 @@ void ezPathNodeComponent::OnMsgParentChanged(ezMsgParentChanged& msg)
     ezGameObject* pOldParent = nullptr;
     if (GetWorld()->TryGetObject(msg.m_hParent, pOldParent))
     {
-      ezEventMsgPathChanged msg2;
+      ezMsgPathChanged msg2;
       pOldParent->SendEventMessage(msg2, this);
     }
   }
@@ -807,7 +807,7 @@ void ezPathNodeComponent::OnActivated()
 
 void ezPathNodeComponent::OnDeactivated()
 {
-  ezEventMsgPathChanged msg2;
+  ezMsgPathChanged msg2;
   GetOwner()->SendEventMessage(msg2, this);
 
   SUPER::OnDeactivated();
@@ -818,7 +818,7 @@ void ezPathNodeComponent::PathChanged()
   if (!IsActiveAndInitialized())
     return;
 
-  ezEventMsgPathChanged msg2;
+  ezMsgPathChanged msg2;
   GetOwner()->SendEventMessage(msg2, this);
 }
 

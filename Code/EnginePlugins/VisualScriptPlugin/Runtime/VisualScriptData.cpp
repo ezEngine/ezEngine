@@ -116,6 +116,11 @@ void ezVisualScriptDataStorage::AllocateStorage()
       auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
       ezMemoryUtils::Construct(pStrings, typeInfo.m_uiCount);
     }
+    if (scriptDataType == ezVisualScriptDataType::HashedString)
+    {
+      auto pStrings = reinterpret_cast<ezHashedString*>(pData + typeInfo.m_uiStartOffset);
+      ezMemoryUtils::Construct(pStrings, typeInfo.m_uiCount);
+    }
     else if (scriptDataType == ezVisualScriptDataType::Variant)
     {
       auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
@@ -152,6 +157,11 @@ void ezVisualScriptDataStorage::DeallocateStorage()
       auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
       ezMemoryUtils::Destruct(pStrings, typeInfo.m_uiCount);
     }
+    else if (scriptDataType == ezVisualScriptDataType::HashedString)
+    {
+      auto pStrings = reinterpret_cast<ezHashedString*>(pData + typeInfo.m_uiStartOffset);
+      ezMemoryUtils::Destruct(pStrings, typeInfo.m_uiCount);
+    }
     else if (scriptDataType == ezVisualScriptDataType::Variant)
     {
       auto pVariants = reinterpret_cast<ezVariant*>(pData + typeInfo.m_uiStartOffset);
@@ -185,6 +195,16 @@ ezResult ezVisualScriptDataStorage::Serialize(ezStreamWriter& inout_stream) cons
     if (scriptDataType == ezVisualScriptDataType::String)
     {
       auto pStrings = reinterpret_cast<const ezString*>(pData + typeInfo.m_uiStartOffset);
+      auto pStringsEnd = pStrings + typeInfo.m_uiCount;
+      while (pStrings < pStringsEnd)
+      {
+        inout_stream << *pStrings;
+        ++pStrings;
+      }
+    }
+    else if (scriptDataType == ezVisualScriptDataType::HashedString)
+    {
+      auto pStrings = reinterpret_cast<const ezHashedString*>(pData + typeInfo.m_uiStartOffset);
       auto pStringsEnd = pStrings + typeInfo.m_uiCount;
       while (pStrings < pStringsEnd)
       {
@@ -250,6 +270,16 @@ ezResult ezVisualScriptDataStorage::Deserialize(ezStreamReader& inout_stream)
     if (scriptDataType == ezVisualScriptDataType::String)
     {
       auto pStrings = reinterpret_cast<ezString*>(pData + typeInfo.m_uiStartOffset);
+      auto pStringsEnd = pStrings + typeInfo.m_uiCount;
+      while (pStrings < pStringsEnd)
+      {
+        inout_stream >> *pStrings;
+        ++pStrings;
+      }
+    }
+    else if (scriptDataType == ezVisualScriptDataType::HashedString)
+    {
+      auto pStrings = reinterpret_cast<ezHashedString*>(pData + typeInfo.m_uiStartOffset);
       auto pStringsEnd = pStrings + typeInfo.m_uiCount;
       while (pStrings < pStringsEnd)
       {
@@ -349,8 +379,23 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       return GetData<ezUInt8>(dataOffset);
 
     case ezVisualScriptDataType::Int:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezInt32>(), "");
-      return GetData<ezInt32>(dataOffset);
+      if (pExpectedType == ezGetStaticRTTI<ezInt16>())
+      {
+        return static_cast<ezInt16>(GetData<ezInt32>(dataOffset));
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezUInt16>())
+      {
+        return static_cast<ezUInt16>(GetData<ezInt32>(dataOffset));
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezInt32>())
+      {
+        return GetData<ezInt32>(dataOffset);
+      }
+      else
+      {
+        return static_cast<ezUInt32>(GetData<ezInt32>(dataOffset));
+      }
+      EZ_ASSERT_NOT_IMPLEMENTED;
 
     case ezVisualScriptDataType::Int64:
       EZ_ASSERT_DEBUG(pExpectedType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) || pExpectedType == ezGetStaticRTTI<ezInt64>(), "");
@@ -399,9 +444,27 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       }
       EZ_ASSERT_NOT_IMPLEMENTED;
 
+    case ezVisualScriptDataType::HashedString:
+      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezHashedString>())
+      {
+        return GetData<ezHashedString>(dataOffset);
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezTempHashedString>())
+      {
+        return ezTempHashedString(GetData<ezHashedString>(dataOffset));
+      }
+      EZ_ASSERT_NOT_IMPLEMENTED;
+
     case ezVisualScriptDataType::GameObject:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezGameObjectHandle>(), "");
-      return GetData<ezGameObjectHandle>(dataOffset);
+      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezGameObject>())
+      {
+        return GetPointerData(dataOffset, uiExecutionCounter);
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezGameObjectHandle>())
+      {
+        return GetData<ezGameObjectHandle>(dataOffset);
+      }
+      EZ_ASSERT_NOT_IMPLEMENTED;
 
     case ezVisualScriptDataType::Component:
       EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezComponentHandle>(), "");
@@ -510,11 +573,35 @@ void ezVisualScriptDataStorage::SetDataFromVariant(DataOffset dataOffset, const 
         SetData(dataOffset, value.Get<ezString>());
       }
       break;
+    case ezVisualScriptDataType::HashedString:
+      if (value.IsA<ezTempHashedString>())
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+      else
+      {
+        SetData(dataOffset, value.Get<ezHashedString>());
+      }
+      break;
     case ezVisualScriptDataType::GameObject:
-      SetPointerData(dataOffset, value.Get<ezGameObject*>(), ezGetStaticRTTI<ezGameObject>(), uiExecutionCounter);
+      if (value.IsA<ezGameObjectHandle>())
+      {
+        SetData(dataOffset, value.Get<ezGameObjectHandle>());
+      }
+      else
+      {
+        SetPointerData(dataOffset, value.Get<ezGameObject*>(), ezGetStaticRTTI<ezGameObject>(), uiExecutionCounter);
+      }
       break;
     case ezVisualScriptDataType::Component:
-      SetPointerData(dataOffset, value.Get<ezComponent*>(), ezGetStaticRTTI<ezComponent>(), uiExecutionCounter);
+      if (value.IsA<ezComponentHandle>())
+      {
+        SetData(dataOffset, value.Get<ezComponentHandle>());
+      }
+      else
+      {
+        SetPointerData(dataOffset, value.Get<ezComponent*>(), ezGetStaticRTTI<ezComponent>(), uiExecutionCounter);
+      }
       break;
     case ezVisualScriptDataType::TypedPointer:
     {

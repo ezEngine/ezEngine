@@ -218,7 +218,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
     sb.Format("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
 
     ezColor textColor = ezColorScheme::LightUI(ezColorScheme::Grape);
-    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugRenderer::ScreenPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
+    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
 
     for (ezUInt32 i = 0; i < m_NewTiles.GetCount(); ++i)
     {

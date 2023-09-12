@@ -26,7 +26,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboard, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetName),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_RegisterEntry, In, "Name", In, "InitialValue", In, "Save", In, "OnChangeEvent"),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetEntryValue, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetEntryValue, In, "Name", In, "Fallback"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name", In, "Fallback"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardChangeCounter),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardEntryChangeCounter)
   }
@@ -251,40 +251,29 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& inout_stream)
 }
 
 // static
-ezBlackboard* ezBlackboard::Reflection_GetOrCreateGlobal(ezStringView sName)
+ezBlackboard* ezBlackboard::Reflection_GetOrCreateGlobal(const ezHashedString& sName)
 {
-  ezHashedString sNameHashed;
-  sNameHashed.Assign(sName);
-
-  return GetOrCreateGlobal(sNameHashed).Borrow();
+  return GetOrCreateGlobal(sName).Borrow();
 }
 
 // static
-ezBlackboard* ezBlackboard::Reflection_FindGlobal(ezStringView sName)
+ezBlackboard* ezBlackboard::Reflection_FindGlobal(ezTempHashedString sName)
 {
-  return FindGlobal(ezTempHashedString(sName));
+  return FindGlobal(sName);
 }
 
-void ezBlackboard::Reflection_RegisterEntry(ezStringView sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent)
+void ezBlackboard::Reflection_RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent)
 {
-  ezHashedString sNameHashed;
-  sNameHashed.Assign(sName);
-
   ezBitflags<ezBlackboardEntryFlags> flags;
   flags.AddOrRemove(ezBlackboardEntryFlags::Save, bSave);
   flags.AddOrRemove(ezBlackboardEntryFlags::OnChangeEvent, bOnChangeEvent);
 
-  RegisterEntry(sNameHashed, initialValue, flags);
+  RegisterEntry(sName, initialValue, flags);
 }
 
-bool ezBlackboard::Reflection_SetEntryValue(ezStringView sName, const ezVariant& value)
+bool ezBlackboard::Reflection_SetEntryValue(ezTempHashedString sName, const ezVariant& value)
 {
-  return SetEntryValue(ezTempHashedString(sName), value).Succeeded();
-}
-
-ezVariant ezBlackboard::Reflection_GetEntryValue(ezStringView sName, const ezVariant& fallback) const
-{
-  return GetEntryValue(ezTempHashedString(sName), fallback);
+  return SetEntryValue(sName, value).Succeeded();
 }
 
 //////////////////////////////////////////////////////////////////////////

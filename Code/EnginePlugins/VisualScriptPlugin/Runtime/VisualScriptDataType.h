@@ -3,6 +3,10 @@
 #include <Core/World/GameObject.h>
 #include <VisualScriptPlugin/VisualScriptPluginDLL.h>
 
+/// \brief Data types that are available in visual script. These are a subset of ezVariantType.
+///
+/// Like with ezVariantType, the order of these types is important as they are used to determine
+/// if a type is "bigger" during type deduction. Also the enum values are serialized in visual script files.
 struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
 {
   using StorageType = ezUInt8;
@@ -24,6 +28,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Time,
     Angle,
     String,
+    HashedString,
     GameObject,
     Component,
     TypedPointer,
@@ -33,9 +38,15 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Coroutine,
 
     Count,
-    Default = Invalid,
 
+    EnumValue,
+
+    ExtendedCount,
+
+    AnyPointer = 0xFE,
     Any = 0xFF,
+
+    Default = Invalid,
   };
 
   EZ_ALWAYS_INLINE static bool IsNumber(Enum dataType) { return dataType >= Bool && dataType <= Double; }

@@ -20,17 +20,30 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       MessageHandler,
       MessageHandler_Coroutine,
       ReflectedFunction,
+      GetReflectedProperty,
+      SetReflectedProperty,
       InplaceCoroutine,
       GetScriptOwner,
+      SendMessage,
 
       FirstBuiltin,
 
+      Builtin_Constant,
+      Builtin_GetVariable,
+      Builtin_SetVariable,
+      Builtin_IncVariable,
+      Builtin_DecVariable,
+
       Builtin_Branch,
+      Builtin_Switch,
+      Builtin_Loop,
+
       Builtin_And,
       Builtin_Or,
       Builtin_Not,
       Builtin_Compare,
       Builtin_IsValid,
+      Builtin_Select,
 
       Builtin_Add,
       Builtin_Subtract,
@@ -44,6 +57,8 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_ToFloat,
       Builtin_ToDouble,
       Builtin_ToString,
+      Builtin_String_Format,
+      Builtin_ToHashedString,
       Builtin_ToVariant,
       Builtin_Variant_ConvertTo,
 
@@ -84,10 +99,8 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
   ezSmallArray<DataOffset, 2> m_OutputDataOffsets;
 
   ezHashedString m_sTargetTypeName;
-  ezHashedString m_sTargetPropertyName;
 
-  ezEnum<ezComparisonOperator> m_ComparisonOperator;
-  ezEnum<ezScriptCoroutineCreationMode> m_CoroutineCreationMode;
+  ezVariant m_Value;
 
   void AppendUserDataName(ezStringBuilder& out_sResult) const;
 };
@@ -178,12 +191,13 @@ public:
     const T& GetUserData() const;
 
     template <typename T>
-    void SetUserData(const T& data, ezUInt8*& inout_pAdditionalData);
+    T& InitUserData(ezUInt8*& inout_pAdditionalData, ezUInt32 uiByteSize = sizeof(T));
   };
 
   const Node* GetNode(ezUInt32 uiIndex) const;
 
   bool IsCoroutine() const;
+  ezScriptMessageDesc GetMessageDesc() const;
 
   const ezSharedPtr<const ezVisualScriptDataDescription>& GetLocalDataDesc() const;
 
@@ -193,7 +207,6 @@ private:
 
   ezSharedPtr<const ezVisualScriptDataDescription> m_pLocalDataDesc;
 };
-
 
 
 class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptExecutionContext
@@ -245,5 +258,21 @@ private:
 
   ezScriptCoroutine* m_pCurrentCoroutine = nullptr;
 };
+
+struct ezVisualScriptSendMessageMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Direct,    ///< Directly send the message to the target game object
+    Recursive, ///< Send the message to the target game object and its children
+    Event,     ///< Send the message as event. \sa ezGameObject::SendEventMessage()
+
+    Default = Direct
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_VISUALSCRIPTPLUGIN_DLL, ezVisualScriptSendMessageMode);
 
 #include <VisualScriptPlugin/Runtime/VisualScript_inl.h>

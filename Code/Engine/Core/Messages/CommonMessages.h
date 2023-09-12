@@ -32,10 +32,6 @@ struct EZ_CORE_DLL ezMsgGenericEvent : public ezEventMessage
   /// A custom string to identify the intent.
   ezHashedString m_sMessage;
   ezVariant m_Value;
-
-private:
-  const char* GetMessage() const { return m_sMessage; }
-  void SetMessage(const char* szMessage) { m_sMessage.Assign(szMessage); }
 };
 
 /// \brief Sent when an animation reached its end (either forwards or backwards playing)

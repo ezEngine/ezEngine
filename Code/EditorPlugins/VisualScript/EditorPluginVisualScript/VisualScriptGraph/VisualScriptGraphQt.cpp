@@ -44,40 +44,17 @@ void ezQtVisualScriptPin::SetPin(const ezPin& pin)
 {
   ezQtPin::SetPin(pin);
 
-  const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(pin);
-
-  ezStringBuilder sTooltip;
-  sTooltip = vsPin.GetName();
-
-  if (vsPin.IsDataPin())
-  {
-    auto scriptDataType = vsPin.GetScriptDataType();
-    if (scriptDataType != ezVisualScriptDataType::TypedPointer)
-    {
-      sTooltip.Append(": ", ezVisualScriptDataType::GetName(scriptDataType));
-    }
-    else
-    {
-      sTooltip.Append(": ", vsPin.GetDataType()->GetTypeName());
-    }
-
-    if (vsPin.IsRequired())
-    {
-      sTooltip.Append(" (Required)");
-    }
-  }
-
-  setToolTip(sTooltip.GetData());
+  UpdateTooltip();
 }
 
 bool ezQtVisualScriptPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
 {
   ezColorGammaUB overwriteColor;
   const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(*GetPin());
-  if (vsPin.GetScriptDataType() == ezVisualScriptDataType::Any)
+  if (vsPin.NeedsTypeDeduction())
   {
     auto pManager = static_cast<const ezVisualScriptNodeManager*>(vsPin.GetParent()->GetDocumentObjectManager());
-    auto deductedType = pManager->GetDeductedType(vsPin.GetParent());
+    auto deductedType = pManager->GetDeductedType(vsPin);
     overwriteColor = ezVisualScriptNodeRegistry::PinDesc::GetColorForScriptDataType(deductedType);
     pOverwriteColor = &overwriteColor;
   }
@@ -97,7 +74,29 @@ bool ezQtVisualScriptPin::UpdatePinColors(const ezColorGammaUB* pOverwriteColor)
     return true;
   }
 
+  UpdateTooltip();
+
   return res;
+}
+
+void ezQtVisualScriptPin::UpdateTooltip()
+{
+  const ezVisualScriptPin& vsPin = ezStaticCast<const ezVisualScriptPin&>(*GetPin());
+
+  ezStringBuilder sTooltip;
+  sTooltip = vsPin.GetName();
+
+  if (vsPin.IsDataPin())
+  {
+    sTooltip.Append(": ", vsPin.GetDataTypeName());
+
+    if (vsPin.IsRequired())
+    {
+      sTooltip.Append(" (Required)");
+    }
+  }
+
+  setToolTip(sTooltip.GetData());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -136,6 +135,9 @@ void ezQtVisualScriptNode::UpdateState()
         {
           sTitle.ReplaceAll(temp, pin->GetPin()->GetName());
         }
+
+        temp.Set("{?", pin->GetPin()->GetName(), "}");
+        sTitle.ReplaceAll(temp, "");
       }
     }
 
@@ -150,9 +152,9 @@ void ezQtVisualScriptNode::UpdateState()
         ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sVal);
         sVal = ezTranslate(sVal);
       }
-      else if (val.IsA<ezString>())
+      else if (val.IsA<ezString>() || val.IsA<ezHashedString>())
       {
-        sVal = val.Get<ezString>();
+        sVal = val.ConvertTo<ezString>();
         if (sVal.GetCharacterCount() > 16)
         {
           sVal.Shrink(0, sVal.GetCharacterCount() - 13);
@@ -172,6 +174,16 @@ void ezQtVisualScriptNode::UpdateState()
 
       temp.Set("{", prop->GetPropertyName(), "}");
       sTitle.ReplaceAll(temp, sVal);
+
+      temp.Set("{?", prop->GetPropertyName(), "}");
+      if (val == ezVariant(0))
+      {
+        sTitle.ReplaceAll(temp, "");
+      }
+      else
+      {
+        sTitle.ReplaceAll(temp, sVal);
+      }
     }
   }
   else
@@ -184,6 +196,7 @@ void ezQtVisualScriptNode::UpdateState()
     m_pTitleLabel->setPlainText(szSeparator + 2);
 
     ezStringBuilder sSubTitle = ezStringView(sTitle.GetData(), szSeparator);
+    sSubTitle.Trim("\"");
     m_pSubtitleLabel->setPlainText(sSubTitle.GetData());
   }
   else
@@ -191,7 +204,7 @@ void ezQtVisualScriptNode::UpdateState()
     m_pTitleLabel->setPlainText(sTitle.GetData());
 
     auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pType);
-    if (pNodeDesc != nullptr && pNodeDesc->m_bNeedsDataTypeDeduction)
+    if (pNodeDesc != nullptr && pNodeDesc->NeedsTypeDeduction())
     {
       ezVisualScriptDataType::Enum deductedType = pManager->GetDeductedType(GetObject());
       const char* sSubTitle = deductedType != ezVisualScriptDataType::Invalid ? ezVisualScriptDataType::GetName(deductedType) : "Unknown";

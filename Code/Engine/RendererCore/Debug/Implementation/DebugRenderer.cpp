@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
+#include <Core/Scripting/ScriptAttributes.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -23,6 +24,27 @@ ezDebugRendererContext::ezDebugRendererContext(const ezViewHandle& hView)
   : m_uiId(hView.GetInternalID().m_Data)
 {
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDebugTextHAlign, 1)
+  EZ_ENUM_CONSTANTS(ezDebugTextHAlign::Left, ezDebugTextHAlign::Center, ezDebugTextHAlign::Right)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDebugTextVAlign, 1)
+  EZ_ENUM_CONSTANTS(ezDebugTextVAlign::Top, ezDebugTextVAlign::Center, ezDebugTextVAlign::Bottom)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDebugTextPlacement, 1)
+  EZ_ENUM_CONSTANTS(ezDebugTextPlacement::TopLeft, ezDebugTextPlacement::TopCenter, ezDebugTextPlacement::TopRight)
+  EZ_ENUM_CONSTANTS(ezDebugTextPlacement::BottomLeft, ezDebugTextPlacement::BottomCenter, ezDebugTextPlacement::BottomRight)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +117,7 @@ namespace
     ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
     ezMap<ezGALResourceViewHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle3DVertices;
 
-    ezDynamicArray<InfoTextData> m_infoTextData[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT];
+    ezDynamicArray<InfoTextData> m_infoTextData[(int)ezDebugTextPlacement::ENUM_COUNT];
     ezDynamicArray<TextLineData2D> m_textLines2D;
     ezDynamicArray<TextLineData3D> m_textLines3D;
     ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> m_glyphs;
@@ -152,7 +174,7 @@ namespace
         pData->m_textLines2D.Clear();
         pData->m_textLines3D.Clear();
 
-        for (ezUInt32 i = 0; i < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++i)
+        for (ezUInt32 i = 0; i < (ezUInt32)ezDebugTextPlacement::ENUM_COUNT; ++i)
         {
           pData->m_infoTextData[i].Clear();
         }
@@ -252,7 +274,7 @@ namespace
   }
 
   template <typename AddFunc>
-  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& vPositionInPixel, float fSizeInPixel, ezDebugRenderer::HorizontalAlignment horizontalAlignment, ezDebugRenderer::VerticalAlignment verticalAlignment, AddFunc func)
+  static ezUInt32 AddTextLines(const ezDebugRendererContext& context, const ezFormatString& text0, const ezVec2I32& vPositionInPixel, float fSizeInPixel, ezDebugTextHAlign::Enum horizontalAlignment, ezDebugTextVAlign::Enum verticalAlignment, AddFunc func)
   {
     if (text0.IsEmpty())
       return 0;
@@ -312,13 +334,13 @@ namespace
     const float fLineHeight = ezMath::Ceil(fSizeInPixel * (20.0f / 16.0f));
 
     float screenPosX = (float)vPositionInPixel.x;
-    if (horizontalAlignment == ezDebugRenderer::HorizontalAlignment::Right)
+    if (horizontalAlignment == ezDebugTextHAlign::Right)
       screenPosX -= maxLineLength * fGlyphWidth;
 
     float screenPosY = (float)vPositionInPixel.y;
-    if (verticalAlignment == ezDebugRenderer::VerticalAlignment::Center)
+    if (verticalAlignment == ezDebugTextVAlign::Center)
       screenPosY -= ezMath::Ceil(lines.GetCount() * fLineHeight * 0.5f);
-    else if (verticalAlignment == ezDebugRenderer::VerticalAlignment::Bottom)
+    else if (verticalAlignment == ezDebugTextVAlign::Bottom)
       screenPosY -= lines.GetCount() * fLineHeight;
 
     {
@@ -331,7 +353,7 @@ namespace
       for (ezStringView line : lines)
       {
         currentPos.x = screenPosX;
-        if (horizontalAlignment == ezDebugRenderer::HorizontalAlignment::Center)
+        if (horizontalAlignment == ezDebugTextHAlign::Center)
           currentPos.x -= ezMath::Ceil(line.GetElementCount() * fGlyphWidth * 0.5f);
 
         if (isTabular)
@@ -904,7 +926,7 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_texTriangle2DVertices[hResourceView].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Left*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Top*/)
+ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& vPositionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Left*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Top*/)
 {
   return AddTextLines(context, text, vPositionInPixel, (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [=](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
     auto& textLine = ref_data.m_textLines2D.ExpandAndGetRef();
@@ -915,7 +937,7 @@ ezUInt32 ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, cons
 }
 
 
-void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ScreenPlacement placement, const char* szGroupName, const ezFormatString& text, const ezColor& color)
+void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, ezDebugTextPlacement::Enum placement, ezStringView sGroupName, const ezFormatString& text, const ezColor& color)
 {
   EZ_LOCK(s_Mutex);
 
@@ -924,12 +946,12 @@ void ezDebugRenderer::DrawInfoText(const ezDebugRendererContext& context, Screen
   ezStringBuilder tmp;
 
   auto& e = data.m_infoTextData[(int)placement].ExpandAndGetRef();
-  e.m_group = szGroupName;
+  e.m_group = sGroupName;
   e.m_text = text.GetText(tmp);
   e.m_color = color;
 }
 
-ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment horizontalAlignment /*= HorizontalAlignment::Center*/, VerticalAlignment verticalAlignment /*= VerticalAlignment::Bottom*/)
+ezUInt32 ezDebugRenderer::Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, ezDebugTextHAlign::Enum horizontalAlignment /*= ezDebugTextHAlign::Center*/, ezDebugTextVAlign::Enum verticalAlignment /*= ezDebugTextVAlign::Bottom*/)
 {
   return AddTextLines(context, text, ezVec2I32(0), (float)uiSizeInPixel, horizontalAlignment, verticalAlignment, [&](PerContextData& ref_data, ezStringView sLine, ezVec2 vTopLeftCorner) {
     auto& textLine = ref_data.m_textLines3D.ExpandAndGetRef();
@@ -1303,30 +1325,30 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
   // draw info text
   {
-    static_assert((int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT == 6);
+    static_assert((int)ezDebugTextPlacement::ENUM_COUNT == 6);
 
-    HorizontalAlignment ha[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
-      HorizontalAlignment::Left,
-      HorizontalAlignment::Center,
-      HorizontalAlignment::Right,
-      HorizontalAlignment::Left,
-      HorizontalAlignment::Center,
-      HorizontalAlignment::Right};
+    ezDebugTextHAlign::Enum ha[(int)ezDebugTextPlacement::ENUM_COUNT] = {
+      ezDebugTextHAlign::Left,
+      ezDebugTextHAlign::Center,
+      ezDebugTextHAlign::Right,
+      ezDebugTextHAlign::Left,
+      ezDebugTextHAlign::Center,
+      ezDebugTextHAlign::Right};
 
-    VerticalAlignment va[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
-      VerticalAlignment::Top,
-      VerticalAlignment::Top,
-      VerticalAlignment::Top,
-      VerticalAlignment::Bottom,
-      VerticalAlignment::Bottom,
-      VerticalAlignment::Bottom};
+    ezDebugTextVAlign::Enum va[(int)ezDebugTextPlacement::ENUM_COUNT] = {
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Top,
+      ezDebugTextVAlign::Bottom,
+      ezDebugTextVAlign::Bottom,
+      ezDebugTextVAlign::Bottom};
 
-    int offs[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
+    int offs[(int)ezDebugTextPlacement::ENUM_COUNT] = {20, 20, 20, -20, -20, -20};
 
     ezInt32 resX = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
     ezInt32 resY = (ezInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
 
-    ezVec2I32 anchor[(int)ezDebugRenderer::ScreenPlacement::ENUM_COUNT] = {
+    ezVec2I32 anchor[(int)ezDebugTextPlacement::ENUM_COUNT] = {
       ezVec2I32(10, 10),
       ezVec2I32(resX / 2, 10),
       ezVec2I32(resX - 10, 10),
@@ -1334,7 +1356,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
       ezVec2I32(resX / 2, resY - 10),
       ezVec2I32(resX - 10, resY - 10)};
 
-    for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugRenderer::ScreenPlacement::ENUM_COUNT; ++corner)
+    for (ezUInt32 corner = 0; corner < (ezUInt32)ezDebugTextPlacement::ENUM_COUNT; ++corner)
     {
       auto& cd = pData->m_infoTextData[corner];
 
@@ -1767,6 +1789,126 @@ void ezDebugRenderer::OnEngineShutdown()
   s_PerContextData.Clear();
 
   s_PersistentPerContextData.Clear();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezScriptExtensionClass_Debug, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawCross, In, "World", In, "Position", In, "Size", In, "Color", In, "Transform")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(0.1f)),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawLineBox, In, "World", In, "Position", In, "HalfExtents", In, "Color", In, "Transform")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(ezVec3(1))),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawLineSphere, In, "World", In, "Position", In, "Radius", In, "Color", In, "Transform")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(1.0f)),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawSolidBox, In, "World", In, "Position", In, "HalfExtents", In, "Color", In, "Transform")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(ezVec3(1))),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute())),
+    
+    EZ_SCRIPT_FUNCTION_PROPERTY(Draw2DText, In, "World", In, "Text", In, "Position", In, "Color", In, "SizeInPixel", In, "HAlign")->AddAttributes(
+      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(16))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Draw3DText, In, "World", In, "Text", In, "Position", In, "Color", In, "SizeInPixel")->AddAttributes(
+      new ezFunctionArgumentAttributes(4, new ezDefaultValueAttribute(16))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DrawInfoText, In, "World", In, "Text", In, "Placement", In, "Group", In, "Color"),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddPersistentCross, In, "World", In, "Position", In, "Size", In, "Color", In, "Transform", In, "Duration")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(0.1f)),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1)))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddPersistentLineBox, In, "World", In, "Position", In, "HalfExtents", In, "Color", In, "Transform", In, "Duration")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(ezVec3(1))),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1)))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddPersistentLineSphere, In, "World", In, "Position", In, "Radius", In, "Color", In, "Transform", In, "Duration")->AddAttributes(
+      new ezFunctionArgumentAttributes(2, new ezDefaultValueAttribute(1.0f)),
+      new ezFunctionArgumentAttributes(3, new ezExposeColorAlphaAttribute()),
+      new ezFunctionArgumentAttributes(5, new ezDefaultValueAttribute(ezTime::MakeFromSeconds(1)))),
+  }
+  EZ_END_FUNCTIONS;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezScriptExtensionAttribute("Debug"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
+// static
+void ezScriptExtensionClass_Debug::DrawCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform)
+{
+  ezDebugRenderer::DrawCross(pWorld, vPosition, fSize, color, transform);
+}
+
+// static
+void ezScriptExtensionClass_Debug::DrawLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform)
+{
+  ezDebugRenderer::DrawLineBox(pWorld, ezBoundingBox::MakeFromCenterAndHalfExtents(vPosition, vHalfExtents), color, transform);
+}
+
+// static
+void ezScriptExtensionClass_Debug::DrawLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform)
+{
+  ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere::MakeFromCenterAndRadius(vPosition, fRadius), color, transform);
+}
+
+// static
+void ezScriptExtensionClass_Debug::DrawSolidBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform)
+{
+  ezDebugRenderer::DrawSolidBox(pWorld, ezBoundingBox::MakeFromCenterAndHalfExtents(vPosition, vHalfExtents), color, transform);
+}
+
+// static
+void ezScriptExtensionClass_Debug::Draw2DText(const ezWorld* pWorld, ezStringView sText, const ezVec3& vPosition, const ezColor& color, ezUInt32 uiSizeInPixel, ezEnum<ezDebugTextHAlign> horizontalAlignment)
+{
+  ezVec2I32 vPositionInPixel = ezVec2I32(static_cast<int>(ezMath::Round(vPosition.x)), static_cast<int>(ezMath::Round(vPosition.y)));
+  ezDebugRenderer::Draw2DText(pWorld, sText, vPositionInPixel, color, uiSizeInPixel, horizontalAlignment);
+}
+
+// static
+void ezScriptExtensionClass_Debug::Draw3DText(const ezWorld* pWorld, ezStringView sText, const ezVec3& vPosition, const ezColor& color, ezUInt32 uiSizeInPixel)
+{
+  ezDebugRenderer::Draw3DText(pWorld, sText, vPosition, color, uiSizeInPixel);
+}
+
+// static
+void ezScriptExtensionClass_Debug::DrawInfoText(const ezWorld* pWorld, ezStringView sText, ezEnum<ezDebugTextPlacement> placement, ezStringView sGroupName, const ezColor& color)
+{
+  ezDebugRenderer::DrawInfoText(pWorld, placement, sGroupName, sText, color);
+}
+
+// static
+void ezScriptExtensionClass_Debug::AddPersistentCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  ezTransform t = transform;
+  t.m_vPosition += vPosition;
+
+  ezDebugRenderer::AddPersistentCross(pWorld, fSize, color, t, duration);
+}
+
+// static
+void ezScriptExtensionClass_Debug::AddPersistentLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  ezTransform t = transform;
+  t.m_vPosition += vPosition;
+
+  ezDebugRenderer::AddPersistentLineBox(pWorld, vHalfExtents, color, t, duration);
+}
+
+// static
+void ezScriptExtensionClass_Debug::AddPersistentLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration)
+{
+  ezTransform t = transform;
+  t.m_vPosition += vPosition;
+
+  ezDebugRenderer::AddPersistentLineSphere(pWorld, fRadius, color, t, duration);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugRenderer);

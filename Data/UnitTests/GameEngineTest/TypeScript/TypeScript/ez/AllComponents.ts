@@ -1132,6 +1132,7 @@ export class VisualizeHandComponent extends Component
 export class VolumeComponent extends Component
 {
   public static GetTypeNameHash(): number { return 4218212731; }
+  SetValue(Name: string, Value: any): void { __CPP_ComponentFunction_Call(this, 548868820, Name, Value); }
   get Type(): string { return __CPP_ComponentProperty_get(this, 514052835); }
   set Type(value: string) { __CPP_ComponentProperty_set(this, 514052835, value); }
   get SortOrder(): number { return __CPP_ComponentProperty_get(this, 1049093630); }

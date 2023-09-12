@@ -188,6 +188,11 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/XR/ezProject", 5).Succeeded());
 }
 
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformVisualScript)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 5).Succeeded());
+}
+
 #endif
 
 
@@ -521,8 +526,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec2(ezIn
   // Text
   {
     ezDebugRenderer::Draw2DText(m_pWorld.Borrow(), ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()), ezVec2I32(10, 10), ezColor::AntiqueWhite, 24);
-    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugRenderer::ScreenPlacement::BottomLeft, "test", ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()));
-    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugRenderer::ScreenPlacement::BottomRight, "test", "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|");
+    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugTextPlacement::BottomLeft, "test", ezFmt("Frame# {}", ezRenderWorld::GetFrameCounter()));
+    ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugTextPlacement::BottomRight, "test", "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|");
   }
 
   if (Run() == ezApplication::Execution::Quit)

@@ -253,10 +253,10 @@ public:
   void SetGlobalPosition(const ezVec3& vPosition);
   ezVec3 GetGlobalPosition() const;
 
-  void SetGlobalRotation(const ezQuat qRotation);
+  void SetGlobalRotation(const ezQuat& qRotation);
   ezQuat GetGlobalRotation() const;
 
-  void SetGlobalScaling(const ezVec3 vScaling);
+  void SetGlobalScaling(const ezVec3& vScaling);
   ezVec3 GetGlobalScaling() const;
 
   void SetGlobalTransform(const ezTransform& transform);
@@ -424,14 +424,14 @@ public:
   /// \param senderComponent The component that triggered the event in the first place. May be nullptr.
   ///        If not null, this information is stored in \a msg as ezEventMessage::m_hSenderObject and ezEventMessage::m_hSenderComponent.
   ///        This information is used to pass through more contextual information for the event handler.
-  ///        For instance, a trigger would pass through which object entered the trigger.
-  ///        A projectile component sending a 'take damage event' to the hit object, would pass through itself (the projectile)
+  ///        For instance, a trigger component would pass through itself.
+  ///        A projectile component sending a 'take damage event' to the hit object, would also pass through itself (the projectile)
   ///        such that the handling code can detect which object was responsible for the damage (and using the ezGameObject's team-ID,
   ///        it can detect which player fired the projectile).
-  void SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent);
+  bool SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent);
 
   /// \copydoc ezGameObject::SendEventMessage()
-  void SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const;
+  bool SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const;
 
   /// \copydoc ezGameObject::SendEventMessage()
   ///
@@ -519,7 +519,11 @@ private:
   ezObjectMode::Enum Reflection_GetMode() const;
   void Reflection_SetMode(ezObjectMode::Enum mode);
 
-  ezGameObject* Reflection_FindChildByName(ezStringView sName, bool bRecursive);
+  ezGameObject* Reflection_GetParent() const;
+  void Reflection_SetGlobalPosition(const ezVec3& vPosition);
+  void Reflection_SetGlobalRotation(const ezQuat& qRotation);
+  void Reflection_SetGlobalScaling(const ezVec3& vScaling);
+  void Reflection_SetGlobalTransform(const ezTransform& transform);
 
   bool DetermineDynamicMode(ezComponent* pComponentToIgnore = nullptr) const;
   void ConditionalMakeStatic(ezComponent* pComponentToIgnore = nullptr);

@@ -13,6 +13,9 @@ public:
 
   virtual void SetPin(const ezPin& pin) override;
   virtual bool UpdatePinColors(const ezColorGammaUB* pOverwriteColor = nullptr) override;
+
+private:
+  void UpdateTooltip();
 };
 
 class ezQtVisualScriptConnection : public ezQtConnection

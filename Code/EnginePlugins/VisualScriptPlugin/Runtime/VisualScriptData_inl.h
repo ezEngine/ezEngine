@@ -4,6 +4,7 @@ EZ_FORCE_INLINE void ezVisualScriptDataDescription::CheckOffset(DataOffset dataO
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   auto expectedDataType = dataOffset.GetType();
   auto& offsetAndCount = m_PerTypeInfo[expectedDataType];
+  EZ_ASSERT_DEBUG(offsetAndCount.m_uiCount > 0, "Invalid data offset");
   const ezUInt32 uiLastOffset = offsetAndCount.m_uiStartOffset + (offsetAndCount.m_uiCount - 1) * ezVisualScriptDataType::GetStorageSize(expectedDataType);
   EZ_ASSERT_DEBUG(dataOffset.m_uiByteOffset >= offsetAndCount.m_uiStartOffset && dataOffset.m_uiByteOffset <= uiLastOffset, "Invalid data offset");
 
@@ -120,4 +121,20 @@ void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, con
       typedPointer.m_pType = pType;
     }
   }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+inline ezResult ezVisualScriptInstanceData::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(m_DataOffset.Serialize(inout_stream));
+  inout_stream << m_DefaultValue;
+  return EZ_SUCCESS;
+}
+
+inline ezResult ezVisualScriptInstanceData::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(m_DataOffset.Deserialize(inout_stream));
+  inout_stream >> m_DefaultValue;
+  return EZ_SUCCESS;
 }

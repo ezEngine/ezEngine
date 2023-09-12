@@ -21,6 +21,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptDataType, 1)
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Time),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Angle),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::String),
+  EZ_ENUM_CONSTANT(ezVisualScriptDataType::HashedString),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::GameObject),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Component),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::TypedPointer),
@@ -48,6 +49,7 @@ namespace
     ezVariantType::Time,              // Time,
     ezVariantType::Angle,             // Angle,
     ezVariantType::String,            // String,
+    ezVariantType::HashedString,      // HashedString,
     ezVariantType::TypedObject,       // GameObject,
     ezVariantType::TypedObject,       // Component,
     ezVariantType::TypedPointer,      // TypedPointer,
@@ -74,6 +76,7 @@ namespace
     sizeof(ezTime),                         // Time,
     sizeof(ezAngle),                        // Angle,
     sizeof(ezString),                       // String,
+    sizeof(ezHashedString),                 // HashedString,
     sizeof(ezVisualScriptGameObjectHandle), // GameObject,
     sizeof(ezVisualScriptComponentHandle),  // Component,
     sizeof(ezTypedPointer),                 // TypedPointer,
@@ -100,6 +103,7 @@ namespace
     EZ_ALIGNMENT_OF(ezTime),                         // Time,
     EZ_ALIGNMENT_OF(ezAngle),                        // Angle,
     EZ_ALIGNMENT_OF(ezString),                       // String,
+    EZ_ALIGNMENT_OF(ezHashedString),                 // HashedString,
     EZ_ALIGNMENT_OF(ezVisualScriptGameObjectHandle), // GameObject,
     EZ_ALIGNMENT_OF(ezVisualScriptComponentHandle),  // Component,
     EZ_ALIGNMENT_OF(ezTypedPointer),                 // TypedPointer,
@@ -126,6 +130,7 @@ namespace
     "Time",
     "Angle",
     "String",
+    "HashedString",
     "GameObject",
     "Component",
     "TypedPointer",
@@ -133,8 +138,10 @@ namespace
     "Array",
     "Map",
     "Coroutine",
+    "", // Count,
+    "Enum",
   };
-  static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeNames) == (size_t)ezVisualScriptDataType::Count);
+  static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeNames) == (size_t)ezVisualScriptDataType::ExtendedCount);
 } // namespace
 
 // static
@@ -181,6 +188,9 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromVariantType(ezVariantTy
     case ezVariantType::String:
     case ezVariantType::StringView:
       return String;
+    case ezVariantType::HashedString:
+    case ezVariantType::TempHashedString:
+      return HashedString;
     case ezVariantType::VariantArray:
       return Array;
     case ezVariantType::VariantDictionary:
@@ -210,6 +220,7 @@ const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
     ezGetStaticRTTI<ezTime>(),                  // Time,
     ezGetStaticRTTI<ezAngle>(),                 // Angle,
     ezGetStaticRTTI<ezString>(),                // String,
+    ezGetStaticRTTI<ezHashedString>(),          // HashedString,
     ezGetStaticRTTI<ezGameObjectHandle>(),      // GameObject,
     ezGetStaticRTTI<ezComponentHandle>(),       // Component,
     nullptr,                                    // TypedPointer,
@@ -217,8 +228,10 @@ const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
     ezGetStaticRTTI<ezVariantArray>(),          // Array,
     ezGetStaticRTTI<ezVariantDictionary>(),     // Map,
     ezGetStaticRTTI<ezScriptCoroutineHandle>(), // Coroutine,
+    nullptr,                                    // Count,
+    nullptr,                                    // EnumValue,
   };
-  static_assert(EZ_ARRAY_SIZE(s_Rttis) == (size_t)ezVisualScriptDataType::Count);
+  static_assert(EZ_ARRAY_SIZE(s_Rttis) == (size_t)ezVisualScriptDataType::ExtendedCount);
 
   EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_Rttis), "Out of bounds access");
   return s_Rttis[dataType];
@@ -243,6 +256,9 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromRtti(const ezRTTI* pRtt
   if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Class))
     return TypedPointer;
 
+  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::IsEnum))
+    return EnumValue;
+
   if (pRtti == ezGetStaticRTTI<ezVariant>())
     return Variant;
 
@@ -266,7 +282,11 @@ ezUInt32 ezVisualScriptDataType::GetStorageAlignment(Enum dataType)
 // static
 const char* ezVisualScriptDataType::GetName(Enum dataType)
 {
-  if (dataType == Any)
+  if (dataType == AnyPointer)
+  {
+    return "Pointer";
+  }
+  else if (dataType == Any)
   {
     return "Any";
   }
@@ -279,11 +299,13 @@ const char* ezVisualScriptDataType::GetName(Enum dataType)
 bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataType)
 {
   if (sourceDataType == targetDataType ||
-      targetDataType == ezVisualScriptDataType::String ||
-      targetDataType == ezVisualScriptDataType::Variant)
+      targetDataType == String ||
+      targetDataType == HashedString ||
+      targetDataType == Variant)
     return true;
 
-  if (ezVisualScriptDataType::IsNumber(sourceDataType) && ezVisualScriptDataType::IsNumber(targetDataType))
+  if ((IsNumber(sourceDataType) || sourceDataType == EnumValue) &&
+      (IsNumber(targetDataType) || targetDataType == EnumValue))
     return true;
 
   return false;

@@ -635,6 +635,10 @@ void ezTypeScriptBinding::PushVariant(duk_context* pDuk, const ezVariant& value)
       duk.PushString(value.Get<ezStringView>());
       break;
 
+    case ezVariant::Type::HashedString:
+      duk.PushString(value.Get<ezHashedString>());
+      break;
+
     case ezVariant::Type::Vector2I:
     {
       const ezVec2I32 v = value.Get<ezVec2I32>();
@@ -675,6 +679,10 @@ void ezTypeScriptBinding::PushVariant(duk_context* pDuk, const ezVariant& value)
       // case ezVariant::Type::Vector4:
       // case ezVariant::Type::Vector4I:
       // case ezVariant::Type::Vector4U:
+
+    case ezVariant::Type::TypedObject:
+      duk.PushUndefined();
+      break;
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -760,6 +768,13 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
     case ezVariant::Type::StringView:
       return ezVariant(ezStringView(duk.GetStringValue(iObjIdx)), false);
 
+    case ezVariant::Type::HashedString:
+    {
+      ezHashedString sValue;
+      sValue.Assign(duk.GetStringValue(iObjIdx));
+      return sValue;
+    }
+
     case ezVariant::Type::Vector2:
       return ezTypeScriptBinding::GetVec2(duk, iObjIdx);
 
@@ -817,6 +832,9 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, co
 
       // case ezVariant::Type::Uuid:
       //  break;
+
+    case ezVariant::Type::TypedObject:
+      return ezVariant();
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;

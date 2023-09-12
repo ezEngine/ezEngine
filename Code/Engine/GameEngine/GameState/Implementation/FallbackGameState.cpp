@@ -438,14 +438,14 @@ bool ezFallbackGameState::DisplayMenu()
 
   if (m_State == State::NoProject)
   {
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", "No project path provided.\n\nUse the command-line argument\n-project \"Path/To/ezProject\"\nto tell ezPlayer which project to load.\n\nWith the argument\n-scene \"Path/To/Scene.ezScene\"\nyou can also directly load a specific scene.\n\nPress ESC to quit.", ezColor::Red);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", "No project path provided.\n\nUse the command-line argument\n-project \"Path/To/ezProject\"\nto tell ezPlayer which project to load.\n\nWith the argument\n-scene \"Path/To/Scene.ezScene\"\nyou can also directly load a specific scene.\n\nPress ESC to quit.", ezColor::Red);
 
     return false;
   }
 
   if (m_State == State::BadProject)
   {
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", ezFmt("Invalid project path provided.\nThe given project directory does not exist:\n\n{}\n\nPress ESC to quit.", ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()), ezColor::Red);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("Invalid project path provided.\nThe given project directory does not exist:\n\n{}\n\nPress ESC to quit.", ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()), ezColor::Red);
 
     return false;
   }
@@ -458,26 +458,26 @@ bool ezFallbackGameState::DisplayMenu()
   if (m_State == State::Ok && !m_bShowMenu)
     return false;
 
-  ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", ezFmt("Project: '{}'", ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()), ezColor::White);
+  ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("Project: '{}'", ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()), ezColor::White);
 
   if (m_State == State::NoScene)
   {
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", "No scene path provided.\n\nUse the command-line argument\n-scene \"Path/To/Scene.ezScene\"\nto directly load a specific scene.", ezColor::Orange);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", "No scene path provided.\n\nUse the command-line argument\n-scene \"Path/To/Scene.ezScene\"\nto directly load a specific scene.", ezColor::Orange);
   }
   else if (m_State == State::BadScene)
   {
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", ezFmt("Failed to load scene: '{}'", m_sTitleOfLoadingScene), ezColor::Red);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("Failed to load scene: '{}'", m_sTitleOfLoadingScene), ezColor::Red);
   }
   else
   {
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", ezFmt("Scene: '{}'", m_sTitleOfActiveScene), ezColor::White);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("Scene: '{}'", m_sTitleOfActiveScene), ezColor::White);
   }
 
   if (m_bShowMenu)
   {
     FindAvailableScenes();
 
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", "\nSelect scene:\n", ezColor::White);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", "\nSelect scene:\n", ezColor::White);
 
     for (ezUInt32 i = 0; i < m_AvailableScenes.GetCount(); ++i)
     {
@@ -485,15 +485,15 @@ bool ezFallbackGameState::DisplayMenu()
 
       if (i == m_uiSelectedScene)
       {
-        ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", ezFmt("> {} <", file), ezColor::Gold);
+        ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("> {} <", file), ezColor::Gold);
       }
       else
       {
-        ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", ezFmt("  {}  ", file), ezColor::GhostWhite);
+        ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", ezFmt("  {}  ", file), ezColor::GhostWhite);
       }
     }
 
-    ezDebugRenderer::DrawInfoText(pWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "_Player", "\nPress 'Return' to load scene.\nPress the 'Windows' key to toggle this menu.", ezColor::White);
+    ezDebugRenderer::DrawInfoText(pWorld, ezDebugTextPlacement::TopCenter, "_Player", "\nPress 'Return' to load scene.\nPress the 'Windows' key to toggle this menu.", ezColor::White);
 
     if (ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) == ezKeyState::Pressed)
     {
