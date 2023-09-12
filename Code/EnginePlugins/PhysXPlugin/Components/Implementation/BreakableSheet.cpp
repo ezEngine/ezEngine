@@ -983,7 +983,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
     }
 
     ezSimdTransform bboxCenterTransform;
-    bboxCenterTransform.m_Rotation.SetIdentity();
+    bboxCenterTransform.m_Rotation = ezSimdQuat::MakeIdentity();
     bboxCenterTransform.m_Scale.Set(1, 1, 1, 1);
     bboxCenterTransform.m_Position = ezSimdConversion::ToVec4(m_PieceBoundingBoxes[i].GetCenter().GetAsPositionVec4());
 
@@ -1106,8 +1106,7 @@ void ezBreakableSheetComponent::SetPieceTransform(const physx::PxTransform& tran
 
   // The bounding box transforms include the offset from the center of the sheet to the piece center,
   // however for the skinning process this offset needs to be removed:
-  ezSimdTransform pieceToBBoxCenter;
-  pieceToBBoxCenter.SetIdentity();
+  ezSimdTransform pieceToBBoxCenter = ezSimdTransform::MakeIdentity();
   pieceToBBoxCenter.m_Position = ezSimdConversion::ToVec4(m_PieceBoundingBoxes[uiPieceIndex].GetCenter().GetAsPositionVec4());
   pieceToBBoxCenter.Invert();
   t *= pieceToBBoxCenter;

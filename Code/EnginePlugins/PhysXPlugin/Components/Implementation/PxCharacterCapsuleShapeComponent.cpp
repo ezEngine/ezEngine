@@ -142,8 +142,8 @@ void ezPxCharacterCapsuleShapeComponent::DeserializeComponent(ezWorldReader& ino
 
 void ezPxCharacterCapsuleShapeComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, m_fCapsuleRadius), m_fCapsuleRadius), ezInvalidSpatialDataCategory);
-  msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, m_fCapsuleHeight + m_fCapsuleRadius), m_fCapsuleRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, m_fCapsuleRadius), m_fCapsuleRadius), ezInvalidSpatialDataCategory);
+  msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3(0, 0, m_fCapsuleHeight + m_fCapsuleRadius), m_fCapsuleRadius), ezInvalidSpatialDataCategory);
 }
 
 void ezPxCharacterCapsuleShapeComponent::OnSimulationStarted()
