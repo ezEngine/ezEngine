@@ -265,9 +265,9 @@ struct ezVisualScriptSendMessageMode
 
   enum Enum
   {
-    Direct,
-    Recursive,
-    Event,
+    Direct,    ///< Directly send the message to the target game object
+    Recursive, ///< Send the message to the target game object and its children
+    Event,     ///< Send the message as event. \sa ezGameObject::SendEventMessage()
 
     Default = Direct
   };

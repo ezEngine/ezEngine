@@ -107,7 +107,7 @@ const ezRTTI* ezVisualScriptTypeDeduction::GetReflectedType(const ezDocumentObje
     return nullptr;
 
   const ezRTTI* pType = ezRTTI::FindTypeByName(sTypeName);
-  if (pType == nullptr)
+  if (pType == nullptr && sTypeName.StartsWith("ez") == false)
   {
     ezStringBuilder sFullTypeName;
     sFullTypeName.Set("ez", typeVar.Get<ezString>());

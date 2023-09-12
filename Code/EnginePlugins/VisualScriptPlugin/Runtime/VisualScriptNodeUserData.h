@@ -85,6 +85,7 @@ namespace
       EZ_SUCCEED_OR_RETURN(NodeUserData_Type::Serialize(nodeDesc, inout_stream, out_uiSize, out_uiAlignment));
 
       const ezVariantArray& propertiesVar = nodeDesc.m_Value.Get<ezVariantArray>();
+      EZ_ASSERT_DEBUG(propertiesVar.GetCount() == 1, "Invalid number of properties");
 
       inout_stream << propertiesVar[0].Get<ezHashedString>();
 
@@ -158,12 +159,13 @@ namespace
 
   struct NodeUserData_TypeAndProperties : public NodeUserData_Type
   {
-    ezUInt32 m_uiNumProperties;
+    ezUInt32 m_uiNumProperties = 0;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
     ezUInt32 m_uiPadding0;
 #endif
 
+    // This struct is allocated with enough space behind it to hold an array with m_uiNumProperties size.
     const ezAbstractProperty* m_Properties[1];
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
@@ -229,7 +231,9 @@ namespace
 
   struct NodeUserData_Switch
   {
-    ezUInt32 m_uiNumCases;
+    ezUInt32 m_uiNumCases = 0;
+
+    // This struct is allocated with enough space behind it to hold an array with m_uiNumCases size.
     ezInt64 m_Cases[1];
 
     static ezResult Serialize(const ezVisualScriptNodeDescription& nodeDesc, ezStreamWriter& inout_stream, ezUInt32& out_uiSize, ezUInt32& out_uiAlignment)
@@ -269,6 +273,7 @@ namespace
 
     static void ToString(const ezVisualScriptNodeDescription& nodeDesc, ezStringBuilder& out_sResult)
     {
+      // Nothing to add here
     }
   };
 
