@@ -508,12 +508,6 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::ZeroVector()
-{
-  return vmovq_n_f32(0.0f);
-}
-
-// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
   return vfmaq_f32(c.m_v, a.m_v, b.m_v);

@@ -488,12 +488,6 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::ZeroVector()
-{
-  return ezVec4::MakeZero();
-}
-
-// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
   return a.CompMul(b) + c;

@@ -110,7 +110,7 @@ protected:
   ezVec3 m_vLastPosition;
   ezVec3 m_vLastTargetPosition;
   ezVec3 m_vLastUpDir;
-  ezAngle m_vLastTiltAngle;
+  ezAngle m_LastTiltAngle;
 
   const char* DummyGetter() const { return nullptr; }
 };

@@ -167,7 +167,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(ezStringView sFile, ezTimestamp
 
 #else
 
-  out_Result.SetInt64(0, ezSIUnitOfTime::Second);
+  out_Result = ezTimestamp::MakeFromInt(0, ezSIUnitOfTime::Second);
   ezLog::Warning("Trying to retrieve a file time stamp on a platform that does not support it (file: '{0}')", ezArgSensitive(szFile, "File"));
 
 #endif

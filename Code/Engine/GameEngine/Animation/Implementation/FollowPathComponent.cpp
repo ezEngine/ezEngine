@@ -164,7 +164,7 @@ void ezFollowPathComponent::Update(bool bForce)
 
       const float fTiltStrength = ezMath::Sign((vTarget - vLastTarget).Dot(vRight)) * ezMath::Sign(m_fTiltAmount);
       ezAngle tiltAngle = ezMath::Min(vLastTarget.GetAngleBetween(vTarget) * ezMath::Abs(m_fTiltAmount), m_MaxTilt);
-      deltaAngle = ezMath::Lerp(tiltAngle * fTiltStrength, m_vLastTiltAngle, 0.85f); // this smooths out the tilting from being jittery
+      deltaAngle = ezMath::Lerp(tiltAngle * fTiltStrength, m_LastTiltAngle, 0.85f); // this smooths out the tilting from being jittery
 
       ezQuat rot = ezQuat::MakeFromAxisAndAngle(vTarget, deltaAngle);
       vUp = rot * vUp;
@@ -177,7 +177,7 @@ void ezFollowPathComponent::Update(bool bForce)
     m_vLastPosition = transform.m_vPosition;
     m_vLastUpDir = transform.m_vUpDirection;
     m_vLastTargetPosition = transformAhead.m_vPosition;
-    m_vLastTiltAngle = deltaAngle;
+    m_LastTiltAngle = deltaAngle;
   }
 
   ezMat3 mRot = ezMat3::MakeIdentity();

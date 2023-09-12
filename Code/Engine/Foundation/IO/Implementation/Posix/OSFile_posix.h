@@ -357,7 +357,7 @@ ezResult ezOSFile::InternalGetFileStats(ezStringView sFileOrFolder, ezFileStats&
   out_Stats.m_sParentPath = sFileOrFolder;
   out_Stats.m_sParentPath.PathParentDirectory();
   out_Stats.m_sName = ezPathUtils::GetFileNameAndExtension(sFileOrFolder); // no OS support, so just pass it through
-  out_Stats.m_LastModificationTime.SetInt64(tempStat.st_mtime, ezSIUnitOfTime::Second);
+  out_Stats.m_LastModificationTime = ezTimestamp::MakeFromInt(tempStat.st_mtime, ezSIUnitOfTime::Second);
 
   return EZ_SUCCESS;
 }
@@ -515,7 +515,7 @@ namespace
     curFile.m_bIsDirectory = hCurrentFile->d_type == DT_DIR;
     curFile.m_sParentPath = curPath;
     curFile.m_sName = hCurrentFile->d_name;
-    curFile.m_LastModificationTime.SetInt64(fileStat.st_mtime, ezSIUnitOfTime::Second);
+    curFile.m_LastModificationTime = ezTimestamp::MakeFromInt(fileStat.st_mtime, ezSIUnitOfTime::Second);
 
     return EZ_SUCCESS;
   }
