@@ -253,10 +253,10 @@ public:
   void SetGlobalPosition(const ezVec3& vPosition);
   ezVec3 GetGlobalPosition() const;
 
-  void SetGlobalRotation(const ezQuat qRotation);
+  void SetGlobalRotation(const ezQuat& qRotation);
   ezQuat GetGlobalRotation() const;
 
-  void SetGlobalScaling(const ezVec3 vScaling);
+  void SetGlobalScaling(const ezVec3& vScaling);
   ezVec3 GetGlobalScaling() const;
 
   void SetGlobalTransform(const ezTransform& transform);
@@ -521,8 +521,8 @@ private:
 
   ezGameObject* Reflection_GetParent() const;
   void Reflection_SetGlobalPosition(const ezVec3& vPosition);
-  void Reflection_SetGlobalRotation(const ezQuat qRotation);
-  void Reflection_SetGlobalScaling(const ezVec3 vScaling);
+  void Reflection_SetGlobalRotation(const ezQuat& qRotation);
+  void Reflection_SetGlobalScaling(const ezVec3& vScaling);
   void Reflection_SetGlobalTransform(const ezTransform& transform);
 
   bool DetermineDynamicMode(ezComponent* pComponentToIgnore = nullptr) const;

@@ -181,12 +181,12 @@ void ezGameObject::Reflection_SetGlobalPosition(const ezVec3& vPosition)
   SetGlobalPosition(vPosition);
 }
 
-void ezGameObject::Reflection_SetGlobalRotation(const ezQuat qRotation)
+void ezGameObject::Reflection_SetGlobalRotation(const ezQuat& qRotation)
 {
   SetGlobalRotation(qRotation);
 }
 
-void ezGameObject::Reflection_SetGlobalScaling(const ezVec3 vScaling)
+void ezGameObject::Reflection_SetGlobalScaling(const ezVec3& vScaling)
 {
   SetGlobalScaling(vScaling);
 }

@@ -230,7 +230,7 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetGlobalPosition() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezQuat qRotation)
+EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezQuat& qRotation)
 {
   SetGlobalRotation(ezSimdConversion::ToQuat(qRotation));
 }
@@ -241,7 +241,7 @@ EZ_ALWAYS_INLINE ezQuat ezGameObject::GetGlobalRotation() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezVec3 vScaling)
+EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezVec3& vScaling)
 {
   SetGlobalScaling(ezSimdConversion::ToVec3(vScaling));
 }
