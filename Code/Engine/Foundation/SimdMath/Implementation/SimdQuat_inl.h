@@ -30,22 +30,6 @@ inline ezSimdQuat ezSimdQuat::MakeFromAxisAndAngle(const ezSimdVec4f& vRotationA
   return res;
 }
 
-// static
-EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::IdentityQuaternion()
-{
-  return ezSimdQuat(ezSimdVec4f(0.0f, 0.0f, 0.0f, 1.0f));
-}
-
-EZ_ALWAYS_INLINE void ezSimdQuat::SetIdentity()
-{
-  m_v.Set(0.0f, 0.0f, 0.0f, 1.0f);
-}
-
-EZ_ALWAYS_INLINE void ezSimdQuat::SetFromAxisAndAngle(const ezSimdVec4f& vRotationAxis, const ezSimdFloat& fAngle)
-{
-  *this = MakeFromAxisAndAngle(vRotationAxis, fAngle);
-}
-
 EZ_ALWAYS_INLINE void ezSimdQuat::Normalize()
 {
   m_v.Normalize<4>();

@@ -59,18 +59,6 @@ EZ_FORCE_INLINE ezBoundingBoxTemplate<Type> ezBoundingBoxTemplate<Type>::MakeFro
 }
 
 template <typename Type>
-EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetElements(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax)
-{
-  *this = MakeFromMinMax(vMin, vMax);
-}
-
-template <typename Type>
-EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */)
-{
-  *this = MakeFromPoints(pPoints, uiNumPoints, uiStride);
-}
-
-template <typename Type>
 void ezBoundingBoxTemplate<Type>::GetCorners(ezVec3Template<Type>* out_pCorners) const
 {
   EZ_NAN_ASSERT(this);
@@ -102,18 +90,6 @@ template <typename Type>
 EZ_FORCE_INLINE const ezVec3Template<Type> ezBoundingBoxTemplate<Type>::GetHalfExtents() const
 {
   return (m_vMax - m_vMin) / (Type)2;
-}
-
-template <typename Type>
-EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetCenterAndHalfExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vHalfExtents)
-{
-  *this = MakeFromCenterAndHalfExtents(vCenter, vHalfExtents);
-}
-
-template <typename Type>
-EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetInvalid()
-{
-  *this = MakeInvalid();
 }
 
 template <typename Type>

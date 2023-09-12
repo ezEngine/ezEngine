@@ -361,12 +361,6 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
-{
-  return _mm_setzero_si128();
-}
-
-// static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41

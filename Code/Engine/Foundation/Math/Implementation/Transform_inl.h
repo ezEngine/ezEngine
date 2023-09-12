@@ -64,22 +64,9 @@ EZ_ALWAYS_INLINE ezTransformTemplate<Type> ezTransformTemplate<Type>::MakeGlobal
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::SetFromMat4(const ezMat4Template<Type>& mMat)
-{
-  *this = MakeFromMat4(mMat);
-}
-
-template <typename Type>
 EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::SetIdentity()
 {
   *this = MakeIdentity();
-}
-
-// static
-template <typename Type>
-EZ_ALWAYS_INLINE const ezTransformTemplate<Type> ezTransformTemplate<Type>::IdentityTransform()
-{
-  return MakeIdentity();
 }
 
 template <typename Type>
@@ -112,18 +99,6 @@ template <typename Type>
 inline bool ezTransformTemplate<Type>::IsEqual(const ezTransformTemplate<Type>& rhs, Type fEpsilon) const
 {
   return m_vPosition.IsEqual(rhs.m_vPosition, fEpsilon) && m_qRotation.IsEqualRotation(rhs.m_qRotation, fEpsilon) && m_vScale.IsEqual(rhs.m_vScale, fEpsilon);
-}
-
-template <typename Type>
-EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::SetLocalTransform(const ezTransformTemplate<Type>& globalTransformParent, const ezTransformTemplate<Type>& globalTransformChild)
-{
-  *this = MakeLocalTransform(globalTransformParent, globalTransformChild);
-}
-
-template <typename Type>
-EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::SetGlobalTransform(const ezTransformTemplate<Type>& globalTransformParent, const ezTransformTemplate<Type>& localTransformChild)
-{
-  *this = MakeGlobalTransform(globalTransformParent, localTransformChild);
 }
 
 template <typename Type>

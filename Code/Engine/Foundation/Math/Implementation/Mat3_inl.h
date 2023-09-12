@@ -12,43 +12,6 @@ ezMat3Template<Type>::ezMat3Template()
 }
 
 template <typename Type>
-ezMat3Template<Type>::ezMat3Template(const Type* const pData, ezMatrixLayout::Enum layout)
-{
-  SetFromArray(pData, layout);
-}
-
-template <typename Type>
-ezMat3Template<Type>::ezMat3Template(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3)
-{
-  *this = MakeFromValues(c1r1, c2r1, c3r1, c1r2, c2r2, c3r2, c1r3, c2r3, c3r3);
-}
-
-template <typename Type>
-EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::IdentityMatrix()
-{
-  return ezMat3Template<Type>::MakeFromValues(1, 0, 0, 0, 1, 0, 0, 0, 1);
-}
-
-template <typename Type>
-EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::ZeroMatrix()
-{
-  return ezMat3Template<Type>::MakeFromValues(0, 0, 0, 0, 0, 0, 0, 0, 0);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout)
-{
-  if (layout == ezMatrixLayout::ColumnMajor)
-  {
-    *this = MakeFromColumnMajorArray(pData);
-  }
-  else
-  {
-    *this = MakeFromRowMajorArray(pData);
-  }
-}
-
-template <typename Type>
 void ezMat3Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const
 {
   EZ_NAN_ASSERT(this);
@@ -66,20 +29,6 @@ void ezMat3Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layo
       out_pData[i * 3 + 2] = Element(2, i);
     }
   }
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetElements(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3)
-{
-  Element(0, 0) = c1r1;
-  Element(1, 0) = c2r1;
-  Element(2, 0) = c3r1;
-  Element(0, 1) = c1r2;
-  Element(1, 1) = c2r2;
-  Element(2, 1) = c3r2;
-  Element(0, 2) = c1r3;
-  Element(1, 2) = c2r3;
-  Element(2, 2) = c3r3;
 }
 
 template <typename Type>
@@ -199,30 +148,6 @@ template <typename Type>
 void ezMat3Template<Type>::SetIdentity()
 {
   *this = MakeIdentity();
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetScalingMatrix(const ezVec3Template<Type>& s)
-{
-  *this = MakeScaling(s);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrixX(ezAngle angle)
-{
-  *this = MakeRotationX(angle);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrixY(ezAngle angle)
-{
-  *this = MakeRotationY(angle);
-}
-
-template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrixZ(ezAngle angle)
-{
-  *this = MakeRotationZ(angle);
 }
 
 template <typename Type>

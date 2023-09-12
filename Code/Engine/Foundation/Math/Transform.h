@@ -67,14 +67,8 @@ public:
   /// \brief Creates a transform that is the global transform, that is reached by applying the child's local transform to the parent's global one.
   [[nodiscard]] static ezTransformTemplate<Type> MakeGlobalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& localTransformChild); // [tested]
 
-  /// \brief Attempts to extract position, scale and rotation from the matrix. Negative scaling and shearing will get lost in the process.
-  [[deprecated("Use MakeFromMat4() instead.")]] void SetFromMat4(const ezMat4Template<Type>& mMat);
-
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
-
-  /// \brief Returns an Identity Transform.
-  [[deprecated("Use MakeIdentity() instead.")]] [[nodiscard]] static const ezTransformTemplate<Type> IdentityTransform();
 
   /// \brief Returns the scale component with maximum magnitude.
   Type GetMaxScale() const;
@@ -109,11 +103,6 @@ public:
 
   // *** Conversion operations ***
 public:
-  /// \brief Sets this transform to be the local transformation needed to get from the parent's transform to the child's.
-  [[deprecated("Use MakeLocalTransform() instead.")]] void SetLocalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& globalTransformChild); // [tested]
-
-  /// \brief Sets this transform to the global transform, that is reached by applying the child's local transform to the parent's global one.
-  [[deprecated("Use MakeGlobalTransform() instead.")]] void SetGlobalTransform(const ezTransformTemplate& globalTransformParent, const ezTransformTemplate& localTransformChild); // [tested]
 
   /// \brief Returns the transformation as a matrix.
   const ezMat4Template<Type> GetAsMat4() const; // [tested]

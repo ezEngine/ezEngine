@@ -49,12 +49,6 @@ EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
-{
-  return vmovq_n_f32(0.0f);
-}
-
-// static
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::MakeZero()
 {
   return vmovq_n_f32(0.0f);

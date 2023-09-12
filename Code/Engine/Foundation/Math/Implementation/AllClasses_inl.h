@@ -227,12 +227,6 @@ ezMat3Template<Type> ezMat3Template<Type>::MakeAxisRotation(const ezVec3Template
 }
 
 template <typename Type>
-void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
-{
-  *this = MakeAxisRotation(vAxis, angle);
-}
-
-template <typename Type>
 ezResult ezMat3Template<Type>::Invert(Type fEpsilon)
 {
   const Type fDet = Element(0, 0) * (Element(2, 2) * Element(1, 1) - Element(1, 2) * Element(2, 1)) -
@@ -310,12 +304,6 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeAxisRotation(const ezVec3Template
   res.Element(3, 3) = 1;
 
   return res;
-}
-
-template <typename Type>
-void ezMat4Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
-{
-  *this = MakeAxisRotation(vAxis, angle);
 }
 
 template <typename Type>

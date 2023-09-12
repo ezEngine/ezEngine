@@ -29,18 +29,6 @@ public:
   /// \brief Default Constructor DOES NOT INITIALIZE the matrix, at all.
   ezMat3Template(); // [tested]
 
-  /// \brief Copies 9 values from pData into the matrix. Can handle the data in row-major or column-major order.
-  ///
-  /// \param pData
-  ///   The array of Type values from which to set the matrix data.
-  /// \param layout
-  ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
-  ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
-  [[deprecated("Use ezMat3::MakeFromColumnMajorArray() instead.")]] ezMat3Template(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
-
-  /// \brief Sets each element manually: Naming is "column-n row-m"
-  [[deprecated("Use ezMat3::MakeFromValues() instead.")]] ezMat3Template(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3); // [tested]
-
   /// \brief Returns a zero matrix.
   [[nodiscard]] static ezMat3Template<Type> MakeZero();
 
@@ -79,21 +67,9 @@ public:
   }
 #endif
 
-  /// \brief Copies 9 values from pData into the matrix. Can handle the data in row-major or column-major order.
-  ///
-  /// \param pData
-  ///   The array of Type values from which to set the matrix data.
-  /// \param layout
-  ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
-  ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
-  [[deprecated("Use ezMat3::MakeFromColumnMajorArray() instead.")]] void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
-
   /// \brief Copies the 9 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major
   /// format.
   void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
-
-  /// \brief Sets each element manually: Naming is "column-n row-m"
-  [[deprecated("Use ezMat3::MakeFromValues() instead.")]] void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3); // [tested]
 
   // *** Special matrix constructors ***
 public:
@@ -103,28 +79,8 @@ public:
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
   void SetIdentity(); // [tested]
 
-  /// \brief Sets the matrix to all zero, except the diagonal, which is set to x,y,z,1
-  [[deprecated("Use ezMat3::MakeScaling() instead.")]] void SetScalingMatrix(const ezVec3Template<Type>& vScale); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the X-axis.
-  [[deprecated("Use ezMat3::MakeRotationX() instead.")]] void SetRotationMatrixX(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the Y-axis.
-  [[deprecated("Use ezMat3::MakeRotationY() instead.")]] void SetRotationMatrixY(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the Z-axis.
-  [[deprecated("Use ezMat3::MakeRotationZ() instead.")]] void SetRotationMatrixZ(ezAngle angle); // [tested]
-
-  /// \brief Sets this matrix to be a rotation matrix around the given axis.
-  [[deprecated("Use ezMat3::MakeAxisRotation() instead.")]] void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
-
   // *** Common Matrix Operations ***
 public:
-  /// \brief Returns an Identity Matrix.
-  [[deprecated("Use ezMat3::MakeIdentity() instead.")]] static const ezMat3Template<Type> IdentityMatrix(); // [tested]
-
-  /// \brief Returns a Zero Matrix.
-  [[deprecated("Use ezMat3::MakeZero() instead.")]] static const ezMat3Template<Type> ZeroMatrix(); // [tested]
 
   /// \brief Transposes this matrix.
   void Transpose(); // [tested]

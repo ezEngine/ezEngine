@@ -90,12 +90,6 @@ public:
 
   bool operator!=(const ezRectTemplate<Type>& rhs) const;
 
-  /// \brief Sets the rect to invalid values.
-  ///
-  /// IsValid() will return false afterwards.
-  /// It is possible to make an invalid rect valid using ExpandToInclude().
-  [[deprecated("Use MakeInvalid() instead.")]] void SetInvalid();
-
   /// \brief Checks whether the position and size contain valid values.
   bool IsValid() const;
 
@@ -121,10 +115,6 @@ public:
   /// \brief The given point is clamped to the area of the rect, i.e. it will be either inside the rect or on its edge and it will have the closest
   /// possible distance to the original point.
   [[nodiscard]] const ezVec2Template<Type> GetClampedPoint(const ezVec2Template<Type>& vPoint) const;
-
-  [[deprecated("Use MakeIntersection() instead.")]] void SetIntersection(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
-
-  [[deprecated("Use MakeUnion() instead.")]] void SetUnion(const ezRectTemplate<Type>& r0, const ezRectTemplate<Type>& r1);
 
   /// \brief Moves the rectangle
   void Translate(Type tX, Type tY);

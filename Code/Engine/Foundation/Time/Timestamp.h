@@ -43,9 +43,6 @@ public:
   /// \brief Creates an invalidated timestamp.
   ezTimestamp(); // [tested]
 
-  /// \brief Creates an new timestamp with the given time in the given unit of time since Unix epoch.
-  [[deprecated("Use ezTimestamp::MakeFromInt() instead.")]] ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime); // [tested]
-
   /// \brief Returns an invalid timestamp
   [[nodiscard]] static ezTimestamp MakeInvalid() { return ezTimestamp(); }
 
@@ -54,17 +51,12 @@ public:
 
   // *** Public Functions ***
 public:
-  /// \brief Invalidates the timestamp.
-  [[deprecated("Use ezTimestamp::MakeInvalid() instead.")]] void Invalidate(); // [tested]
 
   /// \brief Returns whether the timestamp is valid.
   bool IsValid() const; // [tested]
 
   /// \brief Returns the number of 'unitOfTime' since Unix epoch.
   ezInt64 GetInt64(ezSIUnitOfTime::Enum unitOfTime) const; // [tested]
-
-  /// \brief Sets the timestamp as 'iTimeValue' in 'unitOfTime' since Unix epoch.
-  [[deprecated("Use ezTimestamp::MakeFromInt() instead.")]] void SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime) { *this = MakeFromInt(iTimeValue, unitOfTime); }
 
   /// \brief Returns whether this timestamp is considered equal to 'rhs' in the given mode.
   ///
@@ -122,9 +114,6 @@ public:
 
   /// \brief Returns a date time that is all zero.
   [[nodiscard]] static ezDateTime MakeZero() { return ezDateTime(); }
-
-  /// \brief Creates a date time instance from the given timestamp.
-  [[deprecated("Use MakeFromTimestamp() instead.")]] ezDateTime(ezTimestamp timestamp); // [tested]
 
   /// \brief Sets this instance to the given timestamp.
   ///
@@ -216,7 +205,6 @@ private:
 };
 
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg);
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezTimestamp& arg);
 
 struct ezArgDateTime
 {
@@ -241,17 +229,6 @@ struct ezArgDateTime
   /// \param bShowTimeZoneIndicator Whether to indicate the timezone of the ezDateTime object.
   inline explicit ezArgDateTime(const ezDateTime& dateTime, ezUInt32 uiFormattingFlags = Default)
     : m_Value(dateTime)
-    , m_uiFormattingFlags(uiFormattingFlags)
-  {
-  }
-
-  /// \brief Initialized a formatting object for an ezTimestamp instance.
-  /// \param timestamp The ezTimestamp instance to format.
-  /// \param bUseNames Indicates whether to use names for days of week and months (true)
-  ///        or a purely numerical representation (false).
-  /// \param bShowTimeZoneIndicator Whether to indicate the timezone of the ezDateTime object.
-  inline explicit ezArgDateTime(const ezTimestamp& timestamp, ezUInt32 uiFormattingFlags = Default)
-    : m_Value(ezDateTime::MakeFromTimestamp(timestamp))
     , m_uiFormattingFlags(uiFormattingFlags)
   {
   }

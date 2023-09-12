@@ -13,7 +13,7 @@ const ezTimestamp ezTimestamp::CurrentTimestamp()
   timeval currentTime;
   gettimeofday(&currentTime, nullptr);
 
-  return ezTimestamp(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
+  return ezTimestamp::MakeFromInt(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
 }
 
 bool operator!=(const tm& lhs, const tm& rhs)
@@ -50,17 +50,17 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   // If it can't round trip it is assumed to be invalid.
   tm timeinfoRoundtrip = {0};
   if (gmtime64_r(&iTimeStamp, &timeinfoRoundtrip) == nullptr)
-    return ezTimestamp();
+    return ezTimestamp::MakeInvalid();
 
   // mktime may have 'patched' our time to be valid, we don't want that to count as a valid date.
   if (timeinfoRoundtrip != timeinfo)
-    return ezTimestamp();
+    return ezTimestamp::MakeInvalid();
 
   iTimeStamp += timeinfo.tm_gmtoff;
   // Subtract one hour if daylight saving time was activated by mktime.
   if (timeinfo.tm_isdst == 1)
     iTimeStamp -= 3600;
-  return ezTimestamp(iTimeStamp, ezSIUnitOfTime::Second);
+  return ezTimestamp::MakeFromInt(iTimeStamp, ezSIUnitOfTime::Second);
 }
 
 ezResult ezDateTime::SetFromTimestamp(ezTimestamp timestamp)

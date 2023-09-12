@@ -113,12 +113,6 @@ bool ezDateTime::IsValid() const
   return true;
 }
 
-ezDateTime::ezDateTime(ezTimestamp timestamp)
-  : ezDateTime()
-{
-  SetFromTimestamp(timestamp).AssertSuccess();
-}
-
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezDateTime& arg)
 {
   ezStringUtils::snprintf(szTmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(), arg.GetDay(), arg.GetHour(),

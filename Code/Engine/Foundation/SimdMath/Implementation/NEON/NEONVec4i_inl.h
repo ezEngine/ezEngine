@@ -307,12 +307,6 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
-{
-  return vmovq_n_s32(0);
-}
-
-// static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse)
 {
   return vbslq_s32(vCmp.m_v, vTrue.m_v, vFalse.m_v);

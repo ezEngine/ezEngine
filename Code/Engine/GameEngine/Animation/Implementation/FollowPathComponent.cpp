@@ -137,7 +137,7 @@ void ezFollowPathComponent::Update(bool bForce)
   ezVec3 vTarget = transformAhead.m_vPosition - transform.m_vPosition;
   if (m_FollowMode == ezFollowPathMode::AlignUpZ)
   {
-    ezPlane plane(ezVec3::MakeAxisZ(), transform.m_vPosition);
+    const ezPlane plane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), transform.m_vPosition);
     vTarget = plane.GetCoplanarDirection(vTarget);
   }
   vTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
@@ -157,14 +157,14 @@ void ezFollowPathComponent::Update(bool bForce)
     {
       ezVec3 vLastTarget = m_vLastTargetPosition - m_vLastPosition;
       {
-        ezPlane plane(ezVec3::MakeAxisZ(), transform.m_vPosition);
+        const ezPlane plane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), transform.m_vPosition);
         vLastTarget = plane.GetCoplanarDirection(vLastTarget);
         vLastTarget.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
       }
 
       const float fTiltStrength = ezMath::Sign((vTarget - vLastTarget).Dot(vRight)) * ezMath::Sign(m_fTiltAmount);
       ezAngle tiltAngle = ezMath::Min(vLastTarget.GetAngleBetween(vTarget) * ezMath::Abs(m_fTiltAmount), m_MaxTilt);
-      deltaAngle = ezMath::Lerp(tiltAngle * fTiltStrength, m_vLastTiltAngle, 0.85f); // this smooths out the tilting from being jittery
+      deltaAngle = ezMath::Lerp(tiltAngle * fTiltStrength, m_LastTiltAngle, 0.85f); // this smooths out the tilting from being jittery
 
       ezQuat rot = ezQuat::MakeFromAxisAndAngle(vTarget, deltaAngle);
       vUp = rot * vUp;
@@ -177,7 +177,7 @@ void ezFollowPathComponent::Update(bool bForce)
     m_vLastPosition = transform.m_vPosition;
     m_vLastUpDir = transform.m_vUpDirection;
     m_vLastTargetPosition = transformAhead.m_vPosition;
-    m_vLastTiltAngle = deltaAngle;
+    m_LastTiltAngle = deltaAngle;
   }
 
   ezMat3 mRot = ezMat3::MakeIdentity();

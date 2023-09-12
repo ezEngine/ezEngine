@@ -79,8 +79,6 @@ public:
   ezSimdVec4b operator>=(const ezSimdVec4u& v) const; // [tested]
   ezSimdVec4b operator>(const ezSimdVec4u& v) const;  // [tested]
 
-  [[deprecated("Use MakeZero() instead.")]] [[nodiscard]] static ezSimdVec4u ZeroVector(); // [tested]
-
 public:
   ezInternal::QuadUInt m_v;
 };

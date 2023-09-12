@@ -364,12 +364,6 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
-{
-  return ezVec4I32::MakeZero();
-}
-
-// static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& cmp, const ezSimdVec4i& ifTrue, const ezSimdVec4i& ifFalse)
 {
   ezSimdVec4i result;
