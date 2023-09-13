@@ -94,11 +94,14 @@ void ezQtConnection::UpdateGeometry()
   else
   {
     p.moveTo(m_OutPoint);
-    float fDotOut = QPointF::dotProduct(m_OutDir, dir);
-    float fDotIn = QPointF::dotProduct(m_InDir, -dir);
+    float fDotOut = ezMath::Abs(QPointF::dotProduct(m_OutDir, dir));
+    float fDotIn = ezMath::Abs(QPointF::dotProduct(m_InDir, -dir));
 
-    fDotOut = ezMath::Max(100.0f, ezMath::Abs(fDotOut));
-    fDotIn = ezMath::Max(100.0f, ezMath::Abs(fDotIn));
+    float fMinDistance = ezMath::Abs(QPointF::dotProduct(m_OutDir.transposed(), dir));
+    fMinDistance = ezMath::Min(200.0f, fMinDistance);
+
+    fDotOut = ezMath::Max(fMinDistance, fDotOut);
+    fDotIn = ezMath::Max(fMinDistance, fDotIn);
 
     QPointF ctr1 = m_OutPoint + m_OutDir * (fDotOut * 0.5f);
     QPointF ctr2 = m_InPoint + m_InDir * (fDotIn * 0.5f);

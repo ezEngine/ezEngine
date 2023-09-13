@@ -258,6 +258,9 @@ ezVisualScriptNodeRegistry::~ezVisualScriptNodeRegistry()
 
 void ezVisualScriptNodeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
 {
+  if (e.m_pChangedType->GetPluginName() == "EditorPluginVisualScript")
+    return;
+
   if ((e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded && m_TypeToNodeDescs.Contains(e.m_pChangedType) == false) ||
       e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
   {
