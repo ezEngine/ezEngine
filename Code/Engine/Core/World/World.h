@@ -363,6 +363,7 @@ private:
   EZ_ALLOW_PRIVATE_PROPERTIES(ezWorld);
 
   ezGameObject* Reflection_TryGetObjectWithGlobalKey(ezTempHashedString sGlobalKey);
+  ezClock* Reflection_GetClock();
 
   void CheckForReadAccess() const;
   void CheckForWriteAccess() const;
