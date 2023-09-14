@@ -187,7 +187,7 @@ void ezAnimationGraphNodeManager::InternalCreatePins(const ezDocumentObject* pOb
 void ezAnimationGraphNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
 {
   ezSet<const ezRTTI*> typeSet;
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezAnimGraphNode>(), typeSet, false);
+  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezAnimGraphNode>(), typeSet);
 
   ref_types.Clear();
   for (auto pType : typeSet)

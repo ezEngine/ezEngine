@@ -858,58 +858,59 @@ const ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTT
   return nullptr;
 }
 
-void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
+void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types)
 {
   ezRTTI::ForEachDerivedType(pBaseRtti,
-    [&](const ezRTTI* pRtti) {
+    [&](const ezRTTI* pRtti)
+    {
       out_types.Insert(pRtti);
-      if (bIncludeDependencies)
-      {
-        GatherDependentTypes(pRtti, out_types);
-      }
     });
 }
 
-void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_types)
+void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_typesAsSet, ezDynamicArray<const ezRTTI*>* out_pTypesAsStack /*= nullptr*/)
 {
-  const ezRTTI* pParentRtti = pRtti->GetParentType();
-  if (pParentRtti != nullptr)
+  auto AddType = [&](const ezRTTI* pNewRtti)
   {
-    inout_types.Insert(pParentRtti);
-    GatherDependentTypes(pParentRtti, inout_types);
+    if (pNewRtti != pRtti && pNewRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType) == false && inout_typesAsSet.Contains(pNewRtti) == false)
+    {
+      inout_typesAsSet.Insert(pNewRtti);
+      if (out_pTypesAsStack != nullptr)
+      {
+        out_pTypesAsStack->PushBack(pNewRtti);
+      }
+
+      GatherDependentTypes(pNewRtti, inout_typesAsSet, out_pTypesAsStack);
+    }
+  };
+
+  if (const ezRTTI* pParentRtti = pRtti->GetParentType())
+  {
+    AddType(pParentRtti);
   }
 
-  auto rttiProps = pRtti->GetProperties();
-  const ezUInt32 uiCount = rttiProps.GetCount();
-
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  for (const ezAbstractProperty* prop : pRtti->GetProperties())
   {
-    const ezAbstractProperty* prop = rttiProps[i];
-    if (prop->GetFlags().IsSet(ezPropertyFlags::StandardType))
+    if (prop->GetCategory() == ezPropertyCategory::Constant)
       continue;
+
     if (prop->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
       continue;
-    switch (prop->GetCategory())
+
+    AddType(prop->GetSpecificType());
+  }
+
+  for (const ezAbstractFunctionProperty* func : pRtti->GetFunctions())
+  {
+    ezUInt32 uiNumArgs = func->GetArgumentCount();
+    for (ezUInt32 i = 0; i < uiNumArgs; ++i)
     {
-      case ezPropertyCategory::Member:
-      case ezPropertyCategory::Array:
-      case ezPropertyCategory::Set:
-      case ezPropertyCategory::Map:
-      {
-        const ezRTTI* pPropRtti = prop->GetSpecificType();
-
-        if (inout_types.Contains(pPropRtti))
-          continue;
-
-        inout_types.Insert(pPropRtti);
-        GatherDependentTypes(pPropRtti, inout_types);
-      }
-      break;
-      case ezPropertyCategory::Function:
-      case ezPropertyCategory::Constant:
-      default:
-        break;
+      AddType(func->GetArgumentType(i));
     }
+  }
+
+  for (const ezPropertyAttribute* attr : pRtti->GetAttributes())
+  {
+    AddType(attr->GetDynamicRTTI());
   }
 }
 
@@ -918,39 +919,33 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
   out_sortedTypes.Clear();
   out_sortedTypes.Reserve(types.GetCount());
 
-  ezMap<const ezRTTI*, ezSet<const ezRTTI*>> dependencies;
-
   ezSet<const ezRTTI*> accu;
+  ezDynamicArray<const ezRTTI*> tmpStack;
 
   for (const ezRTTI* pType : types)
   {
-    auto it = dependencies.Insert(pType, ezSet<const ezRTTI*>());
-    GatherDependentTypes(pType, it.Value());
-  }
+    if (accu.Contains(pType))
+      continue;
 
+    GatherDependentTypes(pType, accu, &tmpStack);
 
-  while (!dependencies.IsEmpty())
-  {
-    bool bDeadEnd = true;
-    for (auto it = dependencies.GetIterator(); it.IsValid(); ++it)
+    while (tmpStack.IsEmpty() == false)
     {
-      // Are the types dependencies met?
-      if (accu.ContainsSet(it.Value()))
-      {
-        out_sortedTypes.PushBack(it.Key());
-        accu.Insert(it.Key());
-        dependencies.Remove(it);
-        bDeadEnd = false;
-        break;
-      }
+      const ezRTTI* pDependentType = tmpStack.PeekBack();
+      EZ_ASSERT_DEBUG(pDependentType != pType, "A type must not be reported as dependency of itself");
+      tmpStack.PopBack();
+
+      if (types.Contains(pDependentType) == false)
+        return false;
+
+      out_sortedTypes.PushBack(pDependentType);
     }
 
-    if (bDeadEnd)
-    {
-      return false;
-    }
+    accu.Insert(pType);
+    out_sortedTypes.PushBack(pType);
   }
 
+  EZ_ASSERT_DEV(types.GetCount() == out_sortedTypes.GetCount(), "Not all types have been sorted or the sorted list contains duplicates");
   return true;
 }
 
