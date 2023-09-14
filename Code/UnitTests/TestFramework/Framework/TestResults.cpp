@@ -38,6 +38,7 @@ void ezTestResultData::Reset()
   m_fTestDuration = 0.0;
   m_iFirstOutput = -1;
   m_iLastOutput = -1;
+  m_sCustomStatus.clear();
 }
 
 void ezTestResultData::AddOutput(ezInt32 iOutputIndex)
@@ -199,7 +200,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
         ezUInt32 uiTests = GetTestCount();
         for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTests; ++uiTestIdx)
         {
-          const ezTestResultData& testResult = GetTestResultData(uiTestIdx, -1);
+          const ezTestResultData& testResult = GetTestResultData(uiTestIdx, ezInvalidIndex);
           js.BeginObject();
           {
             js.AddVariableString("m_sName", testResult.m_sName.c_str());
@@ -310,29 +311,31 @@ ezUInt32 ezTestFrameworkResult::GetSubTestCount(ezUInt32 uiTestIndex, ezTestResu
   return uiAccumulator;
 }
 
-ezInt32 ezTestFrameworkResult::GetTestIndexByName(const char* szTestName) const
+ezUInt32 ezTestFrameworkResult::GetTestIndexByName(const char* szTestName) const
 {
-  ezInt32 iTestCount = (ezInt32)GetTestCount();
-  for (ezInt32 i = 0; i < iTestCount; ++i)
+  const ezUInt32 uiTestCount = GetTestCount();
+  for (ezUInt32 i = 0; i < uiTestCount; ++i)
   {
     if (m_Tests[i].m_Result.m_sName.compare(szTestName) == 0)
       return i;
   }
-  return -1;
+
+  return ezInvalidIndex;
 }
 
-ezInt32 ezTestFrameworkResult::GetSubTestIndexByName(ezUInt32 uiTestIndex, const char* szSubTestName) const
+ezUInt32 ezTestFrameworkResult::GetSubTestIndexByName(ezUInt32 uiTestIndex, const char* szSubTestName) const
 {
   if (uiTestIndex >= GetTestCount())
-    return -1;
+    return ezInvalidIndex;
 
-  ezInt32 iSubTestCount = (ezInt32)GetSubTestCount(uiTestIndex);
-  for (ezInt32 i = 0; i < iSubTestCount; ++i)
+  const ezUInt32 uiSubTestCount = GetSubTestCount(uiTestIndex);
+  for (ezUInt32 i = 0; i < uiSubTestCount; ++i)
   {
     if (m_Tests[uiTestIndex].m_SubTests[i].m_Result.m_sName.compare(szSubTestName) == 0)
       return i;
   }
-  return -1;
+
+  return ezInvalidIndex;
 }
 
 double ezTestFrameworkResult::GetTotalTestDuration() const
@@ -346,19 +349,19 @@ double ezTestFrameworkResult::GetTotalTestDuration() const
   return fTotalTestDuration;
 }
 
-const ezTestResultData& ezTestFrameworkResult::GetTestResultData(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex) const
+const ezTestResultData& ezTestFrameworkResult::GetTestResultData(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex) const
 {
-  return (iSubTestIndex == -1) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result;
+  return (uiSubTestIndex == ezInvalidIndex) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[uiSubTestIndex].m_Result;
 }
 
-void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum type, const char* szMsg)
+void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, ezTestOutput::Enum type, const char* szMsg)
 {
-  if (uiTestIndex != -1)
+  if (uiTestIndex != ezInvalidIndex)
   {
-    m_Tests[uiTestIndex].m_Result.AddOutput((ezInt32)m_TestOutput.size());
-    if (iSubTestIndex != -1)
+    m_Tests[uiTestIndex].m_Result.AddOutput((ezUInt32)m_TestOutput.size());
+    if (uiSubTestIndex != ezInvalidIndex)
     {
-      m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result.AddOutput((ezInt32)m_TestOutput.size());
+      m_Tests[uiTestIndex].m_SubTests[uiSubTestIndex].m_Result.AddOutput((ezUInt32)m_TestOutput.size());
     }
   }
 
@@ -368,11 +371,11 @@ void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestInd
   outputMessage.m_sMessage.assign(szMsg);
 }
 
-void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, const char* szError, const char* szBlock, const char* szFile,
+void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, const char* szError, const char* szBlock, const char* szFile,
   ezInt32 iLine, const char* szFunction, const char* szMsg)
 {
   // In case there is no message set, we use the error as the message.
-  TestOutput(uiTestIndex, iSubTestIndex, ezTestOutput::Error, szError);
+  TestOutput(uiTestIndex, uiSubTestIndex, ezTestOutput::Error, szError);
   m_TestOutput.rbegin()->m_iErrorIndex = (ezInt32)m_Errors.size();
 
   m_Errors.push_back(ezTestErrorMessage());
@@ -385,9 +388,9 @@ void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestInde
   errorMessage.m_sMessage.assign(szMsg);
 }
 
-void ezTestFrameworkResult::TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
+void ezTestFrameworkResult::TestResult(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, bool bSuccess, double fDuration)
 {
-  ezTestResultData& Result = (iSubTestIndex == -1) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result;
+  ezTestResultData& Result = (uiSubTestIndex == ezInvalidIndex) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[uiSubTestIndex].m_Result;
 
   Result.m_bExecuted = true;
   Result.m_bSuccess = bSuccess;
@@ -396,36 +399,44 @@ void ezTestFrameworkResult::TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestInd
   // Accumulate sub-test duration onto test duration to get duration feedback while the sub-tests are running.
   // Final time will be set again once the entire test finishes and currently these times are identical as
   // init and de-init times aren't measured at the moment due to missing timer when engine is shut down.
-  if (iSubTestIndex != -1)
+  if (uiSubTestIndex != ezInvalidIndex)
   {
     m_Tests[uiTestIndex].m_Result.m_fTestDuration += fDuration;
   }
 }
 
-void ezTestFrameworkResult::AddAsserts(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, int iCount)
+void ezTestFrameworkResult::AddAsserts(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, int iCount)
 {
-  if (uiTestIndex != -1)
+  if (uiTestIndex != ezInvalidIndex)
   {
     m_Tests[uiTestIndex].m_Result.m_iTestAsserts += iCount;
   }
 
-  if (iSubTestIndex != -1)
+  if (uiSubTestIndex != ezInvalidIndex)
   {
-    m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result.m_iTestAsserts += iCount;
+    m_Tests[uiTestIndex].m_SubTests[uiSubTestIndex].m_Result.m_iTestAsserts += iCount;
   }
 }
 
-ezUInt32 ezTestFrameworkResult::GetOutputMessageCount(ezInt32 iTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum type) const
+void ezTestFrameworkResult::SetCustomStatus(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, const char* szCustomStatus)
 {
-  if (iTestIndex == -1 && type == ezTestOutput::AllOutputTypes)
+  if (uiTestIndex != ezInvalidIndex && uiSubTestIndex != ezInvalidIndex)
+  {
+    m_Tests[uiTestIndex].m_SubTests[uiSubTestIndex].m_Result.m_sCustomStatus = szCustomStatus;
+  }
+}
+
+ezUInt32 ezTestFrameworkResult::GetOutputMessageCount(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, ezTestOutput::Enum type) const
+{
+  if (uiTestIndex == ezInvalidIndex && type == ezTestOutput::AllOutputTypes)
     return (ezUInt32)m_TestOutput.size();
 
   ezInt32 iStartIdx = 0;
   ezInt32 iEndIdx = (ezInt32)m_TestOutput.size() - 1;
 
-  if (iTestIndex != -1)
+  if (uiTestIndex != ezInvalidIndex)
   {
-    const ezTestResultData& result = GetTestResultData(iTestIndex, iSubTestIndex);
+    const ezTestResultData& result = GetTestResultData(uiTestIndex, uiSubTestIndex);
     iStartIdx = result.m_iFirstOutput;
     iEndIdx = result.m_iLastOutput;
 
@@ -452,15 +463,15 @@ const ezTestOutputMessage* ezTestFrameworkResult::GetOutputMessage(ezUInt32 uiOu
   return &m_TestOutput[uiOutputMessageIdx];
 }
 
-ezUInt32 ezTestFrameworkResult::GetErrorMessageCount(ezInt32 iTestIndex, ezInt32 iSubTestIndex) const
+ezUInt32 ezTestFrameworkResult::GetErrorMessageCount(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex) const
 {
   // If no test is given we can simply return the total error count.
-  if (iTestIndex == -1)
+  if (uiTestIndex == ezInvalidIndex)
   {
     return (ezUInt32)m_Errors.size();
   }
 
-  return GetOutputMessageCount(iTestIndex, iSubTestIndex, ezTestOutput::Error);
+  return GetOutputMessageCount(uiTestIndex, uiSubTestIndex, ezTestOutput::Error);
 }
 
 const ezTestErrorMessage* ezTestFrameworkResult::GetErrorMessage(ezUInt32 uiErrorMessageIdx) const

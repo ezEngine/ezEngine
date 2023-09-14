@@ -68,18 +68,34 @@ void ezJSONParser::StartParsing()
 
       if (!m_bSkippingMode)
         OnBeginObject();
-    }
+
       return;
+    }
+
+    case '[':
+    {
+      JSONState s;
+      s.m_State = ReadingArray;
+      m_StateStack.PushBack(s);
+
+      SkipWhitespace();
+
+      if (!m_bSkippingMode)
+        OnBeginArray();
+
+      return;
+    }
 
     default:
     {
       // document is malformed
 
       ezStringBuilder s;
-      s.Format("Start of document: Expected a { or an empty document. Got '{0}' instead.", ezArgC(m_uiCurByte));
+      s.Format("Start of document: Expected a { or [ or an empty document. Got '{0}' instead.", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
-    }
+
       return;
+    }
   }
 }
 

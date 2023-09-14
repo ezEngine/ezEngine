@@ -73,8 +73,15 @@ public:
   void SetTestEnabled(ezUInt32 uiTestIndex, bool bEnabled);
   void SetSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, bool bEnabled);
 
-  ezInt32 GetCurrentTestIndex() const { return m_iCurrentTestIndex; }
-  ezInt32 GetCurrentSubTestIndex() const { return m_iCurrentSubTestIndex; }
+  ezUInt32 GetCurrentTestIndex() const { return m_uiCurrentTestIndex; }
+  ezUInt32 GetCurrentSubTestIndex() const { return m_uiCurrentSubTestIndex; }
+  ezInt32 GetCurrentSubTestIdentifier() const;
+
+  /// \brief Returns the index of the sub-test with the given identifier.
+  ///
+  /// Only looks at the currently running test, assuming that the identifier is unique among its sub-tests.
+  ezUInt32 FindSubTestIndexForSubTestIdentifier(ezInt32 iSubTestIdentifier) const;
+
   ezTestEntry* GetTest(ezUInt32 uiTestIndex);
   const ezTestEntry* GetTest(ezUInt32 uiTestIndex) const;
   bool GetTestsRunning() const { return m_bTestsRunning; }
@@ -131,7 +138,8 @@ protected:
   /// \brief Receives ezLog messages (via LogWriter) as well as test-framework internal logging. Any ezTestOutput::Error will
   /// cause the test to fail.
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
-  virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
+  virtual void TestResultImpl(ezUInt32 uiSubTestIndex, bool bSuccess, double fDuration);
+  virtual void SetSubTestStatusImpl(ezUInt32 uiSubTestIndex, const char* szStatus);
   void FlushAsserts();
   void TimeoutThread();
   void UpdateTestTimeout();
@@ -147,14 +155,15 @@ public:
 public:
   static EZ_ALWAYS_INLINE ezTestFramework* GetInstance() { return s_pInstance; }
 
-  /// \brief Returns whether to asset on test failure.
+  /// \brief Returns whether to assert on test failure.
   static bool GetAssertOnTestFail();
 
   static void Output(ezTestOutput::Enum type, const char* szMsg, ...);
   static void OutputArgs(ezTestOutput::Enum type, const char* szMsg, va_list szArgs);
   static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, ...);
   static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, ezStringView sMsg, va_list szArgs);
-  static void TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
+  static void TestResult(ezUInt32 uiSubTestIndex, bool bSuccess, double fDuration);
+  static void SetSubTestStatus(ezUInt32 uiSubTestIndex, const char* szStatus);
 
   // static members
 private:
@@ -185,8 +194,8 @@ private:
   std::condition_variable m_TimeoutCV;
   std::thread m_TimeoutThread;
 
-  ezInt32 m_iExecutingTest = 0;
-  ezInt32 m_iExecutingSubTest = 0;
+  ezUInt32 m_uiExecutingTest = 0;
+  ezUInt32 m_uiExecutingSubTest = 0;
   bool m_bSubTestInitialized = false;
   bool m_bAbortTests = false;
   ezUInt8 m_uiPassesLeft = 0;
@@ -210,8 +219,8 @@ private:
   std::string m_sImageReferenceOverrideFolderName;
 
 protected:
-  ezInt32 m_iCurrentTestIndex = -1;
-  ezInt32 m_iCurrentSubTestIndex = -1;
+  ezUInt32 m_uiCurrentTestIndex = ezInvalidIndex;
+  ezUInt32 m_uiCurrentSubTestIndex = ezInvalidIndex;
   bool m_bTestsRunning = false;
 };
 
