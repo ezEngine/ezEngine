@@ -163,8 +163,7 @@ retry:
     newCfg.m_sName = name.toUtf8().data();
   }
 
-  m_Config.m_PathSearchConfigs.Sort([](const auto& lhs, const auto& rhs) -> bool
-    { return lhs.m_sName < rhs.m_sName; });
+  m_Config.m_PathSearchConfigs.Sort([](const auto& lhs, const auto& rhs) -> bool { return lhs.m_sName < rhs.m_sName; });
 
   FillPathSearchTypeComboBox();
   SelectedPathCfg->setCurrentText(name);
@@ -308,8 +307,7 @@ retry:
     newCfg.m_sName = name.toUtf8().data();
   }
 
-  m_Config.m_NavmeshConfigs.Sort([](const auto& lhs, const auto& rhs) -> bool
-    { return lhs.m_sName < rhs.m_sName; });
+  m_Config.m_NavmeshConfigs.Sort([](const auto& lhs, const auto& rhs) -> bool { return lhs.m_sName < rhs.m_sName; });
 
   FillNavmeshTypeComboBox();
   SelectedMeshCfg->setCurrentText(name);
