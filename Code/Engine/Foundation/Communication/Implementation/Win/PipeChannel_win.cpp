@@ -159,7 +159,7 @@ void ezPipeChannel_win::InternalDisconnect()
 
 void ezPipeChannel_win::InternalSend()
 {
-  if (!m_OutputState.IsPending && m_bConnected)
+  if (!m_OutputState.IsPending && IsConnected())
   {
     ProcessOutgoingMessages(0);
   }
@@ -250,7 +250,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
 
 bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
 {
-  EZ_ASSERT_DEBUG(m_bConnected, "Must be connected to process outgoing messages.");
+  EZ_ASSERT_DEBUG(IsConnected(), "Must be connected to process outgoing messages.");
   EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
 
   if (m_OutputState.IsPending)

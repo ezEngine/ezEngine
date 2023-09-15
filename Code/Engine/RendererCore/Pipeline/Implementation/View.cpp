@@ -216,7 +216,7 @@ void ezView::ResetRenderPassProperties()
     if (prop.m_bIsValid)
     {
       prop.m_CurrentValue = prop.m_DefaultValue;
-      prop.m_bIsDirty;
+      prop.m_bIsDirty = true;
     }
   }
 }
@@ -229,7 +229,7 @@ void ezView::ResetExtractorProperties()
     if (prop.m_bIsValid)
     {
       prop.m_CurrentValue = prop.m_DefaultValue;
-      prop.m_bIsDirty;
+      prop.m_bIsDirty = true;
     }
   }
 }
