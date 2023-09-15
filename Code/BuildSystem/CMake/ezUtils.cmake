@@ -666,7 +666,8 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	message(STATUS "Extracting '${FULL_FILENAME}'...")
 
 	if(${PKG_TYPE} MATCHES "7z")
-		execute_process(COMMAND "${EZ_CONFIG_PATH_7ZA}"
+		set(FULL_7ZA_PATH "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/${EZ_CONFIG_PATH_7ZA}")
+		execute_process(COMMAND "${FULL_7ZA_PATH}"
 			x "${PKG_FILE}"
 			-aoa
 			WORKING_DIRECTORY "${DEST_FOLDER}"
