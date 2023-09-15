@@ -912,7 +912,7 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
   }
 }
 
-bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes)
+ezResult ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes)
 {
   out_sortedTypes.Clear();
   out_sortedTypes.Reserve(types.GetCount());
@@ -934,7 +934,7 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
       tmpStack.PopBack();
 
       if (types.Contains(pDependentType) == false)
-        return false;
+        return EZ_FAILURE;
 
       out_sortedTypes.PushBack(pDependentType);
     }
@@ -944,7 +944,7 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
   }
 
   EZ_ASSERT_DEV(types.GetCount() == out_sortedTypes.GetCount(), "Not all types have been sorted or the sorted list contains duplicates");
-  return true;
+  return EZ_SUCCESS;
 }
 
 bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode)

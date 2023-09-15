@@ -214,7 +214,7 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
     });
 
   ezDynamicArray<const ezRTTI*> sortedTypes;
-  EZ_VERIFY(ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes), "Sorting types failed");
+  ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes).AssertSuccess("Sorting failed");
 
   for (auto type : sortedTypes)
   {
