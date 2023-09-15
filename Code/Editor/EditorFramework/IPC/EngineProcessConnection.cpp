@@ -431,11 +431,11 @@ void ezEditorEngineProcessConnection::Update()
 
 bool ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wtautological-undefined-compare"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-undefined-compare"
   EZ_ASSERT_DEV(this != nullptr, "No connection between editor and engine was created. This typically happens when an asset document does "
                                  "not enable the engine-connection through the constructor of ezAssetDocument."); // NOLINT
-  #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
