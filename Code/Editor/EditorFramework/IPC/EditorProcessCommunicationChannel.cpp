@@ -36,6 +36,19 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(
   m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
   m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
   m_pChannel->Connect();
+  for (ezUInt32 i = 0; i < 100; i++)
+  {
+    if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
+      break;
+
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+  }
+  if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
+  {
+    ezLog::Error("Failed to start IPC server");
+    CloseConnection();
+    return EZ_FAILURE;
+  }
 
   ezStringBuilder sPath = szProcess;
 

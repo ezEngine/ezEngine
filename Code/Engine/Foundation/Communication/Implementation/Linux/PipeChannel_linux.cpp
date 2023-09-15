@@ -28,9 +28,6 @@ ezPipeChannel_linux::ezPipeChannel_linux(ezStringView sAddress, Mode::Enum Mode)
   pipePath.Append(".client");
   m_clientSocketPath = pipePath;
 
-
-  
-
   m_pOwner->AddChannel(this);
 }
 
@@ -65,16 +62,14 @@ ezPipeChannel_linux::~ezPipeChannel_linux()
 
 void ezPipeChannel_linux::InternalConnect()
 {
-  if (m_bConnected || m_Connecting)
-  {
+  if (GetConnectionState() != ConnectionState::Disconnected)
     return;
-  }
 
   int& targetSocket = (m_Mode == Mode::Server) ? m_serverSocketFd : m_clientSocketFd;
 
   if (targetSocket < 0)
   {
-      const char* thisSocketPath = (m_Mode == Mode::Server) ? m_serverSocketPath.GetData() : m_clientSocketPath.GetData();
+    const char* thisSocketPath = (m_Mode == Mode::Server) ? m_serverSocketPath.GetData() : m_clientSocketPath.GetData();
 
     targetSocket = socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
     if (targetSocket == -1)
@@ -113,8 +108,8 @@ void ezPipeChannel_linux::InternalConnect()
     {
       return;
     }
-    m_Connecting = true;
     listen(m_serverSocketFd, 1);
+    SetConnectionState(ConnectionState::Connecting);
     static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::Accept, m_serverSocketFd);
   }
   else
@@ -123,7 +118,7 @@ void ezPipeChannel_linux::InternalConnect()
     {
       return;
     }
-    m_Connecting = true;
+    SetConnectionState(ConnectionState::Connecting);
     struct sockaddr_un serverAddress = {};
     serverAddress.sun_family = AF_UNIX;
     strcpy(serverAddress.sun_path, m_serverSocketPath.GetData());
@@ -136,10 +131,8 @@ void ezPipeChannel_linux::InternalConnect()
 
 void ezPipeChannel_linux::InternalDisconnect()
 {
-  if (!m_bConnected && !m_Connecting)
-  {
+  if (GetConnectionState() == ConnectionState::Disconnected)
     return;
-  }
 
   static_cast<ezMessageLoop_linux*>(m_pOwner)->RemovePendingWaits(this);
 
@@ -151,10 +144,7 @@ void ezPipeChannel_linux::InternalDisconnect()
     m_OutputQueue.Clear();
   }
 
-  m_bConnected = false;
-  m_Connecting = false;
-
-  m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Disconnected, this));
+  SetConnectionState(ConnectionState::Disconnected);
 
   m_IncomingMessages.RaiseSignal(); // Wakeup anyone still waiting for messages
 }
@@ -228,9 +218,7 @@ void ezPipeChannel_linux::AcceptIncomingConnection()
   }
   else
   {
-    m_bConnected = true;
-    m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Connected, this));
-
+    SetConnectionState(ConnectionState::Connected);
     // We are connected. Register for incoming messages events.
     static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::IncomingMessage, m_clientSocketFd);
   }
@@ -243,9 +231,7 @@ bool ezPipeChannel_linux::NeedWakeup() const
 
 void ezPipeChannel_linux::ProcessConnectSuccessfull()
 {
-  m_Connecting = false;
-  m_bConnected = true;
-  m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::Connected, this));
+  SetConnectionState(ConnectionState::Connected);
 
   // We are connected. Register for incoming messages events.
   static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::IncomingMessage, m_clientSocketFd);

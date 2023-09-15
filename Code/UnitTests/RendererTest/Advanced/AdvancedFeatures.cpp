@@ -116,7 +116,10 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
     m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
     m_pChannel->Connect();
-
+    while (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
+    {
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+    }
     m_SharedTextureDesc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
     m_SharedTextureDesc.m_Type = ezGALTextureType::Texture2DShared;
 

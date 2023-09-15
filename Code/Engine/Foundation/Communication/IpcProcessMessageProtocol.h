@@ -8,6 +8,12 @@
 class ezIpcChannel;
 class ezMessageLoop;
 
+
+/// \brief A protocol around ezIpcChannel to send reflected messages instead of byte array messages between client and server.
+///
+/// This wrapper class hooks into an existing ezIpcChannel. The ezIpcChannel is still responsible for all connection logic. This class merely provides a high-level messaging protocol via reflected messages derived from ezProcessMessage.
+/// Note that if this class is used, ezIpcChannel::Send must not be called manually anymore, only use ezIpcProcessMessageProtocol::Send.
+/// Received messages are stored in a queue and must be flushed via calling ProcessMessages or WaitForMessages.
 class EZ_FOUNDATION_DLL ezIpcProcessMessageProtocol
 {
 public:

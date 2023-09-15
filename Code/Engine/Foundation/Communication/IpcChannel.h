@@ -5,6 +5,8 @@
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Types/UniquePtr.h>
 
+#include <atomic>
+
 class ezIpcChannel;
 class ezMessageLoop;
 
@@ -13,9 +15,10 @@ struct EZ_FOUNDATION_DLL ezIpcChannelEvent
 {
   enum Type
   {
-    Connected,
-    Disconnected,
-    NewMessages, ///< Sent when a new message has been received.
+    Disconnected, ///< Server or client are in a dorment state.
+    Connecting,   ///< The server is listening for clients or the client is trying to find the server.
+    Connected,    ///< Client and server are connected to each other.
+    NewMessages,  ///< Sent when a new messages have been received or when disconnected to wake up any thread waiting for messages.
   };
 
   ezIpcChannelEvent() = default;
@@ -34,18 +37,37 @@ struct EZ_FOUNDATION_DLL ezIpcChannelEvent
 
 /// \brief Base class for a communication channel between processes.
 ///
+///  The channel allows for byte blobs to be send back and forth between two processes.
+///  A client should only try to connect to a server once the server has changed to ConnectionState::Connecting as this indicates the server is ready to be conneccted to.
+///
 ///  Use ezIpcChannel:::CreatePipeChannel to create an IPC pipe instance.
+///  To send more complex messages accross, you can create a ezIpcProcessMessageProtocol on top of the channel.
 class EZ_FOUNDATION_DLL ezIpcChannel
 {
 public:
   struct Mode
   {
+    using StorageType = ezUInt8;
     enum Enum
     {
       Server,
-      Client
+      Client,
+      Default = Server
     };
   };
+
+  struct ConnectionState
+  {
+    using StorageType = ezUInt8;
+    enum Enum
+    {
+      Disconnected,
+      Connecting, ///< In case of the server, this state indicates that the server is ready to be connected to.
+      Connected,
+      Default = Disconnected
+    };
+  };
+
   virtual ~ezIpcChannel();
 
   /// \brief Creates an IPC communication channel using pipes.
@@ -61,8 +83,9 @@ public:
   /// \brief Disconnect async. On completion, m_Events will be broadcasted.
   void Disconnect();
   /// \brief Returns whether we have a connection.
-  bool IsConnected() const { return m_bConnected; }
-
+  bool IsConnected() const { return m_ConnectionState == ConnectionState::Connected; }
+  /// \brief Returns the current state of the connection.
+  ezEnum<ConnectionState> GetConnectionState() const { return ezEnum<ConnectionState>(m_ConnectionState); }
 
   /// \brief Sends a message. pMsg can be destroyed after the call.
   bool Send(ezArrayPtr<const ezUInt8> data);
@@ -93,6 +116,7 @@ protected:
   /// \brief Called by Send to determine whether the message loop need to be woken up.
   virtual bool NeedWakeup() const = 0;
 
+  void SetConnectionState(ezEnum<ConnectionState> state);
   /// \brief Implementation needs to call this when new data has been received.
   ///  data can be invalidated after the function.
   void ReceiveData(ezArrayPtr<const ezUInt8> data);
@@ -109,11 +133,12 @@ protected:
 
   friend class ezMessageLoop;
   ezThreadID m_ThreadId = 0;
-  ezAtomicBool m_bConnected = false;
+
+  std::atomic<ConnectionState::Enum> m_ConnectionState = ConnectionState::Disconnected;
 
   // Setup in ctor
   ezString m_sAddress;
-  const Mode::Enum m_Mode;
+  const ezEnum<Mode> m_Mode;
   ezMessageLoop* m_pOwner = nullptr;
 
   // Mutex locked

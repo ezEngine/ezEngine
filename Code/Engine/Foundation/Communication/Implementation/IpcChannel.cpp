@@ -12,6 +12,10 @@
 #  include <Foundation/Communication/Implementation/Linux/PipeChannel_linux.h>
 #endif
 
+EZ_CHECK_AT_COMPILETIME(ezIpcChannel::ConnectionState::Disconnected == ezIpcChannelEvent::Disconnected);
+EZ_CHECK_AT_COMPILETIME(ezIpcChannel::ConnectionState::Connecting == ezIpcChannelEvent::Connecting);
+EZ_CHECK_AT_COMPILETIME(ezIpcChannel::ConnectionState::Connected == ezIpcChannelEvent::Connected);
+
 ezIpcChannel::ezIpcChannel(ezStringView sAddress, Mode::Enum mode)
   : m_sAddress(sAddress)
   , m_Mode(mode)
@@ -84,7 +88,7 @@ bool ezIpcChannel::Send(ezArrayPtr<const ezUInt8> data)
     EZ_ASSERT_DEBUG(storage.GetStorageSize32() == HEADER_SIZE, "Magic value and size should have written HEADER_SIZE bytes.");
     writer.WriteBytes(data.GetPtr(), data.GetCount()).AssertSuccess("Failed to write to in-memory buffer, out of memory?");
   }
-  if (m_bConnected)
+  if (IsConnected())
   {
     if (NeedWakeup())
     {
@@ -106,7 +110,7 @@ void ezIpcChannel::SetReceiveCallback(ReceiveCallback callback)
 
 ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
 {
-  if (m_bConnected)
+  if (IsConnected())
   {
     if (timeout == ezTime::MakeZero())
     {
@@ -118,6 +122,16 @@ ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
     }
   }
   return EZ_SUCCESS;
+}
+
+void ezIpcChannel::SetConnectionState(ezEnum<ezIpcChannel::ConnectionState> state)
+{
+  const ezEnum<ezIpcChannel::ConnectionState> oldValue = m_ConnectionState.exchange(state);
+
+  if (state != oldValue)
+  {
+    m_Events.Broadcast(ezIpcChannelEvent((ezIpcChannelEvent::Type)state.GetValue(), this));
+  }
 }
 
 void ezIpcChannel::ReceiveData(ezArrayPtr<const ezUInt8> data)

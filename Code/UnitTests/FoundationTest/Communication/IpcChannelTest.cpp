@@ -86,30 +86,46 @@ private:
 
 void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcChannel* pClient, ChannelTester* pClientTester)
 {
-  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool {
+  auto MessageMatches = [](const ezStringView& sReference, const ezDataBuffer& msg) -> bool
+  {
     ezStringView sTemp(reinterpret_cast<const char*>(msg.GetData()), msg.GetCount());
     return sTemp == sReference;
   };
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Connect")
   {
+    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
+    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
     {
       auto res = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
       EZ_TEST_BOOL(!res.has_value());
       auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
       EZ_TEST_BOOL(!res2.has_value());
     }
-    pServer->Connect();
-
-    auto res3 = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
-    EZ_TEST_BOOL(!res3.has_value());
-
-    pClient->Connect();
-
+    {
+      pServer->Connect();
+      auto res = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
+      EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
+      EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting);
+    }
+    {
+      pClient->Connect();
+      auto res = pClientTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
+      EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
+    }
     auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(100));
     EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connected);
     auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(100));
     EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Connected);
+
+    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connected);
+    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Connected);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Connect When Already Connected")
+  {
+    pServer->Connect();
+    pClient->Connect();
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClientSend")
@@ -140,7 +156,7 @@ void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcCh
     EZ_TEST_BOOL(res3.has_value() && MessageMatches(sMsg, res3.value()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Disconnect")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClientDisconnect")
   {
     pClient->Disconnect();
     pClient->Disconnect();
@@ -149,17 +165,32 @@ void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcCh
     EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Disconnected);
     auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
     EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Disconnected);
+
+    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
+    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reconnect")
   {
-    pServer->Connect();
-    pClient->Connect();
+    {
+      pServer->Connect();
+      auto res = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
+      EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
+      EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting);
+    }
+    {
+      pClient->Connect();
+      auto res = pClientTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
+      EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
+    }
 
     auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(1));
     EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connected);
     auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
     EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Connected);
+
+    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connected);
+    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Connected);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClientSend after reconnect")
@@ -177,14 +208,18 @@ void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcCh
     EZ_TEST_BOOL(res3.has_value() && MessageMatches(sMsg, res3.value()));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Disconnect")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ServerDisconnect")
   {
-    pClient->Disconnect();
+    pServer->Disconnect();
+    pServer->Disconnect();
 
     auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(1));
     EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Disconnected);
     auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
     EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Disconnected);
+
+    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
+    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected);
   }
 }
 
