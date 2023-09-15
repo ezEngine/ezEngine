@@ -19,6 +19,25 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezClock, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
+    EZ_ACCESSOR_PROPERTY("Speed", GetSpeed, SetSpeed),
+  }
+  EZ_END_PROPERTIES;
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalClock),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetAccumulatedTime),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTimeDiff)
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
 ezClock::ezClock(ezStringView sName)

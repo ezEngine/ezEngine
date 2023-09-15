@@ -262,6 +262,7 @@ void ezReflectedFunctionDescriptor::operator=(const ezReflectedFunctionDescripto
 {
   m_sName = rhs.m_sName;
   m_Flags = rhs.m_Flags;
+  m_Type = rhs.m_Type;
   m_ReturnValue = rhs.m_ReturnValue;
   m_Arguments = rhs.m_Arguments;
   ezAttributeHolder::operator=(rhs);

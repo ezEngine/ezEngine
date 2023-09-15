@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>

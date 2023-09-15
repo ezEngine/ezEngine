@@ -523,7 +523,8 @@ namespace
                   std::is_same_v<T, ezVec3> ||
                   std::is_same_v<T, ezTime> ||
                   std::is_same_v<T, ezAngle> ||
-                  std::is_same_v<T, ezString>)
+                  std::is_same_v<T, ezString> ||
+                  std::is_same_v<T, ezHashedString>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));

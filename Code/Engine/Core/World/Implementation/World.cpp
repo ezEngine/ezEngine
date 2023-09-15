@@ -44,6 +44,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezWorld, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(
       new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetClock)->AddFlags(ezPropertyFlags::Const),
   }
   EZ_END_FUNCTIONS;
 }
@@ -626,6 +627,11 @@ ezGameObject* ezWorld::Reflection_TryGetObjectWithGlobalKey(ezTempHashedString s
   bool res = TryGetObjectWithGlobalKey(sGlobalKey, pObject);
   EZ_IGNORE_UNUSED(res);
   return pObject;
+}
+
+ezClock* ezWorld::Reflection_GetClock()
+{
+  return &m_Data.m_Clock;
 }
 
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)

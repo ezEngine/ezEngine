@@ -205,11 +205,16 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
     return;
 
   ezSet<const ezRTTI*> types;
-
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezReflectedClass>(), types, true);
+  ezRTTI::ForEachType(
+    [&](const ezRTTI* pRtti) {
+      if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType) == false)
+      {
+        types.Insert(pRtti);
+      }
+    });
 
   ezDynamicArray<const ezRTTI*> sortedTypes;
-  ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
+  ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes).AssertSuccess("Sorting failed");
 
   for (auto type : sortedTypes)
   {

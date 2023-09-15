@@ -4,8 +4,8 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Time.h>
 
 class ezTimeStepSmoothing;
@@ -196,6 +196,6 @@ public:
   virtual void Reset(const ezClock* pClock) = 0;
 };
 
-
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezClock);
 
 #include <Foundation/Time/Implementation/Clock_inl.h>
