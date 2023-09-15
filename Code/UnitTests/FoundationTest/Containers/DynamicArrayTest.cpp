@@ -73,6 +73,11 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Containers);
 
 EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 {
+  iCallPodConstructor = 0;
+  iCallPodDestructor = 0;
+  iCallNonPodConstructor = 0;
+  iCallNonPodDestructor = 0;
+
   ezProxyAllocator proxy("DynamicArrayTestAllocator", ezFoundation::GetDefaultAllocator());
   DynamicArrayTestDetail::g_pTestAllocator = &proxy;
 

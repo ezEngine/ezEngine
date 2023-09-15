@@ -183,7 +183,7 @@ ezResult ezWindow::Initialize()
   SetWindowLongPtrW(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
   // show window and activate if required
-  ShowWindow(windowHandle, m_CreationDescription.m_bSetForegroundOnInit ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE);
+  ShowWindow(windowHandle, m_CreationDescription.m_bSetForegroundOnInit ? SW_SHOWDEFAULT : SW_SHOWNOACTIVATE);
   if (m_CreationDescription.m_bSetForegroundOnInit)
   {
     SetActiveWindow(windowHandle);

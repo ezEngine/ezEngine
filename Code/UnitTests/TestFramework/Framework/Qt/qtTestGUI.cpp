@@ -44,16 +44,11 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
 
   // View
   // testTreeView->expandAll();
-  testTreeView->resizeColumnToContents(4);
-  testTreeView->resizeColumnToContents(3);
-  testTreeView->resizeColumnToContents(2);
-  testTreeView->resizeColumnToContents(1);
-  testTreeView->resizeColumnToContents(0);
-  testTreeView->header()->setStretchLastSection(true);
+  testTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
   testTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
   testTreeView->setUniformRowHeights(true);
   testTreeView->setItemDelegate(m_pDelegate);
-  testTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
+  testTreeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   testTreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
   // Message Log Dock
@@ -249,6 +244,8 @@ void ezQtTestGUI::on_actionRunTests_triggered()
     {
       m_pTestFramework->AbortTests();
     }
+
+    QApplication::processEvents();
   }
 
   UpdateButtonStates();
@@ -302,12 +299,16 @@ void ezQtTestGUI::on_actionEnableOnlyThis_triggered()
   if (!CurrentIndex.isValid())
     return;
 
-  // Need to set data on column 0
-  CurrentIndex = m_pModel->index(CurrentIndex.row(), 0, CurrentIndex.parent());
-
   m_pTestFramework->SetAllTestsEnabledStatus(false);
-  SetCheckStateRecursive(CurrentIndex, true);
-  EnableAllParents(CurrentIndex);
+
+  for (auto idx : testTreeView->selectionModel()->selectedIndexes())
+  {
+    // Need to set data on column 0
+    CurrentIndex = m_pModel->index(idx.row(), 0, idx.parent());
+
+    SetCheckStateRecursive(CurrentIndex, true);
+    EnableAllParents(CurrentIndex);
+  }
 
   m_pModel->dataChanged(QModelIndex(), QModelIndex());
 }
@@ -325,9 +326,12 @@ void ezQtTestGUI::on_actionEnableAllChildren_triggered()
   if (!CurrentIndex.isValid())
     return;
 
-  // Need to set data on column 0
-  CurrentIndex = m_pModel->index(CurrentIndex.row(), 0, CurrentIndex.parent());
-  SetCheckStateRecursive(CurrentIndex, true);
+  for (auto idx : testTreeView->selectionModel()->selectedIndexes())
+  {
+    // Need to set data on column 0
+    CurrentIndex = m_pModel->index(idx.row(), 0, idx.parent());
+    SetCheckStateRecursive(CurrentIndex, true);
+  }
 }
 
 void ezQtTestGUI::on_actionEnableAll_triggered()
@@ -357,36 +361,34 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   m_pModel->TestDataChanged(iTestIndex, iSubTestIndex);
 
   QModelIndex TestModelIndex = m_pModel->index(iTestIndex, 0);
-  QModelIndex LastSubTest = m_pModel->index(m_pModel->rowCount(TestModelIndex) - 1, 0, TestModelIndex);
 
   if (iTestIndex != -1 && m_uiSubTestsEnabledCount == 0)
   {
     // started a new main test
     m_uiSubTestsEnabledCount = m_pTestFramework->GetSubTestEnabledCount(iTestIndex);
-  }
 
-  if (iSubTestIndex == -1)
-  {
-    // main test was just finished, reset the sub-test count
-    m_uiSubTestsEnabledCount = 0;
-  }
-
-  if (iSubTestIndex != -1)
-  {
     bool bExpanded = testTreeView->isExpanded(TestModelIndex);
     if (!bExpanded)
     {
       // Remember if we expanded the test so we can close it again once the tests is done.
       testTreeView->expand(TestModelIndex);
       m_bExpandedCurrentTest = true;
+      testTreeView->scrollTo(TestModelIndex, QAbstractItemView::PositionAtTop);
     }
-    testTreeView->scrollTo(LastSubTest);
   }
-  else if (m_bExpandedCurrentTest)
+
+  if (iSubTestIndex == -1)
   {
-    m_bExpandedCurrentTest = false;
-    testTreeView->collapse(TestModelIndex);
+    // main test was just finished, reset the sub-test count
+    m_uiSubTestsEnabledCount = 0;
+
+    if (m_bExpandedCurrentTest)
+    {
+      m_bExpandedCurrentTest = false;
+      testTreeView->collapse(TestModelIndex);
+    }
   }
+
 
   // Update status bar
   const ezUInt32 uiTestCount = m_uiTestsEnabledCount;

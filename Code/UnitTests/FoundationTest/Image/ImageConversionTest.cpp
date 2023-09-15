@@ -20,7 +20,7 @@ class ezImageConversionTest : public ezTestBaseClass
 public:
   virtual const char* GetTestName() const override { return "Image Conversion"; }
 
-  virtual ezResult GetImage(ezImage& ref_img) override
+  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override
   {
     ref_img.ResetAndMove(std::move(m_Image));
     return EZ_SUCCESS;

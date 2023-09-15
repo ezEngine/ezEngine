@@ -35,9 +35,7 @@ struct ezTestOutput
 /// \brief A message of type ezTestOutput::Enum, stored in ezResult.
 struct ezTestErrorMessage
 {
-  ezTestErrorMessage()
-
-    = default;
+  ezTestErrorMessage() = default;
 
   std::string m_sError;
   std::string m_sBlock;
@@ -50,9 +48,7 @@ struct ezTestErrorMessage
 /// \brief A message of type ezTestOutput::Enum, stored in ezResult.
 struct ezTestOutputMessage
 {
-  ezTestOutputMessage()
-
-    = default;
+  ezTestOutputMessage() = default;
 
   ezTestOutput::Enum m_Type = ezTestOutput::ImportantInfo;
   std::string m_sMessage;
@@ -74,9 +70,8 @@ struct ezTestResultQuery
 /// \brief Stores the results of a test run. Used by both ezTestEntry and ezSubTestEntry.
 struct ezTestResultData
 {
-  ezTestResultData()
+  ezTestResultData() = default;
 
-    = default;
   void Reset();
   void AddOutput(ezInt32 iOutputIndex);
 
@@ -88,6 +83,7 @@ struct ezTestResultData
   double m_fTestDuration = 0.0; ///< Duration of the test/sub-test. For tests, this includes the duration of all their sub-tests as well.
   ezInt32 m_iFirstOutput = -1;  ///< First output message. For tests, this range includes all messages of their sub-tests as well.
   ezInt32 m_iLastOutput = -1;   ///< Last output message. For tests, this range includes all messages of their sub-tests as well.
+  std::string m_sCustomStatus;  ///< If this is not empty, the UI will display this instead of "Pending"
 };
 
 struct ezTestConfiguration
@@ -120,23 +116,23 @@ public:
   // Result access
   ezUInt32 GetTestCount(ezTestResultQuery::Enum countQuery = ezTestResultQuery::Count) const;
   ezUInt32 GetSubTestCount(ezUInt32 uiTestIndex, ezTestResultQuery::Enum countQuery = ezTestResultQuery::Count) const;
-  ezInt32 GetTestIndexByName(const char* szTestName) const;
-  ezInt32 GetSubTestIndexByName(ezUInt32 uiTestIndex, const char* szSubTestName) const;
+  ezUInt32 GetTestIndexByName(const char* szTestName) const;
+  ezUInt32 GetSubTestIndexByName(ezUInt32 uiTestIndex, const char* szSubTestName) const;
   double GetTotalTestDuration() const;
-  const ezTestResultData& GetTestResultData(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex) const;
+  const ezTestResultData& GetTestResultData(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex) const;
 
   // Test output
-  void TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum type, const char* szMsg);
-  void TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, const char* szError, const char* szBlock, const char* szFile, ezInt32 iLine,
-    const char* szFunction, const char* szMsg);
-  void TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
-  void AddAsserts(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, int iCount);
+  void TestOutput(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, ezTestOutput::Enum type, const char* szMsg);
+  void TestError(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, const char* szError, const char* szBlock, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
+  void TestResult(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, bool bSuccess, double fDuration);
+  void AddAsserts(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, int iCount);
+  void SetCustomStatus(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, const char* szCustomStatus);
 
   // Messages / Errors
-  ezUInt32 GetOutputMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1, ezTestOutput::Enum type = ezTestOutput::AllOutputTypes) const;
+  ezUInt32 GetOutputMessageCount(ezUInt32 uiTestIndex = ezInvalidIndex, ezUInt32 uiSubTestIndex = ezInvalidIndex, ezTestOutput::Enum type = ezTestOutput::AllOutputTypes) const;
   const ezTestOutputMessage* GetOutputMessage(ezUInt32 uiOutputMessageIdx) const;
 
-  ezUInt32 GetErrorMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1) const;
+  ezUInt32 GetErrorMessageCount(ezUInt32 uiTestIndex = ezInvalidIndex, ezUInt32 uiSubTestIndex = ezInvalidIndex) const;
   const ezTestErrorMessage* GetErrorMessage(ezUInt32 uiErrorMessageIdx) const;
 
 private:

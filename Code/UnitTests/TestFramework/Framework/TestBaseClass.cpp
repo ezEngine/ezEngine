@@ -38,10 +38,9 @@ void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& ref_config) const
   }
 }
 
-void ezTestBaseClass::MapImageNumberToString(
-  const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const
+void ezTestBaseClass::MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const
 {
-  out_sString.Format("{0}_{1}_{2}", szTestName, szSubTestName, ezArgI(uiImageNumber, 3, true));
+  out_sString.Format("{0}_{1}_{2}", szTestName, subTest.m_szSubTestName, ezArgI(uiImageNumber, 3, true));
   out_sString.ReplaceAll(" ", "_");
 }
 
