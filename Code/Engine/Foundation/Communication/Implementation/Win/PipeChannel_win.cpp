@@ -33,7 +33,7 @@ ezPipeChannel_win::~ezPipeChannel_win()
   {
     Disconnect();
   }
-  while (m_bConnected)
+  while (IsConnected())
   {
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
   }

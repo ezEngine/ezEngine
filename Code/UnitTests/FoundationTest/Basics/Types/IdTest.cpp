@@ -33,6 +33,9 @@ struct TestId
 
 using LargeTestId = ezGenericId<32, 10>;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-constant-conversion"
+
 EZ_CREATE_SIMPLE_TEST(Basics, Id)
 {
   TestId id1;
@@ -67,3 +70,4 @@ EZ_CREATE_SIMPLE_TEST(Basics, Id)
   EZ_TEST_INT(id4.m_InstanceIndex, 1);
   EZ_TEST_INT(id4.m_Generation, 200);
 }
+#pragma GCC diagnostic pop
