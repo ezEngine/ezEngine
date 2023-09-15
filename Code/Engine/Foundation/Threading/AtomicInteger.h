@@ -26,6 +26,7 @@ class ezAtomicInteger
   };
 
   using UnderlyingType = typename AtomicStorageType<sizeof(T) / 32>::Type;
+
 public:
   EZ_DECLARE_POD_TYPE();
 
