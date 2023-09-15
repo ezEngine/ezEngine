@@ -360,7 +360,7 @@ ezMat4 ezGraphicsTest::CreateSimpleMVP(float fAspectRatio)
   return mProj * mView * mTransform;
 }
 
-ezResult ezGraphicsTest::GetImage(ezImage& ref_img)
+ezResult ezGraphicsTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
 {
   auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
 

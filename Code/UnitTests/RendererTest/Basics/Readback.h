@@ -24,9 +24,8 @@ private:
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
-  virtual ezResult GetImage(ezImage& ref_img) override;
-  virtual void MapImageNumberToString(const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const override;
-
+  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
+  virtual void MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
   ezTestAppRun Readback(ezUInt32 uiInvocationCount);
 

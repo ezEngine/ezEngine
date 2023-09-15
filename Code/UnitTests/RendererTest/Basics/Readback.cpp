@@ -108,7 +108,7 @@ ezResult ezRendererTestReadback::DeInitializeSubTest(ezInt32 iIdentifier)
   return EZ_SUCCESS;
 }
 
-ezResult ezRendererTestReadback::GetImage(ezImage& ref_img)
+ezResult ezRendererTestReadback::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
 {
   if (m_ReadBackResult.IsValid())
   {
@@ -117,11 +117,11 @@ ezResult ezRendererTestReadback::GetImage(ezImage& ref_img)
     return EZ_SUCCESS;
   }
 
-  return SUPER::GetImage(ref_img);
+  return SUPER::GetImage(ref_img, subTest, uiImageNumber);
 }
 
 
-void ezRendererTestReadback::MapImageNumberToString(const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const
+void ezRendererTestReadback::MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const
 {
   if (!m_sReadBackReferenceImage.IsEmpty())
   {
@@ -130,7 +130,7 @@ void ezRendererTestReadback::MapImageNumberToString(const char* szTestName, cons
     return;
   }
 
-  return SUPER::MapImageNumberToString(szTestName, szSubTestName, uiImageNumber, out_sString);
+  return SUPER::MapImageNumberToString(szTestName, subTest, uiImageNumber, out_sString);
 }
 
 void ezRendererTestReadback::CompareReadbackImage(ezImage&& image)
