@@ -38,7 +38,7 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(
   m_pChannel->Connect();
   for (ezUInt32 i = 0; i < 100; i++)
   {
-    if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
+    if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting)
       break;
 
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));

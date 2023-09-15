@@ -106,6 +106,9 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     opt.m_Arguments.PushBack(sPID);
     opt.m_Arguments.PushBack("-renderer");
     opt.m_Arguments.PushBack(sRendererName);
+    opt.m_Arguments.PushBack("-outputDir");
+    opt.m_Arguments.PushBack(ezTestFramework::GetInstance()->GetAbsOutputPath());
+
 
     m_pOffscreenProcess = EZ_DEFAULT_NEW(ezProcess);
     EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
