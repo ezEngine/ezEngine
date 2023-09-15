@@ -7,8 +7,8 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 namespace
 {

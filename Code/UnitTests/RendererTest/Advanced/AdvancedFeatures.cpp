@@ -2,13 +2,13 @@
 
 #include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererTest/Advanced/AdvancedFeatures.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Configuration/CVar.h>
-#include <Foundation/Profiling/ProfilingUtils.h>
 
 #undef CreateWindow
 

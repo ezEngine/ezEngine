@@ -9,13 +9,13 @@
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <QMimeData>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <Foundation/Profiling/ProfilingUtils.h>
 
 ezEditorTestApplication::ezEditorTestApplication()
   : ezApplication("ezEditor")

@@ -5,8 +5,8 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <ParticlePlugin/Components/ParticleComponent.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
+#include <ParticlePlugin/Components/ParticleComponent.h>
 
 static ezGameEngineTestEffects s_GameEngineTestEffects;
 

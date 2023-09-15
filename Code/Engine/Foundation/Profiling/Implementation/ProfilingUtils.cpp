@@ -1,10 +1,10 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Logging/Log.h>
 
 ezResult ezProfilingUtils::SaveProfilingCapture(ezStringView sCapturePath)
 {
