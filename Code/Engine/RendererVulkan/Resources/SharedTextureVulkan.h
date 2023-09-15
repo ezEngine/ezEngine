@@ -22,6 +22,6 @@ protected:
 
 protected:
   ezEnum<ezGALSharedTextureType> m_SharedType = ezGALSharedTextureType::None;
-  ezGALPlatformSharedHandle m_SharedHandle;
+  ezGALPlatformSharedHandle m_hSharedHandle;
   vk::Semaphore m_SharedSemaphore;
 };

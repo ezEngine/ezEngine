@@ -16,7 +16,7 @@
 ezGALSharedTextureVulkan::ezGALSharedTextureVulkan(const ezGALTextureCreationDescription& Description, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle hSharedHandle)
   : ezGALTextureVulkan(Description, false, false)
   , m_SharedType(sharedType)
-  , m_SharedHandle(hSharedHandle)
+  , m_hSharedHandle(hSharedHandle)
 {
 }
 
@@ -95,10 +95,10 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         int fd = -1;
         vk::Device device = m_pDevice->GetVulkanDevice();
         VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getMemoryFdKHR(&getWin32HandleInfo, &fd, m_pDevice->GetDispatchContext()));
-        m_SharedHandle.m_uiProcessId = ezProcess::GetCurrentProcessID();
-        m_SharedHandle.m_hSharedTexture = (size_t)fd;
-        m_SharedHandle.m_uiMemoryTypeIndex = m_allocInfo.m_memoryType;
-        m_SharedHandle.m_uiSize = m_allocInfo.m_size;
+        m_hSharedHandle.m_uiProcessId = ezProcess::GetCurrentProcessID();
+        m_hSharedHandle.m_hSharedTexture = (size_t)fd;
+        m_hSharedHandle.m_uiMemoryTypeIndex = m_allocInfo.m_memoryType;
+        m_hSharedHandle.m_uiSize = m_allocInfo.m_size;
 
         vk::ExportSemaphoreCreateInfoKHR exportInfo{vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd};
         vk::SemaphoreTypeCreateInfoKHR semTypeCreateInfo{vk::SemaphoreType::eTimeline, 0, &exportInfo};
@@ -108,7 +108,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         int semaphoreFd = -1;
         vk::SemaphoreGetFdInfoKHR getSemaphoreWin32Info{m_SharedSemaphore, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd};
         VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getSemaphoreFdKHR(&getSemaphoreWin32Info, &semaphoreFd, m_pDevice->GetDispatchContext()));
-        m_SharedHandle.m_hSemaphore = (size_t)semaphoreFd;
+        m_hSharedHandle.m_hSemaphore = (size_t)semaphoreFd;
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
         if (!m_pDevice->GetExtensions().m_bExternalMemoryWin32)
         {
@@ -126,10 +126,10 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         vk::MemoryGetWin32HandleInfoKHR getWin32HandleInfo{m_allocInfo.m_deviceMemory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32};
         HANDLE handle = 0;
         VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getMemoryWin32HandleKHR(&getWin32HandleInfo, &handle, m_pDevice->GetDispatchContext()));
-        m_SharedHandle.m_uiProcessId = ezProcess::GetCurrentProcessID();
-        m_SharedHandle.m_hSharedTexture = (size_t)handle;
-        m_SharedHandle.m_uiMemoryTypeIndex = m_allocInfo.m_memoryType;
-        m_SharedHandle.m_uiSize = m_allocInfo.m_size;
+        m_hSharedHandle.m_uiProcessId = ezProcess::GetCurrentProcessID();
+        m_hSharedHandle.m_hSharedTexture = (size_t)handle;
+        m_hSharedHandle.m_uiMemoryTypeIndex = m_allocInfo.m_memoryType;
+        m_hSharedHandle.m_uiSize = m_allocInfo.m_size;
 
         vk::ExportSemaphoreWin32HandleInfoKHR exportInfoWin32;
         exportInfoWin32.dwAccess = GENERIC_ALL;
@@ -141,7 +141,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         HANDLE semaphoreHandle = 0;
         vk::SemaphoreGetWin32HandleInfoKHR getSemaphoreWin32Info{m_SharedSemaphore, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueWin32};
         VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getSemaphoreWin32HandleKHR(&getSemaphoreWin32Info, &semaphoreHandle, m_pDevice->GetDispatchContext()));
-        m_SharedHandle.m_hSemaphore = (size_t)semaphoreHandle;
+        m_hSharedHandle.m_hSemaphore = (size_t)semaphoreHandle;
 #else
         EZ_ASSERT_NOT_IMPLEMENTED
 #endif
@@ -156,7 +156,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       }
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-      if (m_SharedHandle.m_hSharedTexture == 0 || m_SharedHandle.m_hSemaphore == 0)
+      if (m_hSharedHandle.m_hSharedTexture == 0 || m_hSharedHandle.m_hSemaphore == 0)
       {
         ezLog::Error("Can not open shared texture: invalid handle given");
         return EZ_FAILURE;
@@ -175,33 +175,33 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         return EZ_FAILURE;
       }
 
-      bool bNeedToImportForeignProcessFileDescriptors = m_SharedHandle.m_uiProcessId != ezProcess::GetCurrentProcessID();
+      bool bNeedToImportForeignProcessFileDescriptors = m_hSharedHandle.m_uiProcessId != ezProcess::GetCurrentProcessID();
       if (bNeedToImportForeignProcessFileDescriptors)
       {
-        int processFd = syscall(SYS_pidfd_open, m_SharedHandle.m_uiProcessId, 0);
+        int processFd = syscall(SYS_pidfd_open, m_hSharedHandle.m_uiProcessId, 0);
         if (processFd == -1)
         {
           ezLog::Error("SYS_pidfd_open failed with errno: {}", ezArgErrno(errno));
-          m_SharedHandle.m_hSharedTexture = 0;
-          m_SharedHandle.m_hSemaphore = 0;
+          m_hSharedHandle.m_hSharedTexture = 0;
+          m_hSharedHandle.m_hSemaphore = 0;
           return EZ_FAILURE;
         }
         EZ_SCOPE_EXIT(close(processFd));
 
-        m_SharedHandle.m_hSharedTexture = syscall(SYS_pidfd_getfd, processFd, m_SharedHandle.m_hSharedTexture, 0);
-        if (m_SharedHandle.m_hSharedTexture == -1)
+        m_hSharedHandle.m_hSharedTexture = syscall(SYS_pidfd_getfd, processFd, m_hSharedHandle.m_hSharedTexture, 0);
+        if (m_hSharedHandle.m_hSharedTexture == -1)
         {
           ezLog::Error("SYS_pidfd_getfd for texture failed with errno: {}", ezArgErrno(errno));
-          m_SharedHandle.m_hSharedTexture = 0;
-          m_SharedHandle.m_hSemaphore = 0;
+          m_hSharedHandle.m_hSharedTexture = 0;
+          m_hSharedHandle.m_hSemaphore = 0;
           return EZ_FAILURE;
         }
 
-        m_SharedHandle.m_hSemaphore = syscall(SYS_pidfd_getfd, processFd, m_SharedHandle.m_hSemaphore, 0);
-        if (m_SharedHandle.m_hSemaphore == -1)
+        m_hSharedHandle.m_hSemaphore = syscall(SYS_pidfd_getfd, processFd, m_hSharedHandle.m_hSemaphore, 0);
+        if (m_hSharedHandle.m_hSemaphore == -1)
         {
           ezLog::Error("SYS_pidfd_getfd for semaphore failed with errno: {}", ezArgErrno(errno));
-          m_SharedHandle.m_hSemaphore = 0;
+          m_hSharedHandle.m_hSemaphore = 0;
           return EZ_FAILURE;
         }
       }
@@ -213,7 +213,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       vk::SemaphoreCreateInfo semCreateInfo{{}, &semTypeCreateInfo};
       m_SharedSemaphore = device.createSemaphore(semCreateInfo);
 
-      vk::ImportSemaphoreFdInfoKHR importSemaphoreInfo{m_SharedSemaphore, {}, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_SharedHandle.m_hSemaphore)};
+      vk::ImportSemaphoreFdInfoKHR importSemaphoreInfo{m_SharedSemaphore, {}, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_hSharedHandle.m_hSemaphore)};
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.importSemaphoreFdKHR(&importSemaphoreInfo, m_pDevice->GetDispatchContext()));
 
       // Create Image
@@ -224,20 +224,20 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       device.getImageMemoryRequirements2(&imageRequirementsInfo, &imageMemoryRequirements);
 
       // Import memory
-      EZ_ASSERT_DEBUG(imageMemoryRequirements.memoryRequirements.size == m_SharedHandle.m_uiSize, "");
+      EZ_ASSERT_DEBUG(imageMemoryRequirements.memoryRequirements.size == m_hSharedHandle.m_uiSize, "");
 
-      vk::ImportMemoryFdInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_SharedHandle.m_hSharedTexture)};
-      vk::MemoryAllocateInfo allocateInfo{imageMemoryRequirements.memoryRequirements.size, m_SharedHandle.m_uiMemoryTypeIndex, &fdInfo};
+      vk::ImportMemoryFdInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_hSharedHandle.m_hSharedTexture)};
+      vk::MemoryAllocateInfo allocateInfo{imageMemoryRequirements.memoryRequirements.size, m_hSharedHandle.m_uiMemoryTypeIndex, &fdInfo};
 
       m_allocInfo = {};
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.allocateMemory(&allocateInfo, nullptr, &m_allocInfo.m_deviceMemory));
       m_allocInfo.m_offset = 0;
       m_allocInfo.m_size = imageMemoryRequirements.memoryRequirements.size;
-      m_allocInfo.m_memoryType = m_SharedHandle.m_uiMemoryTypeIndex;
+      m_allocInfo.m_memoryType = m_hSharedHandle.m_uiMemoryTypeIndex;
 
       device.bindImageMemory(m_image, m_allocInfo.m_deviceMemory, 0);
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-      if (m_SharedHandle.m_hSharedTexture == 0 || m_SharedHandle.m_hSemaphore == 0)
+      if (m_hSharedHandle.m_hSharedTexture == 0 || m_hSharedHandle.m_hSemaphore == 0)
       {
         ezLog::Error("Can not open shared texture: invalid handle given");
         return EZ_FAILURE;
@@ -256,36 +256,36 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         return EZ_FAILURE;
       }
 
-      bool bNeedToImportForeignProcessFileDescriptors = m_SharedHandle.m_uiProcessId != ezProcess::GetCurrentProcessID();
+      bool bNeedToImportForeignProcessFileDescriptors = m_hSharedHandle.m_uiProcessId != ezProcess::GetCurrentProcessID();
       if (bNeedToImportForeignProcessFileDescriptors)
       {
-        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, m_SharedHandle.m_uiProcessId);
+        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, m_hSharedHandle.m_uiProcessId);
         if (hProcess == 0)
         {
           ezLog::Error("OpenProcess failed with error: {}", ezArgErrorCode(GetLastError()));
-          m_SharedHandle.m_hSharedTexture = 0;
-          m_SharedHandle.m_hSemaphore = 0;
+          m_hSharedHandle.m_hSharedTexture = 0;
+          m_hSharedHandle.m_hSemaphore = 0;
           return EZ_FAILURE;
         }
 
         HANDLE duplicateA = 0;
-        BOOL res = DuplicateHandle(hProcess, reinterpret_cast<HANDLE>(m_SharedHandle.m_hSharedTexture), GetCurrentProcess(), &duplicateA, 0, FALSE, DUPLICATE_SAME_ACCESS);
-        m_SharedHandle.m_hSharedTexture = reinterpret_cast<ezUInt64>(duplicateA);
+        BOOL res = DuplicateHandle(hProcess, reinterpret_cast<HANDLE>(m_hSharedHandle.m_hSharedTexture), GetCurrentProcess(), &duplicateA, 0, FALSE, DUPLICATE_SAME_ACCESS);
+        m_hSharedHandle.m_hSharedTexture = reinterpret_cast<ezUInt64>(duplicateA);
         if (res == FALSE)
         {
           ezLog::Error("DuplicateHandle failed with error: {}", ezArgErrorCode(GetLastError()));
-          m_SharedHandle.m_hSharedTexture = 0;
-          m_SharedHandle.m_hSemaphore = 0;
+          m_hSharedHandle.m_hSharedTexture = 0;
+          m_hSharedHandle.m_hSemaphore = 0;
           return EZ_FAILURE;
         }
 
         HANDLE duplicateB = 0;
-        res = DuplicateHandle(hProcess, reinterpret_cast<HANDLE>(m_SharedHandle.m_hSemaphore), GetCurrentProcess(), &duplicateB, 0, FALSE, DUPLICATE_SAME_ACCESS);
-        m_SharedHandle.m_hSemaphore = reinterpret_cast<ezUInt64>(duplicateB);
+        res = DuplicateHandle(hProcess, reinterpret_cast<HANDLE>(m_hSharedHandle.m_hSemaphore), GetCurrentProcess(), &duplicateB, 0, FALSE, DUPLICATE_SAME_ACCESS);
+        m_hSharedHandle.m_hSemaphore = reinterpret_cast<ezUInt64>(duplicateB);
         if (res == FALSE)
         {
           ezLog::Error("DuplicateHandle failed with error: {}", ezArgErrorCode(GetLastError()));
-          m_SharedHandle.m_hSemaphore = 0;
+          m_hSharedHandle.m_hSemaphore = 0;
           return EZ_FAILURE;
         }
       }
@@ -297,7 +297,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       vk::SemaphoreCreateInfo semCreateInfo{{}, &semTypeCreateInfo};
       m_SharedSemaphore = device.createSemaphore(semCreateInfo);
 
-      vk::ImportSemaphoreWin32HandleInfoKHR importSemaphoreInfo{m_SharedSemaphore, {}, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueWin32, reinterpret_cast<HANDLE>(m_SharedHandle.m_hSemaphore)};
+      vk::ImportSemaphoreWin32HandleInfoKHR importSemaphoreInfo{m_SharedSemaphore, {}, vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueWin32, reinterpret_cast<HANDLE>(m_hSharedHandle.m_hSemaphore)};
       vk::Result res = device.importSemaphoreWin32HandleKHR(&importSemaphoreInfo, m_pDevice->GetDispatchContext());
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(res);
 
@@ -309,16 +309,16 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       device.getImageMemoryRequirements2(&imageRequirementsInfo, &imageMemoryRequirements);
 
       // Import memory
-      EZ_ASSERT_DEBUG(imageMemoryRequirements.memoryRequirements.size == m_SharedHandle.m_uiSize, "");
+      EZ_ASSERT_DEBUG(imageMemoryRequirements.memoryRequirements.size == m_hSharedHandle.m_uiSize, "");
 
-      vk::ImportMemoryWin32HandleInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32, reinterpret_cast<HANDLE>(m_SharedHandle.m_hSharedTexture)};
-      vk::MemoryAllocateInfo allocateInfo{imageMemoryRequirements.memoryRequirements.size, m_SharedHandle.m_uiMemoryTypeIndex, &fdInfo};
+      vk::ImportMemoryWin32HandleInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32, reinterpret_cast<HANDLE>(m_hSharedHandle.m_hSharedTexture)};
+      vk::MemoryAllocateInfo allocateInfo{imageMemoryRequirements.memoryRequirements.size, m_hSharedHandle.m_uiMemoryTypeIndex, &fdInfo};
 
       m_allocInfo = {};
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.allocateMemory(&allocateInfo, nullptr, &m_allocInfo.m_deviceMemory));
       m_allocInfo.m_offset = 0;
       m_allocInfo.m_size = imageMemoryRequirements.memoryRequirements.size;
-      m_allocInfo.m_memoryType = m_SharedHandle.m_uiMemoryTypeIndex;
+      m_allocInfo.m_memoryType = m_hSharedHandle.m_uiMemoryTypeIndex;
 
       device.bindImageMemory(m_image, m_allocInfo.m_deviceMemory, 0);
 #else
@@ -354,15 +354,15 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
   auto res = SUPER::DeInitPlatform(pDevice);
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  if (m_SharedHandle.m_hSharedTexture != 0)
+  if (m_hSharedHandle.m_hSharedTexture != 0)
   {
-    pVulkanDevice->DeleteLaterImpl({vk::ObjectType::eUnknown, {ezGALDeviceVulkan::PendingDeletionFlags::IsFileDescriptor}, (void*)static_cast<size_t>(m_SharedHandle.m_hSharedTexture), nullptr});
-    m_SharedHandle.m_hSharedTexture = 0;
+    pVulkanDevice->DeleteLaterImpl({vk::ObjectType::eUnknown, {ezGALDeviceVulkan::PendingDeletionFlags::IsFileDescriptor}, (void*)static_cast<size_t>(m_hSharedHandle.m_hSharedTexture), nullptr});
+    m_hSharedHandle.m_hSharedTexture = 0;
   }
-  if (m_SharedHandle.m_hSemaphore != 0)
+  if (m_hSharedHandle.m_hSemaphore != 0)
   {
-    pVulkanDevice->DeleteLaterImpl({vk::ObjectType::eUnknown, {ezGALDeviceVulkan::PendingDeletionFlags::IsFileDescriptor}, (void*)static_cast<size_t>(m_SharedHandle.m_hSemaphore), nullptr});
-    m_SharedHandle.m_hSemaphore = 0;
+    pVulkanDevice->DeleteLaterImpl({vk::ObjectType::eUnknown, {ezGALDeviceVulkan::PendingDeletionFlags::IsFileDescriptor}, (void*)static_cast<size_t>(m_hSharedHandle.m_hSemaphore), nullptr});
+    m_hSharedHandle.m_hSemaphore = 0;
   }
 #endif
   return res;
@@ -370,7 +370,7 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALPlatformSharedHandle ezGALSharedTextureVulkan::GetSharedHandle() const
 {
-  return m_SharedHandle;
+  return m_hSharedHandle;
 }
 
 void ezGALSharedTextureVulkan::WaitSemaphoreGPU(ezUInt64 uiValue) const

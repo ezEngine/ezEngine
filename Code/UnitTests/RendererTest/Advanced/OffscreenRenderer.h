@@ -11,6 +11,8 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <Foundation/Logging/HTMLWriter.h>
+#include <Foundation/Logging/Log.h>
 
 struct ezOffscreenTest_SharedTexture
 {
@@ -68,6 +70,7 @@ public:
   void MessageFunc(const ezProcessMessage* pMsg);
 
 private:
+  ezLogWriter::HTML m_LogHTML;
   ezGALDevice* m_pDevice = nullptr;
   ezGALSwapChainHandle m_hSwapChain;
   ezShaderResourceHandle m_hScreenShader;

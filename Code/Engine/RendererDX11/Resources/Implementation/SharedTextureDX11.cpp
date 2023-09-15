@@ -12,7 +12,7 @@
 ezGALSharedTextureDX11::ezGALSharedTextureDX11(const ezGALTextureCreationDescription& Description, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle hSharedHandle)
   : ezGALTextureDX11(Description)
   , m_SharedType(sharedType)
-  , m_SharedHandle(hSharedHandle)
+  , m_hSharedHandle(hSharedHandle)
 {
 }
 
@@ -28,7 +28,7 @@ ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<e
   if (m_SharedType == ezGALSharedTextureType::Imported)
   {
     IDXGIResource* d3d11ResPtr = NULL;
-    HRESULT hr = pDXDevice->GetDXDevice()->OpenSharedResource((HANDLE)m_SharedHandle.m_hSharedTexture, __uuidof(ID3D11Resource), (void**)(&d3d11ResPtr));
+    HRESULT hr = pDXDevice->GetDXDevice()->OpenSharedResource((HANDLE)m_hSharedHandle.m_hSharedTexture, __uuidof(ID3D11Resource), (void**)(&d3d11ResPtr));
     if (FAILED(hr))
     {
       ezLog::Error("Failed to open shared texture: {}", ezArgErrorCode(hr));
@@ -89,7 +89,7 @@ ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<e
       ezLog::Error("Failed to query keyed mutex interface: {}", ezArgErrorCode(hr));
       return EZ_FAILURE;
     }
-    m_SharedHandle.m_hSharedTexture = (ezUInt64)hTexture;
+    m_hSharedHandle.m_hSharedTexture = (ezUInt64)hTexture;
   }
 
   if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
@@ -107,7 +107,7 @@ ezResult ezGALSharedTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
 
 ezGALPlatformSharedHandle ezGALSharedTextureDX11::GetSharedHandle() const
 {
-  return m_SharedHandle;
+  return m_hSharedHandle;
 }
 
 void ezGALSharedTextureDX11::WaitSemaphoreGPU(ezUInt64 uiValue) const

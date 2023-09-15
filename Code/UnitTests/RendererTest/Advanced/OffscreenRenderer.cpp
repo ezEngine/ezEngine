@@ -159,6 +159,11 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
 
   ezGraphicsTest::CreateRenderer(m_pDevice).AssertSuccess();
 
+  ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  ezStringBuilder sLogFile;
+  sLogFile.Format(":imgout/OffscreenLog.htm");
+  m_LogHTML.BeginLog(sLogFile, "OffscreenRenderer"_ezsv);
+
   // Setup Shaders and Materials
   {
     m_hScreenShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/UVColor.ezShader");
@@ -221,6 +226,9 @@ void ezOffscreenRendererTest::BeforeHighLevelSystemsShutdown()
 
   m_pProtocol = nullptr;
   m_pChannel = nullptr;
+
+  ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  m_LogHTML.EndLog();
 
   SUPER::BeforeHighLevelSystemsShutdown();
 }

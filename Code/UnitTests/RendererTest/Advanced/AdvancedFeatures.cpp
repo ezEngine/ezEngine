@@ -355,7 +355,7 @@ ezTestAppRun ezRendererTestAdvancedFeatures::SharedTexture()
     return ezTestAppRun::Quit;
   }
 
-  m_pProtocol->WaitForMessages(ezTime::MakeFromMilliseconds(16));
+  m_pProtocol->WaitForMessages(ezTime::MakeFromMilliseconds(16)).IgnoreResult();
 
   ezOffscreenTest_SharedTexture texture = m_SharedTextureQueue.PeekFront();
   m_SharedTextureQueue.PopFront();

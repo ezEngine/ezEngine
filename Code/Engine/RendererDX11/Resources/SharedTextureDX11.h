@@ -24,6 +24,6 @@ protected:
 
 protected:
   ezEnum<ezGALSharedTextureType> m_SharedType = ezGALSharedTextureType::None;
-  ezGALPlatformSharedHandle m_SharedHandle;
+  ezGALPlatformSharedHandle m_hSharedHandle;
   IDXGIKeyedMutex* m_pKeyedMutex = nullptr;
 };
