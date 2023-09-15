@@ -66,17 +66,17 @@ public:
 
   void SetCurrentPosition(const ezVec3& vPosition);
   void SetTargetPosition(const ezVec3& vPosition);
-  void SetNavmesh(ezAiNavMesh& navmesh);
+  void SetNavmesh(ezAiNavMesh& ref_navmesh);
   void SetQueryFilter(const dtQueryFilter& filter);
 
-  void ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_Waypoints) const;
+  void ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const;
 
   void DebugDraw(const ezDebugRendererContext& context, ezColor tilesColor, ezColor straightLineColor, float fPolyRenderOffsetZ = 0.1f, float fLineRenderOffsetZ = 0.2f);
 
   /// \brief Returns the height of the navmesh at the current position.
   float GetCurrentElevation() const;
 
-  void ComputeSteeringInfo(ezAiSteeringInfo& out_Info, const ezVec2& vForwardDir, float fMaxLookAhead = 5.0f);
+  void ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec2& vForwardDir, float fMaxLookAhead = 5.0f);
 
   // in what radius / up / down distance navigation mesh polygons should be searched around a given position
   // this should relate to the character size, ie at least the character radius

@@ -5,12 +5,12 @@
 #include <Recast.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezResult FindNavMeshPolyAt(dtNavMeshQuery& query, const dtQueryFilter* pQueryFilter, ezRcPos vPosition, dtPolyRef& out_polyRef, ezVec3* out_pAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/)
+ezResult FindNavMeshPolyAt(dtNavMeshQuery& ref_query, const dtQueryFilter* pQueryFilter, ezRcPos vPosition, dtPolyRef& out_polyRef, ezVec3* out_pAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/)
 {
   ezVec3 vSize(fPlaneEpsilon, fHeightEpsilon, fPlaneEpsilon);
 
   ezRcPos resultPos;
-  if (dtStatusFailed(query.findNearestPoly(vPosition, &vSize.x, pQueryFilter, &out_polyRef, resultPos)))
+  if (dtStatusFailed(ref_query.findNearestPoly(vPosition, &vSize.x, pQueryFilter, &out_polyRef, resultPos)))
     return EZ_FAILURE;
 
   if (!ezMath::IsEqual(vPosition.m_Pos[0], resultPos.m_Pos[0], fPlaneEpsilon) ||
@@ -228,12 +228,12 @@ void ezAiNavigation::SetTargetPosition(const ezVec3& vPosition)
   m_uiTargetPositionChangedBit = 1;
 }
 
-void ezAiNavigation::SetNavmesh(ezAiNavMesh& navmesh)
+void ezAiNavigation::SetNavmesh(ezAiNavMesh& ref_navmesh)
 {
-  if (m_pNavmesh == &navmesh)
+  if (m_pNavmesh == &ref_navmesh)
     return;
 
-  m_pNavmesh = &navmesh;
+  m_pNavmesh = &ref_navmesh;
   m_uiEnvironmentChangedBit = 1;
   m_uiReinitQueryBit = 1;
 }
@@ -247,9 +247,9 @@ void ezAiNavigation::SetQueryFilter(const dtQueryFilter& filter)
   m_uiEnvironmentChangedBit = 1;
 }
 
-void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_Waypoints) const
+void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const
 {
-  out_Waypoints.Clear();
+  out_waypoints.Clear();
 
   if (m_PathCorridor.getPathCount() == 0)
     return;
@@ -260,11 +260,11 @@ void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_Waypoints) 
 
   const int straightLen = m_PathCorridor.findCorners(straightPath[0], cornerFlags, cornerPolys, MaxPathNodes, &m_Query);
 
-  out_Waypoints.SetCountUninitialized((ezUInt32)straightLen);
+  out_waypoints.SetCountUninitialized((ezUInt32)straightLen);
 
   for (ezUInt32 i = 0; i < straightLen; ++i)
   {
-    out_Waypoints[i] = straightPath[i]; // automatically swaps Y and Z
+    out_waypoints[i] = straightPath[i]; // automatically swaps Y and Z
   }
 }
 
@@ -442,7 +442,7 @@ float ezAiNavigation::GetCurrentElevation() const
   return h;
 }
 
-void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_Info, const ezVec2& vForwardDir, float fMaxLookAhead)
+void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec2& vForwardDir, float fMaxLookAhead)
 {
   static constexpr ezUInt32 MaxTempNodes = 8;
 
@@ -464,13 +464,13 @@ void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_Info, const ezVec
   bool bFoundWaypoint = false;
   float fDistToPt = 0;
 
-  out_Info.m_fDistanceToWaypoint = 0;
-  out_Info.m_fArrivalDistance = ezMath::HighValue<float>();
-  out_Info.m_vNextWaypoint = m_vCurrentPosition;
-  out_Info.m_vDirectionTowardsWaypoint = vForwardDir;
-  out_Info.m_AbsRotationTowardsWaypoint = ezAngle::MakeZero();
-  out_Info.m_MaxAbsRotationAfterWaypoint = ezAngle::MakeZero();
-  // out_Info.m_fWaypointCorridorWidth = ezMath::HighValue<float>();
+  out_info.m_fDistanceToWaypoint = 0;
+  out_info.m_fArrivalDistance = ezMath::HighValue<float>();
+  out_info.m_vNextWaypoint = m_vCurrentPosition;
+  out_info.m_vDirectionTowardsWaypoint = vForwardDir;
+  out_info.m_AbsRotationTowardsWaypoint = ezAngle::MakeZero();
+  out_info.m_MaxAbsRotationAfterWaypoint = ezAngle::MakeZero();
+  // out_info.m_fWaypointCorridorWidth = ezMath::HighValue<float>();
 
   ezVec3 vPrevPos = m_vCurrentPosition;
 
@@ -481,18 +481,18 @@ void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_Info, const ezVec
 
     if (cornerFlags[idx] & dtStraightPathFlags::DT_STRAIGHTPATH_END)
     {
-      out_Info.m_fArrivalDistance = fDistToPt;
+      out_info.m_fArrivalDistance = fDistToPt;
     }
 
     if (!bFoundWaypoint && ((cornerFlags[idx] & dtStraightPathFlags::DT_STRAIGHTPATH_START) == 0))
     {
       bFoundWaypoint = true;
-      out_Info.m_vNextWaypoint = straightPath[idx];
-      out_Info.m_fDistanceToWaypoint = fDistToPt;
-      out_Info.m_vDirectionTowardsWaypoint = out_Info.m_vNextWaypoint.GetAsVec2() - m_vCurrentPosition.GetAsVec2();
-      out_Info.m_vDirectionTowardsWaypoint.NormalizeIfNotZero(vForwardDir).IgnoreResult();
+      out_info.m_vNextWaypoint = straightPath[idx];
+      out_info.m_fDistanceToWaypoint = fDistToPt;
+      out_info.m_vDirectionTowardsWaypoint = out_info.m_vNextWaypoint.GetAsVec2() - m_vCurrentPosition.GetAsVec2();
+      out_info.m_vDirectionTowardsWaypoint.NormalizeIfNotZero(vForwardDir).IgnoreResult();
 
-      out_Info.m_AbsRotationTowardsWaypoint = out_Info.m_vDirectionTowardsWaypoint.GetAngleBetween(vForwardDir);
+      out_info.m_AbsRotationTowardsWaypoint = out_info.m_vDirectionTowardsWaypoint.GetAngleBetween(vForwardDir);
 
       continue;
     }
@@ -500,11 +500,11 @@ void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_Info, const ezVec
     if (bFoundWaypoint && fDistToPt < fMaxLookAhead)
     {
       const ezVec3 vNextPt = straightPath[idx];
-      ezVec2 vNextDir = (vNextPt - out_Info.m_vNextWaypoint).GetAsVec2();
+      ezVec2 vNextDir = (vNextPt - out_info.m_vNextWaypoint).GetAsVec2();
       vNextDir.Normalize();
 
-      ezAngle absDir = vNextDir.GetAngleBetween(out_Info.m_vDirectionTowardsWaypoint);
-      out_Info.m_MaxAbsRotationAfterWaypoint = ezMath::Max(absDir, out_Info.m_MaxAbsRotationAfterWaypoint);
+      ezAngle absDir = vNextDir.GetAngleBetween(out_info.m_vDirectionTowardsWaypoint);
+      out_info.m_MaxAbsRotationAfterWaypoint = ezMath::Max(absDir, out_info.m_MaxAbsRotationAfterWaypoint);
     }
   }
 }

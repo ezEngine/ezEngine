@@ -38,7 +38,7 @@ void FillOutConfig(rcConfig& cfg, const ezAiNavmeshConfig& config, const ezBound
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }
 
-ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb, rcPolyMesh& out_PolyMesh, rcContext* pContext, ezArrayPtr<const ezVec3> vertices, ezArrayPtr<const ezAiNavMeshTriangle> triangles, ezArrayPtr<ezUInt8> triangleAreaIDs)
+ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb, rcPolyMesh& out_polyMesh, rcContext* pContext, ezArrayPtr<const ezVec3> vertices, ezArrayPtr<const ezAiNavMeshTriangle> triangles, ezArrayPtr<ezUInt8> triangleAreaIDs)
 {
   const float* pVertices = &vertices[0].x;
   const ezInt32* pTriangles = &triangles[0].m_VertexIdx[0];
@@ -150,7 +150,7 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
     return EZ_FAILURE;
   }
 
-  if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_PolyMesh))
+  if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_polyMesh))
   {
     ezLog::Error("[AI]Could not triangulate navmesh contours");
     return EZ_FAILURE;
@@ -159,15 +159,15 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
   //////////////////////////////////////////////////////////////////////////
   // Detour Navmesh
 
-  for (int i = 0; i < out_PolyMesh.npolys; ++i)
+  for (int i = 0; i < out_polyMesh.npolys; ++i)
   {
-    if (out_PolyMesh.areas[i] != RC_NULL_AREA)
+    if (out_polyMesh.areas[i] != RC_NULL_AREA)
     {
-      out_PolyMesh.flags[i] = 0xFFFF;
+      out_polyMesh.flags[i] = 0xFFFF;
     }
     else
     {
-      out_PolyMesh.flags[i] = 0;
+      out_polyMesh.flags[i] = 0;
     }
   }
 

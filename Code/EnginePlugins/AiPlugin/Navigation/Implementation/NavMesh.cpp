@@ -1,9 +1,11 @@
 #include <AiPlugin/Navigation/NavMesh.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
-void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRenderer::Triangle>& out_Triangles, ezArrayPtr<ezColor> areaColors);
-void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRenderer::Line>& out_Lines);
+void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRenderer::Triangle>& out_triangles, ezArrayPtr<ezColor> areaColors);
+void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRenderer::Line>& out_lines);
 
 ezAiNavMeshSector::ezAiNavMeshSector()
 {

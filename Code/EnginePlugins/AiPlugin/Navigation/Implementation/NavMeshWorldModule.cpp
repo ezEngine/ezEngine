@@ -1,5 +1,6 @@
 #include <AiPlugin/Navigation/NavMesh.h>
 #include <AiPlugin/Navigation/NavMeshWorldModule.h>
+#include <Core/World/World.h>
 #include <DetourNavMesh.h>
 #include <Foundation/Configuration/CVar.h>
 

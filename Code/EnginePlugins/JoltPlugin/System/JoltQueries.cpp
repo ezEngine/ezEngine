@@ -362,7 +362,7 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_res
   }
 }
 
-void ezJoltWorldModule::QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_Triangles) const
+void ezJoltWorldModule::QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const
 {
   JPH::AABox aabb;
   aabb.mMin = ezJoltConversionUtils::ToVec3(box.m_vMin);
@@ -396,13 +396,13 @@ void ezJoltWorldModule::QueryGeometryInBox(const ezPhysicsQueryParameters& param
       if (triCount == 0)
         break;
 
-      out_Triangles.Reserve(out_Triangles.GetCount() + triCount);
+      out_triangles.Reserve(out_triangles.GetCount() + triCount);
 
       for (ezUInt32 i = 0; i < triCount; ++i)
       {
         const ezJoltMaterial* pMat = static_cast<const ezJoltMaterial*>(materialsTmp[i]);
 
-        auto& tri = out_Triangles.ExpandAndGetRef();
+        auto& tri = out_triangles.ExpandAndGetRef();
         tri.m_pSurface = pMat ? pMat->m_pSurface : nullptr;
         tri.m_Vertices[0] = positionsTmp[i * 3 + 0];
         tri.m_Vertices[1] = positionsTmp[i * 3 + 1];
