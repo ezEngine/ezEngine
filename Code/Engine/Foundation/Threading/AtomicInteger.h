@@ -4,7 +4,7 @@
 
 #include <Foundation/Threading/AtomicUtils.h>
 
- template <int T>
+template <int T>
 struct ezAtomicStorageType
 {
 };
@@ -26,6 +26,7 @@ template <typename T>
 class ezAtomicInteger
 {
   using UnderlyingType = typename ezAtomicStorageType<sizeof(T) / 32>::Type;
+
 public:
   EZ_DECLARE_POD_TYPE();
 
