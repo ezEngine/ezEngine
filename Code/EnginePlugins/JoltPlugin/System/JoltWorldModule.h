@@ -68,6 +68,8 @@ public:
 
   virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
+  virtual void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_Triangles) const override;
+
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize) override;
 
   virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) override;
@@ -98,6 +100,7 @@ public:
   void CheckBreakableConstraints();
 
   ezSet<ezComponentHandle> m_BreakableConstraints;
+
 
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
