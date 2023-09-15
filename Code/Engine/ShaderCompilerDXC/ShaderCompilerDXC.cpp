@@ -1,9 +1,9 @@
 #include <ShaderCompilerDXC/ShaderCompilerDXC.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Strings/StringConversion.h>
-#include <Foundation/Configuration/Startup.h>
 
 #include <ShaderCompilerDXC/SpirvMetaData.h>
 #include <spirv_reflect.h>

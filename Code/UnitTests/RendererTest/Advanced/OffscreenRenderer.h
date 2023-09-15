@@ -7,12 +7,12 @@
 #include <Foundation/Communication/IpcProcessMessageProtocol.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/IO/DirectoryWatcher.h>
+#include <Foundation/Logging/HTMLWriter.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <Foundation/Logging/HTMLWriter.h>
-#include <Foundation/Logging/Log.h>
 
 struct ezOffscreenTest_SharedTexture
 {
