@@ -100,7 +100,7 @@ ezEditorTestApplication* ezEditorTest::CreateApplication()
   return pTestApplication;
 }
 
-ezResult ezEditorTest::GetImage(ezImage& ref_img)
+ezResult ezEditorTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
 {
   if (!m_CapturedImage.IsValid())
     return EZ_FAILURE;

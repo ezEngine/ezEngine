@@ -12,7 +12,7 @@
 ezGameEngineTest::ezGameEngineTest() = default;
 ezGameEngineTest::~ezGameEngineTest() = default;
 
-ezResult ezGameEngineTest::GetImage(ezImage& ref_img)
+ezResult ezGameEngineTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
 {
   ref_img.ResetAndCopy(m_pApplication->GetLastScreenshot());
 
