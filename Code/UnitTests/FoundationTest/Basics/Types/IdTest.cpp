@@ -33,6 +33,7 @@ struct TestId
 
 using LargeTestId = ezGenericId<32, 10>;
 
+#pragma warning(disable : 4068)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbitfield-constant-conversion"
 

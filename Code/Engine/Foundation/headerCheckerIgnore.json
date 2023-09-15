@@ -39,8 +39,7 @@
 			"jni.h",
 			"float.h",
 			"arm_neon.h",
-            "signal.h",
-			"atomic"
+            "signal.h"
 		]
 	},
 	"includeSource" : 

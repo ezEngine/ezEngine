@@ -7,118 +7,118 @@ EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger()
 
 template <typename T>
 EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger(T value)
-  : m_value(value)
+  : m_value(static_cast<UnderlyingType>(value))
 {
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger(const ezAtomicInteger<T>& value)
-  : m_value(value.m_value)
+  : m_value(ezAtomicUtils::Read(value.m_value))
 {
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE ezAtomicInteger<T>& ezAtomicInteger<T>::operator=(const T value)
 {
-  m_value = value;
+  Set(value);
   return *this;
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE ezAtomicInteger<T>& ezAtomicInteger<T>::operator=(const ezAtomicInteger<T>& value)
 {
-  m_value = value.m_value;
+  Set(ezAtomicUtils::Read(value.m_value));
   return *this;
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE T ezAtomicInteger<T>::Increment()
 {
-  return ezAtomicUtils::Increment(m_value);
+  return static_cast<T>(ezAtomicUtils::Increment(m_value));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE T ezAtomicInteger<T>::Decrement()
 {
-  return ezAtomicUtils::Decrement(m_value);
+  return static_cast<T>(ezAtomicUtils::Decrement(m_value));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE T ezAtomicInteger<T>::PostIncrement()
 {
-  return ezAtomicUtils::PostIncrement(m_value);
+  return static_cast<T>(ezAtomicUtils::PostIncrement(m_value));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE T ezAtomicInteger<T>::PostDecrement()
 {
-  return ezAtomicUtils::PostDecrement(m_value);
+  return static_cast<T>(ezAtomicUtils::PostDecrement(m_value));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezAtomicInteger<T>::Add(T x)
 {
-  ezAtomicUtils::Add(m_value, x);
+  ezAtomicUtils::Add(m_value, static_cast<UnderlyingType>(x));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezAtomicInteger<T>::Subtract(T x)
 {
-  ezAtomicUtils::Add(m_value, -x);
+  ezAtomicUtils::Add(m_value, -static_cast<UnderlyingType>(x));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezAtomicInteger<T>::And(T x)
 {
-  ezAtomicUtils::And(m_value, x);
+  ezAtomicUtils::And(m_value, static_cast<UnderlyingType>(x));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezAtomicInteger<T>::Or(T x)
 {
-  ezAtomicUtils::Or(m_value, x);
+  ezAtomicUtils::Or(m_value, static_cast<UnderlyingType>(x));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezAtomicInteger<T>::Xor(T x)
 {
-  ezAtomicUtils::Xor(m_value, x);
+  ezAtomicUtils::Xor(m_value, static_cast<UnderlyingType>(x));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezAtomicInteger<T>::Min(T x)
 {
-  ezAtomicUtils::Min(m_value, x);
+  ezAtomicUtils::Min(m_value, static_cast<UnderlyingType>(x));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE void ezAtomicInteger<T>::Max(T x)
 {
-  ezAtomicUtils::Max(m_value, x);
+  ezAtomicUtils::Max(m_value, static_cast<UnderlyingType>(x));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE T ezAtomicInteger<T>::Set(T x)
 {
-  return ezAtomicUtils::Set(m_value, x);
+  return static_cast<T>(ezAtomicUtils::Set(m_value, static_cast<UnderlyingType>(x)));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE bool ezAtomicInteger<T>::TestAndSet(T expected, T x)
 {
-  return ezAtomicUtils::TestAndSet(m_value, expected, x);
+  return ezAtomicUtils::TestAndSet(m_value, static_cast<UnderlyingType>(expected), static_cast<UnderlyingType>(x));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE T ezAtomicInteger<T>::CompareAndSwap(T expected, T x)
 {
-  return ezAtomicUtils::CompareAndSwap(m_value, expected, x);
+  return static_cast<T>(ezAtomicUtils::CompareAndSwap(m_value, static_cast<UnderlyingType>(expected), static_cast<UnderlyingType>(x)));
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE ezAtomicInteger<T>::operator T() const
 {
-  return ezAtomicUtils::Read(m_value);
+  return static_cast<T>(ezAtomicUtils::Read(m_value));
 }
 
 //////////////////////////////////////////////////////////////////////////

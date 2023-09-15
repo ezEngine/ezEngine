@@ -8,6 +8,24 @@
 template <typename T>
 class ezAtomicInteger
 {
+  template <int T>
+  struct AtomicStorageType
+  {
+  };
+
+  template <>
+  struct AtomicStorageType<0>
+  {
+    using Type = ezInt32;
+  };
+
+  template <>
+  struct AtomicStorageType<1>
+  {
+    using Type = ezInt64;
+  };
+
+  using UnderlyingType = typename AtomicStorageType<sizeof(T) / 32>::Type;
 public:
   EZ_DECLARE_POD_TYPE();
 
@@ -61,7 +79,7 @@ public:
   operator T() const; // [tested]
 
 private:
-  volatile T m_value;
+  volatile UnderlyingType m_value;
 };
 
 /// \brief An atomic boolean variable. This is just a wrapper around an atomic int32 for convenience.

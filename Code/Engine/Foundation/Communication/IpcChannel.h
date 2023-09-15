@@ -5,8 +5,6 @@
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Types/UniquePtr.h>
 
-#include <atomic>
-
 class ezIpcChannel;
 class ezMessageLoop;
 
@@ -134,7 +132,7 @@ protected:
   friend class ezMessageLoop;
   ezThreadID m_ThreadId = 0;
 
-  std::atomic<ConnectionState::Enum> m_ConnectionState = ConnectionState::Disconnected;
+  ezAtomicInteger<ConnectionState::Enum> m_ConnectionState = ConnectionState::Disconnected;
 
   // Setup in ctor
   ezString m_sAddress;

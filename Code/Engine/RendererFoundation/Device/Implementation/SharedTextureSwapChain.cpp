@@ -32,12 +32,10 @@ ezGALSharedTextureSwapChain::ezGALSharedTextureSwapChain(const ezGALSharedTextur
 
 void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurrentSemaphoreValue)
 {
-  ezLog::Warning("AAA Arm {}, {}", uiTextureIndex, uiCurrentSemaphoreValue);
   if (m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>())
   {
     // We did not use the previous texture index.
     m_Desc.m_OnPresent(m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
-    ezLog::Warning("AAA skipping frame {} {}", m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
   }
   m_uiCurrentTexture = uiTextureIndex;
   m_uiCurrentSemaphoreValue = uiCurrentSemaphoreValue;
@@ -47,7 +45,6 @@ void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurren
 
 void ezGALSharedTextureSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
-  ezLog::Warning("AAA AcquireNextRenderTarget {}, {}", m_uiCurrentTexture, m_uiCurrentSemaphoreValue);
   EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Acquire called without calling Arm first.");
 
   m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[m_uiCurrentTexture];
@@ -57,7 +54,6 @@ void ezGALSharedTextureSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 void ezGALSharedTextureSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
 {
   m_RenderTargets.m_hRTs[0].Invalidate();
-  ezLog::Warning("AAA PresentRenderTarget {}, {}", m_uiCurrentTexture, m_uiCurrentSemaphoreValue + 1);
 
   EZ_ASSERT_DEV(m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>(), "Present called without calling Arm first.");
 
