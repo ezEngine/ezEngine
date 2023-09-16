@@ -34,7 +34,7 @@ private:
   ezMap<ezString, ezAiNavMesh*> m_WorldNavMeshes;
 
   // TODO: this is a hacky solution to delay the navmesh generation until after Physics has been set up.
-  ezUInt32 m_iUpdateDelay = 10;
+  ezUInt32 m_uiUpdateDelay = 10;
   ezTaskGroupID m_GenerateSectorTaskID;
   ezSharedPtr<ezNavMeshSectorGenerationTask> m_pGenerateSectorTask;
 

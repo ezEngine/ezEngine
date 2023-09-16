@@ -97,9 +97,9 @@ const ezAiNavMesh* ezAiNavMeshWorldModule::GetNavMesh(ezStringView sName) const
 
 void ezAiNavMeshWorldModule::Update(const UpdateContext& ctxt)
 {
-  if (m_iUpdateDelay > 0)
+  if (m_uiUpdateDelay > 0)
   {
-    --m_iUpdateDelay;
+    --m_uiUpdateDelay;
     return;
   }
 
