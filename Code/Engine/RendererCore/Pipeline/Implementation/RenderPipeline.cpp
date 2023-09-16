@@ -396,6 +396,13 @@ bool ezRenderPipeline::SortPasses()
   if (done.GetCount() < m_Passes.GetCount())
   {
     ezLog::Error("Pipeline: Not all nodes could be initialized");
+    for (auto& pass : m_Passes)
+    {
+      if (!done.Contains(pass.Borrow()))
+      {
+        ezLog::Error("Failed to initialize node: {} - {}", pass->GetName(), pass->GetDynamicRTTI()->GetTypeName());
+      }
+    }
     return false;
   }
 

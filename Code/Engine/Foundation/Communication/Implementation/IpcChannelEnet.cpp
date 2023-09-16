@@ -32,9 +32,11 @@ void ezIpcChannelEnet::InternalConnect()
   if (m_Mode == Mode::Server)
   {
     m_pNetwork->StartServer('RMOT', m_sAddress, false).IgnoreResult();
+    SetConnectionState(ConnectionState::Connecting);
   }
   else
   {
+    SetConnectionState(ConnectionState::Connecting);
     if ((m_sLastAddress != m_sAddress) || (ezTime::Now() - m_LastConnectAttempt > ezTime::MakeFromSeconds(10)))
     {
       m_sLastAddress = m_sAddress;
@@ -45,7 +47,7 @@ void ezIpcChannelEnet::InternalConnect()
     m_pNetwork->WaitForConnectionToServer(ezTime::MakeFromMilliseconds(10.0)).IgnoreResult();
   }
 
-  m_bConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;
+  SetConnectionState(m_pNetwork->IsConnectedToOther() ? ConnectionState::Connected : ConnectionState::Disconnected);
 }
 
 void ezIpcChannelEnet::InternalDisconnect()
@@ -53,7 +55,7 @@ void ezIpcChannelEnet::InternalDisconnect()
   m_pNetwork->ShutdownConnection();
   m_pNetwork->m_RemoteEvents.RemoveEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
 
-  m_bConnected = 0;
+  SetConnectionState(ConnectionState::Disconnected);
 }
 
 void ezIpcChannelEnet::InternalSend()
@@ -83,14 +85,14 @@ void ezIpcChannelEnet::Tick()
 {
   m_pNetwork->UpdateRemoteInterface();
 
-  m_bConnected = m_pNetwork->IsConnectedToOther() ? 1 : 0;
+  SetConnectionState(m_pNetwork->IsConnectedToOther() ? ConnectionState::Connected : ConnectionState::Disconnected);
 
   m_pNetwork->ExecuteAllMessageHandlers();
 }
 
 void ezIpcChannelEnet::NetworkMessageHandler(ezRemoteMessage& msg)
 {
-  ReceiveMessageData(msg.GetMessageData());
+  ReceiveData(msg.GetMessageData());
 }
 
 void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)

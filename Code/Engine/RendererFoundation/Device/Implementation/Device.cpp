@@ -3,6 +3,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
@@ -113,6 +114,8 @@ ezResult ezGALDevice::Init()
   {
     return EZ_FAILURE;
   }
+
+  ezGALSharedTextureSwapChain::SetFactoryMethod([this](const ezGALSharedTextureSwapChainCreationDescription& desc) -> ezGALSwapChainHandle { return CreateSwapChain([this, &desc](ezAllocatorBase* pAllocator) -> ezGALSwapChain* { return EZ_NEW(pAllocator, ezGALSharedTextureSwapChain, desc); }); });
 
   // Fill the capabilities
   FillCapabilitiesPlatform();
@@ -748,6 +751,86 @@ void ezGALDevice::DestroyProxyTexture(ezGALTextureHandle hProxyTexture)
   }
 }
 
+ezGALTextureHandle ezGALDevice::CreateSharedTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> initialData)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
+
+  if (desc.m_ResourceAccess.IsImmutable() && (initialData.IsEmpty() || initialData.GetCount() < desc.m_uiMipLevelCount) &&
+      !desc.m_bCreateRenderTarget)
+  {
+    ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
+    return ezGALTextureHandle();
+  }
+
+  if (desc.m_uiWidth == 0 || desc.m_uiHeight == 0)
+  {
+    ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
+    return ezGALTextureHandle();
+  }
+
+  if (desc.m_pExisitingNativeObject != nullptr)
+  {
+    ezLog::Error("Shared textures cannot be created on exiting native objects!");
+    return ezGALTextureHandle();
+  }
+
+  if (desc.m_Type != ezGALTextureType::Texture2DShared)
+  {
+    ezLog::Error("Only ezGALTextureType::Texture2DShared is supported for shared textures!");
+    return ezGALTextureHandle();
+  }
+
+  ezGALTexture* pTexture = CreateSharedTexturePlatform(desc, initialData, ezGALSharedTextureType::Exported, {});
+
+  return FinalizeTextureInternal(desc, pTexture);
+}
+
+ezGALTextureHandle ezGALDevice::OpenSharedTexture(const ezGALTextureCreationDescription& desc, ezGALPlatformSharedHandle hSharedHandle)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  if (desc.m_pExisitingNativeObject != nullptr)
+  {
+    ezLog::Error("Shared textures cannot be created on exiting native objects!");
+    return ezGALTextureHandle();
+  }
+
+  if (desc.m_Type != ezGALTextureType::Texture2DShared)
+  {
+    ezLog::Error("Only ezGALTextureType::Texture2DShared is supported for shared textures!");
+    return ezGALTextureHandle();
+  }
+
+  if (desc.m_uiWidth == 0 || desc.m_uiHeight == 0)
+  {
+    ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
+    return ezGALTextureHandle();
+  }
+
+  ezGALTexture* pTexture = CreateSharedTexturePlatform(desc, {}, ezGALSharedTextureType::Imported, hSharedHandle);
+
+  return FinalizeTextureInternal(desc, pTexture);
+}
+
+void ezGALDevice::DestroySharedTexture(ezGALTextureHandle hSharedTexture)
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  ezGALTexture* pTexture = nullptr;
+  if (m_Textures.TryGetValue(hSharedTexture, pTexture))
+  {
+    EZ_ASSERT_DEV(pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DShared, "Given texture is not a shared texture texture");
+
+    AddDeadObject(GALObjectType::Texture, hSharedTexture);
+  }
+  else
+  {
+    ezLog::Warning("DestroySharedTexture called on invalid handle (double free?)");
+  }
+}
+
 ezGALResourceViewHandle ezGALDevice::GetDefaultResourceView(ezGALTextureHandle hTexture)
 {
   if (const ezGALTexture* pTexture = GetTexture(hTexture))
@@ -1243,6 +1326,12 @@ ezUInt64 ezGALDevice::GetMemoryConsumptionForBuffer(const ezGALBufferCreationDes
   return desc.m_uiTotalSize;
 }
 
+void ezGALDevice::Flush()
+{
+  EZ_GALDEVICE_LOCK_AND_CHECK();
+
+  FlushPlatform();
+}
 
 void ezGALDevice::WaitIdle()
 {
@@ -1381,8 +1470,16 @@ void ezGALDevice::DestroyDeadObjects()
         EZ_VERIFY(m_Textures.Remove(hTexture, &pTexture), "Unexpected invalild texture handle");
 
         DestroyViews(pTexture);
-        DestroyTexturePlatform(pTexture);
 
+        switch (pTexture->GetDescription().m_Type)
+        {
+          case ezGALTextureType::Texture2DShared:
+            DestroySharedTexturePlatform(pTexture);
+            break;
+          default:
+            DestroyTexturePlatform(pTexture);
+            break;
+        }
         break;
       }
       case GALObjectType::ResourceView:

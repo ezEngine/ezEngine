@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <Foundation/Reflection/Reflection.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
@@ -128,9 +127,6 @@ private:
 
   static const ezUInt8 s_ChannelCount[ezGALResourceFormat::ENUM_COUNT];
 };
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALResourceFormat);
-
 
 template <typename NativeFormatType, NativeFormatType InvalidFormat>
 class ezGALFormatLookupEntry

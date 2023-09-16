@@ -9,6 +9,7 @@
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <QMimeData>
@@ -320,13 +321,7 @@ void ezEditorTest::CloseCurrentProject()
 
 void ezEditorTest::SafeProfilingData()
 {
-  ezFileWriter fileWriter;
-  if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
-  {
-    ezProfilingSystem::ProfilingData profilingData;
-    ezProfilingSystem::Capture(profilingData);
-    profilingData.Write(fileWriter).IgnoreResult();
-  }
+  ezProfilingUtils::SaveProfilingCapture(":appdata/profiling.json").IgnoreResult();
 }
 
 void ezEditorTest::ProcessEvents(ezUInt32 uiIterations)

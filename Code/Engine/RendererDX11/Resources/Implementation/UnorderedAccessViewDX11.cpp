@@ -83,6 +83,7 @@ ezResult ezGALUnorderedAccessViewDX11::InitPlatform(ezGALDevice* pDevice)
     {
       case ezGALTextureType::Texture2D:
       case ezGALTextureType::Texture2DProxy:
+      case ezGALTextureType::Texture2DShared:
 
         if (!bIsArrayView)
         {

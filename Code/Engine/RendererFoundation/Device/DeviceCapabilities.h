@@ -32,8 +32,6 @@ EZ_DECLARE_FLAGS_OPERATORS(ezGALResourceFormatSupport);
 /// To get the device capabilities you need to call the GetCapabilities() function on an ezGALDevice object.
 struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
 {
-  ezGALDeviceCapabilities();
-
   // Device description
   ezString m_sAdapterName = "Unknown";
   ezUInt64 m_uiDedicatedVRAM = 0;
@@ -42,30 +40,31 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   bool m_bHardwareAccelerated = false;
 
   // General capabilities
-  bool m_bMultithreadedResourceCreation; ///< whether creating resources is allowed on other threads than the main thread
-  bool m_bNoOverwriteBufferUpdate;
+  bool m_bMultithreadedResourceCreation = false; ///< whether creating resources is allowed on other threads than the main thread
+  bool m_bNoOverwriteBufferUpdate = false;
 
   // Draw related capabilities
-  bool m_bShaderStageSupported[ezGALShaderStage::ENUM_COUNT];
-  bool m_bInstancing;
-  bool m_b32BitIndices;
-  bool m_bIndirectDraw;
-  bool m_bConservativeRasterization;
+  bool m_bShaderStageSupported[ezGALShaderStage::ENUM_COUNT] = {};
+  bool m_bInstancing = false;
+  bool m_b32BitIndices = false;
+  bool m_bIndirectDraw = false;
+  bool m_bConservativeRasterization = false;
   bool m_bVertexShaderRenderTargetArrayIndex = false;
-  ezUInt16 m_uiMaxConstantBuffers;
+  ezUInt16 m_uiMaxConstantBuffers = 0;
 
 
   // Texture related capabilities
-  bool m_bTextureArrays;
-  bool m_bCubemapArrays;
-  ezUInt16 m_uiMaxTextureDimension;
-  ezUInt16 m_uiMaxCubemapDimension;
-  ezUInt16 m_uiMax3DTextureDimension;
-  ezUInt16 m_uiMaxAnisotropy;
+  bool m_bTextureArrays = false;
+  bool m_bCubemapArrays = false;
+  bool m_bSharedTextures = false;
+  ezUInt16 m_uiMaxTextureDimension = 0;
+  ezUInt16 m_uiMaxCubemapDimension = 0;
+  ezUInt16 m_uiMax3DTextureDimension = 0;
+  ezUInt16 m_uiMaxAnisotropy = 0;
   ezDynamicArray<ezBitflags<ezGALResourceFormatSupport>> m_FormatSupport;
 
   // Output related capabilities
-  ezUInt16 m_uiMaxRendertargets;
-  ezUInt16 m_uiUAVCount;
-  bool m_bAlphaToCoverage;
+  ezUInt16 m_uiMaxRendertargets = 0;
+  ezUInt16 m_uiUAVCount = 0;
+  bool m_bAlphaToCoverage = false;
 };

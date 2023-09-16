@@ -180,7 +180,6 @@ void ezMessageLoop::AddChannel(ezIpcChannel* pChannel)
 
   StartUpdateThread();
   pChannel->m_pOwner = this;
-  pChannel->AddToMessageLoop(this);
 }
 
 void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)

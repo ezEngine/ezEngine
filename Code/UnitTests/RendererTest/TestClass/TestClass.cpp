@@ -19,7 +19,6 @@
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
 
-
 ezGraphicsTest::ezGraphicsTest() = default;
 
 
@@ -61,7 +60,8 @@ ezSizeU32 ezGraphicsTest::GetResolution() const
   return m_pWindow->GetClientAreaSize();
 }
 
-ezResult ezGraphicsTest::SetupRenderer()
+
+ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
 {
   {
     ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
@@ -100,26 +100,26 @@ ezResult ezGraphicsTest::SetupRenderer()
   {
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bDebugDevice = false;
-    m_pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
-    if (m_pDevice->Init().Failed())
+    out_pDevice = ezGALDeviceFactory::CreateDevice(sRendererName, ezFoundation::GetDefaultAllocator(), DeviceInit);
+    if (out_pDevice->Init().Failed())
       return EZ_FAILURE;
 
-    ezGALDevice::SetDefaultDevice(m_pDevice);
+    ezGALDevice::SetDefaultDevice(out_pDevice);
   }
 
   if (sRendererName.IsEqual_NoCase("DX11"))
   {
-    if (m_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || m_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
+    if (out_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || out_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
     {
       // Use different images for comparison when running the D3D11 Reference Device
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
     }
-    else if (m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
+    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
     {
       // Line rendering is different on AMD and requires separate images for tests rendering lines.
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11AMD");
     }
-    else if (m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia") || m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("GeForce"))
+    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("GeForce"))
     {
       // Line rendering is different on AMD and requires separate images for tests rendering lines.
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Nvidia");
@@ -131,7 +131,7 @@ ezResult ezGraphicsTest::SetupRenderer()
   }
   else if (sRendererName.IsEqual_NoCase("Vulkan"))
   {
-    if (m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
+    if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
     {
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_LLVMPIPE");
     }
@@ -140,6 +140,12 @@ ezResult ezGraphicsTest::SetupRenderer()
       ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
     }
   }
+  return EZ_SUCCESS;
+}
+
+ezResult ezGraphicsTest::SetupRenderer()
+{
+  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::CreateRenderer(m_pDevice));
 
   m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Default.ezShader");
@@ -253,10 +259,10 @@ void ezGraphicsTest::DestroyWindow()
   }
 }
 
-void ezGraphicsTest::BeginFrame()
+void ezGraphicsTest::BeginFrame(const char* szPipe)
 {
   m_pDevice->BeginFrame(m_iFrame);
-  m_pDevice->BeginPipeline("GraphicsTest", m_hSwapChain);
+  m_pDevice->BeginPipeline(szPipe, m_hSwapChain);
 }
 
 void ezGraphicsTest::EndFrame()

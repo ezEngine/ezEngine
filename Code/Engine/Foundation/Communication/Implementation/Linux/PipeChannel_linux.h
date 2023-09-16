@@ -22,8 +22,6 @@ private:
   friend class ezMessageLoop;
   friend class ezMessageLoop_linux;
 
-  virtual void AddToMessageLoop(ezMessageLoop* pMsgLoop) override;
-
   // All functions from here on down are run from worker thread only
   virtual void InternalConnect() override;
   virtual void InternalDisconnect() override;
@@ -42,8 +40,6 @@ private:
   int m_clientSocketFd = -1;
 
   ezUInt8 m_InputBuffer[4096];
-  ezAtomicBool m_Connecting = false;
-
   ezUInt64 m_previousSendOffset = 0;
 };
 #endif

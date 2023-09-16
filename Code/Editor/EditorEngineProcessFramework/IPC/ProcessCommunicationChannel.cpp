@@ -2,18 +2,17 @@
 
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <Foundation/Communication/IpcChannel.h>
+#include <Foundation/Communication/IpcProcessMessageProtocol.h>
 
 ezProcessCommunicationChannel::ezProcessCommunicationChannel() = default;
 
 ezProcessCommunicationChannel::~ezProcessCommunicationChannel()
 {
-  if (m_pChannel)
-  {
-    EZ_DEFAULT_DELETE(m_pChannel);
-  }
+  m_pProtocol.Clear();
+  m_pChannel.Clear();
 }
 
-void ezProcessCommunicationChannel::SendMessage(ezProcessMessage* pMessage)
+bool ezProcessCommunicationChannel::SendMessage(ezProcessMessage* pMessage)
 {
   if (m_pFirstAllowedMessageType != nullptr)
   {
@@ -21,34 +20,35 @@ void ezProcessCommunicationChannel::SendMessage(ezProcessMessage* pMessage)
     // this is necessary to make sure that during an engine restart we don't accidentally send stray messages while
     // the engine is not yet correctly set up
     if (!pMessage->GetDynamicRTTI()->IsDerivedFrom(m_pFirstAllowedMessageType))
-      return;
+      return false;
 
     m_pFirstAllowedMessageType = nullptr;
   }
 
   {
-    if (m_pChannel == nullptr)
-      return;
+    if (m_pProtocol == nullptr)
+      return false;
 
-    m_pChannel->Send(pMessage);
+    m_pProtocol->Send(pMessage);
+    return true;
   }
 }
 
 bool ezProcessCommunicationChannel::ProcessMessages()
 {
-  if (!m_pChannel)
+  if (!m_pProtocol)
     return false;
 
-  return m_pChannel->ProcessMessages();
+  return m_pProtocol->ProcessMessages();
 }
 
 
 void ezProcessCommunicationChannel::WaitForMessages()
 {
-  if (!m_pChannel)
+  if (!m_pProtocol)
     return;
 
-  m_pChannel->WaitForMessages();
+  m_pProtocol->WaitForMessages().IgnoreResult();
 }
 
 void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* pMsg)
@@ -82,7 +82,7 @@ void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* pMsg)
 
 ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, WaitForMessageCallback* pMessageCallack)
 {
-  EZ_ASSERT_DEV(m_pChannel != nullptr, "Need to connect first before waiting for a message.");
+  EZ_ASSERT_DEV(m_pProtocol != nullptr && m_pChannel != nullptr, "Need to connect first before waiting for a message.");
   // EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
   EZ_ASSERT_DEV(m_pWaitForMessageType == nullptr, "Already waiting for another message!");
 
@@ -104,7 +104,7 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
   {
     if (timeout == ezTime())
     {
-      m_pChannel->WaitForMessages();
+      m_pProtocol->WaitForMessages().IgnoreResult();
     }
     else
     {
@@ -117,7 +117,7 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
         return EZ_FAILURE;
       }
 
-      m_pChannel->WaitForMessages(tTimeLeft).IgnoreResult();
+      m_pProtocol->WaitForMessages(tTimeLeft).IgnoreResult();
     }
 
     if (!m_pChannel->IsConnected())
@@ -143,16 +143,13 @@ ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
   ezEventSubscriptionID eventSubscriptionId = m_pChannel->m_Events.AddEventHandler([&](const ezIpcChannelEvent& event) {
     switch (event.m_Type)
     {
-      case ezIpcChannelEvent::ConnectedToClient:
-      case ezIpcChannelEvent::ConnectedToServer:
-      case ezIpcChannelEvent::DisconnectedFromClient:
-      case ezIpcChannelEvent::DisconnectedFromServer:
+      case ezIpcChannelEvent::Connected:
+      case ezIpcChannelEvent::Disconnected:
         waitForConnectionSignal.RaiseSignal();
         break;
       default:
         break;
-    }
-  });
+    } });
 
   EZ_SCOPE_EXIT(m_pChannel->m_Events.RemoveEventHandler(eventSubscriptionId));
 

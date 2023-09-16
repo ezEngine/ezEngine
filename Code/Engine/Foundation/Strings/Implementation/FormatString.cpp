@@ -415,4 +415,16 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& a
 }
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <string.h>
+
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
+{
+  static thread_local char FullMessage[256];
+  const char* szErrorMsg = strerror_r(arg.m_iErrno, FullMessage, 256);
+  ezStringUtils::snprintf(szTmp, uiLength, "%i (\"%s\")", arg.m_iErrno, szErrorMsg);
+  return ezStringView(szTmp);
+}
+#endif
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_FormatString);

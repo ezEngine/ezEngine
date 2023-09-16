@@ -625,7 +625,7 @@ void ezGALCommandEncoderImplVulkan::ReadbackTexturePlatform(const ezGALTexture* 
   m_pPipelineBarrier->EnsureImageLayout(pVulkanTexture, pVulkanTexture->GetPreferredLayout(), pVulkanTexture->GetUsedByPipelineStage(), pVulkanTexture->GetAccessMask());
 
   //#TODO_VULKAN readback fence
-  m_GALDeviceVulkan.Submit({}, {}, {});
+  m_GALDeviceVulkan.Submit();
   m_vkDevice.waitIdle();
   m_pPipelineBarrier = &m_GALDeviceVulkan.GetCurrentPipelineBarrier();
   m_pCommandBuffer = &m_GALDeviceVulkan.GetCurrentCommandBuffer();

@@ -4,10 +4,29 @@
 
 #include <Foundation/Threading/AtomicUtils.h>
 
+template <int T>
+struct ezAtomicStorageType
+{
+};
+
+template <>
+struct ezAtomicStorageType<0>
+{
+  using Type = ezInt32;
+};
+
+template <>
+struct ezAtomicStorageType<1>
+{
+  using Type = ezInt64;
+};
+
 /// \brief Integer class that can be manipulated in an atomic (i.e. thread-safe) fashion.
 template <typename T>
 class ezAtomicInteger
 {
+  using UnderlyingType = typename ezAtomicStorageType<sizeof(T) / 32>::Type;
+
 public:
   EZ_DECLARE_POD_TYPE();
 
@@ -61,7 +80,7 @@ public:
   operator T() const; // [tested]
 
 private:
-  volatile T m_value;
+  volatile UnderlyingType m_Value;
 };
 
 /// \brief An atomic boolean variable. This is just a wrapper around an atomic int32 for convenience.

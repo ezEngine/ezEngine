@@ -67,6 +67,10 @@ public:
   ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);
   void DestroyProxyTexture(ezGALTextureHandle hProxyTexture);
 
+  ezGALTextureHandle CreateSharedTexture(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData = {});
+  ezGALTextureHandle OpenSharedTexture(const ezGALTextureCreationDescription& description, ezGALPlatformSharedHandle hSharedHandle);
+  void DestroySharedTexture(ezGALTextureHandle hTexture);
+
   // Resource views
   ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
   ezGALResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
@@ -127,6 +131,7 @@ public:
 
   const ezGALShader* GetShader(ezGALShaderHandle hShader) const;
   const ezGALTexture* GetTexture(ezGALTextureHandle hTexture) const;
+  virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const = 0;
   const ezGALBuffer* GetBuffer(ezGALBufferHandle hBuffer) const;
   const ezGALDepthStencilState* GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const;
   const ezGALBlendState* GetBlendState(ezGALBlendStateHandle hBlendState) const;
@@ -147,6 +152,8 @@ public:
   static ezGALDevice* GetDefaultDevice();
   static bool HasDefaultDevice();
 
+  // Sends the queued up commands to the GPU
+  void Flush();
   /// \brief Waits for the GPU to be idle and destroys any pending resources and GPU objects.
   void WaitIdle();
 
@@ -280,6 +287,9 @@ protected:
   virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) = 0;
 
+  virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) = 0;
+  virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) = 0;
+
   virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) = 0;
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) = 0;
 
@@ -309,6 +319,7 @@ protected:
 
   virtual void FillCapabilitiesPlatform() = 0;
 
+  virtual void FlushPlatform() = 0;
   virtual void WaitIdlePlatform() = 0;
 
 

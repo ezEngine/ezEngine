@@ -70,6 +70,8 @@ protected:
   virtual ezGALPass* BeginPassPlatform(const char* szName) override;
   virtual void EndPassPlatform(ezGALPass* pPass) override;
 
+  virtual void FlushPlatform() override;
+
 
   // State creation functions
 
@@ -96,6 +98,9 @@ protected:
 
   virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
+
+  virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) override;
+  virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) override;
 
   virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) override;
@@ -131,6 +136,8 @@ protected:
   virtual void FillCapabilitiesPlatform() override;
 
   virtual void WaitIdlePlatform() override;
+
+  virtual const ezGALSharedTexture* GetSharedTexture(ezGALTextureHandle hTexture) const override;
 
   /// \endcond
 

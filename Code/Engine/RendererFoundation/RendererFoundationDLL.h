@@ -44,6 +44,7 @@ class ezGALSwapChain;
 class ezGALShader;
 class ezGALResourceBase;
 class ezGALTexture;
+class ezGALSharedTexture;
 class ezGALBuffer;
 class ezGALDepthStencilState;
 class ezGALBlendState;
@@ -133,8 +134,6 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALMSAASampleCount);
-
 struct ezGALTextureType
 {
   using StorageType = ezUInt8;
@@ -146,6 +145,7 @@ struct ezGALTextureType
     TextureCube,
     Texture3D,
     Texture2DProxy,
+    Texture2DShared,
 
     ENUM_COUNT,
 

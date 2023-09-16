@@ -41,7 +41,7 @@ public:
   ezEditorEngineConnection* CreateEngineConnection(ezAssetDocument* pDocument);
   void DestroyEngineConnection(ezAssetDocument* pDocument);
 
-  void SendMessage(ezProcessMessage* pMessage);
+  bool SendMessage(ezProcessMessage* pMessage);
 
   /// /brief Waits for a message of type pMessageType. If tTimeout is zero, the function will not timeout. If the timeout is valid
   ///        and is it, EZ_FAILURE is returned. If the message type matches and pCallback is valid, the function will be called
@@ -97,7 +97,6 @@ private:
   ezUInt32 m_uiRedrawCountSent = 0;
   ezUInt32 m_uiRedrawCountReceived = 0;
 
-  ezString m_sRenderer;
   ezEditorProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorProcessRemoteCommunicationChannel> m_pRemoteProcess;
   ezApplicationFileSystemConfig m_FileSystemConfig;
@@ -108,7 +107,7 @@ private:
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
 {
 public:
-  void SendMessage(ezEditorEngineDocumentMsg* pMessage);
+  bool SendMessage(ezEditorEngineDocumentMsg* pMessage);
   void SendHighlightObjectMessage(ezViewHighlightMsgToEngine* pMessage);
 
   ezDocument* GetDocument() const { return m_pDocument; }

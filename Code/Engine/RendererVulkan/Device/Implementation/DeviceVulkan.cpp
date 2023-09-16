@@ -13,6 +13,7 @@
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererFoundation/RendererReflection.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/CommandEncoder/CommandEncoderImplVulkan.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
@@ -30,6 +31,7 @@
 #include <RendererVulkan/Resources/QueryVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Resources/ResourceViewVulkan.h>
+#include <RendererVulkan/Resources/SharedTextureVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
@@ -40,6 +42,11 @@
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <GLFW/glfw3.h>
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <errno.h>
+#  include <unistd.h>
 #endif
 
 EZ_DEFINE_AS_POD_TYPE(VkLayerProperties);
@@ -277,10 +284,29 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
     AddExtIfSupported(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, m_extensions.m_bBorderColorFloat);
     if (m_extensions.m_bBorderColorFloat)
     {
+      m_extensions.m_borderColorEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
       deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
     }
   }
+
   AddExtIfSupported(VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, m_extensions.m_bImageFormatList);
+
+  AddExtIfSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, m_extensions.m_bTimelineSemaphore);
+
+  if (m_extensions.m_bTimelineSemaphore)
+  {
+    m_extensions.m_timelineSemaphoresEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
+    deviceCreateInfo.pNext = &m_extensions.m_timelineSemaphoresEXT;
+    m_extensions.m_timelineSemaphoresEXT.timelineSemaphore = true;
+  }
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME, m_extensions.m_bExternalMemoryFd);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreFd);
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME, m_extensions.m_bExternalMemoryWin32);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreWin32);
+#endif
 
   return vk::Result::eSuccess;
 }
@@ -384,6 +410,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     {
       m_extensions.m_bDebugUtilsMarkers = false;
     }
+    // TODO call vkGetPhysicalDeviceFeatures2 with VkPhysicalDeviceTimelineSemaphoreFeatures and figure out if time
   }
 
   ezHybridArray<vk::QueueFamilyProperties, 4> queueFamilyProperties;
@@ -484,6 +511,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
     m_device.getQueue(m_graphicsQueue.m_uiQueueFamily, m_graphicsQueue.m_uiQueueIndex, &m_graphicsQueue.m_queue);
     m_device.getQueue(m_transferQueue.m_uiQueueFamily, m_transferQueue.m_uiQueueIndex, &m_transferQueue.m_queue);
+
+    m_dispatchContext.Init(*this);
   }
 
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance));
@@ -791,7 +820,7 @@ void ezGALDeviceVulkan::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
   m_pDefaultPass->Reset();
 }
 
-vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineStageFlags waitStage, vk::Semaphore signalSemaphore)
+vk::Fence ezGALDeviceVulkan::Submit()
 {
   m_pDefaultPass->SetCurrentCommandBuffer(nullptr, nullptr);
 
@@ -806,7 +835,7 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
     if (initCommandBuffer)
     {
       // Any background loading that happened up to this point needs to be submitted first.
-      // The main render command buffer assumes that all new resources are in their default state which is made sure by subitting this command buffer.
+      // The main render command buffer assumes that all new resources are in their default state which is made sure by submitting this command buffer.
       buffers.PushBack(initCommandBuffer);
     }
     if (mainCommandBuffer)
@@ -819,31 +848,71 @@ vk::Fence ezGALDeviceVulkan::Submit(vk::Semaphore waitSemaphore, vk::PipelineSta
     submitInfo.pCommandBuffers = buffers.GetData();
   }
 
-  vk::Fence renderFence = ezFencePoolVulkan::RequestFence();
-
-  ezHybridArray<vk::Semaphore, 2> waitSemaphores;
-  ezHybridArray<vk::PipelineStageFlags, 2> waitStages;
-  ezHybridArray<vk::Semaphore, 2> signalSemaphores;
-
   if (m_lastCommandBufferFinished)
   {
-    waitSemaphores.PushBack(m_lastCommandBufferFinished);
-    waitStages.PushBack(vk::PipelineStageFlagBits::eAllCommands);
+    AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_lastCommandBufferFinished, vk::PipelineStageFlagBits::eAllCommands));
     ReclaimLater(m_lastCommandBufferFinished);
   }
 
-  if (waitSemaphore)
+  m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
+  AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(m_lastCommandBufferFinished));
+
+  vk::Fence renderFence = ezFencePoolVulkan::RequestFence();
+
+  ezHybridArray<vk::Semaphore, 3> waitSemaphores;
+  ezHybridArray<vk::PipelineStageFlags, 3> waitStages;
+  ezHybridArray<vk::Semaphore, 3> signalSemaphores;
+
+  ezHybridArray<ezUInt64, 3> waitSemaphoreValues;
+  ezHybridArray<ezUInt64, 3> signalSemaphoreValues;
+  for (const SemaphoreInfo sem : m_waitSemaphores)
   {
-    waitSemaphores.PushBack(waitSemaphore);
-    waitStages.PushBack(waitStage);
+    waitSemaphores.PushBack(sem.m_semaphore);
+    if (sem.m_type == vk::SemaphoreType::eTimeline)
+    {
+      waitSemaphoreValues.PushBack(sem.m_uiValue);
+    }
+    waitStages.PushBack(vk::PipelineStageFlagBits::eAllCommands);
+  }
+  m_waitSemaphores.Clear();
+
+  for (const SemaphoreInfo sem : m_signalSemaphores)
+  {
+    signalSemaphores.PushBack(sem.m_semaphore);
+    if (sem.m_type == vk::SemaphoreType::eTimeline)
+    {
+      signalSemaphoreValues.PushBack(sem.m_uiValue);
+    }
+  }
+  m_signalSemaphores.Clear();
+
+
+  // If a timeline semaphore is present, all semaphores need a value, even binary ones because validation says so.
+  if (waitSemaphoreValues.GetCount() > 0)
+  {
+    waitSemaphoreValues.SetCount(waitSemaphores.GetCount());
+  }
+  if (signalSemaphoreValues.GetCount() > 0)
+  {
+    signalSemaphoreValues.SetCount(signalSemaphores.GetCount());
   }
 
-  if (signalSemaphore)
+  vk::TimelineSemaphoreSubmitInfo timelineInfo;
+  timelineInfo.waitSemaphoreValueCount = waitSemaphoreValues.GetCount();
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == sizeof(uint64_t));
+  timelineInfo.pWaitSemaphoreValues = reinterpret_cast<const uint64_t*>(waitSemaphoreValues.GetData());
+  timelineInfo.signalSemaphoreValueCount = signalSemaphoreValues.GetCount();
+  timelineInfo.pSignalSemaphoreValues = reinterpret_cast<const uint64_t*>(signalSemaphoreValues.GetData());
+
+  if (timelineInfo.waitSemaphoreValueCount > 0 || timelineInfo.signalSemaphoreValueCount > 0)
   {
-    signalSemaphores.PushBack(signalSemaphore);
+    // Only add timeline info if we have a timeline semaphore or validation layer complains.
+    submitInfo.pNext = &timelineInfo;
+
+    EZ_ASSERT_DEBUG(timelineInfo.waitSemaphoreValueCount == 0 || waitSemaphores.GetCount() == waitSemaphoreValues.GetCount(), "If a timeline semaphore is present, all semaphores need a wait value.");
+    EZ_ASSERT_DEBUG(timelineInfo.signalSemaphoreValueCount == 0 || signalSemaphores.GetCount() == signalSemaphoreValues.GetCount(), "If a timeline semaphore is present, all semaphores need a signal value.");
   }
-  m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
-  signalSemaphores.PushBack(m_lastCommandBufferFinished);
+  EZ_ASSERT_DEBUG(waitSemaphores.GetCount() == waitStages.GetCount(), "Each wait semaphore needs a wait stage");
 
   submitInfo.waitSemaphoreCount = waitSemaphores.GetCount();
   submitInfo.pWaitSemaphores = waitSemaphores.GetData();
@@ -878,6 +947,7 @@ void ezGALDeviceVulkan::EndPassPlatform(ezGALPass* pPass)
   ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
 #endif
 }
+
 
 // State creation functions
 
@@ -1018,10 +1088,9 @@ void ezGALDeviceVulkan::DestroyBufferPlatform(ezGALBuffer* pBuffer)
   EZ_DELETE(&m_Allocator, pVulkanBuffer);
 }
 
-ezGALTexture* ezGALDeviceVulkan::CreateTexturePlatform(
-  const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+ezGALTexture* ezGALDeviceVulkan::CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
-  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description);
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description, false, false);
 
   if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {
@@ -1032,10 +1101,32 @@ ezGALTexture* ezGALDeviceVulkan::CreateTexturePlatform(
   return pTexture;
 }
 
-
 void ezGALDeviceVulkan::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureVulkan* pVulkanTexture = static_cast<ezGALTextureVulkan*>(pTexture);
+  GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
+  m_pInitContext->TextureDestroyed(pVulkanTexture);
+
+  pVulkanTexture->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pVulkanTexture);
+}
+
+ezGALTexture* ezGALDeviceVulkan::CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle)
+{
+  ezGALSharedTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALSharedTextureVulkan, Description, sharedType, handle);
+
+  if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pTexture);
+    return nullptr;
+  }
+
+  return pTexture;
+}
+
+void ezGALDeviceVulkan::DestroySharedTexturePlatform(ezGALTexture* pTexture)
+{
+  ezGALSharedTextureVulkan* pVulkanTexture = static_cast<ezGALSharedTextureVulkan*>(pTexture);
   GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
   m_pInitContext->TextureDestroyed(pVulkanTexture);
 
@@ -1221,7 +1312,7 @@ void ezGALDeviceVulkan::EndFramePlatform()
 
   if (m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer)
   {
-    Submit({}, {}, {});
+    Submit();
   }
 
   {
@@ -1284,6 +1375,13 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_uiMaxConstantBuffers = ezMath::Min(m_properties.limits.maxDescriptorSetUniformBuffers, (ezUInt32)ezMath::MaxValue<ezUInt16>());
   m_Capabilities.m_bTextureArrays = true;
   m_Capabilities.m_bCubemapArrays = true;
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+  m_Capabilities.m_bSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryFd && m_extensions.m_bExternalSemaphoreFd;
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  m_Capabilities.m_bSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryWin32 && m_extensions.m_bExternalSemaphoreWin32;
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
   m_Capabilities.m_uiMaxTextureDimension = m_properties.limits.maxImageDimension1D;
   m_Capabilities.m_uiMaxCubemapDimension = m_properties.limits.maxImageDimensionCube;
   m_Capabilities.m_uiMax3DTextureDimension = m_properties.limits.maxImageDimension3D;
@@ -1318,6 +1416,11 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
         m_Capabilities.m_FormatSupport[i].Add(ezGALResourceFormatSupport::Render);
     }
   }
+}
+
+void ezGALDeviceVulkan::FlushPlatform()
+{
+  Submit();
 }
 
 void ezGALDeviceVulkan::WaitIdlePlatform()
@@ -1374,7 +1477,7 @@ ezInt32 ezGALDeviceVulkan::GetMemoryIndex(vk::MemoryPropertyFlags properties, co
   return -1;
 }
 
-void ezGALDeviceVulkan::DeleteLater(const PendingDeletion& deletion)
+void ezGALDeviceVulkan::DeleteLaterImpl(const PendingDeletion& deletion)
 {
   EZ_LOCK(m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletionsMutex);
   m_PerFrameData[m_uiCurrentPerFrameData].m_pendingDeletions.PushBack(deletion);
@@ -1392,6 +1495,25 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
   {
     switch (deletion.m_type)
     {
+      case vk::ObjectType::eUnknown:
+        if (deletion.m_flags.IsSet(PendingDeletionFlags::IsFileDescriptor))
+        {
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+          int fileDescriptor = static_cast<int>(reinterpret_cast<size_t>(deletion.m_pObject));
+          int res = close(fileDescriptor);
+          if (res == -1)
+          {
+            ezLog::Error("close() failed on file descriptor with errno: {}", ezArgErrno(errno));
+          }
+#else
+          EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
+        }
+        else
+        {
+          EZ_REPORT_FAILURE("Unknown pending deletion");
+        }
+        break;
       case vk::ObjectType::eImageView:
         m_device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
         break;
@@ -1399,7 +1521,16 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
       {
         auto& image = reinterpret_cast<vk::Image&>(deletion.m_pObject);
         OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
-        ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
+        if (deletion.m_flags.IsSet(PendingDeletionFlags::UsesExternalMemory))
+        {
+          m_device.destroyImage(image);
+          auto& deviceMemory = reinterpret_cast<vk::DeviceMemory&>(deletion.m_pContext);
+          m_device.freeMemory(deviceMemory);
+        }
+        else
+        {
+          ezMemoryAllocatorVulkan::DestroyImage(image, deletion.m_allocation);
+        }
       }
       break;
       case vk::ObjectType::eBuffer:
@@ -1416,6 +1547,9 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         break;
       case vk::ObjectType::eSampler:
         m_device.destroySampler(reinterpret_cast<vk::Sampler&>(deletion.m_pObject));
+        break;
+      case vk::ObjectType::eSemaphore:
+        m_device.destroySemaphore(reinterpret_cast<vk::Semaphore&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eSwapchainKHR:
         m_device.destroySwapchainKHR(reinterpret_cast<vk::SwapchainKHR&>(deletion.m_pObject));
@@ -1640,5 +1774,36 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     }
   }
 }
+
+const ezGALSharedTexture* ezGALDeviceVulkan::GetSharedTexture(ezGALTextureHandle hTexture) const
+{
+  auto pTexture = GetTexture(hTexture);
+  if (pTexture == nullptr)
+  {
+    return nullptr;
+  }
+
+  // Resolve proxy texture if any
+  return static_cast<const ezGALSharedTextureVulkan*>(pTexture->GetParentResource());
+}
+
+void ezGALDeviceVulkan::AddWaitSemaphore(const SemaphoreInfo& waitSemaphore)
+{
+  // #TODO_VULKAN Assert is in render pipeline, thread safety
+  if (waitSemaphore.m_type == vk::SemaphoreType::eTimeline)
+    m_waitSemaphores.Insert(waitSemaphore, 0);
+  else
+    m_waitSemaphores.PushBack(waitSemaphore);
+}
+
+void ezGALDeviceVulkan::AddSignalSemaphore(const SemaphoreInfo& signalSemaphore)
+{
+  // #TODO_VULKAN Assert is in render pipeline, thread safety
+  if (signalSemaphore.m_type == vk::SemaphoreType::eTimeline)
+    m_signalSemaphores.Insert(signalSemaphore, 0);
+  else
+    m_signalSemaphores.PushBack(signalSemaphore);
+}
+
 
 EZ_STATICLINK_FILE(RendererVulkan, RendererVulkan_Device_Implementation_DeviceVulkan);
