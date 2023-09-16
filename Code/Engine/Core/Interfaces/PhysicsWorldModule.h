@@ -61,6 +61,12 @@ struct ezPhysicsOverlapResultArray
   ezHybridArray<ezPhysicsOverlapResult, 16> m_Results;
 };
 
+struct ezPhysicsTriangle
+{
+  ezVec3 m_Vertices[3];
+  const ezSurfaceResource* m_pSurface = nullptr;
+};
+
 /// \brief Flags for selecting which types of physics shapes should be included in things like overlap queries and raycasts.
 ///
 /// This is mainly for optimization purposes. It is up to the physics integration to support some or all of these flags.
@@ -129,6 +135,8 @@ public:
   virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const = 0;
 
   virtual ezVec3 GetGravity() const = 0;
+
+  virtual void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezPhysicsTriangle>& out_triangles) const = 0;
 
   //////////////////////////////////////////////////////////////////////////
   // ABSTRACTION HELPERS

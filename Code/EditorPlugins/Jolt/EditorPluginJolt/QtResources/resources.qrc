@@ -1,4 +1,7 @@
 <RCC>
+  <qresource prefix="JoltPlugin">
+    <file>JoltPlugin.svg</file>
+  </qresource>
   <qresource prefix="AssetIcons">
     <file>Jolt_Collision_Mesh.svg</file>
     <file>Jolt_Collision_Mesh_Convex.svg</file>

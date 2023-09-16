@@ -272,7 +272,7 @@ void ezRecastNavMeshBuilder::FillOutConfig(rcConfig& cfg, const ezRecastConfig& 
   rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 }
 
-ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh, ezProgress& progress)
+ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_polyMesh, ezProgress& progress)
 {
   ezProgressRange pgRange("Build Poly Mesh", 13, true, &progress);
 
@@ -426,7 +426,7 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
   if (!pgRange.BeginNextStep("Build Poly Mesh"))
     return EZ_FAILURE;
 
-  if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_PolyMesh))
+  if (!rcBuildPolyMesh(pContext, *contourSet, cfg.maxVertsPerPoly, out_polyMesh))
   {
     pContext->log(RC_LOG_ERROR, "Could not triangulate contours");
     return EZ_FAILURE;
@@ -440,11 +440,11 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
 
   // TODO modify area IDs and flags
 
-  for (int i = 0; i < out_PolyMesh.npolys; ++i)
+  for (int i = 0; i < out_polyMesh.npolys; ++i)
   {
-    if (out_PolyMesh.areas[i] == RC_WALKABLE_AREA)
+    if (out_polyMesh.areas[i] == RC_WALKABLE_AREA)
     {
-      out_PolyMesh.flags[i] = 0xFFFF;
+      out_polyMesh.flags[i] = 0xFFFF;
     }
   }
 

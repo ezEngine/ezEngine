@@ -55,7 +55,7 @@ private:
   void Clear();
   void GenerateTriangleMeshFromDescription(const ezWorldGeoExtractionUtil::MeshObjectList& objects);
   void ComputeBoundingBox();
-  ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_PolyMesh, ezProgress& progress);
+  ezResult BuildRecastPolyMesh(const ezRecastConfig& config, rcPolyMesh& out_polyMesh, ezProgress& progress);
   static ezResult BuildDetourNavMeshData(const ezRecastConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& NavmeshData);
 
   struct Triangle

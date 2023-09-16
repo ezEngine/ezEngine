@@ -40,7 +40,7 @@ ezJoltAction::ezJoltAction(const ezActionContext& context, const char* szName, A
   switch (m_Type)
   {
     case ActionType::ProjectSettings:
-      // SetIconPath(":/EditorPluginScene/Icons/GizmoNone.svg"); /// \todo Icon
+      SetIconPath(":/JoltPlugin/JoltPlugin.svg");
       break;
   }
 }

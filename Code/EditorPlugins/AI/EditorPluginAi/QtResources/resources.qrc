@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="AiPlugin">
+    <file>ezAiPlugin.svg</file>
+  </qresource>  
+  <qresource prefix="TypeIcons">
+    <file>ezAiNavMeshPathTestComponent.svg</file>
+  </qresource>  
+</RCC>
+
