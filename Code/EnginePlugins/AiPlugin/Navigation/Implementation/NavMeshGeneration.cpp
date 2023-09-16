@@ -256,8 +256,7 @@ static void QueryInputGeo(const ezPhysicsWorldModuleInterface* pPhysics, ezUInt3
   pPhysics->QueryGeometryInBox(params, bounds, triangles);
 
   // sort all triangles by surface (pointer)
-  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs)
-    { return lhs.m_pSurface < rhs.m_pSurface; });
+  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs) { return lhs.m_pSurface < rhs.m_pSurface; });
 
   const ezSurfaceResource* pPrevSurf = nullptr;
   ezInt8 iGroundType = 1; // the "<Default>" ground type that is not "<None>"
@@ -279,8 +278,7 @@ static void QueryInputGeo(const ezPhysicsWorldModuleInterface* pPhysics, ezUInt3
   // sort all triangles by ground type (we wrote the ground type ID into the surface pointer above)
   // this means triangles with ground type 0 will be first, and higher IDs will come later -> should rasterize them in that deterministic order
   // and if several triangles are in the same spot, the higher ground ID should win
-  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs)
-    { return lhs.m_pSurface < rhs.m_pSurface; });
+  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs) { return lhs.m_pSurface < rhs.m_pSurface; });
 
   out_inputGeo.m_Vertices.SetCount(triangles.GetCount() * 3);
   out_inputGeo.m_Triangles.SetCount(triangles.GetCount());
