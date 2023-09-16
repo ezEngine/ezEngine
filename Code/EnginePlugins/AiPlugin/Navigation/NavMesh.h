@@ -77,10 +77,10 @@ public:
   using SectorID = ezUInt32;
 
   ezVec2I32 CalculateSectorCoord(float fPositionX, float fPositionY) const;
-  ezVec2 GetSectorPositionOffset(ezVec2I32 coord) const;
-  ezBoundingBox GetSectorBounds(ezVec2I32 coord, float fMinZ = 0.0f, float fMaxZ = 1.0f) const;
+  ezVec2 GetSectorPositionOffset(ezVec2I32 vCoord) const;
+  ezBoundingBox GetSectorBounds(ezVec2I32 vCoord, float fMinZ = 0.0f, float fMaxZ = 1.0f) const;
   float GetSectorSize() const { return m_fSectorMetersXY; }
-  SectorID CalculateSectorID(ezVec2I32 coord) const { return coord.y * m_uiNumSectorsX + coord.x; }
+  SectorID CalculateSectorID(ezVec2I32 vCoord) const { return vCoord.y * m_uiNumSectorsX + vCoord.x; }
   ezVec2I32 CalculateSectorCoord(SectorID sectorID) const;
 
   const ezAiNavMeshSector* GetSector(SectorID sectorID) const;

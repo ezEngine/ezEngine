@@ -5,37 +5,38 @@
 #include <DetourNavMesh.h>
 #include <DetourNavMeshBuilder.h>
 #include <Recast.h>
+#include <cstdint>
 
-void FillOutConfig(rcConfig& cfg, const ezAiNavmeshConfig& config, const ezBoundingBox& bbox)
+void FillOutConfig(rcConfig& ref_cfg, const ezAiNavmeshConfig& config, const ezBoundingBox& bbox)
 {
-  ezMemoryUtils::ZeroFill(&cfg, 1);
-  cfg.bmin[0] = bbox.m_vMin.x;
-  cfg.bmin[1] = bbox.m_vMin.z;
-  cfg.bmin[2] = bbox.m_vMin.y;
-  cfg.bmax[0] = bbox.m_vMax.x;
-  cfg.bmax[1] = bbox.m_vMax.z;
-  cfg.bmax[2] = bbox.m_vMax.y;
-  cfg.ch = config.m_fCellHeight;
-  cfg.cs = config.m_fCellSize;
-  cfg.walkableSlopeAngle = config.m_WalkableSlope.GetDegree();
-  cfg.walkableHeight = (int)ceilf(config.m_fAgentHeight / cfg.ch);
-  cfg.walkableClimb = (int)floorf(config.m_fAgentStepHeight / cfg.ch);
-  cfg.walkableRadius = (int)ceilf(config.m_fAgentRadius / cfg.cs);
-  cfg.maxEdgeLen = (int)(config.m_fMaxEdgeLength / cfg.cs);
-  cfg.maxSimplificationError = config.m_fMaxSimplificationError;
-  cfg.minRegionArea = (int)ezMath::Square(config.m_fMinRegionSize);
-  cfg.mergeRegionArea = (int)ezMath::Square(config.m_fRegionMergeSize);
-  cfg.maxVertsPerPoly = 6;
-  cfg.detailSampleDist = config.m_fDetailMeshSampleDistanceFactor < 0.9f ? 0 : cfg.cs * config.m_fDetailMeshSampleDistanceFactor;
-  cfg.detailSampleMaxError = cfg.ch * config.m_fDetailMeshSampleErrorFactor;
-  cfg.borderSize = cfg.walkableRadius + 3; // Reserve enough padding.
+  ezMemoryUtils::ZeroFill(&ref_cfg, 1);
+  ref_cfg.bmin[0] = bbox.m_vMin.x;
+  ref_cfg.bmin[1] = bbox.m_vMin.z;
+  ref_cfg.bmin[2] = bbox.m_vMin.y;
+  ref_cfg.bmax[0] = bbox.m_vMax.x;
+  ref_cfg.bmax[1] = bbox.m_vMax.z;
+  ref_cfg.bmax[2] = bbox.m_vMax.y;
+  ref_cfg.ch = config.m_fCellHeight;
+  ref_cfg.cs = config.m_fCellSize;
+  ref_cfg.walkableSlopeAngle = config.m_WalkableSlope.GetDegree();
+  ref_cfg.walkableHeight = (int)ceilf(config.m_fAgentHeight / ref_cfg.ch);
+  ref_cfg.walkableClimb = (int)floorf(config.m_fAgentStepHeight / ref_cfg.ch);
+  ref_cfg.walkableRadius = (int)ceilf(config.m_fAgentRadius / ref_cfg.cs);
+  ref_cfg.maxEdgeLen = (int)(config.m_fMaxEdgeLength / ref_cfg.cs);
+  ref_cfg.maxSimplificationError = config.m_fMaxSimplificationError;
+  ref_cfg.minRegionArea = (int)ezMath::Square(config.m_fMinRegionSize);
+  ref_cfg.mergeRegionArea = (int)ezMath::Square(config.m_fRegionMergeSize);
+  ref_cfg.maxVertsPerPoly = 6;
+  ref_cfg.detailSampleDist = config.m_fDetailMeshSampleDistanceFactor < 0.9f ? 0 : ref_cfg.cs * config.m_fDetailMeshSampleDistanceFactor;
+  ref_cfg.detailSampleMaxError = ref_cfg.ch * config.m_fDetailMeshSampleErrorFactor;
+  ref_cfg.borderSize = ref_cfg.walkableRadius + 3; // Reserve enough padding.
 
-  cfg.bmin[0] -= cfg.borderSize * cfg.cs;
-  cfg.bmin[2] -= cfg.borderSize * cfg.cs;
-  cfg.bmax[0] += cfg.borderSize * cfg.cs;
-  cfg.bmax[2] += cfg.borderSize * cfg.cs;
+  ref_cfg.bmin[0] -= ref_cfg.borderSize * ref_cfg.cs;
+  ref_cfg.bmin[2] -= ref_cfg.borderSize * ref_cfg.cs;
+  ref_cfg.bmax[0] += ref_cfg.borderSize * ref_cfg.cs;
+  ref_cfg.bmax[2] += ref_cfg.borderSize * ref_cfg.cs;
 
-  rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
+  rcCalcGridSize(ref_cfg.bmin, ref_cfg.bmax, ref_cfg.cs, &ref_cfg.width, &ref_cfg.height);
 }
 
 ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb, rcPolyMesh& out_polyMesh, rcContext* pContext, ezArrayPtr<const ezVec3> vertices, ezArrayPtr<const ezAiNavMeshTriangle> triangles, ezArrayPtr<ezUInt8> triangleAreaIDs)
@@ -174,7 +175,7 @@ ezResult BuildRecastPolyMesh(const ezAiNavmeshConfig& config, ezBoundingBox aabb
   return EZ_SUCCESS;
 }
 
-ezResult BuildDetourNavMeshData(const ezAiNavmeshConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& out_navmeshData, ezVec2I32 sectorCoord)
+ezResult BuildDetourNavMeshData(const ezAiNavmeshConfig& config, const rcPolyMesh& polyMesh, ezDataBuffer& out_navmeshData, ezVec2I32 vSectorCoord)
 {
   dtNavMeshCreateParams params;
   ezMemoryUtils::ZeroFill(&params, 1);
@@ -195,8 +196,8 @@ ezResult BuildDetourNavMeshData(const ezAiNavmeshConfig& config, const rcPolyMes
   params.ch = config.m_fCellHeight;
   params.buildBvTree = true;
   params.tileLayer = 0;
-  params.tileX = sectorCoord.x;
-  params.tileY = sectorCoord.y;
+  params.tileX = vSectorCoord.x;
+  params.tileY = vSectorCoord.y;
 
   ezInt32 navDataSize = 0;
   ezUInt8* navData = nullptr;
@@ -255,7 +256,8 @@ static void QueryInputGeo(const ezPhysicsWorldModuleInterface* pPhysics, ezUInt3
   pPhysics->QueryGeometryInBox(params, bounds, triangles);
 
   // sort all triangles by surface (pointer)
-  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs) { return lhs.m_pSurface < rhs.m_pSurface; });
+  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs)
+    { return lhs.m_pSurface < rhs.m_pSurface; });
 
   const ezSurfaceResource* pPrevSurf = nullptr;
   ezInt8 iGroundType = 1; // the "<Default>" ground type that is not "<None>"
@@ -277,7 +279,8 @@ static void QueryInputGeo(const ezPhysicsWorldModuleInterface* pPhysics, ezUInt3
   // sort all triangles by ground type (we wrote the ground type ID into the surface pointer above)
   // this means triangles with ground type 0 will be first, and higher IDs will come later -> should rasterize them in that deterministic order
   // and if several triangles are in the same spot, the higher ground ID should win
-  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs) { return lhs.m_pSurface < rhs.m_pSurface; });
+  triangles.Sort([](const ezPhysicsTriangle& lhs, const ezPhysicsTriangle& rhs)
+    { return lhs.m_pSurface < rhs.m_pSurface; });
 
   out_inputGeo.m_Vertices.SetCount(triangles.GetCount() * 3);
   out_inputGeo.m_Triangles.SetCount(triangles.GetCount());
@@ -303,7 +306,7 @@ static void QueryInputGeo(const ezPhysicsWorldModuleInterface* pPhysics, ezUInt3
     out_inputGeo.m_Triangles[tri].m_VertexIdx[1] = (tri * 3) + 1;
     out_inputGeo.m_Triangles[tri].m_VertexIdx[2] = (tri * 3) + 2;
 
-    out_inputGeo.m_TriangleAreaIDs[tri] = reinterpret_cast<ezUInt8>(triangles[tri].m_pSurface);
+    out_inputGeo.m_TriangleAreaIDs[tri] = static_cast<ezUInt8>(reinterpret_cast<uintptr_t>(triangles[tri].m_pSurface));
   }
 }
 

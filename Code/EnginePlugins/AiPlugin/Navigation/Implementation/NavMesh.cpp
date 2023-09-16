@@ -192,14 +192,14 @@ ezAiNavMesh::SectorID ezAiNavMesh::RetrieveRequestedSector()
   return id;
 }
 
-ezVec2 ezAiNavMesh::GetSectorPositionOffset(ezVec2I32 coord) const
+ezVec2 ezAiNavMesh::GetSectorPositionOffset(ezVec2I32 vCoord) const
 {
-  return ezVec2((coord.x - m_uiNumSectorsX * 0.5f) * m_fSectorMetersXY, (coord.y - m_uiNumSectorsY * 0.5f) * m_fSectorMetersXY);
+  return ezVec2((vCoord.x - m_uiNumSectorsX * 0.5f) * m_fSectorMetersXY, (vCoord.y - m_uiNumSectorsY * 0.5f) * m_fSectorMetersXY);
 }
 
-ezBoundingBox ezAiNavMesh::GetSectorBounds(ezVec2I32 coord, float fMinZ /*= 0.0f*/, float fMaxZ /*= 1.0f*/) const
+ezBoundingBox ezAiNavMesh::GetSectorBounds(ezVec2I32 vCoord, float fMinZ /*= 0.0f*/, float fMaxZ /*= 1.0f*/) const
 {
-  const ezVec3 min = GetSectorPositionOffset(coord).GetAsVec3(fMinZ);
+  const ezVec3 min = GetSectorPositionOffset(vCoord).GetAsVec3(fMinZ);
   const ezVec3 max = min + ezVec3(m_fSectorMetersXY, m_fSectorMetersXY, fMaxZ - fMinZ);
 
   return ezBoundingBox::MakeFromMinMax(min, max);

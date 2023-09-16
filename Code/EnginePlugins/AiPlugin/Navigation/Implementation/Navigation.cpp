@@ -5,17 +5,17 @@
 #include <Recast.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-ezResult FindNavMeshPolyAt(dtNavMeshQuery& ref_query, const dtQueryFilter* pQueryFilter, ezRcPos vPosition, dtPolyRef& out_polyRef, ezVec3* out_pAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/)
+ezResult FindNavMeshPolyAt(dtNavMeshQuery& ref_query, const dtQueryFilter* pQueryFilter, ezRcPos position, dtPolyRef& out_polyRef, ezVec3* out_pAdjustedPosition /*= nullptr*/, float fPlaneEpsilon /*= 0.01f*/, float fHeightEpsilon /*= 1.0f*/)
 {
   ezVec3 vSize(fPlaneEpsilon, fHeightEpsilon, fPlaneEpsilon);
 
   ezRcPos resultPos;
-  if (dtStatusFailed(ref_query.findNearestPoly(vPosition, &vSize.x, pQueryFilter, &out_polyRef, resultPos)))
+  if (dtStatusFailed(ref_query.findNearestPoly(position, &vSize.x, pQueryFilter, &out_polyRef, resultPos)))
     return EZ_FAILURE;
 
-  if (!ezMath::IsEqual(vPosition.m_Pos[0], resultPos.m_Pos[0], fPlaneEpsilon) ||
-      !ezMath::IsEqual(vPosition.m_Pos[1], resultPos.m_Pos[1], fHeightEpsilon) ||
-      !ezMath::IsEqual(vPosition.m_Pos[2], resultPos.m_Pos[2], fPlaneEpsilon))
+  if (!ezMath::IsEqual(position.m_Pos[0], resultPos.m_Pos[0], fPlaneEpsilon) ||
+      !ezMath::IsEqual(position.m_Pos[1], resultPos.m_Pos[1], fHeightEpsilon) ||
+      !ezMath::IsEqual(position.m_Pos[2], resultPos.m_Pos[2], fPlaneEpsilon))
   {
     return EZ_FAILURE;
   }
