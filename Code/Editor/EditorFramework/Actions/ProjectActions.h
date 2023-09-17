@@ -66,6 +66,7 @@ public:
   static ezActionDescriptorHandle s_hSetupCppProject;
   static ezActionDescriptorHandle s_hOpenCppProject;
   static ezActionDescriptorHandle s_hCompileCppProject;
+  static ezActionDescriptorHandle s_hRegenerateCppSolution;
 };
 
 ///
@@ -127,6 +128,7 @@ public:
     SetupCppProject,
     OpenCppProject,
     CompileCppProject,
+    RegenerateCppSolution,
     ShowDocsAndCommunity,
     ExportProject,
     PluginSelection,

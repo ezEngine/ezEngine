@@ -70,6 +70,7 @@ ezActionDescriptorHandle ezProjectActions::s_hCppProjectMenu;
 ezActionDescriptorHandle ezProjectActions::s_hSetupCppProject;
 ezActionDescriptorHandle ezProjectActions::s_hOpenCppProject;
 ezActionDescriptorHandle ezProjectActions::s_hCompileCppProject;
+ezActionDescriptorHandle ezProjectActions::s_hRegenerateCppSolution;
 
 void ezProjectActions::RegisterActions()
 {
@@ -104,6 +105,7 @@ void ezProjectActions::RegisterActions()
     s_hSetupCppProject = EZ_REGISTER_ACTION_1("Project.SetupCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::SetupCppProject);
     s_hOpenCppProject = EZ_REGISTER_ACTION_1("Project.OpenCppProject", ezActionScope::Global, "Project", "Ctrl+Shift+O", ezProjectAction, ezProjectAction::ButtonType::OpenCppProject);
     s_hCompileCppProject = EZ_REGISTER_ACTION_1("Project.CompileCppProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CompileCppProject);
+    s_hRegenerateCppSolution = EZ_REGISTER_ACTION_1("Project.RegenerateCppSolution", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::RegenerateCppSolution);
   }
 
   s_hCatProjectSettings = EZ_REGISTER_MENU("G.Project.Settings");
@@ -188,6 +190,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSetupCppProject);
   ezActionManager::UnregisterAction(s_hOpenCppProject);
   ezActionManager::UnregisterAction(s_hCompileCppProject);
+  ezActionManager::UnregisterAction(s_hRegenerateCppSolution);
   ezActionManager::UnregisterAction(s_hExportProject);
   ezActionManager::UnregisterAction(s_hPluginSelection);
 }
@@ -243,6 +246,7 @@ void ezProjectActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hSetupCppProject, "G.Project.Cpp", 1.0f);
   pMap->MapAction(s_hOpenCppProject, "G.Project.Cpp", 2.0f);
   pMap->MapAction(s_hCompileCppProject, "G.Project.Cpp", 3.0f);
+  pMap->MapAction(s_hRegenerateCppSolution, "G.Project.Cpp", 4.0f);
   pMap->MapAction(s_hExportProject, "G.Project.External", 10.0f);
 
   pMap->MapAction(s_hOpenVsCode, "G.Tools.External", 1.0f);
@@ -455,6 +459,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::CompileCppProject:
       // SetIconPath(":/EditorFramework/Icons/VisualStudio.svg"); // TODO
       break;
+    case ezProjectAction::ButtonType::RegenerateCppSolution:
+      // SetIconPath(":/EditorFramework/Icons/VisualStudio.svg"); // TODO
+      break;
     case ezProjectAction::ButtonType::ShowDocsAndCommunity:
       // SetIconPath(":/GuiFoundation/Icons/Project.svg"); // TODO
       break;
@@ -542,7 +549,11 @@ void ezProjectAction::ProjectEventHandler(const ezToolsProjectEvent& e)
 
 void ezProjectAction::CppEventHandler(const ezCppSettings& e)
 {
-  SetEnabled(ezCppProject::ExistsProjectCMakeListsTxt());
+  if (m_ButtonType == ButtonType::OpenCppProject ||
+      m_ButtonType == ButtonType::CompileCppProject)
+  {
+    SetEnabled(ezCppProject::ExistsProjectCMakeListsTxt());
+  }
 }
 
 void ezProjectAction::Execute(const ezVariant& value)
@@ -690,8 +701,10 @@ void ezProjectAction::Execute(const ezVariant& value)
       // keep this here to make live color palette editing available, when needed
       // if (false)
       {
-        QTimer::singleShot(1, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
-        QTimer::singleShot(500, [this]() { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+        QTimer::singleShot(1, [this]()
+          { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
+        QTimer::singleShot(500, [this]()
+          { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });
       }
 
       if (m_Context.m_pDocument)
@@ -742,7 +755,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezStringBuilder sEngineProfilingFile;
       {
         // Wait for engine process response
-        auto callback = [&](ezProcessMessage* pMsg) -> bool {
+        auto callback = [&](ezProcessMessage* pMsg) -> bool
+        {
           auto pSimpleCfg = static_cast<ezSaveProfilingResponseToEditor*>(pMsg);
           sEngineProfilingFile = pSimpleCfg->m_sProfilingFile;
           return true;
@@ -854,7 +868,31 @@ void ezProjectAction::Execute(const ezVariant& value)
       }
       else
       {
-        ezQtUiServices::GetSingleton()->MessageBoxInformation("C++ code has not been set up, compilation is not necessary.");
+        ezQtUiServices::GetSingleton()->MessageBoxInformation("C++ code has not been set up, compilation is not possible (or necessary).");
+      }
+    }
+    break;
+
+    case ezProjectAction::ButtonType::RegenerateCppSolution:
+    {
+      ezCppSettings cpp;
+      cpp.Load().IgnoreResult();
+
+      if (!ezCppProject::ExistsProjectCMakeListsTxt() || !ezCppProject::ExistsSolution(cpp))
+      {
+        ezQtCppProjectDlg dlg(nullptr);
+        dlg.exec();
+      }
+      else
+      {
+        if (ezCppProject::RunCMake(cpp).Succeeded())
+        {
+          ezQtUiServices::GetSingleton()->MessageBoxInformation("Successfully regenerated the C++ solution.");
+        }
+        else
+        {
+          ezQtUiServices::GetSingleton()->MessageBoxWarning("Regenerating the solution failed. See log for details.");
+        }
       }
     }
     break;

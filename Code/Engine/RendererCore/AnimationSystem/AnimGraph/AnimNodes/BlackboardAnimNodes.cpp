@@ -23,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardNumberAnimNode, 1, ezRTTIDefaultA
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezTitleAttribute("Set Number: '{BlackboardEntry}'"),
+    new ezTitleAttribute("Set Number: '{BlackboardEntry}' to {Number}"),
     new ezCategoryAttribute("Blackboard"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
   }
@@ -421,7 +421,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetBlackboardBoolAnimNode, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezTitleAttribute("Set Bool: '{BlackboardEntry}'"),
+    new ezTitleAttribute("Set Bool: '{BlackboardEntry}' to {Bool}"),
     new ezCategoryAttribute("Blackboard"),
     new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
   }
