@@ -306,7 +306,7 @@ function(ez_detect_compiler_and_architecture)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC OFF)
 
-	set(FILE_TO_COMPILE "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/${EZ_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c")
+	set(FILE_TO_COMPILE "${EZ_ROOT}/${EZ_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c")
 	
 	if (EZ_SDK_DIR)
 		set(FILE_TO_COMPILE "${EZ_SDK_DIR}/${EZ_CMAKE_RELPATH}/ProbingSrc/ArchitectureDetect.c")
@@ -532,7 +532,7 @@ function(ez_detect_version)
 		return()
 	endif()
 
-	ez_get_version("${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/version.txt" VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
+	ez_get_version("${EZ_ROOT}/version.txt" VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 	set_property(GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MAJOR "${VERSION_MAJOR}")
 	set_property(GLOBAL PROPERTY EZ_CMAKE_SDKVERSION_MINOR "${VERSION_MINOR}")

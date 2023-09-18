@@ -11,7 +11,7 @@ set (PROJECT_NAME "RmlCore")
 ez_create_target(LIBRARY ${PROJECT_NAME} NO_EZ_PREFIX)
 
 # override the default IDE folder
-ez_set_project_ide_folder(${PROJECT_NAME} "Code/ThirdParty/RmlCore")
+ez_set_project_ide_folder(${PROJECT_NAME} "${EZ_ROOT}/Code/ThirdParty/RmlCore")
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_ENABLE_RMLUI_SUPPORT)
 
@@ -30,7 +30,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../
 # Freetype
 
 if(EZ_CMAKE_PLATFORM_WINDOWS)
-  set(RMLUI_FREETYPE_PATH ${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty/RmlUi/Dependencies/freetype)
+  set(RMLUI_FREETYPE_PATH ${EZ_ROOT}/Code/ThirdParty/RmlUi/Dependencies/freetype)
   target_include_directories(${PROJECT_NAME} PRIVATE "${RMLUI_FREETYPE_PATH}/Include")
 
   target_compile_definitions(${PROJECT_NAME} PRIVATE RmlCore_EXPORTS)

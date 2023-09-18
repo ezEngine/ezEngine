@@ -25,6 +25,10 @@ endif()
 
 set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
 
+# Set a global variable pointing to the root of the EZ source tree
+set(EZ_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(GLOBAL PROPERTY EZ_ROOT ${EZ_ROOT})
+
 ez_build_filter_init()
 
 ez_detect_project_name(DETECTED_NAME)
