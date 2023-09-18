@@ -233,7 +233,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 
 	# Ignore any warnings caused by headers inside the ThirdParty directory.
 	if(EZ_SUBMODULE_PREFIX_PATH)
-		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty\"")
+		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${EZ_ROOT}/Code/ThirdParty\"")
 	else()
 		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/Code/ThirdParty\"")
 	endif()

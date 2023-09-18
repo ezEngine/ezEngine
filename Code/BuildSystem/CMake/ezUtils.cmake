@@ -498,7 +498,7 @@ endfunction()
 # The build filter is intended to only build a subset of ezEngine.
 # The build filters are configured through cmake files in the 'BuildFilters' directory.
 function(ez_build_filter_init)
-	file(GLOB_RECURSE FILTER_FILES "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/BuildSystem/CMake/BuildFilters/*.BuildFilter")
+	file(GLOB_RECURSE FILTER_FILES "${EZ_ROOT}/Code/BuildSystem/CMake/BuildFilters/*.BuildFilter")
 
 	get_property(EZ_BUILD_FILTER_NAMES GLOBAL PROPERTY EZ_BUILD_FILTER_NAMES)
 
@@ -666,7 +666,7 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	message(STATUS "Extracting '${FULL_FILENAME}'...")
 
 	if(${PKG_TYPE} MATCHES "7z")
-		set(FULL_7ZA_PATH "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/${EZ_CONFIG_PATH_7ZA}")
+		set(FULL_7ZA_PATH "${EZ_ROOT}/${EZ_CONFIG_PATH_7ZA}")
 		execute_process(COMMAND "${FULL_7ZA_PATH}"
 			x "${PKG_FILE}"
 			-aoa
