@@ -120,6 +120,12 @@ void ezSceneDocument::GroupSelection()
   ezVec3 vCenter(0.0f);
   const ezDocumentObject* pCommonParent = sel[0]->GetParent();
 
+  // this happens for top-level objects, their parent object is an ezDocumentRootObject
+  if (pCommonParent->GetType() != ezGetStaticRTTI<ezGameObject>())
+  {
+    pCommonParent = nullptr;
+  }
+
   for (const auto& item : sel)
   {
     vCenter += GetGlobalTransform(item).m_vPosition;
