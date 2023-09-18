@@ -56,6 +56,7 @@ void ezAiSteering::Calculate(float fTimeDiff, ezDebugRendererContext ctxt)
   // ezDebugRenderer::DrawInfoText(ctxt, ezDebugRenderer::ScreenPlacement::BottomLeft, "Steering", ezFmt("Turn Speed: {}", turnSpeed));
   // ezDebugRenderer::DrawInfoText(ctxt, ezDebugRenderer::ScreenPlacement::BottomLeft, "Steering", ezFmt("Corridor Width: {}", m_Info.m_fWaypointCorridorWidth));
 
+  if (!m_Info.m_vDirectionTowardsWaypoint.IsZero())
   {
     const ezVec3 vTargetDir = m_Info.m_vDirectionTowardsWaypoint.GetAsVec3(0);
     ezVec3 vRotAxis = vLookDir.CrossRH(vTargetDir);

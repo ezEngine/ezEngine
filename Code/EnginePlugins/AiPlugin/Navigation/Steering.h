@@ -8,7 +8,7 @@
 /// Work in progress, do not use.
 ///
 /// Attempt to implement a steering behavior.
-struct ezAiSteering
+struct EZ_AIPLUGIN_DLL ezAiSteering
 {
   ezVec3 m_vPosition = ezVec3::MakeZero();
   ezQuat m_qRotation = ezQuat::MakeIdentity();

@@ -437,13 +437,23 @@ void ezAiNavigation::DebugDraw(const ezDebugRendererContext& context, ezColor ti
 
 float ezAiNavigation::GetCurrentElevation() const
 {
-  float h = m_vCurrentPosition.z;
-  m_Query.getPolyHeight(m_PathCorridor.getFirstPoly(), m_PathCorridor.getPos(), &h);
-  return h;
+  if (m_PathCorridor.getPathCount() > 0)
+  {
+    float h = m_vCurrentPosition.z;
+    m_Query.getPolyHeight(m_PathCorridor.getFirstPoly(), m_PathCorridor.getPos(), &h);
+    return h;
+  }
+
+  return m_vCurrentPosition.z;
 }
 
 void ezAiNavigation::ComputeSteeringInfo(ezAiSteeringInfo& out_info, const ezVec2& vForwardDir, float fMaxLookAhead)
 {
+  out_info.m_vNextWaypoint = m_vCurrentPosition;
+
+  if (m_PathCorridor.getPathCount() <= 0)
+    return;
+
   static constexpr ezUInt32 MaxTempNodes = 8;
 
   ezUInt8 cornerFlags[MaxTempNodes];

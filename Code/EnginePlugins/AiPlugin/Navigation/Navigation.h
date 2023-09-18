@@ -37,7 +37,7 @@ struct ezAiSteeringInfo
 /// If the destination was reached, a completely different path should be computed, or the current
 /// path should be canceled, call CancelNavigation().
 /// To start a new path search, call SetTargetPosition() again (and Update() every frame).
-class ezAiNavigation final
+class EZ_AIPLUGIN_DLL ezAiNavigation final
 {
 public:
   ezAiNavigation();

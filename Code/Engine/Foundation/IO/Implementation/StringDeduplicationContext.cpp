@@ -105,8 +105,14 @@ ezStringDeduplicationReadContext::~ezStringDeduplicationReadContext() = default;
 
 ezStringView ezStringDeduplicationReadContext::DeserializeString(ezStreamReader& ref_reader)
 {
-  ezUInt32 uiIndex;
+  ezUInt32 uiIndex = ezInvalidIndex;
   ref_reader >> uiIndex;
+
+  if (uiIndex >= m_DeduplicatedStrings.GetCount())
+  {
+    EZ_ASSERT_DEBUG(uiIndex < m_DeduplicatedStrings.GetCount(), "Failed to read data from file.");
+    return {};
+  }
 
   return m_DeduplicatedStrings[uiIndex].GetView();
 }
