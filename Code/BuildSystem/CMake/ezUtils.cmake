@@ -226,9 +226,11 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 
 	set(IDE_FOLDER "${FOLDER_NAME}")
 
-	if(${PROJECT_SOURCE_DIR} MATCHES "${CMAKE_SOURCE_DIR}/")
+	set(CMAKE_SOURCE_DIR_PREFIX "${CMAKE_SOURCE_DIR}/")
+	cmake_path(IS_PREFIX CMAKE_SOURCE_DIR_PREFIX ${PROJECT_SOURCE_DIR} NORMALIZE FOLDER_IN_TREE)
+	if(FOLDER_IN_TREE)
 		set(IDE_FOLDER "")
-		string(REPLACE "${CMAKE_SOURCE_DIR}/" "" PARENT_FOLDER ${PROJECT_SOURCE_DIR})
+		string(REPLACE ${CMAKE_SOURCE_DIR_PREFIX} "" PARENT_FOLDER ${PROJECT_SOURCE_DIR})
 
 		get_filename_component(PARENT_FOLDER "${PARENT_FOLDER}" PATH)
 		get_filename_component(FOLDER_NAME "${PARENT_FOLDER}" NAME)
@@ -325,14 +327,14 @@ endfunction()
 # ## ez_glob_source_files(<path-to-folder> <out-files>)
 # #####################################
 function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
-	file(GLOB_RECURSE RELEVANT_FILES 
-		"${ROOT_DIR}/*.cpp" 
-		"${ROOT_DIR}/*.cc" 
-		"${ROOT_DIR}/*.h" 
-		"${ROOT_DIR}/*.hpp" 
-		"${ROOT_DIR}/*.inl" 
-		"${ROOT_DIR}/*.c" 
-		"${ROOT_DIR}/*.cs" 
+	file(GLOB_RECURSE RELEVANT_FILES
+		"${ROOT_DIR}/*.cpp"
+		"${ROOT_DIR}/*.cc"
+		"${ROOT_DIR}/*.h"
+		"${ROOT_DIR}/*.hpp"
+		"${ROOT_DIR}/*.inl"
+		"${ROOT_DIR}/*.c"
+		"${ROOT_DIR}/*.cs"
 		"${ROOT_DIR}/*.ui"
 		"${ROOT_DIR}/*.qrc"
 		"${ROOT_DIR}/*.def"
