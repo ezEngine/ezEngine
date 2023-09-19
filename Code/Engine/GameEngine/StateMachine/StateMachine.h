@@ -154,6 +154,11 @@ public:
   /// \brief Returns how long the state machine is in its current state
   ezTime GetTimeInCurrentState() const { return m_TimeInCurrentState; }
 
+  /// \brief Sends a named event that state transitions can react to.
+  void FireTransitionEvent(ezStringView sEvent);
+
+  ezStringView GetCurrentTransitionEvent() const { return m_sCurrentTransitionEvent; }
+
 private:
   EZ_ALLOW_PRIVATE_PROPERTIES(ezStateMachineInstance);
 
@@ -187,6 +192,7 @@ private:
   ezStateMachineState* m_pCurrentState = nullptr;
   ezUInt32 m_uiCurrentStateIndex = ezInvalidIndex;
   ezTime m_TimeInCurrentState;
+  ezStringView m_sCurrentTransitionEvent;
 
   const ezStateMachineDescription::TransitionArray* m_pCurrentTransitions = nullptr;
 

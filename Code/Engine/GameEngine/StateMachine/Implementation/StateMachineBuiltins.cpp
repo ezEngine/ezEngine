@@ -448,4 +448,43 @@ bool ezStateMachineTransition_Compound::GetInstanceDataDesc(ezInstanceDataDesc& 
 }
 
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineTransition_TransitionEvent, 1, ezRTTIDefaultAllocator<ezStateMachineTransition_TransitionEvent>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("EventName", m_sEventName),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezStateMachineTransition_TransitionEvent::ezStateMachineTransition_TransitionEvent() = default;
+ezStateMachineTransition_TransitionEvent::~ezStateMachineTransition_TransitionEvent() = default;
+
+bool ezStateMachineTransition_TransitionEvent::IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const
+{
+  return ref_instance.GetCurrentTransitionEvent() == m_sEventName;
+}
+
+ezResult ezStateMachineTransition_TransitionEvent::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+
+  inout_stream << m_sEventName;
+  return EZ_SUCCESS;
+}
+
+ezResult ezStateMachineTransition_TransitionEvent::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+
+  inout_stream >> m_sEventName;
+  return EZ_SUCCESS;
+}
+
+
 EZ_STATICLINK_FILE(GameEngine, GameEngine_StateMachine_Implementation_StateMachineBuiltins);

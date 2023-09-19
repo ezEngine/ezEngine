@@ -295,7 +295,7 @@ void ezRootMotionMode::Apply(ezRootMotionMode::Enum mode, ezGameObject* pObject,
 
 
 ezAnimatedMeshComponentManager::ezAnimatedMeshComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
+  : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
 {
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezAnimatedMeshComponentManager::ResourceEventHandler, this));
 }

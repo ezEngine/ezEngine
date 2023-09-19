@@ -7,7 +7,7 @@
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-class EZ_GAMEENGINE_DLL ezAnimatedMeshComponentManager : public ezComponentManager<class ezAnimatedMeshComponent, ezBlockStorageType::Compact>
+class EZ_GAMEENGINE_DLL ezAnimatedMeshComponentManager : public ezComponentManager<class ezAnimatedMeshComponent, ezBlockStorageType::FreeList>
 {
 public:
   ezAnimatedMeshComponentManager(ezWorld* pWorld);

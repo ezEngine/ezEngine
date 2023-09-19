@@ -129,6 +129,9 @@ void ezRotorComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
+  // reset to start state
+  m_qLastRotation = ezQuat::MakeIdentity();
+
   switch (m_Axis)
   {
     case ezBasisAxis::PositiveX:

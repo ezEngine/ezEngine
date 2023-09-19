@@ -49,6 +49,7 @@ class EZ_CORE_DLL ezCollectionResource : public ezResource
 
 public:
   ezCollectionResource();
+  ~ezCollectionResource();
 
   /// \brief Registers the named resources in the collection with the ezResourceManager, such that they can be loaded by those names.
   ///

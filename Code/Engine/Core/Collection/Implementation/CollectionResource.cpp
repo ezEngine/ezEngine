@@ -14,6 +14,9 @@ ezCollectionResource::ezCollectionResource()
 {
 }
 
+// UnloadData() already makes sure to call UnregisterNames();
+ezCollectionResource::~ezCollectionResource() = default;
+
 bool ezCollectionResource::PreloadResources(ezUInt32 uiNumResourcesToPreload)
 {
   EZ_LOCK(m_PreloadMutex);
@@ -146,7 +149,7 @@ ezResourceLoadDesc ezCollectionResource::UnloadData(Unload WhatToUnload)
     // It is intentionally removed as it caused this lock and the resource manager lock to be locked in reverse order.
     // To prevent potential deadlocks and be able to sanity check our locking the entire codebase should never lock any
     // locks in reverse order, even if this lock is probably fine it prevents us from reasoning over the entire system.
-    //EZ_LOCK(m_preloadMutex);
+    // EZ_LOCK(m_preloadMutex);
     m_PreloadedResources.Clear();
     m_Collection.m_Resources.Clear();
 
