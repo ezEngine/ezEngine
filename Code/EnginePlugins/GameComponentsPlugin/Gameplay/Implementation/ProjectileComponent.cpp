@@ -31,7 +31,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 5, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -40,6 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("MaxLifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
     EZ_ACCESSOR_PROPERTY("OnTimeoutSpawn", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", ezPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new ezDefaultValueAttribute(ezVariant(ezPhysicsShapeType::Default & ~(ezPhysicsShapeType::Trigger)))),
     EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
@@ -117,8 +118,7 @@ void ezProjectileComponent::Update()
 
     ezPhysicsQueryParameters queryParams(m_uiCollisionLayer);
     queryParams.m_bIgnoreInitialOverlap = true;
-    queryParams.m_ShapeTypes.Remove(ezPhysicsShapeType::Trigger);
-    // queryParams.m_ShapeTypes.Remove(ezPhysicsShapeType::Character); // TODO: expose this ??
+    queryParams.m_ShapeTypes = m_ShapeTypesToHit;
 
     ezPhysicsCastResult castResult;
     if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, queryParams))
@@ -266,6 +266,9 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
     // Version 4
     s << ia.m_fDamage;
   }
+
+  // Version 5
+  s << m_ShapeTypesToHit;
 }
 
 void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -308,6 +311,11 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
     {
       s >> ia.m_fDamage;
     }
+  }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_ShapeTypesToHit;
   }
 }
 
@@ -443,4 +451,3 @@ public:
 };
 
 ezProjectileComponentPatch_1_2 g_ezProjectileComponentPatch_1_2;
-

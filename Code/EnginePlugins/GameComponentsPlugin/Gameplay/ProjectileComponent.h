@@ -76,6 +76,7 @@ public:
   float m_fMetersPerSecond;                                                ///< [ property ] The speed at which the projectile flies
   float m_fGravityMultiplier;                                              ///< [ property ] If 0, the projectile is not affected by gravity.
   ezUInt8 m_uiCollisionLayer;                                              ///< [ property ]
+  ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit;                        ///< [ property ]
   ezTime m_MaxLifetime;                                                    ///< [ property ] After this time the projectile is killed, if it didn't die already
   ezSurfaceResourceHandle m_hFallbackSurface;                              ///< [ property ]
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; ///< [ property ]
