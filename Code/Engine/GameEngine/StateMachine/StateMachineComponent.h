@@ -147,6 +147,12 @@ public:
   /// \brief Sets the current state with the given name.
   bool SetState(ezStringView sName); // [ scriptable ]
 
+  /// \brief Returns the name of the currently active state.
+  ezStringView GetCurrentState() const; // [ scriptable ]
+
+  /// \brief Sends a named event that state transitions can react to.
+  void FireTransitionEvent(ezStringView sEvent);
+
   void SetBlackboardName(const char* szName);                         // [ property ]
   const char* GetBlackboardName() const { return m_sBlackboardName; } // [ property ]
 

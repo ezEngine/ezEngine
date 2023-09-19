@@ -24,9 +24,11 @@ ezStateMachineNodeAny;New Any State
 ezStateMachineTransition_Timeout;Timeout Transition
 ezStateMachineTransition_Compound;Compound Transition
 ezStateMachineTransition_BlackboardConditions;Blackboard Conditions
+ezStateMachineTransition_TransitionEvent;Transition Event
 
 ezStateMachineState_NestedStateMachine;Nested State Machine
 ezStateMachineState_Compound;Compound State
 ezStateMachineState_SendMsg;Send Message
 ezStateMachineState_SwitchObject;Switch Object
 ezStateMachineState_Script;Script
+

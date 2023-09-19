@@ -268,6 +268,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezStateMachineComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_FUNCTIONS
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(SetState, In, "Name"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentState),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FireTransitionEvent, In, "Name"),
   }
   EZ_END_FUNCTIONS;
 
@@ -405,6 +407,23 @@ bool ezStateMachineComponent::SetState(ezStringView sName)
   return false;
 }
 
+ezStringView ezStateMachineComponent::GetCurrentState() const
+{
+  if (m_pStateMachineInstance != nullptr && m_pStateMachineInstance->GetCurrentState())
+  {
+    return m_pStateMachineInstance->GetCurrentState()->GetName();
+  }
+
+  return {};
+}
+
+void ezStateMachineComponent::FireTransitionEvent(ezStringView sEvent)
+{
+  if (m_pStateMachineInstance != nullptr)
+  {
+    m_pStateMachineInstance->FireTransitionEvent(sEvent);
+  }
+}
 
 void ezStateMachineComponent::SendStateChangedMsg(ezMsgStateMachineStateChanged& msg, ezTime delay)
 {

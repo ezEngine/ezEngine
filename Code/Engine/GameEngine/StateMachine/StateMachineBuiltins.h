@@ -158,3 +158,22 @@ public:
 private:
   ezStateMachineInternal::Compound m_Compound;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief A state machine transition implementation that triggers when a 'transition event' is sent.
+class EZ_GAMEENGINE_DLL ezStateMachineTransition_TransitionEvent : public ezStateMachineTransition
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineTransition_TransitionEvent, ezStateMachineTransition);
+
+public:
+  ezStateMachineTransition_TransitionEvent();
+  ~ezStateMachineTransition_TransitionEvent();
+
+  virtual bool IsConditionMet(ezStateMachineInstance& ref_instance, void* pInstanceData) const override;
+
+  virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
+  virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+
+  ezHashedString m_sEventName;
+};

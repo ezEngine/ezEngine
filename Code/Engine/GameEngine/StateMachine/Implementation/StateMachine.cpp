@@ -416,6 +416,19 @@ void ezStateMachineInstance::SetBlackboard(const ezSharedPtr<ezBlackboard>& pBla
   m_pBlackboard = pBlackboard;
 }
 
+void ezStateMachineInstance::FireTransitionEvent(ezStringView sEvent)
+{
+  m_sCurrentTransitionEvent = sEvent;
+
+  ezUInt32 uiNewStateIndex = FindNewStateToTransitionTo();
+  if (uiNewStateIndex != ezInvalidIndex)
+  {
+    SetState(uiNewStateIndex).IgnoreResult();
+  }
+
+  m_sCurrentTransitionEvent = {};
+}
+
 bool ezStateMachineInstance::Reflection_SetState(const ezHashedString& sStateName)
 {
   return SetState(sStateName).Succeeded();
