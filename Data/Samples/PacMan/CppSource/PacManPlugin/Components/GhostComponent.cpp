@@ -127,8 +127,7 @@ void GhostComponent::Update()
   }
 
   // now just change the rotation of the ghost to point into the current direction
-  ezQuat rotation;
-  rotation.SetFromAxisAndAngle(ezVec3::UnitZAxis(), ezAngle::Degree(m_Direction * 90));
+  ezQuat rotation = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(m_Direction * 90));
   GetOwner()->SetGlobalRotation(rotation);
 
   // and communicate to the character controller component, that it should move forwards at a fixed speed
