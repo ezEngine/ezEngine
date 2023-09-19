@@ -57,6 +57,16 @@ void ezTransformComponent::DeserializeComponent(ezWorldReader& inout_stream)
   inout_stream.GetStream() >> m_fAnimationSpeed;
 }
 
+void ezTransformComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  // reset to start state
+  m_AnimationTime = ezTime::MakeZero();
+  m_Flags.Add(ezTransformComponentFlags::Running);
+  m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
+}
+
 bool ezTransformComponent::IsRunning(void) const
 {
   return m_Flags.IsAnySet(ezTransformComponentFlags::Running);

@@ -20,7 +20,6 @@ public:
 protected:
   virtual void OnSimulationStarted() override;
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezSliderComponent
 

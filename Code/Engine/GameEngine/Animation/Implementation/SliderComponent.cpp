@@ -65,8 +65,7 @@ void ezSliderComponent::Update()
     else
       m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
 
-    const float fNewDistance =
-      CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
+    const float fNewDistance = CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
     const float fDistanceDiff = fNewDistance - m_fLastDistance;
 
@@ -107,10 +106,13 @@ void ezSliderComponent::Update()
   }
 }
 
-
-
 void ezSliderComponent::OnSimulationStarted()
 {
+  SUPER::OnSimulationStarted();
+
+  // reset to start state
+  m_fLastDistance = 0.0f;
+
   if (m_RandomStart.IsPositive())
   {
     m_AnimationTime = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomStart.GetSeconds()));

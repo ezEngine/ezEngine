@@ -44,6 +44,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
+protected:
+  virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezTransformComponent
