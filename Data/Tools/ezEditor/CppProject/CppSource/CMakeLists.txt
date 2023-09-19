@@ -17,6 +17,9 @@ if(PROJECT_IS_TOP_LEVEL)
 	get_property(EZ_CMAKE_RELPATH_CODE GLOBAL PROPERTY EZ_CMAKE_RELPATH_CODE)
 
 	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${EZ_SDK_DIR}/${EZ_CMAKE_RELPATH}")
+	
+	set(EZ_ROOT ${EZ_SDK_DIR})
+	set_property(GLOBAL PROPERTY EZ_ROOT ${EZ_ROOT})
 
 	include("ezUtils")
 	include("ezPlatformVars")

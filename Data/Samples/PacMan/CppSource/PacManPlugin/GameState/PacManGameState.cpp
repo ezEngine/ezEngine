@@ -73,7 +73,7 @@ void PacManGameState::AfterWorldUpdate()
   const ezInt32 iNumCoinsFound = pBlackboard->GetEntryValue(ezTempHashedString("CoinsEaten"), 0).Get<ezInt32>();
   const ezInt32 iPacManState = pBlackboard->GetEntryValue(ezTempHashedString("PacManState"), 1).Get<ezInt32>();
 
-  ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "Stats", ezFmt("Coins: {} / {}", iNumCoinsFound, m_uiNumCoinsTotal));
+  ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", ezFmt("Coins: {} / {}", iNumCoinsFound, m_uiNumCoinsTotal));
 
   if (iPacManState == PacManState::Alive && m_uiNumCoinsTotal > 0 && iNumCoinsFound == m_uiNumCoinsTotal)
   {
@@ -81,17 +81,17 @@ void PacManGameState::AfterWorldUpdate()
     pBlackboard->SetEntryValue(ezTempHashedString("PacManState"), PacManState::WonGame).AssertSuccess();
 
     // play a sound, the GUID of the sound asset was copied from the editor
-    ezSoundInterface::PlaySound("{ a10b9065-0b4d-4eff-a9ac-2f712dc28c1c }", ezTransform::IdentityTransform()).IgnoreResult();
+    ezSoundInterface::PlaySound("{ a10b9065-0b4d-4eff-a9ac-2f712dc28c1c }", ezTransform::MakeIdentity()).IgnoreResult();
   }
 
   if (iPacManState == PacManState::EatenByGhost)
   {
-    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "Stats", "YOU LOSE!\n\nPress SPACE to play again.", ezColor::Red);
+    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU LOSE!\n\nPress SPACE to play again.", ezColor::Red);
   }
 
   if (iPacManState == PacManState::WonGame)
   {
-    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugRenderer::ScreenPlacement::TopCenter, "Stats", "YOU WIN!\n\nPress SPACE to play again.", ezColor::LightPink);
+    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU WIN!\n\nPress SPACE to play again.", ezColor::LightPink);
   }
 }
 
