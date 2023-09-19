@@ -5,11 +5,12 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Collection", GetCollectionFile, SetCollectionFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_AssetCollection", ezDependencyFlags::Package)),
+    EZ_MEMBER_PROPERTY("RegisterNames", m_bRegisterNames),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -30,31 +31,37 @@ void ezCollectionComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   auto& s = inout_stream.GetStream();
 
   s << m_hCollection;
+  s << m_bRegisterNames;
 }
 
 void ezCollectionComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_hCollection;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bRegisterNames;
+  }
 }
 
-void ezCollectionComponent::SetCollectionFile(ezStringView sFile)
+void ezCollectionComponent::SetCollectionFile(const char* szFile)
 {
   ezCollectionResourceHandle hResource;
 
-  if (!sFile.IsEmpty())
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hResource = ezResourceManager::LoadResource<ezCollectionResource>(sFile);
+    hResource = ezResourceManager::LoadResource<ezCollectionResource>(szFile);
     ezResourceManager::PreloadResource(hResource);
   }
 
   SetCollection(hResource);
 }
 
-ezStringView ezCollectionComponent::GetCollectionFile() const
+const char* ezCollectionComponent::GetCollectionFile() const
 {
   if (!m_hCollection.IsValid())
     return {};
@@ -86,6 +93,11 @@ void ezCollectionComponent::InitiatePreload()
     if (pCollection.GetAcquireResult() == ezResourceAcquireResult::Final)
     {
       pCollection->PreloadResources();
+
+      if (m_bRegisterNames)
+      {
+        pCollection->RegisterNames();
+      }
     }
   }
 }
