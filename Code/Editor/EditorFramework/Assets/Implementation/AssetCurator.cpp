@@ -805,6 +805,7 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezHybridArray<ezString, 16> transformDeps;
   ezHybridArray<ezString, 16> thumbnailDeps;
   ezHybridArray<ezString, 16> outputs;
+  ezHybridArray<ezString, 16> subAssetNames;
 
   // Lock asset and get all data needed for update computation.
   {
@@ -835,6 +836,13 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
     {
       outputs.PushBack(output);
     }
+    for (auto& subAssetUuid : pAssetInfo->m_SubAssets)
+    {
+      if (ezSubAsset* pSubAsset = GetSubAssetInternal(subAssetUuid))
+      {
+        subAssetNames.PushBack(pSubAsset->m_Data.m_sName);
+      }
+    }
   }
 
   ezAssetInfo::TransformState state = ezAssetInfo::TransformState::Unknown;
@@ -850,18 +858,22 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
       if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor))
       {
         state = ezAssetInfo::TransformState::UpToDate;
-        if (pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
+        if (pTypeDescriptor->m_AssetDocumentFlags.IsAnySet(ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoThumbnailOnTransform))
         {
-          if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
+          if (!pManager->IsThumbnailUpToDate(sAssetFile, "", out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
           {
-            state = ezAssetInfo::TransformState::NeedsThumbnail;
+            state = pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) ? ezAssetInfo::TransformState::NeedsTransform : ezAssetInfo::TransformState::NeedsThumbnail;
           }
         }
-        else if (pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform))
+        else if (pTypeDescriptor->m_AssetDocumentFlags.IsAnySet(ezAssetDocumentFlags::SubAssetsSupportThumbnail | ezAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform))
         {
-          if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
+          for (const ezString& subAssetName : subAssetNames)
           {
-            state = ezAssetInfo::TransformState::NeedsTransform;
+            if (!pManager->IsThumbnailUpToDate(sAssetFile, subAssetName, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
+            {
+              state = pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::SubAssetsAutoThumbnailOnTransform) ? ezAssetInfo::TransformState::NeedsTransform : ezAssetInfo::TransformState::NeedsThumbnail;
+              break;
+            }
           }
         }
       }
@@ -1109,6 +1121,15 @@ void ezAssetCurator::NeedsReloadResources(const ezUuid& assetGuid)
   if (m_pAssetTableWriter)
   {
     m_pAssetTableWriter->NeedsReloadResource(assetGuid);
+
+    ezAssetInfo* pAssetInfo = nullptr;
+    if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
+    {
+      for (auto& subAssetUuid : pAssetInfo->m_SubAssets)
+      {
+        m_pAssetTableWriter->NeedsReloadResource(subAssetUuid);
+      }
+    }
   }
 }
 
@@ -1426,6 +1447,11 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
     if (ret.Succeeded())
     {
       m_pAssetTableWriter->NeedsReloadResource(pAsset->GetGuid());
+
+      for (auto& subAssetUuid : pAssetInfo->m_SubAssets)
+      {
+        m_pAssetTableWriter->NeedsReloadResource(subAssetUuid);
+      }
     }
   }
 
@@ -2017,25 +2043,29 @@ void ezAssetCurator::ClearAssetCaches(ezAssetDocumentManager::OutputReliability 
 
     // for all assets, gather their outputs and check which ones we want to keep
     // e.g. textures are perfectly reliable, and even when clearing the cache we can keep them, also because they cost a lot of time to regenerate
-    for (auto it : m_KnownAssets)
+    for (auto it : m_KnownSubAssets)
     {
-      auto* pAsset = it.Value();
-      if (pAsset->GetManager()->GetAssetTypeOutputReliability() > threshold)
+      const auto& subAsset = it.Value();
+      auto pManager = subAsset.m_pAssetInfo->GetManager();
+      if (pManager->GetAssetTypeOutputReliability() > threshold)
       {
+        auto pDocumentTypeDescriptor = subAsset.m_pAssetInfo->m_pDocumentTypeDescriptor;
+        const auto& path = subAsset.m_pAssetInfo->m_Path;
+
         // check additional outputs
-        for (const auto& output : pAsset->m_Info->m_Outputs)
+        for (const auto& output : subAsset.m_pAssetInfo->m_Info->m_Outputs)
         {
-          filePath = pAsset->GetManager()->GetAbsoluteOutputFileName(pAsset->m_pDocumentTypeDescriptor, pAsset->m_Path, output);
+          filePath = pManager->GetAbsoluteOutputFileName(pDocumentTypeDescriptor, path, output);
           filePath.MakeCleanPath();
           keepAssets.Insert(filePath);
         }
 
-        filePath = pAsset->GetManager()->GetAbsoluteOutputFileName(pAsset->m_pDocumentTypeDescriptor, pAsset->m_Path, nullptr);
+        filePath = pManager->GetAbsoluteOutputFileName(pDocumentTypeDescriptor, path, nullptr);
         filePath.MakeCleanPath();
         keepAssets.Insert(filePath);
 
         // and also keep the thumbnail
-        filePath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_Path);
+        filePath = pManager->GenerateResourceThumbnailPath(path, subAsset.m_Data.m_sName);
         filePath.MakeCleanPath();
         keepAssets.Insert(filePath);
       }

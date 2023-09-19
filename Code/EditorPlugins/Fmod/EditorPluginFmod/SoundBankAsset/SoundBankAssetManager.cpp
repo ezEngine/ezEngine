@@ -79,7 +79,7 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
   m_pFmod.Clear();
 }
 
-void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_subAssets) const
+void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezDynamicArray<ezSubAssetData>& out_subAssets) const
 {
   ezHashedString sAssetsDocumentTypeName;
   sAssetsDocumentTypeName.Assign("Sound Event");

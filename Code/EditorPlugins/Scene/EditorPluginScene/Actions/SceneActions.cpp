@@ -300,7 +300,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       {
         // if the thumbnail doesn't exist, or is very old, update it anyway
 
-        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(m_pSceneDocument->GetDocumentPath());
+        ezStringBuilder sThumbnailPath = m_pSceneDocument->GetAssetDocumentManager()->GenerateResourceThumbnailPath(m_pSceneDocument->GetDocumentPath());
 
         ezFileStats stat;
         if (ezOSFile::GetFileStats(sThumbnailPath, stat).Failed())

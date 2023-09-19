@@ -613,8 +613,18 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       {
         if (bStateChanged)
         {
-          ezString sThumbPath = static_cast<ezAssetDocumentManager*>(pAssetInfo->GetManager())->GenerateResourceThumbnailPath(pAssetInfo->m_Path);
+          ezString sThumbPath = pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pAssetInfo->m_Path);
           ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
+
+          for (auto& subAssetUuid : pAssetInfo->m_SubAssets)
+          {
+            ezSubAsset* pSubAsset;
+            if (m_KnownSubAssets.TryGetValue(subAssetUuid, pSubAsset))
+            {
+              sThumbPath = pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pAssetInfo->m_Path, pSubAsset->m_Data.m_sName);
+              ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
+            }
+          }
         }
         break;
       }

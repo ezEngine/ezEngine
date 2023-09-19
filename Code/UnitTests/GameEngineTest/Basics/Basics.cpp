@@ -7,6 +7,7 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/Process.h>
+#include <GameEngineTest/SubstanceTest/SubstanceTest.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -29,8 +30,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   else
   {
     // Assume to be relative to ez root.
-    sProjectDir = sBinPath;
-    sProjectDir.PathParentDirectory(3);
+    sProjectDir = ezFileSystem::GetSdkRootDirectory();
     sProjectDir.AppendPath(szProjectPath);
     sProjectDir.MakeCleanPath();
   }
@@ -216,6 +216,14 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformVisualScript)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 6).Succeeded());
+}
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformSubstance)
+{
+  if (ezGameEngineTestSubstance::HasSubstanceDesignerInstalled())
+  {
+    EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Substance/ezProject", 1).Succeeded());
+  }
 }
 
 #endif

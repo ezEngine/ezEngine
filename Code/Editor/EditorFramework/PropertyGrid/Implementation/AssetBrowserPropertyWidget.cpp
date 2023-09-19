@@ -196,10 +196,12 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       {
         pAsset->GetSubAssetIdentifier(sText);
 
-        sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_pAssetInfo->m_Path);
+        sThumbnailPath = pAsset->m_pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pAsset->m_pAssetInfo->m_Path, pAsset->m_Data.m_sName);
       }
       else
+      {
         m_AssetGuid = ezUuid();
+      }
     }
 
     UpdateThumbnail(m_AssetGuid, sThumbnailPath);

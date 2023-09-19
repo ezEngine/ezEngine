@@ -66,11 +66,23 @@ ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocume
   return ezStatus(EZ_SUCCESS);
 }
 
-ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(ezStringView sDocumentPath)
+ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(ezStringView sDocumentPath, ezStringView sSubAssetName)
 {
-  ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(sDocumentPath);
+  ezStringBuilder sRelativePath;
+  if (sSubAssetName.IsEmpty())
+  {
+    sRelativePath = sDocumentPath;
+  }
+  else
+  {
+    sRelativePath = sDocumentPath.GetFileDirectory();
 
-  ezStringBuilder sRelativePath = sDocumentPath;
+    ezStringBuilder sValidFileName;
+    ezPathUtils::MakeValidFilename(sSubAssetName, '_', sValidFileName);
+    sRelativePath.AppendPath(sValidFileName);
+  }
+
+  ezString sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(sRelativePath);
 
   sRelativePath.MakeRelativeTo(sProjectDir).IgnoreResult();
   sRelativePath.Append(".jpg");
@@ -81,10 +93,10 @@ ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(ezStringView sDoc
   return sFinalPath;
 }
 
-bool ezAssetDocumentManager::IsThumbnailUpToDate(ezStringView sDocumentPath, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion)
+bool ezAssetDocumentManager::IsThumbnailUpToDate(ezStringView sDocumentPath, ezStringView sSubAssetName, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion)
 {
-  CURATOR_PROFILE(sDocumentPath);
-  ezString sThumbPath = GenerateResourceThumbnailPath(sDocumentPath);
+  CURATOR_PROFILE(szDocumentPath);
+  ezString sThumbPath = GenerateResourceThumbnailPath(sDocumentPath, sSubAssetName);
   ezFileReader file;
   if (file.Open(sThumbPath, 256).Failed())
     return false;
@@ -128,7 +140,7 @@ ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const ezAssetDocument
 ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   const ezPlatformProfile* pPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
-  EZ_ASSERT_DEBUG(sOutputTag.IsEmpty(), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", sOutputTag, sDocumentPath);
+  EZ_ASSERT_DEBUG(sOutputTag.IsEmpty(), "The output tag '{}' for '{}' is not supported, override GetRelativeOutputFileName", sOutputTag, sDocumentPath);
 
   ezStringBuilder sRelativePath(sDocumentPath);
   sRelativePath.MakeRelativeTo(sDataDirectory).IgnoreResult();

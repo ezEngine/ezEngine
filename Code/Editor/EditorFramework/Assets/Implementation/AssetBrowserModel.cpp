@@ -318,7 +318,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
     {
       if (m_bIconMode)
       {
-        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pSubAsset->m_pAssetInfo->m_Path);
+        ezString sThumbnailPath = pSubAsset->m_pAssetInfo->GetManager()->GenerateResourceThumbnailPath(pSubAsset->m_pAssetInfo->m_Path, pSubAsset->m_Data.m_sName);
 
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);

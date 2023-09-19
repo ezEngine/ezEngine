@@ -209,7 +209,7 @@ void ezAssetTableWriter::NeedsReloadResource(const ezUuid& assetGuid)
   {
     EZ_LOCK(m_AssetTableMutex);
     m_bNeedToReloadResources = true;
-    const ezString& sDocType = asset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
+    ezString sDocType = asset->m_Data.m_sSubAssetsDocumentTypeName.GetString();
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(assetGuid, sGuid);
     const ezUInt32 uiDataDirIndex = FindDataDir(*asset);
