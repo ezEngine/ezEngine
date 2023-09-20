@@ -30,7 +30,10 @@ ezResult ezJSONReader::Parse(ezStreamReader& ref_inputStream, ezUInt32 uiFirstLi
 
   // make sure there is one top level element
   if (m_Stack.IsEmpty())
-    m_Stack.PushBack(Element());
+  {
+    Element& e = m_Stack.ExpandAndGetRef();
+    e.m_Mode = ElementType::None;
+  }
 
   return EZ_SUCCESS;
 }
@@ -44,7 +47,7 @@ bool ezJSONReader::OnVariable(ezStringView sVarName)
 
 void ezJSONReader::OnReadValue(ezStringView sValue)
 {
-  if (m_Stack.PeekBack().m_Mode == ElementMode::Array)
+  if (m_Stack.PeekBack().m_Mode == ElementType::Array)
     m_Stack.PeekBack().m_Array.PushBack(std::move(ezString(sValue)));
   else
     m_Stack.PeekBack().m_Dictionary[m_sLastName] = std::move(ezString(sValue));
@@ -54,7 +57,7 @@ void ezJSONReader::OnReadValue(ezStringView sValue)
 
 void ezJSONReader::OnReadValue(double fValue)
 {
-  if (m_Stack.PeekBack().m_Mode == ElementMode::Array)
+  if (m_Stack.PeekBack().m_Mode == ElementType::Array)
     m_Stack.PeekBack().m_Array.PushBack(ezVariant(fValue));
   else
     m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant(fValue);
@@ -64,7 +67,7 @@ void ezJSONReader::OnReadValue(double fValue)
 
 void ezJSONReader::OnReadValue(bool bValue)
 {
-  if (m_Stack.PeekBack().m_Mode == ElementMode::Array)
+  if (m_Stack.PeekBack().m_Mode == ElementType::Array)
     m_Stack.PeekBack().m_Array.PushBack(ezVariant(bValue));
   else
     m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant(bValue);
@@ -74,7 +77,7 @@ void ezJSONReader::OnReadValue(bool bValue)
 
 void ezJSONReader::OnReadValueNULL()
 {
-  if (m_Stack.PeekBack().m_Mode == ElementMode::Array)
+  if (m_Stack.PeekBack().m_Mode == ElementType::Array)
     m_Stack.PeekBack().m_Array.PushBack(ezVariant());
   else
     m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant();
@@ -85,7 +88,7 @@ void ezJSONReader::OnReadValueNULL()
 void ezJSONReader::OnBeginObject()
 {
   m_Stack.PushBack(Element());
-  m_Stack.PeekBack().m_Mode = ElementMode::Dictionary;
+  m_Stack.PeekBack().m_Mode = ElementType::Dictionary;
   m_Stack.PeekBack().m_sName = m_sLastName;
 
   m_sLastName.Clear();
@@ -99,7 +102,7 @@ void ezJSONReader::OnEndObject()
   {
     Element& Parent = m_Stack[m_Stack.GetCount() - 2];
 
-    if (Parent.m_Mode == ElementMode::Array)
+    if (Parent.m_Mode == ElementType::Array)
     {
       Parent.m_Array.PushBack(Child.m_Dictionary);
     }
@@ -119,7 +122,7 @@ void ezJSONReader::OnEndObject()
 void ezJSONReader::OnBeginArray()
 {
   m_Stack.PushBack(Element());
-  m_Stack.PeekBack().m_Mode = ElementMode::Array;
+  m_Stack.PeekBack().m_Mode = ElementType::Array;
   m_Stack.PeekBack().m_sName = m_sLastName;
 
   m_sLastName.Clear();
@@ -128,18 +131,26 @@ void ezJSONReader::OnBeginArray()
 void ezJSONReader::OnEndArray()
 {
   Element& Child = m_Stack[m_Stack.GetCount() - 1];
-  Element& Parent = m_Stack[m_Stack.GetCount() - 2];
 
-  if (Parent.m_Mode == ElementMode::Array)
+  if (m_Stack.GetCount() > 1)
   {
-    Parent.m_Array.PushBack(Child.m_Array);
+    Element& Parent = m_Stack[m_Stack.GetCount() - 2];
+
+    if (Parent.m_Mode == ElementType::Array)
+    {
+      Parent.m_Array.PushBack(Child.m_Array);
+    }
+    else
+    {
+      Parent.m_Dictionary[Child.m_sName] = std::move(Child.m_Array);
+    }
+
+    m_Stack.PopBack();
   }
   else
   {
-    Parent.m_Dictionary[Child.m_sName] = std::move(Child.m_Array);
+    // do nothing, keep the top-level array
   }
-
-  m_Stack.PopBack();
 }
 
 

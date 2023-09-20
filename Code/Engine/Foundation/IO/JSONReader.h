@@ -13,6 +13,13 @@
 class EZ_FOUNDATION_DLL ezJSONReader : public ezJSONParser
 {
 public:
+  enum class ElementType : ezInt8
+  {
+    None,       ///< The JSON document is entirely empty (not even containing an empty object or array)
+    Dictionary, ///< The top level element in the JSON document is an object
+    Array,      ///< The top level element in the JSON document is an array
+  };
+
   ezJSONReader();
 
   /// \brief Reads the entire stream and creates the internal data structure that represents the JSON document. Returns EZ_FAILURE if any parsing
@@ -21,6 +28,12 @@ public:
 
   /// \brief Returns the top-level object of the JSON document.
   const ezVariantDictionary& GetTopLevelObject() const { return m_Stack.PeekBack().m_Dictionary; }
+
+  /// \brief Returns the top-level array of the JSON document.
+  const ezVariantArray& GetTopLevelArray() const { return m_Stack.PeekBack().m_Array; }
+
+  /// \brief Returns whether the top level element is an array or an object.
+  ElementType GetTopLevelElementType() const { return m_Stack.PeekBack().m_Mode; }
 
 private:
   /// \brief This function can be overridden to skip certain variables, however the overriding function must still call this.
@@ -53,22 +66,16 @@ private:
   virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override;
 
 protected:
-  enum class ElementMode : ezInt8
-  {
-    Array,
-    Dictionary
-  };
-
   struct Element
   {
     ezString m_sName;
-    ElementMode m_Mode;
+    ElementType m_Mode = ElementType::None;
     ezVariantArray m_Array;
     ezVariantDictionary m_Dictionary;
   };
 
   ezHybridArray<Element, 32> m_Stack;
 
-  bool m_bParsingError;
+  bool m_bParsingError = false;
   ezString m_sLastName;
 };

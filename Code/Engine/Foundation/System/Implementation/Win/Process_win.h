@@ -77,69 +77,70 @@ struct ezPipeWin
     if (m_pipeWrite)
     {
       m_running = true;
-      m_readThread = std::thread([&]() {
-        ezHybridArray<char, 256> overflowBuffer;
-
-        constexpr int BUFSIZE = 512;
-        char chBuf[BUFSIZE];
-        while (true)
+      m_readThread = std::thread([&]()
         {
-          DWORD bytesRead = 0;
-          bool res = ReadFile(m_pipeRead, chBuf, BUFSIZE, &bytesRead, nullptr);
-          if (!res || bytesRead == 0)
-          {
-            if (!overflowBuffer.IsEmpty())
-            {
-              ReportString(ref_onStdOut, overflowBuffer);
-            }
-            break;
-          }
+          ezHybridArray<char, 256> overflowBuffer;
 
-          const char* szCurrentPos = chBuf;
-          const char* szEndPos = chBuf + bytesRead;
-
-          while (szCurrentPos < szEndPos)
+          constexpr int BUFSIZE = 512;
+          char chBuf[BUFSIZE];
+          while (true)
           {
-            const char* szFound = ezStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
-            if (szFound)
+            DWORD bytesRead = 0;
+            bool res = ReadFile(m_pipeRead, chBuf, BUFSIZE, &bytesRead, nullptr);
+            if (!res || bytesRead == 0)
             {
-              if (overflowBuffer.IsEmpty())
+              if (!overflowBuffer.IsEmpty())
               {
-                // If there is nothing in the overflow buffer this is a complete line and can be fired as is.
-                ReportString(ref_onStdOut, szCurrentPos, szFound + 1);
+                ReportString(ref_onStdOut, overflowBuffer);
+              }
+              break;
+            }
+
+            const char* szCurrentPos = chBuf;
+            const char* szEndPos = chBuf + bytesRead;
+
+            while (szCurrentPos < szEndPos)
+            {
+              const char* szFound = ezStringUtils::FindSubString(szCurrentPos, "\n", szEndPos);
+              if (szFound)
+              {
+                if (overflowBuffer.IsEmpty())
+                {
+                  // If there is nothing in the overflow buffer this is a complete line and can be fired as is.
+                  ReportString(ref_onStdOut, szCurrentPos, szFound + 1);
+                }
+                else
+                {
+                  // We have data in the overflow buffer so this is the final part of a partial line so we need to complete and fire the overflow buffer.
+
+                  while (szCurrentPos < szFound + 1)
+                  {
+                    overflowBuffer.PushBack(*szCurrentPos);
+                    ++szCurrentPos;
+                  }
+
+                  ReportString(ref_onStdOut, overflowBuffer);
+
+                  overflowBuffer.Clear();
+                }
+
+                szCurrentPos = szFound + 1;
               }
               else
               {
-                // We have data in the overflow buffer so this is the final part of a partial line so we need to complete and fire the overflow buffer.
+                // This is either the start or a middle segment of a line, append to overflow buffer.
 
-                while (szCurrentPos < szFound + 1)
+                while (szCurrentPos < szEndPos)
                 {
                   overflowBuffer.PushBack(*szCurrentPos);
                   ++szCurrentPos;
                 }
-
-                ReportString(ref_onStdOut, overflowBuffer);
-
-                overflowBuffer.Clear();
-              }
-
-              szCurrentPos = szFound + 1;
-            }
-            else
-            {
-              // This is either the start or a middle segment of a line, append to overflow buffer.
-
-              while (szCurrentPos < szEndPos)
-              {
-                overflowBuffer.PushBack(*szCurrentPos);
-                ++szCurrentPos;
               }
             }
           }
-        }
-        m_running = false;
-        //
-      });
+          m_running = false;
+          //
+        });
     }
   }
 };
@@ -308,6 +309,11 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
     HandlesToInherit[uiNumHandlesToInherit++] = m_pImpl->m_pipeStdErr.m_pipeWrite;
   }
 
+  // in theory this can be used to force the process's main window to be in the background,
+  // but except for SW_HIDE and SW_SHOWMINNOACTIVE this doesn't work, and those are not useful
+  //si.wShowWindow = SW_SHOWNOACTIVATE;
+  //si.dwFlags |= STARTF_USESHOWWINDOW;
+
   PROCESS_INFORMATION pi;
   ezMemoryUtils::ZeroFill(&pi, 1);
 
@@ -443,6 +449,10 @@ ezResult ezProcess::Terminate()
 
   if (TerminateProcess(m_pImpl->m_ProcessHandle, 0xFFFFFFFF) == FALSE)
   {
+    const DWORD err = GetLastError();
+    if (err == ERROR_ACCESS_DENIED) // this means the process already terminated, so from our perspective the goal was achieved
+      return EZ_SUCCESS;
+
     ezLog::Error("Failed to terminate process '{}' - {}", m_sProcess, ezArgErrorCode(GetLastError()));
     return EZ_FAILURE;
   }
@@ -470,9 +480,22 @@ ezProcessState ezProcess::GetState() const
   if (exitCode == STILL_ACTIVE)
     return ezProcessState::Running;
 
+  if (m_ProcessExited.IsZero())
+  {
+    m_ProcessExited = ezTime::Now();
+  }
+
   // Do not consider a process finished if the pipe threads have not exited yet.
   if (m_pImpl->m_pipeStdOut.IsRunning() || m_pImpl->m_pipeStdErr.IsRunning())
-    return ezProcessState::Running;
+  {
+    if (ezTime::Now() - m_ProcessExited < ezTime::MakeFromSeconds(2))
+    {
+      return ezProcessState::Running;
+    }
+
+    m_pImpl->m_pipeStdOut.Close();
+    m_pImpl->m_pipeStdErr.Close();
+  }
 
   m_iExitCode = (ezInt32)exitCode;
   return ezProcessState::Finished;

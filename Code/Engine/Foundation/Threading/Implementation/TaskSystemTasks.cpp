@@ -29,9 +29,12 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(
 void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGroup)
 {
   // call task finished callback and deallocate the task (if last reference)
-  if (pTask && pTask->m_OnTaskFinished.IsValid() && pTask->m_iRemainingRuns == 0)
+  if (pTask && pTask->m_iRemainingRuns == 0)
   {
-    pTask->m_OnTaskFinished(pTask);
+    if (pTask->m_OnTaskFinished.IsValid())
+    {
+      pTask->m_OnTaskFinished(pTask);
+    }
 
     // make sure to clear the task sharedptr BEFORE we mark the task (group) as finished,
     // so that if this is the last reference, the task gets deallocated first
@@ -55,20 +58,20 @@ void ezTaskSystem::TaskHasFinished(ezSharedPtr<ezTask>&& pTask, ezTaskGroup* pGr
       pGroup->m_uiGroupCounter += 2;
     }
 
-    // wake up all threads that are waiting for this group
-    pGroup->m_CondVarGroupFinished.SignalAll();
-
     {
       EZ_LOCK(s_TaskSystemMutex);
+
+      // unless an outside reference is held onto a task, this will deallocate the tasks
+      pGroup->m_Tasks.Clear();
 
       for (ezUInt32 dep = 0; dep < pGroup->m_OthersDependingOnMe.GetCount(); ++dep)
       {
         DependencyHasFinished(pGroup->m_OthersDependingOnMe[dep].m_pTaskGroup);
       }
-
-      // unless an outside reference is held onto a task, this will deallocate the tasks
-      pGroup->m_Tasks.Clear();
     }
+
+    // wake up all threads that are waiting for this group
+    pGroup->m_CondVarGroupFinished.SignalAll();
 
     if (pGroup->m_OnFinishedCallback.IsValid())
     {

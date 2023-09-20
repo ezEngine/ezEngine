@@ -28,7 +28,7 @@ public:
 public:
   ezGraphicsTest();
 
-  virtual ezResult GetImage(ezImage& ref_img) override;
+  virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
 
 protected:
   virtual void SetupSubTests() override {}

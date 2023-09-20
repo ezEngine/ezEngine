@@ -162,5 +162,6 @@ private:
   ezString m_sProcess;
   ezDelegate<void(ezStringView)> m_OnStdOut;
   ezDelegate<void(ezStringView)> m_OnStdError;
+  mutable ezTime m_ProcessExited = ezTime::MakeZero();
 };
 #endif

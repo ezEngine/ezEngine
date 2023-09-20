@@ -11,9 +11,7 @@ class ezTestBaseClass;
 /// \brief Stores the identification of a sub-test.
 struct ezSubTestEntry
 {
-  ezSubTestEntry()
-
-    = default;
+  ezSubTestEntry() = default;
 
   ezInt32 m_iSubTestIdentifier = -1;
   const char* m_szSubTestName = "";
@@ -23,9 +21,7 @@ struct ezSubTestEntry
 /// \brief Stores the identification of a test.
 struct ezTestEntry
 {
-  ezTestEntry()
-
-    = default;
+  ezTestEntry() = default;
 
   ezTestBaseClass* m_pTest = nullptr;
   const char* m_szTestName = "";
