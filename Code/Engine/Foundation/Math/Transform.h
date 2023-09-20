@@ -49,7 +49,7 @@ public:
     const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1)); // [tested]
 
   /// \brief Creates a transform from the given position, rotation and scale.
-  [[nodiscard]] static ezTransformTemplate<Type> Make(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::IdentityQuaternion(), const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1));
+  [[nodiscard]] static ezTransformTemplate<Type> Make(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation = ezQuatTemplate<Type>::MakeIdentity(), const ezVec3Template<Type>& vScale = ezVec3Template<Type>(1));
 
   /// \brief Creates an identity transform.
   [[nodiscard]] static ezTransformTemplate<Type> MakeIdentity();

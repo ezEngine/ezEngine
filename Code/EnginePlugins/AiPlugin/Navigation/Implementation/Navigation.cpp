@@ -113,11 +113,11 @@ void ezAiNavigation::Update()
     ezVec3 resPos = ezRcPos(m_PathCorridor.getPos());
     if (!resPos.GetAsVec2().IsEqual(m_vCurrentPosition.GetAsVec2(), 0.2f))
     {
-      const float fHalfSearchUp = (m_fPolySearchUp - m_fPolySearchDown) * 0.5f;
-      const ezVec3 vPosOffset(0, 0, fHalfSearchUp);
+      const float fHalfSearchVert = (m_fPolySearchUp + m_fPolySearchDown) * 0.5f;
+      const ezVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
 
       dtPolyRef startRef;
-      if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vCurrentPosition + vPosOffset, startRef, nullptr, m_fPolySearchRadius, fHalfSearchUp).Failed())
+      if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vCurrentPosition + vPosOffset, startRef, nullptr, m_fPolySearchRadius, fHalfSearchVert).Failed())
       {
         CancelNavigation();
         m_State = State::InvalidCurrentPosition;
@@ -166,11 +166,11 @@ void ezAiNavigation::Update()
     ezVec3 resPos = ezRcPos(m_PathCorridor.getTarget());
     if (!resPos.GetAsVec2().IsEqual(m_vTargetPosition.GetAsVec2(), 0.2f))
     {
-      const float fHalfSearchUp = (m_fPolySearchUp - m_fPolySearchDown) * 0.5f;
-      const ezVec3 vPosOffset(0, 0, fHalfSearchUp);
+      const float fHalfSearchVert = (m_fPolySearchUp + m_fPolySearchDown) * 0.5f;
+      const ezVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
 
       dtPolyRef endRef;
-      if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vTargetPosition + vPosOffset, endRef, nullptr, m_fPolySearchRadius, fHalfSearchUp).Failed())
+      if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vTargetPosition + vPosOffset, endRef, nullptr, m_fPolySearchRadius, fHalfSearchVert).Failed())
       {
         CancelNavigation();
         m_State = State::InvalidTargetPosition;
@@ -285,11 +285,11 @@ bool ezAiNavigation::UpdatePathSearch()
 
     m_uiCurrentPositionChangedBit = 0;
 
-    const float fHalfSearchUp = (m_fPolySearchUp - m_fPolySearchDown) * 0.5f;
-    const ezVec3 vPosOffset(0, 0, fHalfSearchUp);
+    const float fHalfSearchVert = (m_fPolySearchUp + m_fPolySearchDown) * 0.5f;
+    const ezVec3 vPosOffset(0, 0, m_fPolySearchUp - fHalfSearchVert);
 
     dtPolyRef startRef;
-    if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vCurrentPosition + vPosOffset, startRef, nullptr, m_fPolySearchRadius, fHalfSearchUp).Failed())
+    if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vCurrentPosition + vPosOffset, startRef, nullptr, m_fPolySearchRadius, fHalfSearchVert).Failed())
     {
       m_State = State::InvalidCurrentPosition;
       return false;
@@ -297,7 +297,7 @@ bool ezAiNavigation::UpdatePathSearch()
 
     m_uiTargetPositionChangedBit = 0;
 
-    if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vTargetPosition + vPosOffset, m_PathSearchTargetPoly, nullptr, m_fPolySearchRadius, fHalfSearchUp).Failed())
+    if (FindNavMeshPolyAt(m_Query, m_pFilter, m_vTargetPosition + vPosOffset, m_PathSearchTargetPoly, nullptr, m_fPolySearchRadius, fHalfSearchVert).Failed())
     {
       m_State = State::InvalidTargetPosition;
       return false;

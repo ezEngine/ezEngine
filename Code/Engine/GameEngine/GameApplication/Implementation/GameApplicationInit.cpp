@@ -9,6 +9,7 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/StateMachine/StateMachineResource.h>
 #include <GameEngine/Utils/BlackboardTemplateResource.h>
 #include <GameEngine/Utils/ImageDataResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
@@ -46,28 +47,29 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   // which platform assets to use
   ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
 
-  ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
-  ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
-  ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
   ezResourceManager::RegisterResourceForAssetType("Animated Mesh", ezGetStaticRTTI<ezMeshResource>());
-  ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
-  ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
-  ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
-  ezResourceManager::RegisterResourceForAssetType("Color Gradient", ezGetStaticRTTI<ezColorGradientResource>());
-  ezResourceManager::RegisterResourceForAssetType("Curve1D", ezGetStaticRTTI<ezCurve1DResource>());
-  ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
   ezResourceManager::RegisterResourceForAssetType("Animation Clip", ezGetStaticRTTI<ezAnimationClipResource>());
   ezResourceManager::RegisterResourceForAssetType("Animation Graph", ezGetStaticRTTI<ezAnimGraphResource>());
-  ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
-  ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
-  ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
+  ezResourceManager::RegisterResourceForAssetType("BlackboardTemplate", ezGetStaticRTTI<ezBlackboardTemplateResource>());
+  ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
+  ezResourceManager::RegisterResourceForAssetType("ColorGradient", ezGetStaticRTTI<ezColorGradientResource>());
+  ezResourceManager::RegisterResourceForAssetType("Curve1D", ezGetStaticRTTI<ezCurve1DResource>());
   ezResourceManager::RegisterResourceForAssetType("Decal", ezGetStaticRTTI<ezDecalResource>());
   ezResourceManager::RegisterResourceForAssetType("Decal Atlas", ezGetStaticRTTI<ezDecalAtlasResource>());
+  ezResourceManager::RegisterResourceForAssetType("Image Data", ezGetStaticRTTI<ezImageDataResource>());
   ezResourceManager::RegisterResourceForAssetType("LUT", ezGetStaticRTTI<ezTexture3DResource>());
-  ezResourceManager::RegisterResourceForAssetType("BlackboardTemplate", ezGetStaticRTTI<ezBlackboardTemplateResource>());
+  ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
+  ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
+  ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
+  ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
+  ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
+  ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
+  ezResourceManager::RegisterResourceForAssetType("StateMachine", ezGetStaticRTTI<ezStateMachineResource>());
+  ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
+  ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
 }
 
 void ezGameApplication::Init_SetupDefaultResources()

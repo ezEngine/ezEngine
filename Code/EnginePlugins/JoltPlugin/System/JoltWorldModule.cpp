@@ -381,6 +381,11 @@ void ezJoltWorldModule::SetGravity(const ezVec3& vObjectGravity, const ezVec3& v
   }
 }
 
+const ezCollisionFilterConfig& ezJoltWorldModule::GetCollisionFilterConfig()
+{
+  return ezJoltCollisionFiltering::GetCollisionFilterConfig();
+}
+
 void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize)
 {
   ezJoltStaticActorComponent* pActor = nullptr;
