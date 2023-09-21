@@ -127,6 +127,13 @@ namespace ezConversionUtils
     {
       const char c = *sText.GetStartPointer();
 
+      // c++ ' seperator can appear starting with the second digit
+      if(iCurRes > 0 && c == '\'')
+      {
+        sText.ChopAwayFirstCharacterAscii();
+        continue;
+      }
+
       // end of digits reached -> return success (allows to write something like "239*4" -> parses first part as 239)
       if (c < '0' || c > '9')
         break;
@@ -197,6 +204,13 @@ namespace ezConversionUtils
         if (c == '.')
         {
           Part = Fraction;
+          sText.ChopAwayFirstCharacterAscii();
+          continue;
+        }
+
+        // c++ ' separator can appear starting with the second digit
+        if(uiIntegerPart > 0 && c == '\'')
+        {
           sText.ChopAwayFirstCharacterAscii();
           continue;
         }

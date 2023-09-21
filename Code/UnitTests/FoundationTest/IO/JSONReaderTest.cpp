@@ -492,10 +492,9 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
 
     sCompare.PushBack("</object>");
 
-    EZ_TEST_BOOL(reader.IsTopLevelObjectDictionary());
-    if (reader.IsTopLevelObjectDictionary())
+    if (EZ_TEST_BOOL(reader.GetTopLevelElementType() == ezJSONReader::ElementType::Dictionary))
     {
-      JSONReaderTestDetail::TraverseTree(reader.GetTopLevelDictonary(), sCompare);
+      JSONReaderTestDetail::TraverseTree(reader.GetTopLevelObject(), sCompare);
 
       EZ_TEST_BOOL(sCompare.IsEmpty());
     }
@@ -520,8 +519,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
     sCompare.PushBack("b");
     sCompare.PushBack("</array>");
 
-    EZ_TEST_BOOL(!reader.IsTopLevelObjectDictionary());
-    if (!reader.IsTopLevelObjectDictionary())
+    if (EZ_TEST_BOOL(reader.GetTopLevelElementType() == ezJSONReader::ElementType::Array))
     {
       JSONReaderTestDetail::TraverseTree(reader.GetTopLevelArray(), sCompare);
 

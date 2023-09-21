@@ -26,14 +26,8 @@ public:
   /// error occurred.
   ezResult Parse(ezStreamReader& ref_input, ezUInt32 uiFirstLineOffset = 0);
 
-  /// \brief Returns if the top-level object of the JSON document is a dictionary
-  bool IsTopLevelObjectDictionary() const;
-
   /// \brief Returns the top-level dictionary of the JSON document.
-  const ezVariantDictionary& GetTopLevelDictonary() const;
-
-  /// \brief Returns the top-level array of the JSON document.
-  const ezVariantArray& GetTopLevelArray() const;
+  const ezVariantDictionary& GetTopLevelObject() const { return m_Stack.PeekBack().m_Dictionary; }
 
   /// \brief Returns the top-level array of the JSON document.
   const ezVariantArray& GetTopLevelArray() const { return m_Stack.PeekBack().m_Array; }
