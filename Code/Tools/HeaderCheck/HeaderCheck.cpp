@@ -132,6 +132,12 @@ public:
     const ezStringView includeSource = "includeSource";
     const ezStringView byName = "byName";
 
+    if (jsonReader.GetTopLevelElementType() != ezJSONReader::ElementType::Dictionary)
+    {
+      ezLog::Error("Ignore file {0} does not start with a json object", sIgnoreFilePath);
+      return EZ_FAILURE;
+    }
+
     auto topLevel = jsonReader.GetTopLevelObject();
     for (auto it = topLevel.GetIterator(); it.IsValid(); it.Next())
     {

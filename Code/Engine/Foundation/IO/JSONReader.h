@@ -26,7 +26,7 @@ public:
   /// error occurred.
   ezResult Parse(ezStreamReader& ref_input, ezUInt32 uiFirstLineOffset = 0);
 
-  /// \brief Returns the top-level object of the JSON document.
+  /// \brief Returns the top-level dictionary of the JSON document.
   const ezVariantDictionary& GetTopLevelObject() const { return m_Stack.PeekBack().m_Dictionary; }
 
   /// \brief Returns the top-level array of the JSON document.

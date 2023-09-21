@@ -367,7 +367,7 @@ void ezTokenizer::HandleNumber()
   {
     NextChar();
 
-    while (ezStringUtils::IsDecimalDigit(m_uiCurChar))
+    while (ezStringUtils::IsDecimalDigit(m_uiCurChar) || m_uiCurChar == '\'') // integer literal: 100'000
     {
       NextChar();
     }
