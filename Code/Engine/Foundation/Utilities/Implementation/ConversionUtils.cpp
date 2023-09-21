@@ -128,7 +128,7 @@ namespace ezConversionUtils
       const char c = *sText.GetStartPointer();
 
       // c++ ' seperator can appear starting with the second digit
-      if(iCurRes > 0 && c == '\'')
+      if (iCurRes > 0 && c == '\'')
       {
         sText.ChopAwayFirstCharacterAscii();
         continue;
@@ -209,7 +209,7 @@ namespace ezConversionUtils
         }
 
         // c++ ' separator can appear starting with the second digit
-        if(uiIntegerPart > 0 && c == '\'')
+        if (uiIntegerPart > 0 && c == '\'')
         {
           sText.ChopAwayFirstCharacterAscii();
           continue;
