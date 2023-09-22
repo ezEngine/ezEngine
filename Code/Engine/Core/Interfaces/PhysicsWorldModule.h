@@ -7,7 +7,6 @@
 
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
-class ezCollisionFilterConfig;
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 
@@ -119,7 +118,10 @@ protected:
   }
 
 public:
-  virtual const ezCollisionFilterConfig& GetCollisionFilterConfig() = 0;
+  /// \brief Searches for a collision layer with the given name and returns its index.
+  ///
+  /// Returns ezInvalidIndex if no such collision layer exists.
+  virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const = 0;
 
   virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 

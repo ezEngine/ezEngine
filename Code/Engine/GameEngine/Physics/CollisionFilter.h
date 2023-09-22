@@ -10,9 +10,9 @@ class EZ_GAMEENGINE_DLL ezCollisionFilterConfig
 public:
   ezCollisionFilterConfig();
 
-  void SetGroupName(ezUInt32 uiGroup, const char* szName);
+  void SetGroupName(ezUInt32 uiGroup, ezStringView sName);
 
-  const char* GetGroupName(ezUInt32 uiGroup) const;
+  ezStringView GetGroupName(ezUInt32 uiGroup) const;
 
   void EnableCollision(ezUInt32 uiGroup1, ezUInt32 uiGroup2, bool bEnable = true);
 
@@ -27,11 +27,11 @@ public:
   /// between)
   ezUInt32 GetNamedGroupIndex(ezUInt32 uiGroup) const;
 
-  /// \brief Returns -1 if no group with the given name exists.
-  ezInt32 GetFilterGroupByName(const char* szName) const;
+  /// \brief Returns ezInvalidIndex if no group with the given name exists.
+  ezUInt32 GetFilterGroupByName(ezStringView sName) const;
 
-  /// \brief Searches for a group without a name and returns the index or -1 if none found.
-  ezInt32 FindUnnamedGroup() const;
+  /// \brief Searches for a group without a name and returns the index or ezInvalidIndex if none found.
+  ezUInt32 FindUnnamedGroup() const;
 
   void Save(ezStreamWriter& inout_stream) const;
   void Load(ezStreamReader& inout_stream);

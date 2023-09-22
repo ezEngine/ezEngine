@@ -91,7 +91,7 @@ void UpdateCollisionLayerDynamicEnumValues()
   // add all names and values that are valid (non-empty)
   for (ezInt32 i = 0; i < 32; ++i)
   {
-    if (!ezStringUtils::IsNullOrEmpty(cfg.GetGroupName(i)))
+    if (!cfg.GetGroupName(i).IsEmpty())
     {
       cfe.SetValueAndName(i, cfg.GetGroupName(i));
     }

@@ -52,7 +52,8 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezPhysicsWorldModuleInterface
   //
-  virtual const ezCollisionFilterConfig& GetCollisionFilterConfig() override;
+
+  virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const override;
 
   virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
