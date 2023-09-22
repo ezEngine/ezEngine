@@ -1,5 +1,6 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <GameEngine/Physics/CollisionFilter.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
@@ -381,9 +382,9 @@ void ezJoltWorldModule::SetGravity(const ezVec3& vObjectGravity, const ezVec3& v
   }
 }
 
-const ezCollisionFilterConfig& ezJoltWorldModule::GetCollisionFilterConfig()
+ezUInt32 ezJoltWorldModule::GetCollisionLayerByName(ezStringView sName) const
 {
-  return ezJoltCollisionFiltering::GetCollisionFilterConfig();
+  return ezJoltCollisionFiltering::GetCollisionFilterConfig().GetFilterGroupByName(sName);
 }
 
 void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize)

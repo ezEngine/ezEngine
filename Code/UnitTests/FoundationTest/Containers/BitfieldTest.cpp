@@ -207,17 +207,17 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
   {
     ezStaticBitfield64 bf;
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); ++i)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); ++i)
       EZ_TEST_BOOL(!bf.IsBitSet(i));
 
     bf.SetAllBits();
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); ++i)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); ++i)
       EZ_TEST_BOOL(bf.IsBitSet(i));
 
     bf.ClearAllBits();
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); ++i)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); ++i)
       EZ_TEST_BOOL(!bf.IsBitSet(i));
   }
 
@@ -225,36 +225,36 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
   {
     ezStaticBitfield32 bf;
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); ++i)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); ++i)
       EZ_TEST_BOOL(!bf.IsBitSet(i));
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); i += 2)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); i += 2)
       bf.SetBit(i);
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); i += 2)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); i += 2)
     {
       EZ_TEST_BOOL(bf.IsBitSet(i));
       EZ_TEST_BOOL(!bf.IsBitSet(i + 1));
     }
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); i += 2)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); i += 2)
     {
       bf.ClearBit(i);
       bf.SetBit(i + 1);
     }
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); i += 2)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); i += 2)
     {
       EZ_TEST_BOOL(!bf.IsBitSet(i));
       EZ_TEST_BOOL(bf.IsBitSet(i + 1));
     }
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); ++i)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); ++i)
     {
       bf.SetBitValue(i, (i % 3) == 0);
     }
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); ++i)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); ++i)
     {
       EZ_TEST_BOOL(bf.IsBitSet(i) == ((i % 3) == 0));
     }
@@ -266,7 +266,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
     {
       ezStaticBitfield64 bf;
 
-      for (ezUInt32 count = 0; count < bf.GetNumBits(); ++count)
+      for (ezUInt32 count = 0; count < bf.GetStorageTypeBitCount(); ++count)
         EZ_TEST_BOOL(!bf.IsBitSet(count));
 
       ezUInt32 uiEnd = uiStart + 3;
@@ -277,7 +277,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
         EZ_TEST_BOOL(!bf.IsBitSet(count));
       for (ezUInt32 count = uiStart; count <= uiEnd; ++count)
         EZ_TEST_BOOL(bf.IsBitSet(count));
-      for (ezUInt32 count = uiEnd + 1; count < bf.GetNumBits(); ++count)
+      for (ezUInt32 count = uiEnd + 1; count < bf.GetStorageTypeBitCount(); ++count)
         EZ_TEST_BOOL(!bf.IsBitSet(count));
     }
   }
@@ -289,7 +289,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
       ezStaticBitfield64 bf;
       bf.SetAllBits();
 
-      for (ezUInt32 count = 0; count < bf.GetNumBits(); ++count)
+      for (ezUInt32 count = 0; count < bf.GetStorageTypeBitCount(); ++count)
         EZ_TEST_BOOL(bf.IsBitSet(count));
 
       ezUInt32 uiEnd = uiStart + 3;
@@ -300,7 +300,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
         EZ_TEST_BOOL(bf.IsBitSet(count));
       for (ezUInt32 count = uiStart; count <= uiEnd; ++count)
         EZ_TEST_BOOL(!bf.IsBitSet(count));
-      for (ezUInt32 count = uiEnd + 1; count < bf.GetNumBits(); ++count)
+      for (ezUInt32 count = uiEnd + 1; count < bf.GetStorageTypeBitCount(); ++count)
         EZ_TEST_BOOL(bf.IsBitSet(count));
     }
   }
@@ -313,18 +313,56 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
     EZ_TEST_BOOL(bf.IsNoBitSet() == true);
     EZ_TEST_BOOL(bf.AreAllBitsSet() == false); // empty
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); i += 2)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); i += 2)
       bf.SetBit(i);
 
     EZ_TEST_BOOL(bf.IsAnyBitSet() == true);
     EZ_TEST_BOOL(bf.IsNoBitSet() == false);
     EZ_TEST_BOOL(bf.AreAllBitsSet() == false);
 
-    for (ezUInt32 i = 0; i < bf.GetNumBits(); i++)
+    for (ezUInt32 i = 0; i < bf.GetStorageTypeBitCount(); i++)
       bf.SetBit(i);
 
     EZ_TEST_BOOL(bf.IsAnyBitSet() == true);
     EZ_TEST_BOOL(bf.IsNoBitSet() == false);
     EZ_TEST_BOOL(bf.AreAllBitsSet() == true);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetNumBitsSet")
+  {
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0).GetNumBitsSet(), 0);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xff).GetNumBitsSet(), 8);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xffff).GetNumBitsSet(), 16);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xffffffffu).GetNumBitsSet(), 32);
+    EZ_TEST_INT(ezStaticBitfield64::MakeFromMask(0).GetNumBitsSet(), 0);
+    EZ_TEST_INT(ezStaticBitfield64::MakeFromMask(0xff).GetNumBitsSet(), 8);
+    EZ_TEST_INT(ezStaticBitfield64::MakeFromMask(0xffff).GetNumBitsSet(), 16);
+    EZ_TEST_INT(ezStaticBitfield64::MakeFromMask(0xffffffffu).GetNumBitsSet(), 32);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLowestBitSet")
+  {
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0u).GetLowestBitSet(), 32);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(1u).GetLowestBitSet(), 0);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xffu).GetLowestBitSet(), 0);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xff00u).GetLowestBitSet(), 8);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xff0000u).GetLowestBitSet(), 16);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xff000000u).GetLowestBitSet(), 24);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0x80000000u).GetLowestBitSet(), 31);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xffffffffu).GetLowestBitSet(), 0);
+    EZ_TEST_INT(ezStaticBitfield64::MakeFromMask(0xffffffffffffffffull).GetLowestBitSet(), 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetHighestBitSet")
+  {
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0u).GetHighestBitSet(), 32);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(1u).GetHighestBitSet(), 0);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xffu).GetHighestBitSet(), 7);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xff00u).GetHighestBitSet(), 15);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xff0000u).GetHighestBitSet(), 23);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xff000000u).GetHighestBitSet(), 31);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0x80000000u).GetHighestBitSet(), 31);
+    EZ_TEST_INT(ezStaticBitfield32::MakeFromMask(0xffffffffu).GetHighestBitSet(), 31);
+    EZ_TEST_INT(ezStaticBitfield64::MakeFromMask(0xffffffffffffffffull).GetHighestBitSet(), 63);
   }
 }

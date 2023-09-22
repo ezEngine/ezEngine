@@ -90,12 +90,12 @@ class ezStaticBitfield
 {
 public:
   using StorageType = T;
-  static constexpr ezUInt32 GetNumBits() { return ezMath::NumBits<T>(); }
+  static constexpr ezUInt32 GetStorageTypeBitCount() { return ezMath::NumBits<T>(); }
 
   /// \brief Initializes the bitfield to all zero.
   ezStaticBitfield();
 
-  static ezStaticBitfield<T> FromMask(StorageType bits);
+  static ezStaticBitfield<T> MakeFromMask(StorageType bits);
 
   /// \brief Returns true, if the bitfield is not zero.
   bool IsAnyBitSet() const; // [tested]
@@ -129,6 +129,15 @@ public:
 
   /// \brief Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
   void ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
+
+  /// \brief Returns the index of the lowest bit that is set. Returns the max index+1 in case no bit is set, at all.
+  ezUInt32 GetLowestBitSet() const; // [tested]
+
+  /// \brief Returns the index of the highest bit that is set. Returns the max index+1 in case no bit is set, at all.
+  ezUInt32 GetHighestBitSet() const; // [tested]
+
+  /// \brief Returns the count of how many bits are set in total.
+  ezUInt32 GetNumBitsSet() const; // [tested]
 
   /// \brief Returns the raw uint that stores all bits.
   T GetValue() const; // [tested]
