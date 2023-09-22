@@ -39,24 +39,18 @@ void ezSceneActions::RegisterActions()
   s_hSceneCategory = EZ_REGISTER_CATEGORY("SceneCategory");
   s_hSceneUtilsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.Utils.Menu", "");
 
-  s_hExportScene = EZ_REGISTER_ACTION_1(
-    "Scene.ExportAndRun", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction, ezSceneAction::ActionType::ExportAndRunScene);
-  s_hGameModeSimulate = EZ_REGISTER_ACTION_1(
-    "Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
-  s_hGameModePlay = EZ_REGISTER_ACTION_1(
-    "Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
+  s_hExportScene = EZ_REGISTER_ACTION_1("Scene.ExportAndRun", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::ExportAndRunScene);
+  s_hGameModeSimulate = EZ_REGISTER_ACTION_1("Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
+  s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
 
   s_hGameModePlayFromHere = EZ_REGISTER_ACTION_1("Scene.GameMode.PlayFromHere", ezActionScope::Document, "Scene", "Ctrl+Shift+F5", ezSceneAction,
     ezSceneAction::ActionType::StartGameModePlayFromHere);
 
-  s_hGameModeStop =
-    EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
+  s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
 
-  s_hUtilExportSceneToOBJ =
-    EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::ExportSceneToOBJ);
+  s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::ExportSceneToOBJ);
 
-  s_hKeepSimulationChanges = EZ_REGISTER_ACTION_1(
-    "Scene.KeepSimulationChanges", ezActionScope::Document, "Scene", "K", ezSceneAction, ezSceneAction::ActionType::KeepSimulationChanges);
+  s_hKeepSimulationChanges = EZ_REGISTER_ACTION_1("Scene.KeepSimulationChanges", ezActionScope::Document, "Scene", "K", ezSceneAction, ezSceneAction::ActionType::KeepSimulationChanges);
 
   s_hCreateThumbnail = EZ_REGISTER_ACTION_1("Scene.CreateThumbnail", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::CreateThumbnail);
   // unfortunately the macros use lambdas thus using a loop to generate the strings does not work
@@ -334,7 +328,7 @@ void ezSceneAction::Execute(const ezVariant& value)
         {
           ezAssetCurator::ezLockedAssetTable allAssets = pCurator->GetKnownAssets();
 
-          //#TODO_ASSET Instead of hard-coding this to 'Collection' add a virtual function to all asset managers that defines those that need to be transformed on scene export.
+          // #TODO_ASSET Instead of hard-coding this to 'Collection' add a virtual function to all asset managers that defines those that need to be transformed on scene export.
           ezTempHashedString sCollection = "Collection";
           for (auto it : *allAssets)
           {
