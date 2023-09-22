@@ -13,8 +13,7 @@ namespace ezMath
   template <typename T>
   constexpr EZ_ALWAYS_INLINE T Sign(T f)
   {
-    return (f < 0 ? T(-1) : f > 0 ? T(1)
-                                  : 0);
+    return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
   }
 
   template <typename T>
