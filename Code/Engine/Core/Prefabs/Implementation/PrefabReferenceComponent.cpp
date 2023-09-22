@@ -272,6 +272,9 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 
       for (ezGameObject* pChild : createdRootObjects)
       {
+        if (pChild == GetOwner())
+          continue;
+
         FixComponent(pChild, uiUniqueID);
       }
 
