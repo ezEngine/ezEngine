@@ -1,5 +1,6 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <GameEngine/Physics/CollisionFilter.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
