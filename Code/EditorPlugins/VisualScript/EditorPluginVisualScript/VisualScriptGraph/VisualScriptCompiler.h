@@ -140,6 +140,7 @@ private:
   enum class VisitorResult
   {
     Continue,
+    Skip,
     Stop,
     Error,
   };

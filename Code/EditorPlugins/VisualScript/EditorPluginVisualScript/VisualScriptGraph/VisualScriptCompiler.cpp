@@ -963,11 +963,14 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
 
   EZ_SUCCEED_OR_RETURN(TraverseAst(pEntryAstNode, ConnectionType::Data,
     [&](const Connection& connection) {
-      if (visitedNodes.Insert(connection.m_pCurrent))
-        return VisitorResult::Stop;
-
       if (connection.m_pCurrent->m_bImplicitExecution == false)
-        return VisitorResult::Stop;
+        return VisitorResult::Skip;
+
+      if (visitedNodes.Insert(connection.m_pCurrent))
+      {
+        // If the node was already visited, remove it again so it is moved to the top of the stack
+        out_Stack.RemoveAndCopy(connection.m_pCurrent);
+      }
 
       out_Stack.PushBack(connection.m_pCurrent);
 
@@ -1004,10 +1007,13 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
       for (auto& dataInput : pDataNode->m_Inputs)
       {
         auto& newDataInput = newDataNode.m_Inputs.ExpandAndGetRef();
-        if (dataInput.m_pSourceNode != nullptr)
+        
+        if (oldToNewNodes.TryGetValue(dataInput.m_pSourceNode, newDataInput.m_pSourceNode) == false)
         {
-          EZ_VERIFY(oldToNewNodes.TryGetValue(dataInput.m_pSourceNode, newDataInput.m_pSourceNode), "");
+          EZ_ASSERT_DEBUG(dataInput.m_pSourceNode == nullptr || dataInput.m_pSourceNode->m_bImplicitExecution == false, "");
+          newDataInput.m_pSourceNode = dataInput.m_pSourceNode;
         }
+        
         newDataInput.m_uiId = GetPinId(nullptr);
         newDataInput.m_uiSourcePinIndex = dataInput.m_uiSourcePinIndex;
         newDataInput.m_DataType = dataInput.m_DataType;
@@ -1269,7 +1275,7 @@ ezResult ezVisualScriptCompiler::TraverseAst(AstNode* pEntryAstNode, ezUInt32 ui
   {
     Connection connection = {nullptr, pEntryAstNode, ConnectionType::Execution, ezInvalidIndex};
     auto res = func(connection);
-    if (res == VisitorResult::Stop)
+    if (res == VisitorResult::Skip || res == VisitorResult::Stop)
       return EZ_SUCCESS;
     if (res == VisitorResult::Error)
       return EZ_FAILURE;
@@ -1296,8 +1302,10 @@ ezResult ezVisualScriptCompiler::TraverseAst(AstNode* pEntryAstNode, ezUInt32 ui
           continue;
 
         auto res = func(connection);
-        if (res == VisitorResult::Stop)
+        if (res == VisitorResult::Skip)
           continue;
+        if (res == VisitorResult::Stop)
+          return EZ_SUCCESS;
         if (res == VisitorResult::Error)
           return EZ_FAILURE;
 
@@ -1320,8 +1328,10 @@ ezResult ezVisualScriptCompiler::TraverseAst(AstNode* pEntryAstNode, ezUInt32 ui
           continue;
 
         auto res = func(connection);
-        if (res == VisitorResult::Stop)
+        if (res == VisitorResult::Skip)
           continue;
+        if (res == VisitorResult::Stop)
+          return EZ_SUCCESS;
         if (res == VisitorResult::Error)
           return EZ_FAILURE;
 

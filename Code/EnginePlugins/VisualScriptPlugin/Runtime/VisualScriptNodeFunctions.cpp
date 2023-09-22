@@ -802,6 +802,10 @@ namespace
     {
       bRes = inout_context.GetPointerData(dataOffset).m_pObject != nullptr;
     }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      bRes = inout_context.GetData<ezVariant>(dataOffset).ConvertTo<bool>();
+    }
     else
     {
       ezLog::Error("ToBool is not defined for type '{}'", GetTypeName<T>());
@@ -830,6 +834,10 @@ namespace
                        std::is_same_v<T, double>)
     {
       res = static_cast<NumberType>(inout_context.GetData<T>(dataOffset));
+    }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      res = inout_context.GetData<ezVariant>(dataOffset).ConvertTo<NumberType>();
     }
     else
     {
