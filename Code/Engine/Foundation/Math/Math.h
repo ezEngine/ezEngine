@@ -256,6 +256,18 @@ namespace ezMath
   /// \brief Returns the number of bits set
   [[nodiscard]] ezUInt32 CountBits(ezUInt64 value);
 
+  /// \brief Creates a bitmask in which the low N bits are set. For example for N=5, this would be '0000 ... 0001 1111'
+  ///
+  /// For N >= 32 all bits will be set.
+  template <typename Type>
+  [[nodiscard]] Type Bitmask_LowN(ezUInt32 uiNumBitsToSet);
+
+  /// \brief Creates a bitmask in which the high N bits are set. For example for N=5, this would be '1111 1000 ... 0000'
+  ///
+  /// For N >= 32 all bits will be set.
+  template <typename Type>
+  [[nodiscard]] Type Bitmask_HighN(ezUInt32 uiNumBitsToSet);
+
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>
   void Swap(T& ref_f1, T& ref_f2); // [tested]

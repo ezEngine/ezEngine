@@ -13,7 +13,7 @@ endfunction()
 # ## ez_set_build_flags_msvc(<target>)
 # #####################################
 function(ez_set_build_flags_msvc TARGET_NAME)
-	set(ARG_OPTIONS ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_CONTROLFLOWGUARD NO_DEBUG)
+	set(ARG_OPTIONS ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_COMPLIANCE NO_DEBUG)
 	set(ARG_ONEVALUEARGS "")
 	set(ARG_MULTIVALUEARGS "")
 	cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN})

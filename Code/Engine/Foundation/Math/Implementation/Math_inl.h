@@ -13,7 +13,8 @@ namespace ezMath
   template <typename T>
   constexpr EZ_ALWAYS_INLINE T Sign(T f)
   {
-    return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
+    return (f < 0 ? T(-1) : f > 0 ? T(1)
+                                  : 0);
   }
 
   template <typename T>
@@ -88,10 +89,10 @@ namespace ezMath
     return 0;
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     unsigned long uiIndex = 0;
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#  if EZ_ENABLED(EZ_PLATFORM_64BIT)
 
     _BitScanForward64(&uiIndex, value);
-#else
+#  else
     uint32_t lower = static_cast<uint32_t>(value);
     unsigned char returnCode = _BitScanForward(&uiIndex, lower);
     if (returnCode == 0)
@@ -103,7 +104,7 @@ namespace ezMath
         uiIndex += 32; // Add length of lower to index.
       }
     }
-#endif
+#  endif
     return uiIndex;
 #elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
     return __builtin_ctzll(value);
@@ -137,9 +138,9 @@ namespace ezMath
     return 0;
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     unsigned long uiIndex = 0;
-#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+#  if EZ_ENABLED(EZ_PLATFORM_64BIT)
     _BitScanReverse64(&uiIndex, value);
-#else
+#  else
     uint32_t upper = static_cast<uint32_t>(value >> 32);
     unsigned char returnCode = _BitScanReverse(&uiIndex, upper);
     if (returnCode == 0)
@@ -151,7 +152,7 @@ namespace ezMath
     {
       uiIndex += 32; // Add length of upper to index.
     }
-#endif
+#  endif
     return uiIndex;
 #elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
     return 63 - __builtin_clzll(value);
@@ -161,7 +162,10 @@ namespace ezMath
 #endif
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 uiBitmask) { return (uiBitmask == 0) ? 32 : FirstBitLow(uiBitmask); }
+  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 uiBitmask)
+  {
+    return (uiBitmask == 0) ? 32 : FirstBitLow(uiBitmask);
+  }
 
   EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt64 uiBitmask)
   {
@@ -171,7 +175,10 @@ namespace ezMath
     return (numLow == 32) ? (32 + numHigh) : numLow;
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 uiBitmask) { return (uiBitmask == 0) ? 32 : (31u - FirstBitHigh(uiBitmask)); }
+  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 uiBitmask)
+  {
+    return (uiBitmask == 0) ? 32 : (31u - FirstBitHigh(uiBitmask));
+  }
 
 
   EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)
@@ -197,6 +204,18 @@ namespace ezMath
     result += CountBits(ezUInt32(value));
     result += CountBits(ezUInt32(value >> 32));
     return result;
+  }
+
+  template <typename Type>
+  EZ_ALWAYS_INLINE Type Bitmask_LowN(ezUInt32 uiNumBitsToSet)
+  {
+    return (uiNumBitsToSet >= sizeof(Type) * 8) ? ~static_cast<Type>(0) : ((static_cast<Type>(1) << uiNumBitsToSet) - static_cast<Type>(1));
+  }
+
+  template <typename Type>
+  EZ_ALWAYS_INLINE Type Bitmask_HighN(ezUInt32 uiNumBitsToSet)
+  {
+    return (uiNumBitsToSet == 0) ? 0 : ~static_cast<Type>(0) << ((sizeof(Type) * 8) - ezMath::Min<ezUInt32>(uiNumBitsToSet, sizeof(Type) * 8));
   }
 
   template <typename T>
@@ -230,9 +249,15 @@ namespace ezMath
     return (value >= edge ? T(1) : T(0));
   }
 
-  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value) { return (value < 1) ? false : ((value & (value - 1)) == 0); }
+  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value)
+  {
+    return (value < 1) ? false : ((value & (value - 1)) == 0);
+  }
 
-  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezUInt32 value) { return (value < 1) ? false : ((value & (value - 1)) == 0); }
+  constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezUInt32 value)
+  {
+    return (value < 1) ? false : ((value & (value - 1)) == 0);
+  }
 
   template <typename Type>
   constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon)

@@ -5,13 +5,13 @@
 /// Operator to sort tests alphabetically
 inline bool SortTest_Operator(const ezTestEntry& lhs, const ezTestEntry& rhs)
 {
-  return strcmp(lhs.m_szTestName, rhs.m_szTestName) < 0;
+  return ezStringUtils::Compare_NoCase(lhs.m_szTestName, rhs.m_szTestName) < 0;
 }
 
 /// Operator to sort sub-tests alphabetically
 inline bool SortSubTest_Operator(const ezSubTestEntry& lhs, const ezSubTestEntry& rhs)
 {
-  return strcmp(lhs.m_szSubTestName, rhs.m_szSubTestName) < 0;
+  return ezStringUtils::Compare_NoCase(lhs.m_szSubTestName, rhs.m_szSubTestName) < 0;
 }
 
 /// Sorts all tests and subtests alphabetically
@@ -153,7 +153,7 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& ref_allTests)
         iLastMainTest = -1;
 
         // Are we in the settings block?
-        if (strcmp("Settings", szTestName) == 0)
+        if (ezStringUtils::IsEqual_NoCase("Settings", szTestName))
         {
           iLastMainTest = -1;
         }
@@ -163,7 +163,7 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& ref_allTests)
           strcpy(szOtherName, ref_allTests[t].m_szTestName);
           StripWhitespaces(szOtherName);
 
-          if (strcmp(szOtherName, szTestName) == 0)
+          if (ezStringUtils::IsEqual_NoCase(szOtherName, szTestName))
           {
             iLastMainTest = t;
             ref_allTests[t].m_bEnableTest = !bIsOff;
@@ -181,7 +181,7 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& ref_allTests)
             strcpy(szOtherName, ref_allTests[iLastMainTest].m_SubTests[t].m_szSubTestName);
             StripWhitespaces(szOtherName);
 
-            if (strcmp(szOtherName, szTestName) == 0)
+            if (ezStringUtils::IsEqual_NoCase(szOtherName, szTestName))
             {
               ref_allTests[iLastMainTest].m_SubTests[t].m_bEnableTest = !bIsOff;
               break;
@@ -252,30 +252,30 @@ void LoadTestSettings(const char* szFile, TestSettings& ref_testSettings)
       if (!bIndented)
       {
         // Are we in the settings block?
-        bInSettings = strcmp("Settings", szTestName) == 0;
+        bInSettings = ezStringUtils::IsEqual_NoCase("Settings", szTestName);
       }
       else
       {
         // We are in the settings block
         if (bInSettings)
         {
-          if (strcmp("AssertOnTestFail", szTestName) == 0)
+          if (ezStringUtils::IsEqual_NoCase("AssertOnTestFail", szTestName))
           {
             ref_testSettings.m_AssertOnTestFail = bIsOff ? AssertOnTestFail::DoNotAssert : AssertOnTestFail::AssertIfDebuggerAttached;
           }
-          else if (strcmp("OpenHtmlOutputOnError", szTestName) == 0)
+          else if (ezStringUtils::IsEqual_NoCase("OpenHtmlOutputOnError", szTestName))
           {
             ref_testSettings.m_bOpenHtmlOutputOnError = !bIsOff;
           }
-          else if (strcmp("KeepConsoleOpen", szTestName) == 0)
+          else if (ezStringUtils::IsEqual_NoCase("KeepConsoleOpen", szTestName))
           {
             ref_testSettings.m_bKeepConsoleOpen = !bIsOff;
           }
-          else if (strcmp("ShowMessageBox", szTestName) == 0)
+          else if (ezStringUtils::IsEqual_NoCase("ShowMessageBox", szTestName))
           {
             ref_testSettings.m_bShowMessageBox = !bIsOff;
           }
-          else if (strcmp("DisableSuccessfulTests", szTestName) == 0)
+          else if (ezStringUtils::IsEqual_NoCase("DisableSuccessfulTests", szTestName))
           {
             ref_testSettings.m_bAutoDisableSuccessfulTests = !bIsOff;
           }

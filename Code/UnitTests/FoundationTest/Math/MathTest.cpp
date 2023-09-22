@@ -813,6 +813,52 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::CountLeadingZeros(0), 32);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bitmask_LowN")
+  {
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(0), 0);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(1), 1);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(2), 3);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(3), 7);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(31), 0x7fffffff);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(32), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(33), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt32>(50), 0xffffffffu);
+
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(0), 0);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(1), 1);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(2), 3);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(3), 7);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(31), 0x7fffffff);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(32), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_LowN<ezUInt64>(63), 0x7fffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_LowN<ezUInt64>(64) == 0xffffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_LowN<ezUInt64>(65) == 0xffffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_LowN<ezUInt64>(100) == 0xffffffffffffffffull);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bitmask_HighN")
+  {
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(0), 0u);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(1), 0x80000000u);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(2), 0xC0000000u);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(3), 0xE0000000u);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(31), 0xfffffffeu);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(32), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(33), 0xffffffffu);
+    EZ_TEST_INT(ezMath::Bitmask_HighN<ezUInt32>(60), 0xffffffffu);
+
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(0) == 0);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(1) == 0x8000000000000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(2) == 0xC000000000000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(3) == 0xE000000000000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(31) == 0xfffffffe00000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(32) == 0xffffffff00000000llu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(63) == 0xfffffffffffffffellu);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(64) == 0xffffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(65) == 0xffffffffffffffffull);
+    EZ_TEST_BOOL(ezMath::Bitmask_HighN<ezUInt64>(1000) == 0xffffffffffffffffull);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TryMultiply32")
   {
     ezUInt32 res;
