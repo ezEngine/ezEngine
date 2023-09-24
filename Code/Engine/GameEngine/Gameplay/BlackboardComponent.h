@@ -118,3 +118,74 @@ private:
 
   ezBlackboardTemplateResourceHandle m_hTemplate;
 };
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+struct ezGlobalBlackboardInitMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : StorageType
+  {
+    EnsureEntriesExist,    ///< Brief only adds entries to the blackboard, that haven't been added before. Doesn't change the values of existing entries.
+    ResetEntryValues,      ///< Overwrites values of existing entries, to reset them to the start value defined in the template.
+    ClearEntireBlackboard, ///< Removes all entries from the blackboard and only adds the ones from the template. This also gets rid of temporary values.
+
+    Default = ClearEntireBlackboard
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezGlobalBlackboardInitMode);
+
+using ezGlobalBlackboardComponentManager = ezComponentManager<class ezGlobalBlackboardComponent, ezBlockStorageType::Compact>;
+
+class EZ_GAMEENGINE_DLL ezGlobalBlackboardComponent : public ezComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezGlobalBlackboardComponent, ezComponent, ezGlobalBlackboardComponentManager);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+
+protected:
+  virtual void OnActivated() override;
+  virtual void OnSimulationStarted() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezGlobalBlackboardComponent
+
+public:
+  ezGlobalBlackboardComponent();
+  ezGlobalBlackboardComponent(ezGlobalBlackboardComponent&& other);
+  ~ezGlobalBlackboardComponent();
+
+  ezGlobalBlackboardComponent& operator=(ezGlobalBlackboardComponent&& other);
+
+  /// \brief Returns the global blackboard referenced by this component
+  const ezSharedPtr<ezBlackboard>& GetBoard();
+
+  /// \brief Returns the global blackboard referenced by this component
+  ezSharedPtr<const ezBlackboard> GetBoard() const;
+
+  void SetBlackboardName(const char* szName); // [ property ]
+  const char* GetBlackboardName() const;      // [ property ]
+
+  void SetTemplateFile(const char* szName); // [ property ]
+  const char* GetTemplateFile() const;      // [ property ]
+
+  ezEnum<ezGlobalBlackboardInitMode> m_InitMode; // [ property ]
+
+private:
+  void InitializeFromTemplate();
+
+  bool m_bClearBlackboard = false;
+  bool m_bOverwriteValues = false;
+  ezHashedString m_sName;
+  ezSharedPtr<ezBlackboard> m_pBoard;
+  ezBlackboardTemplateResourceHandle m_hTemplate;
+};

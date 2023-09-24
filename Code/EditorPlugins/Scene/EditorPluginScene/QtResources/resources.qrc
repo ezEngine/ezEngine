@@ -89,6 +89,7 @@
     <file>ezPathNodeComponent.svg</file>
     <file>ezFollowPathComponent.svg</file>
     <file>ezBlackboardComponent.svg</file>
+	<file>ezGlobalBlackboardComponent.svg</file>
     <file>ezPostProcessingComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">

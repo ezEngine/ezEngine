@@ -434,4 +434,150 @@ void ezBlackboardComponent::InitializeFromTemplate()
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGlobalBlackboardInitMode, 1)
+  EZ_ENUM_CONSTANTS(ezGlobalBlackboardInitMode::EnsureEntriesExist, ezGlobalBlackboardInitMode::ResetEntryValues, ezGlobalBlackboardInitMode::ClearEntireBlackboard)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_COMPONENT_TYPE(ezGlobalBlackboardComponent, 1, ezComponentMode::Static)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardNamesEnum")),
+    EZ_ENUM_MEMBER_PROPERTY("InitMode", ezGlobalBlackboardInitMode, m_InitMode),
+    EZ_ACCESSOR_PROPERTY("Template", GetTemplateFile, SetTemplateFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
+  }
+  EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Logic"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+// clang-format on
+
+ezGlobalBlackboardComponent::ezGlobalBlackboardComponent() = default;
+ezGlobalBlackboardComponent::ezGlobalBlackboardComponent(ezGlobalBlackboardComponent&& other) = default;
+ezGlobalBlackboardComponent::~ezGlobalBlackboardComponent() = default;
+ezGlobalBlackboardComponent& ezGlobalBlackboardComponent::operator=(ezGlobalBlackboardComponent&& other) = default;
+
+void ezGlobalBlackboardComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
+  InitializeFromTemplate();
+}
+
+void ezGlobalBlackboardComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  // we repeat this here, mainly for the editor case, when the asset has been modified (new entries added)
+  // and we then press play, to have the new entries in the BB
+  // this would NOT update the initial values, though, if they changed
+  InitializeFromTemplate();
+}
+
+void ezGlobalBlackboardComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+{
+  SUPER::SerializeComponent(inout_stream);
+  ezStreamWriter& s = inout_stream.GetStream();
+
+  s << m_sName;
+  s << m_InitMode;
+  s << m_hTemplate;
+}
+
+void ezGlobalBlackboardComponent::DeserializeComponent(ezWorldReader& inout_stream)
+{
+  SUPER::DeserializeComponent(inout_stream);
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+
+  ezStreamReader& s = inout_stream.GetStream();
+
+  s >> m_sName;
+  s >> m_InitMode;
+  s >> m_hTemplate;
+}
+
+const ezSharedPtr<ezBlackboard>& ezGlobalBlackboardComponent::GetBoard()
+{
+  return m_pBoard;
+}
+
+ezSharedPtr<const ezBlackboard> ezGlobalBlackboardComponent::GetBoard() const
+{
+  return m_pBoard;
+}
+
+void ezGlobalBlackboardComponent::SetBlackboardName(const char* szName)
+{
+  m_sName.Assign(szName);
+}
+
+const char* ezGlobalBlackboardComponent::GetBlackboardName() const
+{
+  return m_sName;
+}
+
+void ezGlobalBlackboardComponent::SetTemplateFile(const char* szName)
+{
+  ezBlackboardTemplateResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szName))
+  {
+    hResource = ezResourceManager::LoadResource<ezBlackboardTemplateResource>(szName);
+  }
+
+  m_hTemplate = hResource;
+}
+
+const char* ezGlobalBlackboardComponent::GetTemplateFile() const
+{
+  if (m_hTemplate.IsValid())
+  {
+    return m_hTemplate.GetResourceID();
+  }
+
+  return "";
+}
+
+void ezGlobalBlackboardComponent::InitializeFromTemplate()
+{
+  m_pBoard = ezBlackboard::GetOrCreateGlobal(m_sName);
+
+  if (m_InitMode == ezGlobalBlackboardInitMode::ClearEntireBlackboard)
+  {
+    m_pBoard->RemoveAllEntries();
+  }
+
+  if (!m_hTemplate.IsValid())
+    return;
+
+  ezResourceLock<ezBlackboardTemplateResource> pTemplate(m_hTemplate, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+
+  if (pTemplate.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  for (const auto& entry : pTemplate->GetDescriptor().m_Entries)
+  {
+    if (!m_pBoard->HasEntry(entry.m_sName) || m_InitMode != ezGlobalBlackboardInitMode::EnsureEntriesExist)
+    {
+      // make sure the entry exists and enforce that it has this value
+      m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
+      // also overwrite the flags
+      m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
+    }
+  }
+}
+
+
+
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_BlackboardComponent);
