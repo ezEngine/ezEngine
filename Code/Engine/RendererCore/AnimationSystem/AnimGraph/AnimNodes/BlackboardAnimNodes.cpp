@@ -81,10 +81,7 @@ void ezSetBlackboardNumberAnimNode::Step(ezAnimController& ref_controller, ezAni
   if (pBlackboard == nullptr)
     return;
 
-  if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InNumber.GetNumber(ref_graph, m_fNumber)).Failed())
-  {
-    ezLog::Warning("AnimController::SetBlackboardNumber: '{}' doesn't exist.", m_sBlackboardEntry);
-  }
+  pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InNumber.GetNumber(ref_graph, m_fNumber));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -479,10 +476,7 @@ void ezSetBlackboardBoolAnimNode::Step(ezAnimController& ref_controller, ezAnimG
   if (pBlackboard == nullptr)
     return;
 
-  if (pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InBool.GetBool(ref_graph, m_bBool)).Failed())
-  {
-    ezLog::Warning("AnimController::SetBlackboardBool: '{}' doesn't exist.", m_sBlackboardEntry);
-  }
+  pBlackboard->SetEntryValue(m_sBlackboardEntry, m_InBool.GetBool(ref_graph, m_bBool));
 }
 
 //////////////////////////////////////////////////////////////////////////

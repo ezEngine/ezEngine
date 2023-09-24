@@ -64,9 +64,9 @@ void RtsEditLevelMode::SetupEditUI()
 {
   // Set blackboard values
   {
-    m_pBlackboard->SetEntryValue(s_sSelectKey, ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0)).IgnoreResult();
-    m_pBlackboard->SetEntryValue(s_sCreateKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject")).IgnoreResult();
-    m_pBlackboard->SetEntryValue(s_sRemoveKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject")).IgnoreResult();
+    m_pBlackboard->SetEntryValue(s_sSelectKey, ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
+    m_pBlackboard->SetEntryValue(s_sCreateKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
+    m_pBlackboard->SetEntryValue(s_sRemoveKey, ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
   }
 
   if (m_hEditUIComponent.IsInvalidated())
@@ -108,13 +108,13 @@ void RtsEditLevelMode::DisplayEditUI()
     int iTeam = m_pBlackboard->GetEntryValue(s_sTeam).Get<int>();
     if (ImGui::Combo("Team", &iTeam, "Red\0Green\0Blue\0Yellow\0\0", 4))
     {
-      m_pBlackboard->SetEntryValue(s_sTeam, iTeam).IgnoreResult();
+      m_pBlackboard->SetEntryValue(s_sTeam, iTeam);
     }
 
     int iShipType = m_pBlackboard->GetEntryValue(s_sShipType).Get<int>();
     if (ImGui::Combo("Build", &iShipType, g_BuildItemTypes, EZ_ARRAY_SIZE(g_BuildItemTypes)))
     {
-      m_pBlackboard->SetEntryValue(s_sShipType, iShipType).IgnoreResult();
+      m_pBlackboard->SetEntryValue(s_sShipType, iShipType);
     }
 
     ezStringBuilder tmp;

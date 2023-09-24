@@ -239,7 +239,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       EZ_TEST_BOOL(sm.SetState(pStateA).Succeeded());
 
       // no transition yet since only part of the conditions is true
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal, 3).Succeeded());
+      pBlackboard->SetEntryValue(sTestVal, 3);
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 0);
@@ -249,7 +249,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiExitCounter, 0);
 
       // transition to B
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal2, 10).Succeeded());
+      pBlackboard->SetEntryValue(sTestVal2, 10);
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 1);
@@ -259,7 +259,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       EZ_TEST_INT(pStateC->m_CounterTable[&sm].m_uiExitCounter, 0);
 
       // transition to C, only part of the condition needed because of 'OR' operator
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal2, 20).Succeeded());
+      pBlackboard->SetEntryValue(sTestVal2, 20);
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiEnterCounter, 1);
       EZ_TEST_INT(pStateA->m_CounterTable[&sm].m_uiExitCounter, 1);
@@ -365,7 +365,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);
 
       // no transition yet because timeout is not reached yet
-      EZ_TEST_BOOL(pBlackboard->SetEntryValue(sTestVal, 3).Succeeded());
+      pBlackboard->SetEntryValue(sTestVal, 3);
       sm.Update(s_TimeStep);
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiEnterCounter, 0);
       EZ_TEST_INT(pStateB->m_CounterTable[&sm].m_uiExitCounter, 0);

@@ -99,17 +99,12 @@ void ezBlackboard::RegisterEntry(const ezHashedString& sName, const ezVariant& i
 
   bool bExisted = false;
   Entry& entry = m_Entries.FindOrAdd(sName, &bExisted);
+  entry.m_Flags != flags;
 
-  if (!bExisted || entry.m_Flags != flags)
+  if (!bExisted)
   {
     ++m_uiBlackboardChangeCounter;
-    entry.m_Flags |= flags;
-  }
-
-  if (!bExisted && entry.m_Value != initialValue)
-  {
-    // broadcasts the change event, in case we overwrite an existing entry
-    SetEntryValue(sName, initialValue).IgnoreResult();
+    entry.m_Value = initialValue;
   }
 }
 
@@ -131,39 +126,60 @@ void ezBlackboard::UnregisterAllEntries()
   m_Entries.Clear();
 }
 
-ezResult ezBlackboard::SetEntryValue(const ezTempHashedString& sName, const ezVariant& value, bool bForce /*= false*/)
+void ezBlackboard::SetEntryValue(ezStringView sName, const ezVariant& value)
 {
-  auto itEntry = m_Entries.Find(sName);
+  const ezTempHashedString sNameTH(sName);
+
+  auto itEntry = m_Entries.Find(sNameTH);
+
+  Entry* pEntry = nullptr;
 
   if (!itEntry.IsValid())
   {
-    return EZ_FAILURE;
-  }
+    ezHashedString sNameHS;
+    sNameHS.Assign(sName);
+    m_Entries[sNameHS].m_Value = value;
 
-  Entry& entry = itEntry.Value();
+    pEntry = &m_Entries.Find(sNameTH).Value();
 
-  if (!bForce && entry.m_Value == value)
-    return EZ_SUCCESS;
-
-  ++m_uiBlackboardEntryChangeCounter;
-  ++entry.m_uiChangeCounter;
-
-  if (entry.m_Flags.IsSet(ezBlackboardEntryFlags::OnChangeEvent))
-  {
-    EntryEvent e;
-    e.m_sName = itEntry.Key();
-    e.m_OldValue = entry.m_Value;
-    e.m_pEntry = &entry;
-
-    entry.m_Value = value;
-
-    m_EntryEvents.Broadcast(e, 1); // limited recursion is allowed
+    ++m_uiBlackboardChangeCounter;
   }
   else
   {
-    entry.m_Value = value;
-  }
+    pEntry = &itEntry.Value();
 
+    if (pEntry->m_Value != value)
+    {
+      ++m_uiBlackboardEntryChangeCounter;
+      ++pEntry->m_uiChangeCounter;
+
+      if (pEntry->m_Flags.IsSet(ezBlackboardEntryFlags::OnChangeEvent))
+      {
+        EntryEvent e;
+        e.m_sName = itEntry.Key();
+        e.m_OldValue = pEntry->m_Value;
+        e.m_pEntry = pEntry;
+
+        pEntry->m_Value = value;
+
+        m_EntryEvents.Broadcast(e, 1); // limited recursion is allowed
+      }
+    }
+  }
+}
+
+bool ezBlackboard::HasEntry(const ezTempHashedString& sName) const
+{
+  return m_Entries.Find(sName).IsValid();
+}
+
+ezResult ezBlackboard::SetEntryFlags(const ezTempHashedString& sName, ezBitflags<ezBlackboardEntryFlags> flags)
+{
+  auto itEntry = m_Entries.Find(sName);
+  if (!itEntry.IsValid())
+    return EZ_FAILURE;
+
+  itEntry.Value().m_Flags = flags;
   return EZ_SUCCESS;
 }
 
@@ -271,9 +287,9 @@ void ezBlackboard::Reflection_RegisterEntry(const ezHashedString& sName, const e
   RegisterEntry(sName, initialValue, flags);
 }
 
-bool ezBlackboard::Reflection_SetEntryValue(ezTempHashedString sName, const ezVariant& value)
+void ezBlackboard::Reflection_SetEntryValue(ezStringView sName, const ezVariant& value)
 {
-  return SetEntryValue(sName, value).Succeeded();
+  SetEntryValue(sName, value);
 }
 
 //////////////////////////////////////////////////////////////////////////
