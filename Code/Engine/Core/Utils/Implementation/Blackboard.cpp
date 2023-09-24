@@ -132,7 +132,6 @@ void ezBlackboard::SetEntryValue(ezStringView sName, const ezVariant& value)
 
   auto itEntry = m_Entries.Find(sNameTH);
 
-  Entry* pEntry = nullptr;
 
   if (!itEntry.IsValid())
   {
@@ -140,30 +139,28 @@ void ezBlackboard::SetEntryValue(ezStringView sName, const ezVariant& value)
     sNameHS.Assign(sName);
     m_Entries[sNameHS].m_Value = value;
 
-    pEntry = &m_Entries.Find(sNameTH).Value();
-
     ++m_uiBlackboardChangeCounter;
   }
   else
   {
-    pEntry = &itEntry.Value();
+    Entry& entry = itEntry.Value();
 
-    if (pEntry->m_Value != value)
+    if (entry.m_Value != value)
     {
       ++m_uiBlackboardEntryChangeCounter;
-      ++pEntry->m_uiChangeCounter;
+      ++entry.m_uiChangeCounter;
 
-      if (pEntry->m_Flags.IsSet(ezBlackboardEntryFlags::OnChangeEvent))
+      if (entry.m_Flags.IsSet(ezBlackboardEntryFlags::OnChangeEvent))
       {
         EntryEvent e;
         e.m_sName = itEntry.Key();
-        e.m_OldValue = pEntry->m_Value;
-        e.m_pEntry = pEntry;
-
-        pEntry->m_Value = value;
+        e.m_OldValue = entry.m_Value;
+        e.m_pEntry = &entry;
 
         m_EntryEvents.Broadcast(e, 1); // limited recursion is allowed
       }
+
+      entry.m_Value = value;
     }
   }
 }

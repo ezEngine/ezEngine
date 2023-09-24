@@ -290,6 +290,8 @@ export class CollectionComponent extends Component
   public static GetTypeNameHash(): number { return 1842091837; }
   get Collection(): string { return __CPP_ComponentProperty_get(this, 1385393910); }
   set Collection(value: string) { __CPP_ComponentProperty_set(this, 1385393910, value); }
+  get RegisterNames(): boolean { return __CPP_ComponentProperty_get(this, 3356805730); }
+  set RegisterNames(value: boolean) { __CPP_ComponentProperty_set(this, 3356805730, value); }
 }
 
 export class ColorAnimationComponent extends Component
@@ -479,12 +481,18 @@ export class FollowPathComponent extends Component
   set Running(value: boolean) { __CPP_ComponentProperty_set(this, 623714660, value); }
   get Mode(): Enum.PropertyAnimMode { return __CPP_ComponentProperty_get(this, 3007335921); }
   set Mode(value: Enum.PropertyAnimMode) { __CPP_ComponentProperty_set(this, 3007335921, value); }
+  get FollowMode(): Enum.FollowPathMode { return __CPP_ComponentProperty_get(this, 2961192936); }
+  set FollowMode(value: Enum.FollowPathMode) { __CPP_ComponentProperty_set(this, 2961192936, value); }
   get Speed(): number { return __CPP_ComponentProperty_get(this, 3476271465); }
   set Speed(value: number) { __CPP_ComponentProperty_set(this, 3476271465, value); }
   get LookAhead(): number { return __CPP_ComponentProperty_get(this, 3077407718); }
   set LookAhead(value: number) { __CPP_ComponentProperty_set(this, 3077407718, value); }
   get Smoothing(): number { return __CPP_ComponentProperty_get(this, 3812626917); }
   set Smoothing(value: number) { __CPP_ComponentProperty_set(this, 3812626917, value); }
+  get TiltAmount(): number { return __CPP_ComponentProperty_get(this, 541978106); }
+  set TiltAmount(value: number) { __CPP_ComponentProperty_set(this, 541978106, value); }
+  get MaxTilt(): number { return __CPP_ComponentProperty_get(this, 783404318); }
+  set MaxTilt(value: number) { __CPP_ComponentProperty_set(this, 783404318, value); }
 }
 
 export class ForwardEventsToGameStateComponent extends EventMessageHandlerComponent
@@ -747,6 +755,8 @@ export class ProjectileComponent extends Component
   set OnTimeoutSpawn(value: string) { __CPP_ComponentProperty_set(this, 592607231, value); }
   get CollisionLayer(): number { return __CPP_ComponentProperty_get(this, 1396671431); }
   set CollisionLayer(value: number) { __CPP_ComponentProperty_set(this, 1396671431, value); }
+  get ShapeTypesToHit(): Flags.PhysicsShapeType { return __CPP_ComponentProperty_get(this, 2013295730); }
+  set ShapeTypesToHit(value: Flags.PhysicsShapeType) { __CPP_ComponentProperty_set(this, 2013295730, value); }
   get FallbackSurface(): string { return __CPP_ComponentProperty_get(this, 1673089828); }
   set FallbackSurface(value: string) { __CPP_ComponentProperty_set(this, 1673089828, value); }
 }
@@ -797,6 +807,29 @@ export class RenderTargetActivatorComponent extends RenderComponent
   public static GetTypeNameHash(): number { return 2562992528; }
   get RenderTarget(): string { return __CPP_ComponentProperty_get(this, 3221140373); }
   set RenderTarget(value: string) { __CPP_ComponentProperty_set(this, 3221140373, value); }
+}
+
+export class ResetTransformComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 4104782307; }
+  get ResetPositionX(): boolean { return __CPP_ComponentProperty_get(this, 669990680); }
+  set ResetPositionX(value: boolean) { __CPP_ComponentProperty_set(this, 669990680, value); }
+  get ResetPositionY(): boolean { return __CPP_ComponentProperty_get(this, 1517988336); }
+  set ResetPositionY(value: boolean) { __CPP_ComponentProperty_set(this, 1517988336, value); }
+  get ResetPositionZ(): boolean { return __CPP_ComponentProperty_get(this, 1479054757); }
+  set ResetPositionZ(value: boolean) { __CPP_ComponentProperty_set(this, 1479054757, value); }
+  get LocalPosition(): Vec3 { return __CPP_ComponentProperty_get(this, 948266900); }
+  set LocalPosition(value: Vec3) { __CPP_ComponentProperty_set(this, 948266900, value); }
+  get ResetRotation(): boolean { return __CPP_ComponentProperty_get(this, 4043987685); }
+  set ResetRotation(value: boolean) { __CPP_ComponentProperty_set(this, 4043987685, value); }
+  get LocalRotation(): Quat { return __CPP_ComponentProperty_get(this, 1983181777); }
+  set LocalRotation(value: Quat) { __CPP_ComponentProperty_set(this, 1983181777, value); }
+  get ResetScaling(): boolean { return __CPP_ComponentProperty_get(this, 4130213123); }
+  set ResetScaling(value: boolean) { __CPP_ComponentProperty_set(this, 4130213123, value); }
+  get LocalScaling(): Vec3 { return __CPP_ComponentProperty_get(this, 3727479380); }
+  set LocalScaling(value: Vec3) { __CPP_ComponentProperty_set(this, 3727479380, value); }
+  get LocalUniformScaling(): number { return __CPP_ComponentProperty_get(this, 1329766042); }
+  set LocalUniformScaling(value: number) { __CPP_ComponentProperty_set(this, 1329766042, value); }
 }
 
 export class RopeRenderComponent extends RenderComponent
@@ -1089,6 +1122,8 @@ export class StateMachineComponent extends Component
 {
   public static GetTypeNameHash(): number { return 71440247; }
   SetState(Name: string): boolean { return __CPP_ComponentFunction_Call(this, 3119358439, Name); }
+  GetCurrentState(): string { return __CPP_ComponentFunction_Call(this, 3309425088); }
+  FireTransitionEvent(Name: string): void { __CPP_ComponentFunction_Call(this, 258813224, Name); }
   get Resource(): string { return __CPP_ComponentProperty_get(this, 3553976178); }
   set Resource(value: string) { __CPP_ComponentProperty_set(this, 3553976178, value); }
   get InitialState(): string { return __CPP_ComponentProperty_get(this, 3055923916); }
