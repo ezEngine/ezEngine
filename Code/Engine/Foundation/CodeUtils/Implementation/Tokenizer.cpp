@@ -376,7 +376,10 @@ void ezTokenizer::HandleRawString()
     return;
   }
 
-  m_szTokenStart = m_szCurCharStart;
+  m_CurMode = ezTokenType::RawString1Prefix;
+  AddToken();
+
+  m_CurMode = ezTokenType::RawString1;
 
   while (m_uiCurChar != '\0')
   {
@@ -387,6 +390,8 @@ void ezTokenizer::HandleRawString()
         AddToken();
         NextChar();
         NextChar();
+        m_CurMode = ezTokenType::RawString1Postfix;
+        AddToken();
         return;
       }
       else if(m_szCurCharStart + m_sRawStringMarker.GetElementCount() + 2 <= m_sIterator.GetEndPointer())
@@ -399,6 +404,8 @@ void ezTokenizer::HandleRawString()
           {
             NextChar();
           }
+          m_CurMode = ezTokenType::RawString1Postfix;
+          AddToken();
           return;
         }
       }

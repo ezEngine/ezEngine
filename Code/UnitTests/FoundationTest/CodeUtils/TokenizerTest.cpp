@@ -158,14 +158,18 @@ fuenf
     expectedResult.PushBack({ezTokenType::NonIdentifier, "*"});
     expectedResult.PushBack({ezTokenType::Identifier, "test"});
     expectedResult.PushBack({ezTokenType::NonIdentifier, "="});
+    expectedResult.PushBack({ezTokenType::RawString1Prefix, "R\"("});
     expectedResult.PushBack({ezTokenType::RawString1, "\neins\nzwei"});
+    expectedResult.PushBack({ezTokenType::RawString1Postfix, ")\""});
     expectedResult.PushBack({ezTokenType::NonIdentifier, ";"});
     expectedResult.PushBack({ezTokenType::Identifier, "const"});
     expectedResult.PushBack({ezTokenType::Identifier, "char"});
     expectedResult.PushBack({ezTokenType::NonIdentifier, "*"});
     expectedResult.PushBack({ezTokenType::Identifier, "test2"});
     expectedResult.PushBack({ezTokenType::NonIdentifier, "="});
+    expectedResult.PushBack({ezTokenType::RawString1Prefix, "R\"foo("});
     expectedResult.PushBack({ezTokenType::RawString1, "\nvier,\nfuenf\n"});
+    expectedResult.PushBack({ezTokenType::RawString1Postfix, ")foo\""});
     expectedResult.PushBack({ezTokenType::NonIdentifier, ";"});
 
     CompareResults(expectedResult, tokenizer, true);

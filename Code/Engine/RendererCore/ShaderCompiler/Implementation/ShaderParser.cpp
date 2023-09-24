@@ -60,12 +60,6 @@ namespace
       return ezVariant(sValue.GetData());
     }
 
-    if(Accept(tokens, ref_uiCurToken, ezTokenType::RawString1, &uiValueToken))
-    {
-      ezStringBuilder sValue = tokens[uiValueToken]->m_DataView;
-      return ezVariant(sValue.GetData());
-    }
-
     if (Accept(tokens, ref_uiCurToken, ezTokenType::Integer, &uiValueToken))
     {
       ezString sValue = tokens[uiValueToken]->m_DataView;
