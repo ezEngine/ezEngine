@@ -20,13 +20,18 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboard, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOrCreateGlobal, In, "Name"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindGlobal, In, "Name"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOrCreateGlobal, In, "Name")->AddAttributes(
+      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindGlobal, In, "Name")->AddAttributes(
+      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(GetName),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_RegisterEntry, In, "Name", In, "InitialValue", In, "Save", In, "OnChangeEvent"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetEntryValue, In, "Name", In, "Value"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name", In, "Fallback"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_RegisterEntry, In, "Name", In, "InitialValue", In, "Save", In, "OnChangeEvent")->AddAttributes(
+      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetEntryValue, In, "Name", In, "Value")->AddAttributes(
+      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name", In, "Fallback")->AddAttributes(
+      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardChangeCounter),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardEntryChangeCounter)
   }
@@ -52,7 +57,7 @@ ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> ezBlackboard::s_GlobalBla
 // static
 ezSharedPtr<ezBlackboard> ezBlackboard::Create(ezAllocatorBase* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
 {
-  return EZ_NEW(pAllocator, ezBlackboard);
+  return EZ_NEW(pAllocator, ezBlackboard, false);
 }
 
 // static
@@ -67,7 +72,7 @@ ezSharedPtr<ezBlackboard> ezBlackboard::GetOrCreateGlobal(const ezHashedString& 
     return it.Value();
   }
 
-  ezSharedPtr<ezBlackboard> pShrd = EZ_NEW(pAllocator, ezBlackboard);
+  ezSharedPtr<ezBlackboard> pShrd = EZ_NEW(pAllocator, ezBlackboard, true);
   pShrd->m_sName = sBlackboardName;
   s_GlobalBlackboards.Insert(sBlackboardName, pShrd);
 
@@ -84,7 +89,11 @@ ezSharedPtr<ezBlackboard> ezBlackboard::FindGlobal(const ezTempHashedString& sBl
   return pBlackboard;
 }
 
-ezBlackboard::ezBlackboard() = default;
+ezBlackboard::ezBlackboard(bool bIsGlobal)
+{
+  m_bIsGlobal = bIsGlobal;
+}
+
 ezBlackboard::~ezBlackboard() = default;
 
 void ezBlackboard::SetName(ezStringView sName)
@@ -296,7 +305,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboardCondition, ezNoBase, 1, ezRTTIDefault
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("EntryName", GetEntryName, SetEntryName),
+    EZ_MEMBER_PROPERTY("EntryName", m_sEntryName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
     EZ_ENUM_MEMBER_PROPERTY("Operator", ezComparisonOperator, m_Operator),
     EZ_MEMBER_PROPERTY("ComparisonValue", m_fComparisonValue),
   }

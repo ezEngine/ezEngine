@@ -13,9 +13,6 @@ struct ezBlackboardEntry
   ezVariant m_InitialValue;
   ezBitflags<ezBlackboardEntryFlags> m_Flags;
 
-  void SetName(const char* szName) { m_sName.Assign(szName); }
-  const char* GetName() const { return m_sName; }
-
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
 };

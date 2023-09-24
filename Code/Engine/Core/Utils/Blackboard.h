@@ -65,10 +65,12 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardEntryFlags);
 class EZ_CORE_DLL ezBlackboard : public ezRefCounted
 {
 private:
-  ezBlackboard();
+  ezBlackboard(bool bIsGlobal);
 
 public:
   ~ezBlackboard();
+
+  bool IsGlobalBlackboard() const { return m_bIsGlobal; }
 
   /// \brief Factory method to create a new blackboard.
   ///
@@ -186,6 +188,7 @@ private:
   void Reflection_RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent);
   void Reflection_SetEntryValue(ezStringView sName, const ezVariant& value);
 
+  bool m_bIsGlobal = false;
   ezHashedString m_sName;
   ezEvent<EntryEvent> m_EntryEvents;
   ezUInt32 m_uiBlackboardChangeCounter = 0;
@@ -211,9 +214,6 @@ struct EZ_CORE_DLL ezBlackboardCondition
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
-
-  const char* GetEntryName() const { return m_sEntryName; }
-  void SetEntryName(const char* szName) { m_sEntryName.Assign(szName); }
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardCondition);
