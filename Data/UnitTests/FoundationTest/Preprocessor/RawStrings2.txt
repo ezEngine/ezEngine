@@ -1,0 +1,7 @@
+#ifndef PP_OBJ
+const char* text = R"(foo)";
+#else
+const char* text = R"foo(
+bar
+)foo";
+#endif
