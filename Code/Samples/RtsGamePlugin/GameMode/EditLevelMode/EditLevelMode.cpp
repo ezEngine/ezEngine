@@ -27,11 +27,11 @@ RtsEditLevelMode::RtsEditLevelMode()
   m_pBlackboard = ezBlackboard::Create();
   m_pBlackboard->SetName("EditLevelModel");
 
-  m_pBlackboard->RegisterEntry(s_sTeam, 0);
-  m_pBlackboard->RegisterEntry(s_sShipType, 0);
-  m_pBlackboard->RegisterEntry(s_sSelectKey, ezVariant());
-  m_pBlackboard->RegisterEntry(s_sCreateKey, ezVariant());
-  m_pBlackboard->RegisterEntry(s_sRemoveKey, ezVariant());
+  m_pBlackboard->SetEntryValue(s_sTeam, 0);
+  m_pBlackboard->SetEntryValue(s_sShipType, 0);
+  m_pBlackboard->SetEntryValue(s_sSelectKey, ezVariant());
+  m_pBlackboard->SetEntryValue(s_sCreateKey, ezVariant());
+  m_pBlackboard->SetEntryValue(s_sRemoveKey, ezVariant());
 }
 
 RtsEditLevelMode::~RtsEditLevelMode() = default;

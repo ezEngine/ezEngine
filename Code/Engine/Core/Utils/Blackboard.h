@@ -120,17 +120,11 @@ public:
     const Entry* m_pEntry;
   };
 
-  /// \brief Registers an entry with a name, value and flags.
-  ///
-  /// If the entry already exists, it will add the entry flags that hadn't been set before, but NOT change the value.
-  /// Thus you can use it to make sure that a value exists with a given start value, but keep it unchanged, if it already existed.
-  void RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags = ezBlackboardEntryFlags::None);
-
   /// \brief Removes the named entry. Does nothing, if no such entry exists.
-  void UnregisterEntry(const ezHashedString& sName);
+  void RemoveEntry(const ezHashedString& sName);
 
   ///  \brief Removes all entries.
-  void UnregisterAllEntries();
+  void RemoveAllEntries();
 
   /// \brief Returns whether an entry with the given name already exists.
   bool HasEntry(const ezTempHashedString& sName) const;
@@ -143,13 +137,21 @@ public:
   /// For new entries, no OnEntryEvent() is sent.
   void SetEntryValue(ezStringView sName, const ezVariant& value);
 
+  /// \brief Overload of SetEntryValue() that takes an ezHashedString rather than an ezStringView.
+  ///
+  /// Using this function is more efficient, if you access the blackboard often, but you must ensure
+  /// to only create the ezHashedString once and cache it for reuse.
+  /// Assigning a value to an ezHashedString is an expensive operation, so if you do not cache the string,
+  /// prefer to use the other overload.
+  void SetEntryValue(const ezHashedString& sName, const ezVariant& value);
+
   /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
   const Entry* GetEntry(const ezTempHashedString& sName) const;
 
   /// \brief Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
   ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& sName) const;
 
-  /// \brief Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via RegisterEntry() or SetEntryValue() before.
+  /// \brief Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via SetEntryValue() before.
   ezResult SetEntryFlags(const ezTempHashedString& sName, ezBitflags<ezBlackboardEntryFlags> flags);
 
   /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
@@ -185,8 +187,8 @@ private:
 
   static ezBlackboard* Reflection_GetOrCreateGlobal(const ezHashedString& sName);
   static ezBlackboard* Reflection_FindGlobal(ezTempHashedString sName);
-  void Reflection_RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent);
-  void Reflection_SetEntryValue(ezStringView sName, const ezVariant& value);
+
+  void ImplSetEntryValue(const ezHashedString& sName, Entry& entry, const ezVariant& value);
 
   bool m_bIsGlobal = false;
   ezHashedString m_sName;

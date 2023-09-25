@@ -231,8 +231,8 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
 
     {
       ezSharedPtr<ezBlackboard> pBlackboard = ezBlackboard::Create();
-      pBlackboard->RegisterEntry(sTestVal, 2);
-      pBlackboard->RegisterEntry(sTestVal2, 0);
+      pBlackboard->SetEntryValue(sTestVal, 2);
+      pBlackboard->SetEntryValue(sTestVal2, 0);
 
       ezStateMachineInstance sm(fakeOwner, pDesc);
       sm.SetBlackboard(pBlackboard);
@@ -351,7 +351,7 @@ void ezGameEngineTestStateMachine::RunBuiltinsTest()
 
     {
       ezSharedPtr<ezBlackboard> pBlackboard = ezBlackboard::Create();
-      pBlackboard->RegisterEntry(sTestVal, 2);
+      pBlackboard->SetEntryValue(sTestVal, 2);
 
       ezStateMachineInstance sm(fakeOwner, pDesc);
       sm.SetBlackboard(pBlackboard);

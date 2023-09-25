@@ -26,10 +26,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboard, ezNoBase, 1, ezRTTINoAllocator)
       new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(GetName),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_RegisterEntry, In, "Name", In, "InitialValue", In, "Save", In, "OnChangeEvent")->AddAttributes(
-      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetEntryValue, In, "Name", In, "Value")->AddAttributes(
-      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name", In, "Fallback")->AddAttributes(
       new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardChangeCounter),
@@ -102,22 +98,7 @@ void ezBlackboard::SetName(ezStringView sName)
   m_sName.Assign(sName);
 }
 
-void ezBlackboard::RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags /*= ezBlackboardEntryFlags::None*/)
-{
-  EZ_ASSERT_ALWAYS(!flags.IsSet(ezBlackboardEntryFlags::Invalid), "The invalid flag is reserved for internal use.");
-
-  bool bExisted = false;
-  Entry& entry = m_Entries.FindOrAdd(sName, &bExisted);
-  entry.m_Flags != flags;
-
-  if (!bExisted)
-  {
-    ++m_uiBlackboardChangeCounter;
-    entry.m_Value = initialValue;
-  }
-}
-
-void ezBlackboard::UnregisterEntry(const ezHashedString& sName)
+void ezBlackboard::RemoveEntry(const ezHashedString& sName)
 {
   if (m_Entries.Remove(sName))
   {
@@ -125,7 +106,7 @@ void ezBlackboard::UnregisterEntry(const ezHashedString& sName)
   }
 }
 
-void ezBlackboard::UnregisterAllEntries()
+void ezBlackboard::RemoveAllEntries()
 {
   if (m_Entries.IsEmpty() == false)
   {
@@ -135,12 +116,32 @@ void ezBlackboard::UnregisterAllEntries()
   m_Entries.Clear();
 }
 
+void ezBlackboard::ImplSetEntryValue(const ezHashedString& sName, Entry& entry, const ezVariant& value)
+{
+  if (entry.m_Value != value)
+  {
+    ++m_uiBlackboardEntryChangeCounter;
+    ++entry.m_uiChangeCounter;
+
+    if (entry.m_Flags.IsSet(ezBlackboardEntryFlags::OnChangeEvent))
+    {
+      EntryEvent e;
+      e.m_sName = sName;
+      e.m_OldValue = entry.m_Value;
+      e.m_pEntry = &entry;
+
+      m_EntryEvents.Broadcast(e, 1); // limited recursion is allowed
+    }
+
+    entry.m_Value = value;
+  }
+}
+
 void ezBlackboard::SetEntryValue(ezStringView sName, const ezVariant& value)
 {
   const ezTempHashedString sNameTH(sName);
 
   auto itEntry = m_Entries.Find(sNameTH);
-
 
   if (!itEntry.IsValid())
   {
@@ -152,25 +153,23 @@ void ezBlackboard::SetEntryValue(ezStringView sName, const ezVariant& value)
   }
   else
   {
-    Entry& entry = itEntry.Value();
+    ImplSetEntryValue(itEntry.Key(), itEntry.Value(), value);
+  }
+}
 
-    if (entry.m_Value != value)
-    {
-      ++m_uiBlackboardEntryChangeCounter;
-      ++entry.m_uiChangeCounter;
+void ezBlackboard::SetEntryValue(const ezHashedString& sName, const ezVariant& value)
+{
+  auto itEntry = m_Entries.Find(sName);
 
-      if (entry.m_Flags.IsSet(ezBlackboardEntryFlags::OnChangeEvent))
-      {
-        EntryEvent e;
-        e.m_sName = itEntry.Key();
-        e.m_OldValue = entry.m_Value;
-        e.m_pEntry = &entry;
+  if (!itEntry.IsValid())
+  {
+    m_Entries[sName].m_Value = value;
 
-        m_EntryEvents.Broadcast(e, 1); // limited recursion is allowed
-      }
-
-      entry.m_Value = value;
-    }
+    ++m_uiBlackboardChangeCounter;
+  }
+  else
+  {
+    ImplSetEntryValue(itEntry.Key(), itEntry.Value(), value);
   }
 }
 
@@ -266,7 +265,8 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& inout_stream)
     ezVariant value;
     inout_stream >> value;
 
-    RegisterEntry(name, value, flags);
+    SetEntryValue(name, value);
+    SetEntryFlags(name, flags).AssertSuccess();
   }
 
   return EZ_SUCCESS;
@@ -282,20 +282,6 @@ ezBlackboard* ezBlackboard::Reflection_GetOrCreateGlobal(const ezHashedString& s
 ezBlackboard* ezBlackboard::Reflection_FindGlobal(ezTempHashedString sName)
 {
   return FindGlobal(sName);
-}
-
-void ezBlackboard::Reflection_RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent)
-{
-  ezBitflags<ezBlackboardEntryFlags> flags;
-  flags.AddOrRemove(ezBlackboardEntryFlags::Save, bSave);
-  flags.AddOrRemove(ezBlackboardEntryFlags::OnChangeEvent, bOnChangeEvent);
-
-  RegisterEntry(sName, initialValue, flags);
-}
-
-void ezBlackboard::Reflection_SetEntryValue(ezStringView sName, const ezVariant& value)
-{
-  SetEntryValue(sName, value);
 }
 
 //////////////////////////////////////////////////////////////////////////
