@@ -90,7 +90,7 @@ void ezQtLogPanel::OnNewWarningsOrErrors(const char* szText, bool bError)
   }
   if (uiShowNumWarnings > 0)
   {
-    tmp.AppendWithSeparator(", ", "");
+    tmp.AppendWithSeparator(",", " ");
     tmp.AppendFormat("{} Warnings", uiShowNumWarnings);
   }
 

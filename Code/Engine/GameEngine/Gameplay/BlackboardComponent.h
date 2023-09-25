@@ -13,9 +13,6 @@ struct ezBlackboardEntry
   ezVariant m_InitialValue;
   ezBitflags<ezBlackboardEntryFlags> m_Flags;
 
-  void SetName(const char* szName) { m_sName.Assign(szName); }
-  const char* GetName() const { return m_sName; }
-
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
 };
@@ -74,7 +71,7 @@ public:
   /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents with the given name and returns its blackboard.
   ///
   /// The blackboard name is only checked if the given name is not empty. If no matching blackboard component is found,
-  /// the function will call ezBlackboard::GetOrCreateGlobal() with the given name. This if you provide a name, you will always get a result, either from a component or from the global storage.
+  /// the function will call ezBlackboard::GetOrCreateGlobal() with the given name. Thus if you provide a name, you will always get a result, either from a component or from the global storage.
   ///
   /// \sa ezBlackboard::GetOrCreateGlobal()
   static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject* pSearchObject, ezStringView sBlackboardName = ezStringView());

@@ -11,7 +11,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16186523504847867534,4613694296302778910}}
-		u4 %Hash{12293954865335676782}
+		u4 %Hash{11857313945309897528}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5729383334865941359,17585514546462535511}}
@@ -131,7 +131,7 @@ o
 	u3 %v{1}
 	p
 	{
-		HashedString %Name{s{"B"}}
+		s %Name{"B"}
 		Vec2 %Node::Pos{f{0x967EBE44,0x8D22C142}}
 		d %Value{0x0000000000003540}
 	}
@@ -302,6 +302,7 @@ o
 		Vec2 %Node::Pos{f{0xEF24C243,0x27E21543}}
 		s %Property{"Text"}
 		s %Type{"ezDebugTextComponent"}
+		Invalid %Value{}
 	}
 }
 o
@@ -430,7 +431,7 @@ o
 	u3 %v{1}
 	p
 	{
-		HashedString %Name{s{"final"}}
+		s %Name{"final"}
 		Vec2 %Node::Pos{f{0x343EBE44,0xF078A543}}
 		d %Value{0x000000000000F03F}
 	}
@@ -665,7 +666,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Title{"{Type}::Set {Property}"}
+		s %Title{"{Type}::Set {Property} = {Value}"}
 	}
 }
 o
@@ -711,17 +712,37 @@ o
 }
 o
 {
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{12372360239415635100,3568427346720508005}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{15772433660748401426,18037605005375837989}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Name"}
-		s %Type{"ezHashedString"}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -792,7 +813,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{4673689483292363284,16995282194528749258}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -830,6 +854,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Property"}
 		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{612392181161098119,4924088055133934390}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTitleAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1149,6 +1190,41 @@ o
 }
 o
 {
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13428386329226876650,12877391891600695497}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{3142769512952221137,16991618032072845633}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Value"}
+		s %Type{"ezVariant"}
+	}
+}
+o
+{
 	Uuid %id{u4{17376084241751787332,12986005398975729262}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -1225,6 +1301,23 @@ o
 	s %t{"ezVisualScriptVariableAttribute"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{12475066012725324296,14434929982913778195}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezColorAttribute"}
+		u3 %TypeVersion{1}
+	}
 }
 o
 {
@@ -1330,6 +1423,23 @@ o
 }
 o
 {
+	Uuid %id{u4{3142769512952221137,16991618032072845633}}
+	s %t{"ezVisualScriptVariableAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{4673689483292363284,16995282194528749258}}
+	s %t{"ezDynamicStringEnumAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DynamicEnum{"BlackboardNamesEnum"}
+	}
+}
+o
+{
 	Uuid %id{u4{366890744036572662,17809059193735908016}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1349,6 +1459,7 @@ o
 		{
 			Uuid{u4{7557832008610676876,6829919403873619845}}
 			Uuid{u4{9326493421559749747,4868120995660517883}}
+			Uuid{u4{13428386329226876650,12877391891600695497}}
 		}
 		s %TypeName{"VisualScriptNode_SetProperty"}
 		u3 %TypeVersion{1}
@@ -1404,6 +1515,16 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15772433660748401426,18037605005375837989}}
+	s %t{"ezDynamicStringEnumAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %DynamicEnum{"BlackboardKeysEnum"}
 	}
 }
 }

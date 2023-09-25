@@ -65,10 +65,12 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardEntryFlags);
 class EZ_CORE_DLL ezBlackboard : public ezRefCounted
 {
 private:
-  ezBlackboard();
+  ezBlackboard(bool bIsGlobal);
 
 public:
   ~ezBlackboard();
+
+  bool IsGlobalBlackboard() const { return m_bIsGlobal; }
 
   /// \brief Factory method to create a new blackboard.
   ///
@@ -118,33 +120,42 @@ public:
     const Entry* m_pEntry;
   };
 
-  /// \brief Registers an entry with a name, value and flags.
-  ///
-  /// If the entry already exists, it will add the entry flags that hadn't been set before, but NOT change the value.
-  /// Thus you can use it to make sure that a value exists with a given start value, but keep it unchanged, if it already existed.
-  void RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, ezBitflags<ezBlackboardEntryFlags> flags = ezBlackboardEntryFlags::None);
-
   /// \brief Removes the named entry. Does nothing, if no such entry exists.
-  void UnregisterEntry(const ezHashedString& sName);
+  void RemoveEntry(const ezHashedString& sName);
 
   ///  \brief Removes all entries.
-  void UnregisterAllEntries();
+  void RemoveAllEntries();
 
-  /// \brief Sets the value of the named entry.
-  ///
-  /// If the entry doesn't exist, EZ_FAILURE is returned.
+  /// \brief Returns whether an entry with the given name already exists.
+  bool HasEntry(const ezTempHashedString& sName) const;
+
+  /// \brief Sets the value of the named entry. If the entry doesn't exist, yet, it will be created with default flags.
   ///
   /// If the 'OnChangeEvent' flag is set for this entry, OnEntryEvent() will be broadcast.
-  /// However, if the new value is no different to the old, no event will be broadcast, unless 'force' is set to true.
+  /// However, if the new value is no different to the old, no event will be broadcast.
   ///
-  /// Returns EZ_FAILURE, if the named entry hasn't been registered before.
-  ezResult SetEntryValue(const ezTempHashedString& sName, const ezVariant& value, bool bForce = false);
+  /// For new entries, no OnEntryEvent() is sent.
+  ///
+  /// For best efficiency, cache the entry name in an ezHashedString and use the other overload of this function.
+  /// DO NOT RECREATE the ezHashedString every time, though.
+  void SetEntryValue(ezStringView sName, const ezVariant& value);
+
+  /// \brief Overload of SetEntryValue() that takes an ezHashedString rather than an ezStringView.
+  ///
+  /// Using this function is more efficient, if you access the blackboard often, but you must ensure
+  /// to only create the ezHashedString once and cache it for reuse.
+  /// Assigning a value to an ezHashedString is an expensive operation, so if you do not cache the string,
+  /// prefer to use the other overload.
+  void SetEntryValue(const ezHashedString& sName, const ezVariant& value);
 
   /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
   const Entry* GetEntry(const ezTempHashedString& sName) const;
 
   /// \brief Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
   ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& sName) const;
+
+  /// \brief Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via SetEntryValue() or SetEntryValue() before.
+  ezResult SetEntryFlags(const ezTempHashedString& sName, ezBitflags<ezBlackboardEntryFlags> flags);
 
   /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
   ezVariant GetEntryValue(const ezTempHashedString& sName, const ezVariant& fallback = ezVariant()) const;
@@ -179,9 +190,11 @@ private:
 
   static ezBlackboard* Reflection_GetOrCreateGlobal(const ezHashedString& sName);
   static ezBlackboard* Reflection_FindGlobal(ezTempHashedString sName);
-  void Reflection_RegisterEntry(const ezHashedString& sName, const ezVariant& initialValue, bool bSave, bool bOnChangeEvent);
-  bool Reflection_SetEntryValue(ezTempHashedString sName, const ezVariant& value);
+  void Reflection_SetEntryValue(ezStringView sName, const ezVariant& value);
 
+  void ImplSetEntryValue(const ezHashedString& sName, Entry& entry, const ezVariant& value);
+
+  bool m_bIsGlobal = false;
   ezHashedString m_sName;
   ezEvent<EntryEvent> m_EntryEvents;
   ezUInt32 m_uiBlackboardChangeCounter = 0;
@@ -207,9 +220,6 @@ struct EZ_CORE_DLL ezBlackboardCondition
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
-
-  const char* GetEntryName() const { return m_sEntryName; }
-  void SetEntryName(const char* szName) { m_sEntryName.Assign(szName); }
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezBlackboardCondition);

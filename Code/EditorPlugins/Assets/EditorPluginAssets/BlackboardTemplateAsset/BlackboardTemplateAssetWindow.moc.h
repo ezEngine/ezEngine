@@ -19,4 +19,5 @@ private:
   void RestoreResource();
 
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 };
