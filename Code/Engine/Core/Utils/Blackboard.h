@@ -135,6 +135,9 @@ public:
   /// However, if the new value is no different to the old, no event will be broadcast.
   ///
   /// For new entries, no OnEntryEvent() is sent.
+  ///
+  /// For best efficiency, cache the entry name in an ezHashedString and use the other overload of this function.
+  /// DO NOT RECREATE the ezHashedString every time, though.
   void SetEntryValue(ezStringView sName, const ezVariant& value);
 
   /// \brief Overload of SetEntryValue() that takes an ezHashedString rather than an ezStringView.
@@ -142,8 +145,8 @@ public:
   /// Using this function is more efficient, if you access the blackboard often, but you must ensure
   /// to only create the ezHashedString once and cache it for reuse.
   /// Assigning a value to an ezHashedString is an expensive operation, so if you do not cache the string,
-  /// prefer to use SetEntryValue().
-  void AssignEntryValue(const ezHashedString& sName, const ezVariant& value);
+  /// prefer to use the other overload.
+  void SetEntryValue(const ezHashedString& sName, const ezVariant& value);
 
   /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
   const Entry* GetEntry(const ezTempHashedString& sName) const;
@@ -151,7 +154,7 @@ public:
   /// \brief Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
   ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& sName) const;
 
-  /// \brief Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via AssignEntryValue() or SetEntryValue() before.
+  /// \brief Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via SetEntryValue() or SetEntryValue() before.
   ezResult SetEntryFlags(const ezTempHashedString& sName, ezBitflags<ezBlackboardEntryFlags> flags);
 
   /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
@@ -187,6 +190,7 @@ private:
 
   static ezBlackboard* Reflection_GetOrCreateGlobal(const ezHashedString& sName);
   static ezBlackboard* Reflection_FindGlobal(ezTempHashedString sName);
+  void Reflection_SetEntryValue(ezStringView sName, const ezVariant& value);
 
   void ImplSetEntryValue(const ezHashedString& sName, Entry& entry, const ezVariant& value);
 

@@ -96,7 +96,7 @@ namespace ezRmlUiInternal
       targetType = pEntry->m_Value.GetType();
     }
 
-    m_Blackboard.AssignEntryValue(m_sName, ezRmlUiConversionUtils::ToVariant(value, targetType));
+    m_Blackboard.SetEntryValue(m_sName, ezRmlUiConversionUtils::ToVariant(value, targetType));
   }
 
   void BlackboardDataBinding::EntryWrapper::GetValue(Rml::Variant& out_value) const

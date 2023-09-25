@@ -209,7 +209,7 @@ void ezBlackboardComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     for (auto& entry : initialEntries)
     {
-      m_pBoard->AssignEntryValue(entry.m_sName, entry.m_InitialValue);
+      m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
       m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
     }
   }
@@ -340,7 +340,7 @@ void ezBlackboardComponent::Entries_SetValue(ezUInt32 uiIndex, const ezBlackboar
     }
   }
 
-  m_pBoard->AssignEntryValue(entry.m_sName, entry.m_InitialValue);
+  m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
 
   m_InitialEntries[uiIndex] = entry;
@@ -350,7 +350,7 @@ void ezBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, const ezBlackboardE
 {
   m_InitialEntries.Insert(entry, uiIndex);
 
-  m_pBoard->AssignEntryValue(entry.m_sName, entry.m_InitialValue);
+  m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
 }
 
@@ -429,7 +429,7 @@ void ezBlackboardComponent::InitializeFromTemplate()
 
   for (const auto& entry : pTemplate->GetDescriptor().m_Entries)
   {
-    m_pBoard->AssignEntryValue(entry.m_sName, entry.m_InitialValue);
+    m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
     m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
   }
 }
