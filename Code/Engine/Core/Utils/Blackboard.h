@@ -142,8 +142,8 @@ public:
   /// Using this function is more efficient, if you access the blackboard often, but you must ensure
   /// to only create the ezHashedString once and cache it for reuse.
   /// Assigning a value to an ezHashedString is an expensive operation, so if you do not cache the string,
-  /// prefer to use the other overload.
-  void SetEntryValue(const ezHashedString& sName, const ezVariant& value);
+  /// prefer to use SetEntryValue().
+  void AssignEntryValue(const ezHashedString& sName, const ezVariant& value);
 
   /// \brief Returns a pointer to the named entry, or nullptr if no such entry was registered.
   const Entry* GetEntry(const ezTempHashedString& sName) const;

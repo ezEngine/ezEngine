@@ -20,14 +20,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboard, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOrCreateGlobal, In, "Name")->AddAttributes(
-      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindGlobal, In, "Name")->AddAttributes(
-      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOrCreateGlobal, In, "Name")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindGlobal, In, "Name")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(GetName),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name", In, "Fallback")->AddAttributes(
-      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetEntryValue, In, "Name", In, "Value")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name", In, "Fallback")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardChangeCounter),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardEntryChangeCounter)
   }
@@ -157,7 +155,7 @@ void ezBlackboard::SetEntryValue(ezStringView sName, const ezVariant& value)
   }
 }
 
-void ezBlackboard::SetEntryValue(const ezHashedString& sName, const ezVariant& value)
+void ezBlackboard::AssignEntryValue(const ezHashedString& sName, const ezVariant& value)
 {
   auto itEntry = m_Entries.Find(sName);
 
