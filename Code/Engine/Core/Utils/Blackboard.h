@@ -151,7 +151,7 @@ public:
   /// \brief Returns the flags of the named entry, or ezBlackboardEntryFlags::Invalid, if no such entry was registered.
   ezBitflags<ezBlackboardEntryFlags> GetEntryFlags(const ezTempHashedString& sName) const;
 
-  /// \brief Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via SetEntryValue() before.
+  /// \brief Sets the flags of an existing entry. Returns EZ_FAILURE, if it wasn't created via AssignEntryValue() or SetEntryValue() before.
   ezResult SetEntryFlags(const ezTempHashedString& sName, ezBitflags<ezBlackboardEntryFlags> flags);
 
   /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.

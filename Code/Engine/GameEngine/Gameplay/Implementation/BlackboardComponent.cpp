@@ -93,12 +93,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezBlackboardComponent, 2, ezComponentMode::Static)
 
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(SetEntryValue, In, "Name", In, "Value")->AddAttributes(
-          new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
-    EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name")->AddAttributes(
-      new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindBlackboard, In, "SearchObject", In, "BlackboardName")->AddFlags(ezPropertyFlags::Const)->AddAttributes(
-      new ezFunctionArgumentAttributes(1, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetEntryValue, In, "Name", In, "Value")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindBlackboard, In, "SearchObject", In, "BlackboardName")->AddFlags(ezPropertyFlags::Const)->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
   }
   EZ_END_FUNCTIONS;
 
@@ -212,7 +209,7 @@ void ezBlackboardComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     for (auto& entry : initialEntries)
     {
-      m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
+      m_pBoard->AssignEntryValue(entry.m_sName, entry.m_InitialValue);
       m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
     }
   }
@@ -343,7 +340,7 @@ void ezBlackboardComponent::Entries_SetValue(ezUInt32 uiIndex, const ezBlackboar
     }
   }
 
-  m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
+  m_pBoard->AssignEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
 
   m_InitialEntries[uiIndex] = entry;
@@ -353,7 +350,7 @@ void ezBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, const ezBlackboardE
 {
   m_InitialEntries.Insert(entry, uiIndex);
 
-  m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
+  m_pBoard->AssignEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
 }
 
@@ -432,7 +429,7 @@ void ezBlackboardComponent::InitializeFromTemplate()
 
   for (const auto& entry : pTemplate->GetDescriptor().m_Entries)
   {
-    m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
+    m_pBoard->AssignEntryValue(entry.m_sName, entry.m_InitialValue);
     m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
   }
 }

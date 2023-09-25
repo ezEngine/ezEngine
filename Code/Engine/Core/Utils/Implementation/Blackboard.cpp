@@ -263,7 +263,7 @@ ezResult ezBlackboard::Deserialize(ezStreamReader& inout_stream)
     ezVariant value;
     inout_stream >> value;
 
-    SetEntryValue(name, value);
+    AssignEntryValue(name, value);
     SetEntryFlags(name, flags).AssertSuccess();
   }
 
