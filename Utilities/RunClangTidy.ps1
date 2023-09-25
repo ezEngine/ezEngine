@@ -85,7 +85,7 @@ if($SingleFile)
 }
 else 
 {
-    $files = (Get-Content $Workspace\compile_commands.json | ConvertFrom-Json -Depth 3).file | ? {!($_ -match $ExcludeRootFiles)}
+    $files = @((Get-Content $Workspace\compile_commands.json | ConvertFrom-Json -Depth 3).file | ? {!($_ -match $ExcludeRootFiles)})
 }
 
 if($DiffTo)
@@ -115,7 +115,7 @@ if($DiffTo)
     }
     
     # Filter files to clang-tidy by the files given by git diff
-    $files = $files | ? { 
+    $files = @($files | ? { 
         if($_.StartsWith($Workspace))
         {
             $_ = $_.Substring($Workspace.Length)
@@ -138,15 +138,14 @@ if($DiffTo)
         } else {
             return $diffMap.ContainsKey($_)
         }
-    }
-    
+    })    
 
     $headersInDiff = $diffFiles | ? { $_.EndsWith(".h") }
     if ($headersInDiff.Length -gt 0)
     {
         $originalNumFiles = $files.Length
         Write-Host "Looking dependencies of all headers in diff"
-        . $DependencyAnalysis -i "Qt6-6" -i "VulkanSDK" -i "ThirdParty" -i ".moc.cpp" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json
+        . $DependencyAnalysis -i "Qt6-6" -i "VulkanSDK" -i "ThirdParty" -i ".moc.cpp" -i "qrc_resources.cpp" -i "moc_" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json
         if($lastexitcode -ne 0)
         {
             Write-Error "Dependency analysis faild. Command used: $DependencyAnalysis -i `"Qt6-6`" -i `"VulkanSDK`" -i `"ThirdParty`" -i `".moc.cpp`" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json"
