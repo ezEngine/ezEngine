@@ -12,6 +12,7 @@ ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWi
   : ezQtDocumentWindow(pDocument)
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler, this));
 
   // Menu Bar
   {
@@ -49,14 +50,13 @@ ezQtBlackboardTemplateAssetDocumentWindow::ezQtBlackboardTemplateAssetDocumentWi
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  UpdatePreview();
-
   FinishWindowCreation();
 }
 
 ezQtBlackboardTemplateAssetDocumentWindow::~ezQtBlackboardTemplateAssetDocumentWindow()
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler, this));
 
   RestoreResource();
 }
@@ -109,4 +109,12 @@ void ezQtBlackboardTemplateAssetDocumentWindow::RestoreResource()
 void ezQtBlackboardTemplateAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   UpdatePreview();
+}
+
+void ezQtBlackboardTemplateAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+{
+  if (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved)
+  {
+    UpdatePreview();
+  }
 }
