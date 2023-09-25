@@ -638,7 +638,8 @@ namespace
                   std::is_same_v<T, ezColor> ||
                   std::is_same_v<T, ezVec3> ||
                   std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle>)
+                  std::is_same_v<T, ezAngle> ||
+                  std::is_same_v<T, ezVariant>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -687,7 +688,8 @@ namespace
                   std::is_same_v<T, ezColor> ||
                   std::is_same_v<T, ezVec3> ||
                   std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle>)
+                  std::is_same_v<T, ezAngle> ||
+                  std::is_same_v<T, ezVariant>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -712,7 +714,8 @@ namespace
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
                   std::is_same_v<T, ezColor> ||
-                  std::is_same_v<T, ezTime>)
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezVariant>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -748,7 +751,8 @@ namespace
                   std::is_same_v<T, ezInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezTime>)
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezVariant>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
