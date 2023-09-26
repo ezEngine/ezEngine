@@ -144,7 +144,7 @@ if($DiffTo)
     if ($headersInDiff.Length -gt 0)
     {
         $originalNumFiles = $files.Length
-        Write-Host "Looking dependencies of all headers in diff"
+        Write-Host "Looking for dependencies of all headers in diff"
         . $DependencyAnalysis -i "Qt6-6" -i "VulkanSDK" -i "ThirdParty" -i ".moc.cpp" -i "qrc_resources.cpp" -i "moc_" -o $Workspace/cpp_dependencies.json $Workspace/compile_commands.json
         if($lastexitcode -ne 0)
         {

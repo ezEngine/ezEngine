@@ -1,0 +1,2 @@
+Processing succeeded
+const char* text = R"(foo)";

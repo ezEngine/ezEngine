@@ -421,7 +421,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
     if (token.m_iType == ezTokenType::Whitespace || token.m_iType == ezTokenType::BlockComment || token.m_iType == ezTokenType::LineComment)
       continue;
 
-    if (token.m_iType == ezTokenType::String1 || token.m_iType == ezTokenType::String2)
+    if (token.m_iType == ezTokenType::String1 || token.m_iType == ezTokenType::String2 || token.m_iType == ezTokenType::RawString1)
     {
       sToken = token.m_DataView;
       ezLog::Error("Strings are not allowed in the permutation section: '{0}'", sToken);
