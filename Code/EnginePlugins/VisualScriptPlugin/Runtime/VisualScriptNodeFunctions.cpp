@@ -125,9 +125,10 @@ namespace
     ezVariant returnValue;
     pFunction->Execute(pInstance.m_pObject, args, returnValue);
 
-    if (returnValue.IsValid())
+    auto dataOffsetR = node.GetOutputDataOffset(0);
+    if (dataOffsetR.IsValid())
     {
-      inout_context.SetDataFromVariant(node.GetOutputDataOffset(0), returnValue);
+      inout_context.SetDataFromVariant(dataOffsetR, returnValue);
     }
 
     return ExecResult::RunNext(0);
@@ -538,9 +539,29 @@ namespace
       ezTypedPointer b = inout_context.GetPointerData(node.GetInputDataOffset(1));
       bRes = ezComparisonOperator::Compare(userData.m_ComparisonOperator, a.m_pObject, b.m_pObject);
     }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+
+      if (userData.m_ComparisonOperator == ezComparisonOperator::Equal)
+      {
+        bRes = a == b;
+      }
+      else if (userData.m_ComparisonOperator == ezComparisonOperator::NotEqual)
+      {
+        bRes = a != b;
+      }
+      else
+      {
+        ezStringBuilder sCompOp;
+        ezReflectionUtils::EnumerationToString(userData.m_ComparisonOperator, sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+
+        ezLog::Error("Comparison '{}' is not defined for type '{}'", sCompOp, GetTypeName<T>());
+      }
+    }
     else if constexpr (std::is_same_v<T, ezQuat> ||
                        std::is_same_v<T, ezTransform> ||
-                       std::is_same_v<T, ezVariant> ||
                        std::is_same_v<T, ezVariantArray> ||
                        std::is_same_v<T, ezVariantDictionary>)
     {
@@ -638,8 +659,7 @@ namespace
                   std::is_same_v<T, ezColor> ||
                   std::is_same_v<T, ezVec3> ||
                   std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle> ||
-                  std::is_same_v<T, ezVariant>)
+                  std::is_same_v<T, ezAngle>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -667,6 +687,12 @@ namespace
 
       inout_context.SetData(node.GetOutputDataOffset(0), sHashed);
     }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      inout_context.SetData(node.GetOutputDataOffset(0), a + b);
+    }
     else
     {
       ezLog::Error("Add is not defined for type '{}'", GetTypeName<T>());
@@ -688,12 +714,17 @@ namespace
                   std::is_same_v<T, ezColor> ||
                   std::is_same_v<T, ezVec3> ||
                   std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezAngle> ||
-                  std::is_same_v<T, ezVariant>)
+                  std::is_same_v<T, ezAngle>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a - b));
+    }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      inout_context.SetData(node.GetOutputDataOffset(0), a - b);
     }
     else
     {
@@ -714,8 +745,7 @@ namespace
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
                   std::is_same_v<T, ezColor> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezVariant>)
+                  std::is_same_v<T, ezTime>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -732,6 +762,12 @@ namespace
       const ezAngle& a = inout_context.GetData<ezAngle>(node.GetInputDataOffset(0));
       const ezAngle& b = inout_context.GetData<ezAngle>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), ezAngle(a * b.GetRadian()));
+    }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      inout_context.SetData(node.GetOutputDataOffset(0), a * b);
     }
     else
     {
@@ -751,8 +787,7 @@ namespace
                   std::is_same_v<T, ezInt64> ||
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
-                  std::is_same_v<T, ezTime> ||
-                  std::is_same_v<T, ezVariant>)
+                  std::is_same_v<T, ezTime>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
@@ -769,6 +804,12 @@ namespace
       const ezAngle& a = inout_context.GetData<ezAngle>(node.GetInputDataOffset(0));
       const ezAngle& b = inout_context.GetData<ezAngle>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), ezAngle(a / b.GetRadian()));
+    }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      ezVariant a = inout_context.GetDataAsVariant(node.GetInputDataOffset(0), nullptr);
+      ezVariant b = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), nullptr);
+      inout_context.SetData(node.GetOutputDataOffset(0), a / b);
     }
     else
     {

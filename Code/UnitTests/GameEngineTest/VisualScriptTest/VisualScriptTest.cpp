@@ -23,6 +23,7 @@ void ezGameEngineTestVisualScript::SetupSubTests()
   AddSubTest("Coroutines", SubTests::Coroutines);
   AddSubTest("Messages", SubTests::Messages);
   AddSubTest("EnumsAndSwitch", SubTests::EnumsAndSwitch);
+  AddSubTest("Blackboard", SubTests::Blackboard);
 }
 
 ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
@@ -66,6 +67,13 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(6);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/EnumsAndSwitch.ezObjectGraph"));
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::Blackboard)
+  {
+    m_ImgCompFrames.PushBack(1);
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Blackboard.ezObjectGraph"));
     return EZ_SUCCESS;
   }
 

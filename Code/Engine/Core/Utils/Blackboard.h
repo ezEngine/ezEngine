@@ -160,6 +160,12 @@ public:
   /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
   ezVariant GetEntryValue(const ezTempHashedString& sName, const ezVariant& fallback = ezVariant()) const;
 
+  /// \brief Increments the value of the named entry. Returns the incremented value or an invalid variant if the entry does not exist or is not a number type.
+  ezVariant IncrementEntryValue(const ezTempHashedString& sName);
+
+  /// \brief Decrements the value of the named entry. Returns the decremented value or an invalid variant if the entry does not exist or is not a number type.
+  ezVariant DecrementEntryValue(const ezTempHashedString& sName);
+
   /// \brief Grants read access to the entire map of entries.
   const ezHashTable<ezHashedString, Entry>& GetAllEntries() const { return m_Entries; }
 

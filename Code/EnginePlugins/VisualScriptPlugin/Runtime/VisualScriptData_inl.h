@@ -2,16 +2,16 @@
 EZ_FORCE_INLINE void ezVisualScriptDataDescription::CheckOffset(DataOffset dataOffset, const ezRTTI* pType) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  auto expectedDataType = dataOffset.GetType();
-  auto& offsetAndCount = m_PerTypeInfo[expectedDataType];
+  auto givenDataType = dataOffset.GetType();
+  auto& offsetAndCount = m_PerTypeInfo[givenDataType];
   EZ_ASSERT_DEBUG(offsetAndCount.m_uiCount > 0, "Invalid data offset");
-  const ezUInt32 uiLastOffset = offsetAndCount.m_uiStartOffset + (offsetAndCount.m_uiCount - 1) * ezVisualScriptDataType::GetStorageSize(expectedDataType);
+  const ezUInt32 uiLastOffset = offsetAndCount.m_uiStartOffset + (offsetAndCount.m_uiCount - 1) * ezVisualScriptDataType::GetStorageSize(givenDataType);
   EZ_ASSERT_DEBUG(dataOffset.m_uiByteOffset >= offsetAndCount.m_uiStartOffset && dataOffset.m_uiByteOffset <= uiLastOffset, "Invalid data offset");
 
   if (pType != nullptr)
   {
-    auto givenDataType = ezVisualScriptDataType::FromRtti(pType);
-    EZ_ASSERT_DEBUG(expectedDataType == givenDataType, "Data type mismatch, expected '{}' but got '{}'({})", ezVisualScriptDataType::GetName(expectedDataType), ezVisualScriptDataType::GetName(givenDataType), pType->GetTypeName());
+    auto expectedDataType = ezVisualScriptDataType::FromRtti(pType);
+    EZ_ASSERT_DEBUG(expectedDataType == givenDataType, "Data type mismatch, expected '{}'({}) but got '{}'", ezVisualScriptDataType::GetName(expectedDataType), pType->GetTypeName(), ezVisualScriptDataType::GetName(givenDataType));
   }
 #endif
 }

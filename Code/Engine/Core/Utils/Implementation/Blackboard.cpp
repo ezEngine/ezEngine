@@ -26,6 +26,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboard, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetName),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetEntryValue, In, "Name", In, "Value")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name", In, "Fallback")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IncrementEntryValue, In, "Name")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DecrementEntryValue, In, "Name")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardChangeCounter),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardEntryChangeCounter)
   }
@@ -203,8 +205,34 @@ const ezBlackboard::Entry* ezBlackboard::GetEntry(const ezTempHashedString& sNam
 
 ezVariant ezBlackboard::GetEntryValue(const ezTempHashedString& sName, const ezVariant& fallback /*= ezVariant()*/) const
 {
-  auto value = m_Entries.GetValue(sName);
-  return value != nullptr ? value->m_Value : fallback;
+  auto pEntry = m_Entries.GetValue(sName);
+  return pEntry != nullptr ? pEntry->m_Value : fallback;
+}
+
+ezVariant ezBlackboard::IncrementEntryValue(const ezTempHashedString& sName)
+{
+  auto pEntry = m_Entries.GetValue(sName);
+  if (pEntry != nullptr && pEntry->m_Value.IsNumber())
+  {    
+    ezVariant one = ezVariant(1).ConvertTo(pEntry->m_Value.GetType());
+    pEntry->m_Value = pEntry->m_Value + one;
+    return pEntry->m_Value;
+  }
+
+  return ezVariant();
+}
+
+ezVariant ezBlackboard::DecrementEntryValue(const ezTempHashedString& sName)
+{
+  auto pEntry = m_Entries.GetValue(sName);
+  if (pEntry != nullptr && pEntry->m_Value.IsNumber())
+  {
+    ezVariant one = ezVariant(1).ConvertTo(pEntry->m_Value.GetType());
+    pEntry->m_Value = pEntry->m_Value - one;
+    return pEntry->m_Value;
+  }
+
+  return ezVariant();
 }
 
 ezBitflags<ezBlackboardEntryFlags> ezBlackboard::GetEntryFlags(const ezTempHashedString& sName) const
