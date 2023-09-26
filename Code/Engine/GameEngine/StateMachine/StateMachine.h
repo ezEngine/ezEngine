@@ -48,6 +48,17 @@ private:
   ezHashedString m_sName;
 };
 
+class EZ_GAMEENGINE_DLL ezStateMachineState_Empty final : public ezStateMachineState
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineState_Empty, ezStateMachineState);
+
+public:
+  ezStateMachineState_Empty(ezStringView sName = ezStringView());
+  ~ezStateMachineState_Empty() = default;
+
+  virtual void OnEnter(ezStateMachineInstance& ref_instance, void* pInstanceData, const ezStateMachineState* pFromState) const override {}
+};
+
 struct ezStateMachineState_ScriptBaseClassFunctions
 {
   enum Enum
