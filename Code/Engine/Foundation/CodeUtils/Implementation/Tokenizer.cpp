@@ -18,8 +18,7 @@ const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] = {
   "RawString1",
   "RawString1Prefix",
   "RawString1Postfix",
-  "EndOfFile"
-};
+  "EndOfFile"};
 
 namespace
 {
@@ -375,7 +374,7 @@ void ezTokenizer::HandleRawString()
     }
     NextChar();
   }
-  if(m_uiCurChar == '\0')
+  if (m_uiCurChar == '\0')
   {
     ezLog::Error("Failed to find '(' for raw string before end of file");
     AddToken();
@@ -391,7 +390,7 @@ void ezTokenizer::HandleRawString()
   {
     if (m_uiCurChar == ')')
     {
-      if(m_sRawStringMarker.GetElementCount() == 0 && m_uiNextChar == '\"')
+      if (m_sRawStringMarker.GetElementCount() == 0 && m_uiNextChar == '\"')
       {
         AddToken();
         NextChar();
@@ -400,13 +399,13 @@ void ezTokenizer::HandleRawString()
         AddToken();
         return;
       }
-      else if(m_szCurCharStart + m_sRawStringMarker.GetElementCount() + 2 <= m_sIterator.GetEndPointer())
+      else if (m_szCurCharStart + m_sRawStringMarker.GetElementCount() + 2 <= m_sIterator.GetEndPointer())
       {
-        if(ezStringUtils::CompareN(m_szCurCharStart + 1, m_sRawStringMarker.GetStartPointer(), m_sRawStringMarker.GetElementCount()) == 0 &&
-          m_szCurCharStart[m_sRawStringMarker.GetElementCount() + 1] == '\"')
+        if (ezStringUtils::CompareN(m_szCurCharStart + 1, m_sRawStringMarker.GetStartPointer(), m_sRawStringMarker.GetElementCount()) == 0 &&
+            m_szCurCharStart[m_sRawStringMarker.GetElementCount() + 1] == '\"')
         {
           AddToken();
-          for(ezUInt32 i=0; i < m_sRawStringMarker.GetElementCount() + 2; ++i) // consume )marker"
+          for (ezUInt32 i = 0; i < m_sRawStringMarker.GetElementCount() + 2; ++i) // consume )marker"
           {
             NextChar();
           }
