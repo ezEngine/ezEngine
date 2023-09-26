@@ -1132,24 +1132,9 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     {
       if (pFunction->GetFunctionType() == ezFunctionType::Member)
       {
-        if (pRtti->IsDerivedFrom<ezComponent>())
-        {
-          nodeDesc.AddInputDataPin("Component", pRtti, ezVisualScriptDataType::Component, true);
-        }
-        else if (pRtti->IsDerivedFrom<ezGameObject>())
-        {
-          // GameObject pins will default to the script owner's game object thus they are not required
-          nodeDesc.AddInputDataPin("GameObject", pRtti, ezVisualScriptDataType::GameObject, false);
-        }
-        else if (pRtti->IsDerivedFrom<ezWorld>())
-        {
-          // World pins will default to the script owner's world thus they are not required
-          nodeDesc.AddInputDataPin("World", pRtti, ezVisualScriptDataType::TypedPointer, false);
-        }
-        else
-        {
-          nodeDesc.AddInputDataPin("Object", pRtti, ezVisualScriptDataType::TypedPointer, true);
-        }
+        // GameObject and World pins will default to the script owner's game object/world thus they are not required
+        const bool bRequired = pRtti->IsDerivedFrom<ezGameObject>() == false && pRtti->IsDerivedFrom<ezWorld>() == false;
+        nodeDesc.AddInputDataPin(sTypeName, pRtti, ezVisualScriptDataType::FromRtti(pRtti), bRequired);
       }
 
       if (const ezRTTI* pReturnRtti = pFunction->GetReturnType())

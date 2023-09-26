@@ -148,16 +148,7 @@ void ezQtNode::UpdateGeometry()
     y += rectPin.height();
   }
 
-  int w = 0;
-
-  if (maxInputWidth == 0)
-    w = maxOutputWidth;
-  else if (maxOutputWidth == 0)
-    w = maxInputWidth;
-  else
-    w = ezMath::Max(maxInputWidth, maxOutputWidth) * 2;
-
-  w += 10;
+  int w = ezMath::Max(maxInputWidth, 10) + ezMath::Max(maxOutputWidth, 10) + 20;
 
   const int headerWidth = ezMath::Max(titleRect.width(), subtitleRect.width()) + iconRect.width();
   w = ezMath::Max(w, headerWidth);

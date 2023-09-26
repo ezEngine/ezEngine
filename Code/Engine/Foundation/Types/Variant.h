@@ -417,6 +417,12 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
   return nullptr;
 }
 
+// Simple math operator overloads. An invalid variant is returned if the given variants have incompatible types.
+EZ_FOUNDATION_DLL ezVariant operator+(const ezVariant& a, const ezVariant& b);
+EZ_FOUNDATION_DLL ezVariant operator-(const ezVariant& a, const ezVariant& b);
+EZ_FOUNDATION_DLL ezVariant operator*(const ezVariant& a, const ezVariant& b);
+EZ_FOUNDATION_DLL ezVariant operator/(const ezVariant& a, const ezVariant& b);
+
 namespace ezMath
 {
   /// \brief An overload of ezMath::Lerp to interpolate variants. A and b must have the same type.

@@ -627,6 +627,216 @@ ezStringView ezVariant::GetTypeName(const ezRTTI* pType)
 
 //////////////////////////////////////////////////////////////////////////
 
+struct AddFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezInt8> || std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt16> || std::is_same_v<T, ezUInt16> ||
+                  std::is_same_v<T, ezInt32> || std::is_same_v<T, ezUInt32> ||
+                  std::is_same_v<T, ezInt64> || std::is_same_v<T, ezUInt64> ||
+                  std::is_same_v<T, float> || std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4> ||
+                  std::is_same_v<T, ezVec2I32> || std::is_same_v<T, ezVec3I32> || std::is_same_v<T, ezVec4I32> ||
+                  std::is_same_v<T, ezVec2U32> || std::is_same_v<T, ezVec3U32> || std::is_same_v<T, ezVec4U32> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
+    {
+      out_res = a.Get<T>() + b.Get<T>();
+    }
+    else if constexpr (std::is_same_v<T, ezString> || std::is_same_v<T, ezStringView>)
+    {
+      ezStringBuilder s;
+      s.Set(a.Get<T>(), b.Get<T>());
+      out_res = ezString(s.GetView());
+    }
+    else if constexpr (std::is_same_v<T, ezHashedString>)
+    {
+      ezStringBuilder s;
+      s.Set(a.Get<T>(), b.Get<T>());
+
+      ezHashedString hashedS;
+      hashedS.Assign(s);
+      out_res = hashedS;
+    }
+  }
+};
+
+ezVariant operator+(const ezVariant& a, const ezVariant& b)
+{
+  if (a.IsNumber() && b.IsNumber())
+  {
+    auto biggerType = ezMath::Max(a.GetType(), b.GetType());
+
+    AddFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, biggerType, a.ConvertTo(biggerType), b.ConvertTo(biggerType), result);
+    return result;
+  }
+  else if (a.GetType() == b.GetType())
+  {
+    AddFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, result);
+    return result;
+  }
+
+  return ezVariant();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+struct SubFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezInt8> || std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt16> || std::is_same_v<T, ezUInt16> ||
+                  std::is_same_v<T, ezInt32> || std::is_same_v<T, ezUInt32> ||
+                  std::is_same_v<T, ezInt64> || std::is_same_v<T, ezUInt64> ||
+                  std::is_same_v<T, float> || std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4> ||
+                  std::is_same_v<T, ezVec2I32> || std::is_same_v<T, ezVec3I32> || std::is_same_v<T, ezVec4I32> ||
+                  std::is_same_v<T, ezVec2U32> || std::is_same_v<T, ezVec3U32> || std::is_same_v<T, ezVec4U32> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
+    {
+      out_res = a.Get<T>() - b.Get<T>();
+    }
+  }
+};
+
+ezVariant operator-(const ezVariant& a, const ezVariant& b)
+{
+  if (a.IsNumber() && b.IsNumber())
+  {
+    auto biggerType = ezMath::Max(a.GetType(), b.GetType());
+
+    SubFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, biggerType, a.ConvertTo(biggerType), b.ConvertTo(biggerType), result);
+    return result;
+  }
+  else if (a.GetType() == b.GetType())
+  {
+    SubFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, result);
+    return result;
+  }
+
+  return ezVariant();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+struct MulFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezInt8> || std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt16> || std::is_same_v<T, ezUInt16> ||
+                  std::is_same_v<T, ezInt32> || std::is_same_v<T, ezUInt32> ||
+                  std::is_same_v<T, ezInt64> || std::is_same_v<T, ezUInt64> ||
+                  std::is_same_v<T, float> || std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezTime>)
+    {
+      out_res = a.Get<T>() * b.Get<T>();
+    }
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4> ||
+                       std::is_same_v<T, ezVec2I32> || std::is_same_v<T, ezVec3I32> || std::is_same_v<T, ezVec4I32> ||
+                       std::is_same_v<T, ezVec2U32> || std::is_same_v<T, ezVec3U32> || std::is_same_v<T, ezVec4U32>)
+    {
+      out_res = a.Get<T>().CompMul(b.Get<T>());
+    }
+    else if constexpr (std::is_same_v<T, ezAngle>)
+    {
+      out_res = ezAngle(a.Get<T>() * b.Get<T>().GetRadian());
+    }
+  }
+};
+
+ezVariant operator*(const ezVariant& a, const ezVariant& b)
+{
+  if (a.IsNumber() && b.IsNumber())
+  {
+    auto biggerType = ezMath::Max(a.GetType(), b.GetType());
+
+    MulFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, biggerType, a.ConvertTo(biggerType), b.ConvertTo(biggerType), result);
+    return result;
+  }
+  else if (a.GetType() == b.GetType())
+  {
+    MulFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, result);
+    return result;
+  }
+
+  return ezVariant();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+struct DivFunc
+{
+  template <typename T>
+  EZ_ALWAYS_INLINE void operator()(const ezVariant& a, const ezVariant& b, ezVariant& out_res)
+  {
+    if constexpr (std::is_same_v<T, ezInt8> || std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt16> || std::is_same_v<T, ezUInt16> ||
+                  std::is_same_v<T, ezInt32> || std::is_same_v<T, ezUInt32> ||
+                  std::is_same_v<T, ezInt64> || std::is_same_v<T, ezUInt64> ||
+                  std::is_same_v<T, float> || std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezTime>)
+    {
+      out_res = a.Get<T>() / b.Get<T>();
+    }
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4> ||
+                       std::is_same_v<T, ezVec2I32> || std::is_same_v<T, ezVec3I32> || std::is_same_v<T, ezVec4I32> ||
+                       std::is_same_v<T, ezVec2U32> || std::is_same_v<T, ezVec3U32> || std::is_same_v<T, ezVec4U32>)
+    {
+      out_res = a.Get<T>().CompDiv(b.Get<T>());
+    }
+    else if constexpr (std::is_same_v<T, ezAngle>)
+    {
+      out_res = ezAngle(a.Get<T>() / b.Get<T>().GetRadian());
+    }
+  }
+};
+
+ezVariant operator/(const ezVariant& a, const ezVariant& b)
+{
+  if (a.IsNumber() && b.IsNumber())
+  {
+    auto biggerType = ezMath::Max(a.GetType(), b.GetType());
+
+    DivFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, biggerType, a.ConvertTo(biggerType), b.ConvertTo(biggerType), result);
+    return result;
+  }
+  else if (a.GetType() == b.GetType())
+  {
+    DivFunc func;
+    ezVariant result;
+    ezVariant::DispatchTo(func, a.GetType(), a, b, result);
+    return result;
+  }
+
+  return ezVariant();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 struct LerpFunc
 {
   constexpr static bool CanInterpolate(ezVariantType::Enum variantType)

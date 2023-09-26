@@ -40,6 +40,11 @@ void ezScriptWorldModule::Initialize()
   }
 }
 
+void ezScriptWorldModule::WorldClear()
+{
+  m_Scheduler.Clear();
+}
+
 void ezScriptWorldModule::AddUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance, ezTime updateInterval, bool bOnlyWhenSimulating)
 {
   FunctionContext context;

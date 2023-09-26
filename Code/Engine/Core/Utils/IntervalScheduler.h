@@ -49,7 +49,6 @@ protected:
   double m_fInvIntervalRange;
 
   ezTime m_CurrentTime;
-  double m_fNumWorkToSchedule = 0.0;
 
   ezUInt32 m_uiSeed = 0;
 
@@ -83,6 +82,8 @@ public:
   /// \brief Advances the scheduler by deltaTime and triggers runWorkCallback for each work that should be run during this update step.
   /// Since it is not possible to maintain the exact interval all the time the actual delta time for the work is also passed to runWorkCallback.
   void Update(ezTime deltaTime, RunWorkCallback runWorkCallback);
+
+  void Clear();
 
 private:
   struct Data

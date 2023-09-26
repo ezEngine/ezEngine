@@ -415,9 +415,18 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
       }
 
       const ezPin* pSourcePin = GetOutputPinByName(pSource, connectionMetaData.m_SourcePin);
-      const ezPin* pTargetPin = GetInputPinByName(pTarget, connectionMetaData.m_TargetPin);
-      if (pSourcePin == nullptr || pTargetPin == nullptr)
+      if (pSourcePin == nullptr)
       {
+        ezLog::Error("Unknown output pin '{}' on '{}'. The connection has been removed.", connectionMetaData.m_SourcePin, pSource->GetType()->GetTypeName());
+        RemoveObject(pObject);
+        DestroyObject(pObject);
+        continue;
+      }
+
+      const ezPin* pTargetPin = GetInputPinByName(pTarget, connectionMetaData.m_TargetPin);
+      if (pTargetPin == nullptr)
+      {
+        ezLog::Error("Unknown input pin '{}' on '{}'. The connection has been removed.", connectionMetaData.m_TargetPin, pTarget->GetType()->GetTypeName());
         RemoveObject(pObject);
         DestroyObject(pObject);
         continue;

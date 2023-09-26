@@ -19,6 +19,7 @@ protected:
     Coroutines,
     Messages,
     EnumsAndSwitch,
+    Blackboard,
     Loops,
     Arrays,
     Maps,
