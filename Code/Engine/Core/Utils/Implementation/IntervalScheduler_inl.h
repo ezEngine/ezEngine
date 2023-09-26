@@ -108,16 +108,14 @@ ezTime ezIntervalScheduler<T>::GetInterval(const T& work) const
 template <typename T>
 void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCallback)
 {
-  if (deltaTime <= ezTime::MakeZero())
+  if (deltaTime.IsZeroOrNegative())
     return;
 
   m_CurrentTime += deltaTime;
 
   if (m_Data.IsEmpty())
-  {
-    m_fNumWorkToSchedule = 0.0;
-  }
-  else
+    return;
+  
   {
     double fNumWork = 0;
     for (ezUInt32 i = 1; i < HistogramSize; ++i)
@@ -126,20 +124,10 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
     }
     fNumWork *= deltaTime.GetSeconds();
 
-    if (m_fNumWorkToSchedule == 0.0)
-    {
-      m_fNumWorkToSchedule = fNumWork;
-    }
-    else
-    {
-      // running average of num work per update to prevent huge spikes
-      m_fNumWorkToSchedule = ezMath::Lerp<double>(m_fNumWorkToSchedule, fNumWork, 0.05);
-    }
-
-    const float fRemainder = static_cast<float>(ezMath::Fraction(m_fNumWorkToSchedule));
+    const float fRemainder = static_cast<float>(ezMath::Fraction(fNumWork));
     const int pos = static_cast<int>(m_CurrentTime.GetNanoseconds());
     const ezUInt32 extra = GetRandomZeroToOne(pos, m_uiSeed) < fRemainder ? 1 : 0;
-    const ezUInt32 uiScheduleCount = ezMath::Min(static_cast<ezUInt32>(m_fNumWorkToSchedule) + extra + m_Histogram[0], m_Data.GetCount());
+    const ezUInt32 uiScheduleCount = ezMath::Min(static_cast<ezUInt32>(fNumWork) + extra + m_Histogram[0], m_Data.GetCount());
 
     // schedule work
     {
@@ -195,6 +183,17 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
     }
     m_ScheduledWork.Clear();
   }
+}
+
+template <typename T>
+void ezIntervalScheduler<T>::Clear()
+{
+  m_CurrentTime = ezTime::MakeZero();
+  m_uiSeed = 0;
+  ezMemoryUtils::ZeroFill(m_Histogram, HistogramSize);
+
+  m_Data.Clear();
+  m_WorkIdToData.Clear();
 }
 
 template <typename T>

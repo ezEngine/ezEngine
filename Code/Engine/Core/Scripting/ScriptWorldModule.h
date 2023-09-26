@@ -19,6 +19,7 @@ public:
   ~ezScriptWorldModule();
 
   virtual void Initialize() override;
+  virtual void WorldClear() override;
 
   void AddUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance, ezTime updateInterval, bool bOnlyWhenSimulating);
   void RemoveUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance);
