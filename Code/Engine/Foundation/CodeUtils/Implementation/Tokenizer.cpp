@@ -179,6 +179,8 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog)
         HandleNonIdentifier();
         break;
 
+      case ezTokenType::RawString1Prefix:
+      case ezTokenType::RawString1Postfix:
       case ezTokenType::Newline:
       case ezTokenType::EndOfFile:
       case ezTokenType::ENUM_COUNT:
