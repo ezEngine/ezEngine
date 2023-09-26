@@ -160,7 +160,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 3).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 4).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
@@ -170,12 +170,12 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformAnimations)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 6).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Animations/ezProject", 7).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformStateMachine)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/StateMachine/ezProject", 6).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/StateMachine/ezProject", 7).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
@@ -190,7 +190,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformVisualScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 5).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 6).Succeeded());
 }
 
 #endif
