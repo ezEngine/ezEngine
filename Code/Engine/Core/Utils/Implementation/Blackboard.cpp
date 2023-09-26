@@ -213,7 +213,7 @@ ezVariant ezBlackboard::IncrementEntryValue(const ezTempHashedString& sName)
 {
   auto pEntry = m_Entries.GetValue(sName);
   if (pEntry != nullptr && pEntry->m_Value.IsNumber())
-  {    
+  {
     ezVariant one = ezVariant(1).ConvertTo(pEntry->m_Value.GetType());
     pEntry->m_Value = pEntry->m_Value + one;
     return pEntry->m_Value;

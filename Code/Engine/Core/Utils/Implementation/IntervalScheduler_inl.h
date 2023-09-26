@@ -115,7 +115,7 @@ void ezIntervalScheduler<T>::Update(ezTime deltaTime, RunWorkCallback runWorkCal
 
   if (m_Data.IsEmpty())
     return;
-  
+
   {
     double fNumWork = 0;
     for (ezUInt32 i = 1; i < HistogramSize; ++i)

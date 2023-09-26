@@ -1007,13 +1007,13 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, ezDynami
       for (auto& dataInput : pDataNode->m_Inputs)
       {
         auto& newDataInput = newDataNode.m_Inputs.ExpandAndGetRef();
-        
+
         if (oldToNewNodes.TryGetValue(dataInput.m_pSourceNode, newDataInput.m_pSourceNode) == false)
         {
           EZ_ASSERT_DEBUG(dataInput.m_pSourceNode == nullptr || dataInput.m_pSourceNode->m_bImplicitExecution == false, "");
           newDataInput.m_pSourceNode = dataInput.m_pSourceNode;
         }
-        
+
         newDataInput.m_uiId = GetPinId(nullptr);
         newDataInput.m_uiSourcePinIndex = dataInput.m_uiSourcePinIndex;
         newDataInput.m_DataType = dataInput.m_DataType;
