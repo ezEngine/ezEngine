@@ -146,14 +146,10 @@ export class BlackboardComponent extends Component
   public static GetTypeNameHash(): number { return 4004595404; }
   SetEntryValue(Name: string, Value: any): void { __CPP_ComponentFunction_Call(this, 1770691434, Name, Value); }
   GetEntryValue(Name: string): any { return __CPP_ComponentFunction_Call(this, 3444662205, Name); }
-  get BlackboardName(): string { return __CPP_ComponentProperty_get(this, 1957444071); }
-  set BlackboardName(value: string) { __CPP_ComponentProperty_set(this, 1957444071, value); }
   get Template(): string { return __CPP_ComponentProperty_get(this, 1395642933); }
   set Template(value: string) { __CPP_ComponentProperty_set(this, 1395642933, value); }
   get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 3507638090); }
   set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 3507638090, value); }
-  get SendEntryChangedMessage(): boolean { return __CPP_ComponentProperty_get(this, 251987862); }
-  set SendEntryChangedMessage(value: boolean) { __CPP_ComponentProperty_set(this, 251987862, value); }
 }
 
 export class ReflectionProbeComponentBase extends Component
@@ -516,6 +512,15 @@ export class GizmoComponent extends MeshComponent
   public static GetTypeNameHash(): number { return 1286849521; }
 }
 
+export class GlobalBlackboardComponent extends BlackboardComponent
+{
+  public static GetTypeNameHash(): number { return 3781981925; }
+  get BlackboardName(): string { return __CPP_ComponentProperty_get(this, 2603695606); }
+  set BlackboardName(value: string) { __CPP_ComponentProperty_set(this, 2603695606, value); }
+  get InitMode(): Enum.GlobalBlackboardInitMode { return __CPP_ComponentProperty_get(this, 3699819868); }
+  set InitMode(value: Enum.GlobalBlackboardInitMode) { __CPP_ComponentProperty_set(this, 3699819868, value); }
+}
+
 export class GrabbableItemComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3683886134; }
@@ -646,6 +651,15 @@ export class LineToComponent extends Component
   set Target(value: string) { __CPP_ComponentProperty_set(this, 3996901481, value); }
   get Color(): Color { return __CPP_ComponentProperty_get(this, 3876071147); }
   set Color(value: Color) { __CPP_ComponentProperty_set(this, 3876071147, value); }
+}
+
+export class LocalBlackboardComponent extends BlackboardComponent
+{
+  public static GetTypeNameHash(): number { return 3594989640; }
+  get BlackboardName(): string { return __CPP_ComponentProperty_get(this, 3727366016); }
+  set BlackboardName(value: string) { __CPP_ComponentProperty_set(this, 3727366016, value); }
+  get SendEntryChangedMessage(): boolean { return __CPP_ComponentProperty_get(this, 994580380); }
+  set SendEntryChangedMessage(value: boolean) { __CPP_ComponentProperty_set(this, 994580380, value); }
 }
 
 export class MarkerComponent extends Component
