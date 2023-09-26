@@ -15,6 +15,10 @@ const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] = {
   "String2",
   "Integer",
   "Float",
+  "RawString1",
+  "RawString1Prefix",
+  "RawString1Postfix",
+  "EndOfFile"
 };
 
 namespace
@@ -411,6 +415,7 @@ void ezTokenizer::HandleRawString()
           return;
         }
       }
+      NextChar();
     }
     else
     {

@@ -10,9 +10,9 @@ namespace
     ezStringView value;
   };
 
-  void CompareResults(const ezDynamicArray<ExpectedToken>& expected, ezTokenizer& tokenizer, bool ignoreWhitespace)
+  void CompareResults(const ezDynamicArray<ExpectedToken>& expected, ezTokenizer& inout_tokenizer, bool bIgnoreWhitespace)
   {
-    auto& tokens = tokenizer.GetTokens();
+    auto& tokens = inout_tokenizer.GetTokens();
 
     const ezUInt32 expectedCount = expected.GetCount();
     const ezUInt32 tokenCount = tokens.GetCount();
@@ -21,7 +21,7 @@ namespace
     while (expectedIndex < expectedCount && tokenIndex < tokenCount)
     {
       auto& token = tokens[tokenIndex];
-      if (ignoreWhitespace && (token.m_iType == ezTokenType::Whitespace || token.m_iType == ezTokenType::Newline))
+      if (bIgnoreWhitespace && (token.m_iType == ezTokenType::Whitespace || token.m_iType == ezTokenType::Newline))
       {
         tokenIndex++;
         continue;
@@ -43,7 +43,7 @@ namespace
     }
 
     // Skip remaining whitespace and newlines
-    if (ignoreWhitespace)
+    if (bIgnoreWhitespace)
     {
       while (tokenIndex < tokenCount)
       {
