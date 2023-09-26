@@ -376,7 +376,7 @@ void ezTokenizer::HandleRawString()
   }
   if (m_uiCurChar == '\0')
   {
-    ezLog::Error("Failed to find '(' for raw string before end of file");
+    ezLog::Error(m_pLog, "Failed to find '(' for raw string before end of file");
     AddToken();
     return;
   }
