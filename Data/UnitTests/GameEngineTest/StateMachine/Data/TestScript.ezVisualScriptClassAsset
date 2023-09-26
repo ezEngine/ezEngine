@@ -11,7 +11,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16186523504847867534,4613694296302778910}}
-		u4 %Hash{11857313945309897528}
+		u4 %Hash{11621056253856387836}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5729383334865941359,17585514546462535511}}
@@ -204,6 +204,19 @@ o
 }
 o
 {
+	Uuid %id{u4{5661119923683615104,5226837547800797872}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{1657122016902808511,5219195401053086075}}
+		s %Connection::SourcePin{"Result"}
+		Uuid %Connection::Target{u4{956419450229900333,10469399276535278675}}
+		s %Connection::TargetPin{"Blackboard"}
+	}
+}
+o
+{
 	Uuid %id{u4{4249347950851671486,5245651497557542046}}
 	s %t{"DocumentNodeManager_DefaultConnection"}
 	u3 %v{1}
@@ -226,19 +239,6 @@ o
 		s %Connection::SourcePin{""}
 		Uuid %Connection::Target{u4{14647684253412036756,5705593057719821689}}
 		s %Connection::TargetPin{""}
-	}
-}
-o
-{
-	Uuid %id{u4{15471953567025435803,5319201434569702676}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{1657122016902808511,5219195401053086075}}
-		s %Connection::SourcePin{"Result"}
-		Uuid %Connection::Target{u4{5301231419078014636,5100520989600310886}}
-		s %Connection::TargetPin{"Object"}
 	}
 }
 o
@@ -277,6 +277,19 @@ o
 		HashedString %Name{s{"Text"}}
 		Vec2 %Node::Pos{f{0xEB348BC3,0x2D85AD43}}
 		b %Recursive{0}
+	}
+}
+o
+{
+	Uuid %id{u4{4805349510399693757,5487873919600299261}}
+	s %t{"DocumentNodeManager_DefaultConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Connection::Source{u4{1657122016902808511,5219195401053086075}}
+		s %Connection::SourcePin{"Result"}
+		Uuid %Connection::Target{u4{5301231419078014636,5100520989600310886}}
+		s %Connection::TargetPin{"Blackboard"}
 	}
 }
 o
@@ -369,19 +382,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13200887442858634901,5751110786771552847}}
-	s %t{"DocumentNodeManager_DefaultConnection"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Connection::Source{u4{1657122016902808511,5219195401053086075}}
-		s %Connection::SourcePin{"Result"}
-		Uuid %Connection::Target{u4{956419450229900333,10469399276535278675}}
-		s %Connection::TargetPin{"Object"}
-	}
-}
-o
-{
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezDocumentRoot"}
 	u3 %v{1}
@@ -407,12 +407,10 @@ o
 			Uuid{u4{9263743922789895083,5306601785731143739}}
 			Uuid{u4{1086661560050192040,4984585374278383529}}
 			Uuid{u4{1657122016902808511,5219195401053086075}}
-			Uuid{u4{15471953567025435803,5319201434569702676}}
 			Uuid{u4{7011347056519617358,10514151029223172942}}
 			Uuid{u4{3467153449887096483,4852631154603835202}}
 			Uuid{u4{956419450229900333,10469399276535278675}}
 			Uuid{u4{13901702561472571561,5505199959444918685}}
-			Uuid{u4{13200887442858634901,5751110786771552847}}
 			Uuid{u4{7108808622293674939,5688264394159129183}}
 			Uuid{u4{4089630249997885631,5450931709482855442}}
 			Uuid{u4{12984826025264493487,5207106166864606915}}
@@ -421,6 +419,8 @@ o
 			Uuid{u4{4249347950851671486,5245651497557542046}}
 			Uuid{u4{7945710540846098353,5224226219198572803}}
 			Uuid{u4{10415949371503594409,5356911285364393995}}
+			Uuid{u4{4805349510399693757,5487873919600299261}}
+			Uuid{u4{5661119923683615104,5226837547800797872}}
 		}
 	}
 }
