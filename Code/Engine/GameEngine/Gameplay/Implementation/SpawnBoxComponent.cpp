@@ -2,6 +2,8 @@
 
 #include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/SpawnBoxComponent.h>
 
 // clang-format off
