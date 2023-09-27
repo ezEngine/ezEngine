@@ -26,7 +26,10 @@ void FillCastResult(ezPhysicsCastResult& ref_result, const ezVec3& vStart, const
 
   if (const ezJoltMaterial* pMaterial = static_cast<const ezJoltMaterial*>(bodyInterface.GetMaterial(bodyId, subShapeId)))
   {
-    ref_result.m_hSurface = pMaterial->m_pSurface->GetResourceHandle();
+    if (pMaterial->m_pSurface)
+    {
+      ref_result.m_hSurface = pMaterial->m_pSurface->GetResourceHandle();
+    }
   }
 
   const size_t uiBodyId = bodyId.GetIndexAndSequenceNumber();
