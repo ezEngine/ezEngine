@@ -94,11 +94,11 @@ void ezSpawnBoxComponent::SetSpawnContinuously(bool b)
   m_Flags.AddOrRemove(ezSpawnBoxComponentFlags::SpawnContinuously, b);
 }
 
-void ezSpawnBoxComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSpawnBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
-  SUPER::SerializeComponent(stream);
+  SUPER::SerializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s << m_vHalfExtents;
   s << m_hPrefab;
   s << m_Flags;
@@ -109,11 +109,11 @@ void ezSpawnBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_MaxTiltZ;
 }
 
-void ezSpawnBoxComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSpawnBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
-  SUPER::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(inout_stream);
 
-  auto& s = stream.GetStream();
+  auto& s = inout_stream.GetStream();
   s >> m_vHalfExtents;
   s >> m_hPrefab;
   s >> m_Flags;
