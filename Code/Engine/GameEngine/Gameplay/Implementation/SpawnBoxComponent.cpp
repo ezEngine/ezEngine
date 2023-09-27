@@ -1,6 +1,7 @@
 #include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Messages/CommonMessages.h>
+#include <Core/Messages/TriggerMessage.h>
 #include <GameEngine/Gameplay/SpawnBoxComponent.h>
 
 // clang-format off

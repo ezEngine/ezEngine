@@ -1,5 +1,10 @@
+#pragma once
+
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
+
+struct ezMsgComponentInternalTrigger;
 
 struct ezSpawnBoxComponentFlags
 {
