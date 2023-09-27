@@ -25,10 +25,10 @@ struct ezPrefabInstantiationOptions
 
   enum class RandomSeedMode
   {
-    DeterministicFromParent,
-    CompletelyRandom,
-    FixedFromSerialization,
-    CustomRootValue,
+    DeterministicFromParent, ///< ezWorld::CreateObject() will either derive a deterministic value from the parent object, or assign a random value, if no parent exists
+    CompletelyRandom,        ///< ezWorld::CreateObject() will assign a random value to this object
+    FixedFromSerialization,  ///< Keep deserialized random seed value
+    CustomRootValue,         ///< Use the given seed root value to assign a deterministic (but different) value to each game object.
   };
 
   RandomSeedMode m_RandomSeedMode = RandomSeedMode::DeterministicFromParent;
