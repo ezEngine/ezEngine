@@ -22,6 +22,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineState_Empty, 1, ezRTTIDefaultAllocator<ezStateMachineState_Empty>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezHiddenAttribute(),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezStateMachineState::ezStateMachineState(ezStringView sName)
 {
   m_sName.Assign(sName);
@@ -70,6 +82,11 @@ void ezStateMachineState::Reflection_OnExit(ezStateMachineInstance* pStateMachin
 }
 
 void ezStateMachineState::Reflection_Update(ezStateMachineInstance* pStateMachineInstance, ezTime deltaTime)
+{
+}
+
+ezStateMachineState_Empty::ezStateMachineState_Empty(ezStringView sName)
+  : ezStateMachineState(sName)
 {
 }
 

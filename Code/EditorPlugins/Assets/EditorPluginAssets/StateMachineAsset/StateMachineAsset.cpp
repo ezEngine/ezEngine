@@ -54,7 +54,11 @@ ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWr
     }
     else
     {
-      return ezStatus(ezFmt("State '{}' has no state type assigned", name));
+      auto pState = EZ_DEFAULT_NEW(ezStateMachineState_Empty);
+      pState->SetName(name);
+
+      const ezUInt32 uiStateIndex = desc.AddState(pState);
+      objectToStateIndex.Insert(pObject, uiStateIndex);
     }
 
     return ezStatus(EZ_SUCCESS);
