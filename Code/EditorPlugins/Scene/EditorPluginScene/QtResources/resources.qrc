@@ -30,6 +30,7 @@
     <file>ezSliderComponent.svg</file>
     <file>ezCameraComponent.svg</file>
     <file>ezSpawnComponent.svg</file>
+    <file>ezSpawnBoxComponent.svg</file>
     <file>ezTimedDeathComponent.svg</file>
     <file>ezInputComponent.svg</file>
     <file>ezProjectileComponent.svg</file>
