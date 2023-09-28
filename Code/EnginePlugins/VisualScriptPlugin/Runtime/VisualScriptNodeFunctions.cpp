@@ -1090,6 +1090,12 @@ namespace
       return ExecResult::RunNext(0);
     }
 
+    if (p.m_pObject == nullptr)
+    {
+      ezLog::Error("Visual script call TryGetComponentOfBaseType: Game object is null");
+      return ExecResult::RunNext(0);
+    }
+
     ezComponent* pComponent = nullptr;
     static_cast<ezGameObject*>(p.m_pObject)->TryGetComponentOfBaseType(userData.m_pType, pComponent);
     inout_context.SetPointerData(node.GetOutputDataOffset(0), pComponent);

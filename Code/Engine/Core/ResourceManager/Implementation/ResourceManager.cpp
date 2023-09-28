@@ -402,6 +402,8 @@ ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
     ezResourceManager::BroadcastResourceEvent(e);
   }
 
+  EZ_ASSERT_DEV(pResource->GetReferenceCount() == 0, "The resource '{}' ({}) is being deallocated, you just stored a handle to it, which won't work! If you are listening to ezResourceEvent::Type::ResourceContentUnloading then additionally listen to ezResourceEvent::Type::ResourceDeleted to clean up handles to dead resources.", pResource->GetResourceID(), pResource->GetResourceDescription());
+
   // delete the resource via the RTTI provided allocator
   pResource->GetDynamicRTTI()->GetAllocator()->Deallocate(pResource);
 

@@ -239,7 +239,7 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
 
 void ezScriptWorldModule::ReloadScripts(const ezWorldModule::UpdateContext& context)
 {
-  for (auto hScript : m_NeedReload)
+  for (const auto& hScript : m_NeedReload)
   {
     if (m_ReloadFunctions.TryGetValue(hScript, m_TempReloadFunctions))
     {
@@ -260,7 +260,10 @@ void ezScriptWorldModule::ResourceEventHandler(const ezResourceEvent& e)
 
   if (auto pResource = ezDynamicCast<const ezScriptClassResource*>(e.m_pResource))
   {
-    ezScriptClassResourceHandle hScript = pResource->GetResourceHandle();
-    m_NeedReload.Insert(hScript);
+    if (pResource->GetReferenceCount() > 0)
+    {
+      ezScriptClassResourceHandle hScript = pResource->GetResourceHandle();
+      m_NeedReload.Insert(hScript);
+    }
   }
 }
