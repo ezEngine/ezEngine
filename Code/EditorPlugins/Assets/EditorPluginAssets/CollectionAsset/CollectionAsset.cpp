@@ -30,8 +30,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezCollectionAssetData>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezCollectionAssetDocument::ezCollectionAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezCollectionAssetData>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -81,7 +81,7 @@ static bool InsertEntry(ezStringView sID, ezStringView sLookupName, ezMap<ezStri
   return true;
 }
 
-ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezCollectionAssetData* pProp = GetProperties();
 

@@ -64,8 +64,8 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
   return t;
 }
 
-ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezSkeletonAssetDocument::ezSkeletonAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezEditableSkeleton>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
@@ -282,7 +282,7 @@ void ezSkeletonAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   {
     m_bIsTransforming = true;

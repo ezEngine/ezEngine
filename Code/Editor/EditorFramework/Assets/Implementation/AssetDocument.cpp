@@ -17,8 +17,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-  : ezDocument(szDocumentPath, pObjectManager)
+ezAssetDocument::ezAssetDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+  : ezDocument(sDocumentPath, pObjectManager)
 {
   m_EngineConnectionType = engineConnectionType;
   m_EngineStatus = (m_EngineConnectionType != ezAssetDocEngineConnection::None) ? EngineStatus::Disconnected : EngineStatus::Unsupported;
@@ -547,7 +547,7 @@ ezTransformStatus ezAssetDocument::CreateThumbnail()
   return ezTransformStatus(ezFmt("Asset state is {}", state));
 }
 
-ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);
@@ -558,7 +558,7 @@ ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFi
     return ezTransformStatus("Failed to write asset header");
   }
 
-  ezTransformStatus res = InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+  ezTransformStatus res = InternalTransformAsset(file, sOutputTag, pAssetProfile, AssetHeader, transformFlags);
   if (res.m_Result != ezTransformResult::Success)
   {
     // We do not want to overwrite the old output file if we failed to transform the asset.

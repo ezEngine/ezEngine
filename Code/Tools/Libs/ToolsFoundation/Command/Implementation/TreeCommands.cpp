@@ -375,7 +375,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
   {
     // TODO: this is hard-coded, it only works for scene documents !
     const ezRTTI* pRootObjectType = ezRTTI::FindTypeByName("ezGameObject");
-    const char* szParentProperty = "Children";
+    ezStringView sParentProperty = "Children"_ezsv;
 
     ezDocumentObject* pRootObject = nullptr;
     ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
@@ -383,7 +383,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
 
     // create root object
     {
-      EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(pRootObjectType, pParent, szParentProperty, m_Index));
+      EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(pRootObjectType, pParent, sParentProperty, m_Index));
 
       // use the same GUID for the root object ID as the remap GUID, this way the object ID is deterministic and reproducible
       m_CreatedRootObject = m_RemapGuid;
@@ -458,7 +458,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
         reader.ApplyPropertiesToObject(pPrefabRoot, pNewObject);
 
         // attach all prefab nodes to the main group node
-        pDocument->GetObjectManager()->AddObject(pNewObject, pRootObject, szParentProperty, -1);
+        pDocument->GetObjectManager()->AddObject(pNewObject, pRootObject, sParentProperty, -1);
       }
     }
   }

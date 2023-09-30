@@ -9,5 +9,5 @@ struct ezDocumentTypeDescriptor;
 class EZ_TOOLSFOUNDATION_DLL ezDocumentUtils
 {
 public:
-  static ezStatus IsValidSaveLocationForDocument(const char* szDocument, const ezDocumentTypeDescriptor** out_pTypeDesc = nullptr);
+  static ezStatus IsValidSaveLocationForDocument(ezStringView sDocument, const ezDocumentTypeDescriptor** out_pTypeDesc = nullptr);
 };

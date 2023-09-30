@@ -28,7 +28,7 @@ public:
   // Ownership
   const ezDocumentObject* GetParent() const { return m_pParent; }
 
-  virtual void InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index);
+  virtual void InsertSubObject(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& index);
   virtual void RemoveSubObject(ezDocumentObject* pObject);
 
   // Helper
@@ -36,7 +36,7 @@ public:
   const ezHybridArray<ezDocumentObject*, 8>& GetChildren() const { return m_Children; }
   ezDocumentObject* GetChild(const ezUuid& guid);
   const ezDocumentObject* GetChild(const ezUuid& guid) const;
-  const char* GetParentProperty() const { return m_sParentProperty; }
+  ezStringView GetParentProperty() const { return m_sParentProperty; }
   const ezAbstractProperty* GetParentPropertyType() const;
   ezVariant GetPropertyIndex() const;
   bool IsOnHeap() const;

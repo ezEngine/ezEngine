@@ -26,8 +26,8 @@ class ezPreferencesDocument : public ezDocument
 
 
 public:
-  ezPreferencesDocument(const char* szDocumentPath)
-    : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
+  ezPreferencesDocument(ezStringView sDocumentPath)
+    : ezDocument(sDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
   {
   }
 

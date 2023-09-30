@@ -72,8 +72,8 @@ public:
   static ezInt32 SuggestContainerWindow(ezDocument* pDoc);
   /// \brief Resolve document GUID into an absolute path.
   ezStringBuilder GetPathForDocumentGuid(const ezUuid& guid);
-  static ezStatus OpenProject(const char* szProjectPath);
-  static ezStatus CreateProject(const char* szProjectPath);
+  static ezStatus OpenProject(ezStringView sProjectPath);
+  static ezStatus CreateProject(ezStringView sProjectPath);
 
   /// \brief Broadcasts the SaveAll event, though otherwise has no direct effect.
   static void BroadcastSaveAll();
@@ -97,20 +97,20 @@ public:
   ezString GetProjectDataFolder() const;
 
   /// \brief Starts at the  given document and then searches the tree upwards until it finds an ezProject file.
-  static ezString FindProjectDirectoryForDocument(const char* szDocumentPath);
+  static ezString FindProjectDirectoryForDocument(ezStringView sDocumentPath);
 
-  bool IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_pRelativePath = nullptr) const;
+  bool IsDocumentInAllowedRoot(ezStringView sDocumentPath, ezString* out_pRelativePath = nullptr) const;
 
-  void AddAllowedDocumentRoot(const char* szPath);
+  void AddAllowedDocumentRoot(ezStringView sPath);
 
   /// \brief Makes sure the given sub-folder exists inside the project directory
-  void CreateSubFolder(const char* szFolder) const;
+  void CreateSubFolder(ezStringView sFolder) const;
 
 private:
-  static ezStatus CreateOrOpenProject(const char* szProjectPath, bool bCreate);
+  static ezStatus CreateOrOpenProject(ezStringView sProjectPath, bool bCreate);
 
 private:
-  ezToolsProject(const char* szProjectPath);
+  ezToolsProject(ezStringView sProjectPath);
   ~ezToolsProject();
 
   ezStatus Create();

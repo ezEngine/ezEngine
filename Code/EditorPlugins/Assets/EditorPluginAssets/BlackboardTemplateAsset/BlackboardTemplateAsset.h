@@ -18,12 +18,12 @@ class ezBlackboardTemplateAssetDocument : public ezSimpleAssetDocument<ezBlackbo
   EZ_ADD_DYNAMIC_REFLECTION(ezBlackboardTemplateAssetDocument, ezSimpleAssetDocument<ezBlackboardTemplateAssetObject>);
 
 public:
-  ezBlackboardTemplateAssetDocument(const char* szDocumentPath);
+  ezBlackboardTemplateAssetDocument(ezStringView sDocumentPath);
 
   ezStatus WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile) const;
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& inout_stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& inout_stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   ezStatus RetrieveState(const ezBlackboardTemplateAssetObject* pProp, ezBlackboardTemplateResourceDescriptor& inout_Desc) const;
 };

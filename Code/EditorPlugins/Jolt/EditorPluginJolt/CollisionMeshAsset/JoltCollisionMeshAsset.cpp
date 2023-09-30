@@ -26,8 +26,8 @@ static ezMat3 CalculateTransformationMatrix(const ezJoltCollisionMeshAssetProper
   return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
 }
 
-ezJoltCollisionMeshAssetDocument::ezJoltCollisionMeshAssetDocument(const char* szDocumentPath, bool bConvexMesh)
-  : ezSimpleAssetDocument<ezJoltCollisionMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+ezJoltCollisionMeshAssetDocument::ezJoltCollisionMeshAssetDocument(ezStringView sDocumentPath, bool bConvexMesh)
+  : ezSimpleAssetDocument<ezJoltCollisionMeshAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_bIsConvexMesh = bConvexMesh;
 }
@@ -54,7 +54,7 @@ void ezJoltCollisionMeshAssetDocument::InitializeAfterLoading(bool bFirstTimeCre
 //////////////////////////////////////////////////////////////////////////
 
 
-ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 

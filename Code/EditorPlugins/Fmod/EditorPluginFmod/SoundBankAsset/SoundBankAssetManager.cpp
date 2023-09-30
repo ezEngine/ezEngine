@@ -183,7 +183,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
   }
 }
 
-ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
+ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   // at the moment we don't reference the actual transformed asset file
   // instead we reference the source Fmod sound bank file
@@ -212,15 +212,15 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
   return ezString();
 }
 
-ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
+ezString ezSoundBankAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   if (pSubAsset->m_bMainAsset)
   {
-    return GetSoundBankAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
+    return GetSoundBankAssetTableEntry(pSubAsset, sDataDirectory, pAssetProfile);
   }
   else
   {
-    ezStringBuilder result = GetSoundBankAssetTableEntry(pSubAsset, szDataDirectory, pAssetProfile);
+    ezStringBuilder result = GetSoundBankAssetTableEntry(pSubAsset, sDataDirectory, pAssetProfile);
 
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(pSubAsset->m_Data.m_Guid, sGuid);
@@ -248,9 +248,9 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezSoundBankAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSoundBankAssetDocument(szPath);
+  out_pDocument = new ezSoundBankAssetDocument(sPath);
 }
 
 void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

@@ -19,15 +19,15 @@ class ezImageDataAssetDocument : public ezSimpleAssetDocument<ezImageDataAssetPr
   EZ_ADD_DYNAMIC_REFLECTION(ezImageDataAssetDocument, ezSimpleAssetDocument<ezImageDataAssetProperties>);
 
 public:
-  ezImageDataAssetDocument(const char* szDocumentPath);
+  ezImageDataAssetDocument(ezStringView sDocumentPath);
 
   const ezEvent<const ezImageDataAssetEvent&>& Events() const { return m_Events; }
 
 protected:
   ezEvent<const ezImageDataAssetEvent&> m_Events;
 
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override { return ezStatus(EZ_SUCCESS); }
-  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override { return ezStatus(EZ_SUCCESS); }
+  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
 };

@@ -137,12 +137,12 @@ void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumen
   }
 }
 
-ezStatus ezDocumentManager::CanOpenDocument(const char* szFilePath) const
+ezStatus ezDocumentManager::CanOpenDocument(ezStringView sFilePath) const
 {
   ezHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
-  ezStringBuilder sPath = szFilePath;
+  ezStringBuilder sPath = sFilePath;
   ezStringBuilder sExt = sPath.GetFileExtension();
 
   // check whether the file extension is in the list of possible extensions
@@ -178,11 +178,11 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
   s_Events.Broadcast(e);
 }
 
-ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
+ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDocumentTypeName, ezStringView sPath2, ezDocument*& out_pDocument,
   ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   ezFileStats fs;
-  ezStringBuilder sPath = szPath;
+  ezStringBuilder sPath = sPath2;
   sPath.MakeCleanPath();
   if (!bCreate && ezOSFile::GetFileStats(sPath, fs).Failed())
   {
@@ -192,7 +192,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
   Request r;
   r.m_Type = Request::Type::DocumentAllowedToOpen;
   r.m_RequestStatus.m_Result = EZ_SUCCESS;
-  r.m_sDocumentType = szDocumentTypeName;
+  r.m_sDocumentType = sDocumentTypeName;
   r.m_sDocumentPath = sPath;
   s_Requests.Broadcast(r);
 
@@ -209,7 +209,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
   for (ezUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
   {
-    if (DocumentTypes[i]->m_sDocumentTypeName == szDocumentTypeName)
+    if (DocumentTypes[i]->m_sDocumentTypeName == sDocumentTypeName)
     {
       // See if there is a default asset document registered for the type, if so clone
       // it and use that as the new document instead of creating one from scratch.
@@ -223,7 +223,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
           ezUuid CloneUuid;
           if (CloneDocument(sTemplateDoc, sPath, CloneUuid).Succeeded())
           {
-            if (OpenDocument(szDocumentTypeName, sPath, out_pDocument, flags, pOpenContext).Succeeded())
+            if (OpenDocument(sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext).Succeeded())
             {
               return ezStatus(EZ_SUCCESS);
             }
@@ -233,12 +233,12 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         }
       }
 
-      EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", szDocumentTypeName);
+      EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", sDocumentTypeName);
 
       {
-        EZ_PROFILE_SCOPE(szDocumentTypeName);
+        EZ_PROFILE_SCOPE(sDocumentTypeName);
         status = ezStatus(EZ_SUCCESS);
-        InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument, pOpenContext);
+        InternalCreateDocument(sDocumentTypeName, sPath, bCreate, out_pDocument, pOpenContext);
       }
       out_pDocument->SetAddToResetFilesList(flags.IsSet(ezDocumentFlags::AddToRecentFilesList));
 
@@ -292,27 +292,27 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
     }
   }
 
-  EZ_REPORT_FAILURE("This document manager does not support the document type '{0}'", szDocumentTypeName);
+  EZ_REPORT_FAILURE("This document manager does not support the document type '{0}'", sDocumentTypeName);
   return status;
 }
 
 ezStatus ezDocumentManager::CreateDocument(
-  const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
-  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, flags, pOpenContext);
+  return CreateOrOpenDocument(true, sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
 }
 
-ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
+ezStatus ezDocumentManager::OpenDocument(ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument,
   ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
-  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, flags, pOpenContext);
+  return CreateOrOpenDocument(false, sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
 }
 
 
-ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClonePath, ezUuid& inout_cloneGuid)
+ezStatus ezDocumentManager::CloneDocument(ezStringView sPath, ezStringView sClonePath, ezUuid& inout_cloneGuid)
 {
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(szClonePath, &pTypeDesc);
+  ezStatus res = ezDocumentUtils::IsValidSaveLocationForDocument(sClonePath, &pTypeDesc);
   if (res.Failed())
     return res;
 
@@ -320,7 +320,7 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
   ezUniquePtr<ezAbstractObjectGraph> objects;
   ezUniquePtr<ezAbstractObjectGraph> types;
 
-  res = ezDocument::ReadDocument(szPath, header, objects, types);
+  res = ezDocument::ReadDocument(sPath, header, objects, types);
   if (res.Failed())
     return res;
 
@@ -328,9 +328,9 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
   ezAbstractObjectNode::Property* documentIdProp = nullptr;
   {
     auto* pHeaderNode = header->GetNodeByName("Header");
-    EZ_ASSERT_DEV(pHeaderNode, "No header found, document '{0}' is corrupted.", szPath);
+    EZ_ASSERT_DEV(pHeaderNode, "No header found, document '{0}' is corrupted.", sPath);
     documentIdProp = pHeaderNode->FindProperty("DocumentID");
-    EZ_ASSERT_DEV(documentIdProp, "No document ID property found in header, document document '{0}' is corrupted.", szPath);
+    EZ_ASSERT_DEV(documentIdProp, "No document ID property found in header, document document '{0}' is corrupted.", sPath);
     documentId = documentIdProp->m_Value.Get<ezUuid>();
   }
 
@@ -351,21 +351,21 @@ ezStatus ezDocumentManager::CloneDocument(const char* szPath, const char* szClon
     inout_cloneGuid.CombineWithSeed(seedGuid);
   }
 
-  InternalCloneDocument(szPath, szClonePath, documentId, seedGuid, inout_cloneGuid, header.Borrow(), objects.Borrow(), types.Borrow());
+  InternalCloneDocument(sPath, sClonePath, documentId, seedGuid, inout_cloneGuid, header.Borrow(), objects.Borrow(), types.Borrow());
 
   {
     ezDeferredFileWriter file;
-    file.SetOutput(szClonePath);
+    file.SetOutput(sClonePath);
     ezAbstractGraphDdlSerializer::WriteDocument(file, header.Borrow(), objects.Borrow(), types.Borrow(), false);
     if (file.Close() == EZ_FAILURE)
     {
-      return ezStatus(ezFmt("Unable to open file '{0}' for writing!", szClonePath));
+      return ezStatus(ezFmt("Unable to open file '{0}' for writing!", sClonePath));
     }
   }
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezDocumentManager::InternalCloneDocument(const char* szPath, const char* szClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* header, ezAbstractObjectGraph* objects, ezAbstractObjectGraph* types)
+void ezDocumentManager::InternalCloneDocument(ezStringView sPath, ezStringView sClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* header, ezAbstractObjectGraph* objects, ezAbstractObjectGraph* types)
 {
   // Remap
   header->ReMapNodeGuids(seedGuid);
@@ -526,9 +526,9 @@ const ezMap<ezString, const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAl
   return s_AllDocumentDescriptors;
 }
 
-const ezDocumentTypeDescriptor* ezDocumentManager::GetDescriptorForDocumentType(const char* szDocumentType)
+const ezDocumentTypeDescriptor* ezDocumentManager::GetDescriptorForDocumentType(ezStringView sDocumentType)
 {
-  return GetAllDocumentDescriptors().GetValueOrDefault(szDocumentType, nullptr);
+  return GetAllDocumentDescriptors().GetValueOrDefault(sDocumentType, nullptr);
 }
 
 /// \todo on close doc: remove from m_AllDocuments

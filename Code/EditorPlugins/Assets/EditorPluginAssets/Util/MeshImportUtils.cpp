@@ -364,11 +364,11 @@ namespace ezMeshImportUtils
     pAccessor->FinishTransaction();
   }
 
-  void ImportMeshAssetMaterials(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, const char* szDocumentDirectory, const ezModelImporter2::Importer* pImporter)
+  void ImportMeshAssetMaterials(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, ezStringView sDocumentDirectory, const ezModelImporter2::Importer* pImporter)
   {
     EZ_PROFILE_SCOPE("ImportMeshAssetMaterials");
 
-    ezStringBuilder targetDirectory = szDocumentDirectory;
+    ezStringBuilder targetDirectory = sDocumentDirectory;
     targetDirectory.RemoveFileExtension();
     targetDirectory.Append("_data/");
     const ezStringBuilder sourceDirectory = ezPathUtils::GetFileDirectory(pImporter->GetImportOptions().m_sSourceFile);

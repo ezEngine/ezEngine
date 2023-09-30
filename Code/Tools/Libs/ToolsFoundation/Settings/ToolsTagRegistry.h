@@ -8,9 +8,9 @@
 struct EZ_TOOLSFOUNDATION_DLL ezToolsTag
 {
   ezToolsTag() = default;
-  ezToolsTag(const char* szCategory, const char* szName, bool bBuiltIn = false)
-    : m_sCategory(szCategory)
-    , m_sName(szName)
+  ezToolsTag(ezStringView sCategory, ezStringView sName, bool bBuiltIn = false)
+    : m_sCategory(sCategory)
+    , m_sName(sName)
     , m_bBuiltInTag(bBuiltIn)
   {
   }
@@ -30,7 +30,7 @@ public:
   static ezStatus ReadFromDDL(ezStreamReader& inout_stream);
 
   static bool AddTag(const ezToolsTag& tag);
-  static bool RemoveTag(const char* szName);
+  static bool RemoveTag(ezStringView sName);
 
   static void GetAllTags(ezHybridArray<const ezToolsTag*, 16>& out_tags);
   static void GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezHybridArray<const ezToolsTag*, 16>& out_tags);

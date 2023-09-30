@@ -392,7 +392,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
       for (auto pChild : children)
       {
-        if (ezStringUtils::IsEqual(pChild->GetParentProperty(), "LifeTime"))
+        if (pChild->GetParentProperty() == "LifeTime"_ezsv)
         {
           ezSetObjectPropertyCommand cmd;
           cmd.m_Object = pChild->GetGuid();
@@ -448,7 +448,7 @@ void ezQtParticleEffectAssetDocumentWindow::onAddSystem(bool)
 
         for (auto pChild : children)
         {
-          if (ezStringUtils::IsEqual(pChild->GetParentProperty(), "Speed"))
+          if (pChild->GetParentProperty() == "Speed"_ezsv)
           {
             ezSetObjectPropertyCommand cmd2;
             cmd2.m_Object = pChild->GetGuid();
@@ -713,7 +713,7 @@ void ezQtParticleEffectAssetDocumentWindow::UpdateSystemList()
 
   for (ezDocumentObject* pChild : pRootObject->GetChildren())
   {
-    if (ezStringUtils::IsEqual(pChild->GetParentProperty(), "ParticleSystems"))
+    if (pChild->GetParentProperty() == "ParticleSystems"_ezsv)
     {
       s = pChild->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
       newParticleSystems[s] = pChild;

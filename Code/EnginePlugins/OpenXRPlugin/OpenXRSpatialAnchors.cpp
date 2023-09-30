@@ -43,7 +43,7 @@ ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& glob
     }
   }
   ezTransform local;
-  local.SetLocalTransform(globalStageTransform, globalTransform);
+  local = ezTransform::MakeLocalTransform(globalStageTransform, globalTransform);
 
   XrSpatialAnchorCreateInfoMSFT createInfo{XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT};
   createInfo.space = m_pOpenXR->GetBaseSpace();
@@ -58,7 +58,7 @@ ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& glob
 
   XrSpatialAnchorSpaceCreateInfoMSFT createSpaceInfo{XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT};
   createSpaceInfo.anchor = anchor;
-  createSpaceInfo.poseInAnchorSpace = ezOpenXR::ConvertTransform(ezTransform::IdentityTransform());
+  createSpaceInfo.poseInAnchorSpace = ezOpenXR::ConvertTransform(ezTransform::MakeIdentity());
 
   XrSpace space;
   res = m_pOpenXR->m_extensions.pfn_xrCreateSpatialAnchorSpaceMSFT(m_pOpenXR->m_session, &createSpaceInfo, &space);
@@ -108,7 +108,7 @@ ezResult ezOpenXRSpatialAnchors::TryGetAnchorTransform(ezXRSpatialAnchorID id, e
       }
     }
     ezTransform local(ezOpenXR::ConvertPosition(viewInScene.pose.position), ezOpenXR::ConvertOrientation(viewInScene.pose.orientation));
-    out_globalTransform.SetGlobalTransform(globalStageTransform, local);
+    out_globalTransform = ezTransform::MakeGlobalTransform(globalStageTransform, local);
 
     return EZ_SUCCESS;
   }

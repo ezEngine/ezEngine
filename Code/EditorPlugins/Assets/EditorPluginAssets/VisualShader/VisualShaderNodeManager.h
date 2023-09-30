@@ -28,11 +28,11 @@ public:
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override;
 
   virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
-  virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
+  virtual ezStringView GetTypeCategory(const ezRTTI* pRtti) const override;
 
 private:
   virtual ezStatus InternalCanAdd(
-    const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const override;
+    const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const override;
 
   ezUInt32 CountNodesOfType(ezVisualShaderNodeType::Enum type) const;
 };

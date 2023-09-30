@@ -34,7 +34,7 @@ public:
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override;
   virtual const ezRTTI* GetConnectionType() const override;
-  virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
+  virtual ezStringView GetTypeCategory(const ezRTTI* pRtti) const override;
 
   virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
 };

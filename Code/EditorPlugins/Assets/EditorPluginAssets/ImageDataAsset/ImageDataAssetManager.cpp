@@ -49,9 +49,9 @@ void ezImageDataAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-void ezImageDataAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezImageDataAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  ezImageDataAssetDocument* pDoc = new ezImageDataAssetDocument(szPath);
+  ezImageDataAssetDocument* pDoc = new ezImageDataAssetDocument(sPath);
   out_pDocument = pDoc;
 }
 

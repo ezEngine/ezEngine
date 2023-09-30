@@ -10,7 +10,7 @@ class ezCurve1DAssetDocument : public ezSimpleAssetDocument<ezCurveGroupData>
   EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DAssetDocument, ezSimpleAssetDocument<ezCurveGroupData>);
 
 public:
-  ezCurve1DAssetDocument(const char* szDocumentPath);
+  ezCurve1DAssetDocument(ezStringView sDocumentPath);
   ~ezCurve1DAssetDocument();
 
   /// \brief Fills out the ezCurve1D structure with an exact copy of the data in the asset.
@@ -22,7 +22,7 @@ public:
   void WriteResource(ezStreamWriter& inout_stream) const;
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 };

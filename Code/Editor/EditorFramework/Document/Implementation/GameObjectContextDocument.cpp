@@ -13,8 +13,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezGameObjectContextDocument::ezGameObjectContextDocument(
-  const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-  : ezGameObjectDocument(szDocumentPath, pObjectManager, engineConnectionType)
+  ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+  : ezGameObjectDocument(sDocumentPath, pObjectManager, engineConnectionType)
 {
 }
 

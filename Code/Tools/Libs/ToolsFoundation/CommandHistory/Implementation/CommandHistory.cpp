@@ -64,10 +64,10 @@ ezCommandHistory::~ezCommandHistory()
   }
 }
 
-void ezCommandHistory::BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands)
+void ezCommandHistory::BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands)
 {
   EZ_ASSERT_DEV(!m_bTemporaryMode, "Temporary Mode cannot be nested");
-  StartTransaction(szDisplayString);
+  StartTransaction(sDisplayString);
   StartTransaction("[Temporary]");
 
   m_bFireEventsWhenUndoingTempCommands = bFireEventsWhenUndoingTempCommands;
@@ -236,7 +236,7 @@ bool ezCommandHistory::CanRedo() const
 }
 
 
-const char* ezCommandHistory::GetUndoDisplayString() const
+ezStringView ezCommandHistory::GetUndoDisplayString() const
 {
   if (m_pHistoryStorage->m_UndoHistory.IsEmpty())
     return "";
@@ -245,7 +245,7 @@ const char* ezCommandHistory::GetUndoDisplayString() const
 }
 
 
-const char* ezCommandHistory::GetRedoDisplayString() const
+ezStringView ezCommandHistory::GetRedoDisplayString() const
 {
   if (m_pHistoryStorage->m_RedoHistory.IsEmpty())
     return "";

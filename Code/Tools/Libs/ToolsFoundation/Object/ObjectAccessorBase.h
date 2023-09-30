@@ -16,7 +16,7 @@ public:
   virtual void StartTransaction(ezStringView sDisplayString);
   virtual void CancelTransaction();
   virtual void FinishTransaction();
-  virtual void BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands = false);
+  virtual void BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands = false);
   virtual void CancelTemporaryCommands();
   virtual void FinishTemporaryCommands();
 
@@ -49,29 +49,29 @@ public:
   /// \name Object Access Convenience Functions
   ///@{
 
-  ezStatus GetValue(const ezDocumentObject* pObject, const char* szProp, ezVariant& out_value, ezVariant index = ezVariant());
-  ezStatus SetValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& newValue, ezVariant index = ezVariant());
-  ezStatus InsertValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& newValue, ezVariant index = ezVariant());
-  ezStatus RemoveValue(const ezDocumentObject* pObject, const char* szProp, ezVariant index = ezVariant());
-  ezStatus MoveValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& oldIndex, const ezVariant& newIndex);
-  ezStatus GetCount(const ezDocumentObject* pObject, const char* szProp, ezInt32& out_iCount);
+  ezStatus GetValue(const ezDocumentObject* pObject, ezStringView sProp, ezVariant& out_value, ezVariant index = ezVariant());
+  ezStatus SetValue(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& newValue, ezVariant index = ezVariant());
+  ezStatus InsertValue(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& newValue, ezVariant index = ezVariant());
+  ezStatus RemoveValue(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index = ezVariant());
+  ezStatus MoveValue(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& oldIndex, const ezVariant& newIndex);
+  ezStatus GetCount(const ezDocumentObject* pObject, ezStringView sProp, ezInt32& out_iCount);
 
   ezStatus AddObject(
-    const ezDocumentObject* pParent, const char* szParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid);
-  ezStatus MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProp, const ezVariant& index);
+    const ezDocumentObject* pParent, ezStringView sParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid);
+  ezStatus MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProp, const ezVariant& index);
 
-  ezStatus GetKeys(const ezDocumentObject* pObject, const char* szProp, ezDynamicArray<ezVariant>& out_keys);
-  ezStatus GetValues(const ezDocumentObject* pObject, const char* szProp, ezDynamicArray<ezVariant>& out_values);
-  const ezDocumentObject* GetChildObject(const ezDocumentObject* pObject, const char* szProp, ezVariant index);
+  ezStatus GetKeys(const ezDocumentObject* pObject, ezStringView sProp, ezDynamicArray<ezVariant>& out_keys);
+  ezStatus GetValues(const ezDocumentObject* pObject, ezStringView sProp, ezDynamicArray<ezVariant>& out_values);
+  const ezDocumentObject* GetChildObject(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index);
 
-  ezStatus Clear(const ezDocumentObject* pObject, const char* szProp);
+  ezStatus Clear(const ezDocumentObject* pObject, ezStringView sProp);
 
   template <typename T>
   T Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant());
   template <typename T>
-  T Get(const ezDocumentObject* pObject, const char* szProp, ezVariant index = ezVariant());
+  T Get(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index = ezVariant());
   ezInt32 GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
-  ezInt32 GetCount(const ezDocumentObject* pObject, const char* szProp);
+  ezInt32 GetCount(const ezDocumentObject* pObject, ezStringView sProp);
 
   ///@}
 

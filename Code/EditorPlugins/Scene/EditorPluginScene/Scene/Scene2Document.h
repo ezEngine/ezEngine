@@ -67,7 +67,7 @@ class EZ_EDITORPLUGINSCENE_DLL ezScene2Document : public ezSceneDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezScene2Document, ezSceneDocument);
 
 public:
-  ezScene2Document(const char* szDocumentPath);
+  ezScene2Document(ezStringView sDocumentPath);
   ~ezScene2Document();
 
   /// \name Scene Data Accessors

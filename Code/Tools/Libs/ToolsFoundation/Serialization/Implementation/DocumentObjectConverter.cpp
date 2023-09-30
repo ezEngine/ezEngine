@@ -6,9 +6,9 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
+ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ezDocumentObject* pObject, ezStringView sNodeName)
 {
-  ezAbstractObjectNode* pNode = AddSubObjectToGraph(pObject, szNodeName);
+  ezAbstractObjectNode* pNode = AddSubObjectToGraph(pObject, sNodeName);
 
   while (!m_QueuedObjects.IsEmpty())
   {
@@ -135,9 +135,9 @@ void ezDocumentObjectConverterWriter::AddProperties(ezAbstractObjectNode* pNode,
   }
 }
 
-ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddSubObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
+ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddSubObjectToGraph(const ezDocumentObject* pObject, ezStringView sNodeName)
 {
-  ezAbstractObjectNode* pNode = m_pGraph->AddNode(pObject->GetGuid(), pObject->GetType()->GetTypeName(), pObject->GetType()->GetTypeVersion(), szNodeName);
+  ezAbstractObjectNode* pNode = m_pGraph->AddNode(pObject->GetGuid(), pObject->GetType()->GetTypeName(), pObject->GetType()->GetTypeVersion(), sNodeName);
   AddProperties(pNode, pObject);
   return pNode;
 }
@@ -170,16 +170,16 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
   return pObject;
 }
 
-void ezDocumentObjectConverterReader::AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
+void ezDocumentObjectConverterReader::AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, ezStringView sParentProperty, ezVariant index)
 {
   EZ_ASSERT_DEV(pObject && pParent, "Need to have valid objects to add them to the document");
   if (m_Mode == ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument && pParent->GetDocumentObjectManager()->GetObject(pParent->GetGuid()))
   {
-    m_pManager->AddObject(pObject, pParent, szParentProperty, index);
+    m_pManager->AddObject(pObject, pParent, sParentProperty, index);
   }
   else
   {
-    pParent->InsertSubObject(pObject, szParentProperty, index);
+    pParent->InsertSubObject(pObject, sParentProperty, index);
   }
 }
 

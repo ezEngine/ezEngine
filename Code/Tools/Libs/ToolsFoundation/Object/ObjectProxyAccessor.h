@@ -16,7 +16,7 @@ public:
   virtual void StartTransaction(ezStringView sDisplayString) override;
   virtual void CancelTransaction() override;
   virtual void FinishTransaction() override;
-  virtual void BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands = false) override;
+  virtual void BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands = false) override;
   virtual void CancelTemporaryCommands() override;
   virtual void FinishTemporaryCommands() override;
 

@@ -4,24 +4,24 @@
 
 ezMap<ezString, ezSet<ezString>> ezAssetFileExtensionWhitelist::s_ExtensionWhitelist;
 
-void ezAssetFileExtensionWhitelist::AddAssetFileExtension(const char* szAssetType, const char* szAllowedFileExtension)
+void ezAssetFileExtensionWhitelist::AddAssetFileExtension(ezStringView sAssetType, ezStringView sAllowedFileExtension)
 {
-  ezStringBuilder sLowerType = szAssetType;
+  ezStringBuilder sLowerType = sAssetType;
   sLowerType.ToLower();
 
-  ezStringBuilder sLowerExt = szAllowedFileExtension;
+  ezStringBuilder sLowerExt = sAllowedFileExtension;
   sLowerExt.ToLower();
 
   s_ExtensionWhitelist[sLowerType].Insert(sLowerExt);
 }
 
 
-bool ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(const char* szAssetType, const char* szFile)
+bool ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(ezStringView sAssetType, ezStringView sFile)
 {
-  ezStringBuilder sLowerExt = ezPathUtils::GetFileExtension(szFile);
+  ezStringBuilder sLowerExt = ezPathUtils::GetFileExtension(sFile);
   sLowerExt.ToLower();
 
-  ezStringBuilder sLowerType = szAssetType;
+  ezStringBuilder sLowerType = sAssetType;
   sLowerType.ToLower();
 
   ezHybridArray<ezString, 16> Types;
@@ -36,7 +36,7 @@ bool ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(const char* szAssetTy
   return false;
 }
 
-const ezSet<ezString>& ezAssetFileExtensionWhitelist::GetAssetFileExtensions(const char* szAssetType)
+const ezSet<ezString>& ezAssetFileExtensionWhitelist::GetAssetFileExtensions(ezStringView sAssetType)
 {
-  return s_ExtensionWhitelist[szAssetType];
+  return s_ExtensionWhitelist[sAssetType];
 }

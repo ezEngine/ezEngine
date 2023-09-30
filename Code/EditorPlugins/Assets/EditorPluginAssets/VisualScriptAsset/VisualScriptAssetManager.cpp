@@ -49,9 +49,9 @@ void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
 }
 
 void ezVisualScriptAssetManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezVisualScriptAssetDocument(szPath);
+  out_pDocument = new ezVisualScriptAssetDocument(sPath);
 }
 
 void ezVisualScriptAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

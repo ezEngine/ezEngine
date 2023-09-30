@@ -47,9 +47,9 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
 }
 
 void ezColorGradientAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezColorGradientAssetDocument(szPath);
+  out_pDocument = new ezColorGradientAssetDocument(sPath);
 }
 
 void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(

@@ -8,8 +8,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezTestDocumentObjectManager::ezTestDocumentObjectManager() = default;
 ezTestDocumentObjectManager::~ezTestDocumentObjectManager() = default;
 
-ezTestDocument::ezTestDocument(const char* szDocumentPath, bool bUseIPCObjectMirror /*= false*/)
-  : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezTestDocumentObjectManager))
+ezTestDocument::ezTestDocument(ezStringView sDocumentPath, bool bUseIPCObjectMirror /*= false*/)
+  : ezDocument(sDocumentPath, EZ_DEFAULT_NEW(ezTestDocumentObjectManager))
   , m_bUseIPCObjectMirror(bUseIPCObjectMirror)
 {
 }

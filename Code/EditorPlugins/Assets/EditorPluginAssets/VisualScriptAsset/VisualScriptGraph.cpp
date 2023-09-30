@@ -128,12 +128,12 @@ ezStatus ezVisualScriptNodeManager_Legacy::InternalCanConnect(const ezPin& sourc
   return ezStatus(EZ_SUCCESS);
 }
 
-const char* ezVisualScriptNodeManager_Legacy::GetTypeCategory(const ezRTTI* pRtti) const
+ezStringView ezVisualScriptNodeManager_Legacy::GetTypeCategory(const ezRTTI* pRtti) const
 {
   const ezVisualScriptNodeDescriptor* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
 
   if (pDesc == nullptr)
-    return nullptr;
+    return {};
 
   return pDesc->m_sCategory;
 }

@@ -49,9 +49,9 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
 }
 
 void ezPropertyAnimAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezPropertyAnimAssetDocument(szPath);
+  out_pDocument = new ezPropertyAnimAssetDocument(sPath);
 }
 
 void ezPropertyAnimAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

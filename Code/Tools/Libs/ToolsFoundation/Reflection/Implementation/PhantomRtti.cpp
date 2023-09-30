@@ -4,14 +4,14 @@
 #include <ToolsFoundation/Reflection/PhantomProperty.h>
 #include <ToolsFoundation/Reflection/PhantomRtti.h>
 
-ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
-  ezBitflags<ezTypeFlags> flags, const char* szPluginName)
+ezPhantomRTTI::ezPhantomRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
+  ezBitflags<ezTypeFlags> flags, ezStringView sPluginName)
   : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<const ezAbstractProperty*>(),
       ezArrayPtr<const ezAbstractFunctionProperty*>(), ezArrayPtr<const ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(),
       ezArrayPtr<ezMessageSenderInfo>(), nullptr)
 {
-  m_sTypeNameStorage = szName;
-  m_sPluginNameStorage = szPluginName;
+  m_sTypeNameStorage = sName;
+  m_sPluginNameStorage = sPluginName;
 
   m_sTypeName = m_sTypeNameStorage.GetData();
   m_sPluginName = m_sPluginNameStorage.GetData();

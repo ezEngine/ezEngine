@@ -235,7 +235,7 @@ public:
   /// The string may be a stringyfied asset GUID or a relative or absolute path. The function will try all possibilities.
   /// If no asset can be found, an empty/invalid ezAssetInfo is returned.
   /// If bExhaustiveSearch is set the function will go through all known assets and find the closest match.
-  const ezLockedSubAsset FindSubAsset(const char* szPathOrGuid, bool bExhaustiveSearch = false) const;
+  const ezLockedSubAsset FindSubAsset(ezStringView sPathOrGuid, bool bExhaustiveSearch = false) const;
 
   /// \brief Same as GetAssteInfo, but wraps the return value into a ezLockedSubAsset struct
   const ezLockedSubAsset GetSubAsset(const ezUuid& assetGuid) const;
@@ -286,7 +286,7 @@ public:
   ///@{
 
   /// \brief Allows to tell the system of a new or changed file, that might be of interest to the Curator.
-  void NotifyOfFileChange(const char* szAbsolutePath);
+  void NotifyOfFileChange(ezStringView sAbsolutePath);
   /// \brief Allows to tell the system to re-evaluate an assets status.
   void NotifyOfAssetChange(const ezUuid& assetGuid);
   void UpdateAssetLastAccessTime(const ezUuid& assetGuid);

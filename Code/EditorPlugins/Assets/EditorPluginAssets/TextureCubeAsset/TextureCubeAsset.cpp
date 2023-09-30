@@ -17,8 +17,8 @@ const char* ToUsageMode(ezTexConvUsage::Enum mode);
 const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode);
 const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
 
-ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_iTextureLod = -1;
 }
@@ -193,7 +193,7 @@ void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pI
   }
 }
 
-ezTransformStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();

@@ -126,7 +126,7 @@ ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBon
         for (ezXRHandBone& bone : out_bones)
         {
           ezTransform local = bone.m_Transform;
-          bone.m_Transform.SetGlobalTransform(globalStageTransform, local);
+          bone.m_Transform = ezTransform::MakeGlobalTransform(globalStageTransform, local);
         }
       }
     }

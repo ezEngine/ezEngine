@@ -56,12 +56,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEvent<const ezDocumentEvent&> ezDocument::s_EventsAny;
 
-ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl)
+ezDocument::ezDocument(ezStringView sPath, ezDocumentObjectManager* pDocumentObjectManagerImpl)
 {
   using ObjectMetaData = ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>;
   m_DocumentObjectMetaData = EZ_DEFAULT_NEW(ObjectMetaData);
   m_pDocumentInfo = nullptr;
-  m_sDocumentPath = szPath;
+  m_sDocumentPath = sPath;
   m_pObjectManager = ezUniquePtr<ezDocumentObjectManager>(pDocumentObjectManagerImpl, ezFoundation::GetDefaultAllocator());
   m_pObjectManager->SetDocument(this);
   m_pCommandHistory = EZ_DEFAULT_NEW(ezCommandHistory, this);

@@ -20,8 +20,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlackboardTemplateAssetDocument, 1, ezRTTINoAl
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezBlackboardTemplateAssetDocument::ezBlackboardTemplateAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezBlackboardTemplateAssetObject>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezBlackboardTemplateAssetDocument::ezBlackboardTemplateAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezBlackboardTemplateAssetObject>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -77,7 +77,7 @@ ezStatus ezBlackboardTemplateAssetDocument::RetrieveState(const ezBlackboardTemp
   return ezStatus(EZ_SUCCESS);
 }
 
-ezTransformStatus ezBlackboardTemplateAssetDocument::InternalTransformAsset(ezStreamWriter& inout_stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezBlackboardTemplateAssetDocument::InternalTransformAsset(ezStreamWriter& inout_stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return WriteAsset(inout_stream, pAssetProfile);
 }

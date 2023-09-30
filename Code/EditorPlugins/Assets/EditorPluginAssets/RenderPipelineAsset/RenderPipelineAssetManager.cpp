@@ -49,9 +49,9 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
 }
 
 void ezRenderPipelineAssetManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezRenderPipelineAssetDocument(szPath);
+  out_pDocument = new ezRenderPipelineAssetDocument(sPath);
 }
 
 void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

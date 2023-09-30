@@ -20,13 +20,13 @@ public:
     m_Filter = filter;
   }
 
-  ezAbstractObjectNode* AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName = nullptr);
+  ezAbstractObjectNode* AddObjectToGraph(const ezDocumentObject* pObject, ezStringView sNodeName = nullptr);
 
 private:
   void AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const ezDocumentObject* pObject);
   void AddProperties(ezAbstractObjectNode* pNode, const ezDocumentObject* pObject);
 
-  ezAbstractObjectNode* AddSubObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName);
+  ezAbstractObjectNode* AddSubObjectToGraph(const ezDocumentObject* pObject, ezStringView sNodeName);
 
   const ezDocumentObjectManager* m_pManager;
   ezAbstractObjectGraph* m_pGraph;
@@ -54,7 +54,7 @@ public:
   static void ApplyDiffToObject(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& ref_diff);
 
 private:
-  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
+  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, ezStringView sParentProperty, ezVariant index);
   void ApplyProperty(ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource);
   static void ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp,
     ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff);

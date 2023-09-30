@@ -78,8 +78,8 @@ void ezIntensityControlPoint::SetTickFromTime(ezTime time, ezInt64 iFps)
   m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
 }
 
-ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezColorGradientAssetData>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezColorGradientAssetDocument::ezColorGradientAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezColorGradientAssetData>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -178,7 +178,7 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
   return color;
 }
 
-ezTransformStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   WriteResource(stream);
   return ezStatus(EZ_SUCCESS);

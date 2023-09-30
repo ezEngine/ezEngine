@@ -9,7 +9,7 @@ class EZ_EDITORPLUGINSCENE_DLL ezLayerDocument : public ezSceneDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezLayerDocument, ezSceneDocument);
 
 public:
-  ezLayerDocument(const char* szDocumentPath, ezScene2Document* pParentScene);
+  ezLayerDocument(ezStringView sDocumentPath, ezScene2Document* pParentScene);
   ~ezLayerDocument();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;

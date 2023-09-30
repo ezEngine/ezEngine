@@ -15,7 +15,7 @@ public:
 
   static ezResult FindDocumentTypeFromPath(ezStringView sPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc);
 
-  ezStatus CanOpenDocument(const char* szFilePath) const;
+  ezStatus CanOpenDocument(ezStringView sFilePath) const;
 
   /// \brief Creates a new document.
   /// \param szDocumentTypeName Document type to create. See ezDocumentTypeDescriptor.
@@ -25,7 +25,7 @@ public:
   /// \param pOpenContext An generic context object. Allows for custom data to be passed along into the construction. E.g. inform a sub-document which main document it belongs to.
   /// \return Returns the error in case the operations failed.
   ezStatus CreateDocument(
-    const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None, const ezDocumentObject* pOpenContext = nullptr);
+    ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None, const ezDocumentObject* pOpenContext = nullptr);
 
   /// \brief Opens an existing document.
   /// \param szDocumentTypeName Document type to open. See ezDocumentTypeDescriptor.
@@ -35,10 +35,10 @@ public:
   /// \param pOpenContext  An generic context object. Allows for custom data to be passed along into the construction. E.g. inform a sub-document which main document it belongs to.
   /// \return Returns the error in case the operations failed.
   /// \return Returns the error in case the operations failed.
-  ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
+  ezStatus OpenDocument(ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument,
     ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow,
     const ezDocumentObject* pOpenContext = nullptr);
-  virtual ezStatus CloneDocument(const char* szPath, const char* szClonePath, ezUuid& inout_cloneGuid);
+  virtual ezStatus CloneDocument(ezStringView sPath, ezStringView sClonePath, ezUuid& inout_cloneGuid);
   void CloseDocument(ezDocument* pDocument);
   void EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext = nullptr);
 
@@ -99,7 +99,7 @@ public:
   static ezCopyOnBroadcastEvent<const Event&> s_Events;
   static ezEvent<Request&> s_Requests;
 
-  static const ezDocumentTypeDescriptor* GetDescriptorForDocumentType(const char* szDocumentType);
+  static const ezDocumentTypeDescriptor* GetDescriptorForDocumentType(ezStringView sDocumentType);
   static const ezMap<ezString, const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
 
   void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_documentTypes) const;
@@ -108,14 +108,14 @@ public:
   static ezMap<ezString, CustomAction> s_CustomActions;
 
 protected:
-  virtual void InternalCloneDocument(const char* szPath, const char* szClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* pHeader, ezAbstractObjectGraph* pObjects, ezAbstractObjectGraph* pTypes);
+  virtual void InternalCloneDocument(ezStringView sPath, ezStringView sClonePath, const ezUuid& documentId, const ezUuid& seedGuid, const ezUuid& cloneGuid, ezAbstractObjectGraph* pHeader, ezAbstractObjectGraph* pObjects, ezAbstractObjectGraph* pTypes);
 
 private:
-  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) = 0;
+  virtual void InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext) = 0;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:
-  ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
+  ezStatus CreateOrOpenDocument(bool bCreate, ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument,
     ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
 
 private:
