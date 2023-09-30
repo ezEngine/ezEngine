@@ -82,11 +82,9 @@ void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
-    { return pManager->IsUnderRootProperty("Settings", pObject, sProperty); });
+  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return pManager->IsUnderRootProperty("Settings", pObject, sProperty); });
   // (Remote IPC mirror only sends scene)
-  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
-    { return pManager->IsUnderRootProperty("Children", pObject, sProperty); });
+  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return pManager->IsUnderRootProperty("Children", pObject, sProperty); });
 
   EnsureSettingsObjectExist();
 

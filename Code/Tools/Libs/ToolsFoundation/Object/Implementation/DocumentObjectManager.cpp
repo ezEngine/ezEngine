@@ -24,7 +24,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezDocumentRootObject::InsertSubObject(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& index)
 {
-if (sProperty.IsEmpty())
+  if (sProperty.IsEmpty())
     sProperty = "Children";
   return ezDocumentObject::InsertSubObject(pObject, sProperty, index);
 }

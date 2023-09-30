@@ -18,7 +18,7 @@ public:
   ~ezReflectedTypeStorageAccessor();
 
   virtual const ezVariant GetValue(ezStringView sProperty, ezVariant index = ezVariant(), ezStatus* pRes = nullptr) const override; // [tested]
-  virtual bool SetValue(ezStringView sProperty, const ezVariant& value, ezVariant index = ezVariant()) override;                   // [tested]
+  virtual bool SetValue(ezStringView sProperty, const ezVariant& value, ezVariant index = ezVariant()) override;                    // [tested]
 
   virtual ezInt32 GetCount(ezStringView sProperty) const override;
   virtual bool GetKeys(ezStringView sProperty, ezDynamicArray<ezVariant>& out_keys) const override;

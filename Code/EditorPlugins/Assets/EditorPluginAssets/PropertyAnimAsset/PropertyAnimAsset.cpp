@@ -231,11 +231,9 @@ void ezPropertyAnimAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation
   m_pMirror = EZ_DEFAULT_NEW(ezIPCObjectMirrorEditor);
   // Filter needs to be set before base class init as that one sends the doc.
   // (Local mirror ignores temporaries, i.e. only mirrors the asset itself)
-  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
-    { return !static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
+  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return !static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
   // (Remote IPC mirror only sends temporaries, i.e. the context)
-  m_pMirror->SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
-    { return static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
+  m_pMirror->SetFilterFunction([this](const ezDocumentObject* pObject, ezStringView sProperty) -> bool { return static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, sProperty); });
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
   // Important to do these after base class init as we want our subscriptions to happen after the mirror of the base class.
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreeStructureEventHandler, this));
