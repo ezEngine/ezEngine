@@ -46,9 +46,9 @@ void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
 }
 
 void ezKrautTreeAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezKrautTreeAssetDocument(szPath);
+  out_pDocument = new ezKrautTreeAssetDocument(sPath);
 }
 
 void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

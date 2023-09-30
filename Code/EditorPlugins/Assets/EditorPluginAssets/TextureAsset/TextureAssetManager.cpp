@@ -86,12 +86,12 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-void ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezTextureAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
+  ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(sPath);
   out_pDocument = pDoc;
 
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Render Target"))
+  if (sDocumentTypeName.IsEqual("Render Target"))
   {
     pDoc->m_bIsRenderTarget = true;
   }
@@ -103,17 +103,17 @@ void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicA
   inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
 }
 
-ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
+ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
-  if (ezStringUtils::IsEqual(szOutputTag, "LOWRES"))
+  if (sOutputTag.IsEqual("LOWRES"))
   {
-    ezStringBuilder sRelativePath(szDocumentPath);
-    sRelativePath.MakeRelativeTo(szDataDirectory).IgnoreResult();
+    ezStringBuilder sRelativePath(sDocumentPath);
+    sRelativePath.MakeRelativeTo(sDataDirectory).IgnoreResult();
     sRelativePath.RemoveFileExtension();
     sRelativePath.Append("-lowres");
     ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezTexture2D", true);
     return sRelativePath;
   }
 
-  return SUPER::GetRelativeOutputFileName(pTypeDescriptor, szDataDirectory, szDocumentPath, szOutputTag, pAssetProfile);
+  return SUPER::GetRelativeOutputFileName(pTypeDescriptor, sDataDirectory, sDocumentPath, sOutputTag, pAssetProfile);
 }

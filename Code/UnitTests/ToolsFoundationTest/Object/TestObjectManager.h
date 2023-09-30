@@ -21,7 +21,7 @@ class ezTestDocument : public ezDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezTestDocument, ezDocument);
 
 public:
-  ezTestDocument(const char* szDocumentPath, bool bUseIPCObjectMirror = false);
+  ezTestDocument(ezStringView sDocumentPath, bool bUseIPCObjectMirror = false);
   ~ezTestDocument();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;

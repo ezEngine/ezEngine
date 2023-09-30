@@ -70,8 +70,8 @@ ezSceneDocumentSettings::~ezSceneDocumentSettings()
   }
 }
 
-ezScene2Document::ezScene2Document(const char* szDocumentPath)
-  : ezSceneDocument(szDocumentPath, ezSceneDocument::DocumentType::Scene)
+ezScene2Document::ezScene2Document(ezStringView sDocumentPath)
+  : ezSceneDocument(sDocumentPath, ezSceneDocument::DocumentType::Scene)
 {
   // Separate selection for the layer panel.
   m_pLayerSelection = EZ_DEFAULT_NEW(ezSelectionManager, m_pObjectManager.Borrow());

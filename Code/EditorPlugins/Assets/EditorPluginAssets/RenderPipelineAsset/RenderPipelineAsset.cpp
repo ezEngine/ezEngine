@@ -89,8 +89,8 @@ ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin& source, co
   return ezStatus(EZ_SUCCESS);
 }
 
-ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), ezAssetDocEngineConnection::FullObjectMirroring)
+ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(ezStringView sDocumentPath)
+  : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), ezAssetDocEngineConnection::FullObjectMirroring)
 {
 }
 
@@ -106,13 +106,13 @@ void ezRenderPipelineAssetDocument::InitializeAfterLoading(bool bFirstTimeCreati
   static_cast<ezRenderPipelineObjectMirrorEditor*>(m_pMirror.Borrow())->InitNodeSender(static_cast<const ezDocumentNodeManager*>(GetObjectManager()));
 }
 
-ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
   const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return ezAssetDocument::RemoteExport(AssetHeader, szTargetFile);
 }
 
-ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_REPORT_FAILURE("Should not be called");
   return ezTransformStatus();
@@ -153,7 +153,7 @@ bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& o
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);

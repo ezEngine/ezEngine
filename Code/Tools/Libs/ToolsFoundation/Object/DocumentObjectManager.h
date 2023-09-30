@@ -36,7 +36,7 @@ public:
   }
 
 public:
-  virtual void InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index) override;
+  virtual void InsertSubObject(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& index) override;
   virtual void RemoveSubObject(ezDocumentObject* pObject) override;
 };
 
@@ -150,7 +150,7 @@ public:
 
   /// \brief Allows to annotate types with a category (group), such that things like creator menus can use this to present the types in a more user
   /// friendly way
-  virtual const char* GetTypeCategory(const ezRTTI* pRtti) const { return nullptr; }
+  virtual ezStringView GetTypeCategory(const ezRTTI* pRtti) const { return {}; }
   void PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const;
 
   const ezDocumentObject* GetRootObject() const { return &m_pObjectStorage->m_RootObject; }
@@ -161,26 +161,26 @@ public:
   ezDocument* GetDocument() { return m_pObjectStorage->m_pDocument; }
 
   // Property Change
-  ezStatus SetValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& newValue, ezVariant index = ezVariant());
-  ezStatus InsertValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& newValue, ezVariant index = ezVariant());
-  ezStatus RemoveValue(ezDocumentObject* pObject, const char* szProperty, ezVariant index = ezVariant());
-  ezStatus MoveValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& oldIndex, const ezVariant& newIndex);
+  ezStatus SetValue(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& newValue, ezVariant index = ezVariant());
+  ezStatus InsertValue(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& newValue, ezVariant index = ezVariant());
+  ezStatus RemoveValue(ezDocumentObject* pObject, ezStringView sProperty, ezVariant index = ezVariant());
+  ezStatus MoveValue(ezDocumentObject* pObject, ezStringView sProperty, const ezVariant& oldIndex, const ezVariant& newIndex);
 
   // Structure Change
-  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
+  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, ezStringView sParentProperty, ezVariant index);
   void RemoveObject(ezDocumentObject* pObject);
-  void MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, const char* szParentProperty, ezVariant index);
+  void MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, ezStringView sParentProperty, ezVariant index);
 
   // Structure Change Test
-  ezStatus CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const;
+  ezStatus CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const;
   ezStatus CanRemove(const ezDocumentObject* pObject) const;
-  ezStatus CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const;
+  ezStatus CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const;
   ezStatus CanSelect(const ezDocumentObject* pObject) const;
 
-  bool IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pObject) const;
-  bool IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pParent, const char* szParentProperty) const;
+  bool IsUnderRootProperty(ezStringView sRootProperty, const ezDocumentObject* pObject) const;
+  bool IsUnderRootProperty(ezStringView sRootProperty, const ezDocumentObject* pParent, ezStringView sParentProperty) const;
   bool IsTemporary(const ezDocumentObject* pObject) const;
-  bool IsTemporary(const ezDocumentObject* pParent, const char* szParentProperty) const;
+  bool IsTemporary(const ezDocumentObject* pParent, ezStringView sParentProperty) const;
 
   ezSharedPtr<ezDocumentObjectManager::Storage> SwapStorage(ezSharedPtr<ezDocumentObjectManager::Storage> pNewStorage);
   ezSharedPtr<ezDocumentObjectManager::Storage> GetStorage() { return m_pObjectStorage; }
@@ -189,17 +189,17 @@ private:
   virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) { return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti); }
   virtual void InternalDestroyObject(ezDocumentObject* pObject) { EZ_DEFAULT_DELETE(pObject); }
 
-  void InternalAddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
+  void InternalAddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, ezStringView sParentProperty, ezVariant index);
   void InternalRemoveObject(ezDocumentObject* pObject);
-  void InternalMoveObject(ezDocumentObject* pNewParent, ezDocumentObject* pObject, const char* szParentProperty, ezVariant index);
+  void InternalMoveObject(ezDocumentObject* pNewParent, ezDocumentObject* pObject, ezStringView sParentProperty, ezVariant index);
 
-  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const
   {
     return ezStatus(EZ_SUCCESS);
   };
   virtual ezStatus InternalCanRemove(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
   virtual ezStatus InternalCanMove(
-    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
+    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const
   {
     return ezStatus(EZ_SUCCESS);
   };

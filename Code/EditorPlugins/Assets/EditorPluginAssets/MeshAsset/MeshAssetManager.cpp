@@ -119,9 +119,9 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
 }
 
 void ezMeshAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezMeshAssetDocument(szPath);
+  out_pDocument = new ezMeshAssetDocument(sPath);
 }
 
 void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

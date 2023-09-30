@@ -12,8 +12,8 @@ using namespace AE_NS_FOUNDATION;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezKrautTreeAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezKrautTreeAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
@@ -77,7 +77,7 @@ static void GetMaterialLabel(ezStringBuilder& ref_sOut, ezKrautBranchType branch
   }
 }
 
-ezTransformStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 

@@ -232,7 +232,7 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
 
 
   XrActionSpaceCreateInfo spaceCreateInfo{XR_TYPE_ACTION_SPACE_CREATE_INFO};
-  spaceCreateInfo.poseInActionSpace = m_pOpenXR->ConvertTransform(ezTransform::IdentityTransform());
+  spaceCreateInfo.poseInActionSpace = m_pOpenXR->ConvertTransform(ezTransform::MakeIdentity());
   for (ezUInt32 uiSide : {0, 1})
   {
     spaceCreateInfo.subactionPath = m_subActionPath[uiSide];

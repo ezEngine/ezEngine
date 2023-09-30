@@ -64,7 +64,7 @@ class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnima
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimAssetDocument, BaseClass);
 
 public:
-  ezPropertyAnimAssetDocument(const char* szDocumentPath);
+  ezPropertyAnimAssetDocument(ezStringView sDocumentPath);
   ~ezPropertyAnimAssetDocument();
 
   void SetAnimationDurationTicks(ezUInt64 uiNumTicks);
@@ -111,7 +111,7 @@ public:
   }
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 

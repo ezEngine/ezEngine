@@ -58,9 +58,9 @@ void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::
 }
 
 void ezLUTAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  ezLUTAssetDocument* pDoc = new ezLUTAssetDocument(szPath);
+  ezLUTAssetDocument* pDoc = new ezLUTAssetDocument(sPath);
   out_pDocument = pDoc;
 }
 

@@ -19,10 +19,10 @@ public:
 
   const char* GetName() const { return m_sName; }
 
-  const char* GetAdditionalDisplayString() { return m_sAdditionalDisplayString; }
-  void SetAdditionalDisplayString(const char* szString, bool bTriggerUpdate = true)
+  ezStringView GetAdditionalDisplayString() { return m_sAdditionalDisplayString; }
+  void SetAdditionalDisplayString(ezStringView sString, bool bTriggerUpdate = true)
   {
-    m_sAdditionalDisplayString = szString;
+    m_sAdditionalDisplayString = sString;
     if (bTriggerUpdate)
       TriggerUpdate();
   }

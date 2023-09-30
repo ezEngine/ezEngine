@@ -46,9 +46,9 @@ void ezRmlUiAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
 }
 
 void ezRmlUiAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezRmlUiAssetDocument(szPath);
+  out_pDocument = new ezRmlUiAssetDocument(sPath);
 }
 
 void ezRmlUiAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

@@ -25,9 +25,9 @@ void ezObjectProxyAccessor::FinishTransaction()
   m_pSource->FinishTransaction();
 }
 
-void ezObjectProxyAccessor::BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands /*= false*/)
+void ezObjectProxyAccessor::BeginTemporaryCommands(ezStringView sDisplayString, bool bFireEventsWhenUndoingTempCommands /*= false*/)
 {
-  m_pSource->BeginTemporaryCommands(szDisplayString, bFireEventsWhenUndoingTempCommands);
+  m_pSource->BeginTemporaryCommands(sDisplayString, bFireEventsWhenUndoingTempCommands);
 }
 
 void ezObjectProxyAccessor::CancelTemporaryCommands()

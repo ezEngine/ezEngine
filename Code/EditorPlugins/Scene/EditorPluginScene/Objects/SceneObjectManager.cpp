@@ -53,9 +53,9 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
 }
 
 ezStatus ezSceneObjectManager::InternalCanAdd(
-  const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+  const ezRTTI* pRtti, const ezDocumentObject* pParent, ezStringView sParentProperty, const ezVariant& index) const
 {
-  if (IsUnderRootProperty("Children", pParent, szParentProperty))
+  if (IsUnderRootProperty("Children", pParent, sParentProperty))
   {
     if (pParent == nullptr)
     {
@@ -94,7 +94,7 @@ ezStatus ezSceneObjectManager::InternalCanAdd(
 }
 
 ezStatus ezSceneObjectManager::InternalCanMove(
-  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
+  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProperty, const ezVariant& index) const
 {
   // code to disallow attaching nodes to a prefab node
   // if (pNewParent != nullptr)

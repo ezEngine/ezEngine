@@ -81,9 +81,9 @@ void ezSceneDocument::UpdatePrefabs()
 }
 
 
-ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab)
+ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab)
 {
-  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, prefabAsset, prefabSeed, bEnginePrefab);
+  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, sPrefabFile, prefabAsset, prefabSeed, bEnginePrefab);
   if (newGuid.IsValid())
   {
     auto pMeta = m_GameObjectMetaData->BeginModifyMetaData(newGuid);
@@ -127,7 +127,7 @@ ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
   return newGuid;
 }
 
-void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab)
 {
   auto pHistory = GetCommandHistory();
   const ezVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
@@ -135,7 +135,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   const ezVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
   const float fLocalUniformScale = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
-  SUPER::UpdatePrefabObject(pObject, PrefabAsset, PrefabSeed, szBasePrefab);
+  SUPER::UpdatePrefabObject(pObject, PrefabAsset, PrefabSeed, sBasePrefab);
 
   // the root object has the same GUID as the PrefabSeed
   if (PrefabSeed.IsValid())

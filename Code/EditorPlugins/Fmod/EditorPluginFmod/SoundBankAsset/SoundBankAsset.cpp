@@ -18,8 +18,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetProperties, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSoundBankAssetDocument::ezSoundBankAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezSoundBankAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezSoundBankAssetDocument::ezSoundBankAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezSoundBankAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -32,7 +32,7 @@ void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInf
   pInfo->m_TransformDependencies.Insert(pProp->m_sSoundBank);
 }
 
-ezTransformStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSoundBankAssetProperties* pProp = GetProperties();
 

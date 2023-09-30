@@ -5,12 +5,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezSurfaceAssetDocument::ezSurfaceAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezSurfaceResourceDescriptor>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezSurfaceAssetDocument::ezSurfaceAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezSurfaceResourceDescriptor>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
-ezTransformStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+ezTransformStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
   const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSurfaceResourceDescriptor* pProp = GetProperties();

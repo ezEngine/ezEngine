@@ -48,9 +48,9 @@ void ezAnimationGraphAssetManager::OnDocumentManagerEvent(const ezDocumentManage
   }
 }
 
-void ezAnimationGraphAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezAnimationGraphAssetManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezAnimationGraphAssetDocument(szPath);
+  out_pDocument = new ezAnimationGraphAssetDocument(sPath);
 }
 
 void ezAnimationGraphAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

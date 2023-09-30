@@ -33,8 +33,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
 
 ezGameObjectDocument::ezGameObjectDocument(
-  const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-  : ezAssetDocument(szDocumentPath, pObjectManager, engineConnectionType)
+  ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+  : ezAssetDocument(sDocumentPath, pObjectManager, engineConnectionType)
 {
   using Meta = ezObjectMetaData<ezUuid, ezGameObjectMetaData>;
   m_GameObjectMetaData = EZ_DEFAULT_NEW(Meta);

@@ -8,9 +8,9 @@ class ezSurfaceAssetDocument : public ezSimpleAssetDocument<ezSurfaceResourceDes
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceAssetDocument, ezSimpleAssetDocument<ezSurfaceResourceDescriptor>);
 
 public:
-  ezSurfaceAssetDocument(const char* szDocumentPath);
+  ezSurfaceAssetDocument(ezStringView sDocumentPath);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 };

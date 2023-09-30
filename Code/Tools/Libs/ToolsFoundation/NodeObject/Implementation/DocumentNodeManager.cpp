@@ -108,27 +108,27 @@ const ezConnection& ezDocumentNodeManager::GetConnection(const ezDocumentObject*
   return *it.Value();
 }
 
-const ezPin* ezDocumentNodeManager::GetInputPinByName(const ezDocumentObject* pObject, const char* szName) const
+const ezPin* ezDocumentNodeManager::GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const
 {
   EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
   EZ_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
   for (auto& pPin : it.Value().m_Inputs)
   {
-    if (ezStringUtils::IsEqual(pPin->GetName(), szName))
+    if (pPin->GetName() == sName)
       return pPin.Borrow();
   }
   return nullptr;
 }
 
-const ezPin* ezDocumentNodeManager::GetOutputPinByName(const ezDocumentObject* pObject, const char* szName) const
+const ezPin* ezDocumentNodeManager::GetOutputPinByName(const ezDocumentObject* pObject, ezStringView sName) const
 {
   EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
   auto it = m_ObjectToNode.Find(pObject->GetGuid());
   EZ_ASSERT_DEV(it.IsValid(), "Can't get input pins of objects that aren't nodes!");
   for (auto& pPin : it.Value().m_Outputs)
   {
-    if (ezStringUtils::IsEqual(pPin->GetName(), szName))
+    if (pPin->GetName() == sName)
       return pPin.Borrow();
   }
   return nullptr;
@@ -614,19 +614,19 @@ bool ezDocumentNodeManager::WouldConnectionCreateCircle(const ezPin& source, con
   return CanReachNode(pTargetNode, pSourceNode, Visited);
 }
 
-void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, const char* szPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const
+void ezDocumentNodeManager::GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const
 {
   out_Names.Clear();
 
-  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szPropertyName);
+  const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sPropertyName);
   if (pProp == nullptr)
   {
-    ezLog::Warning("Property '{0}' not found in type '{1}'", szPropertyName, pObject->GetType()->GetTypeName());
+    ezLog::Warning("Property '{0}' not found in type '{1}'", sPropertyName, pObject->GetType()->GetTypeName());
     return;
   }
 
   ezStringBuilder sTemp;
-  ezVariant value = pObject->GetTypeAccessor().GetValue(szPropertyName);
+  ezVariant value = pObject->GetTypeAccessor().GetValue(sPropertyName);
 
   if (pProp->GetCategory() == ezPropertyCategory::Member)
   {

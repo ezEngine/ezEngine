@@ -61,8 +61,8 @@ void ezAnimationClipAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
   }
 }
 
-ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
@@ -94,7 +94,7 @@ double ezAnimationClipAssetDocument::GetCommonAssetUiState(ezCommonAssetUiState:
   return SUPER::GetCommonAssetUiState(state);
 }
 
-ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 

@@ -83,7 +83,7 @@ void ezPathPatternFilter::AddFilter(ezStringView sText, bool bIncludeFilter)
     m_ExcludePatterns.ExpandAndGetRef().Configure(text);
 }
 
-ezResult ezPathPatternFilter::ReadConfigFile(const char* szFile, const ezDynamicArray<ezString>& preprocessorDefines)
+ezResult ezPathPatternFilter::ReadConfigFile(ezStringView sFile, const ezDynamicArray<ezString>& preprocessorDefines)
 {
   ezStringBuilder content;
 
@@ -98,7 +98,7 @@ ezResult ezPathPatternFilter::ReadConfigFile(const char* szFile, const ezDynamic
 
   // keep comments, because * and / can form a multi-line comment, and then we could lose vital information
   // instead only allow single-line comments and filter those out in AddFilter().
-  if (pp.Process(szFile, content, true, true).Failed())
+  if (pp.Process(sFile, content, true, true).Failed())
     return EZ_FAILURE;
 
   ezDynamicArray<ezStringView> lines;

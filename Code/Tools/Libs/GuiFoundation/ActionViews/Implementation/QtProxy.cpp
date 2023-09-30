@@ -328,7 +328,7 @@ void ezQtButtonProxy::Update()
     sTooltip.append(")");
   }
 
-  if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
+  if (!pButton->GetAdditionalDisplayString().IsEmpty())
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
   m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
@@ -507,7 +507,7 @@ void ezQtDynamicActionAndMenuProxy::Update()
 
   ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
 
-  if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
+  if (!pButton->GetAdditionalDisplayString().IsEmpty())
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
   const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);

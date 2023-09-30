@@ -127,9 +127,9 @@ bool ezToolsTagRegistry::AddTag(const ezToolsTag& tag)
   }
 }
 
-bool ezToolsTagRegistry::RemoveTag(const char* szName)
+bool ezToolsTagRegistry::RemoveTag(ezStringView sName)
 {
-  auto it = s_NameToTags.Find(szName);
+  auto it = s_NameToTags.Find(sName);
   if (it.IsValid())
   {
     s_NameToTags.Remove(it);

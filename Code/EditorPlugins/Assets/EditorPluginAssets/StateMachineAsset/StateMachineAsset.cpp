@@ -11,12 +11,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStateMachineAssetDocument, 3, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezStateMachineAssetDocument::ezStateMachineAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezStateMachineNodeManager), ezAssetDocEngineConnection::None)
+ezStateMachineAssetDocument::ezStateMachineAssetDocument(ezStringView sDocumentPath)
+  : ezAssetDocument(sDocumentPath, EZ_DEFAULT_NEW(ezStateMachineNodeManager), ezAssetDocEngineConnection::None)
 {
 }
 
-ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezStateMachineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   auto pManager = static_cast<ezStateMachineNodeManager*>(GetObjectManager());
 
@@ -181,7 +181,7 @@ bool ezStateMachineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezStateMachineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezStateMachineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);

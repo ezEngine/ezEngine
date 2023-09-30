@@ -18,7 +18,7 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectContextDocument : public ezGameObjectDo
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectContextDocument, ezGameObjectDocument);
 
 public:
-  ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager,
+  ezGameObjectContextDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager,
     ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectContextDocument();
 

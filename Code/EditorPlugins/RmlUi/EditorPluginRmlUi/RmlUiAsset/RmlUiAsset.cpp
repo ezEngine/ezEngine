@@ -46,12 +46,12 @@ ezStringView FindRCSSReference(ezStringView& ref_sRml)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezRmlUiAssetDocument::ezRmlUiAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezRmlUiAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+ezRmlUiAssetDocument::ezRmlUiAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezRmlUiAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 
-ezTransformStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezRmlUiAssetProperties* pProp = GetProperties();
 

@@ -51,9 +51,9 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-void ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezAnimationClipAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezAnimationClipAssetDocument(szPath);
+  out_pDocument = new ezAnimationClipAssetDocument(sPath);
 }
 
 void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(

@@ -27,7 +27,7 @@ public:
 
   // ezDocumentManager overrides:
 public:
-  virtual ezStatus CloneDocument(const char* szPath, const char* szClonePath, ezUuid& inout_cloneGuid) override;
+  virtual ezStatus CloneDocument(ezStringView sPath, ezStringView sClonePath, ezUuid& inout_cloneGuid) override;
 
   /// \name Asset Profile Functions
   ///@{
@@ -56,25 +56,25 @@ private:
   ///@{
 public:
   /// \brief Returns the absolute path to the thumbnail that belongs to the given document.
-  static ezString GenerateResourceThumbnailPath(const char* szDocumentPath);
-  static bool IsThumbnailUpToDate(const char* szDocumentPath, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion);
+  static ezString GenerateResourceThumbnailPath(ezStringView sDocumentPath);
+  static bool IsThumbnailUpToDate(ezStringView sDocumentPath, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion);
 
   ///@}
   /// \name Output Functions
   ///@{
 
-  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const;
-  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const;
+  virtual void AddEntriesToAssetTable(ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile, ezDelegate<void(ezStringView sGuid, ezStringView sPath, ezStringView sType)> addEntry) const;
+  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
-  ezString GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
+  ezString GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
 
   /// \brief Relative to 'AssetCache' folder.
-  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
+  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
   virtual bool GeneratesProfileSpecificAssets() const = 0;
 
-  bool IsOutputUpToDate(const char* szDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
-  virtual bool IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
+  bool IsOutputUpToDate(ezStringView sDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
+  virtual bool IsOutputUpToDate(ezStringView sDocumentPath, ezStringView sOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
 
   /// Describes how likely it is that a generated file is 'corrupted', due to dependency issues and such.
   /// For example a prefab may not work correctly, if it was written with a very different C++ plugin state, but this can't be detected later.

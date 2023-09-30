@@ -56,8 +56,8 @@ void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
   props["Tags"].m_Visibility = ezPropertyUiState::Invisible;
 }
 
-ezSceneDocument::ezSceneDocument(const char* szDocumentPath, DocumentType documentType)
-  : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
+ezSceneDocument::ezSceneDocument(ezStringView sDocumentPath, DocumentType documentType)
+  : ezGameObjectDocument(sDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
   m_DocumentType = documentType;
   m_GameMode = GameMode::Off;
@@ -82,10 +82,11 @@ void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   // (Local mirror only mirrors settings)
-  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool
-    { return pManager->IsUnderRootProperty("Settings", pObject, szProperty); });
+  m_ObjectMirror.SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+    { return pManager->IsUnderRootProperty("Settings", pObject, sProperty); });
   // (Remote IPC mirror only sends scene)
-  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, const char* szProperty) -> bool { return pManager->IsUnderRootProperty("Children", pObject, szProperty); });
+  m_pMirror->SetFilterFunction([pManager = GetObjectManager()](const ezDocumentObject* pObject, ezStringView sProperty) -> bool
+    { return pManager->IsUnderRootProperty("Children", pObject, sProperty); });
 
   EnsureSettingsObjectExist();
 
@@ -567,7 +568,7 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
   auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
 
@@ -640,7 +641,7 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, 
   if (!finalizeGraphCB.IsValid())
     finalizeGraphCB = finalizeGraph;
 
-  return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, adjustGraphNodeCB, adjustNewNodesCB, finalizeGraphCB);
+  return SUPER::CreatePrefabDocumentFromSelection(sFile, pRootType, adjustGraphNodeCB, adjustNewNodesCB, finalizeGraphCB);
 }
 
 bool ezSceneDocument::CanEngineProcessBeRestarted() const
@@ -870,7 +871,7 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info, 
   return true;
 }
 
-bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 
@@ -1571,7 +1572,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 }
 
-ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   if (m_DocumentType == DocumentType::Prefab)
   {
@@ -1589,7 +1590,7 @@ ezTransformStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFi
 }
 
 
-ezTransformStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 

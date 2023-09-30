@@ -364,28 +364,28 @@ bool ezDocumentObjectMirror::IsRootObject(const ezDocumentObject* pParent)
   return (pParent == nullptr || pParent == m_pManager->GetRootObject());
 }
 
-bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObject* pParent, const char* szParentProperty)
+bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObject* pParent, ezStringView sParentProperty)
 {
   if (pParent == nullptr || pParent == m_pManager->GetRootObject())
     return true;
 
   const ezRTTI* pRtti = pParent->GetTypeAccessor().GetType();
 
-  auto* pProp = pRtti->FindPropertyByName(szParentProperty);
+  auto* pProp = pRtti->FindPropertyByName(sParentProperty);
   return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
 }
 
 
-bool ezDocumentObjectMirror::IsDiscardedByFilter(const ezDocumentObject* pObject, const char* szProperty) const
+bool ezDocumentObjectMirror::IsDiscardedByFilter(const ezDocumentObject* pObject, ezStringView sProperty) const
 {
   if (m_Filter.IsValid())
   {
-    return !m_Filter(pObject, szProperty);
+    return !m_Filter(pObject, sProperty);
   }
   return false;
 }
 
-void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const char* szProperty)
+void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, ezStringView sProperty)
 {
   if (pRoot && pRoot->GetDocumentObjectManager()->GetRootObject() != pRoot)
   {
@@ -394,7 +394,7 @@ void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocu
     FlattenSteps(path, out_change.m_Steps);
   }
 
-  out_change.m_Change.m_sProperty = szProperty;
+  out_change.m_Change.m_sProperty = sProperty;
 }
 
 ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent, ezHybridArray<const ezDocumentObject*, 8>& path)

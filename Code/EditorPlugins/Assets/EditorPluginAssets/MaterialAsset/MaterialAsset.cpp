@@ -513,8 +513,8 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezMaterialAssetDocument::ezMaterialAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocument::EditorEventHandler, this));
 }
@@ -626,11 +626,11 @@ ezUuid ezMaterialAssetDocument::GetMaterialNodeGuid(const ezAbstractObjectGraph&
   return ezUuid();
 }
 
-void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab)
 {
   // Base
   ezAbstractObjectGraph baseGraph;
-  ezPrefabUtils::LoadGraph(baseGraph, szBasePrefab);
+  ezPrefabUtils::LoadGraph(baseGraph, sBasePrefab);
   baseGraph.PruneGraph(GetMaterialNodeGuid(baseGraph));
 
   // NewBase
@@ -790,9 +790,9 @@ public:
   }
 };
 
-ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
+  if (sOutputTag.IsEqual(ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
     ezStatus ret = RecreateVisualShaderFile(AssetHeader);
 
@@ -877,13 +877,13 @@ ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(const char* sz
   }
   else
   {
-    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
+    return SUPER::InternalTransformAsset(szTargetFile, sOutputTag, pAssetProfile, AssetHeader, transformFlags);
   }
 }
 
-ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
+  EZ_ASSERT_DEV(sOutputTag.IsEmpty(), "Additional output '{0}' not implemented!", sOutputTag);
 
   return WriteMaterialAsset(stream, pAssetProfile, true);
 }
@@ -1399,7 +1399,7 @@ bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_obj
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);

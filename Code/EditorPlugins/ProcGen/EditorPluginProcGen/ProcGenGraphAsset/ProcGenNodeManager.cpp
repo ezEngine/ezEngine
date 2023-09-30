@@ -87,14 +87,14 @@ void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
-const char* ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
+ezStringView ezProcGenNodeManager::GetTypeCategory(const ezRTTI* pRtti) const
 {
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
     return pAttr->GetCategory();
   }
 
-  return nullptr;
+  return {};
 }
 
 ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const

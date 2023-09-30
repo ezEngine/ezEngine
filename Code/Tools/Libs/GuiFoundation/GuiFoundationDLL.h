@@ -58,3 +58,8 @@ EZ_ALWAYS_INLINE ezColorGammaUB qtToEzColor(const QColor& c)
 {
   return ezColorGammaUB(c.red(), c.green(), c.blue(), c.alpha());
 }
+
+EZ_ALWAYS_INLINE QString ezMakeQString(ezStringView sString)
+{
+  return QString::fromUtf8(sString.GetStartPointer(), sString.GetElementCount());
+}

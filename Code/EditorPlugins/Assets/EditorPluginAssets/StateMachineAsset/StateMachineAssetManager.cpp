@@ -49,9 +49,9 @@ void ezStateMachineAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
 }
 
 void ezStateMachineAssetManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezStateMachineAssetDocument(szPath);
+  out_pDocument = new ezStateMachineAssetDocument(sPath);
 }
 
 void ezStateMachineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

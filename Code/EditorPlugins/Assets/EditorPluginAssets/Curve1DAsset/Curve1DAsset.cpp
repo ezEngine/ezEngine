@@ -6,8 +6,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezCurve1DAssetDocument::ezCurve1DAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezCurveGroupData>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezCurve1DAssetDocument::ezCurve1DAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezCurveGroupData>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
@@ -41,7 +41,7 @@ void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& inout_stream) const
   desc.Save(inout_stream);
 }
 
-ezTransformStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   WriteResource(stream);
   return ezStatus(EZ_SUCCESS);

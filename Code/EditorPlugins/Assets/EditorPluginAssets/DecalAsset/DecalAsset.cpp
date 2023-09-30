@@ -70,12 +70,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple, true)
+ezDecalAssetDocument::ezDecalAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezDecalAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple, true)
 {
 }
 
-ezTransformStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }

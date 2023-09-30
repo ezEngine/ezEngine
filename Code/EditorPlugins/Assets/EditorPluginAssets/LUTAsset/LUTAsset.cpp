@@ -17,12 +17,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLUTAssetDocument::ezLUTAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezLUTAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::None)
+ezLUTAssetDocument::ezLUTAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezLUTAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
-ezTransformStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto props = GetProperties();
 

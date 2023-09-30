@@ -54,7 +54,7 @@ class ezAnimationClipAssetDocument : public ezSimpleAssetDocument<ezAnimationCli
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetDocument, ezSimpleAssetDocument<ezAnimationClipAssetProperties>);
 
 public:
-  ezAnimationClipAssetDocument(const char* szDocumentPath);
+  ezAnimationClipAssetDocument(ezStringView sDocumentPath);
 
   virtual void SetCommonAssetUiState(ezCommonAssetUiState::Enum state, double value) override;
   virtual double GetCommonAssetUiState(ezCommonAssetUiState::Enum state) const override;
@@ -62,7 +62,7 @@ public:
   ezUuid InsertEventTrackCpAt(ezInt64 iTickX, const char* szValue);
 
 protected:
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   // void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;

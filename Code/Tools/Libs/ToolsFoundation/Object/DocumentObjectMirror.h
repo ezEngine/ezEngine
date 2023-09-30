@@ -40,7 +40,7 @@ public:
   void InitReceiver(ezRttiConverterContext* pContext);
   void DeInit();
 
-  using FilterFunction = ezDelegate<bool(const ezDocumentObject*, const char*)>;
+  using FilterFunction = ezDelegate<bool(const ezDocumentObject*, ezStringView)>;
   /// \brief
   ///
   /// \param filter
@@ -58,9 +58,9 @@ public:
 
 protected:
   bool IsRootObject(const ezDocumentObject* pParent);
-  bool IsHeapAllocated(const ezDocumentObject* pParent, const char* szParentProperty);
-  bool IsDiscardedByFilter(const ezDocumentObject* pObject, const char* szProperty) const;
-  static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const char* szProperty);
+  bool IsHeapAllocated(const ezDocumentObject* pParent, ezStringView sParentProperty);
+  bool IsDiscardedByFilter(const ezDocumentObject* pObject, ezStringView sProperty) const;
+  static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, ezStringView sProperty);
   static ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezHybridArray<const ezDocumentObject*, 8>& path);
   static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezPropertyPathStep, 2>& out_steps);
 

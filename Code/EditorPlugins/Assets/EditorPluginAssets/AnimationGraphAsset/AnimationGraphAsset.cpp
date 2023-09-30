@@ -259,13 +259,13 @@ bool ezAnimationGraphNodeManager::InternalIsDynamicPinProperty(const ezDocumentO
   return pProp->GetAttributeByType<ezDynamicPinAttribute>() != nullptr;
 }
 
-ezAnimationGraphAssetDocument::ezAnimationGraphAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezAnimationGraphAssetProperties>(EZ_DEFAULT_NEW(ezAnimationGraphNodeManager), szDocumentPath, ezAssetDocEngineConnection::None)
+ezAnimationGraphAssetDocument::ezAnimationGraphAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezAnimationGraphAssetProperties>(EZ_DEFAULT_NEW(ezAnimationGraphNodeManager), sDocumentPath, ezAssetDocEngineConnection::None)
 {
   m_pObjectAccessor = EZ_DEFAULT_NEW(ezNodeCommandAccessor, GetCommandHistory());
 }
 
-ezTransformStatus ezAnimationGraphAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezAnimationGraphAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto* pNodeManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
@@ -375,7 +375,7 @@ bool ezAnimationGraphAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& o
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
-bool ezAnimationGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezAnimationGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
   return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);

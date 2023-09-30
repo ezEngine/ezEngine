@@ -11,11 +11,11 @@
 class EZ_TOOLSFOUNDATION_DLL ezAssetFileExtensionWhitelist
 {
 public:
-  static void AddAssetFileExtension(const char* szAssetType, const char* szAllowedFileExtension);
+  static void AddAssetFileExtension(ezStringView sAssetType, ezStringView sAllowedFileExtension);
 
-  static bool IsFileOnAssetWhitelist(const char* szAssetType, const char* szFile);
+  static bool IsFileOnAssetWhitelist(ezStringView sAssetType, ezStringView sFile);
 
-  static const ezSet<ezString>& GetAssetFileExtensions(const char* szAssetType);
+  static const ezSet<ezString>& GetAssetFileExtensions(ezStringView sAssetType);
 
 private:
   static ezMap<ezString, ezSet<ezString>> s_ExtensionWhitelist;

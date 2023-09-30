@@ -19,8 +19,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+ezTextureAssetDocument::ezTextureAssetDocument(ezStringView sDocumentPath)
+  : ezSimpleAssetDocument<ezTextureAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_iTextureLod = -1;
 }
@@ -380,9 +380,9 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   }
 }
 
-ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  if (ezStringUtils::IsEqual(szOutputTag, "LOWRES"))
+  if (sOutputTag.IsEqual("LOWRES"))
   {
     // no need to generate this file, it will be generated together with the main output
     return ezTransformStatus();

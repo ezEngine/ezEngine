@@ -50,9 +50,9 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
 }
 
 void ezProcGenGraphAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezProcGenGraphAssetDocument(szPath);
+  out_pDocument = new ezProcGenGraphAssetDocument(sPath);
 }
 
 void ezProcGenGraphAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

@@ -564,28 +564,28 @@ ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile
 // ezAssetCurator Asset Access
 ////////////////////////////////////////////////////////////////////////
 
-const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* szPathOrGuid, bool bExhaustiveSearch) const
+const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(ezStringView sPathOrGuid, bool bExhaustiveSearch) const
 {
   CURATOR_PROFILE("FindSubAsset");
   EZ_LOCK(m_CuratorMutex);
 
-  if (ezConversionUtils::IsStringUuid(szPathOrGuid))
+  if (ezConversionUtils::IsStringUuid(sPathOrGuid))
   {
-    return GetSubAsset(ezConversionUtils::ConvertStringToUuid(szPathOrGuid));
+    return GetSubAsset(ezConversionUtils::ConvertStringToUuid(sPathOrGuid));
   }
 
   // Split into mainAsset|subAsset
   ezStringBuilder mainAsset;
   ezStringView subAsset;
-  const char* szSeparator = ezStringUtils::FindSubString(szPathOrGuid, "|");
+  const char* szSeparator = sPathOrGuid.FindSubString("|");
   if (szSeparator != nullptr)
   {
-    mainAsset.SetSubString_FromTo(szPathOrGuid, szSeparator);
+    mainAsset.SetSubString_FromTo(sPathOrGuid.GetStartPointer(), szSeparator);
     subAsset = ezStringView(szSeparator + 1);
   }
   else
   {
-    mainAsset = szPathOrGuid;
+    mainAsset = sPathOrGuid;
   }
   mainAsset.MakeCleanPath();
 
@@ -664,11 +664,11 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
     return pBestInfo;
   };
 
-  szSeparator = ezStringUtils::FindSubString(szPathOrGuid, "|");
+  szSeparator = sPathOrGuid.FindSubString("|");
   if (szSeparator != nullptr)
   {
     ezStringBuilder mainAsset2;
-    mainAsset2.SetSubString_FromTo(szPathOrGuid, szSeparator);
+    mainAsset2.SetSubString_FromTo(sPathOrGuid.GetStartPointer(), szSeparator);
 
     ezStringView subAsset2(szSeparator + 1);
     if (ezAssetInfo* pAssetInfo = FindAsset(mainAsset2))
@@ -684,7 +684,7 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
     }
   }
 
-  ezStringBuilder sPath = szPathOrGuid;
+  ezStringBuilder sPath = sPathOrGuid;
   sPath.MakeCleanPath();
   if (sPath.IsAbsolutePath())
   {
@@ -1055,9 +1055,9 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool
 // ezAssetCurator Manual and Automatic Change Notification
 ////////////////////////////////////////////////////////////////////////
 
-void ezAssetCurator::NotifyOfFileChange(const char* szAbsolutePath)
+void ezAssetCurator::NotifyOfFileChange(ezStringView sAbsolutePath)
 {
-  ezStringBuilder sPath(szAbsolutePath);
+  ezStringBuilder sPath(sAbsolutePath);
   sPath.MakeCleanPath();
   ezFileSystemModel::GetSingleton()->NotifyOfChange(sPath);
 }

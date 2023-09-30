@@ -112,8 +112,8 @@ public:
   ezVec2 GetNodePos(const ezDocumentObject* pObject) const;
   const ezConnection& GetConnection(const ezDocumentObject* pObject) const;
 
-  const ezPin* GetInputPinByName(const ezDocumentObject* pObject, const char* szName) const;
-  const ezPin* GetOutputPinByName(const ezDocumentObject* pObject, const char* szName) const;
+  const ezPin* GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
+  const ezPin* GetOutputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
   ezArrayPtr<const ezUniquePtr<const ezPin>> GetInputPins(const ezDocumentObject* pObject) const;
   ezArrayPtr<const ezUniquePtr<const ezPin>> GetOutputPins(const ezDocumentObject* pObject) const;
 
@@ -157,7 +157,7 @@ protected:
   /// \brief Returns true if adding a connection between the two pins would create a circular graph
   bool WouldConnectionCreateCircle(const ezPin& source, const ezPin& target) const;
 
-  void GetDynamicPinNames(const ezDocumentObject* pObject, const char* szPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const;
+  void GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const;
   virtual bool TryRecreatePins(const ezDocumentObject* pObject);
 
   struct NodeInternal

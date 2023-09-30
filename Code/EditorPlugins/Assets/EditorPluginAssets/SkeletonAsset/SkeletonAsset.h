@@ -26,7 +26,7 @@ class ezSkeletonAssetDocument : public ezSimpleAssetDocument<ezEditableSkeleton>
   EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonAssetDocument, ezSimpleAssetDocument<ezEditableSkeleton>);
 
 public:
-  ezSkeletonAssetDocument(const char* szDocumentPath);
+  ezSkeletonAssetDocument(ezStringView sDocumentPath);
   ~ezSkeletonAssetDocument();
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
@@ -62,7 +62,7 @@ public:
 
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 

@@ -11,8 +11,8 @@ public:
   ~ezPhantomRTTI();
 
 private:
-  ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
-    ezBitflags<ezTypeFlags> flags, const char* szPluginName);
+  ezPhantomRTTI(ezStringView sName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt8 uiVariantType,
+    ezBitflags<ezTypeFlags> flags, ezStringView sPluginName);
 
   void SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>& properties);
   void SetFunctions(ezDynamicArray<ezReflectedFunctionDescriptor>& functions);

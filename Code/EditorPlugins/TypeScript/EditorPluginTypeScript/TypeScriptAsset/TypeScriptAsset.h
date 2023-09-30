@@ -25,7 +25,7 @@ class ezTypeScriptAssetDocument : public ezSimpleAssetDocument<ezTypeScriptAsset
   EZ_ADD_DYNAMIC_REFLECTION(ezTypeScriptAssetDocument, ezSimpleAssetDocument<ezTypeScriptAssetProperties>);
 
 public:
-  ezTypeScriptAssetDocument(const char* szDocumentPath);
+  ezTypeScriptAssetDocument(ezStringView sDocumentPath);
 
   void EditScript();
 
@@ -38,7 +38,7 @@ protected:
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
-  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   ezStatus ValidateScriptCode();

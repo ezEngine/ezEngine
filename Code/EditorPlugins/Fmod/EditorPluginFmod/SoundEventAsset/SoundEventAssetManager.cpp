@@ -47,9 +47,9 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-void ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezSoundEventAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  out_pDocument = new ezSoundEventAssetDocument(szPath);
+  out_pDocument = new ezSoundEventAssetDocument(sPath);
 }
 
 void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

@@ -56,15 +56,15 @@ void ezJoltCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDoc
   }
 }
 
-void ezJoltCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezJoltCollisionMeshAssetDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Jolt_Colmesh_Convex"))
+  if (sDocumentTypeName.IsEqual("Jolt_Colmesh_Convex"))
   {
-    out_pDocument = new ezJoltCollisionMeshAssetDocument(szPath, true);
+    out_pDocument = new ezJoltCollisionMeshAssetDocument(sPath, true);
   }
   else
   {
-    out_pDocument = new ezJoltCollisionMeshAssetDocument(szPath, false);
+    out_pDocument = new ezJoltCollisionMeshAssetDocument(sPath, false);
   }
 }
 

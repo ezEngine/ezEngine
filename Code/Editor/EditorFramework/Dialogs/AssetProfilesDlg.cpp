@@ -17,8 +17,8 @@ class ezAssetProfilesDocument : public ezDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetProfilesDocument, ezDocument);
 
 public:
-  ezAssetProfilesDocument(const char* szDocumentPath)
-    : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
+  ezAssetProfilesDocument(ezStringView sDocumentPath)
+    : ezDocument(sDocumentPath, EZ_DEFAULT_NEW(ezAssetProfilesObjectManager))
   {
   }
 
