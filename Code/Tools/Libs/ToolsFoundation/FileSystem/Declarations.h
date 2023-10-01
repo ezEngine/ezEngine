@@ -34,13 +34,13 @@ struct EZ_TOOLSFOUNDATION_DLL ezFileStatus
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezFileStatus);
 
-inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFileStatus& value)
+EZ_ALWAYS_INLINE ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFileStatus& value)
 {
   inout_stream.WriteBytes(&value, sizeof(ezFileStatus)).IgnoreResult();
   return inout_stream;
 }
 
-inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFileStatus& ref_value)
+EZ_ALWAYS_INLINE ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFileStatus& ref_value)
 {
   inout_stream.ReadBytes(&ref_value, sizeof(ezFileStatus));
   return inout_stream;

@@ -2,7 +2,7 @@
 ### OpenXR support
 ######################################
 
-set (EZ_BUILD_OPENXR OFF CACHE BOOL "Whether support for OpenXR should be added")
+set (EZ_BUILD_OPENXR ON CACHE BOOL "Whether support for OpenXR should be added")
 
 ######################################
 ### ez_requires_openxr()

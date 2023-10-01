@@ -79,7 +79,7 @@ ezResult ezMeshAssetDocumentManager::OpenPickedDocument(const ezDocumentObject* 
   // now we need to open the mesh and we cannot wait for it (usually that is queued for GUI reasons)
   // though we do not want a window
   ezMeshAssetDocument* pMeshDoc =
-    static_cast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->OpenDocument(pSubAsset->m_pAssetInfo->m_sAbsolutePath, ezDocumentFlags::None));
+    static_cast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->OpenDocument(pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath(), ezDocumentFlags::None));
 
   if (!pMeshDoc)
     return EZ_FAILURE;

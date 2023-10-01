@@ -135,7 +135,7 @@ void ezSceneDocumentManager::InternalCloneDocument(ezStringView sPath, ezStringV
             auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(pLayer->m_Layer);
             if (assetInfo.isValid())
             {
-              sLayerPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
+              sLayerPath = assetInfo->m_pAssetInfo->m_Path;
             }
             else
             {

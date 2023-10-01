@@ -199,7 +199,7 @@ void ezEditorAssetDocumentTest::FileOperations()
 
     void OnAssetFilesEvent(const ezFileChangedEvent& e)
     {
-      if (e.m_sPath.GetFileExtension().IsEqual_NoCase("ezAidlt"_ezsv))
+      if (e.m_Path.GetAbsolutePath().GetFileExtension().IsEqual_NoCase("ezAidlt"_ezsv))
         return;
 
       if (m_FileID == 0)
@@ -211,7 +211,7 @@ void ezEditorAssetDocumentTest::FileOperations()
 
     void OnAssetEvent(const ezAssetCuratorEvent& e)
     {
-      m_AssetEvents.PushBack({e.m_pInfo->m_pAssetInfo->m_sAbsolutePath, e.m_AssetGuid, e.m_Type});
+      m_AssetEvents.PushBack({e.m_pInfo->m_pAssetInfo->m_Path, e.m_AssetGuid, e.m_Type});
     }
 
 
@@ -236,7 +236,7 @@ void ezEditorAssetDocumentTest::FileOperations()
       for (size_t i = 0; i < expectedFiles.GetCount(); i++)
       {
         EZ_TEST_INT((int)expectedFiles[i].m_Type, (int)events->m_FileEvents[i].m_Type);
-        EZ_TEST_STRING(expectedFiles[i].m_sPath, events->m_FileEvents[i].m_sPath);
+        EZ_TEST_STRING(expectedFiles[i].m_Path, events->m_FileEvents[i].m_Path);
         // Ignore stats
       }
     }
@@ -296,8 +296,14 @@ void ezEditorAssetDocumentTest::FileOperations()
       EZ_TEST_BOOL(subAsset->m_pAssetInfo->m_ExistanceState == ezAssetExistanceState::FileUnchanged);
       EZ_TEST_BOOL(subAsset->m_pAssetInfo->m_TransformState == ezAssetInfo::NeedsTransform);
       EZ_TEST_BOOL(subAsset->m_pAssetInfo->m_Info->m_DocumentID == documentGuid);
-      EZ_TEST_STRING(subAsset->m_pAssetInfo->m_sAbsolutePath, sAbsAssetPath);
+      EZ_TEST_STRING(subAsset->m_pAssetInfo->m_Path, sAbsAssetPath);
     }
+  };
+
+  ezHybridArray<ezString, 4> rootFolders(ezFileSystemModel::GetSingleton()->GetDataDirectoryRoots());
+  auto MakePath = [&](ezStringView sPath)
+  {
+    return ezDataDirPath(sPath, rootFolders);
   };
 
   // Wait for the asset curator to process all file events from opening the project.
@@ -320,8 +326,8 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezFileStatus stat;
     stat.m_DocumentID = documentGuid;
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sAbsAssetPath, {}, ezFileChangedEvent::Type::FileAdded),
-      ezFileChangedEvent(sAbsAssetPath, stat, ezFileChangedEvent::Type::DocumentLinked)};
+      ezFileChangedEvent(MakePath(sAbsAssetPath), {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(MakePath(sAbsAssetPath), stat, ezFileChangedEvent::Type::DocumentLinked)};
     AssetEvent expected2[] = {AssetEvent(sAbsAssetPath, documentGuid, ezAssetCuratorEvent::Type::AssetAdded)};
     CompareFiles(ezMakeArrayPtr(expected), ezMakeArrayPtr(expected2));
 
@@ -349,9 +355,9 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezFileStatus stat;
     stat.m_DocumentID = copyGuid;
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sAbsAssetCopyPath, {}, ezFileChangedEvent::Type::FileAdded),
-      ezFileChangedEvent(sAbsAssetCopyPath, {}, ezFileChangedEvent::Type::FileChanged),
-      ezFileChangedEvent(sAbsAssetCopyPath, stat, ezFileChangedEvent::Type::DocumentLinked)};
+      ezFileChangedEvent(MakePath(sAbsAssetCopyPath), {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(MakePath(sAbsAssetCopyPath), {}, ezFileChangedEvent::Type::FileChanged),
+      ezFileChangedEvent(MakePath(sAbsAssetCopyPath), stat, ezFileChangedEvent::Type::DocumentLinked)};
     AssetEvent expected2[] = {AssetEvent(sAbsAssetCopyPath, copyGuid, ezAssetCuratorEvent::Type::AssetAdded)};
     CompareFiles(ezMakeArrayPtr(expected), ezMakeArrayPtr(expected2));
 
@@ -371,10 +377,10 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezFileStatus stat;
     stat.m_DocumentID = copyGuid;
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sAbsAssetCopyRenamedPath, {}, ezFileChangedEvent::Type::FileAdded),
-      ezFileChangedEvent(sAbsAssetCopyPath, stat, ezFileChangedEvent::Type::DocumentUnlinked),
-      ezFileChangedEvent(sAbsAssetCopyPath, {}, ezFileChangedEvent::Type::FileRemoved),
-      ezFileChangedEvent(sAbsAssetCopyRenamedPath, stat, ezFileChangedEvent::Type::DocumentLinked)};
+      ezFileChangedEvent(MakePath(sAbsAssetCopyRenamedPath), {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(MakePath(sAbsAssetCopyPath), stat, ezFileChangedEvent::Type::DocumentUnlinked),
+      ezFileChangedEvent(MakePath(sAbsAssetCopyPath), {}, ezFileChangedEvent::Type::FileRemoved),
+      ezFileChangedEvent(MakePath(sAbsAssetCopyRenamedPath), stat, ezFileChangedEvent::Type::DocumentLinked)};
     AssetEvent expected2[] = {
       AssetEvent(sAbsAssetCopyRenamedPath, copyGuid, ezAssetCuratorEvent::Type::AssetMoved),    // Moved
       AssetEvent(sAbsAssetCopyRenamedPath, copyGuid, ezAssetCuratorEvent::Type::AssetUpdated)}; // Asset transform state updated
@@ -397,7 +403,7 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezFileStatus stat;
     stat.m_DocumentID = copyGuid;
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sAbsAssetCopyRenamedPath, {}, ezFileChangedEvent::Type::FileRemoved)};
+      ezFileChangedEvent(MakePath(sAbsAssetCopyRenamedPath), {}, ezFileChangedEvent::Type::FileRemoved)};
     AssetEvent expected2[] = {AssetEvent(sAbsAssetCopyRenamedPath, copyGuid, ezAssetCuratorEvent::Type::AssetRemoved)};
     CompareFiles(ezMakeArrayPtr(expected), ezMakeArrayPtr(expected2));
     EZ_TEST_BOOL(!ezAssetCurator::GetSingleton()->FindSubAsset(sAbsAssetCopyPath));
@@ -416,10 +422,10 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezFileStatus stat;
     stat.m_DocumentID = documentGuid;
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sAbsAssetRenamedPath, {}, ezFileChangedEvent::Type::FileAdded),
-      ezFileChangedEvent(sAbsAssetPath, stat, ezFileChangedEvent::Type::DocumentUnlinked),
-      ezFileChangedEvent(sAbsAssetPath, {}, ezFileChangedEvent::Type::FileRemoved),
-      ezFileChangedEvent(sAbsAssetRenamedPath, stat, ezFileChangedEvent::Type::DocumentLinked)};
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath), {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(MakePath(sAbsAssetPath), stat, ezFileChangedEvent::Type::DocumentUnlinked),
+      ezFileChangedEvent(MakePath(sAbsAssetPath), {}, ezFileChangedEvent::Type::FileRemoved),
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath), stat, ezFileChangedEvent::Type::DocumentLinked)};
     AssetEvent expected2[] = {
       AssetEvent(sAbsAssetRenamedPath, documentGuid, ezAssetCuratorEvent::Type::AssetMoved),    // Moved
       AssetEvent(sAbsAssetRenamedPath, documentGuid, ezAssetCuratorEvent::Type::AssetUpdated)}; // Asset transform state updated
@@ -440,10 +446,10 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezFileStatus stat;
     stat.m_DocumentID = documentGuid;
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sAbsAssetRenamedPath2, {}, ezFileChangedEvent::Type::FileAdded),
-      ezFileChangedEvent(sAbsAssetRenamedPath, stat, ezFileChangedEvent::Type::DocumentUnlinked),
-      ezFileChangedEvent(sAbsAssetRenamedPath, {}, ezFileChangedEvent::Type::FileRemoved),
-      ezFileChangedEvent(sAbsAssetRenamedPath2, stat, ezFileChangedEvent::Type::DocumentLinked)};
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath2), {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath), stat, ezFileChangedEvent::Type::DocumentUnlinked),
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath), {}, ezFileChangedEvent::Type::FileRemoved),
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath2), stat, ezFileChangedEvent::Type::DocumentLinked)};
     AssetEvent expected2[] = {
       AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetMoved),    // Moved
       AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetUpdated)}; // Asset transform state updated
@@ -477,9 +483,9 @@ void ezEditorAssetDocumentTest::FileOperations()
     ezFileStatus newStat;
     stat.m_DocumentID = overwriteGuid;
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sAbsAssetRenamedPath2, stat, ezFileChangedEvent::Type::FileChanged),
-      ezFileChangedEvent(sAbsAssetRenamedPath2, stat, ezFileChangedEvent::Type::DocumentUnlinked),
-      ezFileChangedEvent(sAbsAssetRenamedPath2, newStat, ezFileChangedEvent::Type::DocumentLinked)};
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath2), stat, ezFileChangedEvent::Type::FileChanged),
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath2), stat, ezFileChangedEvent::Type::DocumentUnlinked),
+      ezFileChangedEvent(MakePath(sAbsAssetRenamedPath2), newStat, ezFileChangedEvent::Type::DocumentLinked)};
     AssetEvent expected2[] = {
       AssetEvent(sAbsAssetRenamedPath2, documentGuid, ezAssetCuratorEvent::Type::AssetRemoved),
       AssetEvent(sAbsAssetRenamedPath2, overwriteGuid, ezAssetCuratorEvent::Type::AssetAdded)};

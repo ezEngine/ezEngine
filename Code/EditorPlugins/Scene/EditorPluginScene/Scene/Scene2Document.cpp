@@ -587,7 +587,7 @@ ezStatus ezScene2Document::DeleteLayer(const ezUuid& layerGuid)
     auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
     if (assetInfo.isValid())
     {
-      sName = ezPathUtils::GetFileName(assetInfo->m_pAssetInfo->m_sDataDirParentRelativePath);
+      sName = ezPathUtils::GetFileName(assetInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
     }
     else
     {
@@ -753,7 +753,7 @@ ezStatus ezScene2Document::SetLayerLoaded(const ezUuid& layerGuid, bool bLoaded)
       auto assetInfo = ezAssetCurator::GetSingleton()->GetSubAsset(layerGuid);
       if (assetInfo.isValid())
       {
-        sAbsPath = assetInfo->m_pAssetInfo->m_sAbsolutePath;
+        sAbsPath = assetInfo->m_pAssetInfo->m_Path;
       }
       else
       {

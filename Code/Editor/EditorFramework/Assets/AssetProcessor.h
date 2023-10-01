@@ -9,6 +9,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <ToolsFoundation/FileSystem/DataDirPath.h>
 #include <atomic>
 
 struct ezAssetCuratorEvent;
@@ -68,15 +69,15 @@ private:
   void StartProcess();
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
 
-  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
-  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
+  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path);
+  bool GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path);
   void OnProcessCrashed();
 
 
   ezUuid m_AssetGuid;
   ezUInt64 m_uiAssetHash = 0;
   ezUInt64 m_uiThumbHash = 0;
-  ezStringBuilder m_sAssetPath;
+  ezDataDirPath m_AssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning = false;
   bool m_bProcessCrashed = false;

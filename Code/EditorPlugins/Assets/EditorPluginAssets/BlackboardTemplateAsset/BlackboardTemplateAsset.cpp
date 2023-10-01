@@ -48,7 +48,7 @@ ezStatus ezBlackboardTemplateAssetDocument::RetrieveState(const ezBlackboardTemp
     }
 
     ezDocument* pDoc;
-    EZ_SUCCEED_OR_RETURN(pOther->m_pAssetInfo->GetManager()->OpenDocument(pOther->m_Data.m_sSubAssetsDocumentTypeName, pOther->m_pAssetInfo->m_sAbsolutePath, pDoc, ezDocumentFlags::None, nullptr));
+    EZ_SUCCEED_OR_RETURN(pOther->m_pAssetInfo->GetManager()->OpenDocument(pOther->m_Data.m_sSubAssetsDocumentTypeName, pOther->m_pAssetInfo->m_Path, pDoc, ezDocumentFlags::None, nullptr));
 
     if (ezBlackboardTemplateAssetDocument* pTmpDoc = ezDynamicCast<ezBlackboardTemplateAssetDocument*>(pDoc))
     {

@@ -42,8 +42,7 @@ ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& glob
       globalStageTransform = pStage->GetOwner()->GetGlobalTransform();
     }
   }
-  ezTransform local;
-  local = ezTransform::MakeLocalTransform(globalStageTransform, globalTransform);
+  ezTransform local = ezTransform::MakeLocalTransform(globalStageTransform, globalTransform);
 
   XrSpatialAnchorCreateInfoMSFT createInfo{XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT};
   createInfo.space = m_pOpenXR->GetBaseSpace();

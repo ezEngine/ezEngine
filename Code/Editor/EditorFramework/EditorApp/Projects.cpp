@@ -434,7 +434,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
     {
       if (ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(r.m_documentGuid))
       {
-        r.m_sAbsDocumentPath = pSubAsset->m_pAssetInfo->m_sAbsolutePath;
+        r.m_sAbsDocumentPath = pSubAsset->m_pAssetInfo->m_Path;
       }
     }
     break;

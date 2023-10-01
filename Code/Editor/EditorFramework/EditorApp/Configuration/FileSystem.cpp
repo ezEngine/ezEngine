@@ -105,7 +105,7 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
     if (pAsset == nullptr)
       return false;
 
-    ref_sPath = pAsset->m_pAssetInfo->m_sAbsolutePath;
+    ref_sPath = pAsset->m_pAssetInfo->m_Path;
     return true;
   }
 
@@ -175,7 +175,7 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezStringBuilder& ref_s
     if (pAsset == nullptr)
       return false;
 
-    ref_sPath = pAsset->m_pAssetInfo->m_sAbsolutePath;
+    ref_sPath = pAsset->m_pAssetInfo->m_Path;
     return true;
   }
 
