@@ -712,7 +712,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
     EZ_LOCK(m_FilesMutex);
 
     // As we are using ezCompareDataDirPath, entries of different casing interleave but we are only interested in the ones with matching casing so we skip the rest.
-    for (auto it = m_ReferencedFiles.LowerBound(sAbsolutePath2.GetView()); it.IsValid();  ++it)
+    for (auto it = m_ReferencedFiles.LowerBound(sAbsolutePath2.GetView()); it.IsValid(); ++it)
     {
       if (it.Key().GetAbsolutePath().StartsWith(sAbsolutePath2) && !visitedFiles.Contains(it.Key().GetAbsolutePath()))
         missingFiles.PushBack(it.Key().GetAbsolutePath());
@@ -736,8 +736,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
   }
 
   // Delete sub-folders before parent folders.
-  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool
-    { return ezStringUtils::Compare(lhs, rhs) > 0; });
+  missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool { return ezStringUtils::Compare(lhs, rhs) > 0; });
   for (ezString& sFolder : missingFolders)
   {
     ezDataDirPath path(std::move(sFolder), m_DataDirRoots, folder.GetDataDirIndex());

@@ -9,7 +9,7 @@
 /// Allows quick access to various sub-parts of the path as well as the data dir index.
 /// To construct a ezDataDirPath, the list of absolute data directory root directories must be supplied in order to determine whether the path is inside a data directory and in which. After calling the constructor, IsValid() should be called to determine if the file is inside a data directory.
 /// The various sub-parts look like this with "Testing Chambers" being the data directory in this example:
-/// 
+///
 ///  GetAbsolutePath() == "C:/ezEngine/Data/Samples/Testing Chambers/Objects/Barrel.ezPrefab"
 ///  GetDataDir() == "C:/ezEngine/Data/Samples/Testing Chambers"
 ///  GetDataDirParentRelativePath() == "Testing Chambers/Objects/Barrel.ezPrefab"

@@ -8,8 +8,8 @@
 #  include <Foundation/Configuration/Singleton.h>
 #  include <Foundation/Threading/LockedObject.h>
 #  include <Foundation/Types/UniquePtr.h>
-#  include <ToolsFoundation/FileSystem/Declarations.h>
 #  include <ToolsFoundation/FileSystem/DataDirPath.h>
+#  include <ToolsFoundation/FileSystem/Declarations.h>
 
 class ezFileSystemWatcher;
 struct ezFileSystemWatcherEvent;
@@ -65,8 +65,6 @@ class EZ_TOOLSFOUNDATION_DLL ezFileSystemModel
   EZ_DECLARE_SINGLETON(ezFileSystemModel);
 
 public:
-  
-
   using FilesMap = ezMap<ezDataDirPath, ezFileStatus, ezCompareDataDirPath>;
   using FoldersMap = ezMap<ezDataDirPath, ezFileStatus::Status, ezCompareDataDirPath>;
 

@@ -301,8 +301,7 @@ void ezEditorAssetDocumentTest::FileOperations()
   };
 
   ezHybridArray<ezString, 4> rootFolders(ezFileSystemModel::GetSingleton()->GetDataDirectoryRoots());
-  auto MakePath = [&](ezStringView sPath)
-  {
+  auto MakePath = [&](ezStringView sPath) {
     return ezDataDirPath(sPath, rootFolders);
   };
 
