@@ -97,7 +97,7 @@ ezOpenXRInputDevice::ezOpenXRInputDevice(ezOpenXR* pOpenXR)
   : ezXRInputDevice()
   , m_pOpenXR(pOpenXR)
 {
-  m_instance = m_pOpenXR->m_instance;
+  m_instance = m_pOpenXR->m_pInstance;
 }
 
 XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpace)
@@ -216,7 +216,7 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   };
   SuggestInteractionProfileBindings("/interaction_profiles/microsoft/motion_controller", "Mixed Reality Motion Controller", motionController);
 
-  if (m_pOpenXR->m_extensions.m_bHandInteraction)
+  if (m_pOpenXR->m_Extensions.m_bHandInteraction)
   {
     Bind handInteraction[] = {
       {SelectClick, "/user/hand/left/input/select"},
@@ -301,7 +301,7 @@ void ezOpenXRInputDevice::DestroyActions()
 
 XrPath ezOpenXRInputDevice::CreatePath(const char* szPath)
 {
-  XrInstance instance = m_pOpenXR->m_instance;
+  XrInstance instance = m_pOpenXR->m_pInstance;
 
   XrPath path;
   if (xrStringToPath(instance, szPath, &path) != XR_SUCCESS)
@@ -348,7 +348,7 @@ XrResult ezOpenXRInputDevice::CreateAction(ezXRDeviceFeatures::Enum feature, con
 
 XrResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szInteractionProfile, const char* szNiceName, ezArrayPtr<Bind> bindings)
 {
-  XrInstance instance = m_pOpenXR->m_instance;
+  XrInstance instance = m_pOpenXR->m_pInstance;
 
   XrPath InteractionProfile = CreatePath(szInteractionProfile);
 
@@ -457,7 +457,7 @@ XrResult ezOpenXRInputDevice::UpdateActions()
     return XR_SUCCESS;
 
   EZ_PROFILE_SCOPE("UpdateActions");
-  const XrFrameState& frameState = m_pOpenXR->m_frameState;
+  const XrFrameState& frameState = m_pOpenXR->m_FrameState;
 
   ezHybridArray<XrActiveActionSet, 1> activeActionSets;
   activeActionSets.PushBack({m_ActionSet, XR_NULL_PATH});

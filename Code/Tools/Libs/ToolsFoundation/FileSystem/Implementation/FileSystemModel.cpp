@@ -109,7 +109,7 @@ void ezFileSystemModel::Initialize(const ezApplicationFileSystemConfig& fileSyst
       else
       {
         sDataDirPath.MakeCleanPath();
-        sDataDirPath.TrimWordEnd("/");
+        sDataDirPath.Trim(nullptr, "/");
 
         m_DataDirRoots.PushBack(sDataDirPath);
 
@@ -208,7 +208,7 @@ void ezFileSystemModel::NotifyOfChange(ezStringView sAbsolutePath)
 
   ezStringBuilder sPath(sAbsolutePath);
   sPath.MakeCleanPath();
-  sPath.TrimWordEnd("/");
+  sPath.Trim(nullptr, "/");
   if (sPath.IsEmpty())
     return;
   ezDataDirPath folder(sPath, m_DataDirRoots);
@@ -398,7 +398,7 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
 
   ezStringBuilder sAbsolutePath2(sAbsolutePath);
   sAbsolutePath2.MakeCleanPath();
-  sAbsolutePath2.TrimWordEnd("/");
+  sAbsolutePath2.Trim("", "/");
   if (sAbsolutePath2.IsEmpty())
     return EZ_FAILURE;
 
@@ -533,7 +533,7 @@ ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDel
 
   ezStringBuilder sAbsolutePath2(sAbsolutePath);
   sAbsolutePath2.MakeCleanPath();
-  sAbsolutePath2.TrimWordEnd("/");
+  sAbsolutePath2.Trim(nullptr, "/");
 
   // try to read the asset file
   ezFileReader file;
@@ -656,7 +656,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
   ezStringBuilder sAbsolutePath2 = sAbsolutePath;
   sAbsolutePath2.MakeCleanPath();
   EZ_ASSERT_DEV(ezPathUtils::IsAbsolutePath(sAbsolutePath2), "Only absolute paths are supported for directory iteration.");
-  sAbsolutePath2.TrimWordEnd("/");
+  sAbsolutePath2.Trim(nullptr, "/");
 
   if (sAbsolutePath2.IsEmpty())
     return;
