@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <PacManPlugin/Components/GhostComponent.h>
+#include <PacManPlugin/GameState/PacManGameState.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(GhostComponent, 1 /* version */, ezComponentMode::Dynamic) // 'Dynamic' because we want to change the owner's transform
@@ -30,9 +31,7 @@ void GhostComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  ezHashedString hs;
-  hs.Assign("Stats");
-  m_pStateBlackboard = ezBlackboard::GetOrCreateGlobal(hs);
+  m_pStateBlackboard = ezBlackboard::GetOrCreateGlobal(PacManGameState::s_sStats);
 
   // preload our disappear effect for when the player wins
   m_hDisappear = ezResourceManager::LoadResource<ezPrefabResource>("{ bad55bab-9701-484c-b3f2-90caeb206716 }");
@@ -43,7 +42,7 @@ void GhostComponent::Update()
 {
   // check the blackboard for whether the player just won
   {
-    const PacManState state = static_cast<PacManState>(m_pStateBlackboard->GetEntryValue(ezTempHashedString("PacManState"), PacManState::Alive).Get<ezInt32>());
+  const PacManState state = static_cast<PacManState>(m_pStateBlackboard->GetEntryValue(PacManGameState::s_sPacManState, PacManState::Alive).Get<ezInt32>());
 
     if (state == PacManState::WonGame)
     {

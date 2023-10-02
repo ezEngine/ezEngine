@@ -77,6 +77,9 @@ bool ezQtEditorApp::CheckForEnginePluginModifications()
 
 void ezQtEditorApp::RestartEngineProcessIfPluginsChanged(bool bForce)
 {
+  if (!ezToolsProject::IsProjectOpen())
+    return;
+
   if (!bForce)
   {
     if (m_LastPluginModificationCheck + ezTime::MakeFromSeconds(2) > ezTime::Now())
