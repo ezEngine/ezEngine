@@ -42,7 +42,7 @@ void GhostComponent::Update()
 {
   // check the blackboard for whether the player just won
   {
-  const PacManState state = static_cast<PacManState>(m_pStateBlackboard->GetEntryValue(PacManGameState::s_sPacManState, PacManState::Alive).Get<ezInt32>());
+    const PacManState state = static_cast<PacManState>(m_pStateBlackboard->GetEntryValue(PacManGameState::s_sPacManState, PacManState::Alive).Get<ezInt32>());
 
     if (state == PacManState::WonGame)
     {
