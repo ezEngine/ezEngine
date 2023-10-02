@@ -281,12 +281,12 @@ void ezProcessTask::EventHandlerIPC(const ezProcessCommunicationChannel::Event& 
   }
 }
 
-bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath)
+bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path)
 {
   bool bComplete = true;
 
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(pInfo->m_sAbsolutePath, false, pTypeDesc).Succeeded())
+  if (ezDocumentManager::FindDocumentTypeFromPath(pInfo->m_Path, false, pTypeDesc).Succeeded())
   {
     auto flags = static_cast<const ezAssetDocumentTypeDescriptor*>(pTypeDesc)->m_AssetDocumentFlags;
 
@@ -332,12 +332,12 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
 
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_TransformDependencies))
   {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
+    return GetNextAssetToProcess(pDepInfo, out_guid, out_path);
   }
 
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_ThumbnailDependencies))
   {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
+    return GetNextAssetToProcess(pDepInfo, out_guid, out_path);
   }
 
   // not needed to go through package dependencies here
@@ -347,15 +347,14 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
   {
     ezAssetCurator::GetSingleton()->m_Updating.Insert(pInfo->m_Info->m_DocumentID);
     out_guid = pInfo->m_Info->m_DocumentID;
-    out_sAbsPath = pInfo->m_sAbsolutePath;
-    out_sRelPath = pInfo->m_sDataDirParentRelativePath;
+    out_path = pInfo->m_Path;
     return true;
   }
 
   return false;
 }
 
-bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath)
+bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path)
 {
   EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
 
@@ -364,7 +363,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
     {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_sAbsPath, out_sRelPath);
+      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path);
       if (bRes)
         return true;
     }
@@ -375,7 +374,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
     {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_sAbsPath, out_sRelPath);
+      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path);
       if (bRes)
         return true;
     }
@@ -395,18 +394,16 @@ void ezProcessTask::OnProcessCrashed()
 
 bool ezProcessTask::BeginExecute()
 {
-  ezStringBuilder sAssetRelPath;
-
   m_LogEntries.Clear();
   m_TransitiveHull.Clear();
   m_Status = ezStatus(EZ_SUCCESS);
   {
     EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
 
-    if (!GetNextAssetToProcess(m_AssetGuid, m_sAssetPath, sAssetRelPath))
+    if (!GetNextAssetToProcess(m_AssetGuid, m_AssetPath))
     {
       m_AssetGuid = ezUuid();
-      m_sAssetPath.Clear();
+      m_AssetPath.Clear();
       m_bDidWork = false;
       return false;
     }
@@ -439,13 +436,13 @@ bool ezProcessTask::BeginExecute()
   }
   else
   {
-    ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", sAssetRelPath);
+    ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_AssetPath.GetDataDirRelativePath());
     // Send and wait
     ezProcessAssetMsg msg;
     msg.m_AssetGuid = m_AssetGuid;
     msg.m_AssetHash = m_uiAssetHash;
     msg.m_ThumbHash = m_uiThumbHash;
-    msg.m_sAssetPath = m_sAssetPath;
+    msg.m_sAssetPath = m_AssetPath;
     msg.m_DepRefHull.Swap(m_TransitiveHull);
     msg.m_sPlatform = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 

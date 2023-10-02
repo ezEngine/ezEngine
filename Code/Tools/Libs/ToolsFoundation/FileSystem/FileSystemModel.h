@@ -8,6 +8,7 @@
 #  include <Foundation/Configuration/Singleton.h>
 #  include <Foundation/Threading/LockedObject.h>
 #  include <Foundation/Types/UniquePtr.h>
+#  include <ToolsFoundation/FileSystem/DataDirPath.h>
 #  include <ToolsFoundation/FileSystem/Declarations.h>
 
 class ezFileSystemWatcher;
@@ -19,16 +20,17 @@ struct EZ_TOOLSFOUNDATION_DLL ezFolderChangedEvent
 {
   enum class Type
   {
+    None,
     FolderAdded,
     FolderRemoved,
     ModelReset, ///< Model was initialized or deinitialized.
   };
 
   ezFolderChangedEvent() = default;
-  ezFolderChangedEvent(ezStringView sFile, Type type);
+  ezFolderChangedEvent(const ezDataDirPath& file, Type type);
 
-  ezString m_sPath;
-  Type m_Type;
+  ezDataDirPath m_Path;
+  Type m_Type = Type::None;
 };
 
 /// \brief Event fired by ezFileSystemModel::m_FileChangedEvents
@@ -36,6 +38,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezFileChangedEvent
 {
   enum class Type
   {
+    None,
     FileAdded,
     FileChanged,
     DocumentLinked,
@@ -45,11 +48,11 @@ struct EZ_TOOLSFOUNDATION_DLL ezFileChangedEvent
   };
 
   ezFileChangedEvent() = default;
-  ezFileChangedEvent(ezStringView sFile, ezFileStatus status, Type type);
+  ezFileChangedEvent(const ezDataDirPath& file, ezFileStatus status, Type type);
 
-  ezString m_sPath;
+  ezDataDirPath m_Path;
   ezFileStatus m_Status;
-  Type m_Type = Type::ModelReset;
+  Type m_Type = Type::None;
 };
 
 /// \brief A subsystem for tracking all files in a ezApplicationFileSystemConfig.
@@ -62,8 +65,11 @@ class EZ_TOOLSFOUNDATION_DLL ezFileSystemModel
   EZ_DECLARE_SINGLETON(ezFileSystemModel);
 
 public:
-  using LockedFiles = ezLockedObject<ezMutex, const ezMap<ezString, ezFileStatus>>;
-  using LockedFolders = ezLockedObject<ezMutex, const ezMap<ezString, ezFileStatus::Status>>;
+  using FilesMap = ezMap<ezDataDirPath, ezFileStatus, ezCompareDataDirPath>;
+  using FoldersMap = ezMap<ezDataDirPath, ezFileStatus::Status, ezCompareDataDirPath>;
+
+  using LockedFiles = ezLockedObject<ezMutex, const FilesMap>;
+  using LockedFolders = ezLockedObject<ezMutex, const FoldersMap>;
 
 public:
   /// \brief Return true if the two paths point to the same file on disk. On different platforms the same strings can produce different results. This function assumes both paths are absolute and cleaned via ezStringBuilder::MakeCleanPath.
@@ -83,15 +89,18 @@ public:
   /// \param fileSystemConfig All data directories in this config will be tracked by the model.
   /// \param referencedFiles Restores the previous state of the file model. E.g. cached on disk. If the ezFileStatus::Status is ezFileStatus::Status::Unknown m_FileChangedEvents is guaranteed to be fired once the file is checked again, e.g. via CheckFileSystem or NotifyOfChange.
   /// \param referencedFolders Restores the previous state of the folder model. E.g. cached on disk.
-  void Initialize(const ezApplicationFileSystemConfig& fileSystemConfig, ezMap<ezString, ezFileStatus>&& referencedFiles, ezMap<ezString, ezFileStatus::Status>&& referencedFolders);
+  void Initialize(const ezApplicationFileSystemConfig& fileSystemConfig, FilesMap&& referencedFiles, FoldersMap&& referencedFolders);
 
   /// \brief Deinitialize the model.
   /// \param out_pReferencedFiles If set, filled with the current state of the file model so it can be cached, e.g. by storing it on disk.
   /// \param out_pReferencedFolders If set, filled with the current state of the folder model so it can be cached, e.g. by storing it on disk.
-  void Deinitialize(ezMap<ezString, ezFileStatus>* out_pReferencedFiles = nullptr, ezMap<ezString, ezFileStatus::Status>* out_pReferencedFolders = nullptr);
+  void Deinitialize(FilesMap* out_pReferencedFiles = nullptr, FoldersMap* out_pReferencedFolders = nullptr);
 
   /// \brief Needs to be called every frame to restart background tasks.
   void MainThreadTick();
+
+  const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
+  ezArrayPtr<const ezString> GetDataDirectoryRoots() const { return m_DataDirRoots.GetArrayPtr(); }
 
   ///@}
   /// \name File / Folder Access
@@ -114,7 +123,7 @@ public:
   /// \brief Searches for the first file in the model that satisfies the given visitor function.
   /// \param visitor Called for every file in the model. If this functions returns true, the search is canceled and the function returns EZ_SUCCESS.
   /// \return Returns EZ_SUCCESS if the visitor returned true for a file.
-  ezResult FindFile(ezDelegate<bool(const ezString&, const ezFileStatus&)> visitor) const;
+  ezResult FindFile(ezDelegate<bool(const ezDataDirPath&, const ezFileStatus&)> visitor) const;
 
   ///@}
   /// \name File / Folder Updates
@@ -170,15 +179,15 @@ private:
   void RemoveStaleFileInfos();
 
   void OnAssetWatcherEvent(const ezFileSystemWatcherEvent& e);
-  ezFileStatus HandleSingleFile(const ezString& sAbsolutePath, bool bRecurseIntoFolders);
-  ezFileStatus HandleSingleFile(const ezString& sAbsolutePath, const ezFileStats& FileStat, bool bRecurseIntoFolders);
+  ezFileStatus HandleSingleFile(ezDataDirPath absolutePath, bool bRecurseIntoFolders);
+  ezFileStatus HandleSingleFile(ezDataDirPath absolutePath, const ezFileStats& FileStat, bool bRecurseIntoFolders);
 
-  void RemoveFileOrFolder(const ezString& sAbsolutePath, bool bRecurseIntoFolders);
+  void RemoveFileOrFolder(const ezDataDirPath& absolutePath, bool bRecurseIntoFolders);
 
   void MarkFileLocked(ezStringView sAbsolutePath);
 
-  void FireFileChangedEvent(ezStringView sFile, ezFileStatus fileStatus, ezFileChangedEvent::Type type);
-  void FireFolderChangedEvent(ezStringView sFile, ezFolderChangedEvent::Type type);
+  void FireFileChangedEvent(const ezDataDirPath& file, ezFileStatus fileStatus, ezFileChangedEvent::Type type);
+  void FireFolderChangedEvent(const ezDataDirPath& file, ezFolderChangedEvent::Type type);
 
   int FindDataDir(const ezStringView path);
 
@@ -193,8 +202,8 @@ private:
   mutable ezMutex m_FilesMutex;
   ezAtomicBool m_bInitialized = false;
 
-  ezMap<ezString, ezFileStatus> m_ReferencedFiles;           // Absolute path to stat map
-  ezMap<ezString, ezFileStatus::Status> m_ReferencedFolders; // Absolute path to status map
+  FilesMap m_ReferencedFiles;     // Absolute path to stat map
+  FoldersMap m_ReferencedFolders; // Absolute path to status map
   ezSet<ezString> m_LockedFiles;
   ezMap<ezString, ezFileStatus> m_TransiendFiles; // Absolute path to stat for files outside the data directories.
 };

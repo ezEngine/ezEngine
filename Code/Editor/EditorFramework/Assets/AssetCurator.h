@@ -19,6 +19,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/FileSystem/DataDirPath.h>
 #include <ToolsFoundation/FileSystem/Declarations.h>
 
 #include <tuple>
@@ -34,6 +35,7 @@ class ezFileSystemWatcher;
 class ezAssetTableWriter;
 struct ezFileChangedEvent;
 class ezFileSystemModel;
+
 
 #if 0 // Define to enable extensive curator profile scopes
 #  define CURATOR_PROFILE(szName) EZ_PROFILE_SCOPE(szName)
@@ -86,9 +88,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
   ezDynamicArray<ezLogEntry> m_LogEntries;
 
   const ezAssetDocumentTypeDescriptor* m_pDocumentTypeDescriptor = nullptr;
-  ezString m_sAbsolutePath;
-  ezString m_sDataDirParentRelativePath;
-  ezStringView m_sDataDirRelativePath;
+  ezDataDirPath m_Path;
 
   ezUniquePtr<ezAssetDocumentInfo> m_Info;
 
@@ -333,7 +333,7 @@ private:
   /// \brief Returns the asset info for the asset with the given (stringyfied) GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezString& sAssetGuid);
 
-  void OnAssetFilesEvent(const ezFileChangedEvent& e);
+  void OnFileChangedEvent(const ezFileChangedEvent& e);
 
   /// \brief Some assets are vital for the engine to run. Each data directory can contain a [DataDirName].ezCollectionAsset
   ///   that has all its references transformed before any other documents are loaded.
@@ -358,13 +358,13 @@ private:
     ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDeps, const ezHybridArray<ezString, 16>& assetThumbnailDeps, ezSet<ezString>& missingTransformDeps, ezSet<ezString>& missingThumbnailDeps, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
   bool AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce);
 
-  ezResult EnsureAssetInfoUpdated(ezStringView sAbsFilePath, const ezFileStatus& stat, bool bForce = false);
+  ezResult EnsureAssetInfoUpdated(const ezDataDirPath& absFilePath, const ezFileStatus& stat, bool bForce = false);
   void TrackDependencies(ezAssetInfo* pAssetInfo);
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
   ezResult CheckForCircularDependencies(ezAssetInfo* pAssetInfo);
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved);
-  ezResult ReadAssetDocumentInfo(ezStringView sAbsFilePath, const ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
+  ezResult ReadAssetDocumentInfo(const ezDataDirPath& absFilePath, const ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
   void UpdateSubAssets(ezAssetInfo& assetInfo);
 
   void RemoveAssetTransformState(const ezUuid& assetGuid);
@@ -379,8 +379,8 @@ private:
   /// \name Check File System Helper
   ///@{
   void SetAllAssetStatusUnknown();
-  void LoadCaches(ezMap<ezString, ezFileStatus>& out_referencedFiles, ezMap<ezString, ezFileStatus::Status>& out_referencedFolders);
-  void SaveCaches(const ezMap<ezString, ezFileStatus>& referencedFiles, const ezMap<ezString, ezFileStatus::Status>& referencedFolders);
+  void LoadCaches(ezMap<ezDataDirPath, ezFileStatus, ezCompareDataDirPath>& out_referencedFiles, ezMap<ezDataDirPath, ezFileStatus::Status, ezCompareDataDirPath>& out_referencedFolders);
+  void SaveCaches(const ezMap<ezDataDirPath, ezFileStatus, ezCompareDataDirPath>& referencedFiles, const ezMap<ezDataDirPath, ezFileStatus::Status, ezCompareDataDirPath>& referencedFolders);
   static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
 
   ///@}

@@ -248,7 +248,7 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
     if (pInfo)
     {
-      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_sDataDirParentRelativePath;
+      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
       sPath = sPath.GetFileName();
 
       out_sResult.Set("Prefab: ", sPath);
@@ -335,7 +335,7 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
           auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
 
           if (pAsset)
-            sValue = pAsset->m_pAssetInfo->m_sDataDirParentRelativePath;
+            sValue = pAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath();
           else
             sValue = "<unknown>";
         }

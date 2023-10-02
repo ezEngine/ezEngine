@@ -138,7 +138,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
   {
     // TODO: Due to file system watcher weirdness the m_sDataDirRelativePath can be empty at this point when renaming files
     // really rare haven't reproed it yet but that case crashes when getting the name so early out that.
-    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid) || pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.IsEmpty())
+    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid) || pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath().IsEmpty())
     {
       return;
     }
@@ -280,7 +280,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
     case Qt::ToolTipRole:
     {
       ezStringBuilder sToolTip = pSubAsset->GetName();
-      sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath);
+      sToolTip.Append("\n", pSubAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
       sToolTip.Append("\nTransform State: ");
       switch (pSubAsset->m_pAssetInfo->m_TransformState)
       {
@@ -318,7 +318,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
     {
       if (m_bIconMode)
       {
-        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
+        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pSubAsset->m_pAssetInfo->m_Path);
 
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
@@ -344,10 +344,10 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
       return QVariant::fromValue(pSubAsset->m_pAssetInfo->m_Info->m_DocumentID);
     }
     case UserRoles::AbsolutePath:
-      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath, pSubAsset->m_pAssetInfo->m_sAbsolutePath.GetElementCount());
+      return ezMakeQString(pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath());
 
     case UserRoles::RelativePath:
-      return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath, pSubAsset->m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
+      return ezMakeQString(pSubAsset->m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
 
     case UserRoles::AssetIcon:
       return ezQtUiServices::GetCachedIconResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon, ezColorScheme::GetCategoryColor(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sAssetCategory, ezColorScheme::CategoryColorUsage::OverlayIcon));

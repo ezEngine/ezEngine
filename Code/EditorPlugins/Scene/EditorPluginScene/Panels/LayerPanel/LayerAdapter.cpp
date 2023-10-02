@@ -45,7 +45,7 @@ QVariant ezQtLayerAdapter::data(const ezDocumentObject* pObject, int iRow, int i
       {
         if (iRole == Qt::ToolTipRole)
         {
-          return subAsset->m_pAssetInfo->m_sAbsolutePath.GetData();
+          return ezMakeQString(subAsset->m_pAssetInfo->m_Path.GetAbsolutePath());
         }
         ezStringBuilder sName = subAsset->GetName();
         QString sQtName = QString::fromUtf8(sName.GetData());

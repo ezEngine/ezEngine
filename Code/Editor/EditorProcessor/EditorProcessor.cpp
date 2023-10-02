@@ -10,8 +10,10 @@
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/System/CrashHandler.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/ActionManager.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezCommandLineOptionPath opt_OutputDir("_EditorProcessor", "-outputDir", "Output directory", "");
 ezCommandLineOptionBool opt_SaveProfilingData("_EditorProcessor", "-profiling", "Saves performance profiling information into the output folder.", false);
@@ -45,6 +47,11 @@ public:
     ezStartup::AddApplicationTag("editorprocessor");
 
     ezQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
+
+    ezString sUserDataFolder = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
+    ezString sOutputFolder = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::Never);
+    ezCrashHandler_WriteMiniDump::g_Instance.SetDumpFilePath(sOutputFolder.IsEmpty() ? sUserDataFolder : sOutputFolder, "EditorProcessor");
+    ezCrashHandler::SetCrashHandler(&ezCrashHandler_WriteMiniDump::g_Instance);
 
     return EZ_SUCCESS;
   }

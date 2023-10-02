@@ -88,7 +88,7 @@ QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int iRow, 
         auto pInfo = ezAssetCurator::GetSingleton()->GetSubAsset(prefab);
 
         if (pInfo)
-          return QString::fromUtf8(pInfo->m_pAssetInfo->m_sDataDirParentRelativePath, pInfo->m_pAssetInfo->m_sDataDirParentRelativePath.GetElementCount());
+          return ezMakeQString(pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
 
         return QStringLiteral("Prefab asset could not be found");
       }

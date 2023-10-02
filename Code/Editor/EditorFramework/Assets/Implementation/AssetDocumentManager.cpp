@@ -111,7 +111,7 @@ void ezAssetDocumentManager::AddEntriesToAssetTable(ezStringView sDataDirectory,
 
 ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, ezStringView sDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
-  return GetRelativeOutputFileName(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor, sDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
+  return GetRelativeOutputFileName(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor, sDataDirectory, pSubAsset->m_pAssetInfo->m_Path, "", pAssetProfile);
 }
 
 ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile) const
@@ -187,7 +187,7 @@ ezResult ezAssetDocumentManager::TryOpenAssetDocument(const char* szPathOrGuid)
 
   if (pSubAsset)
   {
-    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
+    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath());
     return EZ_SUCCESS;
   }
 

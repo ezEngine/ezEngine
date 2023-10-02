@@ -54,14 +54,14 @@ namespace
   thread_local bool g_bInFolderBroadcast = false;
 } // namespace
 
-ezFolderChangedEvent::ezFolderChangedEvent(ezStringView sFile, Type type)
-  : m_sPath(sFile)
+ezFolderChangedEvent::ezFolderChangedEvent(const ezDataDirPath& file, Type type)
+  : m_Path(file)
   , m_Type(type)
 {
 }
 
-ezFileChangedEvent::ezFileChangedEvent(ezStringView sFile, ezFileStatus status, Type type)
-  : m_sPath(sFile)
+ezFileChangedEvent::ezFileChangedEvent(const ezDataDirPath& file, ezFileStatus status, Type type)
+  : m_Path(file)
   , m_Status(status)
   , m_Type(type)
 {
@@ -87,9 +87,10 @@ ezFileSystemModel::ezFileSystemModel()
 
 ezFileSystemModel::~ezFileSystemModel() = default;
 
-void ezFileSystemModel::Initialize(const ezApplicationFileSystemConfig& fileSystemConfig, ezMap<ezString, ezFileStatus>&& referencedFiles, ezMap<ezString, ezFileStatus::Status>&& referencedFolders)
+void ezFileSystemModel::Initialize(const ezApplicationFileSystemConfig& fileSystemConfig, ezFileSystemModel::FilesMap&& referencedFiles, ezFileSystemModel::FoldersMap&& referencedFolders)
 {
   {
+    EZ_PROFILE_SCOPE("Initialize");
     EZ_LOCK(m_FilesMutex);
     m_FileSystemConfig = fileSystemConfig;
 
@@ -108,11 +109,38 @@ void ezFileSystemModel::Initialize(const ezApplicationFileSystemConfig& fileSyst
       else
       {
         sDataDirPath.MakeCleanPath();
-        sDataDirPath.TrimWordEnd("/");
+        sDataDirPath.Trim(nullptr, "/");
 
         m_DataDirRoots.PushBack(sDataDirPath);
+
         // The root should always be in the model so that every file's parent folder is present in the model.
-        m_ReferencedFolders.FindOrAdd(sDataDirPath).Value() = ezFileStatus::Status::Valid;
+        m_ReferencedFolders.FindOrAdd(ezDataDirPath(sDataDirPath, m_DataDirRoots, i)).Value() = ezFileStatus::Status::Valid;
+      }
+    }
+
+    // Update data dir index and remove files no longer inside a data dir.
+    for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid();)
+    {
+      const bool bValid = it.Key().UpdateDataDirInfos(m_DataDirRoots, it.Key().GetDataDirIndex());
+      if (!bValid)
+      {
+        it = m_ReferencedFiles.Remove(it);
+      }
+      else
+      {
+        ++it;
+      }
+    }
+    for (auto it = m_ReferencedFolders.GetIterator(); it.IsValid();)
+    {
+      const bool bValid = it.Key().UpdateDataDirInfos(m_DataDirRoots, it.Key().GetDataDirIndex());
+      if (!bValid)
+      {
+        it = m_ReferencedFolders.Remove(it);
+      }
+      else
+      {
+        ++it;
       }
     }
 
@@ -126,11 +154,11 @@ void ezFileSystemModel::Initialize(const ezApplicationFileSystemConfig& fileSyst
 }
 
 
-void ezFileSystemModel::Deinitialize(ezMap<ezString, ezFileStatus>* out_pReferencedFiles, ezMap<ezString, ezFileStatus::Status>* out_pReferencedFolders)
+void ezFileSystemModel::Deinitialize(ezFileSystemModel::FilesMap* out_pReferencedFiles, ezFileSystemModel::FoldersMap* out_pReferencedFolders)
 {
   {
     EZ_LOCK(m_FilesMutex);
-
+    EZ_PROFILE_SCOPE("Deinitialize");
     m_pWatcher->m_Events.RemoveEventHandler(m_WatcherSubscription);
     m_pWatcher->Deinitialize();
     m_pWatcher.Clear();
@@ -180,12 +208,16 @@ void ezFileSystemModel::NotifyOfChange(ezStringView sAbsolutePath)
 
   ezStringBuilder sPath(sAbsolutePath);
   sPath.MakeCleanPath();
+  sPath.Trim(nullptr, "/");
+  if (sPath.IsEmpty())
+    return;
+  ezDataDirPath folder(sPath, m_DataDirRoots);
 
   // We ignore any changes outside the model's data dirs.
-  if (FindDataDir(sAbsolutePath) == -1)
+  if (!folder.IsValid())
     return;
 
-  HandleSingleFile(sPath, true);
+  HandleSingleFile(std::move(folder), true);
 }
 
 void ezFileSystemModel::CheckFileSystem()
@@ -203,15 +235,15 @@ void ezFileSystemModel::CheckFileSystem()
     SetAllStatusUnknown();
 
     // check every data directory
-    for (auto& dd : m_FileSystemConfig.m_DataDirs)
+    for (ezUInt32 i = 0; i < m_FileSystemConfig.m_DataDirs.GetCount(); i++)
     {
-      ezStringBuilder sTemp;
-      ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).IgnoreResult();
-
+      auto& dd = m_FileSystemConfig.m_DataDirs[i];
       if (ezThreadUtils::IsMainThread())
         range->BeginNextStep(dd.m_sDataDirSpecialPath);
-
-      CheckFolder(sTemp);
+      if (!m_DataDirRoots[i].IsEmpty())
+      {
+        CheckFolder(m_DataDirRoots[i]);
+      }
     }
 
     RemoveStaleFileInfos();
@@ -233,7 +265,7 @@ ezResult ezFileSystemModel::FindFile(ezStringView sPath, ezFileStatus& out_stat)
     return EZ_FAILURE;
 
   EZ_LOCK(m_FilesMutex);
-  ezMap<ezString, ezFileStatus>::ConstIterator it;
+  ezFileSystemModel::FilesMap::ConstIterator it;
   if (ezPathUtils::IsAbsolutePath(sPath))
   {
     it = m_ReferencedFiles.Find(sPath);
@@ -276,7 +308,7 @@ ezResult ezFileSystemModel::FindFile(ezStringView sPath, ezFileStatus& out_stat)
 }
 
 
-ezResult ezFileSystemModel::FindFile(ezDelegate<bool(const ezString&, const ezFileStatus&)> visitor) const
+ezResult ezFileSystemModel::FindFile(ezDelegate<bool(const ezDataDirPath&, const ezFileStatus&)> visitor) const
 {
   if (!m_bInitialized)
     return EZ_FAILURE;
@@ -296,6 +328,7 @@ ezResult ezFileSystemModel::LinkDocument(ezStringView sAbsolutePath, const ezUui
   if (!m_bInitialized || !documentId.IsValid())
     return EZ_FAILURE;
 
+  ezDataDirPath filePath;
   ezFileStatus fileStatus;
   {
     EZ_LOCK(m_FilesMutex);
@@ -305,6 +338,7 @@ ezResult ezFileSystemModel::LinkDocument(ezStringView sAbsolutePath, const ezUui
       // Store status before updates so we can fire the unlink if a guid was already set.
       fileStatus = it.Value();
       it.Value().m_DocumentID = documentId;
+      filePath = it.Key();
     }
     else
     {
@@ -316,10 +350,10 @@ ezResult ezFileSystemModel::LinkDocument(ezStringView sAbsolutePath, const ezUui
   {
     if (fileStatus.m_DocumentID.IsValid())
     {
-      FireFileChangedEvent(sAbsolutePath, fileStatus, ezFileChangedEvent::Type::DocumentUnlinked);
+      FireFileChangedEvent(filePath, fileStatus, ezFileChangedEvent::Type::DocumentUnlinked);
     }
     fileStatus.m_DocumentID = documentId;
-    FireFileChangedEvent(sAbsolutePath, fileStatus, ezFileChangedEvent::Type::DocumentLinked);
+    FireFileChangedEvent(std::move(filePath), fileStatus, ezFileChangedEvent::Type::DocumentLinked);
   }
   return EZ_SUCCESS;
 }
@@ -329,6 +363,7 @@ ezResult ezFileSystemModel::UnlinkDocument(ezStringView sAbsolutePath)
   if (!m_bInitialized)
     return EZ_FAILURE;
 
+  ezDataDirPath filePath;
   ezFileStatus fileStatus;
   bool bDocumentLinkChanged = false;
   {
@@ -336,9 +371,10 @@ ezResult ezFileSystemModel::UnlinkDocument(ezStringView sAbsolutePath)
     auto it = m_ReferencedFiles.Find(sAbsolutePath);
     if (it.IsValid())
     {
-      bDocumentLinkChanged = it.Value().m_DocumentID != ezUuid();
+      bDocumentLinkChanged = it.Value().m_DocumentID.IsValid();
       fileStatus = it.Value();
       it.Value().m_DocumentID = ezUuid::MakeInvalid();
+      filePath = it.Key();
     }
     else
     {
@@ -348,7 +384,7 @@ ezResult ezFileSystemModel::UnlinkDocument(ezStringView sAbsolutePath)
 
   if (bDocumentLinkChanged)
   {
-    FireFileChangedEvent(sAbsolutePath, fileStatus, ezFileChangedEvent::Type::DocumentUnlinked);
+    FireFileChangedEvent(std::move(filePath), fileStatus, ezFileChangedEvent::Type::DocumentUnlinked);
   }
   return EZ_SUCCESS;
 }
@@ -362,6 +398,11 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
 
   ezStringBuilder sAbsolutePath2(sAbsolutePath);
   sAbsolutePath2.MakeCleanPath();
+  sAbsolutePath2.Trim("", "/");
+  if (sAbsolutePath2.IsEmpty())
+    return EZ_FAILURE;
+
+  ezDataDirPath file(sAbsolutePath2, m_DataDirRoots);
 
   ezFileStats statDep;
   if (ezOSFile::GetFileStats(sAbsolutePath2, statDep).Failed())
@@ -371,7 +412,7 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
   }
 
   // We ignore any changes outside the model's data dirs.
-  if (FindDataDir(sAbsolutePath2) != -1)
+  if (file.IsValid())
   {
     {
       EZ_LOCK(m_FilesMutex);
@@ -385,7 +426,7 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
     // We can only hash files that are tracked.
     if (out_stat.m_Status == ezFileStatus::Status::Unknown)
     {
-      out_stat = HandleSingleFile(sAbsolutePath2, statDep, false);
+      out_stat = HandleSingleFile(file, statDep, false);
       if (out_stat.m_Status == ezFileStatus::Status::Unknown)
       {
         ezLog::Error("Failed to hash file '{0}', update failed", sAbsolutePath2);
@@ -397,8 +438,8 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
     if (!out_stat.m_LastModified.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical) || out_stat.m_uiHash == 0)
     {
       FILESYSTEM_PROFILE(sAbsolutePath2);
-      ezFileReader file;
-      if (file.Open(sAbsolutePath2).Failed())
+      ezFileReader fileReader;
+      if (fileReader.Open(sAbsolutePath2).Failed())
       {
         MarkFileLocked(sAbsolutePath2);
         ezLog::Error("Failed to hash file '{0}', open failed", sAbsolutePath2);
@@ -412,12 +453,12 @@ ezResult ezFileSystemModel::HashFile(ezStringView sAbsolutePath, ezFileStatus& o
         return EZ_FAILURE;
       }
       out_stat.m_LastModified = statDep.m_LastModificationTime;
-      out_stat.m_uiHash = ezFileSystemModel::HashFile(file, nullptr);
+      out_stat.m_uiHash = ezFileSystemModel::HashFile(fileReader, nullptr);
       out_stat.m_Status = ezFileStatus::Status::Valid;
 
       // Update state. No need to compare timestamps we hold a lock on the file via the reader.
       EZ_LOCK(m_FilesMutex);
-      m_ReferencedFiles.Insert(sAbsolutePath2, out_stat);
+      m_ReferencedFiles.Insert(file, out_stat);
     }
     return EZ_SUCCESS;
   }
@@ -490,12 +531,16 @@ ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDel
   if (!m_bInitialized)
     return EZ_FAILURE;
 
+  ezStringBuilder sAbsolutePath2(sAbsolutePath);
+  sAbsolutePath2.MakeCleanPath();
+  sAbsolutePath2.Trim(nullptr, "/");
+
   // try to read the asset file
   ezFileReader file;
-  if (file.Open(sAbsolutePath) == EZ_FAILURE)
+  if (file.Open(sAbsolutePath2) == EZ_FAILURE)
   {
-    MarkFileLocked(sAbsolutePath);
-    ezLog::Error("Failed to open file '{0}'", sAbsolutePath);
+    MarkFileLocked(sAbsolutePath2);
+    ezLog::Error("Failed to open file '{0}'", sAbsolutePath2);
     return EZ_FAILURE;
   }
 
@@ -503,7 +548,7 @@ ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDel
   ezFileStatus stat;
   {
     EZ_LOCK(m_FilesMutex);
-    auto it = m_ReferencedFiles.Find(sAbsolutePath);
+    auto it = m_ReferencedFiles.Find(sAbsolutePath2);
     if (!it.IsValid())
       return EZ_FAILURE;
 
@@ -536,7 +581,7 @@ ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDel
   {
     // Update state. No need to compare timestamps we hold a lock on the file via the reader.
     EZ_LOCK(m_FilesMutex);
-    auto it = m_ReferencedFiles.Find(sAbsolutePath);
+    auto it = m_ReferencedFiles.Find(sAbsolutePath2);
     if (it.IsValid())
     {
       bFileChanged = !it.Value().m_LastModified.Compare(stat.m_LastModified, ezTimestamp::CompareMode::Identical);
@@ -549,7 +594,7 @@ ezResult ezFileSystemModel::ReadDocument(ezStringView sAbsolutePath, const ezDel
 
     if (bFileChanged)
     {
-      FireFileChangedEvent(sAbsolutePath, stat, ezFileChangedEvent::Type::FileChanged);
+      FireFileChangedEvent(it.Key(), stat, ezFileChangedEvent::Type::FileChanged);
     }
   }
 
@@ -573,8 +618,8 @@ void ezFileSystemModel::SetAllStatusUnknown()
 
 void ezFileSystemModel::RemoveStaleFileInfos()
 {
-  ezSet<ezString> unknownFiles;
-  ezSet<ezString> unknownFolders;
+  ezSet<ezDataDirPath> unknownFiles;
+  ezSet<ezDataDirPath> unknownFolders;
   {
     EZ_LOCK(m_FilesMutex);
     for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
@@ -595,13 +640,13 @@ void ezFileSystemModel::RemoveStaleFileInfos()
     }
   }
 
-  for (const ezString& sFile : unknownFiles)
+  for (const ezDataDirPath& file : unknownFiles)
   {
-    HandleSingleFile(sFile, false);
+    HandleSingleFile(file, false);
   }
-  for (const ezString& sFolders : unknownFolders)
+  for (const ezDataDirPath& folders : unknownFolders)
   {
-    HandleSingleFile(sFolders, false);
+    HandleSingleFile(folders, false);
   }
 }
 
@@ -611,24 +656,26 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
   ezStringBuilder sAbsolutePath2 = sAbsolutePath;
   sAbsolutePath2.MakeCleanPath();
   EZ_ASSERT_DEV(ezPathUtils::IsAbsolutePath(sAbsolutePath2), "Only absolute paths are supported for directory iteration.");
-  sAbsolutePath2.TrimWordEnd("/");
+  sAbsolutePath2.Trim(nullptr, "/");
 
   if (sAbsolutePath2.IsEmpty())
     return;
 
+  ezDataDirPath folder(sAbsolutePath2, m_DataDirRoots);
+
   // We ignore any changes outside the model's data dirs.
-  if (FindDataDir(sAbsolutePath2) == -1)
+  if (!folder.IsValid())
     return;
 
   bool bExists = false;
   {
     EZ_LOCK(m_FilesMutex);
-    bExists = m_ReferencedFolders.Contains(sAbsolutePath2);
+    bExists = m_ReferencedFolders.Contains(folder);
   }
   if (!bExists)
   {
     // If the folder does not exist yet we call NotifyOfChange which handles add / removal recursively as well.
-    NotifyOfChange(sAbsolutePath2);
+    NotifyOfChange(folder);
     return;
   }
 
@@ -653,7 +700,9 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
       visitedFolders.Insert(sPath);
     else
       visitedFiles.Insert(sPath);
-    HandleSingleFile(sPath, iterator.GetStats(), false);
+
+    ezDataDirPath path(sPath, m_DataDirRoots, folder.GetDataDirIndex());
+    HandleSingleFile(std::move(path), iterator.GetStats(), false);
   }
 
   ezDynamicArray<ezString> missingFiles;
@@ -662,29 +711,36 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
   {
     EZ_LOCK(m_FilesMutex);
 
-    for (auto it = m_ReferencedFiles.LowerBound(sAbsolutePath2); it.IsValid() && it.Key().StartsWith(sAbsolutePath2); ++it)
+    // As we are using ezCompareDataDirPath, entries of different casing interleave but we are only interested in the ones with matching casing so we skip the rest.
+    for (auto it = m_ReferencedFiles.LowerBound(sAbsolutePath2.GetView()); it.IsValid(); ++it)
     {
-      if (!visitedFiles.Contains(it.Key()))
-        missingFiles.PushBack(it.Key());
+      if (it.Key().GetAbsolutePath().StartsWith(sAbsolutePath2) && !visitedFiles.Contains(it.Key().GetAbsolutePath()))
+        missingFiles.PushBack(it.Key().GetAbsolutePath());
+      if (!it.Key().GetAbsolutePath().StartsWith_NoCase(sAbsolutePath2))
+        break;
     }
 
-    for (auto it = m_ReferencedFolders.LowerBound(sAbsolutePath2); it.IsValid() && it.Key().StartsWith(sAbsolutePath2); ++it)
+    for (auto it = m_ReferencedFolders.LowerBound(sAbsolutePath2.GetView()); it.IsValid(); ++it)
     {
-      if (!visitedFolders.Contains(it.Key()))
-        missingFolders.PushBack(it.Key());
+      if (it.Key().GetAbsolutePath().StartsWith(sAbsolutePath2) && !visitedFolders.Contains(it.Key().GetAbsolutePath()))
+        missingFolders.PushBack(it.Key().GetAbsolutePath());
+      if (!it.Key().GetAbsolutePath().StartsWith_NoCase(sAbsolutePath2))
+        break;
     }
   }
 
-  for (const ezString& sFile : missingFiles)
+  for (ezString& sFile : missingFiles)
   {
-    HandleSingleFile(sFile, false);
+    ezDataDirPath path(std::move(sFile), m_DataDirRoots, folder.GetDataDirIndex());
+    HandleSingleFile(std::move(path), false);
   }
 
   // Delete sub-folders before parent folders.
   missingFolders.Sort([](const ezString& lhs, const ezString& rhs) -> bool { return ezStringUtils::Compare(lhs, rhs) > 0; });
-  for (const ezString& sFolder : missingFolders)
+  for (ezString& sFolder : missingFolders)
   {
-    HandleSingleFile(sFolder, false);
+    ezDataDirPath path(std::move(sFolder), m_DataDirRoots, folder.GetDataDirIndex());
+    HandleSingleFile(std::move(path), false);
   }
 }
 
@@ -702,38 +758,39 @@ void ezFileSystemModel::OnAssetWatcherEvent(const ezFileSystemWatcherEvent& e)
   }
 }
 
-ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, bool bRecurseIntoFolders)
+ezFileStatus ezFileSystemModel::HandleSingleFile(ezDataDirPath absolutePath, bool bRecurseIntoFolders)
 {
   FILESYSTEM_PROFILE("HandleSingleFile");
 
   ezFileStats Stats;
-  const ezResult statCheck = ezOSFile::GetFileStats(sAbsolutePath, Stats);
+  const ezResult statCheck = ezOSFile::GetFileStats(absolutePath, Stats);
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (statCheck.Succeeded() && Stats.m_sName != ezPathUtils::GetFileNameAndExtension(sAbsolutePath))
+  if (statCheck.Succeeded() && Stats.m_sName != ezPathUtils::GetFileNameAndExtension(absolutePath))
   {
     // Casing has changed.
-    ezStringBuilder sCorrectCasingPath = sAbsolutePath;
+    ezStringBuilder sCorrectCasingPath = absolutePath.GetAbsolutePath();
     sCorrectCasingPath.ChangeFileNameAndExtension(Stats.m_sName);
+    ezDataDirPath correctCasingPath(sCorrectCasingPath.GetView(), m_DataDirRoots, absolutePath.GetDataDirIndex());
     // Add new casing
-    ezFileStatus res = HandleSingleFile(sCorrectCasingPath, Stats, bRecurseIntoFolders);
+    ezFileStatus res = HandleSingleFile(std::move(correctCasingPath), Stats, bRecurseIntoFolders);
     // Remove old casing
-    RemoveFileOrFolder(sAbsolutePath, bRecurseIntoFolders);
+    RemoveFileOrFolder(absolutePath, bRecurseIntoFolders);
     return res;
   }
 #  endif
 
   if (statCheck.Failed())
   {
-    RemoveFileOrFolder(sAbsolutePath, bRecurseIntoFolders);
+    RemoveFileOrFolder(absolutePath, bRecurseIntoFolders);
     return {};
   }
 
-  return HandleSingleFile(sAbsolutePath, Stats, bRecurseIntoFolders);
+  return HandleSingleFile(std::move(absolutePath), Stats, bRecurseIntoFolders);
 }
 
 
-ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, const ezFileStats& FileStat, bool bRecurseIntoFolders)
+ezFileStatus ezFileSystemModel::HandleSingleFile(ezDataDirPath absolutePath, const ezFileStats& FileStat, bool bRecurseIntoFolders)
 {
   FILESYSTEM_PROFILE("HandleSingleFile2");
 
@@ -745,15 +802,15 @@ ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, 
     bool bExisted = false;
     {
       EZ_LOCK(m_FilesMutex);
-      auto it = m_ReferencedFolders.FindOrAdd(sAbsolutePath, &bExisted);
+      auto it = m_ReferencedFolders.FindOrAdd(absolutePath, &bExisted);
       it.Value() = ezFileStatus::Status::Valid;
     }
 
     if (!bExisted)
     {
-      FireFolderChangedEvent(sAbsolutePath, ezFolderChangedEvent::Type::FolderAdded);
+      FireFolderChangedEvent(absolutePath, ezFolderChangedEvent::Type::FolderAdded);
       if (bRecurseIntoFolders)
-        CheckFolder(sAbsolutePath);
+        CheckFolder(absolutePath);
     }
 
     return status;
@@ -765,7 +822,7 @@ ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, 
     bool bFileChanged = false;
     {
       EZ_LOCK(m_FilesMutex);
-      auto it = m_ReferencedFiles.FindOrAdd(sAbsolutePath, &bExisted);
+      auto it = m_ReferencedFiles.FindOrAdd(absolutePath, &bExisted);
       ezFileStatus& value = it.Value();
       bFileChanged = !value.m_LastModified.Compare(FileStat.m_LastModificationTime, ezTimestamp::CompareMode::Identical);
       if (bFileChanged)
@@ -784,30 +841,30 @@ ezFileStatus ezFileSystemModel::HandleSingleFile(const ezString& sAbsolutePath, 
 
     if (!bExisted)
     {
-      FireFileChangedEvent(sAbsolutePath, status, ezFileChangedEvent::Type::FileAdded);
+      FireFileChangedEvent(absolutePath, status, ezFileChangedEvent::Type::FileAdded);
     }
     else if (bFileChanged)
     {
-      FireFileChangedEvent(sAbsolutePath, status, ezFileChangedEvent::Type::FileChanged);
+      FireFileChangedEvent(absolutePath, status, ezFileChangedEvent::Type::FileChanged);
     }
     return status;
   }
 }
 
-void ezFileSystemModel::RemoveFileOrFolder(const ezString& sAbsolutePath, bool bRecurseIntoFolders)
+void ezFileSystemModel::RemoveFileOrFolder(const ezDataDirPath& absolutePath, bool bRecurseIntoFolders)
 {
   ezFileStatus fileStatus;
   bool bFileExisted = false;
   bool bFolderExisted = false;
   {
     EZ_LOCK(m_FilesMutex);
-    if (auto it = m_ReferencedFiles.Find(sAbsolutePath); it.IsValid())
+    if (auto it = m_ReferencedFiles.Find(absolutePath); it.IsValid())
     {
       bFileExisted = true;
       fileStatus = it.Value();
       m_ReferencedFiles.Remove(it);
     }
-    if (auto it = m_ReferencedFolders.Find(sAbsolutePath); it.IsValid())
+    if (auto it = m_ReferencedFolders.Find(absolutePath); it.IsValid())
     {
       bFolderExisted = true;
       m_ReferencedFolders.Remove(it);
@@ -816,33 +873,41 @@ void ezFileSystemModel::RemoveFileOrFolder(const ezString& sAbsolutePath, bool b
 
   if (bFileExisted)
   {
-    FireFileChangedEvent(sAbsolutePath, fileStatus, ezFileChangedEvent::Type::FileRemoved);
+    FireFileChangedEvent(absolutePath, fileStatus, ezFileChangedEvent::Type::FileRemoved);
   }
 
   if (bFolderExisted)
   {
     if (bRecurseIntoFolders)
     {
-      ezSet<ezString> previouslyKnownFiles;
+      ezSet<ezDataDirPath> previouslyKnownFiles;
       {
         FILESYSTEM_PROFILE("FindReferencedFiles");
         EZ_LOCK(m_FilesMutex);
-        auto itlowerBound = m_ReferencedFiles.LowerBound(sAbsolutePath);
-        while (itlowerBound.IsValid() && itlowerBound.Key().StartsWith(sAbsolutePath))
+        auto itlowerBound = m_ReferencedFiles.LowerBound(absolutePath);
+        while (itlowerBound.IsValid())
         {
-          previouslyKnownFiles.Insert(itlowerBound.Key());
+          if (itlowerBound.Key().GetAbsolutePath().StartsWith(absolutePath.GetAbsolutePath()))
+          {
+            previouslyKnownFiles.Insert(itlowerBound.Key());
+          }
+          // As we are using ezCompareDataDirPath, entries of different casing interleave but we are only interested in the ones with matching casing so we skip the rest.
+          if (!itlowerBound.Key().GetAbsolutePath().StartsWith_NoCase(absolutePath.GetAbsolutePath()))
+          {
+            break;
+          }
           ++itlowerBound;
         }
       }
       {
         FILESYSTEM_PROFILE("HandleRemovedFiles");
-        for (const ezString& sFile : previouslyKnownFiles)
+        for (const ezDataDirPath& file : previouslyKnownFiles)
         {
-          RemoveFileOrFolder(sFile, false);
+          RemoveFileOrFolder(file, false);
         }
       }
     }
-    FireFolderChangedEvent(sAbsolutePath, ezFolderChangedEvent::Type::FolderRemoved);
+    FireFolderChangedEvent(absolutePath, ezFolderChangedEvent::Type::FolderRemoved);
   }
 }
 
@@ -857,14 +922,14 @@ void ezFileSystemModel::MarkFileLocked(ezStringView sAbsolutePath)
   }
 }
 
-void ezFileSystemModel::FireFileChangedEvent(ezStringView sFile, ezFileStatus fileStatus, ezFileChangedEvent::Type type)
+void ezFileSystemModel::FireFileChangedEvent(const ezDataDirPath& file, ezFileStatus fileStatus, ezFileChangedEvent::Type type)
 {
   // We queue up all requests on a thread and only return once the list is empty. The reason for this is that:
   // A: We don't want to allow recursive event calling as it creates limbo states in the model and hard to debug bugs.
   // B: If a user calls NotifyOfChange, the function should only return if the event and any indirect events that were triggered by the event handlers have been processed.
 
   ezFileChangedEvent& e = g_PostponedFiles.ExpandAndGetRef();
-  e.m_sPath = sFile;
+  e.m_Path = file;
   e.m_Status = fileStatus;
   e.m_Type = type;
 
@@ -885,11 +950,11 @@ void ezFileSystemModel::FireFileChangedEvent(ezStringView sFile, ezFileStatus fi
   g_PostponedFiles.Clear();
 }
 
-void ezFileSystemModel::FireFolderChangedEvent(ezStringView sFile, ezFolderChangedEvent::Type type)
+void ezFileSystemModel::FireFolderChangedEvent(const ezDataDirPath& file, ezFolderChangedEvent::Type type)
 {
   // See comment in FireFileChangedEvent.
   ezFolderChangedEvent& e = g_PostponedFolders.ExpandAndGetRef();
-  e.m_sPath = sFile;
+  e.m_Path = file;
   e.m_Type = type;
 
   if (g_bInFolderBroadcast)

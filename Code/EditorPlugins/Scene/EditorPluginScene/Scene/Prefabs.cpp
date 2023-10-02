@@ -182,7 +182,7 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
     const ezTransform transform = GetGlobalTransform(pObject);
 
     ezUuid newGuid = ezUuid::MakeUuid();
-    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_sAbsolutePath, assetGuid, newGuid, false);
+    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_Path.GetAbsolutePath(), assetGuid, newGuid, false);
 
     if (newObject.IsValid())
     {

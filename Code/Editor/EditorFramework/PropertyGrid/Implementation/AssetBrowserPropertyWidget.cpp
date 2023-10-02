@@ -196,7 +196,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       {
         pAsset->GetSubAssetIdentifier(sText);
 
-        sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_pAssetInfo->m_sAbsolutePath);
+        sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_pAssetInfo->m_Path);
       }
       else
         m_AssetGuid = ezUuid();
@@ -287,7 +287,7 @@ void ezQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiIma
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(
-    ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath, GetSelection()[0].m_pObject);
+    ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath(), GetSelection()[0].m_pObject);
 }
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
@@ -302,7 +302,7 @@ void ezQtAssetPropertyWidget::OnOpenExplorer()
 
   if (m_AssetGuid.IsValid())
   {
-    sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath;
+    sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath();
   }
   else
   {
@@ -345,7 +345,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   {
     if (m_AssetGuid.IsValid())
     {
-      sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath;
+      sPath = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath();
     }
     else
     {

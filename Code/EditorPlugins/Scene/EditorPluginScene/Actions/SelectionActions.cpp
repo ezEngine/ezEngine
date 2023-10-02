@@ -374,7 +374,7 @@ void ezSelectionAction::OpenPrefabDocument()
   auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(PrefabAsset);
   if (pAsset)
   {
-    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(pAsset->m_pAssetInfo->m_sAbsolutePath);
+    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(pAsset->m_pAssetInfo->m_Path.GetAbsolutePath());
   }
   else
   {

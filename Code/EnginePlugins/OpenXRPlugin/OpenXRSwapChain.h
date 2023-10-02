@@ -12,8 +12,8 @@ class EZ_OPENXRPLUGIN_DLL ezGALOpenXRSwapChain : public ezGALXRSwapChain
 {
 public:
   ezSizeU32 GetRenderTargetSize() const { return m_CurrentSize; }
-  XrSwapchain GetColorSwapchain() const { return m_colorSwapchain.handle; }
-  XrSwapchain GetDepthSwapchain() const { return m_depthSwapchain.handle; }
+  XrSwapchain GetColorSwapchain() const { return m_ColorSwapchain.handle; }
+  XrSwapchain GetDepthSwapchain() const { return m_DepthSwapchain.handle; }
 
   virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) override;
   virtual void PresentRenderTarget(ezGALDevice* pDevice) override;
@@ -47,20 +47,20 @@ private:
   void DeinitSwapChain();
 
 private:
-  XrInstance m_instance = XR_NULL_HANDLE;
-  uint64_t m_systemId = XR_NULL_SYSTEM_ID;
-  XrSession m_session = XR_NULL_HANDLE;
-  ezEnum<ezGALMSAASampleCount> m_msaaCount;
+  XrInstance m_pInstance = XR_NULL_HANDLE;
+  uint64_t m_SystemId = XR_NULL_SYSTEM_ID;
+  XrSession m_pSession = XR_NULL_HANDLE;
+  ezEnum<ezGALMSAASampleCount> m_MsaaCount;
 
   // Swapchain
-  XrViewConfigurationView m_primaryConfigView;
-  Swapchain m_colorSwapchain;
-  Swapchain m_depthSwapchain;
+  XrViewConfigurationView m_PrimaryConfigView;
+  Swapchain m_ColorSwapchain;
+  Swapchain m_DepthSwapchain;
 
-  ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_colorSwapChainImagesD3D11;
-  ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_depthSwapChainImagesD3D11;
-  ezHybridArray<ezGALTextureHandle, 3> m_hColorRTs;
-  ezHybridArray<ezGALTextureHandle, 3> m_hDepthRTs;
+  ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_ColorSwapChainImagesD3D11;
+  ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_DepthSwapChainImagesD3D11;
+  ezHybridArray<ezGALTextureHandle, 3> m_ColorRTs;
+  ezHybridArray<ezGALTextureHandle, 3> m_DepthRTs;
 
   bool m_bImageAcquired = false;
   ezGALTextureHandle m_hColorRT;

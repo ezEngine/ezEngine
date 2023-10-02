@@ -34,7 +34,7 @@ ezResult ezAssetTable::WriteAssetTable()
 
     for (auto it = allSubAssetsLocked->GetIterator(); it.IsValid(); ++it)
     {
-      sTemp = it.Value().m_pAssetInfo->m_sAbsolutePath;
+      sTemp = it.Value().m_pAssetInfo->m_Path.GetAbsolutePath();
 
       // ignore all assets that are not located in this data directory
       if (!sTemp.IsPathBelowFolder(m_sDataDir))
@@ -340,13 +340,5 @@ ezAssetTable* ezAssetTableWriter::GetAssetTable(ezUInt32 uiDataDirIndex, const e
 
 ezUInt32 ezAssetTableWriter::FindDataDir(const ezSubAsset& asset)
 {
-  for (ezUInt32 i = 0; i < m_DataDirRoots.GetCount(); ++i)
-  {
-    if (asset.m_pAssetInfo->m_sAbsolutePath.StartsWith(m_DataDirRoots[i]))
-    {
-      return i;
-    }
-  }
-  EZ_REPORT_FAILURE("The data dir for an asset was not found.");
-  return 0;
+  return asset.m_pAssetInfo->m_Path.GetDataDirIndex();
 }

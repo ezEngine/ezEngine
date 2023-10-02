@@ -25,6 +25,137 @@ namespace
   }
 } // namespace
 
+EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
+{
+  const ezStringView sFilePathView = "C:/Code/ezEngine/Data/Samples/Testing Chambers/Objects/Barrel.ezPrefab"_ezsv;
+  const ezStringView sDataDirView = "C:/Code/ezEngine/Data/Samples/Testing Chambers"_ezsv;
+
+  auto CheckIsValid = [&](const ezDataDirPath& path) {
+    EZ_TEST_BOOL(path.IsValid());
+    ezStringView sAbs = path.GetAbsolutePath();
+    EZ_TEST_STRING(sAbs, sFilePathView);
+    ezStringView sDD = path.GetDataDir();
+    EZ_TEST_STRING(sDD, sDataDirView);
+    ezStringView sPR = path.GetDataDirParentRelativePath();
+    EZ_TEST_STRING(sPR, "Testing Chambers/Objects/Barrel.ezPrefab");
+    ezStringView sR = path.GetDataDirRelativePath();
+    EZ_TEST_STRING(sR, "Objects/Barrel.ezPrefab");
+  };
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Windows Path copy ctor")
+  {
+    ezHybridArray<ezString, 2> rootFolders;
+    rootFolders.PushBack("C:/SomeOtherFolder/Folder");
+    rootFolders.PushBack(sDataDirView);
+
+    ezDataDirPath path(sFilePathView, rootFolders);
+    CheckIsValid(path);
+    ezUInt32 uiIndex = path.GetDataDirIndex();
+    EZ_TEST_INT(uiIndex, 1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Linux Path move ctor")
+  {
+    ezString sFilePathView = "/Code/ezEngine/Data/Samples/Testing Chambers/Objects/Barrel.ezPrefab"_ezsv;
+    ezString sFilePath = sFilePathView;
+    auto sDataDir = "/Code/ezEngine/Data/Samples/Testing Chambers"_ezsv;
+    ezHybridArray<ezString, 2> rootFolders;
+    rootFolders.PushBack(sDataDir);
+    rootFolders.PushBack("/SomeOtherFolder/Folder");
+
+    const char* szRawStringPtr = sFilePath.GetData();
+    ezDataDirPath path(std::move(sFilePath), rootFolders);
+    EZ_TEST_BOOL(path.IsValid());
+    ezStringView sAbs = path.GetAbsolutePath();
+    EZ_TEST_STRING(sAbs, sFilePathView);
+    EZ_TEST_BOOL(szRawStringPtr == sAbs.GetStartPointer());
+    ezStringView sDD = path.GetDataDir();
+    EZ_TEST_STRING(sDD, sDataDir);
+    ezStringView sPR = path.GetDataDirParentRelativePath();
+    EZ_TEST_STRING(sPR, "Testing Chambers/Objects/Barrel.ezPrefab");
+    ezStringView sR = path.GetDataDirRelativePath();
+    EZ_TEST_STRING(sR, "Objects/Barrel.ezPrefab");
+    ezUInt32 uiIndex = path.GetDataDirIndex();
+    EZ_TEST_INT(uiIndex, 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Path to DataDir Itself")
+  {
+    ezString sDataDirView = u8"/Code/ezEngine/Data/Sämples/Testing Chämbers";
+    ezHybridArray<ezString, 2> rootFolders;
+    rootFolders.PushBack(sDataDirView);
+
+    ezDataDirPath path(sDataDirView.GetView(), rootFolders);
+    EZ_TEST_BOOL(path.IsValid());
+    ezStringView sAbs = path.GetAbsolutePath();
+    EZ_TEST_STRING(sAbs, sDataDirView);
+    ezStringView sDD = path.GetDataDir();
+    EZ_TEST_STRING(sDD, sDataDirView);
+    ezStringView sPR = path.GetDataDirParentRelativePath();
+    EZ_TEST_STRING(sPR, u8"Testing Chämbers");
+    ezStringView sR = path.GetDataDirRelativePath();
+    EZ_TEST_STRING(sR, "");
+    ezUInt32 uiIndex = path.GetDataDirIndex();
+    EZ_TEST_INT(uiIndex, 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move")
+  {
+    ezHybridArray<ezString, 2> rootFolders;
+    rootFolders.PushBack(sDataDirView);
+
+    ezString sFilePath = sFilePathView;
+    const char* szRawStringPtr = sFilePath.GetData();
+    ezDataDirPath path(std::move(sFilePath), rootFolders);
+    CheckIsValid(path);
+
+    ezStringView sAbs = path.GetAbsolutePath();
+    EZ_TEST_BOOL(szRawStringPtr == sAbs.GetStartPointer());
+
+    ezDataDirPath path2 = std::move(path);
+    ezStringView sAbs2 = path2.GetAbsolutePath();
+    EZ_TEST_BOOL(szRawStringPtr == sAbs2.GetStartPointer());
+
+    ezDataDirPath path3(std::move(path2));
+    ezStringView sAbs3 = path3.GetAbsolutePath();
+    EZ_TEST_BOOL(szRawStringPtr == sAbs3.GetStartPointer());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Rebuild")
+  {
+    ezHybridArray<ezString, 2> rootFolders;
+    rootFolders.PushBack(sDataDirView);
+
+    ezDataDirPath path(sFilePathView, rootFolders);
+    CheckIsValid(path);
+    EZ_TEST_INT(path.GetDataDirIndex(), 0);
+
+    ezHybridArray<ezString, 2> newRootFolders;
+    newRootFolders.PushBack(sDataDirView);
+    newRootFolders.PushBack("C:/Some/Other/DataDir");
+
+    path.UpdateDataDirInfos(newRootFolders);
+    CheckIsValid(path);
+    EZ_TEST_INT(path.GetDataDirIndex(), 0);
+
+    newRootFolders.Insert("C:/Some/Other/DataDir2", 0);
+    path.UpdateDataDirInfos(newRootFolders);
+    CheckIsValid(path);
+    EZ_TEST_INT(path.GetDataDirIndex(), 1);
+
+    newRootFolders.RemoveAtAndCopy(0);
+    path.UpdateDataDirInfos(newRootFolders);
+    CheckIsValid(path);
+    EZ_TEST_INT(path.GetDataDirIndex(), 0);
+
+    newRootFolders.RemoveAtAndCopy(0);
+    path.UpdateDataDirInfos(newRootFolders);
+    EZ_TEST_BOOL(!path.IsValid());
+    ezStringView sAbs = path.GetAbsolutePath();
+    EZ_TEST_STRING(sAbs, sFilePathView);
+  }
+}
+
 EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 {
   constexpr ezUInt32 WAIT_LOOPS = 1000;
@@ -36,11 +167,14 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezStringBuilder sOutputFolderResolved;
   ezFileSystem::ResolveSpecialDirectory(sOutputFolder, sOutputFolderResolved).IgnoreResult();
 
+  ezHybridArray<ezString, 1> rootFolders;
+
   ezApplicationFileSystemConfig fsConfig;
   ezApplicationFileSystemConfig::DataDirConfig& dataDir = fsConfig.m_DataDirs.ExpandAndGetRef();
   dataDir.m_bWritable = true;
   dataDir.m_sDataDirSpecialPath = sOutputFolder;
   dataDir.m_sRootName = "output";
+  rootFolders.PushBack(sOutputFolder);
 
   // Files
   ezHybridArray<ezFileChangedEvent, 2> fileEvents;
@@ -55,12 +189,12 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     switch (e.m_Type)
     {
       case ezFileChangedEvent::Type::FileRemoved:
-        EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->FindFile(e.m_sPath, stat).Failed());
+        EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->FindFile(e.m_Path, stat).Failed());
         break;
       case ezFileChangedEvent::Type::FileAdded:
       case ezFileChangedEvent::Type::FileChanged:
       case ezFileChangedEvent::Type::DocumentLinked:
-        EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->FindFile(e.m_sPath, stat).Succeeded());
+        EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->FindFile(e.m_Path, stat).Succeeded());
         break;
 
       case ezFileChangedEvent::Type::ModelReset:
@@ -82,10 +216,10 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     switch (e.m_Type)
     {
       case ezFolderChangedEvent::Type::FolderAdded:
-        EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->GetFolders()->Contains(e.m_sPath));
+        EZ_TEST_BOOL(ezFileSystemModel::GetSingleton()->GetFolders()->Contains(e.m_Path));
         break;
       case ezFolderChangedEvent::Type::FolderRemoved:
-        EZ_TEST_BOOL(!ezFileSystemModel::GetSingleton()->GetFolders()->Contains(e.m_sPath));
+        EZ_TEST_BOOL(!ezFileSystemModel::GetSingleton()->GetFolders()->Contains(e.m_Path));
         break;
       case ezFolderChangedEvent::Type::ModelReset:
       default:
@@ -102,7 +236,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       for (size_t i = 0; i < expected.GetCount(); i++)
       {
         EZ_TEST_INT((int)expected[i].m_Type, (int)fileEvents[i].m_Type);
-        EZ_TEST_STRING(expected[i].m_sPath, fileEvents[i].m_sPath);
+        EZ_TEST_STRING(expected[i].m_Path, fileEvents[i].m_Path);
         EZ_TEST_BOOL(expected[i].m_Status.m_DocumentID == fileEvents[i].m_Status.m_DocumentID);
         // Ignore stats besudes GUID.
       }
@@ -122,7 +256,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       for (size_t i = 0; i < expected.GetCount(); i++)
       {
         EZ_TEST_INT((int)expected[i].m_Type, (int)folderEvents[i].m_Type);
-        EZ_TEST_STRING(expected[i].m_sPath, folderEvents[i].m_sPath);
+        EZ_TEST_STRING(expected[i].m_Path, folderEvents[i].m_Path);
         // Ignore stats
       }
     }
@@ -132,6 +266,10 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_LOCK(folderEventLock);
     folderEvents.Clear();
     folderEventTimestamps.Clear();
+  };
+
+  auto MakePath = [&](ezStringView sPath) {
+    return ezDataDirPath(sPath, rootFolders);
   };
 
 
@@ -181,7 +319,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
         break;
     }
 
-    ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePath, {}, ezFileChangedEvent::Type::FileAdded)};
+    ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileAdded)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
     CompareFolders({});
@@ -217,7 +355,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
         break;
     }
 
-    ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePath, {}, ezFileChangedEvent::Type::FileChanged)};
+    ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileChanged)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
     CompareFolders({});
@@ -247,8 +385,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     }
 
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::FileAdded),
-      ezFileChangedEvent(sFilePathOld, {}, ezFileChangedEvent::Type::FileRemoved)};
+      ezFileChangedEvent(MakePath(sFilePathNew), {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(MakePath(sFilePathOld), {}, ezFileChangedEvent::Type::FileRemoved)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
     CompareFolders({});
@@ -274,7 +412,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
         break;
     }
 
-    ezFolderChangedEvent expected[] = {ezFolderChangedEvent(sFolderPath, ezFolderChangedEvent::Type::FolderAdded)};
+    ezFolderChangedEvent expected[] = {ezFolderChangedEvent(MakePath(sFolderPath), ezFolderChangedEvent::Type::FolderAdded)};
     CompareFolders(ezMakeArrayPtr(expected));
     ClearFolders();
     CompareFiles({});
@@ -304,8 +442,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     }
 
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::FileAdded),
-      ezFileChangedEvent(sFilePathOld, {}, ezFileChangedEvent::Type::FileRemoved)};
+      ezFileChangedEvent(MakePath(sFilePathNew), {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(MakePath(sFilePathOld), {}, ezFileChangedEvent::Type::FileRemoved)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
     CompareFolders({});
@@ -343,15 +481,15 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     {
       ezFolderChangedEvent expected[] = {
-        ezFolderChangedEvent(sFolderPathNew, ezFolderChangedEvent::Type::FolderAdded),
-        ezFolderChangedEvent(sFolderPathOld, ezFolderChangedEvent::Type::FolderRemoved)};
+        ezFolderChangedEvent(MakePath(sFolderPathNew), ezFolderChangedEvent::Type::FolderAdded),
+        ezFolderChangedEvent(MakePath(sFolderPathOld), ezFolderChangedEvent::Type::FolderRemoved)};
       CompareFolders(ezMakeArrayPtr(expected));
     }
 
     {
       ezFileChangedEvent expected[] = {
-        ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::FileAdded),
-        ezFileChangedEvent(sFilePathOld, {}, ezFileChangedEvent::Type::FileRemoved)};
+        ezFileChangedEvent(MakePath(sFilePathNew), {}, ezFileChangedEvent::Type::FileAdded),
+        ezFileChangedEvent(MakePath(sFilePathOld), {}, ezFileChangedEvent::Type::FileRemoved)};
       CompareFiles(ezMakeArrayPtr(expected));
     }
     {
@@ -380,12 +518,15 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_TEST_INT((ezInt64)status.m_uiHash, (ezInt64)10983861097202158394u);
   }
 
-  ezMap<ezString, ezFileStatus> referencedFiles;
-  ezMap<ezString, ezFileStatus::Status> referencedFolders;
+  ezFileSystemModel::FilesMap referencedFiles;
+  ezFileSystemModel::FoldersMap referencedFolders;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shutdown")
   {
     ezFileSystemModel::GetSingleton()->Deinitialize(&referencedFiles, &referencedFolders);
+    EZ_TEST_INT(referencedFiles.GetCount(), 1);
+    EZ_TEST_INT(referencedFolders.GetCount(), 2);
+
     ezFileChangedEvent expected[] = {ezFileChangedEvent({}, {}, ezFileChangedEvent::Type::ModelReset)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
@@ -395,8 +536,24 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ClearFolders();
   }
 
+  ezStringBuilder sOutputFolder2 = sOutputFolderResolved;
+  sOutputFolder2.ChangeFileNameAndExtension("Model2");
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Startup Restore Model")
   {
+    {
+      // Add another data directory. This is now at the index of the old one, requiring the indices to be updated inside ezFileSystemModel::Initialize.
+      EZ_TEST_RESULT(ezOSFile::DeleteFolder(sOutputFolder2));
+      EZ_TEST_RESULT(ezFileSystem::CreateDirectoryStructure(sOutputFolder2));
+      ezApplicationFileSystemConfig::DataDirConfig dataDir;
+      dataDir.m_bWritable = true;
+      dataDir.m_sDataDirSpecialPath = sOutputFolder2;
+      dataDir.m_sRootName = "output2";
+
+      rootFolders.Insert(sOutputFolder, 0);
+      fsConfig.m_DataDirs.Insert(dataDir, 0);
+    }
+
     ezFileSystemModel::GetSingleton()->Initialize(fsConfig, std::move(referencedFiles), std::move(referencedFolders));
 
     ezFileChangedEvent expected[] = {ezFileChangedEvent({}, {}, ezFileChangedEvent::Type::ModelReset)};
@@ -408,7 +565,13 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ClearFolders();
 
     EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
+
+    // Check that files have be remapped.
+    for (auto it : *ezFileSystemModel::GetSingleton()->GetFiles())
+    {
+      EZ_TEST_INT(it.Key().GetDataDirIndex(), 1);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFiles")
@@ -431,7 +594,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     sFolder.AppendPath("Folder2");
 
     ezFileSystemModel::LockedFolders folders = ezFileSystemModel::GetSingleton()->GetFolders();
-    EZ_TEST_INT(folders->GetCount(), 2);
+    EZ_TEST_INT(folders->GetCount(), 3);
     auto it = folders->GetIterator();
 
     // ezMap is sorted so the order is fixed.
@@ -440,6 +603,10 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     it.Next();
     EZ_TEST_STRING(it.Key(), sFolder);
+    EZ_TEST_BOOL(it.Value() == ezFileStatus::Status::Valid);
+
+    it.Next();
+    EZ_TEST_STRING(it.Key(), sOutputFolder2);
     EZ_TEST_BOOL(it.Value() == ezFileStatus::Status::Valid);
   }
 
@@ -455,7 +622,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     // #TODO_ASSET This FileChanged should be removed once the model is fixed to no longer require firing this after restoring the model from cache. See comment in ezFileSystemModel::HandleSingleFile.
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sFilePath, {}, ezFileChangedEvent::Type::FileChanged),
+      ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileChanged),
       ezFileChangedEvent({}, {}, ezFileChangedEvent::Type::ModelReset)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
@@ -465,7 +632,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ClearFolders();
 
     EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "NotifyOfChange - File")
@@ -476,24 +643,24 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       EZ_TEST_RESULT(eztCreateFile(sFilePath));
       ezFileSystemModel::GetSingleton()->NotifyOfChange(sFilePath);
 
-      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePath, {}, ezFileChangedEvent::Type::FileAdded)};
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileAdded)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
       CompareFolders({});
       EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 2);
-      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
     }
 
     {
       EZ_TEST_RESULT(ezOSFile::DeleteFile(sFilePath));
       ezFileSystemModel::GetSingleton()->NotifyOfChange(sFilePath);
 
-      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePath, {}, ezFileChangedEvent::Type::FileRemoved)};
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileRemoved)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
       CompareFolders({});
       EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
     }
 
     for (size_t i = 0; i < 15; i++)
@@ -515,11 +682,11 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
       CompareFiles({});
       ClearFiles();
-      ezFolderChangedEvent expected[] = {ezFolderChangedEvent(sFolderPath, ezFolderChangedEvent::Type::FolderAdded)};
+      ezFolderChangedEvent expected[] = {ezFolderChangedEvent(MakePath(sFolderPath), ezFolderChangedEvent::Type::FolderAdded)};
       CompareFolders(ezMakeArrayPtr(expected));
       ClearFolders();
       EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
+      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 4);
     }
 
     {
@@ -528,11 +695,11 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
       CompareFiles({});
       ClearFiles();
-      ezFolderChangedEvent expected[] = {ezFolderChangedEvent(sFolderPath, ezFolderChangedEvent::Type::FolderRemoved)};
+      ezFolderChangedEvent expected[] = {ezFolderChangedEvent(MakePath(sFolderPath), ezFolderChangedEvent::Type::FolderRemoved)};
       CompareFolders(ezMakeArrayPtr(expected));
       ClearFolders();
       EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
     }
     for (size_t i = 0; i < 15; i++)
     {
@@ -551,24 +718,24 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       EZ_TEST_RESULT(eztCreateFile(sFilePath));
       ezFileSystemModel::GetSingleton()->CheckFolder(sOutputFolder);
 
-      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePath, {}, ezFileChangedEvent::Type::FileAdded)};
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileAdded)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
       CompareFolders({});
       EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 2);
-      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
     }
 
     {
       EZ_TEST_RESULT(ezOSFile::DeleteFile(sFilePath));
       ezFileSystemModel::GetSingleton()->CheckFolder(sOutputFolder);
 
-      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePath, {}, ezFileChangedEvent::Type::FileRemoved)};
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileRemoved)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
       CompareFolders({});
       EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
     }
     for (size_t i = 0; i < 15; i++)
     {
@@ -592,12 +759,12 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       CompareFiles({});
       ClearFiles();
       ezFolderChangedEvent expected[] = {
-        ezFolderChangedEvent(sFolderPath, ezFolderChangedEvent::Type::FolderAdded),
-        ezFolderChangedEvent(sFolderSubPath, ezFolderChangedEvent::Type::FolderAdded)};
+        ezFolderChangedEvent(MakePath(sFolderPath), ezFolderChangedEvent::Type::FolderAdded),
+        ezFolderChangedEvent(MakePath(sFolderSubPath), ezFolderChangedEvent::Type::FolderAdded)};
       CompareFolders(ezMakeArrayPtr(expected));
       ClearFolders();
       EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 4);
+      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 5);
     }
 
     {
@@ -607,12 +774,12 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       CompareFiles({});
       ClearFiles();
       ezFolderChangedEvent expected[] = {
-        ezFolderChangedEvent(sFolderSubPath, ezFolderChangedEvent::Type::FolderRemoved),
-        ezFolderChangedEvent(sFolderPath, ezFolderChangedEvent::Type::FolderRemoved)};
+        ezFolderChangedEvent(MakePath(sFolderSubPath), ezFolderChangedEvent::Type::FolderRemoved),
+        ezFolderChangedEvent(MakePath(sFolderPath), ezFolderChangedEvent::Type::FolderRemoved)};
       CompareFolders(ezMakeArrayPtr(expected));
       ClearFolders();
       EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+      EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
     }
     for (size_t i = 0; i < 15; i++)
     {
@@ -638,7 +805,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     ezFileStatus stat;
     stat.m_DocumentID = docGuid;
-    ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentLinked)};
+    ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePathNew), stat, ezFileChangedEvent::Type::DocumentLinked)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
   }
@@ -661,9 +828,9 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       stat2.m_DocumentID = guid2;
 
       ezFileChangedEvent expected[] = {
-        ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentLinked),
-        ezFileChangedEvent(sFilePathNew, stat, ezFileChangedEvent::Type::DocumentUnlinked),
-        ezFileChangedEvent(sFilePathNew, stat2, ezFileChangedEvent::Type::DocumentLinked)};
+        ezFileChangedEvent(MakePath(sFilePathNew), stat, ezFileChangedEvent::Type::DocumentLinked),
+        ezFileChangedEvent(MakePath(sFilePathNew), stat, ezFileChangedEvent::Type::DocumentUnlinked),
+        ezFileChangedEvent(MakePath(sFilePathNew), stat2, ezFileChangedEvent::Type::DocumentLinked)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
     }
@@ -674,7 +841,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       ezFileStatus stat2;
       stat2.m_DocumentID = guid2;
 
-      ezFileChangedEvent expected[] = {ezFileChangedEvent(sFilePathNew, stat2, ezFileChangedEvent::Type::DocumentUnlinked)};
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePathNew), stat2, ezFileChangedEvent::Type::DocumentUnlinked)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
     }
@@ -708,14 +875,14 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     }
 
     ezFileChangedEvent expected[] = {
-      ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::FileAdded),
-      ezFileChangedEvent(sFilePathOld, {}, ezFileChangedEvent::Type::FileRemoved)};
+      ezFileChangedEvent(MakePath(sFilePathNew), {}, ezFileChangedEvent::Type::FileAdded),
+      ezFileChangedEvent(MakePath(sFilePathOld), {}, ezFileChangedEvent::Type::FileRemoved)};
     CompareFiles(ezMakeArrayPtr(expected));
     ClearFiles();
     CompareFolders({});
 
     EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Change folder casing")
@@ -740,8 +907,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     {
       ezFolderChangedEvent expected[] = {
-        ezFolderChangedEvent(sFolderPathNew, ezFolderChangedEvent::Type::FolderAdded),
-        ezFolderChangedEvent(sFolderPathOld, ezFolderChangedEvent::Type::FolderRemoved)};
+        ezFolderChangedEvent(MakePath(sFolderPathNew), ezFolderChangedEvent::Type::FolderAdded),
+        ezFolderChangedEvent(MakePath(sFolderPathOld), ezFolderChangedEvent::Type::FolderRemoved)};
       CompareFolders(ezMakeArrayPtr(expected));
       ClearFolders();
     }
@@ -753,14 +920,14 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
       sFilePathNew.AppendPath("FOLDER2", "RootFile2.txt");
 
       ezFileChangedEvent expected[] = {
-        ezFileChangedEvent(sFilePathNew, {}, ezFileChangedEvent::Type::FileAdded),
-        ezFileChangedEvent(sFilePathOld, {}, ezFileChangedEvent::Type::FileRemoved)};
+        ezFileChangedEvent(MakePath(sFilePathNew), {}, ezFileChangedEvent::Type::FileAdded),
+        ezFileChangedEvent(MakePath(sFilePathOld), {}, ezFileChangedEvent::Type::FileRemoved)};
       CompareFiles(ezMakeArrayPtr(expected));
       ClearFiles();
     }
 
     EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
-    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "delete folder")
@@ -786,13 +953,13 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     {
       ezFolderChangedEvent expected[] = {
-        ezFolderChangedEvent(sFolderPath, ezFolderChangedEvent::Type::FolderRemoved)};
+        ezFolderChangedEvent(MakePath(sFolderPath), ezFolderChangedEvent::Type::FolderRemoved)};
       CompareFolders(ezMakeArrayPtr(expected));
     }
 
     {
       ezFileChangedEvent expected[] = {
-        ezFileChangedEvent(sFilePath, {}, ezFileChangedEvent::Type::FileRemoved)};
+        ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileRemoved)};
       CompareFiles(ezMakeArrayPtr(expected));
     }
 
@@ -807,10 +974,68 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ClearFiles();
 
     EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 0);
-    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 1);
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 2);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shutdown2")
+  referencedFiles = {};
+  referencedFolders = {};
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shutdown with cached files and folders")
+  {
+    {
+      // Add a file to test data directories being removed.
+      ezStringBuilder sFilePath(sOutputFolder);
+      sFilePath.AppendPath("rootFile.txt");
+
+      EZ_TEST_RESULT(eztCreateFile(sFilePath));
+
+      for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+      {
+        ezFileSystemModel::GetSingleton()->MainThreadTick();
+        ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+        EZ_LOCK(fileEventLock);
+        if (fileEvents.GetCount() > 0)
+          break;
+      }
+
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sFilePath), {}, ezFileChangedEvent::Type::FileAdded)};
+      CompareFiles(ezMakeArrayPtr(expected));
+      ClearFiles();
+      CompareFolders({});
+    }
+
+    ezFileSystemModel::GetSingleton()->Deinitialize(&referencedFiles, &referencedFolders);
+    EZ_TEST_INT(referencedFiles.GetCount(), 1);
+    EZ_TEST_INT(referencedFolders.GetCount(), 2);
+
+    ezFileChangedEvent expected[] = {ezFileChangedEvent({}, {}, ezFileChangedEvent::Type::ModelReset)};
+    CompareFiles(ezMakeArrayPtr(expected));
+    ClearFiles();
+
+    ezFolderChangedEvent expected2[] = {ezFolderChangedEvent({}, ezFolderChangedEvent::Type::ModelReset)};
+    CompareFolders(ezMakeArrayPtr(expected2));
+    ClearFolders();
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Startup without data dirs")
+  {
+    fsConfig.m_DataDirs.Clear();
+
+    ezFileSystemModel::GetSingleton()->Initialize(fsConfig, std::move(referencedFiles), std::move(referencedFolders));
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 0);
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 0);
+
+    ezFileChangedEvent expected[] = {ezFileChangedEvent({}, {}, ezFileChangedEvent::Type::ModelReset)};
+    CompareFiles(ezMakeArrayPtr(expected));
+    ClearFiles();
+
+    ezFolderChangedEvent expected2[] = {ezFolderChangedEvent({}, ezFolderChangedEvent::Type::ModelReset)};
+    CompareFolders(ezMakeArrayPtr(expected2));
+    ClearFolders();
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Final shutdown")
   {
     ezFileSystemModel::GetSingleton()->Deinitialize();
     ezFileChangedEvent expected[] = {ezFileChangedEvent({}, {}, ezFileChangedEvent::Type::ModelReset)};

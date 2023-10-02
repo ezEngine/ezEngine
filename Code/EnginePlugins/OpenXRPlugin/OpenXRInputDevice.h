@@ -16,11 +16,11 @@ class EZ_OPENXRPLUGIN_DLL ezOpenXRInputDevice : public ezXRInputDevice
   EZ_ADD_DYNAMIC_REFLECTION(ezOpenXRInputDevice, ezXRInputDevice);
 
 public:
-  void GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_Devices) const override;
+  void GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_devices) const override;
   ezXRDeviceID GetDeviceIDByType(ezXRDeviceType::Enum type) const override;
-  const ezXRDeviceState& GetDeviceState(ezXRDeviceID iDeviceID) const override;
-  ezString GetDeviceName(ezXRDeviceID iDeviceID) const override;
-  ezBitflags<ezXRDeviceFeatures> GetDeviceFeatures(ezXRDeviceID iDeviceID) const override;
+  const ezXRDeviceState& GetDeviceState(ezXRDeviceID deviceID) const override;
+  ezString GetDeviceName(ezXRDeviceID deviceID) const override;
+  ezBitflags<ezXRDeviceFeatures> GetDeviceFeatures(ezXRDeviceID deviceID) const override;
 
 private:
   friend class ezOpenXR;
@@ -39,7 +39,7 @@ private:
 
   struct Vec2Action
   {
-    Vec2Action(ezXRDeviceFeatures::Enum feature, XrAction action, ezStringView sLeft, ezStringView sRight);
+    Vec2Action(ezXRDeviceFeatures::Enum feature, XrAction pAction, ezStringView sLeft, ezStringView sRight);
     ezXRDeviceFeatures::Enum m_Feature;
     XrAction m_Action;
     ezString m_sKey_negx[2];
@@ -67,8 +67,8 @@ private:
 
 private:
   ezOpenXR* m_pOpenXR = nullptr;
-  XrInstance m_instance = XR_NULL_HANDLE;
-  XrSession m_session = XR_NULL_HANDLE;
+  XrInstance m_pInstance = XR_NULL_HANDLE;
+  XrSession m_pSession = XR_NULL_HANDLE;
 
   ezXRDeviceState m_DeviceState[3]; // Hard-coded for now
   ezString m_sActiveProfile[3];
@@ -76,16 +76,16 @@ private:
   const ezInt8 m_iLeftControllerDeviceID = 1;
   const ezInt8 m_iRightControllerDeviceID = 2;
 
-  XrActionSet m_ActionSet = XR_NULL_HANDLE;
+  XrActionSet m_pActionSet = XR_NULL_HANDLE;
   ezHashTable<XrPath, ezString> m_InteractionProfileToNiceName;
 
-  ezStaticArray<const char*, 2> m_subActionPrefix;
-  ezStaticArray<XrPath, 2> m_subActionPath;
+  ezStaticArray<const char*, 2> m_SubActionPrefix;
+  ezStaticArray<XrPath, 2> m_SubActionPath;
 
-  ezHybridArray<Action, 4> m_booleanActions;
-  ezHybridArray<Action, 4> m_floatActions;
-  ezHybridArray<Vec2Action, 4> m_vec2Actions;
-  ezHybridArray<Action, 4> m_poseActions;
+  ezHybridArray<Action, 4> m_BooleanActions;
+  ezHybridArray<Action, 4> m_FloatActions;
+  ezHybridArray<Vec2Action, 4> m_Vec2Actions;
+  ezHybridArray<Action, 4> m_PoseActions;
 
   XrSpace m_gripSpace[2];
   XrSpace m_aimSpace[2];

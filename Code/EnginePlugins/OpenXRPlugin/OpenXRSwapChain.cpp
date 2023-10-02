@@ -26,16 +26,16 @@ void ezGALOpenXRSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 
   {
     EZ_PROFILE_SCOPE("AquireAndWait");
-    AquireAndWait(m_colorSwapchain);
+    AquireAndWait(m_ColorSwapchain);
     if (pOpenXR->GetDepthComposition())
-      AquireAndWait(m_depthSwapchain);
+      AquireAndWait(m_DepthSwapchain);
   }
 
-  m_hColorRT = m_hColorRTs[m_colorSwapchain.imageIndex];
+  m_hColorRT = m_ColorRTs[m_ColorSwapchain.imageIndex];
   m_RenderTargets.m_hRTs[0] = m_hColorRT;
   if (pOpenXR->GetDepthComposition())
   {
-    m_hDepthRT = m_hDepthRTs[m_depthSwapchain.imageIndex];
+    m_hDepthRT = m_DepthRTs[m_DepthSwapchain.imageIndex];
     m_RenderTargets.m_hDSTarget = m_hDepthRT;
   }
 }
@@ -62,16 +62,16 @@ void ezGALOpenXRSwapChain::PresentRenderTarget() const
   auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
   EZ_PROFILE_SCOPE("xrReleaseSwapchainImage");
   XrSwapchainImageReleaseInfo releaseInfo{XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO};
-  XR_LOG_ERROR(xrReleaseSwapchainImage(m_colorSwapchain.handle, &releaseInfo));
+  XR_LOG_ERROR(xrReleaseSwapchainImage(m_ColorSwapchain.handle, &releaseInfo));
   if (pOpenXR->GetDepthComposition())
   {
-    XR_LOG_ERROR(xrReleaseSwapchainImage(m_depthSwapchain.handle, &releaseInfo));
+    XR_LOG_ERROR(xrReleaseSwapchainImage(m_DepthSwapchain.handle, &releaseInfo));
   }
 }
 
 ezResult ezGALOpenXRSwapChain::InitPlatform(ezGALDevice* pDevice)
 {
-  if (InitSwapChain(m_msaaCount) != XrResult::XR_SUCCESS)
+  if (InitSwapChain(m_MsaaCount) != XrResult::XR_SUCCESS)
     return EZ_FAILURE;
 
   m_RenderTargets.m_hRTs[0] = m_hColorRT;
@@ -88,10 +88,10 @@ ezResult ezGALOpenXRSwapChain::DeInitPlatform(ezGALDevice* pDevice)
 ezGALOpenXRSwapChain::ezGALOpenXRSwapChain(ezOpenXR* pXrInterface, ezGALMSAASampleCount::Enum msaaCount)
   : ezGALXRSwapChain(pXrInterface)
 {
-  m_instance = pXrInterface->GetInstance();
-  m_systemId = pXrInterface->GetSystemId();
-  m_session = pXrInterface->GetSession();
-  m_msaaCount = msaaCount;
+  m_pInstance = pXrInterface->GetInstance();
+  m_SystemId = pXrInterface->GetSystemId();
+  m_pSession = pXrInterface->GetSession();
+  m_MsaaCount = msaaCount;
 }
 
 XrResult ezGALOpenXRSwapChain::SelectSwapchainFormat(int64_t& colorFormat, int64_t& depthFormat)
@@ -99,9 +99,9 @@ XrResult ezGALOpenXRSwapChain::SelectSwapchainFormat(int64_t& colorFormat, int64
   auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
 
   uint32_t swapchainFormatCount;
-  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainFormats(m_session, 0, &swapchainFormatCount, nullptr), voidFunction);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainFormats(m_pSession, 0, &swapchainFormatCount, nullptr), voidFunction);
   std::vector<int64_t> swapchainFormats(swapchainFormatCount);
-  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainFormats(m_session, (uint32_t)swapchainFormats.size(), &swapchainFormatCount, swapchainFormats.data()), voidFunction);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainFormats(m_pSession, (uint32_t)swapchainFormats.size(), &swapchainFormatCount, swapchainFormats.data()), voidFunction);
 
   // List of supported color swapchain formats, in priority order.
   constexpr DXGI_FORMAT SupportedColorSwapchainFormats[] = {
@@ -138,13 +138,13 @@ XrResult ezGALOpenXRSwapChain::CreateSwapchainImages(Swapchain& swapchain, Swapc
 {
   if (type == SwapchainType::Color)
   {
-    m_colorSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
-    swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_colorSwapChainImagesD3D11.GetData());
+    m_ColorSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
+    swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_ColorSwapChainImagesD3D11.GetData());
   }
   else
   {
-    m_depthSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
-    swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_depthSwapChainImagesD3D11.GetData());
+    m_DepthSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
+    swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_DepthSwapChainImagesD3D11.GetData());
   }
   XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainImages(swapchain.handle, swapchain.imageCount, &swapchain.imageCount, swapchain.images), voidFunction);
 
@@ -155,11 +155,11 @@ XrResult ezGALOpenXRSwapChain::CreateSwapchainImages(Swapchain& swapchain, Swapc
     ID3D11Texture2D* pTex = nullptr;
     if (type == SwapchainType::Color)
     {
-      pTex = m_colorSwapChainImagesD3D11[i].texture;
+      pTex = m_ColorSwapChainImagesD3D11[i].texture;
     }
     else
     {
-      pTex = m_depthSwapChainImagesD3D11[i].texture;
+      pTex = m_DepthSwapChainImagesD3D11[i].texture;
     }
 
     D3D11_TEXTURE2D_DESC backBufferDesc;
@@ -173,17 +173,17 @@ XrResult ezGALOpenXRSwapChain::CreateSwapchainImages(Swapchain& swapchain, Swapc
     pTex->AddRef();
     if (type == SwapchainType::Color)
     {
-      m_hColorRTs.PushBack(pDevice->CreateTexture(textureDesc));
+      m_ColorRTs.PushBack(pDevice->CreateTexture(textureDesc));
     }
     else
     {
-      m_hDepthRTs.PushBack(pDevice->CreateTexture(textureDesc));
+      m_DepthRTs.PushBack(pDevice->CreateTexture(textureDesc));
     }
   }
   if (type == SwapchainType::Color)
-    m_hColorRT = m_hColorRTs[0];
+    m_hColorRT = m_ColorRTs[0];
   else
-    m_hDepthRT = m_hDepthRTs[0];
+    m_hDepthRT = m_DepthRTs[0];
   return XR_SUCCESS;
 }
 
@@ -193,10 +193,10 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
 
   // Read graphics properties for preferred swapchain length and logging.
   XrSystemProperties systemProperties{XR_TYPE_SYSTEM_PROPERTIES};
-  XR_SUCCEED_OR_CLEANUP_LOG(xrGetSystemProperties(m_instance, m_systemId, &systemProperties), DeinitSwapChain);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrGetSystemProperties(m_pInstance, m_SystemId, &systemProperties), DeinitSwapChain);
 
   ezUInt32 viewCount = 0;
-  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateViewConfigurationViews(m_instance, m_systemId, pOpenXR->GetViewType(), 0, &viewCount, nullptr), DeinitSwapChain);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateViewConfigurationViews(m_pInstance, m_SystemId, pOpenXR->GetViewType(), 0, &viewCount, nullptr), DeinitSwapChain);
   if (viewCount != 2)
   {
     ezLog::Error("No stereo view configuration present, can't create swap chain");
@@ -205,19 +205,19 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
   }
   ezHybridArray<XrViewConfigurationView, 2> views;
   views.SetCount(viewCount, {XR_TYPE_VIEW_CONFIGURATION_VIEW});
-  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateViewConfigurationViews(m_instance, m_systemId, pOpenXR->GetViewType(), viewCount, &viewCount, views.GetData()), DeinitSwapChain);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateViewConfigurationViews(m_pInstance, m_SystemId, pOpenXR->GetViewType(), viewCount, &viewCount, views.GetData()), DeinitSwapChain);
 
   // Create the swapchain and get the images.
   // Select a swapchain format.
-  m_primaryConfigView = views[0];
-  XR_SUCCEED_OR_CLEANUP_LOG(SelectSwapchainFormat(m_colorSwapchain.format, m_depthSwapchain.format), DeinitSwapChain);
+  m_PrimaryConfigView = views[0];
+  XR_SUCCEED_OR_CLEANUP_LOG(SelectSwapchainFormat(m_ColorSwapchain.format, m_DepthSwapchain.format), DeinitSwapChain);
 
   // Create the swapchain.
   XrSwapchainCreateInfo swapchainCreateInfo{XR_TYPE_SWAPCHAIN_CREATE_INFO};
   swapchainCreateInfo.arraySize = 2;
-  swapchainCreateInfo.format = m_colorSwapchain.format;
-  swapchainCreateInfo.width = m_primaryConfigView.recommendedImageRectWidth;
-  swapchainCreateInfo.height = m_primaryConfigView.recommendedImageRectHeight;
+  swapchainCreateInfo.format = m_ColorSwapchain.format;
+  swapchainCreateInfo.width = m_PrimaryConfigView.recommendedImageRectWidth;
+  swapchainCreateInfo.height = m_PrimaryConfigView.recommendedImageRectHeight;
   swapchainCreateInfo.mipCount = 1;
   swapchainCreateInfo.faceCount = 1;
   swapchainCreateInfo.sampleCount = (int)msaaCount;
@@ -226,19 +226,19 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
   m_CurrentSize = {swapchainCreateInfo.width, swapchainCreateInfo.height};
 
   auto CreateSwapChain = [this](const XrSwapchainCreateInfo& swapchainCreateInfo, Swapchain& swapchain, SwapchainType type) -> XrResult {
-    XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSwapchain(m_session, &swapchainCreateInfo, &swapchain.handle), voidFunction);
+    XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSwapchain(m_pSession, &swapchainCreateInfo, &swapchain.handle), voidFunction);
     XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainImages(swapchain.handle, 0, &swapchain.imageCount, nullptr), voidFunction);
     CreateSwapchainImages(swapchain, type);
 
     return XrResult::XR_SUCCESS;
   };
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateSwapChain(swapchainCreateInfo, m_colorSwapchain, SwapchainType::Color), DeinitSwapChain);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateSwapChain(swapchainCreateInfo, m_ColorSwapchain, SwapchainType::Color), DeinitSwapChain);
 
   if (pOpenXR->GetDepthComposition())
   {
-    swapchainCreateInfo.format = m_depthSwapchain.format;
+    swapchainCreateInfo.format = m_DepthSwapchain.format;
     swapchainCreateInfo.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    XR_SUCCEED_OR_CLEANUP_LOG(CreateSwapChain(swapchainCreateInfo, m_depthSwapchain, SwapchainType::Depth), DeinitSwapChain);
+    XR_SUCCEED_OR_CLEANUP_LOG(CreateSwapChain(swapchainCreateInfo, m_DepthSwapchain, SwapchainType::Depth), DeinitSwapChain);
   }
   else
   {
@@ -259,14 +259,14 @@ void ezGALOpenXRSwapChain::DeinitSwapChain()
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  for (ezGALTextureHandle rt : m_hColorRTs)
+  for (ezGALTextureHandle rt : m_ColorRTs)
   {
     pDevice->DestroyTexture(rt);
   }
-  m_hColorRTs.Clear();
+  m_ColorRTs.Clear();
   if (pOpenXR->GetDepthComposition())
   {
-    for (ezGALTextureHandle rt : m_hDepthRTs)
+    for (ezGALTextureHandle rt : m_DepthRTs)
     {
       pDevice->DestroyTexture(rt);
     }
@@ -276,7 +276,7 @@ void ezGALOpenXRSwapChain::DeinitSwapChain()
     pDevice->DestroyTexture(m_hDepthRT);
     m_hDepthRT.Invalidate();
   }
-  m_hDepthRTs.Clear();
+  m_DepthRTs.Clear();
   m_hColorRT.Invalidate();
   m_hDepthRT.Invalidate();
 
@@ -291,10 +291,10 @@ void ezGALOpenXRSwapChain::DeinitSwapChain()
     swapchain.images = nullptr;
     swapchain.imageIndex = 0;
   };
-  m_primaryConfigView = {XR_TYPE_VIEW_CONFIGURATION_VIEW};
-  DeleteSwapchain(m_colorSwapchain);
-  DeleteSwapchain(m_depthSwapchain);
+  m_PrimaryConfigView = {XR_TYPE_VIEW_CONFIGURATION_VIEW};
+  DeleteSwapchain(m_ColorSwapchain);
+  DeleteSwapchain(m_DepthSwapchain);
 
-  m_colorSwapChainImagesD3D11.Clear();
-  m_depthSwapChainImagesD3D11.Clear();
+  m_ColorSwapChainImagesD3D11.Clear();
+  m_DepthSwapChainImagesD3D11.Clear();
 }
