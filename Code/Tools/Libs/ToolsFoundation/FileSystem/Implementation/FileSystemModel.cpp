@@ -119,24 +119,24 @@ void ezFileSystemModel::Initialize(const ezApplicationFileSystemConfig& fileSyst
     }
 
     // Update data dir index and remove files no longer inside a data dir.
-    for (auto it = referencedFiles.GetIterator(); it.IsValid();)
+    for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid();)
     {
       const bool bValid = it.Key().UpdateDataDirInfos(m_DataDirRoots, it.Key().GetDataDirIndex());
       if (!bValid)
       {
-        it = referencedFiles.Remove(it);
+        it = m_ReferencedFiles.Remove(it);
       }
       else
       {
         ++it;
       }
     }
-    for (auto it = referencedFolders.GetIterator(); it.IsValid();)
+    for (auto it = m_ReferencedFolders.GetIterator(); it.IsValid();)
     {
       const bool bValid = it.Key().UpdateDataDirInfos(m_DataDirRoots, it.Key().GetDataDirIndex());
       if (!bValid)
       {
-        it = referencedFolders.Remove(it);
+        it = m_ReferencedFolders.Remove(it);
       }
       else
       {

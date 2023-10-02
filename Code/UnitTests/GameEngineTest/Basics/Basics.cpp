@@ -91,7 +91,21 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
       ezLog::Error("Failed to create output directory: {}", sOutputPath);
   }
 
+  ezStringBuilder sStdout;
+  ezMutex mutex;
+
   ezProcessOptions opt;
+  opt.m_onStdOut = [&sStdout, &mutex](ezStringView sView)
+  {
+    EZ_LOCK(mutex);
+    sStdout.Append(sView);
+  };
+  opt.m_onStdError = [&sStdout, &mutex](ezStringView sView)
+  {
+    EZ_LOCK(mutex);
+    sStdout.Append(sView);
+  };
+
   opt.m_sProcess = sBinPath;
   opt.m_Arguments.PushBack("-project");
   opt.AddArgument("\"{0}\"", sProjectDir);
@@ -104,8 +118,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   opt.m_Arguments.PushBack("never");
   opt.m_Arguments.PushBack("-renderer");
   opt.m_Arguments.PushBack(ezGameApplication::GetActiveRenderer());
-
-
+  opt.m_Arguments.PushBack("-fullcrashdumps");
 
   ezProcess proc;
   ezLog::Info("Launching: '{0}'", sBinPath);
@@ -118,6 +131,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 
   ezTime timeout = ezTime::MakeFromMinutes(15);
   res = proc.WaitToFinish(timeout);
+  ezResult returnValue = EZ_SUCCESS;
   if (res.Failed())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -127,16 +141,33 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 #  endif
     proc.Terminate().IgnoreResult();
     ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
-    return EZ_FAILURE;
+    returnValue = EZ_FAILURE;
   }
-  if (proc.GetExitCode() != 0)
+  else if (proc.GetExitCode() != 0)
   {
     ezLog::Error("Process failure ({0}): ExitCode: '{1}'", sBinPath, proc.GetExitCode());
-    return EZ_FAILURE;
+    returnValue = EZ_FAILURE;
+  }
+  else
+  {
+    ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
   }
 
-  ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
-  return EZ_SUCCESS;
+  {
+    ezOSFile fileWriter;
+    ezStringBuilder sLogFile = sOutputPath;
+    sLogFile.AppendFormat("/EditorProcessor_{}.txt", proc.GetProcessID());
+    if (fileWriter.Open(sLogFile, ezFileOpenMode::Write, ezFileShareMode::Exclusive) == EZ_SUCCESS)
+    {
+      fileWriter.Write(sStdout.GetData(), sStdout.GetElementCount());
+    }
+    else
+    {
+      ezLog::Error("Failed to write EditorProcessor log at '{}'", sLogFile);
+    }
+  }
+
+  return returnValue;
 }
 #endif
 

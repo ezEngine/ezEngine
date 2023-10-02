@@ -37,7 +37,7 @@ function(ez_link_target_openxr TARGET_NAME)
 				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezOpenXR::Loader> $<TARGET_FILE_DIR:${TARGET_NAME}>)
 		endif()
         
-        if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+        if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT AND MSVC)
             # This will add the remoting .targets file.
             target_link_libraries(${TARGET_NAME} PRIVATE $<TARGET_FILE:ezOpenXR::Remoting>)
         endif()

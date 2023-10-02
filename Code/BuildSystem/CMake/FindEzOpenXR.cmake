@@ -77,7 +77,7 @@ if(EZOPENXR_FOUND)
 		set_target_properties(ezOpenXR::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_OPENXR_HEADERS_DIR}/include")
 	endif()
 
-	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+	if(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT AND MSVC)
 		# As this is a windows only library, we are relying on the .targets file to handle to includes / imports.
 		add_library(ezOpenXR::Remoting SHARED IMPORTED)
 		set_target_properties(ezOpenXR::Remoting PROPERTIES IMPORTED_LOCATION ${EZ_OPENXR_REMOTING_DIR}/build/native/Microsoft.Holographic.Remoting.OpenXr.targets)

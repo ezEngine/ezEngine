@@ -72,7 +72,7 @@ ezOpenXR::ezOpenXR()
 #endif
 }
 
-ezOpenXR::~ezOpenXR() {}
+ezOpenXR::~ezOpenXR() = default;
 
 bool ezOpenXR::GetDepthComposition() const
 {
@@ -655,6 +655,8 @@ void ezOpenXR::BeforeUpdatePlugins()
             m_bRequestRestart = true;
             break;
           }
+          default:
+            break;
         }
       }
       break;
@@ -665,6 +667,8 @@ void ezOpenXR::BeforeUpdatePlugins()
         m_bRequestRestart = false;
       }
       break;
+      default:
+        break;
     }
     event = {XR_TYPE_EVENT_DATA_BUFFER, nullptr};
   }
@@ -1053,9 +1057,9 @@ ezQuat ezOpenXR::ConvertOrientation(const XrQuaternionf& q)
   return {-q.z, q.x, q.y, -q.w};
 }
 
-ezVec3 ezOpenXR::ConvertPosition(const XrVector3f& vPos)
+ezVec3 ezOpenXR::ConvertPosition(const XrVector3f& pos)
 {
-  return {-vPos.z, vPos.x, vPos.y};
+  return {-pos.z, pos.x, pos.y};
 }
 
 ezMat4 ezOpenXR::ConvertPoseToMatrix(const XrPosef& pose)

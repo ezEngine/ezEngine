@@ -87,7 +87,7 @@ public:
   static XrQuaternionf ConvertOrientation(const ezQuat& q);
   static XrVector3f ConvertPosition(const ezVec3& vPos);
   static ezQuat ConvertOrientation(const XrQuaternionf& q);
-  static ezVec3 ConvertPosition(const XrVector3f& vPos);
+  static ezVec3 ConvertPosition(const XrVector3f& pos);
   static ezMat4 ConvertPoseToMatrix(const XrPosef& pose);
   static ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format);
 
