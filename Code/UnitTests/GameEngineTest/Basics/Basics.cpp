@@ -155,11 +155,7 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     ezOSFile fileWriter;
     ezStringBuilder sLogFile = sOutputPath;
     sLogFile.AppendFormat("/EditorProcessor_{}.txt", proc.GetProcessID());
-    if (fileWriter.Open(sLogFile, ezFileOpenMode::Write, ezFileShareMode::Exclusive) == EZ_SUCCESS)
-    {
-      fileWriter.Write(sStdout.GetData(), sStdout.GetElementCount());
-    }
-    else
+    if (fileWriter.Open(sLogFile, ezFileOpenMode::Write, ezFileShareMode::Exclusive).Failed() || fileWriter.Write(sStdout.GetData(), sStdout.GetElementCount()).Failed())
     {
       ezLog::Error("Failed to write EditorProcessor log at '{}'", sLogFile);
     }
