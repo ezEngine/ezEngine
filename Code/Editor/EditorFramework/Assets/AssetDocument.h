@@ -224,10 +224,10 @@ protected:
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& thumbnailInfo);
 
   /// \brief Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
-  ezString GetThumbnailFilePath() const;
+  ezString GetThumbnailFilePath(ezStringView sSubAssetName = ezStringView()) const;
 
   /// \brief Should be called after manually changing the thumbnail, such that the system will reload it
-  void InvalidateAssetThumbnail() const;
+  void InvalidateAssetThumbnail(ezStringView sSubAssetName = ezStringView()) const;
 
   /// \brief Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
   ezStatus RemoteCreateThumbnail(const ThumbnailInfo& thumbnailInfo, ezArrayPtr<ezStringView> viewExclusionTags /*= ezStringView("SkyLight")*/) const;
@@ -244,7 +244,7 @@ protected:
   ezStatus SaveThumbnail(const QImage& img, const ThumbnailInfo& thumbnailInfo) const;
 
   /// \brief Appends an asset header containing the thumbnail hash to the file. Each thumbnail is appended by it to check up-to-date state.
-  void AppendThumbnailInfo(const char* szThumbnailFile, const ThumbnailInfo& thumbnailInfo) const;
+  void AppendThumbnailInfo(ezStringView sThumbnailFile, const ThumbnailInfo& thumbnailInfo) const;
 
   ///@}
   /// \name Common Asset States

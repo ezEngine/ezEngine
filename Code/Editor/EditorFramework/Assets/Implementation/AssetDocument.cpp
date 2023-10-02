@@ -576,14 +576,14 @@ ezTransformStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFi
   return ezStatus(EZ_SUCCESS);
 }
 
-ezString ezAssetDocument::GetThumbnailFilePath() const
+ezString ezAssetDocument::GetThumbnailFilePath(ezStringView sSubAssetName /*= ezStringView()*/) const
 {
-  return static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceThumbnailPath(GetDocumentPath());
+  return GetAssetDocumentManager()->GenerateResourceThumbnailPath(GetDocumentPath(), sSubAssetName);
 }
 
-void ezAssetDocument::InvalidateAssetThumbnail() const
+void ezAssetDocument::InvalidateAssetThumbnail(ezStringView sSubAssetName /*= ezStringView()*/) const
 {
-  const ezStringBuilder sResourceFile = GetThumbnailFilePath();
+  const ezString sResourceFile = GetThumbnailFilePath(sSubAssetName);
   ezAssetCurator::GetSingleton()->NotifyOfFileChange(sResourceFile);
   ezQtImageCache::GetSingleton()->InvalidateCache(sResourceFile);
 }
@@ -663,12 +663,12 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ThumbnailInfo
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ThumbnailInfo& thumbnailInfo) const
+void ezAssetDocument::AppendThumbnailInfo(ezStringView sThumbnailFile, const ThumbnailInfo& thumbnailInfo) const
 {
   ezContiguousMemoryStreamStorage storage;
   {
     ezFileReader reader;
-    if (reader.Open(szThumbnailFile).Failed())
+    if (reader.Open(sThumbnailFile).Failed())
     {
       return;
     }
@@ -676,14 +676,14 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const Thu
   }
 
   ezDeferredFileWriter writer;
-  writer.SetOutput(szThumbnailFile);
+  writer.SetOutput(sThumbnailFile);
   writer.WriteBytes(storage.GetData(), storage.GetStorageSize64()).IgnoreResult();
 
   thumbnailInfo.Serialize(writer).IgnoreResult();
 
   if (writer.Close().Failed())
   {
-    ezLog::Error("Could not open file for writing: '{0}'", szThumbnailFile);
+    ezLog::Error("Could not open file for writing: '{0}'", sThumbnailFile);
   }
 }
 

@@ -124,7 +124,7 @@ void ezQtNode::UpdateGeometry()
   int y = h;
 
   // Align inputs
-  int maxInputWidth = 0;
+  int maxInputWidth = 10;
   for (ezQtPin* pQtPin : m_Inputs)
   {
     auto rectPin = pQtPin->GetPinRect();
@@ -138,7 +138,7 @@ void ezQtNode::UpdateGeometry()
   y = h;
 
   // Align outputs
-  int maxOutputWidth = 0;
+  int maxOutputWidth = 10;
   for (ezQtPin* pQtPin : m_Outputs)
   {
     auto rectPin = pQtPin->GetPinRect();
@@ -148,7 +148,7 @@ void ezQtNode::UpdateGeometry()
     y += rectPin.height();
   }
 
-  int w = ezMath::Max(maxInputWidth, 10) + ezMath::Max(maxOutputWidth, 10) + 20;
+  int w = maxInputWidth + maxOutputWidth + 20;
 
   const int headerWidth = ezMath::Max(titleRect.width(), subtitleRect.width()) + iconRect.width();
   w = ezMath::Max(w, headerWidth);

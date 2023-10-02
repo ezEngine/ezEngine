@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="AssetIcons">
+    <file>SubstanceDesigner.svg</file>
+  </qresource>
+  <qresource prefix="Icons">
+  </qresource>
+</RCC>
+

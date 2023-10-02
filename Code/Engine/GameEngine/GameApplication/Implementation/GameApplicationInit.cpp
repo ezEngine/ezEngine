@@ -66,6 +66,7 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
   ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
   ezResourceManager::RegisterResourceForAssetType("StateMachine", ezGetStaticRTTI<ezStateMachineResource>());
+  ezResourceManager::RegisterResourceForAssetType("Substance Texture", ezGetStaticRTTI<ezTexture2DResource>());
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());

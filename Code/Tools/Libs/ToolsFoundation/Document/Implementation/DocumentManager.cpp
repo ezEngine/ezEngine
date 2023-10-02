@@ -131,7 +131,7 @@ void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumen
 
   for (auto& dt : inout_documentTypes)
   {
-    EZ_ASSERT_DEBUG(dt->m_pDocumentType != nullptr, "No document type is set");
+    EZ_ASSERT_DEBUG(dt->m_bCanCreate == false || dt->m_pDocumentType != nullptr, "No document type is set");
     EZ_ASSERT_DEBUG(!dt->m_sFileExtension.IsEmpty(), "File extension must be valid");
     EZ_ASSERT_DEBUG(dt->m_pManager != nullptr, "Document manager must be set");
   }

@@ -55,13 +55,18 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
   if (!IsInHeadlessMode())
   {
-    ezStringBuilder sdkDir;
-    if (ezFileSystem::FindFolderWithSubPath(sdkDir, szFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
+    ezStringBuilder sdkDirFromProject;
+    if (ezFileSystem::FindFolderWithSubPath(sdkDirFromProject, szFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
     {
-      sdkDir.MakeCleanPath();
-      if (sdkDir != ezFileSystem::GetSdkRootDirectory())
+      sdkDirFromProject.MakeCleanPath();
+      sdkDirFromProject.Trim(nullptr, "/");
+
+      ezStringView sdkDir = ezFileSystem::GetSdkRootDirectory();
+      sdkDir.Trim(nullptr, "/");
+
+      if (sdkDirFromProject != sdkDir)
       {
-        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", ezFileSystem::GetSdkRootDirectory(), szFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, szFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
         {
           return EZ_FAILURE;
         }

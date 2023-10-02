@@ -2,9 +2,9 @@
 
 #include <Core/Configuration/PlatformProfile.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <Foundation/Types/Status.h>
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 
-class ezTextureAssetProfileConfig : public ezProfileConfigData
+class EZ_EDITORPLUGINASSETS_DLL ezTextureAssetProfileConfig : public ezProfileConfigData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProfileConfig, ezProfileConfigData);
 

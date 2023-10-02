@@ -1,0 +1,15 @@
+// for a description of the options see:
+// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+
+PluginInfo
+{
+	string %DisplayName{"Substance Integration"}
+	string %Description{"Export textures from sbs files directly in the ezEditor"}
+	string %EditorPlugins{"ezEditorPluginSubstance"}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{}
+}

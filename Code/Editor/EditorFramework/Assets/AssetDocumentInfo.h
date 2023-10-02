@@ -37,7 +37,7 @@ public:
 
   /// \brief Returns an object from m_MetaInfo of the given base type, or nullptr if none exists
   template <typename T>
-  const T* GetMetaInfo()
+  const T* GetMetaInfo() const
   {
     return static_cast<const T*>(GetMetaInfo(ezGetStaticRTTI<T>()));
   }

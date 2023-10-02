@@ -19,7 +19,7 @@ public:
 
   /// \brief Opens the asset file and reads the "Header" into the given ezAssetDocumentInfo.
   virtual ezStatus ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& inout_stream) const;
-  virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_subAssets) const {}
+  virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezDynamicArray<ezSubAssetData>& out_subAssets) const {}
 
   /// If this asset type has additional output files that need to be generated (like a texture atlas that combines outputs from multiple assets)
   /// this function should make sure those files are all generated and return the list of relative file paths (from the data directory root).
@@ -56,8 +56,8 @@ private:
   ///@{
 public:
   /// \brief Returns the absolute path to the thumbnail that belongs to the given document.
-  static ezString GenerateResourceThumbnailPath(ezStringView sDocumentPath);
-  static bool IsThumbnailUpToDate(ezStringView sDocumentPath, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion);
+  virtual ezString GenerateResourceThumbnailPath(ezStringView sDocumentPath, ezStringView sSubAssetName = ezStringView());
+  virtual bool IsThumbnailUpToDate(ezStringView sDocumentPath, ezStringView sSubAssetName, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion);
 
   ///@}
   /// \name Output Functions
