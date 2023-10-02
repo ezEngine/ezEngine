@@ -95,13 +95,11 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
   ezMutex mutex;
 
   ezProcessOptions opt;
-  opt.m_onStdOut = [&sStdout, &mutex](ezStringView sView)
-  {
+  opt.m_onStdOut = [&sStdout, &mutex](ezStringView sView) {
     EZ_LOCK(mutex);
     sStdout.Append(sView);
   };
-  opt.m_onStdError = [&sStdout, &mutex](ezStringView sView)
-  {
+  opt.m_onStdError = [&sStdout, &mutex](ezStringView sView) {
     EZ_LOCK(mutex);
     sStdout.Append(sView);
   };

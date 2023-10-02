@@ -10,9 +10,9 @@
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Application/Application.h>
+#include <Foundation/System/CrashHandler.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <Foundation/System/CrashHandler.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezCommandLineOptionPath opt_OutputDir("_EditorProcessor", "-outputDir", "Output directory", "");
