@@ -1571,7 +1571,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALShaderHandle hShader(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALShader* pShader = nullptr;
 
-        m_Shaders.Remove(hShader, &pShader);
+        EZ_VERIFY(m_Shaders.Remove(hShader, &pShader), "");
 
         DestroyShaderPlatform(pShader);
 
@@ -1582,7 +1582,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALBufferHandle hBuffer(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALBuffer* pBuffer = nullptr;
 
-        m_Buffers.Remove(hBuffer, &pBuffer);
+        EZ_VERIFY(m_Buffers.Remove(hBuffer, &pBuffer), "");
 
         DestroyViews(pBuffer);
         DestroyBufferPlatform(pBuffer);
@@ -1648,7 +1648,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALRenderTargetViewHandle hRenderTargetView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
         ezGALRenderTargetView* pRenderTargetView = nullptr;
 
-        m_RenderTargetViews.Remove(hRenderTargetView, &pRenderTargetView);
+        EZ_VERIFY(m_RenderTargetViews.Remove(hRenderTargetView, &pRenderTargetView), "");
 
         ezGALTexture* pTexture = pRenderTargetView->m_pTexture;
         EZ_ASSERT_DEBUG(pTexture != nullptr, "");
@@ -1696,7 +1696,7 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALSwapChainHandle hSwapChain(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALSwapChain* pSwapChain = nullptr;
 
-        m_SwapChains.Remove(hSwapChain, &pSwapChain);
+        EZ_VERIFY(m_SwapChains.Remove(hSwapChain, &pSwapChain), "");
 
         if (pSwapChain != nullptr)
         {

@@ -10,6 +10,7 @@
 void FillCastResult(ezPhysicsCastResult& ref_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const JPH::BodyID& bodyId, const JPH::SubShapeID& subShapeId, const JPH::BodyLockInterface& lockInterface, const JPH::BodyInterface& bodyInterface, const ezJoltWorldModule* pModule)
 {
   JPH::BodyLockRead bodyLock(lockInterface, bodyId);
+  EZ_ASSERT_DEBUG(bodyLock.Succeeded(), "Failed to get body lock");
   const auto& body = bodyLock.GetBody();
   ref_result.m_vNormal = ezJoltConversionUtils::ToVec3(body.GetWorldSpaceSurfaceNormal(subShapeId, ezJoltConversionUtils::ToVec3(ref_result.m_vPosition)));
   ref_result.m_uiObjectFilterID = body.GetCollisionGroup().GetGroupID();
@@ -343,6 +344,7 @@ void ezJoltWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_res
     auto& overlapHit = collector.m_Results[i];
 
     JPH::BodyLockRead bodyLock(lockInterface, overlapHit.mBodyID2);
+    EZ_ASSERT_DEBUG(bodyLock.Succeeded(), "Failed to get body lock");
     const auto& body = bodyLock.GetBody();
 
     overlapResult.m_uiObjectFilterID = body.GetCollisionGroup().GetGroupID();

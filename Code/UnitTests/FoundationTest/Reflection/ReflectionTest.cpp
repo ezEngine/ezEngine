@@ -201,16 +201,25 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByName")
   {
     const ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
-    EZ_TEST_BOOL(pFloat != nullptr);
-    EZ_TEST_STRING(pFloat->GetTypeName(), "float");
+    if (EZ_TEST_BOOL(pFloat != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pFloat != nullptr);
+      EZ_TEST_STRING(pFloat->GetTypeName(), "float");
+    }
 
     const ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
-    EZ_TEST_BOOL(pStruct != nullptr);
-    EZ_TEST_STRING(pStruct->GetTypeName(), "ezTestStruct");
+    if (EZ_TEST_BOOL(pStruct != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pStruct != nullptr);
+      EZ_TEST_STRING(pStruct->GetTypeName(), "ezTestStruct");
+    }
 
     const ezRTTI* pClass2 = ezRTTI::FindTypeByName("ezTestClass2");
-    EZ_TEST_BOOL(pClass2 != nullptr);
-    EZ_TEST_STRING(pClass2->GetTypeName(), "ezTestClass2");
+    if (EZ_TEST_BOOL(pClass2 != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pClass2 != nullptr);
+      EZ_TEST_STRING(pClass2->GetTypeName(), "ezTestClass2");
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByNameHash")
@@ -336,18 +345,20 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
           const ezAbstractProperty* pProp = pRtti->FindPropertyByName("Float2");
 
-          EZ_TEST_BOOL(pProp != nullptr);
+          if (EZ_TEST_BOOL(pProp != nullptr))
+          {
+            EZ_ANALYSIS_ASSUME(pProp != nullptr);
+            EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
+            auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(pProp);
 
-          EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-          auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(pProp);
+            EZ_TEST_BOOL(pAbsMember->GetSpecificType() == ezGetStaticRTTI<float>());
 
-          EZ_TEST_BOOL(pAbsMember->GetSpecificType() == ezGetStaticRTTI<float>());
+            auto pMember = static_cast<const ezTypedMemberProperty<float>*>(pAbsMember);
 
-          auto pMember = static_cast<const ezTypedMemberProperty<float>*>(pAbsMember);
-
-          EZ_TEST_FLOAT(pMember->GetValue(pInstance), 42.0f, 0);
-          pMember->SetValue(pInstance, 43.0f);
-          EZ_TEST_FLOAT(pMember->GetValue(pInstance), 43.0f, 0);
+            EZ_TEST_FLOAT(pMember->GetValue(pInstance), 42.0f, 0);
+            pMember->SetValue(pInstance, 43.0f);
+            EZ_TEST_FLOAT(pMember->GetValue(pInstance), 43.0f, 0);
+          }
 
           pRtti->GetAllocator()->Deallocate(pInstance);
         }
@@ -396,10 +407,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
     EZ_TEST_BOOL(pRtti->GetAllocator()->CanAllocate());
 
     ezTestClass1* pInstance = pRtti->GetAllocator()->Allocate<ezTestClass1>();
-    EZ_TEST_BOOL(pInstance != nullptr);
-
-    EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass1>());
-    pInstance->GetDynamicRTTI()->GetAllocator()->Deallocate(pInstance);
+    if (EZ_TEST_BOOL(pInstance != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pInstance != nullptr);
+      EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass1>());
+      pInstance->GetDynamicRTTI()->GetAllocator()->Deallocate(pInstance);
+    }
 
     EZ_TEST_BOOL(pRtti->IsDerivedFrom<ezReflectedClass>());
     EZ_TEST_BOOL(pRtti->IsDerivedFrom(ezGetStaticRTTI<ezReflectedClass>()));
@@ -427,17 +440,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
     EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 0);
 
     ezTestClass2* pInstance = pRtti->GetAllocator()->Allocate<ezTestClass2>();
-    EZ_TEST_BOOL(pInstance != nullptr);
+    if (EZ_TEST_BOOL(pInstance != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pInstance != nullptr);
+      EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass2>());
 
-    EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass2>());
+      EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 1);
+      EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 0);
 
-    EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 1);
-    EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 0);
+      pInstance->GetDynamicRTTI()->GetAllocator()->Deallocate(pInstance);
 
-    pInstance->GetDynamicRTTI()->GetAllocator()->Deallocate(pInstance);
-
-    EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 1);
-    EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 1);
+      EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 1);
+      EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 1);
+    }
 
     EZ_TEST_BOOL(pRtti->IsDerivedFrom<ezTestClass1>());
     EZ_TEST_BOOL(pRtti->IsDerivedFrom(ezGetStaticRTTI<ezTestClass1>()));
@@ -458,7 +473,10 @@ template <typename T, typename T2>
 void TestMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T2 expectedValue, T2 testValue, bool bTestDefaultValue = true)
 {
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
-  EZ_TEST_BOOL(pProp != nullptr);
+  if (!EZ_TEST_BOOL(pProp != nullptr))
+    return;
+
+  EZ_ANALYSIS_ASSUME(pProp != nullptr);
 
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
 
@@ -557,17 +575,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
 
     {
       const ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubStruct");
-      EZ_TEST_BOOL(pProp != nullptr);
+      if (EZ_TEST_BOOL(pProp != nullptr))
+      {
+        EZ_ANALYSIS_ASSUME(pProp != nullptr);
+        EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
+        ezAbstractMemberProperty* pAbs = (ezAbstractMemberProperty*)pProp;
 
-      EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-      ezAbstractMemberProperty* pAbs = (ezAbstractMemberProperty*)pProp;
+        const ezRTTI* pStruct = pAbs->GetSpecificType();
+        void* pSubStruct = pAbs->GetPropertyPointer(&Instance);
 
-      const ezRTTI* pStruct = pAbs->GetSpecificType();
-      void* pSubStruct = pAbs->GetPropertyPointer(&Instance);
+        EZ_TEST_BOOL(pSubStruct != nullptr);
 
-      EZ_TEST_BOOL(pSubStruct != nullptr);
-
-      TestMemberProperty<float>("Float", pSubStruct, pStruct, ezPropertyFlags::StandardType, 33.3f, 44.4f, false);
+        TestMemberProperty<float>("Float", pSubStruct, pStruct, ezPropertyFlags::StandardType, 33.3f, 44.4f, false);
+      }
     }
 
     TestSerialization<ezTestClass2>(Instance);
@@ -839,6 +859,9 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
 {
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
+  if (pProp == nullptr)
+    return;
+
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Array);
   auto pArrayProp = static_cast<const ezAbstractArrayProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
@@ -1011,6 +1034,8 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   if (!EZ_TEST_BOOL(pProp != nullptr))
     return;
 
+  EZ_ANALYSIS_ASSUME(pProp != nullptr);
+
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Set);
   auto pSetProp = static_cast<const ezAbstractSetProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
@@ -1133,7 +1158,9 @@ template <typename T>
 void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& ref_value1, T& ref_value2)
 {
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
-  EZ_TEST_BOOL(pProp != nullptr);
+  if (!EZ_TEST_BOOL(pProp != nullptr))
+    return;
+  EZ_ANALYSIS_ASSUME(pProp != nullptr);
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Map);
   auto pMapProp = static_cast<const ezAbstractMapProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
@@ -1236,7 +1263,9 @@ template <typename T>
 void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T* pExpectedValue)
 {
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
-  EZ_TEST_BOOL(pProp != nullptr);
+  if (!EZ_TEST_BOOL(pProp != nullptr))
+    return;
+  EZ_ANALYSIS_ASSUME(pProp != nullptr);
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
   auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(pProp);
   EZ_TEST_INT(pProp->GetFlags().GetValue(), expectedFlags.GetValue());
@@ -1270,17 +1299,22 @@ void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRT
 EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
 {
   const ezRTTI* pRtti = ezGetStaticRTTI<ezTestPtr>();
-  EZ_TEST_BOOL(pRtti != nullptr);
+  if (!EZ_TEST_BOOL(pRtti != nullptr))
+    return;
+  EZ_ANALYSIS_ASSUME(pRtti != nullptr);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Member Property Ptr")
   {
     ezTestPtr containers;
     {
       const ezAbstractProperty* pProp = pRtti->FindPropertyByName("ConstCharPtr");
-      EZ_TEST_BOOL(pProp != nullptr);
-      EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-      EZ_TEST_INT(pProp->GetFlags().GetValue(), (ezPropertyFlags::StandardType | ezPropertyFlags::Const).GetValue());
-      EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<const char*>());
+      if (EZ_TEST_BOOL(pProp != nullptr))
+      {
+        EZ_ANALYSIS_ASSUME(pProp != nullptr);
+        EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
+        EZ_TEST_INT(pProp->GetFlags().GetValue(), (ezPropertyFlags::StandardType | ezPropertyFlags::Const).GetValue());
+        EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<const char*>());
+      }
     }
 
     TestPointerMemberProperty<ezTestArrays>(

@@ -67,7 +67,8 @@ void ezEditorAssetDocumentTest::AsyncSave()
     sName = m_sProjectPath;
     sName.AppendPath("mesh.ezMeshAsset");
     pDoc = static_cast<ezAssetDocument*>(m_pApplication->m_pEditorApp->CreateDocument(sName, ezDocumentFlags::RequestWindow));
-    EZ_TEST_BOOL(pDoc != nullptr);
+    if (!EZ_TEST_BOOL(pDoc != nullptr))
+      return;
     ProcessEvents();
   }
 
@@ -122,7 +123,8 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
     ezStringBuilder sName = m_sProjectPath;
     sName.AppendPath("mesh2.ezMeshAsset");
     pDoc = static_cast<ezAssetDocument*>(m_pApplication->m_pEditorApp->CreateDocument(sName, ezDocumentFlags::RequestWindow));
-    EZ_TEST_BOOL(pDoc != nullptr);
+    if(!EZ_TEST_BOOL(pDoc != nullptr))
+      return;
     ProcessEvents();
   }
 

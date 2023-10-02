@@ -184,7 +184,10 @@ void AccessorPropertyTest(ezIReflectedTypeAccessor& ref_accessor, const char* sz
 ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& ref_accessor, const ezRTTI* pType)
 {
   ezUInt32 uiPropertiesSet = 0;
-  EZ_TEST_BOOL(pType != nullptr);
+  if(!EZ_TEST_BOOL(pType != nullptr))
+    return;
+
+  EZ_ANALYSIS_ASSUME(pType != nullptr);
 
   // Call for base class
   if (pType->GetParentType() != nullptr)

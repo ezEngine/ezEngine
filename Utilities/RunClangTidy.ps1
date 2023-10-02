@@ -3,7 +3,7 @@ param
     [string]
     $Workspace,
     [string]
-    $Checks = "-*,ez-name-check,modernize-use-default-member-init,modernize-use-equals-default,modernize-use-using",
+    $Checks = "-*,clang-analyzer-core.*,ez-name-check,modernize-use-default-member-init,modernize-use-equals-default,modernize-use-using",
     [string]
     $ExcludeRootFiles = "DirectXTex|ThirdParty|\.rc$|qrc_resources.cpp$",
     [string]
