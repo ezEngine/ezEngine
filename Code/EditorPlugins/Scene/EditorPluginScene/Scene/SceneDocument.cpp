@@ -1335,12 +1335,6 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
   EZ_REPORT_FAILURE("Unreachable Code reached.");
 }
 
-
-void ezSceneDocument::HandleVisualScriptActivityMsg(const ezVisualScriptActivityMsgToEditor* pMsg)
-{
-  BroadcastInterDocumentMessage(const_cast<ezVisualScriptActivityMsgToEditor*>(pMsg), this);
-}
-
 void ezSceneDocument::HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg)
 {
   auto pHistory = GetCommandHistory();
@@ -1370,6 +1364,7 @@ void ezSceneDocument::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsg
   pMsg->m_ObjectGuid = pObj->GetGuid();
   GetEditorEngineConnection()->SendMessage(pMsg);
 }
+
 void ezSceneDocument::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
@@ -1556,12 +1551,6 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (const ezGameModeMsgToEditor* msg = ezDynamicCast<const ezGameModeMsgToEditor*>(pMsg))
   {
     HandleGameModeMsg(msg);
-    return;
-  }
-
-  if (const ezVisualScriptActivityMsgToEditor* msg = ezDynamicCast<const ezVisualScriptActivityMsgToEditor*>(pMsg))
-  {
-    HandleVisualScriptActivityMsg(msg);
     return;
   }
 

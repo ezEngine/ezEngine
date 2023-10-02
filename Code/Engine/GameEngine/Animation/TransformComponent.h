@@ -4,7 +4,6 @@
 #include <Core/World/World.h>
 #include <Foundation/Time/Time.h>
 #include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 struct ezTransformComponentFlags
 {

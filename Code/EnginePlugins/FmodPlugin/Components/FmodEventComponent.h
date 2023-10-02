@@ -3,7 +3,6 @@
 #include <Core/Messages/EventMessage.h>
 #include <Core/ResourceManager/Resource.h>
 #include <FmodPlugin/Components/FmodComponent.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 struct ezFmodParameterId
 {

@@ -11,11 +11,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgOnlyApplyToObject, 1, ezRTTIDefaultAllocato
     EZ_MEMBER_PROPERTY("Object", m_hObject),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

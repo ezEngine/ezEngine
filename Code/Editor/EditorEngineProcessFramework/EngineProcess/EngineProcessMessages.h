@@ -573,16 +573,6 @@ public:
   ezInt32 m_iPurpose;  /// passed through from ezQuerySelectionBBoxMsgToEngine
 };
 
-/// \brief Send by the runtime scene whenever a visual script with debug output enabled does anything.
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezVisualScriptActivityMsgToEditor : public ezEditorEngineDocumentMsg
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptActivityMsgToEditor, ezEditorEngineDocumentMsg);
-
-public:
-  ezUuid m_ComponentGuid;
-  ezDataBuffer m_Activity;
-};
-
 /// \brief Send between editor documents, such that one document can know about objects in another document.
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGatherObjectsOfTypeMsgInterDoc : public ezReflectedClass
 {

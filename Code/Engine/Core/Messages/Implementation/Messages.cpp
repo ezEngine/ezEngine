@@ -36,12 +36,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultA
     EZ_MEMBER_PROPERTY("Payload", m_iPayload),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender(),
-    new ezAutoGenVisScriptMsgHandler()
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -49,6 +43,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgUpdateLocalBounds);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgUpdateLocalBounds, 1, ezRTTIDefaultAllocator<ezMsgUpdateLocalBounds>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
@@ -61,11 +62,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetPlaying, 1, ezRTTIDefaultAllocator<ezMsg
     EZ_MEMBER_PROPERTY("Play", m_bPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender(),
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -73,24 +69,52 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgParentChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgParentChanged, 1, ezRTTIDefaultAllocator<ezMsgParentChanged>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgChildrenChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgChildrenChanged, 1, ezRTTIDefaultAllocator<ezMsgChildrenChanged>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentsChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentsChanged, 1, ezRTTIDefaultAllocator<ezMsgComponentsChanged>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTransformChanged);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTransformChanged, 1, ezRTTIDefaultAllocator<ezMsgTransformChanged>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
@@ -104,11 +128,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetFloatParameter, 1, ezRTTIDefaultAllocato
     EZ_MEMBER_PROPERTY("Value", m_fValue),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender(),
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -123,13 +142,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezM
     EZ_MEMBER_PROPERTY("Value", m_Value)->AddAttributes(new ezDefaultValueAttribute(0))
   }
   EZ_END_PROPERTIES;
-
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender(),
-    new ezAutoGenVisScriptMsgHandler()
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -137,13 +149,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationReachedEnd);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationReachedEnd, 1, ezRTTIDefaultAllocator<ezMsgAnimationReachedEnd>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgHandler(),
-  }
-  EZ_END_ATTRIBUTES;
-}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////

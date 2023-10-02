@@ -23,11 +23,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgMoveCharacterController, 1, ezRTTIDefaultAl
     EZ_MEMBER_PROPERTY("Crouch", m_bCrouch),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 

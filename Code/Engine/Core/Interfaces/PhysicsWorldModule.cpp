@@ -43,13 +43,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsJointBroke);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsJointBroke, 1, ezRTTIDefaultAllocator<ezMsgPhysicsJointBroke>)
-//{
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //  EZ_MEMBER_PROPERTY("JointObject", m_hJointObject)
-  //}
-  //EZ_END_PROPERTIES;
-//}
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("JointObject", m_hJointObject)
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgObjectGrabbed);
@@ -79,6 +79,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgBuildStaticMesh);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgBuildStaticMesh, 1, ezRTTIDefaultAllocator<ezMsgBuildStaticMesh>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
