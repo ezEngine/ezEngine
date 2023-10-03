@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <PacManPlugin/Components/PacManComponent.h>
+#include <PacManPlugin/GameState/PacManGameState.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(PacManComponent, 1 /* version */, ezComponentMode::Dynamic) // 'Dynamic' because we want to change the owner's transform
@@ -48,28 +49,21 @@ void PacManComponent::OnSimulationStarted()
     ezResourceManager::PreloadResource(m_hLoseGameEffect);
   }
 
-  ezHashedString hs;
-  hs.Assign("Stats");
-  m_pStateBlackboard = ezBlackboard::GetOrCreateGlobal(hs);
+  m_pStateBlackboard = ezBlackboard::GetOrCreateGlobal(PacManGameState::s_sStats);
 
   // store the start state of PacMan in the global blackboard
-  hs.Assign("PacManState");
-  m_pStateBlackboard->RegisterEntry(hs, PacManState::Alive);
-  m_pStateBlackboard->SetEntryValue(hs, PacManState::Alive).AssertSuccess();
-
-  hs.Assign("CoinsEaten");
-  m_pStateBlackboard->RegisterEntry(hs, 0);
-  m_pStateBlackboard->SetEntryValue(hs, 0).AssertSuccess();
+  m_pStateBlackboard->SetEntryValue(PacManGameState::s_sPacManState, PacManState::Alive);
+  m_pStateBlackboard->SetEntryValue(PacManGameState::s_sCoinsEaten, 0);
 }
 
 void PacManComponent::Update()
 {
   // this function is called once per frame
 
-  if (auto pBlackboard = ezBlackboard::FindGlobal(ezTempHashedString("Stats")))
+  if (auto pBlackboard = ezBlackboard::FindGlobal(PacManGameState::s_sStats))
   {
     // retrieve the current state of PacMan
-    const PacManState state = static_cast<PacManState>(pBlackboard->GetEntryValue(ezTempHashedString("PacManState"), PacManState::Alive).Get<ezInt32>());
+    const PacManState state = static_cast<PacManState>(pBlackboard->GetEntryValue(PacManGameState::s_sPacManState, PacManState::Alive).Get<ezInt32>());
 
     // if it was eaten by a ghost recently, play the lose effect and delete PacMan
     if (state == PacManState::EatenByGhost)
@@ -182,7 +176,7 @@ void PacManComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
   // the "Ghost" trigger had an overlap
   if (msg.m_sMessage.GetString() == "Ghost")
   {
-    m_pStateBlackboard->SetEntryValue(ezTempHashedString("PacManState"), PacManState::EatenByGhost).AssertSuccess();
+    m_pStateBlackboard->SetEntryValue(PacManGameState::s_sPacManState, PacManState::EatenByGhost);
     return;
   }
 
@@ -199,10 +193,8 @@ void PacManComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
         // just delete the coin object at the end of the frame
         GetWorld()->DeleteObjectDelayed(pObject->GetHandle());
 
-        // we register "CoinsEaten" at the very beginning, so reading and writing this value should always work here
-        const ezTempHashedString ceName("CoinsEaten");
-        ezVariant ceValue = m_pStateBlackboard->GetEntryValue(ceName, 0).Get<ezInt32>() + 1;
-        m_pStateBlackboard->SetEntryValue(ceName, ceValue).AssertSuccess();
+        ezVariant ceValue = m_pStateBlackboard->GetEntryValue(PacManGameState::s_sCoinsEaten, 0).Get<ezInt32>() + 1;
+        m_pStateBlackboard->SetEntryValue(PacManGameState::s_sCoinsEaten, ceValue);
 
         // spawn a collect coin effect
         ezPrefabResource::InstantiatePrefab(m_hCollectCoinEffect, false, *GetWorld(), pObject->GetGlobalTransform());

@@ -16,6 +16,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 PacManGameState::PacManGameState() = default;
 PacManGameState::~PacManGameState() = default;
 
+ezHashedString PacManGameState::s_sStats = ezMakeHashedString("Stat");
+ezHashedString PacManGameState::s_sCoinsEaten = ezMakeHashedString("CoinsEaten");
+ezHashedString PacManGameState::s_sPacManState = ezMakeHashedString("PacManState");
+
 void PacManGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
   // this is called shortly after the game state was created, and before the game starts to properly run
@@ -66,19 +70,17 @@ void PacManGameState::AfterWorldUpdate()
   }
 
   // get the global blackboard in which we track the state
-  ezHashedString hs;
-  hs.Assign("Stats");
-  auto pBlackboard = ezBlackboard::GetOrCreateGlobal(hs);
+  auto pBlackboard = ezBlackboard::GetOrCreateGlobal(s_sStats);
 
-  const ezInt32 iNumCoinsFound = pBlackboard->GetEntryValue(ezTempHashedString("CoinsEaten"), 0).Get<ezInt32>();
-  const ezInt32 iPacManState = pBlackboard->GetEntryValue(ezTempHashedString("PacManState"), 1).Get<ezInt32>();
+  const ezInt32 iNumCoinsFound = pBlackboard->GetEntryValue(s_sCoinsEaten, 0).Get<ezInt32>();
+  const ezInt32 iPacManState = pBlackboard->GetEntryValue(s_sPacManState, 1).Get<ezInt32>();
 
   ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", ezFmt("Coins: {} / {}", iNumCoinsFound, m_uiNumCoinsTotal));
 
   if (iPacManState == PacManState::Alive && m_uiNumCoinsTotal > 0 && iNumCoinsFound == m_uiNumCoinsTotal)
   {
     // let the ghosts and PacMan know when he ate all the coins
-    pBlackboard->SetEntryValue(ezTempHashedString("PacManState"), PacManState::WonGame).AssertSuccess();
+    pBlackboard->SetEntryValue(s_sPacManState, PacManState::WonGame);
 
     // play a sound, the GUID of the sound asset was copied from the editor
     ezSoundInterface::PlaySound("{ a10b9065-0b4d-4eff-a9ac-2f712dc28c1c }", ezTransform::MakeIdentity()).IgnoreResult();
@@ -113,19 +115,11 @@ void PacManGameState::ResetState()
 
   m_uiNumCoinsTotal = 0;
 
-  ezHashedString hs;
-  hs.Assign("Stats");
-  auto pBlackboard = ezBlackboard::GetOrCreateGlobal(hs);
+  auto pBlackboard = ezBlackboard::GetOrCreateGlobal(s_sStats);
 
-  hs.Assign("CoinsEaten");
-  pBlackboard->RegisterEntry(hs, 0);
-
-  hs.Assign("PacManState");
-  pBlackboard->RegisterEntry(hs, PacManState::Alive);
-
-  // 'reset' the state, if the values were already registered before
-  pBlackboard->SetEntryValue(ezTempHashedString("CoinsEaten"), 0).AssertSuccess();
-  pBlackboard->SetEntryValue(ezTempHashedString("PacManState"), PacManState::Alive).AssertSuccess();
+  // 'reset' the state
+  pBlackboard->SetEntryValue(s_sCoinsEaten, 0);
+  pBlackboard->SetEntryValue(s_sPacManState, PacManState::Alive);
 }
 
 ezGameStatePriority PacManGameState::DeterminePriority(ezWorld* pWorld) const
