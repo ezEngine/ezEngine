@@ -47,9 +47,11 @@ ezTestAppRun ezEditorTestGenerateCompile::RunSubTest(ezInt32 iIdentifier, ezUInt
       return ezTestAppRun::Quit;
 
     ezString sBuildDir = ezCppProject::GetBuildDir(cpp);
-    if (!EZ_TEST_RESULT(ezOSFile::DeleteFolder(sBuildDir)))
-      return ezTestAppRun::Quit;
-
+    if (ezOSFile::ExistsDirectory(sBuildDir))
+    {
+      if (!EZ_TEST_RESULT(ezOSFile::DeleteFolder(sBuildDir)))
+        return ezTestAppRun::Quit;
+    }
 #if defined(_MSC_VER)
 #  if _MSC_VER >= 1930
     cpp.m_Compiler = ezCppSettings::Compiler::Vs2022;
