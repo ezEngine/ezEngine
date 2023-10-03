@@ -50,10 +50,12 @@ ezTestAppRun ezEditorTestGenerateCompile::RunSubTest(ezInt32 iIdentifier, ezUInt
     if (!EZ_TEST_RESULT(ezOSFile::DeleteFolder(sBuildDir)))
       return ezTestAppRun::Quit;
 
-#if _MSC_VER >= 1930
+#if defined(_MSC_VER)
+#  if _MSC_VER >= 1930
     cpp.m_Compiler = ezCppSettings::Compiler::Vs2022;
-#elif
+#  elif
     cpp.m_Compiler = ezCppSettings::Compiler::Vs2019;
+#  endif
 #endif
 
     if (!EZ_TEST_RESULT(ezCppProject::RunCMake(cpp)))
