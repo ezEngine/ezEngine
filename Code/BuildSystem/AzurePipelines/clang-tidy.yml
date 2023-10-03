@@ -9,6 +9,7 @@ trigger:
 
 jobs:
 - job: ClangTidyVerification
+  timeoutInMinutes: 120
   pool:
     vmImage: 'windows-2022'
   steps:
@@ -37,7 +38,7 @@ jobs:
       pwsh: true
       targetType: filePath
       filePath: './Utilities/RunClangTidy.ps1'
-      arguments: '-DiffTo "origin/$(system.pullRequest.targetBranch)" -LlvmInstallDir "$pwd\llvm" -Workspace "workspace-clang"'
+      arguments: '-DiffTo "origin/$(system.pullRequest.targetBranch)" -LlvmInstallDir "$pwd\llvm" -Workspace "workspace-clang" -Vso'
   - task: PowerShell@2
     displayName: 'Fetch suggested changes'
     condition: always()

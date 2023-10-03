@@ -25,7 +25,9 @@ param
     [int]
     $FileLimit = 0,
     [string]
-    $FilterPattern
+    $FilterPattern,
+    [switch]
+    $Vso
 )
 
 $ErrorActionPreference = "Stop"
@@ -401,10 +403,25 @@ try
        $jobsLeft = ($job.ChildJobs | ? {$_.State -eq "NotStarted"}).Length
        $jobsFinished = $totalItems - $jobsLeft
        $percent = [int]($jobsFinished / $totalItems * 100)
-       Write-Progress -Activity "Running clang-tidy on source files" -Status "$jobsFinished of $totalItems" -PercentComplete $percent -Verbose
+       if($Vso)
+       {
+           Write-Host "##vso[task.setprogress value=$percent;]Running clang-tidy on source files: $jobsFinished of $totalItems"
+       }
+       else
+       {
+           Write-Progress -Activity "Running clang-tidy on source files" -Status "$jobsFinished of $totalItems" -PercentComplete $percent -Verbose
+       }
        Start-Sleep -Milliseconds 250
    }
-   Write-Progress -Activity "Running clang-tidy on source files" -Completed  -Verbose
+   if($Vso)
+   {
+       Write-Host "##vso[task.setprogress value=100;]Running clang-tidy on source files done."
+   }
+   else
+   {
+       Write-Progress -Activity "Running clang-tidy on source files" -Completed  -Verbose
+   }
+   
    if($LogFile)
    {
        $job | Receive-Job -Wait 2>&1 | Out-File $LogFile
