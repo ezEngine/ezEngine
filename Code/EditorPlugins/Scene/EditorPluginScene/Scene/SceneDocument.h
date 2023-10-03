@@ -126,7 +126,6 @@ public:
 
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
-  void HandleVisualScriptActivityMsg(const ezVisualScriptActivityMsgToEditor* pMsg);
   void HandleObjectStateFromEngineMsg(const ezPushObjectStateMsgToEditor* pMsg);
 
   void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);

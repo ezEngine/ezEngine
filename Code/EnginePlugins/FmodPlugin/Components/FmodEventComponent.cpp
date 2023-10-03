@@ -11,7 +11,6 @@
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/Configuration/CVar.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>

@@ -66,11 +66,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgBlackboardEntryChanged, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-      new ezAutoGenVisScriptMsgHandler()
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

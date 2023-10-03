@@ -16,11 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMsgSetPowerInput, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("NewValue", m_uiNewValue),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-      new ezAutoGenVisScriptMsgHandler()
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 

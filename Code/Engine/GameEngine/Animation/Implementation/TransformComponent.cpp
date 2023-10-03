@@ -5,7 +5,6 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Animation/TransformComponent.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 3, ezRTTINoAllocator)

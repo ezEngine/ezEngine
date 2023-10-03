@@ -24,7 +24,6 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptActions.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
@@ -354,31 +353,6 @@ static void ConfigurePropertyAnimAsset()
   }
 }
 
-static void ConfigureVisualScriptAsset()
-{
-  ezVisualScriptActions::RegisterActions();
-
-  // Menu Bar
-  {
-    ezActionMapManager::RegisterActionMap("VisualScriptAssetMenuBar_Legacy").AssertSuccess();
-    ezStandardMenus::MapActions("VisualScriptAssetMenuBar_Legacy", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-    ezProjectActions::MapActions("VisualScriptAssetMenuBar_Legacy");
-    ezDocumentActions::MapMenuActions("VisualScriptAssetMenuBar_Legacy");
-    ezAssetActions::MapMenuActions("VisualScriptAssetMenuBar_Legacy");
-    ezCommandHistoryActions::MapActions("VisualScriptAssetMenuBar_Legacy");
-    ezEditActions::MapActions("VisualScriptAssetMenuBar_Legacy", false, false);
-  }
-
-  // Tool Bar
-  {
-    ezActionMapManager::RegisterActionMap("VisualScriptAssetToolBar_Legacy").AssertSuccess();
-    ezDocumentActions::MapToolbarActions("VisualScriptAssetToolBar_Legacy");
-    ezCommandHistoryActions::MapActions("VisualScriptAssetToolBar_Legacy", "");
-    ezAssetActions::MapToolBarActions("VisualScriptAssetToolBar_Legacy", true);
-    ezVisualScriptActions::MapActions("VisualScriptAssetToolBar_Legacy");
-  }
-}
-
 static void ConfigureDecalAsset()
 {
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezDecalAssetProperties::PropertyMetaStateEventHandler);
@@ -611,7 +585,6 @@ void OnLoadPlugin()
   ConfigureColorGradientAsset();
   ConfigureCurve1DAsset();
   ConfigurePropertyAnimAsset();
-  ConfigureVisualScriptAsset();
   ConfigureDecalAsset();
   ConfigureAnimationClipAsset();
   ConfigureSkeletonAsset();
@@ -628,7 +601,6 @@ void OnUnloadPlugin()
   ezTextureAssetActions::UnregisterActions();
   ezLUTAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
-  ezVisualScriptActions::UnregisterActions();
   ezMaterialAssetActions::UnregisterActions();
   ezSkeletonActions::UnregisterActions();
 

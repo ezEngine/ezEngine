@@ -11,7 +11,6 @@ class ezGameStateBase;
 class ezGameModeMsgToEngine;
 class ezWorldSettingsMsgToEngine;
 class ezObjectsForDebugVisMsgToEngine;
-struct ezVisualScriptComponentActivityEvent;
 class ezGridSettingsMsgToEngine;
 class ezSimulationSettingsMsgToEngine;
 struct ezResourceManagerEvent;
@@ -106,7 +105,6 @@ private:
   void OnSimulationDisabled();
   void OnPlayTheGameModeStarted(const ezTransform* pStartPosition);
 
-  void OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e);
   void OnResourceManagerEvent(const ezResourceManagerEvent& e);
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
 

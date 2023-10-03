@@ -946,18 +946,10 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Attribute for ezMessages to instruct the visual script framework to automatically generate a node for sending this type of
-/// message
-class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgSender : public ezPropertyAttribute
+/// \brief Attribute for types that should not be exposed to the scripting framework
+class EZ_FOUNDATION_DLL ezExcludeFromScript : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgSender, ezPropertyAttribute);
-};
-
-/// \brief Attribute for ezMessages to instruct the visual script framework to automatically generate a node for handling this type of
-/// message
-class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgHandler : public ezPropertyAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgHandler, ezPropertyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezExcludeFromScript, ezPropertyAttribute);
 };
 
 /// \brief Attribute to mark a function up to be exposed to the scripting system. Arguments specify the names of the function parameters.
@@ -999,20 +991,6 @@ class EZ_FOUNDATION_DLL ezFunctionArgumentAttributes : public ezPropertyAttribut
 private:
   ezUInt32 m_uiArgIndex = 0;
   ezHybridArray<const ezPropertyAttribute*, 4> m_ArgAttributes;
-};
-
-/// \brief Used to annotate properties to which pin or function parameter they belong (if necessary)
-class EZ_FOUNDATION_DLL ezVisScriptMappingAttribute : public ezPropertyAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptMappingAttribute, ezPropertyAttribute);
-
-  ezVisScriptMappingAttribute() = default;
-  ezVisScriptMappingAttribute(ezInt32 iMapping)
-    : m_iMapping(iMapping)
-  {
-  }
-
-  ezInt32 m_iMapping = 0;
 };
 
 /// \brief Used to mark an array or (unsigned)int property as source for dynamic pin generation on nodes

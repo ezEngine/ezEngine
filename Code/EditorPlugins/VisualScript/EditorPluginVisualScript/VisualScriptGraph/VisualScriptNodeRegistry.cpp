@@ -298,7 +298,7 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
 
 void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 {
-  if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+  if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
     return;
 
   if (pRtti->IsDerivedFrom<ezComponent>())

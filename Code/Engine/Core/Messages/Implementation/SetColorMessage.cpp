@@ -16,12 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColor, 1, ezRTTIDefaultAllocator<ezMsgSe
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezSetColorMode, m_Mode)
   }
   EZ_END_PROPERTIES;
-
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender,
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

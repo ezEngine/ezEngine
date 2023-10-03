@@ -15,11 +15,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgStateMachineStateChanged, 1, ezRTTIDefaultA
     EZ_ACCESSOR_PROPERTY("NewStateName", GetNewStateName, SetNewStateName),
   }
   EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-      new ezAutoGenVisScriptMsgHandler()
-  }
-  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

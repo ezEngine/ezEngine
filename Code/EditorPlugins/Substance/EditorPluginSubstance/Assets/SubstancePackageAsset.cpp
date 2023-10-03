@@ -741,5 +741,15 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
 
   EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
+  if (sThumbnailFile.IsEmpty() == false)
+  {
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
+
+    ThumbnailInfo thumbnailInfo;
+    thumbnailInfo.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
+    AppendThumbnailInfo(sThumbnailFile, thumbnailInfo);
+  }
+
   return ezStatus(EZ_SUCCESS);
 }

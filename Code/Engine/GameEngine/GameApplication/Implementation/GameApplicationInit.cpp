@@ -12,7 +12,6 @@
 #include <GameEngine/StateMachine/StateMachineResource.h>
 #include <GameEngine/Utils/BlackboardTemplateResource.h>
 #include <GameEngine/Utils/ImageDataResource.h>
-#include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
@@ -70,7 +69,6 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTexture2DResource>());
   ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureCubeResource>());
-  ezResourceManager::RegisterResourceForAssetType("Visual Script", ezGetStaticRTTI<ezVisualScriptResource>());
 }
 
 void ezGameApplication::Init_SetupDefaultResources()
@@ -194,14 +192,6 @@ void ezGameApplication::Init_SetupDefaultResources()
 
     ezCurve1DResourceHandle hResource = ezResourceManager::CreateResource<ezCurve1DResource>("MissingCurve1D", std::move(cd), "Missing Curve1D Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezCurve1DResource>(hResource);
-  }
-
-  // Visual Script
-  {
-    ezVisualScriptResourceDescriptor desc;
-
-    ezVisualScriptResourceHandle hResource = ezResourceManager::CreateResource<ezVisualScriptResource>("MissingVisualScript", std::move(desc), "Missing Visual Script Resource");
-    ezResourceManager::SetResourceTypeMissingFallback<ezVisualScriptResource>(hResource);
   }
 
   // Property Animations

@@ -6,14 +6,13 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/Interfaces/SoundInterface.h>
 #include <Core/Prefabs/PrefabResource.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 #include <EnginePluginScene/SceneContext/LayerContext.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/VisualScript/VisualScriptComponent.h>
-#include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -122,14 +121,12 @@ ezSceneContext::ezSceneContext()
   m_GridTransform.SetIdentity();
   m_pWorld = nullptr;
 
-  ezVisualScriptComponent::GetActivityEvents().AddEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
   ezResourceManager::GetManagerEvents().AddEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
   ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::GameApplicationEventHandler, this));
 }
 
 ezSceneContext::~ezSceneContext()
 {
-  ezVisualScriptComponent::GetActivityEvents().RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
   ezResourceManager::GetManagerEvents().RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
   ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::GameApplicationEventHandler, this));
 }
@@ -652,47 +649,6 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
   if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
   {
     pSoundInterface->SetListenerOverrideMode(false);
-  }
-}
-
-
-void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e)
-{
-  // component handles are not unique across different worlds, in fact it is very likely that different worlds contain identical handles
-  // therefore we first need to filter out, whether the component comes from the same world, as this context operates on
-  if (e.m_pComponent->GetWorld() != GetWorld())
-    return;
-
-  EZ_ASSERT_DEV(e.m_pComponent->GetDebugOutput(), "This component should not send debug data.");
-
-  for (ezWorldRttiConverterContext* pContext : GetAllContexts())
-  {
-    const ezUuid guid = pContext->m_ComponentMap.GetGuid(e.m_pComponent->GetHandle());
-
-    if (!guid.IsValid())
-      return;
-
-    ezVisualScriptActivityMsgToEditor msg;
-    msg.m_DocumentGuid = GetDocumentGuid(); // #TODO: Should this be layer or scene guid?
-    msg.m_ComponentGuid = guid;
-
-    ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&msg.m_Activity);
-    ezMemoryStreamWriter writer(&storage);
-
-    writer << e.m_pActivity->m_ActiveExecutionConnections.GetCount();
-    writer << e.m_pActivity->m_ActiveDataConnections.GetCount();
-
-    for (const auto& con : e.m_pActivity->m_ActiveExecutionConnections)
-    {
-      writer << con;
-    }
-
-    for (const auto& con : e.m_pActivity->m_ActiveDataConnections)
-    {
-      writer << con;
-    }
-
-    SendProcessMessage(&msg);
   }
 }
 

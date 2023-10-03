@@ -951,14 +951,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAutoGenVisScriptMsgSender, 1, ezRTTIDefaultAllocator<ezAutoGenVisScriptMsgSender>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAutoGenVisScriptMsgHandler, 1, ezRTTIDefaultAllocator<ezAutoGenVisScriptMsgHandler>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExcludeFromScript, 1, ezRTTIDefaultAllocator<ezExcludeFromScript>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -1069,20 +1062,6 @@ ezFunctionArgumentAttributes::ezFunctionArgumentAttributes(ezUInt32 uiArgIndex, 
     m_ArgAttributes.PushBack(pAttribute4);
   }
 }
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptMappingAttribute, 1, ezRTTIDefaultAllocator<ezVisScriptMappingAttribute>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Mapping", m_iMapping)
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 

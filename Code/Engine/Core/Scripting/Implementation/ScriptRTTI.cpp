@@ -72,7 +72,7 @@ ezScriptMessageHandler::ezScriptMessageHandler(const ezScriptMessageDesc& desc)
   ezUniquePtr<ezMessage> pMessage = desc.m_pType->GetAllocator()->Allocate<ezMessage>();
 
   m_Id = pMessage->GetId();
-  m_bIsConst = false;
+  m_bIsConst = true;
 }
 
 ezScriptMessageHandler::~ezScriptMessageHandler() = default;
