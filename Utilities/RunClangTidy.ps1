@@ -140,7 +140,7 @@ if($DiffTo)
         }
     })    
 
-    $headersInDiff = $diffFiles | ? { $_.EndsWith(".h") }
+    $headersInDiff = $diffFiles | ? { $_.EndsWith(".h") -and (Test-Path $_) }
     if ($headersInDiff.Length -gt 0)
     {
         $originalNumFiles = $files.Length
