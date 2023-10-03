@@ -53,7 +53,7 @@ ezTestAppRun ezEditorTestGenerateCompile::RunSubTest(ezInt32 iIdentifier, ezUInt
 #if defined(_MSC_VER)
 #  if _MSC_VER >= 1930
     cpp.m_Compiler = ezCppSettings::Compiler::Vs2022;
-#  elif
+#  else
     cpp.m_Compiler = ezCppSettings::Compiler::Vs2019;
 #  endif
 #endif
