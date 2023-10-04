@@ -2,13 +2,13 @@
 
 #include "Project.h"
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/CodeGen/CppProject.h>
+#include <EditorFramework/CodeGen/CppSettings.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <TestFramework/Framework/TestFramework.h>
-#include <EditorFramework/CodeGen/CppProject.h>
-#include <EditorFramework/CodeGen/CppSettings.h>
 
 static ezEditorTestProject s_EditorTestProject;
 
