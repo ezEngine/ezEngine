@@ -6,6 +6,9 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <TestFramework/Framework/TestFramework.h>
+#include <EditorFramework/CodeGen/CppProject.h>
+#include <EditorFramework/CodeGen/CppSettings.h>
 
 static ezEditorTestProject s_EditorTestProject;
 
@@ -17,6 +20,7 @@ const char* ezEditorTestProject::GetTestName() const
 void ezEditorTestProject::SetupSubTests()
 {
   AddSubTest("Create Documents", SubTests::ST_CreateDocuments);
+  AddSubTest("Create C++ Solution", SubTests::ST_CreateCppSolution);
 }
 
 ezResult ezEditorTestProject::InitializeTest()
@@ -41,6 +45,21 @@ ezResult ezEditorTestProject::DeInitializeTest()
 }
 
 ezTestAppRun ezEditorTestProject::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+{
+  switch (iIdentifier)
+  {
+    case ST_CreateDocuments:
+      return CreateDocuments();
+    case ST_CreateCppSolution:
+      return CreateCppSolution();
+    default:
+      EZ_REPORT_FAILURE("missing case statement");
+  }
+
+  return ezTestAppRun::Quit;
+}
+
+ezTestAppRun ezEditorTestProject::CreateDocuments()
 {
   const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
   for (auto it : allDesc)
@@ -74,5 +93,40 @@ ezTestAppRun ezEditorTestProject::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInv
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingThumbnailDependency], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::CircularDependency], 0);
   }
+  return ezTestAppRun::Quit;
+}
+
+ezTestAppRun ezEditorTestProject::CreateCppSolution()
+{
+  ezCppSettings cpp;
+  EZ_TEST_BOOL(cpp.Load().Failed());
+
+  EZ_TEST_BOOL(!ezCppProject::ExistsSolution(cpp));
+
+  cpp.m_sPluginName = "TestPlugin";
+#if defined(_MSC_VER)
+#  if _MSC_VER >= 1930
+  cpp.m_Compiler = ezCppSettings::Compiler::Vs2022;
+#  else
+  cpp.m_Compiler = ezCppSettings::Compiler::Vs2019;
+#  endif
+#endif
+
+  EZ_TEST_RESULT(cpp.Save());
+  EZ_TEST_RESULT(ezCppProject::CleanBuildDir(cpp));
+  EZ_TEST_RESULT(ezCppProject::PopulateWithDefaultSources(cpp));
+  if (!EZ_TEST_RESULT(ezCppProject::RunCMake(cpp)))
+    return ezTestAppRun::Quit;
+
+  EZ_TEST_BOOL(ezCppProject::ExistsProjectCMakeListsTxt());
+  EZ_TEST_BOOL(ezCppProject::ExistsSolution(cpp));
+  EZ_TEST_RESULT(ezCppProject::BuildCodeIfNecessary(cpp));
+
+  ezCppProject::UpdatePluginConfig(cpp);
+  ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
+
+  ProcessEvents(20);
+
+  EZ_TEST_BOOL(!ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
   return ezTestAppRun::Quit;
 }
