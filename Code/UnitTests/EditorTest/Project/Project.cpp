@@ -104,7 +104,7 @@ ezTestAppRun ezEditorTestProject::CreateCppSolution()
   EZ_TEST_BOOL(!ezCppProject::ExistsSolution(cpp));
 
   cpp.m_sPluginName = "TestPlugin";
-#if defined(_MSC_VER)
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
 #  if _MSC_VER >= 1930
   cpp.m_Compiler = ezCppSettings::Compiler::Vs2022;
 #  else
