@@ -488,6 +488,7 @@ endmacro()
 # #####################################
 macro(ez_pull_all_vars)
 	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
+	get_property(EZ_ROOT GLOBAL PROPERTY EZ_ROOT)
 
 	ez_pull_version()
 	ez_pull_compiler_and_architecture_vars()
