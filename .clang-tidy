@@ -1,2 +1,3 @@
+Checks: '-*,ez-name-check,modernize-use-default-member-init,modernize-use-equals-default,modernize-use-using'
 CheckOptions:
   - { key: modernize-use-default-member-init.UseAssignment, value: true }
