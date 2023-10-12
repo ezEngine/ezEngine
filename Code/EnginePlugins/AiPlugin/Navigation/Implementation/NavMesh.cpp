@@ -172,6 +172,11 @@ void ezAiNavMesh::FinalizeSectorUpdates()
         ezLog::Error("NavMesh addTile error: {}", res);
       }
     }
+    else
+    {
+        ezLog::Success("Loaded empty navmesh tile {}|{}", coord.x, coord.y);
+        sector.m_FlagUsable = 1;
+    }
 
     sector.m_FlagInvalidate = 0;
     sector.m_FlagUpdateAvailable = 0;

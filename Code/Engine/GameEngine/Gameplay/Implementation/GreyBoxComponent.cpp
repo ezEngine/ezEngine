@@ -435,10 +435,20 @@ void ezGreyBoxComponent::InvalidateMesh()
 
 void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> shape, bool bOnlyRoughDetails) const
 {
+  ezGeometry::GeoOptions opt;
+  opt.m_Color = m_Color;
+
   ezVec3 size;
   size.x = m_fSizeNegX + m_fSizePosX;
   size.y = m_fSizeNegY + m_fSizePosY;
   size.z = m_fSizeNegZ + m_fSizePosZ;
+
+  if (size.x == 0 || size.y == 0 || size.z == 0)
+  {
+    // create a tiny dummy box, so that we have valid geometry
+    geom.AddBox(ezVec3(0.01f), true, opt);
+    return;
+  }
 
   ezVec3 offset(0);
   offset.x = (m_fSizePosX - m_fSizeNegX) * 0.5f;
@@ -447,8 +457,6 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom, ezEnum<ezGreyBoxShape> 
 
   ezMat4 t2, t3;
 
-  ezGeometry::GeoOptions opt;
-  opt.m_Color = m_Color;
   opt.m_Transform = ezMat4::MakeTranslation(offset);
 
   switch (shape)
