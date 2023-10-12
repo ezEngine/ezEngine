@@ -131,3 +131,16 @@ float3 Colorize(float3 baseColor, float3 color, float mask)
   return baseColor * lerp(1, 2 * color, mask);
 }
 
+// https://iquilezles.org/articles/smin/
+float SmoothMin(float a, float b, float k = 0.1)
+{
+  float h = max(k - abs(a - b), 0.0) / k;
+  return min(a, b) - h * h * k * (1.0 / 4.0);
+}
+
+float SmoothMinCubic(float a, float b, float k = 0.1)
+{
+  float h = max(k - abs(a - b), 0.0) / k;
+  return min(a, b) - h * h * h * k * (1.0 / 6.0);
+}
+

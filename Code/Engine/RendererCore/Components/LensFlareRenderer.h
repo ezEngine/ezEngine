@@ -3,19 +3,19 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Pipeline/Renderer.h>
 
-struct ezPerSpriteData;
+struct ezPerLensFlareData;
 class ezRenderDataBatch;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
-/// \brief Implements rendering of sprites
-class EZ_RENDERERCORE_DLL ezSpriteRenderer : public ezRenderer
+/// \brief Implements rendering of lens flares
+class EZ_RENDERERCORE_DLL ezLensFlareRenderer : public ezRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezSpriteRenderer);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLensFlareRenderer, ezRenderer);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezLensFlareRenderer);
 
 public:
-  ezSpriteRenderer();
-  ~ezSpriteRenderer();
+  ezLensFlareRenderer();
+  ~ezLensFlareRenderer();
 
   // ezRenderer implementation
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
@@ -24,10 +24,10 @@ public:
     const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
-  ezGALBufferHandle CreateSpriteDataBuffer(ezUInt32 uiBufferSize) const;
-  void DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer) const;
-  virtual void FillSpriteData(const ezRenderDataBatch& batch) const;
+  ezGALBufferHandle CreateLensFlareDataBuffer(ezUInt32 uiBufferSize) const;
+  void DeleteLensFlareDataBuffer(ezGALBufferHandle hBuffer) const;
+  virtual void FillLensFlareData(const ezRenderDataBatch& batch) const;
 
   ezShaderResourceHandle m_hShader;
-  mutable ezDynamicArray<ezPerSpriteData, ezAlignedAllocatorWrapper> m_SpriteData;
+  mutable ezDynamicArray<ezPerLensFlareData, ezAlignedAllocatorWrapper> m_LensFlareData;
 };

@@ -343,7 +343,10 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 		"${ROOT_DIR}/*.s"
 		"${ROOT_DIR}/*.cmake"
 		"${ROOT_DIR}/*.natvis"
-		"${ROOT_DIR}/CMakeLists.txt"
+		"${ROOT_DIR}/*.txt"
+    "${ROOT_DIR}/*.ddl"
+    "${ROOT_DIR}/*.ezShader"
+    "${ROOT_DIR}/*.ezShaderTemplate"
 	)
 
 	set(${RESULT_ALL_SOURCES} ${RELEVANT_FILES} PARENT_SCOPE)

@@ -1,0 +1,215 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+TWO_SIDED = FALSE
+FLIP_WINDING = FALSE
+CAMERA_MODE
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+SHADING_QUALITY = SHADING_QUALITY_NORMAL
+
+[RENDERSTATE]
+
+WireFrame = false
+DepthTest = false
+
+BlendingEnabled0 = true
+BlendOp0 = BlendOp_Add
+DestBlend0 = Blend_One
+SourceBlend0 = Blend_SrcAlpha
+DestBlendAlpha0 = Blend_One
+SourceBlendAlpha0 = Blend_Zero
+
+[SHADER]
+
+#define USE_TEXCOORD0
+#define USE_COLOR0
+#define CUSTOM_INTERPOLATOR nointerpolation uint Flags : FLAGS;
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/Lighting.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Materials/LensFlareData.h>
+
+StructuredBuffer<ezPerLensFlareData> lensFlareData;
+
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = InstanceID % 2;
+#endif
+
+  float2 vertexPositions[6] =
+  {
+    float2(0.0, 0.0),
+    float2(0.0, 1.0),
+    float2(1.0, 1.0),
+    float2(0.0, 0.0),
+    float2(1.0, 1.0),
+    float2(1.0, 0.0),
+  };
+
+  VS_OUT Output;
+  #if defined(VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX) && CAMERA_MODE == CAMERA_MODE_STEREO    
+    Output.RenderTargetArrayIndex = InstanceID;
+  #else
+    Output.InstanceID = InstanceID;
+  #endif
+
+  uint index = VertexID / 6;
+  uint vertexIndex = VertexID % 6;
+
+  float2 texCoords = vertexPositions[vertexIndex];
+  float2 vertexPosition = (texCoords - 0.5);
+
+  texCoords.y = 1.0 - texCoords.y;
+
+  ezPerLensFlareData data = lensFlareData[index];
+  float3 worldPosition = data.WorldSpacePosition;
+
+  float3 cameraDir = normalize(worldPosition - GetCameraPosition());
+  worldPosition += cameraDir * data.DepthOffset;
+
+  float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
+  screenPosition.xyz /= screenPosition.w;
+
+  float fade = max(abs(screenPosition.x), abs(screenPosition.y));
+  fade = saturate(1.8 - (fade * fade));
+
+  float2 scale = mul(GetCameraToScreenMatrix(), float4(1, 1, 1, 1)).xy;
+  float2 screenSampleRadius = scale * (data.OcclusionRadius / screenPosition.w);
+  screenSampleRadius *= 0.5;
+
+  float radiusInPixels = max(screenSampleRadius.x * ViewportSize.x, screenSampleRadius.y * ViewportSize.y);
+  fade *= saturate(radiusInPixels * 0.5 - 1);
+
+  if (data.Flags & LENS_FLARE_APPLY_FOG)
+  {
+    float fogAmount = GetFogAmount(worldPosition);
+    fade *= fogAmount;
+  }
+  
+  if (fade > 0)
+  {
+	  // Fibonacci Spiral, source: https://c-core-games.com/Generator/SpiralPatterns.html?p=F&n=32
+    const float2 offsets[] =
+    {
+      { -0.1303f,  0.1194f },
+      {  0.0219f, -0.2490f },
+      {  0.1863f,  0.2430f },
+      { -0.3481f, -0.0616f },
+      {  0.3335f, -0.2122f },
+      { -0.1124f,  0.4182f },
+      { -0.2156f, -0.4151f },
+      {  0.4697f,  0.1715f },
+      { -0.4902f,  0.2024f },
+      {  0.2369f, -0.5063f },
+      {  0.1755f,  0.5594f },
+      { -0.5298f, -0.3070f },
+      {  0.6225f, -0.1369f },
+      { -0.3804f,  0.5411f },
+      { -0.0880f, -0.6790f },
+      {  0.5407f,  0.4557f },
+      { -0.7282f,  0.0301f },
+      {  0.5316f, -0.5290f },
+      { -0.0356f,  0.7697f },
+      { -0.5065f, -0.6070f },
+      {  0.8029f,  0.1080f },
+      { -0.6806f,  0.4736f },
+      {  0.1861f, -0.8271f },
+      {  0.4306f,  0.7514f },
+      { -0.8421f, -0.2686f },
+      {  0.8183f, -0.3781f },
+      { -0.3546f,  0.8473f },
+      { -0.3166f, -0.8802f },
+      {  0.8427f,  0.4429f },
+      { -0.9363f,  0.2468f },
+      {  0.5323f, -0.8279f },
+      {  0.1694f,  0.9856f },
+    };
+  
+    float2 sampleUv = screenPosition.xy + vertexPosition * screenSampleRadius * data.OcclusionSpread;
+    sampleUv = sampleUv * float2(0.5, -0.5) + 0.5;
+    
+    float visibility = 0.0;
+    for (int i = 0; i < 32; ++i)
+    {
+      float2 uv = sampleUv + offsets[i] * screenSampleRadius;
+
+      float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(uv, s_ActiveCameraEyeIndex), 0.0f).r;
+      visibility += (screenPosition.z < depthFromZBuffer) ? 1 : 0;
+    }
+    fade *= (visibility / 32);
+  }
+
+  float2 screenSize = scale * (data.Size / screenPosition.w);
+  if (data.MaxScreenSize > 0.0)
+  {
+    float screenAspectRatio = screenSize.y / screenSize.x;
+    screenSize.x = SmoothMin(screenSize.x, data.MaxScreenSize, 1);
+    screenSize.y = screenSize.x * screenAspectRatio;
+  }
+
+  float2 aspectRatioAndShift = RG16FToFloat2(data.AspectRatioAndShift);
+  screenSize.y *= aspectRatioAndShift.x;
+    
+  screenPosition.xy = lerp(screenPosition.xy, 0, aspectRatioAndShift.y);
+  
+  Output.Position = float4(screenPosition.xy + vertexPosition * screenSize, 0, 1);
+  Output.TexCoord0 = texCoords;
+  Output.Color0 = RGBA16FToFloat4(data.ColorRG, data.ColorBA);
+  Output.Color0.a *= fade;
+  Output.Flags = data.Flags;
+
+  return Output;
+}
+
+[GEOMETRYSHADER]
+
+void CopyCustomInterpolators(GS_OUT output, VS_OUT input)
+{
+  output.Flags = input.Flags;
+}
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Materials/LensFlareData.h>
+
+struct PS_OUT
+{
+  float4 Color : SV_Target;
+};
+
+Texture2D LensFlareTexture;
+SamplerState LensFlareTexture_AutoSampler;
+
+PS_OUT main(PS_IN Input)
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+  float4 color = LensFlareTexture.Sample(LensFlareTexture_AutoSampler, Input.TexCoord0.xy);
+  if (Input.Flags & LENS_FLARE_GREYSCALE_TEXTURE)
+  {
+    color = color.r;
+  }
+
+  color *= Input.Color0;
+
+  if (Input.Flags & LENS_FLARE_INVERSE_TONEMAP)
+  {
+    float luminance = GetLuminance(color);
+    color *= rcp(max(1.0f - luminance, 0.001f));
+  }
+
+  PS_OUT Output;
+  Output.Color = color;
+  return Output;
+}

@@ -5,7 +5,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
+#include <Shaders/Common/ObjectConstants.h>
 
 ezInstanceData::ezInstanceData(ezUInt32 uiMaxInstanceCount /*= 1024*/)
 
