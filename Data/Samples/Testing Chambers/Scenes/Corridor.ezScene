@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{11603368547675914783}
+		u4 %Hash{15272429785461371224}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -28,7 +28,6 @@ o
 			s{"{ 3bf60313-2bce-45cf-8836-68e3b9ef5323 }"}
 			s{"{ 3c6cffcf-a17b-4199-a369-9cc792686e92 }"}
 			s{"{ 3c960df4-4000-4d25-a9e4-e9c1c5c40080 }"}
-			s{"{ 3e1603a0-178a-4e3d-810b-7ae29708cf36 }"}
 			s{"{ 3eed317b-10cd-4752-8e7d-6fc6460beba0 }"}
 			s{"{ 40197e82-5fa5-4045-99d5-f24a2475497a }"}
 			s{"{ 418d077b-369f-46c7-9f71-9fd51857b608 }"}
@@ -63,6 +62,7 @@ o
 			s{"{ afb2a2a5-e863-4c47-a2f7-002d7dea6162 }"}
 			s{"{ b579c3bb-6d40-485d-a91d-ae15b15337a9 }"}
 			s{"{ baf34fd7-9f42-4d8d-a95e-e94afd972d1d }"}
+			s{"{ bb2c15ae-dbab-4fbb-9846-9e4f32bba2ed }"}
 			s{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 			s{"{ c3b42246-a98b-439d-82e4-9bf3ec6efb59 }"}
 			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
@@ -121,6 +121,7 @@ o
 			s{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
 			s{"{ afb2a2a5-e863-4c47-a2f7-002d7dea6162 }"}
 			s{"{ b579c3bb-6d40-485d-a91d-ae15b15337a9 }"}
+			s{"{ bb2c15ae-dbab-4fbb-9846-9e4f32bba2ed }"}
 			s{"{ c36c4d88-1fd7-4049-8b57-698b8fb7e753 }"}
 			s{"{ c3b42246-a98b-439d-82e4-9bf3ec6efb59 }"}
 			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
@@ -1016,13 +1017,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x00002042}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -1330,13 +1334,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x0000A041}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -1800,13 +1807,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x00007041}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -4331,6 +4341,21 @@ o
 }
 o
 {
+	Uuid %id{u4{18100538247966217624,4649013333754821242}}
+	s %t{"ezScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters{}
+		b %PassThroughUnhandledEvents{0}
+		s %ScriptClass{"{ bb2c15ae-dbab-4fbb-9846-9e4f32bba2ed }"}
+		Time %UpdateInterval{d{0}}
+	}
+}
+o
+{
 	Uuid %id{u4{10696686491778212770,4653026071725931535}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{5}
@@ -4376,13 +4401,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -5327,20 +5355,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{1424455009777211803,4774362632283611650}}
-	s %t{"ezVisualScriptComponent"}
-	u3 %v{5}
-	p
-	{
-		b %Active{1}
-		b %HandleGlobalEvents{0}
-		VarDict %Parameters{}
-		b %PassThroughUnhandledEvents{0}
-		s %Script{"{ 3e1603a0-178a-4e3d-810b-7ae29708cf36 }"}
 	}
 }
 o
@@ -8354,7 +8368,7 @@ o
 		}
 		VarArray %Components
 		{
-			Uuid{u4{1424455009777211803,4774362632283611650}}
+			Uuid{u4{18100538247966217624,4649013333754821242}}
 			Uuid{u4{5810934151619703970,5312229628657844477}}
 			Uuid{u4{12746720162416302782,5712596777469792967}}
 		}
@@ -14646,13 +14660,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x0000C841}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -14690,13 +14707,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x00003442}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -16743,13 +16763,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x0000F041}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -18699,13 +18722,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x0000A040}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -23926,13 +23952,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x00004842}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -27063,13 +27092,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x00000C42}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -28788,13 +28820,16 @@ o
 	p
 	{
 		b %Active{1}
+		s %FollowMode{"ezFollowPathMode::OnlyPosition"}
 		f %LookAhead{0x0000803F}
+		Angle %MaxTilt{f{0x920A063F}}
 		s %Mode{"ezPropertyAnimMode::Loop"}
 		s %Path{"{ db886e00-1fef-40e2-b507-92504af40a93 }"}
 		b %Running{1}
 		f %Smoothing{0x0000003F}
 		f %Speed{0x0000A040}
 		f %StartDistance{0x00002041}
+		f %TiltAmount{0x0000A040}
 	}
 }
 o
@@ -33163,6 +33198,23 @@ o
 }
 o
 {
+	Uuid %id{u4{18145823255500990886,658922949661762930}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{7301108726582859908,841542253325378660}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -33290,6 +33342,23 @@ o
 }
 o
 {
+	Uuid %id{u4{2284349921802521999,1592420110010687888}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezNonUniformBoxManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10640356914424339396,1616028409289920636}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -33316,6 +33385,23 @@ o
 	{
 		i3 %Max{200}
 		i3 %Min{2}
+	}
+}
+o
+{
+	Uuid %id{u4{16045071413232502618,1822118507243929179}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBoxManipulatorAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -33403,6 +33489,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxShape"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5827458717401089751,2275458197221607663}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionVisualizerAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -33658,12 +33761,46 @@ o
 }
 o
 {
+	Uuid %id{u4{13180226495177211365,3486873224131216715}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEventMessageHandlerComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezScriptComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10410885489792813498,3493566296382582107}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
 	p
 	{
 		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -33769,7 +33906,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Editing Utilities"}
+		s %Category{"Editing"}
 	}
 }
 o
@@ -34172,6 +34309,23 @@ o
 			Uuid{u4{18034554435641662065,5926314326618781946}}
 		}
 		s %TypeName{"ezJoltRopeAnchorConstraintMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18327411855245510474,6668321287849544166}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualizerAnchor"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -34886,6 +35040,23 @@ o
 }
 o
 {
+	Uuid %id{u4{8228401658076077542,9903301473102603301}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14619222012368174598,9914418461412086272}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -34899,6 +35070,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionalLightComponent"}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{455663516835322266,10016785433957589977}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTransformManipulatorAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -34996,6 +35184,40 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
 		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{13911205554535895356,10530443876777205009}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezFollowPathMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5175953824557395014,10566581888453829842}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezConeAngleManipulatorAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -35153,6 +35375,23 @@ o
 	{
 		VarArray %ArgNames{}
 		VarArray %ArgTypes{}
+	}
+}
+o
+{
+	Uuid %id{u4{17733595291106647553,10998690428477627554}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBoxVisualizerAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -35655,23 +35894,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16906105696366347135,12383969493308773263}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEventMessageHandlerComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezVisualScriptComponent"}
-		u3 %TypeVersion{5}
-	}
-}
-o
-{
 	Uuid %id{u4{5762726892282944437,12506155996343976232}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -35722,6 +35944,23 @@ o
 }
 o
 {
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{507747551448039797,12894743226731186328}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -35751,6 +35990,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"ezJoltRopeAnchorConstraintMode::Default"}
 		s %Type{"ezInt8"}
+	}
+}
+o
+{
+	Uuid %id{u4{17338863546649435593,13192242791875444156}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPointLightVisualizerAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -35896,6 +36152,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSpotLightComponent"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{3831974449523230585,14215314673498690831}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSpotLightVisualizerAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -36417,6 +36690,23 @@ o
 }
 o
 {
+	Uuid %id{u4{18075037991921780250,16373560435556338007}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{15473222858087043709,16407737336188150420}}
 	s %t{"ezClampValueAttribute"}
 	u3 %v{1}
@@ -36424,6 +36714,23 @@ o
 	{
 		Vec2u %Max{u3{31,31}}
 		Vec2u %Min{u3{1,1}}
+	}
+}
+o
+{
+	Uuid %id{u4{15796815132701145913,16426079668733115146}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSphereManipulatorAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -36491,6 +36798,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14207082430471941233,17000358661146427261}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSphereVisualizerAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -36771,6 +37095,23 @@ o
 	{
 		s %Flags{""}
 		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{2911337197746516424,18087631299254518308}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezConeLengthManipulatorAttribute"}
+		u3 %TypeVersion{1}
 	}
 }
 o

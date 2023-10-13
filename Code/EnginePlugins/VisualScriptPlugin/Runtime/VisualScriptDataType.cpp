@@ -315,7 +315,7 @@ bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataTy
 
 ezGameObject* ezVisualScriptGameObjectHandle::GetPtr(ezUInt32 uiExecutionCounter) const
 {
-  if (m_uiExecutionCounter == uiExecutionCounter)
+  if (m_uiExecutionCounter == uiExecutionCounter || m_Handle.GetInternalID().m_Data == 0)
   {
     return m_Ptr;
   }
@@ -334,7 +334,7 @@ ezGameObject* ezVisualScriptGameObjectHandle::GetPtr(ezUInt32 uiExecutionCounter
 
 ezComponent* ezVisualScriptComponentHandle::GetPtr(ezUInt32 uiExecutionCounter) const
 {
-  if (m_uiExecutionCounter == uiExecutionCounter)
+  if (m_uiExecutionCounter == uiExecutionCounter || m_Handle.GetInternalID().m_Data == 0)
   {
     return m_Ptr;
   }

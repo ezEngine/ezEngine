@@ -118,8 +118,9 @@ private:
     {
       Execution = EZ_BIT(0),
       Data = EZ_BIT(1),
+      Deduplicate = EZ_BIT(2),
 
-      All = Execution | Data,
+      All = Execution | Data | Deduplicate,
     };
   };
 

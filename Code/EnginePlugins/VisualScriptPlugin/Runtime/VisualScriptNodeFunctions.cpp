@@ -143,6 +143,12 @@ namespace
     ezTypedPointer pInstance;
     pInstance = inout_context.GetPointerData(node.GetInputDataOffset(0));
 
+    if (pInstance.m_pObject == nullptr)
+    {
+      ezLog::Error("Visual script get property '{}': Target object is invalid (nullptr)", pProperty->GetPropertyName());
+      return ExecResult::Error();
+    }
+
     if (pInstance.m_pType->IsDerivedFrom(userData.m_pType) == false)
     {
       ezLog::Error("Visual script get property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
@@ -187,9 +193,15 @@ namespace
     ezTypedPointer pInstance;
     pInstance = inout_context.GetPointerData(node.GetInputDataOffset(0));
 
+    if (pInstance.m_pObject == nullptr)
+    {
+      ezLog::Error("Visual script set property '{}': Target object is invalid (nullptr)", pProperty->GetPropertyName());
+      return ExecResult::Error();
+    }
+
     if (pInstance.m_pType->IsDerivedFrom(userData.m_pType) == false)
     {
-      ezLog::Error("Visual script get property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
+      ezLog::Error("Visual script set property '{}': Target object is not of expected type '{}'", pProperty->GetPropertyName(), userData.m_pType->GetTypeName());
       return ExecResult::Error();
     }
 
@@ -1087,13 +1099,13 @@ namespace
     if (p.m_pType != ezGetStaticRTTI<ezGameObject>())
     {
       ezLog::Error("Visual script call TryGetComponentOfBaseType: Game object is not of type 'ezGameObject'");
-      return ExecResult::RunNext(0);
+      return ExecResult::Error();
     }
 
     if (p.m_pObject == nullptr)
     {
       ezLog::Error("Visual script call TryGetComponentOfBaseType: Game object is null");
-      return ExecResult::RunNext(0);
+      return ExecResult::Error();
     }
 
     ezComponent* pComponent = nullptr;
