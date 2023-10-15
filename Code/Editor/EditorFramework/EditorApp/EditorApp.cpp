@@ -58,17 +58,6 @@ void ezQtEditorApp::SlotTimedUpdate()
 
   RestartEngineProcessIfPluginsChanged(false);
 
-  if (m_bWroteCrashIndicatorFile)
-  {
-    m_bWroteCrashIndicatorFile = false;
-    QTimer::singleShot(2000, []() {
-      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-      sTemp.AppendPath("ezEditorCrashIndicator");
-      ezOSFile::DeleteFile(sTemp).IgnoreResult();
-      //
-    });
-  }
-
   m_pTimer->start(1);
 }
 
@@ -404,6 +393,15 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 
 void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 {
+  if (m_bWroteCrashIndicatorFile)
+  {
+    // orderly shutdown -> make sure the crash indicator file is gone
+    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+    sTemp.AppendPath("ezEditorCrashIndicator");
+    ezOSFile::DeleteFile(sTemp).IgnoreResult();
+    m_bWroteCrashIndicatorFile = false;
+  }
+
   ezStringBuilder app;
   app = ezOSFile::GetApplicationDirectory();
   app.AppendPath("Editor");
