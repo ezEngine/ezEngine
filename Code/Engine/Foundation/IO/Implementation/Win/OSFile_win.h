@@ -654,6 +654,32 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder /*= nullptr*/)
   return s;
 }
 
+ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder /*= {}*/)
+{
+  if (s_sUserDocumentsPath.IsEmpty())
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+    EZ_ASSERT_NOT_IMPLEMENTED;
+#else
+    wchar_t* pPath = nullptr;
+    if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_PublicDocuments, KF_FLAG_DEFAULT, nullptr, &pPath)))
+    {
+      s_sUserDocumentsPath = ezStringWChar(pPath);
+    }
+
+    if (pPath != nullptr)
+    {
+      CoTaskMemFree(pPath);
+    }
+#endif
+  }
+
+  ezStringBuilder s = s_sUserDocumentsPath;
+  s.AppendPath(sSubFolder);
+  s.MakeCleanPath();
+  return s;
+}
+
 const ezString ezOSFile::GetCurrentWorkingDirectory()
 {
   const ezUInt32 uiRequiredLength = GetCurrentDirectoryW(0, nullptr);

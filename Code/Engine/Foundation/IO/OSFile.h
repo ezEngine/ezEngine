@@ -290,6 +290,16 @@ public:
   /// If szSubFolder is specified, it will be appended to the result.
   static ezString GetTempDataFolder(ezStringView sSubFolder = {});
 
+  /// \brief Returns the folder into which the user may want to store documents.
+  /// Append a sub-folder for your application.
+  ///
+  /// On Windows this is the 'Documents' directory.
+  /// On Posix systems this is the '~' (home) directory.
+  ///
+  /// If szSubFolder is specified, it will be appended to the result.
+  static ezString GetUserDocumentsFolder(ezStringView sSubFolder = {});
+
+
 public:
   /// \brief Describes the types of events that ezOSFile sends.
   struct EventType
@@ -397,6 +407,9 @@ private:
 
   /// \brief The path where temp data is stored on this OS
   static ezString64 s_sTempDataPath;
+
+  /// \brief The path where user data documents are stored on this OS
+  static ezString64 s_sUserDocumentsPath;
 
   /// \brief Counts how many different files are touched.225
   static ezAtomicInteger32 s_iFileCounter;
