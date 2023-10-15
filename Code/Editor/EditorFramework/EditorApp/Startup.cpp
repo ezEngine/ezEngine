@@ -380,14 +380,13 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   if (m_bWroteCrashIndicatorFile)
   {
-    QTimer::singleShot(2000, [this]()
-      {
-        ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-        sTemp.AppendPath("ezEditorCrashIndicator");
-        ezOSFile::DeleteFile(sTemp).IgnoreResult();
-        m_bWroteCrashIndicatorFile = false;
-        //
-      });
+    QTimer::singleShot(2000, [this]() {
+      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+      sTemp.AppendPath("ezEditorCrashIndicator");
+      ezOSFile::DeleteFile(sTemp).IgnoreResult();
+      m_bWroteCrashIndicatorFile = false;
+      //
+    });
   }
 
   if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest) && !ezToolsProject::GetSingleton()->IsProjectOpen())
