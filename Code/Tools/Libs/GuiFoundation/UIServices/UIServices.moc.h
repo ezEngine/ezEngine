@@ -72,8 +72,7 @@ public:
 
   /// \brief Shows a non-modal color dialog. The Qt slots are called when the selected color is changed or when the dialog is closed and the result
   /// accepted or rejected.
-  void ShowColorDialog(
-    const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject);
+  void ShowColorDialog(const ezColor& color, bool bAlpha, bool bHDR, QWidget* pParent, const char* szSlotCurColChanged, const char* szSlotAccept, const char* szSlotReject);
 
   /// \brief Might show a message box depending on the given status. If the status is 'failure' the szFailureMsg is shown, including the message in
   /// ezStatus. If the status is success a message box with text szSuccessMsg is shown, but only if the status message is not empty or if
@@ -87,8 +86,7 @@ public:
   static void MessageBoxWarning(const ezFormatString& msg);
 
   /// \brief Shows a question message box and returns which button the user pressed
-  static QMessageBox::StandardButton MessageBoxQuestion(
-    const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
+  static QMessageBox::StandardButton MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
 
   /// \brief Use this if you need to display a status bar message in any/all documents. Go directly through the document, if you only want to show a
   /// message in a single document window.

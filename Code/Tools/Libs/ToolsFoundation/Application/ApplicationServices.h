@@ -25,6 +25,8 @@ public:
   /// \brief The writable location where preferences for the current ezToolsProject should be stored (user specific settings)
   ezString GetProjectPreferencesFolder() const;
 
+  ezString GetProjectPreferencesFolder(ezStringView sProjectFilePath) const;
+
   /// \brief The writable location where preferences for the given ezDocument should be stored (user specific settings)
   ezString GetDocumentPreferencesFolder(const ezDocument* pDocument) const;
 
