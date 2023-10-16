@@ -249,15 +249,15 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
   return EZ_SUCCESS;
 }
 
-ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& sFilePath)
+ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 {
   // already a local project?
-  if (sFilePath.EndsWith_NoCase("ezProject"))
+  if (inout_sFilePath.EndsWith_NoCase("ezProject"))
     return ezStatus(EZ_SUCCESS);
 
-  EZ_LOG_BLOCK("Open Remote Project", sFilePath.GetData());
+  EZ_LOG_BLOCK("Open Remote Project", inout_sFilePath.GetData());
 
-  ezStringBuilder sRedirFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder(sFilePath);
+  ezStringBuilder sRedirFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder(inout_sFilePath);
   sRedirFile.AppendPath("LocalCheckout.txt");
 
   // read redirection file, if available
@@ -272,7 +272,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& sFilePath)
 
       if (sContent.EndsWith_NoCase("ezProject") && ezOSFile::ExistsFile(sContent))
       {
-        sFilePath = sContent;
+        inout_sFilePath = sContent;
         return ezStatus(EZ_SUCCESS);
       }
     }
@@ -286,9 +286,9 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& sFilePath)
   // read the info about the remote project from the OpenDDL config file
   {
     ezOSFile file;
-    if (file.Open(sFilePath, ezFileOpenMode::Read).Failed())
+    if (file.Open(inout_sFilePath, ezFileOpenMode::Read).Failed())
     {
-      return ezStatus(ezFmt("Remote project file '{}' doesn't exist.", sFilePath));
+      return ezStatus(ezFmt("Remote project file '{}' doesn't exist.", inout_sFilePath));
     }
 
     ezDataBuffer content;
@@ -329,7 +329,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& sFilePath)
 
   if (sType.IsEmpty() || sName.IsEmpty())
   {
-    return ezStatus(ezFmt("Remote project '{}' DDL configuration is invalid.", sFilePath));
+    return ezStatus(ezFmt("Remote project '{}' DDL configuration is invalid.", inout_sFilePath));
   }
 
   ezQtUiServices::GetSingleton()->MessageBoxInformation("This is a 'remote' project, meaning the data is not yet available on your machine.\n\nPlease select a folder where the project should be downloaded to.");
@@ -372,14 +372,14 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& sFilePath)
 
     ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
 
-    sFilePath.Format("{}/{}/{}", sTargetDir, sName, sProjectFile);
+    inout_sFilePath.Format("{}/{}/{}", sTargetDir, sName, sProjectFile);
 
     // write redirection file
     {
       ezOSFile file;
       if (file.Open(sRedirFile, ezFileOpenMode::Write).Succeeded())
       {
-        file.Write(sFilePath.GetData(), sFilePath.GetElementCount()).AssertSuccess();
+        file.Write(inout_sFilePath.GetData(), inout_sFilePath.GetElementCount()).AssertSuccess();
       }
     }
 
