@@ -5,7 +5,9 @@
 ezString64 ezOSFile::s_sApplicationPath;
 ezString64 ezOSFile::s_sUserDataPath;
 ezString64 ezOSFile::s_sTempDataPath;
+ezString64 ezOSFile::s_sUserDocumentsPath;
 ezAtomicInteger32 ezOSFile::s_iFileCounter;
+
 ezOSFile::Event ezOSFile::s_FileEvents;
 
 ezFileStats::ezFileStats() = default;

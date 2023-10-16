@@ -459,6 +459,28 @@ ezString ezOSFile::GetTempDataFolder(ezStringView sSubFolder)
   return s;
 }
 
+ezString ezOSFile::GetUserDocumentsFolder(ezStringView sSubFolder)
+{
+  if (s_sUserDocumentsPath.IsEmpty())
+  {
+#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+    android_app* app = ezAndroidUtils::GetAndroidApp();
+    // s_sUserDataPath = app->activity->internalDataPath;
+    EZ_ASSERT_NOT_IMPLEMENTED;
+#  else
+    s_sUserDataPath = getenv("HOME");
+
+    if (s_sUserDataPath.IsEmpty())
+      s_sUserDataPath = getpwuid(getuid())->pw_dir;
+#  endif
+  }
+
+  ezStringBuilder s = s_sUserDocumentsPath;
+  s.AppendPath(sSubFolder);
+  s.MakeCleanPath();
+  return s;
+}
+
 const ezString ezOSFile::GetCurrentWorkingDirectory()
 {
   char tmp[PATH_MAX];

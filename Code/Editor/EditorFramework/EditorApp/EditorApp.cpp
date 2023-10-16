@@ -9,6 +9,7 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
+#include <QFileDialog>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
@@ -57,17 +58,6 @@ void ezQtEditorApp::SlotTimedUpdate()
   Q_EMIT IdleEvent();
 
   RestartEngineProcessIfPluginsChanged(false);
-
-  if (m_bWroteCrashIndicatorFile)
-  {
-    m_bWroteCrashIndicatorFile = false;
-    QTimer::singleShot(2000, []() {
-      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
-      sTemp.AppendPath("ezEditorCrashIndicator");
-      ezOSFile::DeleteFile(sTemp).IgnoreResult();
-      //
-    });
-  }
 
   m_pTimer->start(1);
 }
@@ -259,6 +249,146 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
   return EZ_SUCCESS;
 }
 
+ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
+{
+  // already a local project?
+  if (inout_sFilePath.EndsWith_NoCase("ezProject"))
+    return ezStatus(EZ_SUCCESS);
+
+  EZ_LOG_BLOCK("Open Remote Project", inout_sFilePath.GetData());
+
+  ezStringBuilder sRedirFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder(inout_sFilePath);
+  sRedirFile.AppendPath("LocalCheckout.txt");
+
+  // read redirection file, if available
+  {
+    ezOSFile file;
+    if (file.Open(sRedirFile, ezFileOpenMode::Read).Succeeded())
+    {
+      ezDataBuffer content;
+      file.ReadAll(content);
+
+      const ezStringView sContent((const char*)content.GetData(), content.GetCount());
+
+      if (sContent.EndsWith_NoCase("ezProject") && ezOSFile::ExistsFile(sContent))
+      {
+        inout_sFilePath = sContent;
+        return ezStatus(EZ_SUCCESS);
+      }
+    }
+  }
+
+  ezString sName;
+  ezString sType;
+  ezString sUrl;
+  ezString sProjectFile;
+
+  // read the info about the remote project from the OpenDDL config file
+  {
+    ezOSFile file;
+    if (file.Open(inout_sFilePath, ezFileOpenMode::Read).Failed())
+    {
+      return ezStatus(ezFmt("Remote project file '{}' doesn't exist.", inout_sFilePath));
+    }
+
+    ezDataBuffer content;
+    file.ReadAll(content);
+
+    ezMemoryStreamContainerWrapperStorage<ezDataBuffer> storage(&content);
+    ezMemoryStreamReader reader(&storage);
+
+    ezOpenDdlReader ddl;
+    if (ddl.ParseDocument(reader).Failed())
+    {
+      return ezStatus("Error in remote project DDL config file");
+    }
+
+    if (auto pRoot = ddl.GetRootElement())
+    {
+      if (auto pProject = pRoot->FindChildOfType("RemoteProject"))
+      {
+        if (auto pName = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Name"))
+        {
+          sName = pName->GetPrimitivesString()[0];
+        }
+        if (auto pType = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Type"))
+        {
+          sType = pType->GetPrimitivesString()[0];
+        }
+        if (auto pUrl = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "Url"))
+        {
+          sUrl = pUrl->GetPrimitivesString()[0];
+        }
+        if (auto pProjectFile = pProject->FindChildOfType(ezOpenDdlPrimitiveType::String, "ProjectFile"))
+        {
+          sProjectFile = pProjectFile->GetPrimitivesString()[0];
+        }
+      }
+    }
+  }
+
+  if (sType.IsEmpty() || sName.IsEmpty())
+  {
+    return ezStatus(ezFmt("Remote project '{}' DDL configuration is invalid.", inout_sFilePath));
+  }
+
+  ezQtUiServices::GetSingleton()->MessageBoxInformation("This is a 'remote' project, meaning the data is not yet available on your machine.\n\nPlease select a folder where the project should be downloaded to.");
+
+  static QString sPreviousFolder = ezOSFile::GetUserDocumentsFolder().GetData();
+
+  QString sSelectedDir = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
+
+  if (sSelectedDir.isEmpty())
+  {
+    return ezStatus("");
+  }
+
+  sPreviousFolder = sSelectedDir;
+  ezStringBuilder sTargetDir = sSelectedDir.toUtf8().data();
+
+  // if it is a git repository, clone it
+  if (sType == "git" && !sUrl.IsEmpty())
+  {
+    QStringList args;
+    args << "clone";
+    args << ezMakeQString(sUrl);
+    args << ezMakeQString(sName);
+
+    QProcess proc;
+    proc.setWorkingDirectory(sTargetDir.GetData());
+    proc.start("git.exe", args);
+
+    if (!proc.waitForStarted())
+    {
+      return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
+    }
+
+    proc.waitForFinished(60 * 1000);
+
+    if (proc.exitStatus() != QProcess::ExitStatus::NormalExit)
+    {
+      return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'", sName, sUrl));
+    }
+
+    ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
+
+    inout_sFilePath.Format("{}/{}/{}", sTargetDir, sName, sProjectFile);
+
+    // write redirection file
+    {
+      ezOSFile file;
+      if (file.Open(sRedirFile, ezFileOpenMode::Write).Succeeded())
+      {
+        file.Write(inout_sFilePath.GetData(), inout_sFilePath.GetElementCount()).AssertSuccess();
+      }
+    }
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  return ezStatus(ezFmt("Unknown remote project type '{}' or invalid URL '{}'", sType, sUrl));
+}
+
 bool ezQtEditorApp::ExistsPluginSelectionStateDDL(const char* szProjectDir /*= ":project"*/)
 {
   ezStringBuilder path = szProjectDir;
@@ -404,6 +534,15 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 
 void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
 {
+  if (m_bWroteCrashIndicatorFile)
+  {
+    // orderly shutdown -> make sure the crash indicator file is gone
+    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+    sTemp.AppendPath("ezEditorCrashIndicator");
+    ezOSFile::DeleteFile(sTemp).IgnoreResult();
+    m_bWroteCrashIndicatorFile = false;
+  }
+
   ezStringBuilder app;
   app = ezOSFile::GetApplicationDirectory();
   app.AppendPath("Editor");

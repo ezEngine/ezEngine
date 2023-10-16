@@ -378,6 +378,17 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
 
+  if (m_bWroteCrashIndicatorFile)
+  {
+    QTimer::singleShot(2000, [this]() {
+      ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+      sTemp.AppendPath("ezEditorCrashIndicator");
+      ezOSFile::DeleteFile(sTemp).IgnoreResult();
+      m_bWroteCrashIndicatorFile = false;
+      //
+    });
+  }
+
   if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest) && !ezToolsProject::GetSingleton()->IsProjectOpen())
   {
     GuiOpenDashboard();
@@ -441,6 +452,15 @@ void ezQtEditorApp::ShutdownEditor()
   // Unload potential plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();
   ezPlugin::UnloadAllPlugins();
+
+  if (m_bWroteCrashIndicatorFile)
+  {
+    // orderly shutdown -> make sure the crash indicator file is gone
+    ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
+    sTemp.AppendPath("ezEditorCrashIndicator");
+    ezOSFile::DeleteFile(sTemp).IgnoreResult();
+    m_bWroteCrashIndicatorFile = false;
+  }
 
   // make sure no one tries to load any further images in parallel
   ezQtImageCache::GetSingleton()->StopRequestProcessing(true);

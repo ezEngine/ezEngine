@@ -170,7 +170,14 @@ public:
   ezDocument* OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
   ezDocument* CreateDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
 
-  ezResult CreateOrOpenProject(bool bCreate, const char* szFile);
+  ezResult CreateOrOpenProject(bool bCreate, ezStringView sFile);
+
+  /// \brief If this project is remote, ie coming from another repository that is not checked-out by default, make sure it exists locally on disk.
+  ///
+  /// Adjusts inout_sFilePath from pointing to an ezRemoteProject file to a ezProject file, if necessary.
+  /// If the project is already local, it always succeeds.
+  /// If checking out fails or is user canceled, the function returns failure.
+  ezStatus MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath);
 
   bool ExistsPluginSelectionStateDDL(const char* szProjectDir = ":project");
   void WritePluginSelectionStateDDL(const char* szProjectDir = ":project");

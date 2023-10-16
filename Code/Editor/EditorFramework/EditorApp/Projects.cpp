@@ -50,13 +50,29 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
   CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
 }
 
-ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
+ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 {
+  ezStringBuilder sFile = sFile0;
+  if (!bCreate)
+  {
+    const ezStatus status = MakeRemoteProjectLocal(sFile);
+    if (status.Failed())
+    {
+      // if the message is empty, the user decided not to continue, so don't show an error message in this case
+      if (!status.m_sMessage.IsEmpty())
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxStatus(status, "Opening remote project failed.");
+      }
+
+      return EZ_FAILURE;
+    }
+  }
+
   // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
   if (!IsInHeadlessMode())
   {
     ezStringBuilder sdkDirFromProject;
-    if (ezFileSystem::FindFolderWithSubPath(sdkDirFromProject, szFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
+    if (ezFileSystem::FindFolderWithSubPath(sdkDirFromProject, sFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
     {
       sdkDirFromProject.MakeCleanPath();
       sdkDirFromProject.Trim(nullptr, "/");
@@ -66,7 +82,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
       if (sdkDirFromProject != sdkDir)
       {
-        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, szFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+        if (ezQtUiServices::MessageBoxQuestion(ezFmt("You are attempting to open a project that's located in a different SDK directory.\n\nSDK location: '{}'\nProject path: '{}'\n\nThis may make problems.\n\nContinue anyway?", sdkDir, sFile), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
         {
           return EZ_FAILURE;
         }
@@ -80,7 +96,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
   CloseSplashScreen();
 
-  ezStringBuilder sProjectFile = szFile;
+  ezStringBuilder sProjectFile = sFile;
   sProjectFile.MakeCleanPath();
 
   if (bCreate == false && !sProjectFile.EndsWith_NoCase("/ezProject"))
