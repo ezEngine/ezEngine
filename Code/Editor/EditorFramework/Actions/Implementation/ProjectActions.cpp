@@ -699,7 +699,7 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezQtEditorApp::GetSingleton()->m_Events.Broadcast(e);
 
       // keep this here to make live color palette editing available, when needed
-      // if (false)
+      if (false)
       {
         QTimer::singleShot(1, [this]()
           { ezQtEditorApp::GetSingleton()->SetStyleSheet(); });

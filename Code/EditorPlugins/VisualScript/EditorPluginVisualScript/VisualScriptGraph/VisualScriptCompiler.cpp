@@ -1071,7 +1071,7 @@ ezResult ezVisualScriptCompiler::BuildDataExecutions(AstNode* pEntryAstNode)
 {
   ezHybridArray<Connection, 64> allExecConnections;
 
-  EZ_SUCCEED_OR_RETURN(TraverseAst(pEntryAstNode, ConnectionType::Execution,
+  EZ_SUCCEED_OR_RETURN(TraverseAst(pEntryAstNode, ConnectionType::Execution | ConnectionType::Deduplicate,
     [&](const Connection& connection) {
       allExecConnections.PushBack(connection);
       return VisitorResult::Continue;
@@ -1131,7 +1131,7 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
 {
   ezDynamicArray<DataOffset> freeDataOffsets;
 
-  return TraverseAst(pEntryAstNode, ConnectionType::Execution,
+  return TraverseAst(pEntryAstNode, ConnectionType::Execution | ConnectionType::Deduplicate,
     [&](const Connection& connection) {
       // Outputs first so we don't end up using the same data as input and output
       for (auto& dataOutput : connection.m_pCurrent->m_Outputs)
@@ -1230,7 +1230,7 @@ ezResult ezVisualScriptCompiler::BuildNodeDescriptions(AstNode* pEntryAstNode, e
   ezUInt32 uiNodeDescIndex = 0;
   EZ_SUCCEED_OR_RETURN(CreateNodeDesc(*pEntryAstNode, uiNodeDescIndex));
 
-  return TraverseAst(pEntryAstNode, ConnectionType::Execution,
+  return TraverseAst(pEntryAstNode, ConnectionType::Execution | ConnectionType::Deduplicate,
     [&](const Connection& connection) {
       ezUInt32 uiCurrentIndex = 0;
       EZ_VERIFY(astNodeToNodeDescIndices.TryGetValue(connection.m_pCurrent, uiCurrentIndex), "Implementation error");
@@ -1298,7 +1298,7 @@ ezResult ezVisualScriptCompiler::TraverseAst(AstNode* pEntryAstNode, ezUInt32 ui
           continue;
 
         Connection connection = {pCurrentAstNode, dataInput.m_pSourceNode, ConnectionType::Data, i};
-        if (m_ReportedConnections.Insert(connection))
+        if ((uiConnectionTypes & ConnectionType::Deduplicate) != 0 && m_ReportedConnections.Insert(connection))
           continue;
 
         auto res = func(connection);
@@ -1324,7 +1324,7 @@ ezResult ezVisualScriptCompiler::TraverseAst(AstNode* pEntryAstNode, ezUInt32 ui
           continue;
 
         Connection connection = {pCurrentAstNode, pNextAstNode, ConnectionType::Execution, i};
-        if (m_ReportedConnections.Insert(connection))
+        if ((uiConnectionTypes & ConnectionType::Deduplicate) != 0 && m_ReportedConnections.Insert(connection))
           continue;
 
         auto res = func(connection);

@@ -451,7 +451,7 @@ void ezQtColorGradientAssetDocumentWindow::SendLiveResourcePreview()
     return;
 
   ezResourceUpdateMsgToEngine msg;
-  msg.m_sResourceType = "Color Gradient";
+  msg.m_sResourceType = "ColorGradient";
 
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
@@ -482,7 +482,7 @@ void ezQtColorGradientAssetDocumentWindow::SendLiveResourcePreview()
 void ezQtColorGradientAssetDocumentWindow::RestoreResource()
 {
   ezRestoreResourceMsgToEngine msg;
-  msg.m_sResourceType = "Color Gradient";
+  msg.m_sResourceType = "ColorGradient";
 
   ezStringBuilder tmp;
   msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);

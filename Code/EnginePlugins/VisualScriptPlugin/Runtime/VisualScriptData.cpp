@@ -434,7 +434,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       return GetData<ezAngle>(dataOffset);
 
     case ezVisualScriptDataType::String:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezString>())
+      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezString>() || pExpectedType == ezGetStaticRTTI<const char*>())
       {
         return GetData<ezString>(dataOffset);
       }

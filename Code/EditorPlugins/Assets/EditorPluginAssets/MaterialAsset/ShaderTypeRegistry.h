@@ -25,9 +25,7 @@ private:
 
   struct ShaderData
   {
-    ShaderData()
-
-      = default;
+    ShaderData() = default;
 
     ezString m_sShaderPath;
     ezString m_sAbsShaderPath;

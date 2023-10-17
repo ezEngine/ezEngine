@@ -621,6 +621,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
         {
           newOutput.m_bEnabled = existingOutput.m_bEnabled;
           newOutput.m_bUseHighCompression = existingOutput.m_bUseHighCompression;
+          newOutput.m_uiNumChannels = existingOutput.m_uiNumChannels;
           newOutput.m_Usage = existingOutput.m_Usage;
           newOutput.m_sLabel = existingOutput.m_sLabel;
           break;
