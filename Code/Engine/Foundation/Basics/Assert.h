@@ -15,7 +15,7 @@
 ///
 /// For conditions that are rarely violated or checking is very costly, use EZ_ASSERT_DEBUG. This assert is only active
 /// in debug builds. This allows to have extra checking while debugging a program, but not waste performance when a
-/// development release build is used.
+/// development or release build is used.
 ///
 /// If you need to check something that is so vital that the application can only fail (i.e. crash), if that condition
 /// is not met, even in release builds, then use EZ_ASSERT_RELEASE. This should not be used in frequently executed code,
@@ -80,7 +80,7 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 #  define EZ_ANALYSIS_ASSUME(bCondition) EZ_ASSERT_ALWAYS(bCondition, "")
 #else
-/// \brief Macro to raise an error, if a condition is not met. Allows to write a message using printf style. This assert will be triggered, even in
+/// \brief Macro to raise an error, if a condition is not met. Allows to write a message using ezFormatString style. This assert will be triggered, even in
 /// non-development builds and cannot be deactivated.
 #  define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...)                                                                       \
     do                                                                                                                        \
@@ -95,7 +95,7 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
       EZ_MSVC_ANALYSIS_WARNING_POP                                                                                            \
     } while (false)
 
-/// \brief Macro to inform the static analysis that the given condition can be assumed to be true. Usefull to give additional information to
+/// \brief Macro to inform the static analysis that the given condition can be assumed to be true. Useful to give additional information to
 /// static analysis if it can't figure it out by itself. Will do nothing outside of static analysis runs.
 #  define EZ_ANALYSIS_ASSUME(bCondition)
 #endif
@@ -108,14 +108,14 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 /// \brief Macro to raise an error, if a condition is not met.
 ///
-/// Allows to write a message using printf style.
+/// Allows to write a message using ezFormatString style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
 #  define EZ_ASSERT_DEBUG EZ_ASSERT_ALWAYS
 #else
 /// \brief Macro to raise an error, if a condition is not met.
 ///
-/// Allows to write a message using printf style.
+/// Allows to write a message using ezFormatString style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
 #  define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...)
@@ -127,14 +127,14 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
-/// Allows to write a message using printf style.
+/// Allows to write a message using ezFormatString style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
 #  define EZ_ASSERT_DEV EZ_ASSERT_ALWAYS
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
-/// Allows to write a message using printf style.
+/// Allows to write a message using ezFormatString style.
 /// Compiled out in non-development builds, however the condition is always evaluated,
 /// so you may execute important code in it.
 #  define EZ_VERIFY EZ_ASSERT_ALWAYS
@@ -143,14 +143,14 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
-/// Allows to write a message using printf style.
+/// Allows to write a message using ezFormatString style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
 #  define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...)
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
-/// Allows to write a message using printf style.
+/// Allows to write a message using ezFormatString style.
 /// Compiled out in non-development builds, however the condition is always evaluated,
 /// so you may execute important code in it.
 #  define EZ_VERIFY(bCondition, szErrorMsg, ...)                             \
