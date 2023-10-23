@@ -10,7 +10,8 @@ ezAlwaysVisibleComponent;Always Visible;;https://ezengine.net/pages/docs/graphic
 ezAmbientLightComponent;Ambient Light;;https://ezengine.net/pages/docs/graphics/lighting/ambient-light-component.html
 ezAreaDamageComponent;Area Damage;;https://ezengine.net/pages/docs/gameplay/area-damage-component.html
 ezBeamComponent;Beam;;https://ezengine.net/pages/docs/effects/beam-component.html
-ezBlackboardComponent;Blackboard;;https://ezengine.net/pages/docs/Miscellaneous/blackboard-component.html
+ezLocalBlackboardComponent;Local Blackboard;;https://ezengine.net/pages/docs/Miscellaneous/local-blackboard-component.html
+ezGlobalBlackboardComponent;Global Blackboard;;https://ezengine.net/pages/docs/Miscellaneous/global-blackboard-component.html
 ezBoxReflectionProbeComponent;Box Reflection Probe;;https://ezengine.net/pages/docs/graphics/lighting/reflection-probe-components.html
 ezCameraComponent;Camera;;https://ezengine.net/pages/docs/graphics/camera-component.html
 ezClothSheetComponent;Cloth Sheet;;http://ezengine.net/pages/docs/effects/cloth-sheet-component.html
@@ -71,6 +72,7 @@ ezPowerConnectorComponent;Power Connector;;https://ezengine.net/pages/docs/gamep
 ezTriggerDelayModifierComponent;Trigger Delay Modifier;;https://ezengine.net/pages/docs/custom-code/game-logic/trigger-delay-modifier-component.html
 ezCommentComponent;Comment;;https://ezengine.net/pages/docs/Miscellaneous/components/comment-component.html
 ezForwardEventsToGameStateComponent;Forward Events To Game State;;https://ezengine.net/pages/docs/custom-code/game-logic/forward-events-to-game-state-component.html
+ezResetTransformComponent;Reset Transform;;https://ezengine.net/pages/docs/animation/property-animation/reset-transform-component.html
 
 # Properties
 

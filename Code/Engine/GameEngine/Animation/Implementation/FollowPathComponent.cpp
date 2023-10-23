@@ -24,10 +24,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezFollowPathComponent, 1, ezComponentMode::Dynamic)
     EZ_ACCESSOR_PROPERTY("StartDistance", GetDistanceAlongPath, SetDistanceAlongPath)->AddAttributes(new ezClampValueAttribute(0.0f, {})),
     EZ_ACCESSOR_PROPERTY("Running", IsRunning, SetRunning)->AddAttributes(new ezDefaultValueAttribute(true)), // Whether the animation should start right away.
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_Mode),
-    EZ_ENUM_MEMBER_PROPERTY("FollowMode", ezFollowPathMode, m_FollowMode),  
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("LookAhead", m_fLookAhead)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("Smoothing", m_fSmoothing)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ENUM_MEMBER_PROPERTY("FollowMode", ezFollowPathMode, m_FollowMode),  
     EZ_MEMBER_PROPERTY("TiltAmount", m_fTiltAmount)->AddAttributes(new ezDefaultValueAttribute(5.0f)),
     EZ_MEMBER_PROPERTY("MaxTilt", m_MaxTilt)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(90.0f))),
   }

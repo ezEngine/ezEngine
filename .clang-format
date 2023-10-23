@@ -19,8 +19,10 @@ BreakConstructorInitializers: BeforeComma
 AlwaysBreakTemplateDeclarations: true
 MacroBlockBegin: "^EZ_BEGIN_.*|BEGIN_SUBSYSTEM_DEPENDENCIES$"
 MacroBlockEnd: "^EZ_END_.*|END_SUBSYSTEM_DEPENDENCIES$"
-AlignTrailingComments: true
 FixNamespaceComments: true
 AlignEscapedNewlines: Left
 CompactNamespaces: true
 SortIncludes: true
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2

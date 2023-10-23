@@ -9,12 +9,12 @@ using ezResetTransformComponentManager = ezComponentManager<class ezResetTransfo
 /// \brief This component sets the local transform of its owner to known values when the simulation starts.
 ///
 /// This component is meant for use cases where an object may be activated and deactivated over and over.
-/// For example due to a state machine switching between different objects states by (de-)activating a sub-tree of objects.
+/// For example due to a state machine switching between different object states by (de-)activating a sub-tree of objects.
 ///
-/// Every time an object becomes active, it may want to start moving again from fixed location.
+/// Every time an object becomes active, it may want to start moving again from a fixed location.
 /// This component helps with that, by reseting the local transform of its owner to such a fixed location once.
 ///
-/// After that, it does nothing else.
+/// After that, it does nothing else, until it gets deactivated and reactivated again.
 class EZ_GAMEENGINE_DLL ezResetTransformComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezResetTransformComponent, ezComponent, ezResetTransformComponentManager);
@@ -30,7 +30,7 @@ protected:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezTransformComponent
+  // ezResetTransformComponent
 
 public:
   ezResetTransformComponent();
