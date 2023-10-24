@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1027864946573073565,5518711362735747226}}
-		u4 %Hash{18364911515444885266}
+		u4 %Hash{12554537106425878532}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4665483583400751958,3415026413264226398}}
@@ -34,12 +34,14 @@ o
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+			s{"{ e35d23f1-ff49-43b2-8642-b6c27be8ea6d }"}
 		}
 		VarArray %References
 		{
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+			s{"{ e35d23f1-ff49-43b2-8642-b6c27be8ea6d }"}
 		}
 	}
 }
@@ -119,6 +121,45 @@ o
 }
 o
 {
+	Uuid %id{u4{9261507121966771627,4946165718833124101}}
+	s %t{"ezLensFlareElement"}
+	u3 %v{1}
+	p
+	{
+		f %AspectRatio{0x0000803F}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		b %GreyscaleTexture{0}
+		b %InverseTonemap{0}
+		f %MaxScreenSize{0x0000003F}
+		b %ModulateByLightColor{1}
+		f %ShiftToCenter{0}
+		f %Size{0x0000C040}
+		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8558208513247827329,5169285432083226117}}
+	s %t{"ezLensFlareComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %ApplyFog{1}
+		VarArray %Elements
+		{
+			Uuid{u4{9261507121966771627,4946165718833124101}}
+			Uuid{u4{5162123905752661674,5515328422003781975}}
+		}
+		f %Intensity{0x00004040}
+		b %LinkToLightShape{1}
+		f %OcclusionDepthOffset{0xCDCCCCBD}
+		f %OcclusionSampleRadius{0xCDCC4C3E}
+		f %OcclusionSampleSpread{0x0000003F}
+	}
+}
+o
+{
 	Uuid %id{u4{13296701489725009073,5288290900201021608}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -134,7 +175,7 @@ o
 			Uuid{u4{336779833846715806,4675049977169842823}}
 			Uuid{u4{5965453169506811044,4450187759766301114}}
 			Uuid{u4{1944885209136307627,4533801876340565097}}
-			Uuid{u4{9907503852665050978,10198425193056378531}}
+			Uuid{u4{8558208513247827329,5169285432083226117}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -171,6 +212,24 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{5162123905752661674,5515328422003781975}}
+	s %t{"ezLensFlareElement"}
+	u3 %v{1}
+	p
+	{
+		f %AspectRatio{0x00009643}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		b %GreyscaleTexture{0}
+		b %InverseTonemap{0}
+		f %MaxScreenSize{0x0000803F}
+		b %ModulateByLightColor{0}
+		f %ShiftToCenter{0}
+		f %Size{0x0000C841}
+		s %Texture{"{ e35d23f1-ff49-43b2-8642-b6c27be8ea6d }"}
 	}
 }
 o
@@ -213,22 +272,6 @@ o
 			Uuid{u4{13296701489725009073,5288290900201021608}}
 		}
 		Uuid %Settings{u4{1634704678250427281,5617225064165501739}}
-	}
-}
-o
-{
-	Uuid %id{u4{9907503852665050978,10198425193056378531}}
-	s %t{"ezSpriteComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		f %AspectRatio{0x0000803F}
-		s %BlendMode{"ezSpriteBlendMode::Additive"}
-		Color %Color{f{0x6561B341,0xF3756041,0xDB25933F,0x0000803F}}
-		f %MaxScreenSize{0x00008044}
-		f %Size{0x0000003F}
-		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 	}
 }
 }
@@ -517,6 +560,23 @@ o
 }
 o
 {
+	Uuid %id{u4{8831593346527008990,5622764106859924263}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezLensFlareElement"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13191156576213894601,5861892948208209101}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -661,23 +721,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16760069048281874555,8669125593883744592}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSpriteBlendMode"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -730,6 +773,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentRoot"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{6438118807776352480,9181512988224306168}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezLensFlareComponent"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1142,23 +1202,6 @@ o
 }
 o
 {
-	Uuid %id{u4{17835042676468670380,15413720485250302998}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSpriteComponent"}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
 	Uuid %id{u4{18075037991921780250,16373560435556338007}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1238,6 +1281,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezBasisAxis"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14207082430471941233,17000358661146427261}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSphereVisualizerAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
