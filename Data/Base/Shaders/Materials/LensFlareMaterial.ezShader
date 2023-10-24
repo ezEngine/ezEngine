@@ -94,9 +94,8 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   
   if (fade > 0)
   {
-	  // Fibonacci Spiral, source: https://c-core-games.com/Generator/SpiralPatterns.html?p=F&n=32
-    const float2 offsets[] =
-    {
+    // Fibonacci Spiral, source: https://c-core-games.com/Generator/SpiralPatterns.html?p=F&n=32
+    const float2 offsets[] = {
       { -0.1303f,  0.1194f },
       {  0.0219f, -0.2490f },
       {  0.1863f,  0.2430f },
