@@ -36,7 +36,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLensFlareElement, ezNoBase, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("GreyscaleTexture", m_bGreyscaleTexture),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_MEMBER_PROPERTY("ModulateByLightColor", m_bModulateByLightColor)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10000.0f)),
+    EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10000.0f), new ezSuffixAttribute(" m")),
     EZ_MEMBER_PROPERTY("MaxScreenSize", m_fMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("ShiftToCenter", m_fShiftToCenter),
@@ -191,13 +191,6 @@ ezResult ezLensFlareComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, b
   return EZ_SUCCESS;
 }
 
-void ezLensFlareComponent::SetOcclusionSampleRadius(float fRadius)
-{
-  m_fOcclusionSampleRadius = fRadius;
-
-  TriggerLocalBoundsUpdate();
-}
-
 void ezLensFlareComponent::SetLinkToLightShape(bool bLink)
 {
   if (m_bLinkToLightShape == bLink)
@@ -208,6 +201,13 @@ void ezLensFlareComponent::SetLinkToLightShape(bool bLink)
   {
     FindLightComponent();
   }
+
+  TriggerLocalBoundsUpdate();
+}
+
+void ezLensFlareComponent::SetOcclusionSampleRadius(float fRadius)
+{
+  m_fOcclusionSampleRadius = fRadius;
 
   TriggerLocalBoundsUpdate();
 }

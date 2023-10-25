@@ -197,7 +197,7 @@ PS_OUT main(PS_IN Input)
   float4 color = LensFlareTexture.Sample(LensFlareTexture_AutoSampler, Input.TexCoord0.xy);
   if (Input.Flags & LENS_FLARE_GREYSCALE_TEXTURE)
   {
-    color = color.r;
+    color = float4(color.rrr, 1);
   }
 
   color *= Input.Color0;
