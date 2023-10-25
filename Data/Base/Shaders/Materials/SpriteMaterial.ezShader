@@ -35,22 +35,9 @@ WireFrame = false
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Materials/SpriteData.h>
 
-struct SpriteData
-{
-  float3 worldSpacePosition;
-  float size;
-  float maxScreenSize;
-  float aspectRatio;
-  uint colorRG;
-  uint colorBA;
-  uint texCoordScale;
-  uint texCoordOffset;
-  uint gameObjectID;
-  uint reserved;
-};
-
-StructuredBuffer<SpriteData> spriteData;
+StructuredBuffer<ezPerSpriteData> spriteData;
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
@@ -83,33 +70,33 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
   texCoords.y = 1.0 - texCoords.y;
 
-  SpriteData data = spriteData[index];
-  float3 worldPosition = data.worldSpacePosition;
+  ezPerSpriteData data = spriteData[index];
+  float3 worldPosition = data.WorldSpacePosition;
   float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
 
   float distance = screenPosition.w;
-  float2 scale = mul(GetCameraToScreenMatrix(), float4(1.0, 1.0, distance, 1.0)).xy;
+  float2 scale = mul(GetCameraToScreenMatrix(), float4(1, 1, 1, 1)).xy;
 
-  scale *= data.size;
+  scale *= data.Size;
 
-  if (data.maxScreenSize > 0.0)
+  if (data.MaxScreenSize > 0.0)
   {
-    float2 maxScreenSize = (data.maxScreenSize * distance * 2.0) * ViewportSize.zw;
+    float2 maxScreenSize = (data.MaxScreenSize * distance * 2.0) * ViewportSize.zw;
     scale = min(scale, maxScreenSize);
   }
 
-  scale.x *= data.aspectRatio;
+  scale.x *= data.AspectRatio;
   screenPosition.xy += vertexPosition * scale;
 
-  float2 texCoordScale = RG16FToFloat2(data.texCoordScale);
-  float2 texCoordOffset = RG16FToFloat2(data.texCoordOffset);
+  float2 texCoordScale = RG16FToFloat2(data.TexCoordScale);
+  float2 texCoordOffset = RG16FToFloat2(data.TexCoordOffset);
 
   Output.Position = screenPosition;
   Output.TexCoord0 = texCoords * texCoordScale + texCoordOffset;
-  Output.Color0 = RGBA16FToFloat4(data.colorRG, data.colorBA);
+  Output.Color0 = RGBA16FToFloat4(data.ColorRG, data.ColorBA);
 
   #if defined(USE_GAME_OBJECT_ID)
-    Output.GameObjectID = data.gameObjectID;
+    Output.GameObjectID = data.GameObjectID;
   #endif
 
   return Output;

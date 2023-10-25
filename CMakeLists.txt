@@ -67,6 +67,7 @@ if (NOT ${SELECTED_FILTER_NAME} MATCHES "Everything")
 	set(CMAKE_SUPPRESS_REGENERATION true)
 endif()
 add_subdirectory(${EZ_CMAKE_RELPATH_CODE})
+add_subdirectory(Data)
 
 ez_add_external_projects_folder("_1")
 ez_add_external_projects_folder("_2")

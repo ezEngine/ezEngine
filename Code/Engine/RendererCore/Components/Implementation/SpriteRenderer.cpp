@@ -10,29 +10,8 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
-struct alignas(16) SpriteData
-{
-  ezVec3 m_worldSpacePosition;
-  float m_size;
-  float m_maxScreenSize;
-  float m_aspectRatio;
-  ezUInt32 m_colorRG;
-  ezUInt32 m_colorBA;
-  ezUInt32 m_texCoordScale;
-  ezUInt32 m_texCoordOffset;
-  ezUInt32 m_gameObjectID;
-  ezUInt32 m_reserved;
-};
-
-EZ_CHECK_AT_COMPILETIME(sizeof(SpriteData) == 48);
-
-namespace
-{
-  enum
-  {
-    MAX_SPRITE_DATA_PER_BATCH = 1024
-  };
-}
+#include <Shaders/Materials/SpriteData.h>
+EZ_CHECK_AT_COMPILETIME(sizeof(ezPerSpriteData) == 48);
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderer, 1, ezRTTIDefaultAllocator<ezSpriteRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -65,7 +44,8 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
 
   const ezSpriteRenderData* pRenderData = batch.GetFirstData<ezSpriteRenderData>();
 
-  ezGALBufferHandle hSpriteData = CreateSpriteDataBuffer();
+  const ezUInt32 uiBufferSize = ezMath::RoundUp(batch.GetCount(), 128u);
+  ezGALBufferHandle hSpriteData = CreateSpriteDataBuffer(uiBufferSize);
   EZ_SCOPE_EXIT(DeleteSpriteDataBuffer(hSpriteData));
 
   pContext->BindShader(m_hShader);
@@ -75,29 +55,22 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   pContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
   pContext->SetShaderPermutationVariable("SHAPE_ICON", pRenderData->m_BlendMode == ezSpriteBlendMode::ShapeIcon ? ezMakeHashedString("TRUE") : ezMakeHashedString("FALSE"));
 
-  ezUInt32 uiStartIndex = 0;
-  while (uiStartIndex < batch.GetCount())
+  FillSpriteData(batch);
+
+  if (m_SpriteData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
   {
-    const ezUInt32 uiCount = ezMath::Min(batch.GetCount() - uiStartIndex, (ezUInt32)MAX_SPRITE_DATA_PER_BATCH);
+    pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_SpriteData.GetByteArrayPtr());
 
-    FillSpriteData(batch, uiStartIndex, uiCount);
-    if (m_SpriteData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
-    {
-      pContext->GetCommandEncoder()->UpdateBuffer(hSpriteData, 0, m_SpriteData.GetByteArrayPtr());
-
-      pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiCount * 2);
-      pContext->DrawMeshBuffer().IgnoreResult();
-    }
-
-    uiStartIndex += uiCount;
+    pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, m_SpriteData.GetCount() * 2);
+    pContext->DrawMeshBuffer().IgnoreResult();
   }
 }
 
-ezGALBufferHandle ezSpriteRenderer::CreateSpriteDataBuffer() const
+ezGALBufferHandle ezSpriteRenderer::CreateSpriteDataBuffer(ezUInt32 uiBufferSize) const
 {
   ezGALBufferCreationDescription desc;
-  desc.m_uiStructSize = sizeof(SpriteData);
-  desc.m_uiTotalSize = desc.m_uiStructSize * MAX_SPRITE_DATA_PER_BATCH;
+  desc.m_uiStructSize = sizeof(ezPerSpriteData);
+  desc.m_uiTotalSize = desc.m_uiStructSize * uiBufferSize;
   desc.m_BufferType = ezGALBufferType::Generic;
   desc.m_bUseAsStructuredBuffer = true;
   desc.m_bAllowShaderResourceView = true;
@@ -111,27 +84,27 @@ void ezSpriteRenderer::DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer) const
   ezGPUResourcePool::GetDefaultInstance()->ReturnBuffer(hBuffer);
 }
 
-void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount) const
+void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch) const
 {
   m_SpriteData.Clear();
-  m_SpriteData.Reserve(uiCount);
+  m_SpriteData.Reserve(batch.GetCount());
 
-  for (auto it = batch.GetIterator<ezSpriteRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
+  for (auto it = batch.GetIterator<ezSpriteRenderData>(); it.IsValid(); ++it)
   {
     const ezSpriteRenderData* pRenderData = it;
 
     auto& spriteData = m_SpriteData.ExpandAndGetRef();
 
-    spriteData.m_worldSpacePosition = pRenderData->m_GlobalTransform.m_vPosition;
-    spriteData.m_size = pRenderData->m_fSize;
-    spriteData.m_maxScreenSize = pRenderData->m_fMaxScreenSize;
-    spriteData.m_aspectRatio = pRenderData->m_fAspectRatio;
-    spriteData.m_colorRG = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_color.r, pRenderData->m_color.g));
-    spriteData.m_colorBA = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_color.b, pRenderData->m_color.a));
-    spriteData.m_texCoordScale = ezShaderUtils::Float2ToRG16F(pRenderData->m_texCoordScale);
-    spriteData.m_texCoordOffset = ezShaderUtils::Float2ToRG16F(pRenderData->m_texCoordOffset);
-    spriteData.m_gameObjectID = pRenderData->m_uiUniqueID;
-    spriteData.m_reserved = 0;
+    spriteData.WorldSpacePosition = pRenderData->m_GlobalTransform.m_vPosition;
+    spriteData.Size = pRenderData->m_fSize;
+    spriteData.MaxScreenSize = pRenderData->m_fMaxScreenSize;
+    spriteData.AspectRatio = pRenderData->m_fAspectRatio;
+    spriteData.ColorRG = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_color.r, pRenderData->m_color.g));
+    spriteData.ColorBA = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_color.b, pRenderData->m_color.a));
+    spriteData.TexCoordScale = ezShaderUtils::Float2ToRG16F(pRenderData->m_texCoordScale);
+    spriteData.TexCoordOffset = ezShaderUtils::Float2ToRG16F(pRenderData->m_texCoordOffset);
+    spriteData.GameObjectID = pRenderData->m_uiUniqueID;
+    spriteData.Reserved = 0;
   }
 }
 
