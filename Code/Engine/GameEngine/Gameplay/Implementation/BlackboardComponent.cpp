@@ -316,9 +316,9 @@ ezLocalBlackboardComponent::ezLocalBlackboardComponent(ezLocalBlackboardComponen
 ezLocalBlackboardComponent::~ezLocalBlackboardComponent() = default;
 ezLocalBlackboardComponent& ezLocalBlackboardComponent::operator=(ezLocalBlackboardComponent&& other) = default;
 
-void ezLocalBlackboardComponent::OnActivated()
+void ezLocalBlackboardComponent::Initialize()
 {
-  SUPER::OnActivated();
+  SUPER::Initialize();
 
   // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
   InitializeFromTemplate();
@@ -512,9 +512,9 @@ ezGlobalBlackboardComponent::ezGlobalBlackboardComponent(ezGlobalBlackboardCompo
 ezGlobalBlackboardComponent::~ezGlobalBlackboardComponent() = default;
 ezGlobalBlackboardComponent& ezGlobalBlackboardComponent::operator=(ezGlobalBlackboardComponent&& other) = default;
 
-void ezGlobalBlackboardComponent::OnActivated()
+void ezGlobalBlackboardComponent::Initialize()
 {
-  SUPER::OnActivated();
+  SUPER::Initialize();
 
   // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
   InitializeFromTemplate();
