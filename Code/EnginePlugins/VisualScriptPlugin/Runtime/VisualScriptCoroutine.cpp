@@ -49,5 +49,5 @@ void ezVisualScriptCoroutineAllocator::Deallocate(void* pObject, ezAllocatorBase
 
 ezInternal::NewInstance<void> ezVisualScriptCoroutineAllocator::AllocateInternal(ezAllocatorBase* pAllocator)
 {
-  return EZ_DEFAULT_NEW(ezVisualScriptCoroutine, m_pDesc);
+  return EZ_SCRIPT_NEW(ezVisualScriptCoroutine, m_pDesc);
 }

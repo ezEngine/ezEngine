@@ -50,8 +50,10 @@ namespace
 
       if (ezWorld* pWorld = m_pStateMachineInstance->GetOwnerWorld())
       {
-        auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
-        pModule->AddScriptReloadFunction(m_hScriptClass, ezMakeDelegate(&ScriptInstanceData::ReloadScript, this));
+        pWorld->AddResourceReloadFunction(m_hScriptClass, ezComponentHandle(), this,
+          [](ezWorld::ResourceReloadContext& context) {
+            static_cast<ScriptInstanceData*>(context.m_pUserData)->ReloadScript();
+          });
       }
 
       CallOnEnter(pFromState);
@@ -67,7 +69,8 @@ namespace
         {
           auto pModule = pWorld->GetOrCreateModule<ezScriptWorldModule>();
           pModule->StopAndDeleteAllCoroutines(m_pInstance.Borrow());
-          pModule->RemoveScriptReloadFunction(m_hScriptClass, ezMakeDelegate(&ScriptInstanceData::ReloadScript, this));
+
+          pWorld->RemoveResourceReloadFunction(m_hScriptClass, ezComponentHandle(), this);
         }
       }
 

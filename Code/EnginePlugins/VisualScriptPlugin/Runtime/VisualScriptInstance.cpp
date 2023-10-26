@@ -9,7 +9,7 @@ ezVisualScriptInstance::ezVisualScriptInstance(ezReflectedClass& inout_owner, ez
 {
   if (pInstanceDataDesc != nullptr)
   {
-    m_pInstanceDataStorage = EZ_DEFAULT_NEW(ezVisualScriptDataStorage, pInstanceDataDesc);
+    m_pInstanceDataStorage = EZ_SCRIPT_NEW(ezVisualScriptDataStorage, pInstanceDataDesc);
     m_pInstanceDataStorage->AllocateStorage();
 
     for (auto& it : m_pInstanceDataMapping->m_Content)

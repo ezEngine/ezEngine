@@ -171,10 +171,14 @@ ezTime ezScriptComponent::GetUpdateInterval() const
 
 const ezRangeView<const char*, ezUInt32> ezScriptComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; },
-    [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
-    [](ezUInt32& ref_uiIt) { ++ref_uiIt; },
-    [this](const ezUInt32& uiIt) -> const char* { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
+    { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 
 void ezScriptComponent::SetParameter(const char* szKey, const ezVariant& value)
@@ -250,6 +254,11 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   {
     CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnActivated);
   }
+
+  if (GetWorld()->GetWorldSimulationEnabled())
+  {
+    CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
+  }
 }
 
 void ezScriptComponent::ClearInstance(bool bDeactivate)
@@ -267,7 +276,8 @@ void ezScriptComponent::ClearInstance(bool bDeactivate)
   }
 
   pModule->StopAndDeleteAllCoroutines(m_pInstance.Borrow());
-  pModule->RemoveScriptReloadFunction(m_hScriptClass, ezMakeDelegate(&ezScriptComponent::ReloadScript, this));
+
+  GetWorld()->RemoveResourceReloadFunction(m_hScriptClass, GetHandle(), nullptr);
 
   m_pInstance = nullptr;
   m_pScriptType = nullptr;
@@ -284,7 +294,11 @@ void ezScriptComponent::UpdateScheduling()
     pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval, bOnlyWhenSimulating);
   }
 
-  pModule->AddScriptReloadFunction(m_hScriptClass, ezMakeDelegate(&ezScriptComponent::ReloadScript, this));
+  GetWorld()->AddResourceReloadFunction(m_hScriptClass, GetHandle(), nullptr,
+    [](const ezWorld::ResourceReloadContext& context)
+    {
+      ezStaticCast<ezScriptComponent*>(context.m_pComponent)->ReloadScript();
+    });
 }
 
 const ezAbstractFunctionProperty* ezScriptComponent::GetScriptFunction(ezUInt32 uiFunctionIndex)

@@ -1468,7 +1468,7 @@ void ezWorld::ProcessResourceReloadFunctions()
     {
       for (auto& data : m_Data.m_TempReloadFunctions)
       {
-        EZ_VERIFY(TryGetComponent(data.m_hComponent, context.m_pComponent), "Reload function called on dead component");
+        EZ_VERIFY(data.m_hComponent.IsInvalidated() || TryGetComponent(data.m_hComponent, context.m_pComponent), "Reload function called on dead component");
         context.m_pUserData = data.m_pUserData;
 
         data.m_Func(context);
