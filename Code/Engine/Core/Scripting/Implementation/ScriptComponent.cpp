@@ -91,6 +91,8 @@ void ezScriptComponent::OnActivated()
   SUPER::OnActivated();
 
   CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnActivated);
+
+  AddUpdateFunctionToSchedule();
 }
 
 void ezScriptComponent::OnDeactivated()
@@ -98,6 +100,8 @@ void ezScriptComponent::OnDeactivated()
   SUPER::OnDeactivated();
 
   CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnDeactivated);
+
+  RemoveUpdateFunctionToSchedule();
 }
 
 void ezScriptComponent::OnSimulationStarted()
@@ -158,10 +162,7 @@ void ezScriptComponent::SetUpdateInterval(ezTime interval)
 {
   m_UpdateInterval = interval;
 
-  if (IsActiveAndInitialized())
-  {
-    UpdateScheduling();
-  }
+  AddUpdateFunctionToSchedule();
 }
 
 ezTime ezScriptComponent::GetUpdateInterval() const
@@ -247,7 +248,11 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
     m_pInstance->ApplyParameters(m_Parameters);
   }
 
-  UpdateScheduling();
+  GetWorld()->AddResourceReloadFunction(m_hScriptClass, GetHandle(), nullptr,
+    [](const ezWorld::ResourceReloadContext& context)
+    {
+      ezStaticCast<ezScriptComponent*>(context.m_pComponent)->ReloadScript();
+    });
 
   CallScriptFunction(ezComponent_ScriptBaseClassFunctions::Initialize);
   if (bActivate)
@@ -259,6 +264,8 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   {
     CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
   }
+
+  AddUpdateFunctionToSchedule();
 }
 
 void ezScriptComponent::ClearInstance(bool bDeactivate)
@@ -269,12 +276,9 @@ void ezScriptComponent::ClearInstance(bool bDeactivate)
   }
   CallScriptFunction(ezComponent_ScriptBaseClassFunctions::Deinitialize);
 
-  auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
-  if (auto pUpdateFunction = GetScriptFunction(ezComponent_ScriptBaseClassFunctions::Update))
-  {
-    pModule->RemoveUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow());
-  }
+  RemoveUpdateFunctionToSchedule();
 
+  auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
   pModule->StopAndDeleteAllCoroutines(m_pInstance.Borrow());
 
   GetWorld()->RemoveResourceReloadFunction(m_hScriptClass, GetHandle(), nullptr);
@@ -285,20 +289,26 @@ void ezScriptComponent::ClearInstance(bool bDeactivate)
   m_pMessageDispatchType = GetDynamicRTTI();
 }
 
-void ezScriptComponent::UpdateScheduling()
+void ezScriptComponent::AddUpdateFunctionToSchedule()
 {
+  if (IsActiveAndInitialized() == false)
+    return;
+
   auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
   if (auto pUpdateFunction = GetScriptFunction(ezComponent_ScriptBaseClassFunctions::Update))
   {
     const bool bOnlyWhenSimulating = true;
     pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval, bOnlyWhenSimulating);
   }
+}
 
-  GetWorld()->AddResourceReloadFunction(m_hScriptClass, GetHandle(), nullptr,
-    [](const ezWorld::ResourceReloadContext& context)
-    {
-      ezStaticCast<ezScriptComponent*>(context.m_pComponent)->ReloadScript();
-    });
+void ezScriptComponent::RemoveUpdateFunctionToSchedule()
+{
+  auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
+  if (auto pUpdateFunction = GetScriptFunction(ezComponent_ScriptBaseClassFunctions::Update))
+  {
+    pModule->RemoveUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow());
+  }
 }
 
 const ezAbstractFunctionProperty* ezScriptComponent::GetScriptFunction(ezUInt32 uiFunctionIndex)
