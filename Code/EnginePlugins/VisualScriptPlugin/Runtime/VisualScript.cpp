@@ -32,12 +32,18 @@ namespace
 
     "Builtin_Branch",
     "Builtin_Switch",
-    "Builtin_Loop",
+    "Builtin_WhileLoop",
+    "Builtin_ForLoop",
+    "Builtin_ForEachLoop",
+    "Builtin_ReverseForEachLoop",
+    "Builtin_Break",
+    "Builtin_Jump",
 
     "Builtin_And",
     "Builtin_Or",
     "Builtin_Not",
     "Builtin_Compare",
+    "Builtin_CompareExec",
     "Builtin_IsValid",
     "Builtin_Select",
 
@@ -45,6 +51,7 @@ namespace
     "Builtin_Subtract",
     "Builtin_Multiply",
     "Builtin_Divide",
+    "Builtin_Expression",
 
     "Builtin_ToBool",
     "Builtin_ToByte",
@@ -136,7 +143,7 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 2;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 3;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)
@@ -184,9 +191,9 @@ ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScri
 ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_stream)
 {
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptGraphDescriptionVersion);
-  if (uiVersion < 2)
+  if (uiVersion < 3)
   {
-    ezLog::Error("Invalid visual script desc version. Expected >= 2 but got {}. Visual Script needs re-export", uiVersion);
+    ezLog::Error("Invalid visual script desc version. Expected >= 3 but got {}. Visual Script needs re-export", uiVersion);
     return EZ_FAILURE;
   }
 

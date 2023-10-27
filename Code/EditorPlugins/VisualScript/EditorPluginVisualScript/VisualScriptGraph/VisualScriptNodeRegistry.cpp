@@ -293,7 +293,8 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
   auto& componentTypesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
   auto& scriptBaseClassesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ScriptBaseClasses");
 
-  ezRTTI::ForEachType([this](const ezRTTI* pRtti) { UpdateNodeType(pRtti); });
+  ezRTTI::ForEachType([this](const ezRTTI* pRtti)
+    { UpdateNodeType(pRtti); });
 }
 
 void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
@@ -624,6 +625,43 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
       m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
     }
+  }
+
+  // Builtin_WhileLoop
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_WhileLoop", "Logic", logicColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_WhileLoop;
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("LoopBody");
+    nodeDesc.AddOutputExecutionPin("Completed");
+
+    AddInputDataPin<bool>(typeDesc, nodeDesc, "Condition");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_ForLoop
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_ForLoop", "Logic", logicColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "ForLoop [{FirstIndex}..{LastIndex}]");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_ForLoop;
+    nodeDesc.AddInputExecutionPin("");
+    AddInputDataPin<int>(typeDesc, nodeDesc, "FirstIndex");
+    AddInputDataPin<int>(typeDesc, nodeDesc, "LastIndex");
+
+    nodeDesc.AddOutputExecutionPin("LoopBody");
+    AddOutputDataPin<int>(nodeDesc, "Index");
+    nodeDesc.AddOutputExecutionPin("Completed");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }
 
   // Builtin_And

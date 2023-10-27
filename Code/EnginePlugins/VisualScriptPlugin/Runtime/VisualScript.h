@@ -8,6 +8,8 @@ class ezVisualScriptExecutionContext;
 
 struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
 {
+  /// \brief Native node types for visual script graphs.
+  /// Editor only types are not supported at runtime and will be replaced by the visual script compiler during asset transform.
   struct EZ_VISUALSCRIPTPLUGIN_DLL Type
   {
     using StorageType = ezUInt8;
@@ -28,27 +30,34 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
 
       FirstBuiltin,
 
-      Builtin_Constant,
-      Builtin_GetVariable,
+      Builtin_Constant,    // Editor only
+      Builtin_GetVariable, // Editor only
       Builtin_SetVariable,
       Builtin_IncVariable,
       Builtin_DecVariable,
 
       Builtin_Branch,
       Builtin_Switch,
-      Builtin_Loop,
+      Builtin_WhileLoop,          // Editor only
+      Builtin_ForLoop,            // Editor only
+      Builtin_ForEachLoop,        // Editor only
+      Builtin_ReverseForEachLoop, // Editor only
+      Builtin_Break,              // Editor only
+      Builtin_Jump,               // Editor only
 
       Builtin_And,
       Builtin_Or,
       Builtin_Not,
       Builtin_Compare,
+      Builtin_CompareExec, // TODO
       Builtin_IsValid,
-      Builtin_Select,
+      Builtin_Select, // TODO
 
       Builtin_Add,
       Builtin_Subtract,
       Builtin_Multiply,
       Builtin_Divide,
+      Builtin_Expression, // TODO
 
       Builtin_ToBool,
       Builtin_ToByte,
@@ -80,6 +89,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
     };
 
     EZ_ALWAYS_INLINE static bool IsEntry(Enum type) { return type >= EntryCall && type <= MessageHandler_Coroutine; }
+    EZ_ALWAYS_INLINE static bool IsLoop(Enum type) { return type >= Builtin_WhileLoop && type <= Builtin_ReverseForEachLoop; }
 
     EZ_ALWAYS_INLINE static bool MakesOuterCoroutine(Enum type) { return type == InplaceCoroutine || (type >= Builtin_WaitForAll && type <= Builtin_Yield); }
 

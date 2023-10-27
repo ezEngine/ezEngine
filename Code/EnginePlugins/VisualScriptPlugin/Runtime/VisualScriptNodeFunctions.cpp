@@ -1229,41 +1229,48 @@ namespace
   };
 
   static ExecuteFunctionContext s_TypeToExecuteFunctions[] = {
-    {},                                                   // Invalid,
-    {},                                                   // EntryCall,
-    {},                                                   // EntryCall_Coroutine,
-    {},                                                   // MessageHandler,
-    {},                                                   // MessageHandler_Coroutine,
-    {&NodeFunction_ReflectedFunction},                    // ReflectedFunction,
-    {nullptr, &NodeFunction_GetReflectedProperty_Getter}, // GetReflectedProperty,
-    {nullptr, &NodeFunction_SetReflectedProperty_Getter}, // SetReflectedProperty,
-    {&NodeFunction_InplaceCoroutine},                     // InplaceCoroutine,
-    {&NodeFunction_GetScriptOwner},                       // GetScriptOwner,
-    {&NodeFunction_SendMessage},                          // SendMessage,
+    {},                                                        // Invalid,
+    {},                                                        // EntryCall,
+    {},                                                        // EntryCall_Coroutine,
+    {},                                                        // MessageHandler,
+    {},                                                        // MessageHandler_Coroutine,
+    {&NodeFunction_ReflectedFunction},                         // ReflectedFunction,
+    {nullptr, &NodeFunction_GetReflectedProperty_Getter},      // GetReflectedProperty,
+    {nullptr, &NodeFunction_SetReflectedProperty_Getter},      // SetReflectedProperty,
+    {&NodeFunction_InplaceCoroutine},                          // InplaceCoroutine,
+    {&NodeFunction_GetScriptOwner},                            // GetScriptOwner,
+    {&NodeFunction_SendMessage},                               // SendMessage,
 
-    {}, // FirstBuiltin,
+    {},                                                        // FirstBuiltin,
 
-    {},                                                  // Builtin_Constant,
-    {},                                                  // Builtin_GetVariable,
-    {nullptr, &NodeFunction_Builtin_SetVariable_Getter}, // Builtin_SetVariable,
-    {nullptr, &NodeFunction_Builtin_IncVariable_Getter}, // Builtin_IncVariable,
-    {nullptr, &NodeFunction_Builtin_DecVariable_Getter}, // Builtin_DecVariable,
+    {},                                                        // Builtin_Constant,
+    {},                                                        // Builtin_GetVariable,
+    {nullptr, &NodeFunction_Builtin_SetVariable_Getter},       // Builtin_SetVariable,
+    {nullptr, &NodeFunction_Builtin_IncVariable_Getter},       // Builtin_IncVariable,
+    {nullptr, &NodeFunction_Builtin_DecVariable_Getter},       // Builtin_DecVariable,
 
-    {&NodeFunction_Builtin_Branch},                 // Builtin_Branch,
-    {nullptr, &NodeFunction_Builtin_Switch_Getter}, // Builtin_Switch,
-    {},                                             // Builtin_Loop,
+    {&NodeFunction_Builtin_Branch},                            // Builtin_Branch,
+    {nullptr, &NodeFunction_Builtin_Switch_Getter},            // Builtin_Switch,
+    {},                                                        // Builtin_WhileLoop,
+    {},                                                        // Builtin_ForLoop,
+    {},                                                        // Builtin_ForEachLoop,
+    {},                                                        // Builtin_ReverseForEachLoop,
+    {},                                                        // Builtin_Break,
+    {},                                                        // Builtin_Jump,
 
-    {&NodeFunction_Builtin_And},                     // Builtin_And,
-    {&NodeFunction_Builtin_Or},                      // Builtin_Or,
-    {&NodeFunction_Builtin_Not},                     // Builtin_Not,
-    {nullptr, &NodeFunction_Builtin_Compare_Getter}, // Builtin_Compare,
-    {nullptr, &NodeFunction_Builtin_IsValid_Getter}, // Builtin_IsValid,
-    {},                                              // Builtin_Select,
+    {&NodeFunction_Builtin_And},                               // Builtin_And,
+    {&NodeFunction_Builtin_Or},                                // Builtin_Or,
+    {&NodeFunction_Builtin_Not},                               // Builtin_Not,
+    {nullptr, &NodeFunction_Builtin_Compare_Getter},           // Builtin_Compare,
+    {},                                                        // Builtin_CompareExec,
+    {nullptr, &NodeFunction_Builtin_IsValid_Getter},           // Builtin_IsValid,
+    {},                                                        // Builtin_Select,
 
-    {nullptr, &NodeFunction_Builtin_Add_Getter}, // Builtin_Add,
-    {nullptr, &NodeFunction_Builtin_Sub_Getter}, // Builtin_Subtract,
-    {nullptr, &NodeFunction_Builtin_Mul_Getter}, // Builtin_Multiply,
-    {nullptr, &NodeFunction_Builtin_Div_Getter}, // Builtin_Divide,
+    {nullptr, &NodeFunction_Builtin_Add_Getter},               // Builtin_Add,
+    {nullptr, &NodeFunction_Builtin_Sub_Getter},               // Builtin_Subtract,
+    {nullptr, &NodeFunction_Builtin_Mul_Getter},               // Builtin_Multiply,
+    {nullptr, &NodeFunction_Builtin_Div_Getter},               // Builtin_Divide,
+    {},                                                        // Builtin_Expression,
 
     {nullptr, &NodeFunction_Builtin_ToBool_Getter},            // Builtin_ToBool,
     {nullptr, &NodeFunction_Builtin_ToByte_Getter},            // Builtin_ToByte,
@@ -1277,18 +1284,18 @@ namespace
     {nullptr, &NodeFunction_Builtin_ToVariant_Getter},         // Builtin_ToVariant,
     {nullptr, &NodeFunction_Builtin_Variant_ConvertTo_Getter}, // Builtin_Variant_ConvertTo,
 
-    {&NodeFunction_Builtin_MakeArray}, // Builtin_MakeArray
+    {&NodeFunction_Builtin_MakeArray},                         // Builtin_MakeArray
 
-    {&NodeFunction_Builtin_TryGetComponentOfBaseType}, // Builtin_TryGetComponentOfBaseType
+    {&NodeFunction_Builtin_TryGetComponentOfBaseType},         // Builtin_TryGetComponentOfBaseType
 
-    {&NodeFunction_Builtin_StartCoroutine},    // Builtin_StartCoroutine,
-    {&NodeFunction_Builtin_StopCoroutine},     // Builtin_StopCoroutine,
-    {&NodeFunction_Builtin_StopAllCoroutines}, // Builtin_StopAllCoroutines,
-    {&NodeFunction_Builtin_WaitForX<true>},    // Builtin_WaitForAll,
-    {&NodeFunction_Builtin_WaitForX<false>},   // Builtin_WaitForAny,
-    {&NodeFunction_Builtin_Yield},             // Builtin_Yield,
+    {&NodeFunction_Builtin_StartCoroutine},                    // Builtin_StartCoroutine,
+    {&NodeFunction_Builtin_StopCoroutine},                     // Builtin_StopCoroutine,
+    {&NodeFunction_Builtin_StopAllCoroutines},                 // Builtin_StopAllCoroutines,
+    {&NodeFunction_Builtin_WaitForX<true>},                    // Builtin_WaitForAll,
+    {&NodeFunction_Builtin_WaitForX<false>},                   // Builtin_WaitForAny,
+    {&NodeFunction_Builtin_Yield},                             // Builtin_Yield,
 
-    {}, // LastBuiltin,
+    {},                                                        // LastBuiltin,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_TypeToExecuteFunctions) == ezVisualScriptNodeDescription::Type::Count);

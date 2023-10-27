@@ -90,6 +90,8 @@ private:
 
   ezUInt32 GetPinId(const ezVisualScriptPin* pPin);
   DataOutput& GetDataOutput(const DataInput& dataInput);
+  void AddDataInput(AstNode& node, AstNode* pSourceNode, ezUInt8 uiSourcePinIndex, ezVisualScriptDataType::Enum dataType);
+  void AddDataOutput(AstNode& node, ezVisualScriptDataType::Enum dataType);
 
   struct DefaultInput
   {
@@ -98,11 +100,13 @@ private:
   };
 
   DefaultInput GetDefaultPointerInput(const ezRTTI* pDataType);
+  AstNode* CreateConstantNode(const ezVariant& value);
 
   DataOffset GetInstanceDataOffset(ezHashedString sName, ezVisualScriptDataType::Enum dataType);
 
   AstNode* BuildAST(const ezDocumentObject* pEntryNode);
   void MarkAsCoroutine(AstNode* pEntryAstNode);
+  ezResult ReplaceLoops(AstNode* pEntryAstNode);
   ezResult InsertTypeConversions(AstNode* pEntryAstNode);
   ezResult InlineConstants(AstNode* pEntryAstNode);
   ezResult InlineVariables(AstNode* pEntryAstNode);
