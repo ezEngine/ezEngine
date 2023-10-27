@@ -212,11 +212,16 @@ void ezQtVisualScriptNode::UpdateState()
     }
   }
 
+  auto pScene = static_cast<ezQtVisualScriptNodeScene*>(scene());
+
   if (pManager->IsCoroutine(GetObject()))
   {
-    auto pScene = static_cast<ezQtVisualScriptNodeScene*>(scene());
-
     m_pIcon->setPixmap(pScene->GetCoroutineIcon());
+    m_pIcon->setScale(0.5);
+  }
+  else if (pManager->IsLoop(GetObject()))
+  {
+    m_pIcon->setPixmap(pScene->GetLoopIcon());
     m_pIcon->setScale(0.5);
   }
   else
@@ -232,6 +237,7 @@ ezQtVisualScriptNodeScene::ezQtVisualScriptNodeScene(QObject* pParent /*= nullpt
 {
   constexpr int iconSize = 32;
   m_CoroutineIcon = QIcon(":/EditorPluginVisualScript/Coroutine.svg").pixmap(QSize(iconSize, iconSize));
+  m_LoopIcon = QIcon(":/EditorPluginVisualScript/Loop.svg").pixmap(QSize(iconSize, iconSize));
 }
 
 ezQtVisualScriptNodeScene::~ezQtVisualScriptNodeScene()

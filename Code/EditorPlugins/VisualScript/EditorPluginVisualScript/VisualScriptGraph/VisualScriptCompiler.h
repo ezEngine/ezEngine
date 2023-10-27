@@ -90,6 +90,12 @@ private:
 
   ezUInt32 GetPinId(const ezVisualScriptPin* pPin);
   DataOutput& GetDataOutput(const DataInput& dataInput);
+  AstNode& CreateAstNode(ezVisualScriptNodeDescription::Type::Enum type, ezVisualScriptDataType::Enum deductedDataType = ezVisualScriptDataType::Invalid, bool bImplicitExecution = false);
+  EZ_ALWAYS_INLINE AstNode& CreateAstNode(ezVisualScriptNodeDescription::Type::Enum type, bool bImplicitExecution)
+  {
+    return CreateAstNode(type, ezVisualScriptDataType::Invalid, bImplicitExecution);
+  }
+
   void AddDataInput(AstNode& node, AstNode* pSourceNode, ezUInt8 uiSourcePinIndex, ezVisualScriptDataType::Enum dataType);
   void AddDataOutput(AstNode& node, ezVisualScriptDataType::Enum dataType);
 
@@ -101,20 +107,9 @@ private:
 
   DefaultInput GetDefaultPointerInput(const ezRTTI* pDataType);
   AstNode* CreateConstantNode(const ezVariant& value);
+  AstNode* CreateJumpNode(AstNode* pTargetNode);
 
   DataOffset GetInstanceDataOffset(ezHashedString sName, ezVisualScriptDataType::Enum dataType);
-
-  AstNode* BuildAST(const ezDocumentObject* pEntryNode);
-  void MarkAsCoroutine(AstNode* pEntryAstNode);
-  ezResult ReplaceLoops(AstNode* pEntryAstNode);
-  ezResult InsertTypeConversions(AstNode* pEntryAstNode);
-  ezResult InlineConstants(AstNode* pEntryAstNode);
-  ezResult InlineVariables(AstNode* pEntryAstNode);
-  ezResult BuildDataStack(AstNode* pEntryAstNode, ezDynamicArray<AstNode*>& out_Stack);
-  ezResult BuildDataExecutions(AstNode* pEntryAstNode);
-  ezResult FillDataOutputConnections(AstNode* pEntryAstNode);
-  ezResult AssignLocalVariables(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc);
-  ezResult BuildNodeDescriptions(AstNode* pEntryAstNode, ezDynamicArray<ezVisualScriptNodeDescription>& out_NodeDescriptions);
 
   struct ConnectionType
   {
@@ -135,6 +130,19 @@ private:
     ConnectionType::Enum m_Type = ConnectionType::Execution;
     ezUInt32 m_uiPrevPinIndex = 0;
   };
+
+  AstNode* BuildAST(const ezDocumentObject* pEntryNode);
+  void MarkAsCoroutine(AstNode* pEntryAstNode);
+  ezResult ReplaceUnsupportedNodes(AstNode* pEntryAstNode);
+  ezResult ReplaceLoop(const Connection& connection);
+  ezResult InsertTypeConversions(AstNode* pEntryAstNode);
+  ezResult InlineConstants(AstNode* pEntryAstNode);
+  ezResult InlineVariables(AstNode* pEntryAstNode);
+  ezResult BuildDataStack(AstNode* pEntryAstNode, ezDynamicArray<AstNode*>& out_Stack);
+  ezResult BuildDataExecutions(AstNode* pEntryAstNode);
+  ezResult FillDataOutputConnections(AstNode* pEntryAstNode);
+  ezResult AssignLocalVariables(AstNode* pEntryAstNode, ezVisualScriptDataDescription& inout_localDataDesc);
+  ezResult BuildNodeDescriptions(AstNode* pEntryAstNode, ezDynamicArray<ezVisualScriptNodeDescription>& out_NodeDescriptions);  
 
   struct ConnectionHasher
   {

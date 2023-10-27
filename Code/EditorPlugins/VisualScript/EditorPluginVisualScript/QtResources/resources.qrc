@@ -4,6 +4,7 @@
   </qresource>
   <qresource prefix="EditorPluginVisualScript">
     <file>Coroutine.svg</file>
+    <file>Loop.svg</file>
   </qresource>
 </RCC>
 

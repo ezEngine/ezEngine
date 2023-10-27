@@ -664,6 +664,18 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }
 
+  // Builtin_Break
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_Break", "Logic", logicColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Break;
+    nodeDesc.AddInputExecutionPin("");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
   // Builtin_And
   {
     ezReflectedTypeDescriptor typeDesc;
@@ -734,6 +746,29 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     AddInputDataPin_Any(typeDesc, nodeDesc, "A", false, true);
     AddInputDataPin_Any(typeDesc, nodeDesc, "B", false, true);
     AddOutputDataPin<bool>(nodeDesc, "");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_CompareExec
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_CompareExec", "Logic", logicColor);
+
+    AddInputProperty(typeDesc, "Operator", ezGetStaticRTTI<ezComparisonOperator>(), ezVisualScriptDataType::Int64);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "{A} {Operator} {B}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_CompareExec;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("True");
+    nodeDesc.AddOutputExecutionPin("False");
+    AddInputDataPin_Any(typeDesc, nodeDesc, "A", false, true);
+    AddInputDataPin_Any(typeDesc, nodeDesc, "B", false, true);
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }
