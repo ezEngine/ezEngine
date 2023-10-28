@@ -92,6 +92,8 @@
     <file>ezLocalBlackboardComponent.svg</file>
 	<file>ezGlobalBlackboardComponent.svg</file>
     <file>ezPostProcessingComponent.svg</file>
+    <file>ezVolumeBoxComponent.svg</file>
+    <file>ezVolumeSphereComponent.svg</file>
   </qresource>
   <qresource prefix="GroupIcons">
     <file>Size.svg</file>

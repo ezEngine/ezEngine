@@ -30,11 +30,13 @@ public:
   void SetTemplate(const ezBlackboardTemplateResourceHandle& hResource);
   ezBlackboardTemplateResourceHandle GetTemplate() const { return m_hTemplateResource; }
 
+  /// @brief In case two volumes overlap, the one with a higher sort order value has precedence.
   void SetSortOrder(float fOrder);                    // [ property ]
   float GetSortOrder() const { return m_fSortOrder; } // [ property ]
 
-  void SetVolumeType(const char* szType); // [ property ]
-  const char* GetVolumeType() const;      // [ property ]
+  /// @brief
+  void SetVolumeType(const char* szType);                             // [ property ]
+  const char* GetVolumeType() const;                                  // [ property ]
 
   void SetValue(const ezHashedString& sName, const ezVariant& value); // [ scriptable ]
   ezVariant GetValue(ezTempHashedString sName) const                  // [ scriptable ]

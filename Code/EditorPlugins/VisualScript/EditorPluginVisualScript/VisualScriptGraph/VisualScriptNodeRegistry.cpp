@@ -763,14 +763,14 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     };
 
     ConversionNodeDesc conversionNodeDescs[] = {
-      {"Logic", logicColor, ezVisualScriptDataType::Bool},
-      {"Math", mathColor, ezVisualScriptDataType::Byte},
-      {"Math", mathColor, ezVisualScriptDataType::Int},
-      {"Math", mathColor, ezVisualScriptDataType::Int64},
-      {"Math", mathColor, ezVisualScriptDataType::Float},
-      {"Math", mathColor, ezVisualScriptDataType::Double},
-      {"String", stringColor, ezVisualScriptDataType::String},
-      {"Variant", variantColor, ezVisualScriptDataType::Variant},
+      {"Type Conversion", logicColor, ezVisualScriptDataType::Bool},
+      {"Type Conversion", mathColor, ezVisualScriptDataType::Byte},
+      {"Type Conversion", mathColor, ezVisualScriptDataType::Int},
+      {"Type Conversion", mathColor, ezVisualScriptDataType::Int64},
+      {"Type Conversion", mathColor, ezVisualScriptDataType::Float},
+      {"Type Conversion", mathColor, ezVisualScriptDataType::Double},
+      {"Type Conversion", stringColor, ezVisualScriptDataType::String},
+      {"Type Conversion", variantColor, ezVisualScriptDataType::Variant},
     };
 
     for (auto& conversionNodeDesc : conversionNodeDescs)
@@ -813,7 +813,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
   // Builtin_Variant_ConvertTo
   {
     ezReflectedTypeDescriptor typeDesc;
-    FillDesc(typeDesc, "Builtin_Variant_ConvertTo", "Variant", variantColor);
+    FillDesc(typeDesc, "Builtin_Variant_ConvertTo", "Type Conversion", variantColor);
 
     {
       auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();

@@ -58,24 +58,24 @@ public:
   /// \brief When called, the component starts spawning the chosen number of prefabs over the set duration.
   ///
   /// If this is called while the component is already active, the internal state is reset and it starts over.
-  void StartSpawning(); // [ scriptable ]
+  void StartSpawning();                                           // [ scriptable ]
 
   void SetHalfExtents(const ezVec3& value);                       // [ property ]
   const ezVec3& GetHalfExtents() const { return m_vHalfExtents; } // [ property ]
 
-  void SetPrefabFile(const char* szFile); // [ property ]
-  const char* GetPrefabFile() const;      // [ property ]
+  void SetPrefabFile(const char* szFile);                         // [ property ]
+  const char* GetPrefabFile() const;                              // [ property ]
 
-  bool GetSpawnAtStart() const; // [ property ]
-  void SetSpawnAtStart(bool b); // [ property ]
+  bool GetSpawnAtStart() const;                                   // [ property ]
+  void SetSpawnAtStart(bool b);                                   // [ property ]
 
-  bool GetSpawnContinuously() const; // [ property ]
-  void SetSpawnContinuously(bool b); // [ property ]
+  bool GetSpawnContinuously() const;                              // [ property ]
+  void SetSpawnContinuously(bool b);                              // [ property ]
 
-  ezTime m_SpawnDuration;           // [ property ]
-  ezUInt16 m_uiMinSpawnCount = 5;   // [ property ]
-  ezUInt16 m_uiSpawnCountRange = 5; // [ property ]
-  ezPrefabResourceHandle m_hPrefab; // [ property ]
+  ezTime m_SpawnDuration;                                         // [ property ]
+  ezUInt16 m_uiMinSpawnCount = 5;                                 // [ property ]
+  ezUInt16 m_uiSpawnCountRange = 5;                               // [ property ]
+  ezPrefabResourceHandle m_hPrefab;                               // [ property ]
 
   /// The spawned object's forward direction may deviate this amount from the spawn box's forward rotation. This is accomplished by rotating around the Z axis.
   ezAngle m_MaxRotationZ; // [ property ]
