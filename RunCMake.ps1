@@ -1,6 +1,6 @@
 param 
 (
-    [Parameter(Mandatory = $True)] [ValidateSet('Win64vs2019', 'Uwp64vs2019', 'Win64vs2022', 'Uwp64vs2022')][string] $Target,
+    [Parameter(Mandatory = $True)] [ValidateSet('Win64vs2022', 'Uwp64vs2022')][string] $Target,
     [switch]$NoUnityBuild,
     [switch]$NoSubmoduleUpdate,
     [string]$SolutionName
@@ -55,31 +55,7 @@ $CMAKE_ARGS += "-G"
 
 Write-Host ""
 
-if ($Target -eq "Win64vs2019") {
-
-    Write-Host "=== Generating Solution for Visual Studio 2019 x64 ==="
-
-    $CMAKE_ARGS += "Visual Studio 16 2019"
-    $CMAKE_ARGS += "-A"
-    $CMAKE_ARGS += "x64"
-    $CMAKE_ARGS += "-B"
-    $CMAKE_ARGS += "$PSScriptRoot\Workspace\vs2019x64"
-}
-elseif ($Target -eq "Uwp64vs2019") {
-
-    Write-Host "=== Generating Solution for Visual Studio 2019 x64 UWP ==="
-    
-    $CMAKE_ARGS += "Visual Studio 16 2019"
-    $CMAKE_ARGS += "-A"
-    $CMAKE_ARGS += "x64"
-    $CMAKE_ARGS += "-B"
-    $CMAKE_ARGS += "$PSScriptRoot\Workspace\vs2019x64uwp"
-    $CMAKE_ARGS += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot\Code\BuildSystem\CMake\toolchain-winstore.cmake"
-
-    $CMAKE_ARGS += "-DEZ_ENABLE_QT_SUPPORT:BOOL=OFF"
-    $CMAKE_ARGS += "-DEZ_BUILD_FILTER='UwpProjects'"
-}
-elseif ($Target -eq "Win64vs2022") {
+if ($Target -eq "Win64vs2022") {
 
     Write-Host "=== Generating Solution for Visual Studio 2022 x64 ==="
 

@@ -34,9 +34,6 @@ ezString ezCppProject::GetGeneratorFolderName(const ezCppSettings& cfg)
     case ezCppSettings::Compiler::None:
       return "";
 
-    case ezCppSettings::Compiler::Vs2019:
-      return "Vs2019x64";
-
     case ezCppSettings::Compiler::Vs2022:
       return "Vs2022x64";
 
@@ -52,9 +49,6 @@ ezString ezCppProject::GetCMakeGeneratorName(const ezCppSettings& cfg)
   {
     case ezCppSettings::Compiler::None:
       return "";
-
-    case ezCppSettings::Compiler::Vs2019:
-      return "Visual Studio 16 2019";
 
     case ezCppSettings::Compiler::Vs2022:
       return "Visual Studio 17 2022";
