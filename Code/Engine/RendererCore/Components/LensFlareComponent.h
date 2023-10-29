@@ -43,7 +43,7 @@ struct ezLensFlareElement
   float m_fShiftToCenter = 0.0f;       ///< Move the element along the lens flare origin to screen center line. 0 is at the lens flare origin, 1 at the screen center. Values below 0 or above 1 are also possible.
   bool m_bGreyscaleTexture = false;    ///< Whether the given texture is a greyscale or color texture.
   bool m_bModulateByLightColor = true; ///< Modulate the element's color by the light color and intensity if the lens flare component is linked to a light component.
-  bool m_bInverseTonemap = false;      ///< Apply an inverse tonemapping operation on the final color. This can be useful if the lens flare is not linked to a light or does not use an hdr color since lens flares are rendered before tonemapping and can looked washed out in this case.
+  bool m_bInverseTonemap = false;      ///< Apply an inverse tonemapping operation on the final color. This can be useful if the lens flare is not linked to a light or does not use an hdr color since lens flares are rendered before tonemapping and can look washed out in this case.
 
   void SetTextureFile(const char* szFile); // [ property ]
   const char* GetTextureFile() const;      // [ property ]

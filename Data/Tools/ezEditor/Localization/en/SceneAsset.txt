@@ -21,7 +21,6 @@ ezDebugTextComponent;Debug Text;;https://ezengine.net/pages/docs/debugging/compo
 ezDirectionalLightComponent;Directional Light;;https://ezengine.net/pages/docs/graphics/lighting/directional-light-component.html
 ezFakeRopeComponent;Fake Rope Simulation;;https://ezengine.net/pages/docs/effects/fake-rope-component.html
 ezFogComponent;Fog;;https://ezengine.net/pages/docs/effects/fog.html
-ezForwardEventsToGameStateComponent;Forward Events To GameState
 ezGrabbableItemComponent;Grabbable Item;;https://ezengine.net/pages/docs/gameplay/grabbable-item-component.html
 ezGreyBoxComponent;Grey Boxing;;https://ezengine.net/pages/docs/scenes/greyboxing.html
 ezHeadBoneComponent;Head Bone;;https://ezengine.net/pages/docs/gameplay/headbone-component.html
@@ -30,6 +29,7 @@ ezInputComponent;Input;;https://ezengine.net/pages/docs/input/input-component.ht
 ezInstancedMeshComponent;Instanced Mesh;;https://ezengine.net/pages/docs/graphics/meshes/instanced-mesh-component.html
 ezJointAttachmentComponent;Joint Attachment;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-attachment-component.html
 ezJointOverrideComponent;Joint Override;;https://ezengine.net/pages/docs/animation/skeletal-animation/joint-override-component.html
+ezLensFlareComponent;Lens Flare;;https://ezengine.net/pages/docs/effects/lensflare-component.html
 ezLineToComponent;Draw Line To Object;;https://ezengine.net/pages/docs/debugging/components/draw-line-component.html
 ezMarkerComponent;Marker;;https://ezengine.net/pages/docs/gameplay/marker-component.html
 ezMeshComponent;Mesh;;https://ezengine.net/pages/docs/graphics/meshes/mesh-component.html
@@ -59,7 +59,6 @@ ezSphereReflectionProbeComponent;Sphere Reflection Probe;;https://ezengine.net/p
 ezSpotLightComponent;Spot Light;;https://ezengine.net/pages/docs/graphics/lighting/spot-light-component.html
 ezSpriteComponent;Sprite;;https://ezengine.net/pages/docs/graphics/sprite-component.html
 ezTimedDeathComponent;Timed Death;;https://ezengine.net/pages/docs/gameplay/timed-death-component.html
-ezTriggerDelayModifierComponent;Trigger Delay Modifier
 ezWindVolumeConeComponent;Cone Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
 ezWindVolumeCylinderComponent;Cylinder Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
 ezWindVolumeSphereComponent;Sphere Wind Volume;;https://ezengine.net/pages/docs/effects/wind-volume-components.html
