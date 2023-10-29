@@ -183,7 +183,8 @@ void ezJoltHingeConstraintComponent::ApplySettings()
 
       const float strength = (m_fDriveStrength == 0) ? FLT_MAX : m_fDriveStrength;
 
-      pConstraint->GetMotorSettings().mFrequency = 20.0f;
+      pConstraint->GetMotorSettings().mSpringSettings.mMode = JPH::ESpringMode::FrequencyAndDamping;
+      pConstraint->GetMotorSettings().mSpringSettings.mFrequency = 20.0f;
       pConstraint->GetMotorSettings().SetForceLimit(strength);
       pConstraint->GetMotorSettings().SetTorqueLimit(strength);
     }

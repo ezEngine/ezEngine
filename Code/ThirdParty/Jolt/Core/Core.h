@@ -4,6 +4,67 @@
 
 #pragma once
 
+// Jolt library version
+#define JPH_VERSION_MAJOR 3
+#define JPH_VERSION_MINOR 0
+#define JPH_VERSION_PATCH 1
+
+// Determine which features the library was compiled with
+#ifdef JPH_DOUBLE_PRECISION
+	#define JPH_VERSION_FEATURE_BIT_1 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_1 0
+#endif
+#ifdef JPH_CROSS_PLATFORM_DETERMINISTIC
+	#define JPH_VERSION_FEATURE_BIT_2 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_2 0
+#endif
+#ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
+	#define JPH_VERSION_FEATURE_BIT_3 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_3 0
+#endif
+#ifdef JPH_PROFILE_ENABLED
+	#define JPH_VERSION_FEATURE_BIT_4 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_4 0
+#endif
+#ifdef JPH_EXTERNAL_PROFILE
+	#define JPH_VERSION_FEATURE_BIT_5 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_5 0
+#endif
+#ifdef JPH_DEBUG_RENDERER
+	#define JPH_VERSION_FEATURE_BIT_6 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_6 0
+#endif
+#ifdef JPH_DISABLE_TEMP_ALLOCATOR
+	#define JPH_VERSION_FEATURE_BIT_7 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_7 0
+#endif
+#ifdef JPH_DISABLE_CUSTOM_ALLOCATOR
+	#define JPH_VERSION_FEATURE_BIT_8 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_8 0
+#endif
+#if defined(JPH_OBJECT_LAYER_BITS) && JPH_OBJECT_LAYER_BITS == 32
+	#define JPH_VERSION_FEATURE_BIT_9 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_9 0
+#endif
+#ifdef JPH_ENABLE_ASSERTS
+	#define JPH_VERSION_FEATURE_BIT_10 1
+#else
+	#define JPH_VERSION_FEATURE_BIT_10 0
+#endif
+#define JPH_VERSION_FEATURES (uint64(JPH_VERSION_FEATURE_BIT_1) | (JPH_VERSION_FEATURE_BIT_2 << 1) | (JPH_VERSION_FEATURE_BIT_3 << 2) | (JPH_VERSION_FEATURE_BIT_4 << 3) | (JPH_VERSION_FEATURE_BIT_5 << 4) | (JPH_VERSION_FEATURE_BIT_6 << 5) | (JPH_VERSION_FEATURE_BIT_7 << 6) | (JPH_VERSION_FEATURE_BIT_8 << 7) | (JPH_VERSION_FEATURE_BIT_9 << 8) | (JPH_VERSION_FEATURE_BIT_10 << 9))
+
+// Combine the version and features in a single ID
+#define JPH_VERSION_ID ((JPH_VERSION_FEATURES << 24) | (JPH_VERSION_MAJOR << 16) | (JPH_VERSION_MINOR << 8) | JPH_VERSION_PATCH)
+
 // Determine platform
 #if defined(JPH_PLATFORM_BLUE)
 	// Correct define already defined, this overrides everything else
@@ -159,9 +220,15 @@
 #else
 	#define JPH_CLANG_13_PLUS_SUPPRESS_WARNING(w)
 #endif
+#if __clang_major__ >= 16
+	#define JPH_CLANG_16_PLUS_SUPPRESS_WARNING(w) JPH_CLANG_SUPPRESS_WARNING(w)
+#else
+	#define JPH_CLANG_16_PLUS_SUPPRESS_WARNING(w)
+#endif
 #else
 #define JPH_CLANG_SUPPRESS_WARNING(w)
 #define JPH_CLANG_13_PLUS_SUPPRESS_WARNING(w)
+#define JPH_CLANG_16_PLUS_SUPPRESS_WARNING(w)
 #endif
 #ifdef JPH_COMPILER_GCC
 #define JPH_PRAGMA(x)					_Pragma(#x)
@@ -207,8 +274,9 @@
 	JPH_CLANG_SUPPRESS_WARNING("-Wgnu-zero-variadic-macro-arguments")							\
 	JPH_CLANG_SUPPRESS_WARNING("-Wdocumentation-unknown-command")								\
 	JPH_CLANG_SUPPRESS_WARNING("-Wctad-maybe-unsupported")										\
-	JPH_CLANG_SUPPRESS_WARNING("-Wdeprecated-copy")												\
+	JPH_CLANG_13_PLUS_SUPPRESS_WARNING("-Wdeprecated-copy")										\
 	JPH_CLANG_13_PLUS_SUPPRESS_WARNING("-Wdeprecated-copy-with-dtor")							\
+	JPH_CLANG_16_PLUS_SUPPRESS_WARNING("-Wunsafe-buffer-usage")									\
 	JPH_IF_NOT_ANDROID(JPH_CLANG_SUPPRESS_WARNING("-Wimplicit-int-float-conversion"))			\
 																								\
 	JPH_GCC_SUPPRESS_WARNING("-Wcomment")														\
@@ -237,22 +305,23 @@
 	JPH_MSVC_SUPPRESS_WARNING(4826) /* Conversion from 'X *' to 'JPH::uint64' is sign-extended. This may cause unexpected runtime behavior. (32-bit) */ \
 	JPH_MSVC_SUPPRESS_WARNING(5264) /* 'X': 'const' variable is not used */						\
 	JPH_MSVC_SUPPRESS_WARNING(4251) /* class 'X' needs to have DLL-interface to be used by clients of class 'Y' */ \
+	JPH_MSVC_SUPPRESS_WARNING(4738) /* storing 32-bit float result in memory, possible loss of performance */ \
 	JPH_MSVC2019_SUPPRESS_WARNING(5246) /* the initialization of a subobject should be wrapped in braces */
 
 // OS-specific includes
 #if defined(JPH_PLATFORM_WINDOWS)
 	#define JPH_BREAKPOINT		__debugbreak()
-#elif defined(JPH_PLATFORM_BLUE) 
+#elif defined(JPH_PLATFORM_BLUE)
 	// Configuration for a popular game console.
-	// This file is not distributed because it would violate an NDA. 
-	// Creating one should only be a couple of minutes of work if you have the documentation for the platform 
-	// (you only need to define JPH_BREAKPOINT, JPH_PLATFORM_BLUE_GET_TICKS and JPH_PLATFORM_BLUE_GET_TICK_FREQUENCY and include the right header).
-	#include <Jolt/Core/PlatformBlue.h> 
+	// This file is not distributed because it would violate an NDA.
+	// Creating one should only be a couple of minutes of work if you have the documentation for the platform
+	// (you only need to define JPH_BREAKPOINT, JPH_PLATFORM_BLUE_GET_TICKS, JPH_PLATFORM_BLUE_MUTEX*, JPH_PLATFORM_BLUE_RWLOCK* and include the right header).
+	#include <Jolt/Core/PlatformBlue.h>
 #elif defined(JPH_PLATFORM_LINUX) || defined(JPH_PLATFORM_ANDROID) || defined(JPH_PLATFORM_MACOS) || defined(JPH_PLATFORM_IOS)
 	#if defined(JPH_CPU_X86)
-		#define JPH_BREAKPOINT		__asm volatile ("int $0x3")
+		#define JPH_BREAKPOINT	__asm volatile ("int $0x3")
 	#elif defined(JPH_CPU_ARM)
-		#define JPH_BREAKPOINT		__builtin_trap()
+		#define JPH_BREAKPOINT	__builtin_trap()
 	#endif
 #elif defined(JPH_PLATFORM_WASM)
 	#define JPH_BREAKPOINT		do { } while (false) // Not supported
@@ -277,13 +346,15 @@
 // Suppress warnings generated by the standard template library
 #define JPH_SUPPRESS_WARNINGS_STD_BEGIN															\
 	JPH_SUPPRESS_WARNING_PUSH																	\
+	JPH_MSVC_SUPPRESS_WARNING(4365)																\
 	JPH_MSVC_SUPPRESS_WARNING(4619)																\
 	JPH_MSVC_SUPPRESS_WARNING(4710)																\
 	JPH_MSVC_SUPPRESS_WARNING(4711)																\
 	JPH_MSVC_SUPPRESS_WARNING(4820)																\
 	JPH_MSVC_SUPPRESS_WARNING(4514)																\
 	JPH_MSVC_SUPPRESS_WARNING(5262)																\
-	JPH_MSVC_SUPPRESS_WARNING(5264)
+	JPH_MSVC_SUPPRESS_WARNING(5264)																\
+	JPH_MSVC_SUPPRESS_WARNING(4738)
 
 #define JPH_SUPPRESS_WARNINGS_STD_END															\
 	JPH_SUPPRESS_WARNING_POP
@@ -296,6 +367,7 @@ JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <sstream>
 #include <functional>
 #include <algorithm>
+#include <cstdint>
 JPH_SUPPRESS_WARNINGS_STD_END
 #include <limits.h>
 #include <float.h>
@@ -340,10 +412,10 @@ using std::istream;
 
 // Standard types
 using uint = unsigned int;
-using uint8 = uint8_t;
-using uint16 = uint16_t;
-using uint32 = uint32_t;
-using uint64 = uint64_t;
+using uint8 = std::uint8_t;
+using uint16 = std::uint16_t;
+using uint32 = std::uint32_t;
+using uint64 = std::uint64_t;
 
 // Assert sizes of types
 static_assert(sizeof(uint) >= 4, "Invalid size of uint");
@@ -354,7 +426,9 @@ static_assert(sizeof(uint64) == 8, "Invalid size of uint64");
 static_assert(sizeof(void *) == (JPH_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid size of pointer" );
 
 // Define inline macro
-#if defined(JPH_COMPILER_CLANG) || defined(JPH_COMPILER_GCC)
+#if defined(JPH_NO_FORCE_INLINE)
+	#define JPH_INLINE inline
+#elif defined(JPH_COMPILER_CLANG) || defined(JPH_COMPILER_GCC)
 	#define JPH_INLINE __inline__ __attribute__((always_inline))
 #elif defined(JPH_COMPILER_MSVC)
 	#define JPH_INLINE __forceinline
@@ -378,7 +452,7 @@ static_assert(sizeof(void *) == (JPH_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid si
 
 // Stack allocation
 #define JPH_STACK_ALLOC(n)		alloca(n)
-	
+
 // Shorthand for #ifdef _DEBUG / #endif
 #ifdef _DEBUG
 	#define JPH_IF_DEBUG(...)	__VA_ARGS__
@@ -424,12 +498,18 @@ static_assert(sizeof(void *) == (JPH_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid si
 	#define JPH_PRECISE_MATH_ON
 	#define JPH_PRECISE_MATH_OFF
 #elif defined(JPH_COMPILER_CLANG)
-	// We compile without -ffast-math because it cannot be turned off for a single compilation unit
-	// On clang 14 and later we can turn off float contraction through a pragma, so if FMA is on we can disable it through this macro
-	#if __clang_major__ >= 14 && defined(JPH_USE_FMADD)
-		#define JPH_PRECISE_MATH_ON					\
+	// We compile without -ffast-math because pragma float_control(precise, on) doesn't seem to actually negate all of the -ffast-math effects and causes the unit tests to fail (even if the pragma is added to all files)
+	// On clang 14 and later we can turn off float contraction through a pragma (before it was buggy), so if FMA is on we can disable it through this macro
+	#if (defined(JPH_CPU_ARM) && __clang_major__ >= 16) || (defined(JPH_CPU_X86) && __clang_major__ >= 14)
+		#define JPH_PRECISE_MATH_ON						\
+			_Pragma("float_control(precise, on, push)")	\
 			_Pragma("clang fp contract(off)")
-		#define JPH_PRECISE_MATH_OFF				\
+		#define JPH_PRECISE_MATH_OFF					\
+			_Pragma("float_control(pop)")
+	#elif __clang_major__ >= 14 && (defined(JPH_USE_FMADD) || defined(FP_FAST_FMA))
+		#define JPH_PRECISE_MATH_ON						\
+			_Pragma("clang fp contract(off)")
+		#define JPH_PRECISE_MATH_OFF					\
 			_Pragma("clang fp contract(on)")
 	#else
 		#define JPH_PRECISE_MATH_ON
@@ -437,11 +517,11 @@ static_assert(sizeof(void *) == (JPH_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid si
 	#endif
 #elif defined(JPH_COMPILER_MSVC)
 	// Unfortunately there is no way to push the state of fp_contract, so we have to assume it was turned on before JPH_PRECISE_MATH_ON
-	#define JPH_PRECISE_MATH_ON						\
-		__pragma(float_control(precise, on, push))	\
+	#define JPH_PRECISE_MATH_ON							\
+		__pragma(float_control(precise, on, push))		\
 		__pragma(fp_contract(off))
-	#define JPH_PRECISE_MATH_OFF					\
-		__pragma(fp_contract(on))					\
+	#define JPH_PRECISE_MATH_OFF						\
+		__pragma(fp_contract(on))						\
 		__pragma(float_control(pop))
 #else
 	#error Undefined

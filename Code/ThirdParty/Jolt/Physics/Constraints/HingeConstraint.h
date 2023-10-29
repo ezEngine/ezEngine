@@ -32,16 +32,19 @@ public:
 	RVec3						mPoint1 = RVec3::sZero();
 	Vec3						mHingeAxis1 = Vec3::sAxisY();
 	Vec3						mNormalAxis1 = Vec3::sAxisX();
-	
+
 	/// Body 2 constraint reference frame (space determined by mSpace)
 	RVec3						mPoint2 = RVec3::sZero();
 	Vec3						mHingeAxis2 = Vec3::sAxisY();
 	Vec3						mNormalAxis2 = Vec3::sAxisX();
-	
+
 	/// Bodies are assumed to be placed so that the hinge angle = 0, movement will be limited between [mLimitsMin, mLimitsMax] where mLimitsMin e [-pi, 0] and mLimitsMax e [0, pi].
 	/// Both angles are in radians.
 	float						mLimitsMin = -JPH_PI;
 	float						mLimitsMax = JPH_PI;
+
+	/// When enabled, this makes the limits soft. When the constraint exceeds the limits, a spring force will pull it back.
+	SpringSettings				mLimitsSpringSettings;
 
 	/// Maximum amount of torque (N m) to apply as friction when the constraint is not powered by a motor
 	float						mMaxFrictionTorque = 0.0f;
@@ -107,7 +110,12 @@ public:
 	float						GetLimitsMax() const									{ return mLimitsMax; }
 	bool						HasLimits() const										{ return mHasLimits; }
 
-	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	/// Update the limits spring settings
+	const SpringSettings &		GetLimitsSpringSettings() const							{ return mLimitsSpringSettings; }
+	SpringSettings &			GetLimitsSpringSettings()								{ return mLimitsSpringSettings; }
+	void						SetLimitsSpringSettings(const SpringSettings &inLimitsSpringSettings) { mLimitsSpringSettings = inLimitsSpringSettings; }
+
+	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vec3		 			GetTotalLambdaPosition() const							{ return mPointConstraintPart.GetTotalLambda(); }
 	inline Vector<2>			GetTotalLambdaRotation() const							{ return mRotationConstraintPart.GetTotalLambda(); }
 	inline float				GetTotalLambdaRotationLimits() const					{ return mRotationLimitsConstraintPart.GetTotalLambda(); }
@@ -133,7 +141,7 @@ private:
 	// Local space normal direction (direction relative to which to draw constraint limits)
 	Vec3						mLocalSpaceNormalAxis1;
 	Vec3						mLocalSpaceNormalAxis2;
-		
+
 	// Inverse of initial relative orientation between bodies (which defines hinge angle = 0)
 	Quat						mInvInitialOrientation;
 
@@ -141,6 +149,9 @@ private:
 	bool						mHasLimits;
 	float						mLimitsMin;
 	float						mLimitsMax;
+
+	// Soft constraint limits
+	SpringSettings				mLimitsSpringSettings;
 
 	// Friction
 	float						mMaxFrictionTorque;
@@ -155,7 +166,7 @@ private:
 
 	// Current rotation around the hinge axis
 	float						mTheta = 0.0f;
-	
+
 	// World space hinge axis for body 1
 	Vec3						mA1;
 

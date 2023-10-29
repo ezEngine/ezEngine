@@ -29,6 +29,12 @@ public:
 	/// Spring damping constant for the lean spring
 	float						mLeanSpringDamping = 1000.0f;
 
+	/// The lean spring applies an additional force equal to this coefficient * Integral(delta angle, 0, t), this effectively makes the lean spring a PID controller
+	float						mLeanSpringIntegrationCoefficient = 0.0f;
+
+	/// How much to decay the angle integral when the wheels are not touching the floor: new_value = e^(-decay * t) * initial_value
+	float						mLeanSpringIntegrationCoefficientDecay = 4.0f;
+
 	/// How much to smooth the lean angle (0 = no smoothing, 1 = lean angle never changes)
 	/// Note that this is frame rate dependent because the formula is: smoothing_factor * previous + (1 - smoothing_factor) * current
 	float						mLeanSmoothingFactor = 0.8f;
@@ -46,6 +52,12 @@ public:
 	/// Get the distance between the front and back wheels
 	float						GetWheelBase() const;
 
+	/// Enable or disable the lean spring. This allows you to temporarily disable the lean spring to allow the motorcycle to fall over.
+	void						EnableLeanController(bool inEnable)					{ mEnableLeanController = inEnable; }
+
+	/// Check if the lean spring is enabled.
+	bool						IsLeanControllerEnabled() const						{ return mEnableLeanController; }
+
 protected:
 	// See: VehicleController
 	virtual void				PreCollide(float inDeltaTime, PhysicsSystem &inPhysicsSystem) override;
@@ -57,13 +69,19 @@ protected:
 #endif // JPH_DEBUG_RENDERER
 
 	// Configuration properties
+	bool						mEnableLeanController = true;
 	float						mMaxLeanAngle;
 	float						mLeanSpringConstant;
 	float						mLeanSpringDamping;
+	float						mLeanSpringIntegrationCoefficient;
+	float						mLeanSpringIntegrationCoefficientDecay;
 	float						mLeanSmoothingFactor;
 
 	// Run-time calculated target lean vector
 	Vec3						mTargetLean = Vec3::sZero();
+
+	// Integrated error for the lean spring
+	float						mLeanSpringIntegratedDeltaAngle = 0.0f;
 
 	// Run-time total angular impulse applied to turn the cycle towards the target lean angle
 	float						mAppliedImpulse = 0.0f;

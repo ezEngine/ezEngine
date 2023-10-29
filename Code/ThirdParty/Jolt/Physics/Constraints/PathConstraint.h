@@ -99,7 +99,7 @@ public:
 
 	/// Access to the current fraction along the path e [0, GetPath()->GetMaxPathFraction()]
 	float							GetPathFraction() const									{ return mPathFraction; }
-	
+
 	/// Friction control
 	void							SetMaxFrictionForce(float inFrictionForce)				{ mMaxFrictionForce = inFrictionForce; }
 	float							GetMaxFrictionForce() const								{ return mMaxFrictionForce; }
@@ -116,7 +116,7 @@ public:
 	void							SetTargetPathFraction(float inFraction)					{ JPH_ASSERT(mPath->IsLooping() || (inFraction >= 0.0f && inFraction <= mPath->GetPathMaxFraction())); mTargetPathFraction = inFraction; }
 	float							GetTargetPathFraction() const							{ return mTargetPathFraction; }
 
-	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vector<2>				GetTotalLambdaPosition() const							{ return mPositionConstraintPart.GetTotalLambda(); }
 	inline float					GetTotalLambdaPositionLimits() const					{ return mPositionLimitsConstraintPart.GetTotalLambda(); }
 	inline float					GetTotalLambdaMotor() const								{ return mPositionMotorConstraintPart.GetTotalLambda(); }

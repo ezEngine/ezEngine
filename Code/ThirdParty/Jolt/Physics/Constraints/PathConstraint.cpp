@@ -30,7 +30,7 @@ JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(PathConstraintSettings)
 }
 
 void PathConstraintSettings::SaveBinaryState(StreamOut &inStream) const
-{ 
+{
 	ConstraintSettings::SaveBinaryState(inStream);
 
 	mPath->SaveBinaryState(inStream);
@@ -129,7 +129,7 @@ void PathConstraint::CalculateConstraintProperties(float inDeltaTime)
 	RVec3 path_point_ws = path_to_world_1 * path_point;
 	mR1 = Vec3(path_point_ws - mBody1->GetCenterOfMassPosition());
 	mR2 = Vec3(position2 - mBody2->GetCenterOfMassPosition());
-	
+
 	// Calculate U = X2 + R2 - X1 - R1
 	mU = Vec3(position2 - path_point_ws);
 
@@ -145,7 +145,7 @@ void PathConstraint::CalculateConstraintProperties(float inDeltaTime)
 
 	// Check if closest point is on the boundary of the path and if so apply limit
 	if (!mPath->IsLooping() && (mPathFraction <= 0.0f || mPathFraction >= mPath->GetPathMaxFraction()))
-		mPositionLimitsConstraintPart.CalculateConstraintProperties(inDeltaTime, *mBody1, mR1 + mU, *mBody2, mR2, mPathTangent);
+		mPositionLimitsConstraintPart.CalculateConstraintProperties(*mBody1, mR1 + mU, *mBody2, mR2, mPathTangent);
 	else
 		mPositionLimitsConstraintPart.Deactivate();
 
@@ -186,16 +186,17 @@ void PathConstraint::CalculateConstraintProperties(float inDeltaTime)
 	{
 	case EMotorState::Off:
 		if (mMaxFrictionForce > 0.0f)
-			mPositionMotorConstraintPart.CalculateConstraintProperties(inDeltaTime, *mBody1, mR1 + mU, *mBody2, mR2, mPathTangent);
+			mPositionMotorConstraintPart.CalculateConstraintProperties(*mBody1, mR1 + mU, *mBody2, mR2, mPathTangent);
 		else
 			mPositionMotorConstraintPart.Deactivate();
 		break;
 
 	case EMotorState::Velocity:
-		mPositionMotorConstraintPart.CalculateConstraintProperties(inDeltaTime, *mBody1, mR1 + mU, *mBody2, mR2, mPathTangent, -mTargetVelocity);
+		mPositionMotorConstraintPart.CalculateConstraintProperties(*mBody1, mR1 + mU, *mBody2, mR2, mPathTangent, -mTargetVelocity);
 		break;
 
 	case EMotorState::Position:
+		if (mPositionMotorSettings.mSpringSettings.HasStiffness())
 		{
 			// Calculate constraint value to drive to
 			float c;
@@ -211,10 +212,12 @@ void PathConstraint::CalculateConstraintProperties(float inDeltaTime)
 			}
 			else
 				c = mPathFraction - mTargetPathFraction;
-			mPositionMotorConstraintPart.CalculateConstraintProperties(inDeltaTime, *mBody1, mR1 + mU, *mBody2, mR2, mPathTangent, 0.0f, c, mPositionMotorSettings.mFrequency, mPositionMotorSettings.mDamping);
-			break;
+			mPositionMotorConstraintPart.CalculateConstraintPropertiesWithSettings(inDeltaTime, *mBody1, mR1 + mU, *mBody2, mR2, mPathTangent, 0.0f, c, mPositionMotorSettings.mSpringSettings);
 		}
-	}	
+		else
+			mPositionMotorConstraintPart.Deactivate();
+		break;
+	}
 }
 
 void PathConstraint::SetupVelocityConstraint(float inDeltaTime)
@@ -261,7 +264,7 @@ bool PathConstraint::SolveVelocityConstraint(float inDeltaTime)
 				float max_lambda = mMaxFrictionForce * inDeltaTime;
 				motor = mPositionMotorConstraintPart.SolveVelocityConstraint(*mBody1, *mBody2, mPathTangent, -max_lambda, max_lambda);
 				break;
-			}	
+			}
 
 		case EMotorState::Velocity:
 		case EMotorState::Position:
@@ -382,7 +385,7 @@ void PathConstraint::DrawConstraint(DebugRenderer *inRenderer) const
 			{
 				// Draw target marker
 				Vec3 position, tangent, normal, binormal;
-				mPath->GetPointOnPath(mTargetPathFraction, position, tangent, normal, binormal);			
+				mPath->GetPointOnPath(mTargetPathFraction, position, tangent, normal, binormal);
 				inRenderer->DrawMarker(path_to_world * position, Color::sYellow, 1.0f);
 				break;
 			}

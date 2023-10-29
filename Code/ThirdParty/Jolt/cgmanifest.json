@@ -4,8 +4,9 @@
       "component": {
         "type": "git",
         "git": {
+          "Name": "JoltPhysics",
           "repositoryUrl": "https://github.com/jrouwe/JoltPhysics",
-          "commitHash": "a4dabaca590deb1b9b811f8e20bdb9375f5cadaf"
+          "commitHash": "515933138c6b16d661452fb907a8a9bbb71cb848"
         }
       }
     }

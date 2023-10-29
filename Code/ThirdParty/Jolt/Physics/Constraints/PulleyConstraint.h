@@ -41,7 +41,7 @@ public:
 	/// Fixed world point to which body 2 is connected (always world space)
 	RVec3						mFixedPoint2 = RVec3::sZero();
 
-	/// Ratio between the two line segments (see formula above), can be used to create a block and tackle 
+	/// Ratio between the two line segments (see formula above), can be used to create a block and tackle
 	float						mRatio = 1.0f;
 
 	/// The minimum length of the line segments (see formula above), use -1 to calculate the length based on the positions of the objects when the constraint is created.
@@ -90,7 +90,7 @@ public:
 	/// Get the current length of both segments (multiplied by the ratio for segment 2)
 	float						GetCurrentLength() const									{ return Vec3(mWorldSpacePosition1 - mFixedPosition1).Length() + mRatio * Vec3(mWorldSpacePosition2 - mFixedPosition2).Length(); }
 
-	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	///@name Get Lagrange multiplier from last physics update (the linear impulse applied to satisfy the constraint)
 	inline float	 			GetTotalLambdaPosition() const								{ return mIndependentAxisConstraintPart.GetTotalLambda(); }
 
 private:

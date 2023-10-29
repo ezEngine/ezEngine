@@ -59,13 +59,14 @@ public:
 	void						Update(float inDeltaTime, const VehicleConstraint &inConstraint);
 
 	float						mLongitudinalSlip = 0.0f;					///< Velocity difference between ground and wheel relative to ground velocity
+	float						mLateralSlip = 0.0f;						///< Angular difference (in radians) between ground and wheel relative to ground velocity
 	float						mCombinedLongitudinalFriction = 0.0f;		///< Combined friction coefficient in longitudinal direction (combines terrain and tires)
 	float						mCombinedLateralFriction = 0.0f;			///< Combined friction coefficient in lateral direction (combines terrain and tires)
 	float						mBrakeImpulse = 0.0f;						///< Amount of impulse that the brakes can apply to the floor (excluding friction)
 };
 
 /// Settings of a vehicle with regular wheels
-/// 
+///
 /// The properties in this controller are largely based on "Car Physics for Games" by Marco Monster.
 /// See: https://www.asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
 class JPH_EXPORT WheeledVehicleControllerSettings : public VehicleControllerSettings
@@ -103,6 +104,22 @@ public:
 	/// @param inHandBrake Value between 0 and 1 indicating how strong the hand brake is pulled
 	void						SetDriverInput(float inForward, float inRight, float inBrake, float inHandBrake) { mForwardInput = inForward; mRightInput = inRight; mBrakeInput = inBrake; mHandBrakeInput = inHandBrake; }
 
+	/// Value between -1 and 1 for auto transmission and value between 0 and 1 indicating desired driving direction and amount the gas pedal is pressed
+	void						SetForwardInput(float inForward)			{ mForwardInput = inForward; }
+	float						GetForwardInput() const						{ return mForwardInput; }
+
+	/// Value between -1 and 1 indicating desired steering angle (1 = right)
+	void						SetRightInput(float inRight)				{ mRightInput = inRight; }
+	float						GetRightInput() const						{ return mRightInput; }
+
+	/// Value between 0 and 1 indicating how strong the brake pedal is pressed
+	void						SetBrakeInput(float inBrake)				{ mBrakeInput = inBrake; }
+	float						GetBrakeInput() const						{ return mBrakeInput; }
+
+	/// Value between 0 and 1 indicating how strong the hand brake is pulled
+	void						SetHandBrakeInput(float inHandBrake)		{ mHandBrakeInput = inHandBrake; }
+	float						GetHandBrakeInput() const					{ return mHandBrakeInput; }
+
 	/// Get current engine state
 	const VehicleEngine &		GetEngine() const							{ return mEngine; }
 
@@ -125,6 +142,9 @@ public:
 	float						GetDifferentialLimitedSlipRatio() const		{ return mDifferentialLimitedSlipRatio; }
 	void						SetDifferentialLimitedSlipRatio(float inV)	{ mDifferentialLimitedSlipRatio = inV; }
 
+	/// Get the average wheel speed of all driven wheels (measured at the clutch)
+	float						GetWheelSpeedAtClutch() const;
+
 #ifdef JPH_DEBUG_RENDERER
 	/// Debug drawing of RPM meter
 	void						SetRPMMeter(Vec3Arg inPosition, float inSize) { mRPMMeterPosition = inPosition; mRPMMeterSize = inSize; }
@@ -133,7 +153,7 @@ public:
 protected:
 	// See: VehicleController
 	virtual Wheel *				ConstructWheel(const WheelSettings &inWheel) const override { JPH_ASSERT(IsKindOf(&inWheel, JPH_RTTI(WheelSettingsWV))); return new WheelWV(static_cast<const WheelSettingsWV &>(inWheel)); }
-	virtual bool				AllowSleep() const override					{ return mForwardInput == 0.0f; }
+	virtual bool				AllowSleep() const override;
 	virtual void				PreCollide(float inDeltaTime, PhysicsSystem &inPhysicsSystem) override;
 	virtual void				PostCollide(float inDeltaTime, PhysicsSystem &inPhysicsSystem) override;
 	virtual bool				SolveLongitudinalAndLateralConstraints(float inDeltaTime) override;
@@ -154,6 +174,7 @@ protected:
 	VehicleTransmission			mTransmission;								///< Transmission state of the vehicle
 	Differentials				mDifferentials;								///< Differential states of the vehicle
 	float						mDifferentialLimitedSlipRatio;				///< Ratio max / min average wheel speed of each differential (measured at the clutch).
+	float						mPreviousDeltaTime = 0.0f;					///< Delta time of the last step
 
 #ifdef JPH_DEBUG_RENDERER
 	// Debug settings

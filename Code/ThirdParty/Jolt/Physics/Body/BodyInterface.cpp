@@ -5,6 +5,7 @@
 #include <Jolt/Jolt.h>
 
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/Body/BodyManager.h>
 #include <Jolt/Physics/Body/BodyInterface.h>
@@ -27,6 +28,17 @@ Body *BodyInterface::CreateBody(const BodyCreationSettings &inSettings)
 	return body;
 }
 
+Body *BodyInterface::CreateSoftBody(const SoftBodyCreationSettings &inSettings)
+{
+	Body *body = mBodyManager->AllocateSoftBody(inSettings);
+	if (!mBodyManager->AddBody(body))
+	{
+		mBodyManager->FreeBody(body);
+		return nullptr;
+	}
+	return body;
+}
+
 Body *BodyInterface::CreateBodyWithID(const BodyID &inBodyID, const BodyCreationSettings &inSettings)
 {
 	Body *body = mBodyManager->AllocateBody(inSettings);
@@ -38,9 +50,25 @@ Body *BodyInterface::CreateBodyWithID(const BodyID &inBodyID, const BodyCreation
 	return body;
 }
 
+Body *BodyInterface::CreateSoftBodyWithID(const BodyID &inBodyID, const SoftBodyCreationSettings &inSettings)
+{
+	Body *body = mBodyManager->AllocateSoftBody(inSettings);
+	if (!mBodyManager->AddBodyWithCustomID(body, inBodyID))
+	{
+		mBodyManager->FreeBody(body);
+		return nullptr;
+	}
+	return body;
+}
+
 Body *BodyInterface::CreateBodyWithoutID(const BodyCreationSettings &inSettings) const
 {
 	return mBodyManager->AllocateBody(inSettings);
+}
+
+Body *BodyInterface::CreateSoftBodyWithoutID(const SoftBodyCreationSettings &inSettings) const
+{
+	return mBodyManager->AllocateSoftBody(inSettings);
 }
 
 void BodyInterface::DestroyBodyWithoutID(Body *inBody) const
@@ -108,7 +136,7 @@ void BodyInterface::RemoveBody(const BodyID &inBodyID)
 		// Deactivate body
 		if (body.IsActive())
 			mBodyManager->DeactivateBodies(&inBodyID, 1);
-	
+
 		// Remove from broadphase
 		BodyID id = inBodyID;
 		mBroadPhase->RemoveBodies(&id, 1);
@@ -124,6 +152,15 @@ bool BodyInterface::IsAdded(const BodyID &inBodyID) const
 BodyID BodyInterface::CreateAndAddBody(const BodyCreationSettings &inSettings, EActivation inActivationMode)
 {
 	const Body *b = CreateBody(inSettings);
+	if (b == nullptr)
+		return BodyID(); // Out of bodies
+	AddBody(b->GetID(), inActivationMode);
+	return b->GetID();
+}
+
+BodyID BodyInterface::CreateAndAddSoftBody(const SoftBodyCreationSettings &inSettings, EActivation inActivationMode)
+{
+	const Body *b = CreateSoftBody(inSettings);
 	if (b == nullptr)
 		return BodyID(); // Out of bodies
 	AddBody(b->GetID(), inActivationMode);
@@ -180,6 +217,13 @@ void BodyInterface::ActivateBodies(const BodyID *inBodyIDs, int inNumber)
 	BodyLockMultiWrite lock(*mBodyLockInterface, inBodyIDs, inNumber);
 
 	mBodyManager->ActivateBodies(inBodyIDs, inNumber);
+}
+
+void BodyInterface::ActivateBodiesInAABox(const AABox &inBox, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter)
+{
+	AllHitCollisionCollector<CollideShapeBodyCollector> collector;
+	mBroadPhase->CollideAABox(inBox, collector, inBroadPhaseLayerFilter, inObjectLayerFilter);
+	ActivateBodies(collector.mHits.data(), (int)collector.mHits.size());
 }
 
 void BodyInterface::DeactivateBody(const BodyID &inBodyID)
@@ -789,13 +833,22 @@ void BodyInterface::SetMotionType(const BodyID &inBodyID, EMotionType inMotionTy
 		// Deactivate if we're making the body static
 		if (body.IsActive() && inMotionType == EMotionType::Static)
 			mBodyManager->DeactivateBodies(&inBodyID, 1);
-			
+
 		body.SetMotionType(inMotionType);
 
 		// Activate body if requested
 		if (inMotionType != EMotionType::Static && inActivationMode == EActivation::Activate && !body.IsActive())
 			mBodyManager->ActivateBodies(&inBodyID, 1);
 	}
+}
+
+EBodyType BodyInterface::GetBodyType(const BodyID &inBodyID) const
+{
+	BodyLockRead lock(*mBodyLockInterface, inBodyID);
+	if (lock.Succeeded())
+		return lock.GetBody().GetBodyType();
+	else
+		return EBodyType::RigidBody;
 }
 
 EMotionType BodyInterface::GetMotionType(const BodyID &inBodyID) const
@@ -896,6 +949,13 @@ uint64 BodyInterface::GetUserData(const BodyID &inBodyID) const
 		return lock.GetBody().GetUserData();
 	else
 		return 0;
+}
+
+void BodyInterface::SetUserData(const BodyID &inBodyID, uint64 inUserData) const
+{
+	BodyLockWrite lock(*mBodyLockInterface, inBodyID);
+	if (lock.Succeeded())
+		lock.GetBody().SetUserData(inUserData);
 }
 
 const PhysicsMaterial *BodyInterface::GetMaterial(const BodyID &inBodyID, const SubShapeID &inSubShapeID) const

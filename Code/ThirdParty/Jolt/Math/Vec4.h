@@ -27,6 +27,7 @@ public:
 	/// Constructor
 								Vec4() = default; ///< Intentionally not initialized for performance reasons
 								Vec4(const Vec4 &inRHS) = default;
+	Vec4 &						operator = (const Vec4 &inRHS) = default;
 	explicit JPH_INLINE			Vec4(Vec3Arg inRHS);							///< WARNING: W component undefined!
 	JPH_INLINE					Vec4(Vec3Arg inRHS, float inW);
 	JPH_INLINE					Vec4(Type inRHS) : mValue(inRHS)				{ }
@@ -88,7 +89,7 @@ public:
 
 	/// Logical and (component wise)
 	static JPH_INLINE Vec4		sAnd(Vec4Arg inV1, Vec4Arg inV2);
-	
+
 	/// Sort the four elements of ioValue and sort ioIndex at the same time.
 	/// Based on a sorting network: http://en.wikipedia.org/wiki/Sorting_network
 	static JPH_INLINE void		sSort4(Vec4 &ioValue, UVec4 &ioIndex);
@@ -120,6 +121,9 @@ public:
 	JPH_INLINE void				SetY(float inY)									{ mF32[1] = inY; }
 	JPH_INLINE void				SetZ(float inZ)									{ mF32[2] = inZ; }
 	JPH_INLINE void				SetW(float inW)									{ mF32[3] = inW; }
+
+	/// Set all components
+	JPH_INLINE void				Set(float inX, float inY, float inZ, float inW)	{ *this = Vec4(inX, inY, inZ, inW); }
 
 	/// Get float component by index
 	JPH_INLINE float			operator [] (uint inCoordinate) const			{ JPH_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
@@ -198,10 +202,10 @@ public:
 
 	/// Reciprocal vector (1 / value) for each of the components
 	JPH_INLINE Vec4				Reciprocal() const;
-	
+
 	/// Dot product, returns the dot product in X, Y and Z components
 	JPH_INLINE Vec4				DotV(Vec4Arg inV2) const;
-	
+
 	/// Dot product
 	JPH_INLINE float			Dot(Vec4Arg inV2) const;
 

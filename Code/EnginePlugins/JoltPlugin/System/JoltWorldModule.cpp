@@ -710,14 +710,14 @@ void ezJoltWorldModule::Simulate()
       // do a single Update call with multiple sub-steps, if possible
       // this saves a bit of time compared to just doing multiple Update calls
 
-      m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
+      m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
 
       tDelta = m_UpdateSteps[i];
       uiSteps = 1;
     }
   }
 
-  m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, 1, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
+  m_pSystem->Update((uiSteps * tDelta).AsFloatInSeconds(), uiSteps, m_pTempAllocator.get(), ezJoltCore::GetJoltJobSystem());
 }
 
 void ezJoltWorldModule::UpdateSettingsCfg()

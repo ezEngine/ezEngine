@@ -426,8 +426,9 @@ void ezJoltGrabObjectComponent::CreateJoint(ezJoltDynamicActorComponent* pParent
 
     for (int i = 0; i < 6; ++i)
     {
-      opt.mMotorSettings[JPH::SixDOFConstraintSettings::EAxis::TranslationX + i].mDamping = m_fSpringDamping;
-      opt.mMotorSettings[JPH::SixDOFConstraintSettings::EAxis::TranslationX + i].mFrequency = m_fSpringStiffness;
+      opt.mMotorSettings[JPH::SixDOFConstraintSettings::EAxis::TranslationX + i].mSpringSettings.mMode = JPH::ESpringMode::FrequencyAndDamping;
+      opt.mMotorSettings[JPH::SixDOFConstraintSettings::EAxis::TranslationX + i].mSpringSettings.mDamping = m_fSpringDamping;
+      opt.mMotorSettings[JPH::SixDOFConstraintSettings::EAxis::TranslationX + i].mSpringSettings.mFrequency = m_fSpringStiffness;
     }
   }
 
@@ -559,4 +560,3 @@ void ezJoltGrabObjectComponent::Update()
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Constraints_Implementation_JoltGrabObjectComponent);
-

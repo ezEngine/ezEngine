@@ -90,6 +90,22 @@ public:
 	/// @param inBrake Value between 0 and 1 indicating how strong the brake pedal is pressed
 	void						SetDriverInput(float inForward, float inLeftRatio, float inRightRatio, float inBrake) { JPH_ASSERT(inLeftRatio != 0.0f && inRightRatio != 0.0f); mForwardInput = inForward; mLeftRatio = inLeftRatio; mRightRatio = inRightRatio; mBrakeInput = inBrake; }
 
+	/// Value between -1 and 1 for auto transmission and value between 0 and 1 indicating desired driving direction and amount the gas pedal is pressed
+	void						SetForwardInput(float inForward)			{ mForwardInput = inForward; }
+	float						GetForwardInput() const						{ return mForwardInput; }
+
+	/// Value between -1 and 1 indicating an extra multiplier to the rotation rate of the left track (used for steering)
+	void						SetLeftRatio(float inLeftRatio)				{ JPH_ASSERT(inLeftRatio != 0.0f); mLeftRatio = inLeftRatio; }
+	float						GetLeftRatio() const						{ return mLeftRatio; }
+
+	/// Value between -1 and 1 indicating an extra multiplier to the rotation rate of the right track (used for steering)
+	void						SetRightRatio(float inRightRatio)			{ JPH_ASSERT(inRightRatio != 0.0f); mRightRatio = inRightRatio; }
+	float						GetRightRatio() const						{ return mRightRatio; }
+
+	/// Value between 0 and 1 indicating how strong the brake pedal is pressed
+	void						SetBrakeInput(float inBrake)				{ mBrakeInput = inBrake; }
+	float						GetBrakeInput() const						{ return mBrakeInput; }
+
 	/// Get current engine state
 	const VehicleEngine &		GetEngine() const							{ return mEngine; }
 
@@ -119,7 +135,7 @@ protected:
 
 	// See: VehicleController
 	virtual Wheel *				ConstructWheel(const WheelSettings &inWheel) const override { JPH_ASSERT(IsKindOf(&inWheel, JPH_RTTI(WheelSettingsTV))); return new WheelTV(static_cast<const WheelSettingsTV &>(inWheel)); }
-	virtual bool				AllowSleep() const override					{ return mForwardInput == 0.0f; }
+	virtual bool				AllowSleep() const override;
 	virtual void				PreCollide(float inDeltaTime, PhysicsSystem &inPhysicsSystem) override;
 	virtual void				PostCollide(float inDeltaTime, PhysicsSystem &inPhysicsSystem) override;
 	virtual bool				SolveLongitudinalAndLateralConstraints(float inDeltaTime) override;

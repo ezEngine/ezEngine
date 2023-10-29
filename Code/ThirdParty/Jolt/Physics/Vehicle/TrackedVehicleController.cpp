@@ -71,8 +71,9 @@ void WheelTV::Update(float inDeltaTime, const VehicleConstraint &inConstraint)
 	{
 		// Friction at the point of this wheel between track and floor
 		const WheelSettingsTV *settings = GetSettings();
-		mCombinedLongitudinalFriction = sqrt(settings->mLongitudinalFriction * mContactBody->GetFriction());
-		mCombinedLateralFriction = sqrt(settings->mLateralFriction * mContactBody->GetFriction());
+		VehicleConstraint::CombineFunction combine_friction = inConstraint.GetCombineFriction();
+		mCombinedLongitudinalFriction = combine_friction(settings->mLongitudinalFriction, *mContactBody, mContactSubShapeID);
+		mCombinedLateralFriction = combine_friction(settings->mLateralFriction, *mContactBody, mContactSubShapeID);
 	}
 	else
 	{
@@ -100,7 +101,7 @@ TrackedVehicleControllerSettings::TrackedVehicleControllerSettings()
 }
 
 void TrackedVehicleControllerSettings::SaveBinaryState(StreamOut &inStream) const
-{ 
+{
 	mEngine.SaveBinaryState(inStream);
 
 	mTransmission.SaveBinaryState(inStream);
@@ -150,6 +151,13 @@ TrackedVehicleController::TrackedVehicleController(const TrackedVehicleControlle
 		JPH_ASSERT(d.mMaxBrakeTorque >= 0.0f);
 		JPH_ASSERT(d.mDifferentialRatio > 0.0f);
 	}
+}
+
+bool TrackedVehicleController::AllowSleep() const
+{
+	return mForwardInput == 0.0f								// No user input
+		&& mTransmission.AllowSleep()							// Transmission is not shifting
+		&& mEngine.AllowSleep();								// Engine is idling
 }
 
 void TrackedVehicleController::PreCollide(float inDeltaTime, PhysicsSystem &inPhysicsSystem)
@@ -203,7 +211,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 		WheelTV *w = static_cast<WheelTV *>(w_base);
 		w->Update(inDeltaTime, mConstraint);
 	}
-	
+
 	// First calculate engine speed based on speed of all wheels
 	bool can_engine_apply_torque = false;
 	if (mTransmission.GetCurrentGear() != 0 && mTransmission.GetClutchFriction() > 1.0e-3f)
@@ -332,7 +340,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 	}
 }
 
-bool TrackedVehicleController::SolveLongitudinalAndLateralConstraints(float inDeltaTime) 
+bool TrackedVehicleController::SolveLongitudinalAndLateralConstraints(float inDeltaTime)
 {
 	bool impulse = false;
 
@@ -409,7 +417,7 @@ bool TrackedVehicleController::SolveLongitudinalAndLateralConstraints(float inDe
 
 #ifdef JPH_DEBUG_RENDERER
 
-void TrackedVehicleController::Draw(DebugRenderer *inRenderer) const 
+void TrackedVehicleController::Draw(DebugRenderer *inRenderer) const
 {
 	float constraint_size = mConstraint.GetDrawConstraintSize();
 
@@ -422,8 +430,8 @@ void TrackedVehicleController::Draw(DebugRenderer *inRenderer) const
 
 	// Draw current vehicle state
 	String status = StringFormat("Forward: %.1f, LRatio: %.1f, RRatio: %.1f, Brake: %.1f\n"
-								 "Gear: %d, Clutch: %.1f, EngineRPM: %.0f, V: %.1f km/h", 
-								 (double)mForwardInput, (double)mLeftRatio, (double)mRightRatio, (double)mBrakeInput, 
+								 "Gear: %d, Clutch: %.1f, EngineRPM: %.0f, V: %.1f km/h",
+								 (double)mForwardInput, (double)mLeftRatio, (double)mRightRatio, (double)mBrakeInput,
 								 mTransmission.GetCurrentGear(), (double)mTransmission.GetClutchFriction(), (double)mEngine.GetCurrentRPM(), (double)body->GetLinearVelocity().Length() * 3.6);
 	inRenderer->DrawText3D(body->GetPosition(), status, Color::sWhite, constraint_size);
 

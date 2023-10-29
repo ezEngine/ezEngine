@@ -97,13 +97,13 @@ public:
 	void						SetHalfConeAngle(float inHalfConeAngle)		{ JPH_ASSERT(inHalfConeAngle >= 0.0f && inHalfConeAngle <= JPH_PI); mCosHalfConeAngle = Cos(inHalfConeAngle); }
 	float						GetCosHalfConeAngle() const					{ return mCosHalfConeAngle; }
 
-	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vec3 				GetTotalLambdaPosition() const				{ return mPointConstraintPart.GetTotalLambda(); }
 	inline float				GetTotalLambdaRotation() const				{ return mAngleConstraintPart.GetTotalLambda(); }
 
 private:
 	// Internal helper function to calculate the values below
-	void						CalculateRotationConstraintProperties(float inDeltaTime, Mat44Arg inRotation1, Mat44Arg inRotation2);
+	void						CalculateRotationConstraintProperties(Mat44Arg inRotation1, Mat44Arg inRotation2);
 
 	// CONFIGURATION PROPERTIES FOLLOW
 

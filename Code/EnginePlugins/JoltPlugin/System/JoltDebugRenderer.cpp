@@ -37,7 +37,7 @@ void ezJoltDebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH
 }
 
 
-void ezJoltDebugRenderer::DrawTriangle(JPH::Vec3Arg inV1, JPH::Vec3Arg inV2, JPH::Vec3Arg inV3, JPH::ColorArg inColor)
+void ezJoltDebugRenderer::DrawTriangle(JPH::Vec3Arg inV1, JPH::Vec3Arg inV2, JPH::Vec3Arg inV3, JPH::ColorArg inColor, ECastShadow inCastShadow)
 {
   auto& t = m_Triangles.ExpandAndGetRef();
   t.m_position[0] = ezJoltConversionUtils::ToVec3(inV1);
@@ -157,4 +157,3 @@ void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AAB
 
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltDebugRenderer);
-

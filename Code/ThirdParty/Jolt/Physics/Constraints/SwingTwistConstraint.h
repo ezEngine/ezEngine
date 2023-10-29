@@ -40,7 +40,7 @@ public:
 	RVec3						mPosition2 = RVec3::sZero();
 	Vec3						mTwistAxis2 = Vec3::sAxisX();
 	Vec3						mPlaneAxis2 = Vec3::sAxisY();
-	
+
 	///@name Swing rotation limits
 	float						mNormalHalfConeAngle = 0.0f;								///< See image. Angle in radians.
 	float						mPlaneHalfConeAngle = 0.0f;									///< See image. Angle in radians.
@@ -139,9 +139,9 @@ public:
 
 	/// Get current rotation of constraint in constraint space.
 	/// Solve: R2 * ConstraintToBody2 = R1 * ConstraintToBody1 * q for q.
-	inline Quat					GetRotationInConstraintSpace() const;
+	Quat						GetRotationInConstraintSpace() const;
 
-	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vec3		 			GetTotalLambdaPosition() const								{ return mPointConstraintPart.GetTotalLambda(); }
 	inline float				GetTotalLambdaTwist() const									{ return mSwingTwistConstraintPart.GetTotalTwistLambda(); }
 	inline float				GetTotalLambdaSwingY() const								{ return mSwingTwistConstraintPart.GetTotalSwingYLambda(); }
@@ -157,7 +157,7 @@ private:
 	// Local space constraint positions
 	Vec3						mLocalSpacePosition1;
 	Vec3						mLocalSpacePosition2;
-	
+
 	// Transforms from constraint space to body space
 	Quat						mConstraintToBody1;
 	Quat						mConstraintToBody2;

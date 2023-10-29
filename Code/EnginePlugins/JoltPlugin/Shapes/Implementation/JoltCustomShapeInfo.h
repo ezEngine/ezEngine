@@ -46,7 +46,7 @@ public:
   // Register shape functions with the registry
   static void sRegister();
 
-
+  void CollideSoftBodyVertices(JPH::Mat44Arg inCenterOfMassTransform, JPH::Vec3Arg inScale, JPH::SoftBodyVertex* inout_pVertices, JPH::uint inNumVertices, float inDeltaTime, JPH::Vec3Arg inDisplacementDueToGravity, int inCollidingShapeIndex) const override;
 
 private:
   // Helper functions called by CollisionDispatch

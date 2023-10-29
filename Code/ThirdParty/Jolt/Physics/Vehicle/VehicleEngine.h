@@ -72,9 +72,15 @@ public:
 	void					ApplyDamping(float inDeltaTime);
 
 #ifdef JPH_DEBUG_RENDERER
+	// Function that converts RPM to an angle in radians for debugging purposes
+	float					ConvertRPMToAngle(float inRPM) const		{ return (-0.75f + 1.5f * inRPM / mMaxRPM) * JPH_PI; }
+
 	/// Debug draw a RPM meter
 	void					DrawRPM(DebugRenderer *inRenderer, RVec3Arg inPosition, Vec3Arg inForward, Vec3Arg inUp, float inSize, float inShiftDownRPM, float inShiftUpRPM) const;
 #endif // JPH_DEBUG_RENDERER
+
+	/// If the engine is idle we allow the vehicle to sleep
+	bool					AllowSleep() const							{ return mCurrentRPM <= 1.01f * mMinRPM; }
 
 	/// Saving state for replay
 	void					SaveState(StateRecorder &inStream) const;

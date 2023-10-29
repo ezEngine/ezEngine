@@ -8,7 +8,7 @@
 
 JPH_NAMESPACE_BEGIN
 
-/// Allocator for temporary allocations. 
+/// Allocator for temporary allocations.
 /// This allocator works as a stack: The blocks must always be freed in the reverse order as they are allocated.
 /// Note that allocations and frees can take place from different threads, but the order is guaranteed though
 /// job dependencies, so it is not needed to use any form of locking.
@@ -106,7 +106,7 @@ public:
 	}
 
 	// See: TempAllocator
-	virtual void					Free(void *inAddress, uint inSize) override
+	virtual void					Free(void *inAddress, [[maybe_unused]] uint inSize) override
 	{
 		AlignedFree(inAddress);
 	}
