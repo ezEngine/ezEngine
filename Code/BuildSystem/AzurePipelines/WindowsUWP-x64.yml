@@ -12,7 +12,7 @@ jobs:
 - job: Job_2
   displayName: StartVM
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-2022'
   steps:
   - checkout: none
   - task: AzureKeyVault@1
@@ -64,20 +64,20 @@ jobs:
     inputs:
       targetType: inline
       script: |
-        if ((Test-Path $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2019Debug64))
+        if ((Test-Path $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Debug64))
         {
-          Get-ChildItem $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2019Debug64\*.dmp | foreach { Remove-Item -Force -Path $_.FullName }
+          Get-ChildItem $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Debug64\*.dmp | foreach { Remove-Item -Force -Path $_.FullName }
         }
   - task: PowerShell@2
     displayName: Run CMake
     inputs:
       targetType: filePath
       filePath: "$(System.DefaultWorkingDirectory)/RunCMake.ps1"
-      arguments: "-Target Uwp64vs2019 -NoUnityBuild -NoSubmoduleUpdate -SolutionName solution"
+      arguments: "-Target Uwp64vs2022 -NoUnityBuild -NoSubmoduleUpdate -SolutionName solution"
   - task: MSBuild@1
     displayName: Build Solution
     inputs:
-      solution: $(System.DefaultWorkingDirectory)\Workspace\vs2019x64uwp\solution.sln
+      solution: $(System.DefaultWorkingDirectory)\Workspace\vs2022x64uwp\solution.sln
       msbuildArchitecture: x64
       platform: x64
       configuration: Dev
@@ -101,13 +101,13 @@ jobs:
       script: |
         REM rmdir /S /Q $(System.DefaultWorkingDirectory)\build
         REM rmdir /S /Q $(System.DefaultWorkingDirectory)\buildUWP
-        xcopy Output\Bin\WinVs2019Debug64\*.dll $(Build.ArtifactStagingDirectory)\Bin\WinVs2019Debug64\ /C/D/Y
-        xcopy Output\Bin\WinVs2019Debug64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\WinVs2019Debug64\ /C/D/Y
-        xcopy Output\Bin\WinVs2019Debug64\*.exe $(Build.ArtifactStagingDirectory)\Bin\WinVs2019Debug64\ /C/D/Y
-        xcopy Output\Bin\WinVs2019Debug64\*.dmp $(Build.ArtifactStagingDirectory)\Bin\WinVs2019Debug64\ /C/D/Y
-        xcopy Output\Bin\WinUWPVs2019Dev64\*.dll $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
-        xcopy Output\Bin\WinUWPVs2019Dev64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
-        xcopy Output\Bin\WinUWPVs2019Dev64\*.exe $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
+        xcopy Output\Bin\WinVs2022Debug64\*.dll $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Debug64\ /C/D/Y
+        xcopy Output\Bin\WinVs2022Debug64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Debug64\ /C/D/Y
+        xcopy Output\Bin\WinVs2022Debug64\*.exe $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Debug64\ /C/D/Y
+        xcopy Output\Bin\WinVs2022Debug64\*.dmp $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Debug64\ /C/D/Y
+        xcopy Output\Bin\WinUWPVs2022Dev64\*.dll $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
+        xcopy Output\Bin\WinUWPVs2022Dev64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
+        xcopy Output\Bin\WinUWPVs2022Dev64\*.exe $(Build.ArtifactStagingDirectory)\Bin\ /C/D/Y
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     condition: succeededOrFailed()
