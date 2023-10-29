@@ -72,10 +72,10 @@ void ezQtEditorApp::SetStyleSheet()
   palette.setColor(QPalette::AlternateBase, QColor(49, 49, 49));          // second base color, mainly used for alternate row colors
   palette.setColor(QPalette::PlaceholderText, QColor(142, 142, 142));     // text in search fields
 
-  palette.setColor(QPalette::Midlight, QColor(58, 58, 58));       // unused ?
-  palette.setColor(QPalette::BrightText, QColor(221, 221, 221));  // unused ?
-  palette.setColor(QPalette::ToolTipBase, QColor(52, 52, 52));    // unused / not working ?
-  palette.setColor(QPalette::ToolTipText, QColor(221, 221, 221)); // unused / not working ?
+  palette.setColor(QPalette::Midlight, QColor(58, 58, 58));               // unused ?
+  palette.setColor(QPalette::BrightText, QColor(221, 221, 221));          // unused ?
+  palette.setColor(QPalette::ToolTipBase, QColor(52, 52, 52));            // unused / not working ?
+  palette.setColor(QPalette::ToolTipText, QColor(221, 221, 221));         // unused / not working ?
 
   palette.setColor(QPalette::Disabled, QPalette::Window, QColor(25, 25, 25));
   palette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(128, 128, 128));
@@ -156,7 +156,7 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
       break;
     }
     case QtCriticalMsg:
-      // BUG in Qt 6 on winodows. Window classes are not properly unregistered so they leak into the next session and cause a warning.
+      // BUG in Qt 6 on Windows. Window classes are not properly unregistered so they leak into the next session and cause a warning.
       if (!sMsg.StartsWith("QApplication::regClass: Registering window class"))
       {
         ezLog::Error("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);

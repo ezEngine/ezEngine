@@ -380,7 +380,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   if (m_bWroteCrashIndicatorFile)
   {
-    QTimer::singleShot(2000, [this]() {
+    QTimer::singleShot(1000, [this]() {
       ezStringBuilder sTemp = ezOSFile::GetTempDataFolder("ezEditor");
       sTemp.AppendPath("ezEditorCrashIndicator");
       ezOSFile::DeleteFile(sTemp).IgnoreResult();

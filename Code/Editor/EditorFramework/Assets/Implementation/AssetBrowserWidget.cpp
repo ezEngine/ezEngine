@@ -92,7 +92,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
     // 'All' Filter
     {
-      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/All.svg")), QLatin1String("<All>"));
+      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/Icons/AllAssets.svg")), QLatin1String("<All>"));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Checked);
       pItem->setData(Qt::UserRole, QLatin1String("<All>"));
@@ -117,7 +117,7 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
     TypeFilter->clear();
 
     // 'All' Filter
-    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/All.svg")), QLatin1String("<All>"));
+    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/Icons/AllAssets.svg")), QLatin1String("<All>"));
 
     for (const auto& it : assetTypes)
     {
