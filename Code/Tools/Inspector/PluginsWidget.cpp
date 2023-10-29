@@ -63,7 +63,8 @@ void ezQtPluginsWidget::UpdatePlugins()
     for (ezMap<ezString, PluginsData>::Iterator it = m_Plugins.GetIterator(); it.IsValid(); ++it)
     {
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/Plugin.svg"));
+      QIcon icon = ezQtUiServices::GetCachedIconResource(":/Icons/Icons/Plugin.svg");
+      pIcon->setPixmap(icon.pixmap(QSize(24, 24)));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TablePlugins->setCellWidget(iRow, 0, pIcon);
 
