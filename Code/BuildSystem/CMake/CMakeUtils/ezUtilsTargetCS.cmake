@@ -56,7 +56,7 @@ macro(ez_create_target_cs TYPE TARGET_NAME)
 		# message(STATUS "Custom .NET version: ${ARG_DOTNET_VERSION}")
 		set_property(TARGET ${TARGET_NAME} PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v${ARG_DOTNET_VERSION}")
 	else()
-		set_property(TARGET ${TARGET_NAME} PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.6.1")
+		set_property(TARGET ${TARGET_NAME} PROPERTY VS_DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
 	endif()
 
 	ez_set_default_target_output_dirs(${TARGET_NAME})
