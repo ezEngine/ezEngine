@@ -28,9 +28,6 @@
     <file>StateMachine.svg</file>
     <file>BlackboardTemplate.svg</file>
   </qresource>
-  <qresource prefix="AssetIcons">
-    <file>All.svg</file>
-  </qresource>
   <qresource prefix="EditorPluginAssets">
     <file>Cleanup.svg</file>
     <file>PickTarget.svg</file>

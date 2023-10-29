@@ -15,7 +15,7 @@ jobs:
         id: format_files
         shell: pwsh
         run: |
-          echo "::set-output name=push::false"
+          echo "push=false" >> $GITHUB_OUTPUT
 
           git fetch origin "${env:GITHUB_BASE_REF}:refs/remotes/origin/${env:GITHUB_BASE_REF}"
           git fetch origin "${env:GITHUB_HEAD_REF}:refs/remotes/origin/${env:GITHUB_HEAD_REF}"
@@ -58,7 +58,7 @@ jobs:
             
             git commit -m "Applied code formatting rules"
 
-            echo "::set-output name=push::true"
+            echo "push=true" >> $GITHUB_OUTPUT
           }
           else
           {
