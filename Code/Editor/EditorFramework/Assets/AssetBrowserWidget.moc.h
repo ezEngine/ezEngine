@@ -68,10 +68,12 @@ private Q_SLOTS:
   void OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void OnAssetSelectionCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
   void OnModelReset();
-  void OnNewAsset();
+  void NewAsset();
   void OnFileEditingFinished(const QString& sAbsPath, const QString& sNewName, bool bIsAsset);
-  void OnImport();
+  void ImportSelection();
   void OnOpenImportReferenceAsset();
+  void DeleteSelection();
+
 
 private:
   virtual void keyPressEvent(QKeyEvent* e) override;

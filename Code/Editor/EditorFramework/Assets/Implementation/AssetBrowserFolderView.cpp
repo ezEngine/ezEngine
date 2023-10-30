@@ -44,7 +44,6 @@ ezFolderNameDelegate::ezFolderNameDelegate(QObject* pParent /*= nullptr*/)
 
 QWidget* ezFolderNameDelegate::createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  // auto bla = qobject_cast<QTreeWidget*>(parent);
   ezStringBuilder sAbsPath = index.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().constData();
 
   QLineEdit* editor = new QLineEdit(pParent);
@@ -117,7 +116,7 @@ void eqQtAssetBrowserFolderView::SetDialogMode(bool bDialogMode)
   }
 }
 
-void eqQtAssetBrowserFolderView::OnNewFolder()
+void eqQtAssetBrowserFolderView::NewFolder()
 {
   QAction* pSender = qobject_cast<QAction*>(sender());
 
@@ -366,21 +365,27 @@ void eqQtAssetBrowserFolderView::keyPressEvent(QKeyEvent* e)
   if (e->key() == Qt::Key_Delete && !m_bDialogMode)
   {
     e->accept();
-    if (QTreeWidgetItem* pCurrentItem = currentItem())
-    {
-      QModelIndex id = indexFromItem(pCurrentItem);
-      QString sQtAbsPath = id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
-      ezString sAbsPath = qtToEzString(sQtAbsPath);
-      QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to delete the folder\n'{}'?", sAbsPath), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
-      if (choice == QMessageBox::StandardButton::Cancel)
-        return;
+    DeleteFolder();
+    return;
+  }
+}
 
-      if (ezOSFile::DeleteFolder(sAbsPath).Failed())
-      {
-        ezLog::Error("Failed to delete folder '{}'", sAbsPath);
-      }
-      ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
+void eqQtAssetBrowserFolderView::DeleteFolder()
+{
+  if (QTreeWidgetItem* pCurrentItem = currentItem())
+  {
+    QModelIndex id = indexFromItem(pCurrentItem);
+    QString sQtAbsPath = id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+    ezString sAbsPath = qtToEzString(sQtAbsPath);
+    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to delete the folder\n'{}'?", sAbsPath), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
+    if (choice == QMessageBox::StandardButton::Cancel)
+      return;
+
+    if (!QFile::moveToTrash(sQtAbsPath))
+    {
+      ezLog::Error("Failed to delete folder '{}'", sAbsPath);
     }
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
   }
 }
 
@@ -449,7 +454,7 @@ void eqQtAssetBrowserFolderView::OnPathFilterChanged()
 }
 
 
-void eqQtAssetBrowserFolderView::OnTreeOpenExplorer()
+void eqQtAssetBrowserFolderView::TreeOpenExplorer()
 {
   if (!currentItem())
     return;

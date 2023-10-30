@@ -73,7 +73,7 @@ EZ_ALWAYS_INLINE QString ezMakeQString(ezStringView sString)
 }
 
 template <typename T>
-void operator>>(QDataStream& inout_stream, T* rhs)
+void operator>>(QDataStream& inout_stream, T*& rhs)
 {
   void* p = nullptr;
   uint len = sizeof(void*);

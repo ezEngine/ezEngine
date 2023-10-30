@@ -12,6 +12,8 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
+#include<QFile>
+
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   : QWidget(pParent)
 {
@@ -222,7 +224,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
 
   QAction* pAction = pSubMenu->addAction(ezTranslate("Folder"));
   pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Folder.svg"));
-  connect(pAction, &QAction::triggered, static_cast<eqQtAssetBrowserFolderView*>(TreeFolderFilter), &eqQtAssetBrowserFolderView::OnNewFolder);
+  connect(pAction, &QAction::triggered, static_cast<eqQtAssetBrowserFolderView*>(TreeFolderFilter), &eqQtAssetBrowserFolderView::NewFolder);
 
   pSubMenu->addSeparator();
 
@@ -238,7 +240,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
     pAction->setProperty("Extension", desc->m_sFileExtension.GetData());
     pAction->setProperty("UseSelection", useSelectedAsset);
 
-    connect(pAction, &QAction::triggered, this, &ezQtAssetBrowserWidget::OnNewAsset);
+    connect(pAction, &QAction::triggered, this, &ezQtAssetBrowserWidget::NewAsset);
   }
 }
 
@@ -515,43 +517,50 @@ void ezQtAssetBrowserWidget::keyPressEvent(QKeyEvent* e)
   if (e->key() == Qt::Key_Delete && !m_bDialogMode)
   {
     e->accept();
-    QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
-    for (const QModelIndex& id : selection)
-    {
-      const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)id.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
-      if (itemType.IsAnySet(ezAssetBrowserItemFlags::SubAsset | ezAssetBrowserItemFlags::DataDirectory))
-      {
-        ezQtUiServices::MessageBoxWarning(ezFmt("Sub-assets and data directories can't be deleted."));
-        return;
-      }
-    }
+    DeleteSelection();
+    return;
+  }
+}
 
-    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to permanently delete the selected items?"), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
-    if (choice == QMessageBox::StandardButton::Cancel)
+
+void ezQtAssetBrowserWidget::DeleteSelection()
+{
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+  for (const QModelIndex& id : selection)
+  {
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)id.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    if (itemType.IsAnySet(ezAssetBrowserItemFlags::SubAsset | ezAssetBrowserItemFlags::DataDirectory))
+    {
+      ezQtUiServices::MessageBoxWarning(ezFmt("Sub-assets and data directories can't be deleted."));
       return;
-
-    for (const QModelIndex& id : selection)
-    {
-      const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)id.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
-      QString sQtAbsPath = id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
-      ezString sAbsPath = qtToEzString(sQtAbsPath);
-
-      if (itemType.IsSet(ezAssetBrowserItemFlags::File))
-      {
-        if (ezOSFile::DeleteFile(sAbsPath).Failed())
-        {
-          ezLog::Error("Failed to delete file '{}'", sAbsPath);
-        }
-      }
-      else
-      {
-        if (ezOSFile::DeleteFolder(sAbsPath).Failed())
-        {
-          ezLog::Error("Failed to delete folder '{}'", sAbsPath);
-        }
-      }
-      ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
     }
+  }
+
+  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to delete the selected items?"), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
+  if (choice == QMessageBox::StandardButton::Cancel)
+    return;
+
+  for (const QModelIndex& id : selection)
+  {
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)id.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    QString sQtAbsPath = id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+    ezString sAbsPath = qtToEzString(sQtAbsPath);
+
+    if (itemType.IsSet(ezAssetBrowserItemFlags::File))
+    {
+      if (!QFile::moveToTrash(sQtAbsPath))
+      {
+        ezLog::Error("Failed to delete file '{}'", sAbsPath);
+      }
+    }
+    else
+    {
+      if (!QFile::moveToTrash(sQtAbsPath))
+      {
+        ezLog::Error("Failed to delete folder '{}'", sAbsPath);
+      }
+    }
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
   }
 }
 
@@ -569,13 +578,13 @@ void ezQtAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCuratorEvent&
 
 void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt)
 {
-  // #TODO_PATH folder
   QMenu m;
   m.setToolTipsVisible(true);
 
-  if (TreeFolderFilter->currentItem())
+  const bool bIsRoot = TreeFolderFilter->currentItem() && TreeFolderFilter->currentItem() == TreeFolderFilter->topLevelItem(0);
+  if (TreeFolderFilter->currentItem() && !bIsRoot)
   {
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), TreeFolderFilter, SLOT(OnTreeOpenExplorer()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), TreeFolderFilter, SLOT(TreeOpenExplorer()));
   }
 
   {
@@ -596,7 +605,21 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
     pAction->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
   }
 
-  AddAssetCreatorMenu(&m, false);
+  if (TreeFolderFilter->currentItem() && !bIsRoot)
+  {
+    // Delete
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"), TreeFolderFilter, &eqQtAssetBrowserFolderView::DeleteFolder);
+    if (itemType.IsSet(ezAssetBrowserItemFlags::DataDirectory))
+    {
+      pDelete->setEnabled(false);
+      pDelete->setToolTip("Data directories can't be deleted.");
+    }
+
+    // Create
+    AddAssetCreatorMenu(&m, false);
+  }
+
 
   m.exec(TreeFolderFilter->viewport()->mapToGlobal(pt));
 }
@@ -638,14 +661,35 @@ void ezQtAssetBrowserWidget::OnShowHiddenFolderItemsToggled()
 
 void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoint& pt)
 {
-  // #TODO_PATH file
   QMenu m;
   m.setToolTipsVisible(true);
 
   if (ListAssets->selectionModel()->hasSelection())
   {
     if (!m_bDialogMode)
-      m.setDefaultAction(m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
+    {
+      QString sTitle = "Open Selection";
+      QIcon icon = QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg"));
+      if (ListAssets->selectionModel()->selectedIndexes().count() == 1)
+      {
+        const QModelIndex firstItem = ListAssets->selectionModel()->selectedIndexes()[0];
+        const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)firstItem.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+        if (itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset))
+        {
+          sTitle = "Open Document";
+        }
+        else if (itemType.IsSet(ezAssetBrowserItemFlags::File))
+        {
+          sTitle = "Open File";
+        }
+        else if (itemType.IsAnySet(ezAssetBrowserItemFlags::DataDirectory | ezAssetBrowserItemFlags::Folder))
+        {
+          sTitle = "Enter Folder";
+          icon = QIcon(QLatin1String(":/EditorFramework/Icons/Folder.svg"));
+        }
+      }
+      m.setDefaultAction(m.addAction(icon, sTitle, this, SLOT(OnListOpenAssetDocument())));
+    }
     else
       m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
 
@@ -664,22 +708,38 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
   pSortAction->setCheckable(true);
   pSortAction->setChecked(m_pFilter->GetSortByRecentUse());
 
-  // Import assets
+
   if (!m_bDialogMode && ListAssets->selectionModel()->hasSelection())
   {
     QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
     bool bImportable = false;
+    bool bAllFiles = true;
     for (const QModelIndex& id : selection)
     {
-      bImportable = id.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
-      if (bImportable)
-        break;
+      bImportable |= id.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
+
+      const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)id.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+      if (itemType.IsAnySet(ezAssetBrowserItemFlags::SubAsset | ezAssetBrowserItemFlags::DataDirectory))
+      {
+        bAllFiles = false;
+      }
     }
 
+    // Delete
+    {
+      QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"), this, SLOT(DeleteSelection()));
+      if (!bAllFiles)
+      {
+        pDelete->setEnabled(false);
+        pDelete->setToolTip("Sub-assets and data directories can't be deleted.");
+      }
+    }
+
+    // Import assets
     if (bImportable)
     {
       m.addSeparator();
-      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), QLatin1String("Import..."), this, SLOT(OnImport()));
+      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Import.svg")), QLatin1String("Import..."), this, SLOT(ImportSelection()));
       AddImportedViaMenu(&m);
     }
   }
@@ -699,14 +759,11 @@ void ezQtAssetBrowserWidget::OnListOpenAssetDocument()
 
   for (auto& index : selection)
   {
-    ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
-
-    if (guid.IsValid())
-    {
-      ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
-    }
-
-    Q_EMIT ItemChosen(guid, m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString());
+    // Only enter folders on a single selection. Otherwise the results are undefined.
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+    if (selection.count() > 1 && itemType.IsAnySet(ezAssetBrowserItemFlags::DataDirectory | ezAssetBrowserItemFlags::Folder))
+      continue;
+    on_ListAssets_doubleClicked(index);
   }
 }
 
@@ -838,7 +895,7 @@ void ezQtAssetBrowserWidget::OnModelReset()
 }
 
 
-void ezQtAssetBrowserWidget::OnNewAsset()
+void ezQtAssetBrowserWidget::NewAsset()
 {
   QAction* pSender = qobject_cast<QAction*>(sender());
 
@@ -973,7 +1030,7 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
 }
 
 
-void ezQtAssetBrowserWidget::OnImport()
+void ezQtAssetBrowserWidget::ImportSelection()
 {
   ezHybridArray<ezString, 4> filesToImport;
   QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();

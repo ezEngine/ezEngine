@@ -58,9 +58,11 @@ public:
 
 public Q_SLOTS:
   /// \brief Creates a new folder under the current selected item and enters edit mode to allow the user to rename it.
-  void OnNewFolder();
+  void NewFolder();
   /// \brief Opens the current selected item in the windows explorer or OS equivalent.
-  void OnTreeOpenExplorer();
+  void TreeOpenExplorer();
+  /// \brief Deletes the currently selected folder after confirmation.
+  void DeleteFolder();
 
 private Q_SLOTS:
   void OnFolderEditingFinished(const QString& sAbsPath, const QString& sNewName);
