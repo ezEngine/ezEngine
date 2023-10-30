@@ -329,6 +329,7 @@ public:
   using ResourceReloadContext = ezInternal::WorldData::ResourceReloadContext;
   using ResourceReloadFunc = ezInternal::WorldData::ResourceReloadFunc;
 
+  /// \brief Add a function that is called when the given resource has been reloaded.
   void AddResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData, ResourceReloadFunc function);
   void RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, ezComponentHandle hComponent, void* pUserData);
 

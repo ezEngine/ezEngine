@@ -2,6 +2,7 @@
 
 #include <Core/Scripting/ScriptRTTI.h>
 #include <Foundation/Communication/Message.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 ezScriptRTTI::ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers)
@@ -100,4 +101,13 @@ ezScriptInstance::ezScriptInstance(ezReflectedClass& inout_owner, ezWorld* pWorl
   : m_Owner(inout_owner)
   , m_pWorld(pWorld)
 {
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// static
+ezAllocatorBase* ezScriptAllocator::GetAllocator()
+{
+  static ezProxyAllocator s_ScriptAllocator("Script", ezFoundation::GetDefaultAllocator());
+  return &s_ScriptAllocator;
 }

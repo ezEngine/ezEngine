@@ -46,7 +46,7 @@ ezSharedPtr<ezScriptRTTI> ezScriptClassResource::CreateScriptType(ezStringView s
     }
   }
 
-  m_pType = EZ_DEFAULT_NEW(ezScriptRTTI, sName, pBaseType, std::move(sortedFunctions), std::move(messageHandlers));
+  m_pType = EZ_SCRIPT_NEW(ezScriptRTTI, sName, pBaseType, std::move(sortedFunctions), std::move(messageHandlers));
   return m_pType;
 }
 
@@ -60,7 +60,7 @@ ezSharedPtr<ezScriptCoroutineRTTI> ezScriptClassResource::CreateScriptCoroutineT
   ezStringBuilder sCoroutineTypeName;
   sCoroutineTypeName.Set(sScriptClassName, "::", sFunctionName, "<Coroutine>");
 
-  ezSharedPtr<ezScriptCoroutineRTTI> pCoroutineType = EZ_DEFAULT_NEW(ezScriptCoroutineRTTI, sCoroutineTypeName, std::move(pAllocator));
+  ezSharedPtr<ezScriptCoroutineRTTI> pCoroutineType = EZ_SCRIPT_NEW(ezScriptCoroutineRTTI, sCoroutineTypeName, std::move(pAllocator));
   m_CoroutineTypes.PushBack(pCoroutineType);
 
   return pCoroutineType;

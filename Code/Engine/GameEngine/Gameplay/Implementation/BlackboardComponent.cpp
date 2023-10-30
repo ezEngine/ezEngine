@@ -17,7 +17,8 @@ struct BCFlags
   enum Enum
   {
     ShowDebugInfo = 0,
-    SendEntryChangedMessage
+    SendEntryChangedMessage,
+    InitializedFromTemplate
   };
 };
 
@@ -316,12 +317,33 @@ ezLocalBlackboardComponent::ezLocalBlackboardComponent(ezLocalBlackboardComponen
 ezLocalBlackboardComponent::~ezLocalBlackboardComponent() = default;
 ezLocalBlackboardComponent& ezLocalBlackboardComponent::operator=(ezLocalBlackboardComponent&& other) = default;
 
+void ezLocalBlackboardComponent::Initialize()
+{
+  SUPER::Initialize();
+
+  if (IsActive())
+  {
+    // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
+    InitializeFromTemplate();
+    SetUserFlag(BCFlags::InitializedFromTemplate, true);
+  }
+}
+
 void ezLocalBlackboardComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
-  InitializeFromTemplate();
+  if (GetUserFlag(BCFlags::InitializedFromTemplate) == false)
+  {
+    InitializeFromTemplate();
+  }
+}
+
+void ezLocalBlackboardComponent::OnDeactivated()
+{
+  SUPER::OnDeactivated();
+
+  SetUserFlag(BCFlags::InitializedFromTemplate, false);
 }
 
 void ezLocalBlackboardComponent::OnSimulationStarted()
@@ -370,8 +392,6 @@ void ezLocalBlackboardComponent::DeserializeComponent(ezWorldReader& inout_strea
     }
   }
 }
-
-
 
 void ezLocalBlackboardComponent::SetSendEntryChangedMessage(bool bSend)
 {
@@ -512,12 +532,33 @@ ezGlobalBlackboardComponent::ezGlobalBlackboardComponent(ezGlobalBlackboardCompo
 ezGlobalBlackboardComponent::~ezGlobalBlackboardComponent() = default;
 ezGlobalBlackboardComponent& ezGlobalBlackboardComponent::operator=(ezGlobalBlackboardComponent&& other) = default;
 
+void ezGlobalBlackboardComponent::Initialize()
+{
+  SUPER::Initialize();
+
+  if (IsActive())
+  {
+    // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
+    InitializeFromTemplate();
+    SetUserFlag(BCFlags::InitializedFromTemplate, true);
+  }
+}
+
 void ezGlobalBlackboardComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
-  InitializeFromTemplate();
+  if (GetUserFlag(BCFlags::InitializedFromTemplate) == false)
+  {
+    InitializeFromTemplate();
+  }
+}
+
+void ezGlobalBlackboardComponent::OnDeactivated()
+{
+  SUPER::OnDeactivated();
+
+  SetUserFlag(BCFlags::InitializedFromTemplate, false);
 }
 
 void ezGlobalBlackboardComponent::OnSimulationStarted()

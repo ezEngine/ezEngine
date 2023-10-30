@@ -77,3 +77,11 @@ private:
   ezReflectedClass& m_Owner;
   ezWorld* m_pWorld = nullptr;
 };
+
+struct EZ_CORE_DLL ezScriptAllocator
+{
+  static ezAllocatorBase* GetAllocator();
+};
+
+/// \brief creates a new instance of type using the script allocator
+#define EZ_SCRIPT_NEW(type, ...) EZ_NEW(ezScriptAllocator::GetAllocator(), type, __VA_ARGS__)

@@ -477,14 +477,14 @@ export class FollowPathComponent extends Component
   set Running(value: boolean) { __CPP_ComponentProperty_set(this, 623714660, value); }
   get Mode(): Enum.PropertyAnimMode { return __CPP_ComponentProperty_get(this, 3007335921); }
   set Mode(value: Enum.PropertyAnimMode) { __CPP_ComponentProperty_set(this, 3007335921, value); }
-  get FollowMode(): Enum.FollowPathMode { return __CPP_ComponentProperty_get(this, 2961192936); }
-  set FollowMode(value: Enum.FollowPathMode) { __CPP_ComponentProperty_set(this, 2961192936, value); }
   get Speed(): number { return __CPP_ComponentProperty_get(this, 3476271465); }
   set Speed(value: number) { __CPP_ComponentProperty_set(this, 3476271465, value); }
   get LookAhead(): number { return __CPP_ComponentProperty_get(this, 3077407718); }
   set LookAhead(value: number) { __CPP_ComponentProperty_set(this, 3077407718, value); }
   get Smoothing(): number { return __CPP_ComponentProperty_get(this, 3812626917); }
   set Smoothing(value: number) { __CPP_ComponentProperty_set(this, 3812626917, value); }
+  get FollowMode(): Enum.FollowPathMode { return __CPP_ComponentProperty_get(this, 2961192936); }
+  set FollowMode(value: Enum.FollowPathMode) { __CPP_ComponentProperty_set(this, 2961192936, value); }
   get TiltAmount(): number { return __CPP_ComponentProperty_get(this, 541978106); }
   set TiltAmount(value: number) { __CPP_ComponentProperty_set(this, 541978106, value); }
   get MaxTilt(): number { return __CPP_ComponentProperty_get(this, 783404318); }
@@ -642,6 +642,23 @@ export class JointOverrideComponent extends Component
   set OverrideRotation(value: boolean) { __CPP_ComponentProperty_set(this, 2171188702, value); }
   get OverrideScale(): boolean { return __CPP_ComponentProperty_get(this, 1486447761); }
   set OverrideScale(value: boolean) { __CPP_ComponentProperty_set(this, 1486447761, value); }
+}
+
+export class LensFlareComponent extends RenderComponent
+{
+  public static GetTypeNameHash(): number { return 4014299360; }
+  get LinkToLightShape(): boolean { return __CPP_ComponentProperty_get(this, 1082018071); }
+  set LinkToLightShape(value: boolean) { __CPP_ComponentProperty_set(this, 1082018071, value); }
+  get Intensity(): number { return __CPP_ComponentProperty_get(this, 597467394); }
+  set Intensity(value: number) { __CPP_ComponentProperty_set(this, 597467394, value); }
+  get OcclusionSampleRadius(): number { return __CPP_ComponentProperty_get(this, 2885796196); }
+  set OcclusionSampleRadius(value: number) { __CPP_ComponentProperty_set(this, 2885796196, value); }
+  get OcclusionSampleSpread(): number { return __CPP_ComponentProperty_get(this, 111443103); }
+  set OcclusionSampleSpread(value: number) { __CPP_ComponentProperty_set(this, 111443103, value); }
+  get OcclusionDepthOffset(): number { return __CPP_ComponentProperty_get(this, 2753257405); }
+  set OcclusionDepthOffset(value: number) { __CPP_ComponentProperty_set(this, 2753257405, value); }
+  get ApplyFog(): boolean { return __CPP_ComponentProperty_get(this, 2998285808); }
+  set ApplyFog(value: boolean) { __CPP_ComponentProperty_set(this, 2998285808, value); }
 }
 
 export class LineToComponent extends Component
@@ -1064,6 +1081,30 @@ export class SpatialAnchorComponent extends Component
   public static GetTypeNameHash(): number { return 2762556177; }
 }
 
+export class SpawnBoxComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 381409133; }
+  StartSpawning(): void { __CPP_ComponentFunction_Call(this, 3460926770); }
+  get HalfExtents(): Vec3 { return __CPP_ComponentProperty_get(this, 3309010296); }
+  set HalfExtents(value: Vec3) { __CPP_ComponentProperty_set(this, 3309010296, value); }
+  get Prefab(): string { return __CPP_ComponentProperty_get(this, 1094356410); }
+  set Prefab(value: string) { __CPP_ComponentProperty_set(this, 1094356410, value); }
+  get SpawnAtStart(): boolean { return __CPP_ComponentProperty_get(this, 1227995398); }
+  set SpawnAtStart(value: boolean) { __CPP_ComponentProperty_set(this, 1227995398, value); }
+  get SpawnContinuously(): boolean { return __CPP_ComponentProperty_get(this, 337530404); }
+  set SpawnContinuously(value: boolean) { __CPP_ComponentProperty_set(this, 337530404, value); }
+  get MinSpawnCount(): number { return __CPP_ComponentProperty_get(this, 1027167878); }
+  set MinSpawnCount(value: number) { __CPP_ComponentProperty_set(this, 1027167878, value); }
+  get SpawnCountRange(): number { return __CPP_ComponentProperty_get(this, 3735215613); }
+  set SpawnCountRange(value: number) { __CPP_ComponentProperty_set(this, 3735215613, value); }
+  get Duration(): number { return __CPP_ComponentProperty_get(this, 910458143); }
+  set Duration(value: number) { __CPP_ComponentProperty_set(this, 910458143, value); }
+  get MaxRotationZ(): number { return __CPP_ComponentProperty_get(this, 4244883874); }
+  set MaxRotationZ(value: number) { __CPP_ComponentProperty_set(this, 4244883874, value); }
+  get MaxTiltZ(): number { return __CPP_ComponentProperty_get(this, 1711808229); }
+  set MaxTiltZ(value: number) { __CPP_ComponentProperty_set(this, 1711808229, value); }
+}
+
 export class SpawnComponent extends Component
 {
   public static GetTypeNameHash(): number { return 438730474; }
@@ -1164,13 +1205,6 @@ export class TriggerDelayModifierComponent extends Component
   set ActivationDelay(value: number) { __CPP_ComponentProperty_set(this, 3433323958, value); }
   get DeactivationDelay(): number { return __CPP_ComponentProperty_get(this, 789862730); }
   set DeactivationDelay(value: number) { __CPP_ComponentProperty_set(this, 789862730, value); }
-}
-
-export class VisualScriptComponent extends EventMessageHandlerComponent
-{
-  public static GetTypeNameHash(): number { return 4146054015; }
-  get Script(): string { return __CPP_ComponentProperty_get(this, 514750595); }
-  set Script(value: string) { __CPP_ComponentProperty_set(this, 514750595, value); }
 }
 
 export class VisualizeHandComponent extends Component

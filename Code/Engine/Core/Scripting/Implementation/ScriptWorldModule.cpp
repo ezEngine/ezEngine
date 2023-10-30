@@ -12,13 +12,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezScriptWorldModule::ezScriptWorldModule(ezWorld* pWorld)
   : ezWorldModule(pWorld)
 {
-  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezScriptWorldModule::ResourceEventHandler, this));
 }
 
-ezScriptWorldModule::~ezScriptWorldModule()
-{
-  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezScriptWorldModule::ResourceEventHandler, this));
-}
+ezScriptWorldModule::~ezScriptWorldModule() = default;
 
 void ezScriptWorldModule::Initialize()
 {
@@ -27,14 +23,6 @@ void ezScriptWorldModule::Initialize()
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezScriptWorldModule::CallUpdateFunctions, this);
     updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
-
-    RegisterUpdateFunction(updateDesc);
-  }
-
-  {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezScriptWorldModule::ReloadScripts, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
-    updateDesc.m_fPriority = 10000.0f;
 
     RegisterUpdateFunction(updateDesc);
   }
@@ -98,7 +86,7 @@ ezScriptCoroutineHandle ezScriptWorldModule::CreateCoroutine(const ezRTTI* pCoro
     }
   }
 
-  auto pCoroutine = pCoroutineType->GetAllocator()->Allocate<ezScriptCoroutine>(ezFoundation::GetDefaultAllocator());
+  auto pCoroutine = pCoroutineType->GetAllocator()->Allocate<ezScriptCoroutine>(ezScriptAllocator::GetAllocator());
 
   ezScriptCoroutineId id = m_RunningScriptCoroutines.Insert(pCoroutine);
   pCoroutine->Initialize(id, sName, inout_instance, *this);
@@ -167,33 +155,6 @@ bool ezScriptWorldModule::IsCoroutineFinished(ezScriptCoroutineHandle hCoroutine
   return m_RunningScriptCoroutines.Contains(hCoroutine.GetInternalID()) == false;
 }
 
-void ezScriptWorldModule::AddScriptReloadFunction(ezScriptClassResourceHandle hScript, ReloadFunction function)
-{
-  if (hScript.IsValid() == false)
-    return;
-
-  EZ_ASSERT_DEV(function.IsComparable(), "Function must be comparable otherwise it can't be removed");
-  m_ReloadFunctions[hScript].PushBack(function);
-}
-
-void ezScriptWorldModule::RemoveScriptReloadFunction(ezScriptClassResourceHandle hScript, ReloadFunction function)
-{
-  EZ_ASSERT_DEV(function.IsComparable(), "Function must be comparable otherwise it can't be removed");
-
-  ReloadFunctionList* pReloadFunctions = nullptr;
-  if (m_ReloadFunctions.TryGetValue(hScript, pReloadFunctions))
-  {
-    for (ezUInt32 i = 0; i < pReloadFunctions->GetCount(); ++i)
-    {
-      if ((*pReloadFunctions)[i].IsEqualIfComparable(function))
-      {
-        pReloadFunctions->RemoveAtAndSwap(i);
-        break;
-      }
-    }
-  }
-}
-
 void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext& context)
 {
   ezWorld* pWorld = GetWorld();
@@ -235,35 +196,4 @@ void ezScriptWorldModule::CallUpdateFunctions(const ezWorldModule::UpdateContext
     pCoroutine = nullptr;
   }
   m_DeadScriptCoroutines.Clear();
-}
-
-void ezScriptWorldModule::ReloadScripts(const ezWorldModule::UpdateContext& context)
-{
-  for (const auto& hScript : m_NeedReload)
-  {
-    if (m_ReloadFunctions.TryGetValue(hScript, m_TempReloadFunctions))
-    {
-      for (auto& reloadFunction : m_TempReloadFunctions)
-      {
-        reloadFunction();
-      }
-    }
-  }
-
-  m_NeedReload.Clear();
-}
-
-void ezScriptWorldModule::ResourceEventHandler(const ezResourceEvent& e)
-{
-  if (e.m_Type != ezResourceEvent::Type::ResourceContentUnloading)
-    return;
-
-  if (auto pResource = ezDynamicCast<const ezScriptClassResource*>(e.m_pResource))
-  {
-    if (pResource->GetReferenceCount() > 0)
-    {
-      ezScriptClassResourceHandle hScript = pResource->GetResourceHandle();
-      m_NeedReload.Insert(hScript);
-    }
-  }
 }

@@ -52,7 +52,8 @@ public:
 private:
   void InstantiateScript(bool bActivate);
   void ClearInstance(bool bDeactivate);
-  void UpdateScheduling();
+  void AddUpdateFunctionToSchedule();
+  void RemoveUpdateFunctionToSchedule();
 
   const ezAbstractFunctionProperty* GetScriptFunction(ezUInt32 uiFunctionIndex);
   void CallScriptFunction(ezUInt32 uiFunctionIndex);

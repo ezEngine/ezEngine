@@ -389,7 +389,7 @@ namespace ezInternal
 
   void WorldData::ResourceEventHandler(const ezResourceEvent& e)
   {
-    if (e.m_Type != ezResourceEvent::Type::ResourceContentUnloading)
+    if (e.m_Type != ezResourceEvent::Type::ResourceContentUnloading || e.m_pResource->GetReferenceCount() == 0)
       return;
 
     ezTypelessResourceHandle hResource(e.m_pResource);

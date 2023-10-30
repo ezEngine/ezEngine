@@ -48,14 +48,6 @@ public:
   bool IsCoroutineFinished(ezScriptCoroutineHandle hCoroutine) const;
 
   ///@}
-  /// \name Script Reload Functions
-  ///@{
-
-  using ReloadFunction = ezDelegate<void()>;
-  void AddScriptReloadFunction(ezScriptClassResourceHandle hScript, ReloadFunction function);
-  void RemoveScriptReloadFunction(ezScriptClassResourceHandle hScript, ReloadFunction function);
-
-  ///@}
 
   struct FunctionContext
   {
@@ -76,19 +68,12 @@ public:
 
 private:
   void CallUpdateFunctions(const ezWorldModule::UpdateContext& context);
-  void ReloadScripts(const ezWorldModule::UpdateContext& context);
-  void ResourceEventHandler(const ezResourceEvent& e);
 
   ezIntervalScheduler<FunctionContext> m_Scheduler;
 
   ezIdTable<ezScriptCoroutineId, ezUniquePtr<ezScriptCoroutine>> m_RunningScriptCoroutines;
   ezHashTable<ezScriptInstance*, ezSmallArray<ezScriptCoroutineHandle, 8>> m_InstanceToScriptCoroutines;
   ezDynamicArray<ezUniquePtr<ezScriptCoroutine>> m_DeadScriptCoroutines;
-
-  using ReloadFunctionList = ezHybridArray<ReloadFunction, 8>;
-  ezHashTable<ezScriptClassResourceHandle, ReloadFunctionList> m_ReloadFunctions;
-  ezHashSet<ezScriptClassResourceHandle> m_NeedReload;
-  ReloadFunctionList m_TempReloadFunctions;
 };
 
 //////////////////////////////////////////////////////////////////////////

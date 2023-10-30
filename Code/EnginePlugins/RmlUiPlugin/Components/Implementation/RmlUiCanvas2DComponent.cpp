@@ -402,8 +402,11 @@ void ezRmlUiCanvas2DComponent::UpdateAutobinding()
     while (pObject != nullptr)
     {
       pObject->TryGetComponentsOfBaseType(blackboardComponents);
+
       for (auto pBlackboardComponent : blackboardComponents)
       {
+        pBlackboardComponent->EnsureInitialized();
+
         m_AutoBindings.PushBack(AddBlackboardBinding(pBlackboardComponent->GetBoard()));
       }
 

@@ -113,7 +113,9 @@ public:
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
+  virtual void Initialize() override;
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -185,7 +187,9 @@ public:
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
 protected:
+  virtual void Initialize() override;
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////

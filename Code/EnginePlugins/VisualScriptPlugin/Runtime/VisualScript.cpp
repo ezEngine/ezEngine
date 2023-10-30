@@ -225,7 +225,7 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
 
   m_Nodes = nodes;
 
-  ezSharedPtr<ezVisualScriptDataDescription> pLocalDataDesc = EZ_DEFAULT_NEW(ezVisualScriptDataDescription);
+  ezSharedPtr<ezVisualScriptDataDescription> pLocalDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
   EZ_SUCCEED_OR_RETURN(pLocalDataDesc->Deserialize(inout_stream));
   m_pLocalDataDesc = pLocalDataDesc;
 
