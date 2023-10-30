@@ -16,6 +16,9 @@ public:
   void SetShowItemsInSubFolders(bool bShow);
   bool GetShowItemsInSubFolders() const { return m_bShowItemsInSubFolders; }
 
+  void SetShowFilesAndFolders(bool bShow);
+  bool GetShowFilesAndFolders() const { return m_bShowFilesAndFolders; }
+
   void SetShowItemsInHiddenFolders(bool bShow);
   bool GetShowItemsInHiddenFolders() const { return m_bShowItemsInHiddenFolders; }
 
@@ -26,10 +29,15 @@ public:
   const char* GetTextFilter() const { return m_SearchFilter.GetSearchText(); }
 
   void SetPathFilter(const char* szPath);
-  const char* GetPathFilter() const { return m_sPathFilter; }
+  ezStringView GetPathFilter() const;
 
   void SetTypeFilter(const char* szTypes);
   const char* GetTypeFilter() const { return m_sTypeFilter; }
+
+  /// \brief If set, the given item will be visible no matter what until any other filter is changed.
+  /// This is used to ensure that newly created assets are always visible, even if they are excluded from the current filter.
+  void SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath);
+  ezStringView GetTemporaryPinnedItem() const { return m_sTemporaryPinnedItem; }
 
 Q_SIGNALS:
   void TextFilterChanged();
@@ -38,13 +46,15 @@ Q_SIGNALS:
   void SortByRecentUseChanged();
 
 public:
-  virtual bool IsAssetFiltered(const ezSubAsset* pInfo) const override;
-  virtual bool Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const override;
+  virtual bool IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const override;
 
 private:
-  ezString m_sTypeFilter, m_sPathFilter;
+  ezString m_sTypeFilter;
+  ezString m_sPathFilter;
+  ezString m_sTemporaryPinnedItem;
   ezSearchPatternFilter m_SearchFilter;
   bool m_bShowItemsInSubFolders = true;
+  bool m_bShowFilesAndFolders = true;
   bool m_bShowItemsInHiddenFolders = false;
   bool m_bSortByRecentUse = false;
   mutable ezStringBuilder m_sTemp; // stored here to reduce unnecessary allocations

@@ -189,8 +189,6 @@ private:
   void FireFileChangedEvent(const ezDataDirPath& file, ezFileStatus fileStatus, ezFileChangedEvent::Type type);
   void FireFolderChangedEvent(const ezDataDirPath& file, ezFolderChangedEvent::Type type);
 
-  int FindDataDir(const ezStringView path);
-
 private:
   // Immutable data after Initialize
   ezApplicationFileSystemConfig m_FileSystemConfig;

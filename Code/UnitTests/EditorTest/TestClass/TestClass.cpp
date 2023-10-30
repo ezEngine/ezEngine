@@ -360,19 +360,17 @@ std::unique_ptr<QMimeData> ezEditorTest::AssetsToDragMimeData(ezArrayPtr<ezUuid>
 
 std::unique_ptr<QMimeData> ezEditorTest::ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects)
 {
-  std::unique_ptr<QMimeData> mimeData(new QMimeData());
-  QByteArray encodedData;
-
-  QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-  int iCount = (int)objects.GetCount();
-  stream << iCount;
-
+  ezHybridArray<const ezDocumentObject*, 32> Dragged;
   for (const ezDocumentObject* pObject : objects)
   {
-    stream.writeRawData((const char*)&pObject, sizeof(void*));
+    Dragged.PushBack(pObject);
   }
 
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+  stream << Dragged;
+
+  std::unique_ptr<QMimeData> mimeData(new QMimeData());
   mimeData->setData("application/ezEditor.ObjectSelection", encodedData);
   return std::move(mimeData);
 }

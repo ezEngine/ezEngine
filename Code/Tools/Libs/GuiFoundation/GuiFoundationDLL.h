@@ -6,6 +6,8 @@
 #include <QColor>
 #include <QMetaType>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
+#include <Foundation/Strings/String.h>
+#include <QDataStream>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -59,7 +61,57 @@ EZ_ALWAYS_INLINE ezColorGammaUB qtToEzColor(const QColor& c)
   return ezColorGammaUB(c.red(), c.green(), c.blue(), c.alpha());
 }
 
+EZ_ALWAYS_INLINE ezString qtToEzString(const QString& sString)
+{
+  QByteArray data = sString.toUtf8();
+  return ezString(ezStringView(data.data(), data.size()));
+}
+
 EZ_ALWAYS_INLINE QString ezMakeQString(ezStringView sString)
 {
   return QString::fromUtf8(sString.GetStartPointer(), sString.GetElementCount());
+}
+
+template <typename T>
+void operator>>(QDataStream& inout_stream, T* rhs)
+{
+  void* p = nullptr;
+  uint len = sizeof(void*);
+  inout_stream.readRawData((char*)&p, len);
+  rhs = (T*)p;
+}
+
+
+template <typename T>
+void operator<<(QDataStream& inout_stream, T* rhs)
+{
+  inout_stream.writeRawData((const char*)&rhs, sizeof(void*));
+}
+
+template<typename T>
+void operator>>(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
+{
+  ezUInt32 uiIndices = 0;
+  inout_stream >> uiIndices;
+  rhs.Clear();
+  rhs.Reserve(uiIndices);
+
+  for (int i = 0; i < uiIndices; ++i)
+  {
+    T obj = {};
+    inout_stream >> obj;
+    rhs.PushBack(obj);
+  }
+}
+
+template <typename T>
+void operator<<(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
+{
+  ezUInt32 iIndices = rhs.GetCount();
+  inout_stream << iIndices;
+
+  for (ezUInt32 i = 0; i < iIndices; ++i)
+  {
+    inout_stream << rhs[i];
+  }
 }

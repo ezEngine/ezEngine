@@ -276,10 +276,21 @@ public:
   /// \param assetGuid
   ///   The asset to find use cases for.
   /// \param uses
-  ///   List of assets that use 'assetGuid'.
+  ///   List of assets that use 'assetGuid'. Any previous content of the set is not removed.
   /// \param transitive
   ///   If set, will also find indirect uses of the asset.
   void FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool bTransitive) const;
+
+  /// \brief Returns all assets that use a file for transform. Use this to e.g. figure which assets still reference a .tga file in the project.
+  /// \param sAbsolutePath Absolute path to any file inside a data directory.
+  /// \param ref_uses List of assets that use 'sAbsolutePath'. Any previous content of the set is not removed.
+  void FindAllUses(ezStringView sAbsolutePath, ezSet<ezUuid>& ref_uses) const;
+
+  /// \brief Returns whether a file is referenced, i.e. used for transforming an asset. Use this to e.g. figure out whether a .tga file is still in use by any asset.
+  /// \param sAbsolutePath Absolute path to any file inside a data directory.
+  /// \return True, if at least one asset references the given file.
+  bool IsReferenced(ezStringView sAbsolutePath) const;
+
 
   ///@}
   /// \name Manual and Automatic Change Notification

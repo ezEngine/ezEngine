@@ -714,7 +714,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
     // As we are using ezCompareDataDirPath, entries of different casing interleave but we are only interested in the ones with matching casing so we skip the rest.
     for (auto it = m_ReferencedFiles.LowerBound(sAbsolutePath2.GetView()); it.IsValid(); ++it)
     {
-      if (it.Key().GetAbsolutePath().StartsWith(sAbsolutePath2) && !visitedFiles.Contains(it.Key().GetAbsolutePath()))
+      if (ezPathUtils::IsSubPath(sAbsolutePath2, it.Key().GetAbsolutePath()) && !visitedFiles.Contains(it.Key().GetAbsolutePath()))
         missingFiles.PushBack(it.Key().GetAbsolutePath());
       if (!it.Key().GetAbsolutePath().StartsWith_NoCase(sAbsolutePath2))
         break;
@@ -722,7 +722,7 @@ void ezFileSystemModel::CheckFolder(ezStringView sAbsolutePath)
 
     for (auto it = m_ReferencedFolders.LowerBound(sAbsolutePath2.GetView()); it.IsValid(); ++it)
     {
-      if (it.Key().GetAbsolutePath().StartsWith(sAbsolutePath2) && !visitedFolders.Contains(it.Key().GetAbsolutePath()))
+      if (ezPathUtils::IsSubPath(sAbsolutePath2, it.Key().GetAbsolutePath()) && !visitedFolders.Contains(it.Key().GetAbsolutePath()))
         missingFolders.PushBack(it.Key().GetAbsolutePath());
       if (!it.Key().GetAbsolutePath().StartsWith_NoCase(sAbsolutePath2))
         break;
@@ -887,7 +887,7 @@ void ezFileSystemModel::RemoveFileOrFolder(const ezDataDirPath& absolutePath, bo
         auto itlowerBound = m_ReferencedFiles.LowerBound(absolutePath);
         while (itlowerBound.IsValid())
         {
-          if (itlowerBound.Key().GetAbsolutePath().StartsWith(absolutePath.GetAbsolutePath()))
+          if (ezPathUtils::IsSubPath(absolutePath, itlowerBound.Key().GetAbsolutePath()))
           {
             previouslyKnownFiles.Insert(itlowerBound.Key());
           }
@@ -972,18 +972,6 @@ void ezFileSystemModel::FireFolderChangedEvent(const ezDataDirPath& file, ezFold
     m_FolderChangedEvents.Broadcast(tempEvent);
   }
   g_PostponedFolders.Clear();
-}
-
-ezInt32 ezFileSystemModel::FindDataDir(const ezStringView path)
-{
-  for (ezUInt32 i = 0; i < m_DataDirRoots.GetCount(); ++i)
-  {
-    if (path.StartsWith(m_DataDirRoots[i]))
-    {
-      return (ezInt32)i;
-    }
-  }
-  return -1;
 }
 
 #endif

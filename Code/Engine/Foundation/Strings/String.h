@@ -173,12 +173,12 @@ static_assert(ezGetTypeClass<ezString>::value == ezTypeIsClass::value);
 template <ezUInt16 Size>
 struct ezCompareHelper<ezHybridString<Size>>
 {
-  EZ_ALWAYS_INLINE bool Less(ezStringView lhs, ezStringView rhs) const
+  static EZ_ALWAYS_INLINE bool Less(ezStringView lhs, ezStringView rhs)
   {
     return lhs.Compare(rhs) < 0;
   }
 
-  EZ_ALWAYS_INLINE bool Equal(ezStringView lhs, ezStringView rhs) const
+  static EZ_ALWAYS_INLINE bool Equal(ezStringView lhs, ezStringView rhs)
   {
     return lhs.IsEqual(rhs);
   }
@@ -186,12 +186,12 @@ struct ezCompareHelper<ezHybridString<Size>>
 
 struct ezCompareString_NoCase
 {
-  EZ_ALWAYS_INLINE bool Less(ezStringView lhs, ezStringView rhs) const
+  static EZ_ALWAYS_INLINE bool Less(ezStringView lhs, ezStringView rhs)
   {
     return lhs.Compare_NoCase(rhs) < 0;
   }
 
-  EZ_ALWAYS_INLINE bool Equal(ezStringView lhs, ezStringView rhs) const
+  static EZ_ALWAYS_INLINE bool Equal(ezStringView lhs, ezStringView rhs)
   {
     return lhs.IsEqual_NoCase(rhs);
   }
@@ -200,10 +200,10 @@ struct ezCompareString_NoCase
 struct CompareConstChar
 {
   /// \brief Returns true if a is less than b
-  EZ_ALWAYS_INLINE bool Less(const char* a, const char* b) const { return ezStringUtils::Compare(a, b) < 0; }
+  static EZ_ALWAYS_INLINE bool Less(const char* a, const char* b) { return ezStringUtils::Compare(a, b) < 0; }
 
   /// \brief Returns true if a is equal to b
-  EZ_ALWAYS_INLINE bool Equal(const char* a, const char* b) const { return ezStringUtils::IsEqual(a, b); }
+  static EZ_ALWAYS_INLINE bool Equal(const char* a, const char* b) { return ezStringUtils::IsEqual(a, b); }
 };
 
 // For ezFormatString

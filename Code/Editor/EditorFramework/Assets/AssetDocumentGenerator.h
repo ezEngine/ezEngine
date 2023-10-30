@@ -46,8 +46,11 @@ public:
     ezHybridArray<ezAssetDocumentGenerator::Info, 4> m_ImportOptions;
   };
 
+  /// \brief Creates a list of all importable file extensions. Note that this is an expensive function so the the result should be cached.
+  /// \param out_Extensions List of all file extensions that can be imported.
+  static void GetSupportsFileTypes(ezSet<ezString>& out_extensions);
   static void ImportAssets();
-  static void ImportAssets(const ezHybridArray<ezString, 16>& filesToImport);
+  static void ImportAssets(const ezDynamicArray<ezString>& filesToImport);
   static void ExecuteImport(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& ref_allImports);
 
   virtual void GetImportModes(ezStringView sParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_modes) const = 0;
@@ -55,6 +58,7 @@ public:
   virtual ezStringView GetDocumentExtension() const = 0;
   virtual ezStringView GetGeneratorGroup() const = 0;
 
+  void GetSupportedFileTypes(ezSet<ezString>& ref_extensions) const;
   bool SupportsFileType(ezStringView sFile) const;
   void BuildFileDialogFilterString(ezStringBuilder& out_sFilter) const;
   void AppendFileFilterStrings(ezStringBuilder& out_sFilter, bool& ref_bSemicolon) const;
@@ -67,7 +71,7 @@ private:
   static void DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
   static ezResult DetermineInputAndOutputFiles(ImportData& data, Info& option);
   static void SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
-  static void CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
+  static void CreateImportOptionList(const ezDynamicArray<ezString>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
 
   ezHybridArray<ezString, 16> m_SupportedFileTypes;
 };
