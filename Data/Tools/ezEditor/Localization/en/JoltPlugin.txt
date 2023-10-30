@@ -26,7 +26,7 @@ ezJoltRagdollComponent;Ragdoll (Jolt);;https://ezengine.net/pages/docs/physics/j
 ezJoltConeConstraintComponent;Cone Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-cone-constraint-component.html
 ezJoltQueryShapeActorComponent;Query Shape (Jolt);;https://ezengine.net/pages/docs/physics/jolt/actors/jolt-queryshape-actor-component.html
 ezJoltSwingTwistConstraintComponent;Swing Twist Constraint (Jolt);;https://ezengine.net/pages/docs/physics/jolt/constraints/jolt-swing-twist-constraint-component.html
-ezJoltBoneColliderComponent;Bone Collider (Jolt);;https://ezengine.net/pages/docs/physics/jolt/ragdolls/jolt-bone-collider-component.html
+ezJoltHitboxComponent;Hitboxes (Jolt);;https://ezengine.net/pages/docs/physics/jolt/ragdolls/jolt-hitbox-component.html
 ezJoltCharacterControllerComponent;Character Controller (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
 ezJoltDefaultCharacterComponent;Default Character Controller (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-character-controller.html
 ezJoltGrabObjectComponent;Grab Object (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-grab-object-component.html

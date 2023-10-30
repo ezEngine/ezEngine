@@ -136,3 +136,21 @@ public:
 };
 
 ezJoltRopeComponentPatch_1_2 g_ezJoltRopeComponentPatch_1_2;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezJoltHitboxComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezJoltHitboxComponentPatch_1_2()
+    : ezGraphPatch("ezJoltBoneColliderComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezJoltHitboxComponent");
+  }
+};
+
+ezJoltHitboxComponentPatch_1_2 g_ezJoltHitboxComponentPatch_1_2;

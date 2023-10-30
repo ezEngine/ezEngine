@@ -9,11 +9,11 @@ struct ezMsgAnimationPoseUpdated;
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-using ezJoltBoneColliderComponentManager = ezComponentManager<class ezJoltBoneColliderComponent, ezBlockStorageType::Compact>;
+using ezJoltHitboxComponentManager = ezComponentManager<class ezJoltHitboxComponent, ezBlockStorageType::Compact>;
 
-class EZ_JOLTPLUGIN_DLL ezJoltBoneColliderComponent : public ezComponent
+class EZ_JOLTPLUGIN_DLL ezJoltHitboxComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezJoltBoneColliderComponent, ezComponent, ezJoltBoneColliderComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezJoltHitboxComponent, ezComponent, ezJoltHitboxComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
@@ -27,11 +27,11 @@ protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezJoltBoneColliderComponent
+  // ezJoltHitboxComponent
 
 public:
-  ezJoltBoneColliderComponent();
-  ~ezJoltBoneColliderComponent();
+  ezJoltHitboxComponent();
+  ~ezJoltHitboxComponent();
 
   ezUInt32 GetObjectFilterID() const { return m_uiObjectFilterID; } // [ scriptable ]
 

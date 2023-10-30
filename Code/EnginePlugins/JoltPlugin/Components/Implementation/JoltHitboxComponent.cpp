@@ -4,7 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
-#include <JoltPlugin/Components/JoltBoneColliderComponent.h>
+#include <JoltPlugin/Components/JoltHitboxComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeBoxComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeCapsuleComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeSphereComponent.h>
@@ -13,7 +13,7 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltBoneColliderComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltHitboxComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -41,10 +41,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltBoneColliderComponent, 1, ezComponentMode::Dynamic
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJoltBoneColliderComponent::ezJoltBoneColliderComponent() = default;
-ezJoltBoneColliderComponent::~ezJoltBoneColliderComponent() = default;
+ezJoltHitboxComponent::ezJoltHitboxComponent() = default;
+ezJoltHitboxComponent::~ezJoltHitboxComponent() = default;
 
-void ezJoltBoneColliderComponent::SerializeComponent(ezWorldWriter& inout_stream) const
+void ezJoltHitboxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
@@ -53,7 +53,7 @@ void ezJoltBoneColliderComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_UpdateThreshold;
 }
 
-void ezJoltBoneColliderComponent::DeserializeComponent(ezWorldReader& inout_stream)
+void ezJoltHitboxComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
   // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
@@ -63,14 +63,14 @@ void ezJoltBoneColliderComponent::DeserializeComponent(ezWorldReader& inout_stre
   s >> m_UpdateThreshold;
 }
 
-void ezJoltBoneColliderComponent::OnSimulationStarted()
+void ezJoltHitboxComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
   RecreatePhysicsShapes();
 }
 
-void ezJoltBoneColliderComponent::OnDeactivated()
+void ezJoltHitboxComponent::OnDeactivated()
 {
   if (m_uiObjectFilterID != ezInvalidIndex)
   {
@@ -83,7 +83,7 @@ void ezJoltBoneColliderComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltBoneColliderComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg)
+void ezJoltHitboxComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg)
 {
   if (m_UpdateThreshold.IsPositive())
   {
@@ -115,7 +115,7 @@ void ezJoltBoneColliderComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdat
   }
 }
 
-void ezJoltBoneColliderComponent::RecreatePhysicsShapes()
+void ezJoltHitboxComponent::RecreatePhysicsShapes()
 {
   ezMsgQueryAnimationSkeleton msg;
   GetOwner()->SendMessage(msg);
@@ -129,7 +129,7 @@ void ezJoltBoneColliderComponent::RecreatePhysicsShapes()
   m_LastUpdate = ezTime::MakeZero();
 }
 
-void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton)
+void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& hSkeleton)
 {
   ezResourceLock<ezSkeletonResource> pSkeleton(hSkeleton, ezResourceAcquireMode::BlockTillLoaded);
 
@@ -236,7 +236,7 @@ void ezJoltBoneColliderComponent::CreatePhysicsShapes(const ezSkeletonResourceHa
   }
 }
 
-void ezJoltBoneColliderComponent::DestroyPhysicsShapes()
+void ezJoltHitboxComponent::DestroyPhysicsShapes()
 {
   for (auto& shape : m_Shapes)
   {
@@ -245,6 +245,5 @@ void ezJoltBoneColliderComponent::DestroyPhysicsShapes()
 
   m_Shapes.Clear();
 }
-
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltBoneColliderComponent);

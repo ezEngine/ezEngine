@@ -25,7 +25,7 @@
 	<file>ezJoltPointConstraintComponent.svg</file>
 	<file>ezJoltDefaultCharacterComponent.svg</file>
 	<file>ezJoltSliderConstraintComponent.svg</file>
-	<file>ezJoltBoneColliderComponent.svg</file>
+	<file>ezJoltHitboxComponent.svg</file>
 	<file>ezJoltRopeComponent.svg</file>
 	<file>ezJoltShapeCylinderComponent.svg</file>
 	<file>ezJoltRagdollComponent.svg</file>
