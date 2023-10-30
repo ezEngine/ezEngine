@@ -17,7 +17,8 @@ struct BCFlags
   enum Enum
   {
     ShowDebugInfo = 0,
-    SendEntryChangedMessage
+    SendEntryChangedMessage,
+    InitializedFromTemplate
   };
 };
 
@@ -320,8 +321,29 @@ void ezLocalBlackboardComponent::Initialize()
 {
   SUPER::Initialize();
 
-  // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
-  InitializeFromTemplate();
+  if (IsActive())
+  {
+    // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
+    InitializeFromTemplate();
+    SetUserFlag(BCFlags::InitializedFromTemplate, true);
+  }
+}
+
+void ezLocalBlackboardComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  if (GetUserFlag(BCFlags::InitializedFromTemplate) == false)
+  {
+    InitializeFromTemplate();
+  }
+}
+
+void ezLocalBlackboardComponent::OnDeactivated()
+{
+  SUPER::OnDeactivated();
+
+  SetUserFlag(BCFlags::InitializedFromTemplate, false);
 }
 
 void ezLocalBlackboardComponent::OnSimulationStarted()
@@ -370,8 +392,6 @@ void ezLocalBlackboardComponent::DeserializeComponent(ezWorldReader& inout_strea
     }
   }
 }
-
-
 
 void ezLocalBlackboardComponent::SetSendEntryChangedMessage(bool bSend)
 {
@@ -516,8 +536,29 @@ void ezGlobalBlackboardComponent::Initialize()
 {
   SUPER::Initialize();
 
-  // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
-  InitializeFromTemplate();
+  if (IsActive())
+  {
+    // we already do this here, so that the BB is initialized even if OnSimulationStarted() hasn't been called yet
+    InitializeFromTemplate();
+    SetUserFlag(BCFlags::InitializedFromTemplate, true);
+  }
+}
+
+void ezGlobalBlackboardComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  if (GetUserFlag(BCFlags::InitializedFromTemplate) == false)
+  {
+    InitializeFromTemplate();
+  }
+}
+
+void ezGlobalBlackboardComponent::OnDeactivated()
+{
+  SUPER::OnDeactivated();
+
+  SetUserFlag(BCFlags::InitializedFromTemplate, false);
 }
 
 void ezGlobalBlackboardComponent::OnSimulationStarted()

@@ -2,6 +2,7 @@
 
 #include <Core/Scripting/ScriptRTTI.h>
 #include <Foundation/Communication/Message.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 ezScriptRTTI::ezScriptRTTI(ezStringView sName, const ezRTTI* pParentType, FunctionList&& functions, MessageHandlerList&& messageHandlers)

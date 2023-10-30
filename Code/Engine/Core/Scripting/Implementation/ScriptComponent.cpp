@@ -258,11 +258,11 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   if (bActivate)
   {
     CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnActivated);
-  }
 
-  if (GetWorld()->GetWorldSimulationEnabled())
-  {
-    CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
+    if (GetWorld()->GetWorldSimulationEnabled())
+    {
+      CallScriptFunction(ezComponent_ScriptBaseClassFunctions::OnSimulationStarted);
+    }
   }
 
   AddUpdateFunctionToSchedule();

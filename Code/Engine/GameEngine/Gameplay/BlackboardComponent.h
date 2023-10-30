@@ -114,6 +114,8 @@ public:
 
 protected:
   virtual void Initialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -186,6 +188,8 @@ public:
 
 protected:
   virtual void Initialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
