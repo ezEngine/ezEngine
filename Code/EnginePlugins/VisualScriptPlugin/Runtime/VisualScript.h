@@ -72,6 +72,17 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Variant_ConvertTo,
 
       Builtin_MakeArray,
+      Builtin_Array_GetElement, // TODO
+      Builtin_Array_SetElement, // TODO
+      Builtin_Array_GetCount,   // TODO
+      Builtin_Array_IsEmpty,    // TODO
+      Builtin_Array_Clear,      // TODO
+      Builtin_Array_Contains,   // TODO
+      Builtin_Array_IndexOf,    // TODO
+      Builtin_Array_Insert,     // TODO
+      Builtin_Array_PushBack,   // TODO
+      Builtin_Array_Remove,     // TODO
+      Builtin_Array_RemoveAt,   // TODO
 
       Builtin_TryGetComponentOfBaseType,
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2079033282408968098,4637671052243385259}}
-		u4 %Hash{13088142656561786019}
+		u4 %Hash{5002530934227188441}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -132,7 +132,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -145,7 +145,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"WhileWithBreak"}
+		s %Name{"Foreach"}
 		VarArray %Tags{}
 	}
 }
@@ -160,8 +160,8 @@ o
 		b %HandleGlobalEvents{0}
 		VarDict %Parameters
 		{
-			i3 %Counter{0}
-			s %Name{"WhileWithBreak"}
+			i3 %Counter{4}
+			s %Name{"Foreach"}
 		}
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ 00a5bb7c-bba5-4e39-a8c3-936a4306e399 }"}
@@ -271,7 +271,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -284,7 +284,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"ForWithBreak"}
+		s %Name{"RevForeach"}
 		VarArray %Tags{}
 	}
 }
@@ -299,8 +299,8 @@ o
 		b %HandleGlobalEvents{0}
 		VarDict %Parameters
 		{
-			i3 %Counter{6}
-			s %Name{"ForWithBreak"}
+			i3 %Counter{4}
+			s %Name{"RevForeach"}
 		}
 		b %PassThroughUnhandledEvents{0}
 		s %ScriptClass{"{ 00a5bb7c-bba5-4e39-a8c3-936a4306e399 }"}

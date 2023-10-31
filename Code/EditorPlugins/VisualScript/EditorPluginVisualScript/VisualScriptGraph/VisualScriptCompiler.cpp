@@ -256,6 +256,17 @@ namespace
     nullptr, // Builtin_Variant_ConvertTo,
 
     nullptr, // Builtin_MakeArray
+    nullptr, // Builtin_Array_GetElement,
+    nullptr, // Builtin_Array_SetElement,
+    nullptr, // Builtin_Array_GetCount,
+    nullptr, // Builtin_Array_IsEmpty,
+    nullptr, // Builtin_Array_Clear,
+    nullptr, // Builtin_Array_Contains,
+    nullptr, // Builtin_Array_IndexOf,
+    nullptr, // Builtin_Array_Insert,
+    nullptr, // Builtin_Array_PushBack,
+    nullptr, // Builtin_Array_Remove,
+    nullptr, // Builtin_Array_RemoveAt,
 
     &FillUserData_Builtin_TryGetComponentOfBaseType, // Builtin_TryGetComponentOfBaseType
 
@@ -644,7 +655,7 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildAST(const ezDocume
 
       AstNode* pAstNodeToAddInput = pAstNode;
       bool bArrayInput = false;
-      if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
+      if (pNodeDesc->m_Type != ezVisualScriptNodeDescription::Type::Builtin_MakeArray && pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
       {
         const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(pinDesc.m_sDynamicPinProperty);
         if (pProp == nullptr)
@@ -869,10 +880,15 @@ ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
 
 ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
 {
-  AstNode* pLoopInit = nullptr;
+  AstNode* pLoopInitStart = nullptr;
+  AstNode* pLoopInitEnd = nullptr;
   AstNode* pLoopConditionStart = nullptr;
   AstNode* pLoopConditionEnd = nullptr;
-  AstNode* pLoopIncrement = nullptr;
+  AstNode* pLoopIncrementStart = nullptr;
+  AstNode* pLoopIncrementEnd = nullptr;
+
+  AstNode* pLoopElement = nullptr;
+  AstNode* pLoopIndex = nullptr;
 
   AstNode* pLoopNode = connection.m_pCurrent;
   AstNode* pLoopBody = pLoopNode->m_Next[0];
@@ -889,28 +905,123 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
     auto& lastIndexInput = pLoopNode->m_Inputs[1];
 
     {
-      pLoopInit = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_ToInt, ezVisualScriptDataType::Int);
-      AddDataInput(*pLoopInit, firstIndexInput.m_pSourceNode, firstIndexInput.m_uiSourcePinIndex, firstIndexInput.m_DataType);
-      AddDataOutput(*pLoopInit, ezVisualScriptDataType::Int);
+      pLoopInitStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_ToInt, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopInitStart, firstIndexInput.m_pSourceNode, firstIndexInput.m_uiSourcePinIndex, firstIndexInput.m_DataType);
+      AddDataOutput(*pLoopInitStart, ezVisualScriptDataType::Int);
+
+      pLoopInitEnd = pLoopInitStart;
     }
 
     {
       pLoopConditionStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, ezVisualScriptDataType::Int);
       pLoopConditionStart->m_Value = ezInt64(ezComparisonOperator::LessEqual);
-      AddDataInput(*pLoopConditionStart, pLoopInit, 0, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopConditionStart, pLoopInitStart, 0, ezVisualScriptDataType::Int);
       AddDataInput(*pLoopConditionStart, lastIndexInput.m_pSourceNode, lastIndexInput.m_uiSourcePinIndex, lastIndexInput.m_DataType);
       AddDataOutput(*pLoopConditionStart, ezVisualScriptDataType::Bool);
     }
 
     {
-      pLoopIncrement = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Add, ezVisualScriptDataType::Int);
-      AddDataInput(*pLoopIncrement, pLoopInit, 0, ezVisualScriptDataType::Int);
-      AddDataInput(*pLoopIncrement, CreateConstantNode(1), 0, ezVisualScriptDataType::Int);
+      pLoopIncrementStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Add, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopIncrementStart, pLoopInitStart, 0, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopIncrementStart, CreateConstantNode(1), 0, ezVisualScriptDataType::Int);
 
-      auto& dataOutput = pLoopIncrement->m_Outputs.ExpandAndGetRef();
-      dataOutput.m_uiId = pLoopInit->m_Outputs[0].m_uiId;
+      auto& dataOutput = pLoopIncrementStart->m_Outputs.ExpandAndGetRef();
+      dataOutput.m_uiId = pLoopInitStart->m_Outputs[0].m_uiId;
       dataOutput.m_DataType = ezVisualScriptDataType::Int;
+
+      pLoopIncrementEnd = pLoopIncrementStart;
     }
+
+    pLoopIndex = pLoopInitStart;
+  }
+  else if (loopType == ezVisualScriptNodeDescription::Type::Builtin_ForEachLoop ||
+           loopType == ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop)
+  {
+    const bool isReverse = (loopType == ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop);
+    auto& arrayInput = pLoopNode->m_Inputs[0];
+
+    if (isReverse)
+    {
+      pLoopInitStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Array_GetCount);
+      AddDataInput(*pLoopInitStart, arrayInput.m_pSourceNode, arrayInput.m_uiSourcePinIndex, arrayInput.m_DataType);
+      AddDataOutput(*pLoopInitStart, ezVisualScriptDataType::Int);
+
+      pLoopInitEnd = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Subtract, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopInitEnd, pLoopInitStart, 0, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopInitEnd, CreateConstantNode(1), 0, ezVisualScriptDataType::Int);
+      AddDataOutput(*pLoopInitEnd, ezVisualScriptDataType::Int);
+
+      pLoopInitStart->m_Next.PushBack(pLoopInitEnd);
+
+      pLoopIndex = pLoopInitEnd;
+    }
+    else
+    {
+      pLoopInitStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_ToInt, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopInitStart, CreateConstantNode(0), 0, ezVisualScriptDataType::Int);
+      AddDataOutput(*pLoopInitStart, ezVisualScriptDataType::Int);
+
+      pLoopInitEnd = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Array_GetCount);
+      AddDataInput(*pLoopInitEnd, arrayInput.m_pSourceNode, arrayInput.m_uiSourcePinIndex, arrayInput.m_DataType);
+      AddDataOutput(*pLoopInitEnd, ezVisualScriptDataType::Int);
+
+      pLoopInitStart->m_Next.PushBack(pLoopInitEnd);
+
+      pLoopIndex = pLoopInitStart;
+    }
+
+    {
+      auto comparisonOperator = isReverse ? ezComparisonOperator::GreaterEqual : ezComparisonOperator::Less;
+      AstNode* pCompareOpB = isReverse ? CreateConstantNode(0) : pLoopInitEnd;
+
+      pLoopConditionStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, ezVisualScriptDataType::Int);
+      pLoopConditionStart->m_Value = ezInt64(comparisonOperator);
+      AddDataInput(*pLoopConditionStart, pLoopIndex, 0, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopConditionStart, pCompareOpB, 0, ezVisualScriptDataType::Int);
+      AddDataOutput(*pLoopConditionStart, ezVisualScriptDataType::Bool);
+    }
+
+    {
+      auto incType = isReverse ? ezVisualScriptNodeDescription::Type::Builtin_Subtract : ezVisualScriptNodeDescription::Type::Builtin_Add;
+
+      pLoopIncrementStart = &CreateAstNode(incType, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopIncrementStart, pLoopIndex, 0, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopIncrementStart, CreateConstantNode(1), 0, ezVisualScriptDataType::Int);
+      {
+        auto& dataOutput = pLoopIncrementStart->m_Outputs.ExpandAndGetRef();
+        dataOutput.m_uiId = pLoopIndex->m_Outputs[0].m_uiId;
+        dataOutput.m_DataType = ezVisualScriptDataType::Int;
+      }
+
+      if (isReverse)
+      {
+        // Dummy input that is not used at runtime but prevents the array from being re-used across the loop's lifetime
+        AddDataInput(*pLoopIncrementStart, arrayInput.m_pSourceNode, arrayInput.m_uiSourcePinIndex, arrayInput.m_DataType);
+
+        pLoopIncrementEnd = pLoopIncrementStart;
+      }
+      else
+      {
+        pLoopIncrementEnd = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Array_GetCount);
+        AddDataInput(*pLoopIncrementEnd, arrayInput.m_pSourceNode, arrayInput.m_uiSourcePinIndex, arrayInput.m_DataType);
+        {
+          auto& dataOutput = pLoopIncrementEnd->m_Outputs.ExpandAndGetRef();
+          dataOutput.m_uiId = pLoopInitEnd->m_Outputs[0].m_uiId;
+          dataOutput.m_DataType = ezVisualScriptDataType::Int;
+        }
+
+        pLoopIncrementStart->m_Next.PushBack(pLoopIncrementEnd);
+      }
+    }
+
+    pLoopElement = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Array_GetElement, ezVisualScriptDataType::Invalid, true);
+    AddDataInput(*pLoopElement, arrayInput.m_pSourceNode, arrayInput.m_uiSourcePinIndex, arrayInput.m_DataType);
+    AddDataInput(*pLoopElement, pLoopIndex, 0, ezVisualScriptDataType::Int);
+    AddDataOutput(*pLoopElement, ezVisualScriptDataType::Variant);
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   pLoopNode->m_Inputs.Clear();
@@ -935,10 +1046,10 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
     pLoopConditionEnd = &branchNode;
   }
 
-  if (pLoopInit != nullptr)
+  if (pLoopInitStart != nullptr)
   {
-    connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopInit;
-    pLoopInit->m_Next.PushBack(pLoopConditionStart);
+    connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopInitStart;
+    pLoopInitEnd->m_Next.PushBack(pLoopConditionStart);
   }
   else
   {
@@ -946,10 +1057,10 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
   }
 
   AstNode* pJumpNode = CreateJumpNode(pLoopConditionStart);
-  if (pLoopIncrement != nullptr)
+  if (pLoopIncrementStart != nullptr)
   {
-    pLoopIncrement->m_Next.PushBack(pJumpNode);
-    pJumpNode = pLoopIncrement;
+    pLoopIncrementEnd->m_Next.PushBack(pJumpNode);
+    pJumpNode = pLoopIncrementStart;
   }
 
   EZ_SUCCEED_OR_RETURN(TraverseAst(pLoopBody, ConnectionType::All,
@@ -988,10 +1099,25 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
 
       for (auto& dataInput : pNode->m_Inputs)
       {
-        if (dataInput.m_pSourceNode == pLoopNode)
+        if (loopType == ezVisualScriptNodeDescription::Type::Builtin_ForEachLoop ||
+            loopType == ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop)
         {
-          dataInput.m_pSourceNode = pLoopInit;
-          dataInput.m_uiSourcePinIndex = 0;
+          if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 0)
+          {
+            dataInput.m_pSourceNode = pLoopElement;
+          }
+          else if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 1)
+          {
+            dataInput.m_pSourceNode = pLoopIndex;
+            dataInput.m_uiSourcePinIndex = 0;
+          }
+        }
+        else
+        {
+          if (dataInput.m_pSourceNode == pLoopNode && dataInput.m_uiSourcePinIndex == 0)
+          {
+            dataInput.m_pSourceNode = pLoopIndex;
+          }
         }
       }
 
@@ -1007,8 +1133,6 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
 
 ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
 {
-  ezHashSet<const AstNode*> nodesWithInsertedMakeArrayNode;
-
   return TraverseAst(pEntryAstNode, ConnectionType::All,
     [&](const Connection& connection)
     {

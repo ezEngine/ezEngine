@@ -67,6 +67,17 @@ namespace
     "Builtin_Variant_ConvertTo",
 
     "Builtin_MakeArray",
+    "Builtin_Array_GetElement",
+    "Builtin_Array_SetElement",
+    "Builtin_Array_GetCount",
+    "Builtin_Array_IsEmpty",
+    "Builtin_Array_Clear",
+    "Builtin_Array_Contains",
+    "Builtin_Array_IndexOf",
+    "Builtin_Array_Insert",
+    "Builtin_Array_PushBack",
+    "Builtin_Array_Remove",
+    "Builtin_Array_RemoveAt",
 
     "Builtin_TryGetComponentOfBaseType",
 

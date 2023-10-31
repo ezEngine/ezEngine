@@ -16,6 +16,7 @@ target_link_libraries(${PROJECT_NAME}
   RendererDX11
   Utilities
   ParticlePlugin
+  VisualScriptPlugin
 )
 
 if (EZ_3RDPARTY_DUKTAPE_SUPPORT)
