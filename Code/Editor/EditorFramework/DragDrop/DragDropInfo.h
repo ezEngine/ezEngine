@@ -66,12 +66,3 @@ public:
   /// Whether the currently selected objects (ie the dragged objects) should be considered for picking or not. Default is disabled.
   bool m_bPickSelectedObjects;
 };
-
-/// \brief Helper operator to retrieve the "application/ezEditor.ObjectSelection" mime data from a ezDragDropInfo::m_pMimeData.
-/// \code{.cpp}
-///   ezHybridArray<const ezDocumentObject*, 32> Dragged;
-///   QByteArray encodedData = m_pMimeData->data("application/ezEditor.ObjectSelection");
-///   QDataStream stream(&encodedData, QIODevice::ReadOnly);
-///   stream >> Dragged;
-/// \endcode
-EZ_EDITORFRAMEWORK_DLL void operator>>(QDataStream& inout_stream, ezDynamicArray<ezDocumentObject*>& rhs);

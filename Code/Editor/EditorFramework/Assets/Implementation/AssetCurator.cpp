@@ -1061,6 +1061,25 @@ void ezAssetCurator::FindAllUses(ezUuid assetGuid, ezSet<ezUuid>& ref_uses, bool
   } while (bTransitive && !todoList.IsEmpty());
 }
 
+void ezAssetCurator::FindAllUses(ezStringView sAbsolutePath, ezSet<ezUuid>& ref_uses) const
+{
+  EZ_LOCK(m_CuratorMutex);
+  if (auto it = m_InverseTransformDeps.Find(sAbsolutePath); it.IsValid())
+  {
+    for (const ezUuid& guid : it.Value())
+    {
+      ref_uses.Insert(guid);
+    }
+  }
+}
+
+bool ezAssetCurator::IsReferenced(ezStringView sAbsolutePath) const
+{
+  EZ_LOCK(m_CuratorMutex);
+  auto it = m_InverseTransformDeps.Find(sAbsolutePath);
+  return it.IsValid() && !it.Value().IsEmpty();
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Manual and Automatic Change Notification
 ////////////////////////////////////////////////////////////////////////

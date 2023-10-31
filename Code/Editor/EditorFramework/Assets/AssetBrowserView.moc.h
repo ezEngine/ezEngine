@@ -5,6 +5,7 @@
 #include <GuiFoundation/Widgets/ItemView.moc.h>
 #include <QItemDelegate>
 #include <QListView>
+#include <EditorFramework/Assets/AssetBrowserFolderView.moc.h>
 
 class ezQtIconViewDelegate;
 
@@ -47,9 +48,13 @@ public:
   virtual bool mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
   virtual bool mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index) override;
 
+
 public:
   virtual void paint(QPainter* pPainter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
   virtual QSize sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
+  virtual QWidget* createEditor(QWidget* pParent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+  virtual void setModelData(QWidget* pEditor, QAbstractItemModel* pModel, const QModelIndex& index) const override;
+  virtual void updateEditorGeometry(QWidget* pEditor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 private:
   QSize ItemSize() const;

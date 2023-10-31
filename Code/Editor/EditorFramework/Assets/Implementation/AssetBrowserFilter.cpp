@@ -13,6 +13,8 @@ ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)
 void ezQtAssetBrowserFilter::Reset()
 {
   SetShowItemsInSubFolders(true);
+  SetShowFiles(true);
+  SetShowNonImportableFiles(true);
   SetShowItemsInHiddenFolders(false);
   SetSortByRecentUse(false);
   SetTextFilter("");
@@ -20,12 +22,44 @@ void ezQtAssetBrowserFilter::Reset()
   SetPathFilter("");
 }
 
+
+void ezQtAssetBrowserFilter::UpdateImportExtensions(const ezSet<ezString>& extensions)
+{
+  m_ImportExtensions = extensions;
+  if (!m_bShowNonImportableFiles)
+    Q_EMIT FilterChanged();
+}
+
 void ezQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)
 {
   if (m_bShowItemsInSubFolders == bShow)
     return;
 
+  m_sTemporaryPinnedItem.Clear();
   m_bShowItemsInSubFolders = bShow;
+
+  Q_EMIT FilterChanged();
+}
+
+
+void ezQtAssetBrowserFilter::SetShowFiles(bool bShow)
+{
+  if (m_bShowFiles == bShow)
+    return;
+
+  m_sTemporaryPinnedItem.Clear();
+  m_bShowFiles = bShow;
+
+  Q_EMIT FilterChanged();
+}
+
+void ezQtAssetBrowserFilter::SetShowNonImportableFiles(bool bShow)
+{
+  if (m_bShowNonImportableFiles == bShow)
+    return;
+
+  m_sTemporaryPinnedItem.Clear();
+  m_bShowNonImportableFiles = bShow;
 
   Q_EMIT FilterChanged();
 }
@@ -35,6 +69,7 @@ void ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders(bool bShow)
   if (m_bShowItemsInHiddenFolders == bShow)
     return;
 
+  m_sTemporaryPinnedItem.Clear();
   m_bShowItemsInHiddenFolders = bShow;
 
   Q_EMIT FilterChanged();
@@ -89,14 +124,30 @@ void ezQtAssetBrowserFilter::SetPathFilter(const char* szPath)
 {
   ezStringBuilder sCleanText = szPath;
   sCleanText.MakeCleanPath();
+  // The assumption is that only full directory names are set as path filters. Thus, we can ensure they end with a / to make it easier to filter items inside the path.
+  if (!sCleanText.IsEmpty() && !sCleanText.EndsWith_NoCase("/"))
+  {
+    sCleanText.Append("/");
+  }
 
   if (m_sPathFilter == sCleanText)
     return;
 
+  m_sTemporaryPinnedItem.Clear();
   m_sPathFilter = sCleanText;
 
   Q_EMIT FilterChanged();
   Q_EMIT PathFilterChanged();
+}
+
+
+ezStringView ezQtAssetBrowserFilter::GetPathFilter() const
+{
+  if (m_sPathFilter.EndsWith_NoCase("/"))
+  {
+    return m_sPathFilter.GetSubString(0, m_sPathFilter.GetCharacterCount() - 1);
+  }
+  return m_sPathFilter;
 }
 
 void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
@@ -104,32 +155,65 @@ void ezQtAssetBrowserFilter::SetTypeFilter(const char* szTypes)
   if (m_sTypeFilter == szTypes)
     return;
 
+  m_sTemporaryPinnedItem.Clear();
   m_sTypeFilter = szTypes;
 
   Q_EMIT FilterChanged();
   Q_EMIT TypeFilterChanged();
 }
 
-bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
+
+void ezQtAssetBrowserFilter::SetTemporaryPinnedItem(ezStringView sDataDirParentRelativePath)
 {
-  if (!m_sPathFilter.IsEmpty())
+  if (m_sTemporaryPinnedItem == sDataDirParentRelativePath)
+    return;
+
+  m_sTemporaryPinnedItem = sDataDirParentRelativePath;
+  Q_EMIT FilterChanged();
+}
+
+bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const
+{
+  // ignore all paths leading into the AssetCache
+  if (sDataDirParentRelativePath.FindSubString("/AssetCache/"))
+    return true;
+
+  // also ignore the AssetCache folder directly
+  if (bIsFolder && sDataDirParentRelativePath.GetFileNameAndExtension() == "AssetCache")
+    return true;
+
+  if (sDataDirParentRelativePath == m_sTemporaryPinnedItem)
+    return false;
+
+  if (!m_bShowFiles && !pInfo && !bIsFolder)
+    return true;
+
+  if (m_bShowFiles && !m_bShowNonImportableFiles && !pInfo && !bIsFolder)
+  {
+    ezStringBuilder sExt = sDataDirParentRelativePath.GetFileExtension();
+    sExt.ToLower();
+    if (!m_ImportExtensions.Contains(sExt))
+      return true;
+  }
+
+  if (!m_sPathFilter.IsEmpty() || bIsFolder)
   {
     // if the string is not found in the path, ignore this asset
-    if (!pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath().StartsWith_NoCase(m_sPathFilter))
+    if (!sDataDirParentRelativePath.StartsWith(m_sPathFilter))
       return true;
 
-    if (!m_bShowItemsInSubFolders)
+    if (!m_bShowItemsInSubFolders || bIsFolder)
     {
       // do we find another path separator after the prefix path?
       // if so, there is a sub-folder, and thus we ignore it
-      if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath().GetStartPointer() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
+      if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
         return true;
     }
   }
 
   if (!m_bShowItemsInHiddenFolders)
   {
-    if (ezStringUtils::FindSubString_NoCase(pInfo->m_pAssetInfo->m_Path.GetDataDirParentRelativePath().GetStartPointer() + m_sPathFilter.GetElementCount() + 1, "_data/") !=
+    if (ezStringUtils::FindSubString_NoCase(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount() + 1, "_data/", sDataDirParentRelativePath.GetEndPointer()) !=
         nullptr)
       return true;
   }
@@ -138,15 +222,18 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
   {
     if (m_bUsesSearchActive)
     {
+      if (pInfo == nullptr)
+        return true;
+
       if (!m_Uses.Contains(pInfo->m_Data.m_Guid))
         return true;
     }
     else
     {
       // if the string is not found in the path, ignore this asset
-      if (m_SearchFilter.PassesFilters(pInfo->m_pAssetInfo->m_Path.GetDataDirRelativePath()) == false)
+      if (m_SearchFilter.PassesFilters(sDataDirParentRelativePath) == false)
       {
-        if (m_SearchFilter.PassesFilters(pInfo->GetName()) == false)
+        if (pInfo && m_SearchFilter.PassesFilters(pInfo->GetName()) == false)
         {
           ezConversionUtils::ToString(pInfo->m_Data.m_Guid, m_sTemp);
           if (m_SearchFilter.PassesFilters(m_sTemp) == false)
@@ -154,34 +241,26 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 
           // we could actually (partially) match the GUID
         }
+        else
+          return true;
       }
     }
   }
 
   if (!m_sTypeFilter.IsEmpty())
   {
+    // Always show folders even if type filter is set.
+    if (bIsFolder)
+      return false;
+
+    if (pInfo == nullptr) // if this is no asset, but we have an asset type filter active, always hide this thing
+      return true;
+
     m_sTemp.Set(";", pInfo->m_Data.m_sSubAssetsDocumentTypeName, ";");
 
     if (!m_sTypeFilter.FindSubString(m_sTemp))
       return true;
   }
+
   return false;
-}
-
-bool ezQtAssetBrowserFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
-{
-  if (m_bSortByRecentUse && pInfoA->m_LastAccess.GetSeconds() != pInfoB->m_LastAccess.GetSeconds())
-  {
-    return pInfoA->m_LastAccess > pInfoB->m_LastAccess;
-  }
-
-  ezStringView sSortA = pInfoA->GetName();
-  ezStringView sSortB = pInfoB->GetName();
-
-  ezInt32 iValue = ezStringUtils::Compare_NoCase(sSortA.GetStartPointer(), sSortB.GetStartPointer(), sSortA.GetEndPointer(), sSortB.GetEndPointer());
-  if (iValue == 0)
-  {
-    return pInfoA->m_Data.m_Guid < pInfoB->m_Data.m_Guid;
-  }
-  return iValue < 0;
 }

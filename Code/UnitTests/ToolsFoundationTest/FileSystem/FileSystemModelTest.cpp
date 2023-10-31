@@ -461,10 +461,10 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     sFilePathOld.AppendPath("Folder1", "rootFile2.txt");
 
     ezStringBuilder sFolderPathNew(sOutputFolder);
-    sFolderPathNew.AppendPath("Folder2");
+    sFolderPathNew.AppendPath("Folder12");
 
     ezStringBuilder sFilePathNew(sOutputFolder);
-    sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
+    sFilePathNew.AppendPath("Folder12", "rootFile2.txt");
 
     EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sFolderPathOld, sFolderPathNew));
 
@@ -511,7 +511,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashFile")
   {
     ezStringBuilder sFilePathNew(sOutputFolder);
-    sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
+    sFilePathNew.AppendPath("Folder12", "rootFile2.txt");
 
     ezFileStatus status;
     EZ_TEST_RESULT(ezFileSystemModel::GetSingleton()->HashFile(sFilePathNew, status));
@@ -577,7 +577,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFiles")
   {
     ezStringBuilder sFilePathNew(sOutputFolder);
-    sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
+    sFilePathNew.AppendPath("Folder12", "rootFile2.txt");
 
     ezFileSystemModel::LockedFiles files = ezFileSystemModel::GetSingleton()->GetFiles();
     EZ_TEST_INT(files->GetCount(), 1);
@@ -591,7 +591,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFolders")
   {
     ezStringBuilder sFolder(sOutputFolder);
-    sFolder.AppendPath("Folder2");
+    sFolder.AppendPath("Folder12");
 
     ezFileSystemModel::LockedFolders folders = ezFileSystemModel::GetSingleton()->GetFolders();
     EZ_TEST_INT(folders->GetCount(), 3);
@@ -613,10 +613,10 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CheckFileSystem")
   {
     ezStringBuilder sFolderPath(sOutputFolder);
-    sFolderPath.AppendPath("Folder2");
+    sFolderPath.AppendPath("Folder12");
 
     ezStringBuilder sFilePath(sOutputFolder);
-    sFilePath.AppendPath("Folder2", "rootFile2.txt");
+    sFilePath.AppendPath("Folder12", "rootFile2.txt");
 
     ezFileSystemModel::GetSingleton()->CheckFileSystem();
 
@@ -713,7 +713,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CheckFolder - File")
   {
     ezStringBuilder sFilePath(sOutputFolder);
-    sFilePath.AppendPath("Folder2", "subFile.txt");
+    sFilePath.AppendPath("Folder12", "subFile.txt");
     {
       EZ_TEST_RESULT(eztCreateFile(sFilePath));
       ezFileSystemModel::GetSingleton()->CheckFolder(sOutputFolder);
@@ -793,7 +793,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadDocument")
   {
     ezStringBuilder sFilePathNew(sOutputFolder);
-    sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
+    sFilePathNew.AppendPath("Folder12", "rootFile2.txt");
 
     ezUuid docGuid = ezUuid::MakeUuid();
     auto callback = [&](const ezFileStatus& status, ezStreamReader& ref_reader) {
@@ -813,7 +813,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LinkDocument")
   {
     ezStringBuilder sFilePathNew(sOutputFolder);
-    sFilePathNew.AppendPath("Folder2", "rootFile2.txt");
+    sFilePathNew.AppendPath("Folder12", "rootFile2.txt");
 
     ezUuid guid = ezUuid::MakeUuid();
     ezUuid guid2 = ezUuid::MakeUuid();
@@ -857,10 +857,10 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Change file casing")
   {
     ezStringBuilder sFilePathOld(sOutputFolder);
-    sFilePathOld.AppendPath("Folder2", "rootFile2.txt");
+    sFilePathOld.AppendPath("Folder12", "rootFile2.txt");
 
     ezStringBuilder sFilePathNew(sOutputFolder);
-    sFilePathNew.AppendPath("Folder2", "RootFile2.txt");
+    sFilePathNew.AppendPath("Folder12", "RootFile2.txt");
 
     EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sFilePathOld, sFilePathNew));
 
@@ -888,10 +888,10 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Change folder casing")
   {
     ezStringBuilder sFolderPathOld(sOutputFolder);
-    sFolderPathOld.AppendPath("Folder2");
+    sFolderPathOld.AppendPath("Folder12");
 
     ezStringBuilder sFolderPathNew(sOutputFolder);
-    sFolderPathNew.AppendPath("FOLDER2");
+    sFolderPathNew.AppendPath("FOLDER12");
 
     EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sFolderPathOld, sFolderPathNew));
 
@@ -915,9 +915,9 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
 
     {
       ezStringBuilder sFilePathOld(sOutputFolder);
-      sFilePathOld.AppendPath("Folder2", "RootFile2.txt");
+      sFilePathOld.AppendPath("Folder12", "RootFile2.txt");
       ezStringBuilder sFilePathNew(sOutputFolder);
-      sFilePathNew.AppendPath("FOLDER2", "RootFile2.txt");
+      sFilePathNew.AppendPath("FOLDER12", "RootFile2.txt");
 
       ezFileChangedEvent expected[] = {
         ezFileChangedEvent(MakePath(sFilePathNew), {}, ezFileChangedEvent::Type::FileAdded),
@@ -933,10 +933,10 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "delete folder")
   {
     ezStringBuilder sFolderPath(sOutputFolder);
-    sFolderPath.AppendPath("FOLDER2");
+    sFolderPath.AppendPath("FOLDER12");
 
     ezStringBuilder sFilePath(sOutputFolder);
-    sFilePath.AppendPath("FOLDER2", "RootFile2.txt");
+    sFilePath.AppendPath("FOLDER12", "RootFile2.txt");
 
     EZ_TEST_RESULT(ezOSFile::DeleteFolder(sFolderPath));
 

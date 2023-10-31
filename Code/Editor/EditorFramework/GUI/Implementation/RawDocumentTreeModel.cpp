@@ -599,30 +599,21 @@ QMimeData* ezQtDocumentTreeModel::mimeData(const QModelIndexList& indexes) const
   if (!m_bAllowDragDrop)
     return nullptr;
 
-  QMimeData* mimeData = new QMimeData();
-  QByteArray encodedData;
-
-  QDataStream stream(&encodedData, QIODevice::WriteOnly);
-
-  int iCount = 0;
-
-  foreach (QModelIndex index, indexes)
-  {
-    if (index.isValid())
-      ++iCount;
-  }
-
-  stream << iCount;
-
-  foreach (QModelIndex index, indexes)
+  ezHybridArray<void*, 1> ptrs;
+  for (const QModelIndex& index : indexes)
   {
     if (index.isValid())
     {
       void* pObject = index.internalPointer();
-      stream.writeRawData((const char*)&pObject, sizeof(void*));
+      ptrs.PushBack(pObject);
     }
   }
 
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+  stream << ptrs;
+
+  QMimeData* mimeData = new QMimeData();
   mimeData->setData("application/ezEditor.ObjectSelection", encodedData);
   return mimeData;
 }

@@ -18,8 +18,7 @@ public:
   void SetFilterTransitive(bool bFilterTransitive);
 
 public:
-  virtual bool IsAssetFiltered(const ezSubAsset* pInfo) const override;
-  virtual bool Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const override;
+  virtual bool IsAssetFiltered(ezStringView sDataDirParentRelativePath, bool bIsFolder, const ezSubAsset* pInfo) const override;
 
   bool m_bFilterTransitive = true;
 };

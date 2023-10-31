@@ -1,7 +1,83 @@
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="SVGRepo_bgCarrier" stroke-width="0"/>
-<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-<g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M1 5C1 3.34315 2.34315 2 4 2H8.43845C9.81505 2 11.015 2.93689 11.3489 4.27239L11.7808 6H13.5H20C21.6569 6 23 7.34315 23 9V19C23 20.6569 21.6569 22 20 22H4C2.34315 22 1 20.6569 1 19V10V9V5ZM3 9V10V19C3 19.5523 3.44772 20 4 20H20C20.5523 20 21 19.5523 21 19V9C21 8.44772 20.5523 8 20 8H13.5H11.7808H4C3.44772 8 3 8.44772 3 9ZM9.71922 6H4C3.64936 6 3.31278 6.06015 3 6.17071V5C3 4.44772 3.44772 4 4 4H8.43845C8.89732 4 9.2973 4.3123 9.40859 4.75746L9.71922 6Z" fill="#ffffff"/> </g>
-</svg>
+
+<svg
+   width="800px"
+   height="800px"
+   viewBox="0 0 24 24"
+   fill="none"
+   version="1.1"
+   id="svg3151"
+   sodipodi:docname="DataDirectory.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs3155" />
+  <sodipodi:namedview
+     id="namedview3153"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.28375"
+     inkscape:cx="399.61052"
+     inkscape:cy="400.77897"
+     inkscape:window-width="1920"
+     inkscape:window-height="1111"
+     inkscape:window-x="2551"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3151" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round" />
+  <g
+     id="SVGRepo_iconCarrier">
+    <path
+       fill-rule="evenodd"
+       clip-rule="evenodd"
+       d="M1 5C1 3.34315 2.34315 2 4 2H8.43845C9.81505 2 11.015 2.93689 11.3489 4.27239L11.7808 6H13.5H20C21.6569 6 23 7.34315 23 9V19C23 20.6569 21.6569 22 20 22H4C2.34315 22 1 20.6569 1 19V10V9V5ZM3 9V10V19C3 19.5523 3.44772 20 4 20H20C20.5523 20 21 19.5523 21 19V9C21 8.44772 20.5523 8 20 8H13.5H11.7808H4C3.44772 8 3 8.44772 3 9ZM9.71922 6H4C3.64936 6 3.31278 6.06015 3 6.17071V5C3 4.44772 3.44772 4 4 4H8.43845C8.89732 4 9.2973 4.3123 9.40859 4.75746L9.71922 6Z"
+       fill="#ffffff"
+       id="path3148" />
+  </g>
+  <g
+     id="g4078"
+     transform="matrix(0.45775271,0,0,0.45775271,7.308483,6.6860943)"
+     style="fill:#ffffff;stroke-width:0;stroke-dasharray:none">
+    <path
+       d="m 11.179007,6.2206848 6.51,3.51 c 0.76,0.4100002 0.76,1.5800002 0,1.9900002 l -6.51,3.51003 c -0.58,0.31 -1.2600002,0.31 -1.8400002,0 l -6.51,-3.51003 c -0.76,-0.41 -0.76,-1.58 0,-1.9900002 l 6.51,-3.51 c 0.58,-0.31 1.2600002,-0.31 1.8400002,0 z"
+       stroke="#ffffff"
+       stroke-width="1.5"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       id="path1"
+       style="stroke:#b96b29;stroke-opacity:1;fill:#ffffff;stroke-width:0;stroke-dasharray:none" />
+    <path
+       d="m 1.8690068,14.090715 6.05,3.03 c 0.75,0.38 1.23,1.15 1.23,1.99 v 5.7201 c 0,0.83 -0.87,1.36 -1.61,0.99 l -6.05,-3.0301 c -0.75,-0.38 -1.23,-1.15 -1.23,-1.99 v -5.72 c 0,-0.83 0.87,-1.35995 1.61,-0.99 z"
+       stroke="#ffffff"
+       stroke-width="1.5"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       id="path2"
+       style="stroke:#b96b29;stroke-opacity:1;fill:#ffffff;stroke-width:0;stroke-dasharray:none" />
+    <path
+       d="m 18.649007,14.090715 -6.05,3.03 c -0.75,0.38 -1.23,1.15 -1.23,1.99 v 5.7201 c 0,0.83 0.87,1.36 1.61,0.99 l 6.05,-3.0301 c 0.75,-0.38 1.23,-1.15 1.23,-1.99 v -5.72 c 0,-0.83 -0.87,-1.35995 -1.61,-0.99 z"
+       stroke="#ffffff"
+       stroke-width="1.5"
+       stroke-linecap="round"
+       stroke-linejoin="round"
+       id="path3"
+       style="stroke:#b96b29;stroke-opacity:1;fill:#ffffff;stroke-width:0;stroke-dasharray:none" />
+  </g>
+</svg>

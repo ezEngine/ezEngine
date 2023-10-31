@@ -54,7 +54,7 @@
           <enum>Qt::Vertical</enum>
          </property>
          <widget class="QListWidget" name="ListTypeFilter"/>
-         <widget class="QTreeWidget" name="TreeFolderFilter">
+         <widget class="eqQtAssetBrowserFolderView" name="TreeFolderFilter">
           <property name="uniformRowHeights">
            <bool>true</bool>
           </property>
@@ -154,8 +154,11 @@
        </item>
        <item>
         <widget class="ezQtAssetBrowserView" name="ListAssets">
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
          <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
+          <set>QAbstractItemView::EditKeyPressed</set>
          </property>
          <property name="dragEnabled">
           <bool>true</bool>
@@ -164,7 +167,7 @@
           <enum>QAbstractItemView::DragOnly</enum>
          </property>
          <property name="alternatingRowColors">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -191,6 +194,11 @@
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>eqQtAssetBrowserFolderView</class>
+   <extends>QTreeWidget</extends>
+   <header location="global">EditorFramework/Assets/AssetBrowserFolderView.moc.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
