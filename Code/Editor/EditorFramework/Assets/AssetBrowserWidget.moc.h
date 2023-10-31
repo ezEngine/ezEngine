@@ -54,7 +54,8 @@ private Q_SLOTS:
   void on_TypeFilter_currentIndexChanged(int index);
   void OnScrollToItem(ezUuid preselectedAsset);
   void OnShowSubFolderItemsToggled();
-  void OnShowFilesAndFoldersToggled();
+  void OnShowFilesToggled();
+  void OnShowNonImportableFilesToggled();
   void OnShowHiddenFolderItemsToggled();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();

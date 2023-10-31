@@ -17,7 +17,7 @@ public:
   /// \brief Constructor. Validator requires the current location and name of the file.
   /// \param sParentFolder Absolute path to the location of the file.
   /// \param sCurrentName Current filename. If set, this name is marked as valid, even though it is already in use.
-  ezFileNameValidator(ezStringView sParentFolder, ezStringView sCurrentName);
+  ezFileNameValidator(QObject* pParent, ezStringView sParentFolder, ezStringView sCurrentName);
   virtual QValidator::State validate(QString& ref_sInput, int& ref_iPos) const override;
 
 private:

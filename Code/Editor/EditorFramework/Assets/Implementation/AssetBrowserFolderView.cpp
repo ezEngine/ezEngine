@@ -9,8 +9,9 @@
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 
-ezFileNameValidator::ezFileNameValidator(ezStringView sParentFolder, ezStringView sCurrentName)
-  : m_sParentFolder(sParentFolder)
+ezFileNameValidator::ezFileNameValidator(QObject* pParent, ezStringView sParentFolder, ezStringView sCurrentName)
+  : QValidator(pParent)
+  , m_sParentFolder(sParentFolder)
   , m_sCurrentName(sCurrentName)
 {
 }
@@ -47,7 +48,7 @@ QWidget* ezFolderNameDelegate::createEditor(QWidget* pParent, const QStyleOption
   ezStringBuilder sAbsPath = index.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().constData();
 
   QLineEdit* editor = new QLineEdit(pParent);
-  editor->setValidator(new ezFileNameValidator(sAbsPath.GetFileDirectory(), sAbsPath.GetFileNameAndExtension()));
+  editor->setValidator(new ezFileNameValidator(editor, sAbsPath.GetFileDirectory(), sAbsPath.GetFileNameAndExtension()));
   return editor;
 }
 

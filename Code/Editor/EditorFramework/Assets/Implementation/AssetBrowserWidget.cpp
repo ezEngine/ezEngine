@@ -135,6 +135,9 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
   }
 
   // make sure to apply the previously active type filter settings to the UI
+  ezSet<ezString> importExtensions;
+  ezAssetDocumentGenerator::GetSupportsFileTypes(importExtensions);
+  m_pFilter->UpdateImportExtensions(importExtensions);
   OnTypeFilterChanged();
 }
 
@@ -594,9 +597,15 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
   }
 
   {
-    QAction* pAction = m.addAction(QLatin1String("Show files and folders"), this, SLOT(OnShowFilesAndFoldersToggled()));
+    QAction* pAction = m.addAction(QLatin1String("Show files"), this, SLOT(OnShowFilesToggled()));
     pAction->setCheckable(true);
-    pAction->setChecked(m_pFilter->GetShowFilesAndFolders());
+    pAction->setChecked(m_pFilter->GetShowFiles());
+  }
+
+  {
+    QAction* pAction = m.addAction(QLatin1String("Show non-importable files"), this, SLOT(OnShowNonImportableFilesToggled()));
+    pAction->setCheckable(true);
+    pAction->setChecked(m_pFilter->GetShowNonImportableFiles());
   }
 
   {
@@ -649,9 +658,14 @@ void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
   m_pFilter->SetShowItemsInSubFolders(!m_pFilter->GetShowItemsInSubFolders());
 }
 
-void ezQtAssetBrowserWidget::OnShowFilesAndFoldersToggled()
+void ezQtAssetBrowserWidget::OnShowFilesToggled()
 {
-  m_pFilter->SetShowFilesAndFolders(!m_pFilter->GetShowFilesAndFolders());
+  m_pFilter->SetShowFiles(!m_pFilter->GetShowFiles());
+}
+
+void ezQtAssetBrowserWidget::OnShowNonImportableFilesToggled()
+{
+  m_pFilter->SetShowNonImportableFiles(!m_pFilter->GetShowNonImportableFiles());
 }
 
 void ezQtAssetBrowserWidget::OnShowHiddenFolderItemsToggled()

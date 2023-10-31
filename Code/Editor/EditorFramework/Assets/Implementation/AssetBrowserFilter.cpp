@@ -13,12 +13,21 @@ ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)
 void ezQtAssetBrowserFilter::Reset()
 {
   SetShowItemsInSubFolders(true);
-  SetShowFilesAndFolders(true);
+  SetShowFiles(true);
+  SetShowNonImportableFiles(true);
   SetShowItemsInHiddenFolders(false);
   SetSortByRecentUse(false);
   SetTextFilter("");
   SetTypeFilter("");
   SetPathFilter("");
+}
+
+
+void ezQtAssetBrowserFilter::UpdateImportExtensions(const ezSet<ezString>& extensions)
+{
+  m_ImportExtensions = extensions;
+  if (!m_bShowNonImportableFiles)
+    Q_EMIT FilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)
@@ -33,13 +42,24 @@ void ezQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)
 }
 
 
-void ezQtAssetBrowserFilter::SetShowFilesAndFolders(bool bShow)
+void ezQtAssetBrowserFilter::SetShowFiles(bool bShow)
 {
-  if (m_bShowFilesAndFolders == bShow)
+  if (m_bShowFiles == bShow)
     return;
 
   m_sTemporaryPinnedItem.Clear();
-  m_bShowFilesAndFolders = bShow;
+  m_bShowFiles = bShow;
+
+  Q_EMIT FilterChanged();
+}
+
+void ezQtAssetBrowserFilter::SetShowNonImportableFiles(bool bShow)
+{
+  if (m_bShowNonImportableFiles == bShow)
+    return;
+
+  m_sTemporaryPinnedItem.Clear();
+  m_bShowNonImportableFiles = bShow;
 
   Q_EMIT FilterChanged();
 }
@@ -165,8 +185,16 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
   if (sDataDirParentRelativePath == m_sTemporaryPinnedItem)
     return false;
 
-  if (!m_bShowFilesAndFolders && !pInfo)
+  if (!m_bShowFiles && !pInfo && !bIsFolder)
     return true;
+
+  if (m_bShowFiles && !m_bShowNonImportableFiles && !pInfo && !bIsFolder)
+  {
+    ezStringBuilder sExt = sDataDirParentRelativePath.GetFileExtension();
+    sExt.ToLower();
+    if (!m_ImportExtensions.Contains(sExt))
+      return true;
+  }
 
   if (!m_sPathFilter.IsEmpty() || bIsFolder)
   {

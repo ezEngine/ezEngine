@@ -12,12 +12,16 @@ public:
 
   /// Resets all filters to their default state.
   void Reset();
+  void UpdateImportExtensions(const ezSet<ezString>& extensions);
 
   void SetShowItemsInSubFolders(bool bShow);
   bool GetShowItemsInSubFolders() const { return m_bShowItemsInSubFolders; }
 
-  void SetShowFilesAndFolders(bool bShow);
-  bool GetShowFilesAndFolders() const { return m_bShowFilesAndFolders; }
+  void SetShowFiles(bool bShow);
+  bool GetShowFiles() const { return m_bShowFiles; }
+
+  void SetShowNonImportableFiles(bool bShow);
+  bool GetShowNonImportableFiles() const { return m_bShowNonImportableFiles; }
 
   void SetShowItemsInHiddenFolders(bool bShow);
   bool GetShowItemsInHiddenFolders() const { return m_bShowItemsInHiddenFolders; }
@@ -54,7 +58,8 @@ private:
   ezString m_sTemporaryPinnedItem;
   ezSearchPatternFilter m_SearchFilter;
   bool m_bShowItemsInSubFolders = true;
-  bool m_bShowFilesAndFolders = true;
+  bool m_bShowFiles = true;
+  bool m_bShowNonImportableFiles = true;
   bool m_bShowItemsInHiddenFolders = false;
   bool m_bSortByRecentUse = false;
   mutable ezStringBuilder m_sTemp; // stored here to reduce unnecessary allocations
@@ -63,4 +68,5 @@ private:
   bool m_bUsesSearchActive = false;
   bool m_bTransitive = false;
   ezSet<ezUuid> m_Uses;
+  ezSet<ezString> m_ImportExtensions;
 };

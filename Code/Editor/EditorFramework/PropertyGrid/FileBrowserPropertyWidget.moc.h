@@ -4,12 +4,15 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <QLineEdit>
 
+class ezQtFileLineEdit;
+
 class EZ_EDITORFRAMEWORK_DLL ezQtFilePropertyWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
   ezQtFilePropertyWidget();
+  bool IsValidFileReference(ezStringView sFile) const;
 
 private Q_SLOTS:
   void on_BrowseFile_clicked();
@@ -26,8 +29,8 @@ protected:
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  QHBoxLayout* m_pLayout;
-  QLineEdit* m_pWidget;
-  QToolButton* m_pButton;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtFileLineEdit* m_pWidget = nullptr;
+  QToolButton* m_pButton = nullptr;
 };
 
