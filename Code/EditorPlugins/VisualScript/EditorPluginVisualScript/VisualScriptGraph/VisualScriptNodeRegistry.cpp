@@ -516,6 +516,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddOutputExecutionPin("");
     AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
+    nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }

@@ -134,7 +134,7 @@ private:
   AstNode* BuildAST(const ezDocumentObject* pEntryNode);
   void MarkAsCoroutine(AstNode* pEntryAstNode);
   ezResult ReplaceUnsupportedNodes(AstNode* pEntryAstNode);
-  ezResult ReplaceLoop(const Connection& connection);
+  ezResult ReplaceLoop(Connection& connection);
   ezResult InsertTypeConversions(AstNode* pEntryAstNode);
   ezResult InlineConstants(AstNode* pEntryAstNode);
   ezResult InlineVariables(AstNode* pEntryAstNode);
@@ -158,7 +158,7 @@ private:
     Error,
   };
 
-  using AstNodeVisitorFunc = ezDelegate<VisitorResult(const Connection& connection)>;
+  using AstNodeVisitorFunc = ezDelegate<VisitorResult(Connection& connection)>;
   ezResult TraverseAst(AstNode* pEntryAstNode, ezUInt32 uiConnectionTypes, AstNodeVisitorFunc func);
 
   ezResult FinalizeDataOffsets();

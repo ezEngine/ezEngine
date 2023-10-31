@@ -200,73 +200,73 @@ namespace
   }
 
   static FillUserDataFunction s_TypeToFillUserDataFunctions[] = {
-    nullptr,                                         // Invalid,
-    &FillUserData_CoroutineMode,                     // EntryCall,
-    &FillUserData_CoroutineMode,                     // EntryCall_Coroutine,
-    &FillUserData_ReflectedPropertyOrFunction,       // MessageHandler,
-    &FillUserData_ReflectedPropertyOrFunction,       // MessageHandler_Coroutine,
-    &FillUserData_ReflectedPropertyOrFunction,       // ReflectedFunction,
-    &FillUserData_DynamicReflectedProperty,          // GetReflectedProperty,
-    &FillUserData_DynamicReflectedProperty,          // SetReflectedProperty,
-    &FillUserData_ReflectedPropertyOrFunction,       // InplaceCoroutine,
-    nullptr,                                         // GetOwner,
-    &FillUserData_ReflectedPropertyOrFunction,       // SendMessage,
+    nullptr,                                   // Invalid,
+    &FillUserData_CoroutineMode,               // EntryCall,
+    &FillUserData_CoroutineMode,               // EntryCall_Coroutine,
+    &FillUserData_ReflectedPropertyOrFunction, // MessageHandler,
+    &FillUserData_ReflectedPropertyOrFunction, // MessageHandler_Coroutine,
+    &FillUserData_ReflectedPropertyOrFunction, // ReflectedFunction,
+    &FillUserData_DynamicReflectedProperty,    // GetReflectedProperty,
+    &FillUserData_DynamicReflectedProperty,    // SetReflectedProperty,
+    &FillUserData_ReflectedPropertyOrFunction, // InplaceCoroutine,
+    nullptr,                                   // GetOwner,
+    &FillUserData_ReflectedPropertyOrFunction, // SendMessage,
 
-    nullptr,                                         // FirstBuiltin,
+    nullptr, // FirstBuiltin,
 
-    &FillUserData_ConstantValue,                     // Builtin_Constant,
-    &FillUserData_VariableName,                      // Builtin_GetVariable,
-    &FillUserData_VariableName,                      // Builtin_SetVariable,
-    &FillUserData_VariableName,                      // Builtin_IncVariable,
-    &FillUserData_VariableName,                      // Builtin_DecVariable,
+    &FillUserData_ConstantValue, // Builtin_Constant,
+    &FillUserData_VariableName,  // Builtin_GetVariable,
+    &FillUserData_VariableName,  // Builtin_SetVariable,
+    &FillUserData_VariableName,  // Builtin_IncVariable,
+    &FillUserData_VariableName,  // Builtin_DecVariable,
 
-    nullptr,                                         // Builtin_Branch,
-    &FillUserData_Switch,                            // Builtin_Switch,
-    nullptr,                                         // Builtin_WhileLoop,
-    nullptr,                                         // Builtin_ForLoop,
-    nullptr,                                         // Builtin_ForEachLoop,
-    nullptr,                                         // Builtin_ReverseForEachLoop,
-    nullptr,                                         // Builtin_Break,
-    nullptr,                                         // Builtin_Jump,
+    nullptr,              // Builtin_Branch,
+    &FillUserData_Switch, // Builtin_Switch,
+    nullptr,              // Builtin_WhileLoop,
+    nullptr,              // Builtin_ForLoop,
+    nullptr,              // Builtin_ForEachLoop,
+    nullptr,              // Builtin_ReverseForEachLoop,
+    nullptr,              // Builtin_Break,
+    nullptr,              // Builtin_Jump,
 
-    nullptr,                                         // Builtin_And,
-    nullptr,                                         // Builtin_Or,
-    nullptr,                                         // Builtin_Not,
-    &FillUserData_Builtin_Compare,                   // Builtin_Compare,
-    &FillUserData_Builtin_Compare,                   // Builtin_CompareExec,
-    nullptr,                                         // Builtin_IsValid,
-    nullptr,                                         // Builtin_Select,
+    nullptr,                       // Builtin_And,
+    nullptr,                       // Builtin_Or,
+    nullptr,                       // Builtin_Not,
+    &FillUserData_Builtin_Compare, // Builtin_Compare,
+    &FillUserData_Builtin_Compare, // Builtin_CompareExec,
+    nullptr,                       // Builtin_IsValid,
+    nullptr,                       // Builtin_Select,
 
-    nullptr,                                         // Builtin_Add,
-    nullptr,                                         // Builtin_Subtract,
-    nullptr,                                         // Builtin_Multiply,
-    nullptr,                                         // Builtin_Divide,
-    nullptr,                                         // Builtin_Expression,
+    nullptr, // Builtin_Add,
+    nullptr, // Builtin_Subtract,
+    nullptr, // Builtin_Multiply,
+    nullptr, // Builtin_Divide,
+    nullptr, // Builtin_Expression,
 
-    nullptr,                                         // Builtin_ToBool,
-    nullptr,                                         // Builtin_ToByte,
-    nullptr,                                         // Builtin_ToInt,
-    nullptr,                                         // Builtin_ToInt64,
-    nullptr,                                         // Builtin_ToFloat,
-    nullptr,                                         // Builtin_ToDouble,
-    nullptr,                                         // Builtin_ToString,
-    nullptr,                                         // Builtin_String_Format,
-    nullptr,                                         // Builtin_ToHashedString,
-    nullptr,                                         // Builtin_ToVariant,
-    nullptr,                                         // Builtin_Variant_ConvertTo,
+    nullptr, // Builtin_ToBool,
+    nullptr, // Builtin_ToByte,
+    nullptr, // Builtin_ToInt,
+    nullptr, // Builtin_ToInt64,
+    nullptr, // Builtin_ToFloat,
+    nullptr, // Builtin_ToDouble,
+    nullptr, // Builtin_ToString,
+    nullptr, // Builtin_String_Format,
+    nullptr, // Builtin_ToHashedString,
+    nullptr, // Builtin_ToVariant,
+    nullptr, // Builtin_Variant_ConvertTo,
 
-    nullptr,                                         // Builtin_MakeArray
+    nullptr, // Builtin_MakeArray
 
     &FillUserData_Builtin_TryGetComponentOfBaseType, // Builtin_TryGetComponentOfBaseType
 
-    &FillUserData_Builtin_StartCoroutine,            // Builtin_StartCoroutine,
-    nullptr,                                         // Builtin_StopCoroutine,
-    nullptr,                                         // Builtin_StopAllCoroutines,
-    nullptr,                                         // Builtin_WaitForAll,
-    nullptr,                                         // Builtin_WaitForAny,
-    nullptr,                                         // Builtin_Yield,
+    &FillUserData_Builtin_StartCoroutine, // Builtin_StartCoroutine,
+    nullptr,                              // Builtin_StopCoroutine,
+    nullptr,                              // Builtin_StopAllCoroutines,
+    nullptr,                              // Builtin_WaitForAll,
+    nullptr,                              // Builtin_WaitForAny,
+    nullptr,                              // Builtin_Yield,
 
-    nullptr,                                         // LastBuiltin,
+    nullptr, // LastBuiltin,
   };
 
   static_assert(EZ_ARRAY_SIZE(s_TypeToFillUserDataFunctions) == ezVisualScriptNodeDescription::Type::Count);
@@ -821,10 +821,57 @@ void ezVisualScriptCompiler::MarkAsCoroutine(AstNode* pEntryAstNode)
   }
 }
 
-ezResult ezVisualScriptCompiler::ReplaceLoop(const Connection& connection)
+ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
+{
+  EZ_SUCCEED_OR_RETURN(TraverseAst(pEntryAstNode, ConnectionType::Execution | ConnectionType::Deduplicate,
+    [&](Connection& connection)
+    {
+      AstNode* pNode = connection.m_pCurrent;
+
+      if (ezVisualScriptNodeDescription::Type::IsLoop(pNode->m_Type))
+      {
+        if (ReplaceLoop(connection).Failed())
+          return VisitorResult::Error;
+      }
+
+      return VisitorResult::Continue;
+    }));
+
+  return TraverseAst(pEntryAstNode, ConnectionType::Execution | ConnectionType::Deduplicate,
+    [&](Connection& connection)
+    {
+      AstNode* pNode = connection.m_pCurrent;
+
+      if (pNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_CompareExec)
+      {
+        const auto& dataInputA = pNode->m_Inputs[0];
+        const auto& dataInputB = pNode->m_Inputs[1];
+
+        auto& compareNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, pNode->m_DeductedDataType, false);
+        compareNode.m_Value = pNode->m_Value;
+        AddDataInput(compareNode, dataInputA.m_pSourceNode, dataInputA.m_uiSourcePinIndex, dataInputA.m_DataType);
+        AddDataInput(compareNode, dataInputB.m_pSourceNode, dataInputB.m_uiSourcePinIndex, dataInputB.m_DataType);
+        AddDataOutput(compareNode, ezVisualScriptDataType::Bool);
+
+        auto& branchNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Branch);
+        AddDataInput(branchNode, &compareNode, 0, ezVisualScriptDataType::Bool);
+        branchNode.m_Next.PushBack(pNode->m_Next[0]);
+        branchNode.m_Next.PushBack(pNode->m_Next[1]);
+
+        compareNode.m_Next.PushBack(&branchNode);
+        connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = &compareNode;
+        connection.m_pCurrent = &branchNode;
+      }
+
+      return VisitorResult::Continue;
+    });
+}
+
+ezResult ezVisualScriptCompiler::ReplaceLoop(Connection& connection)
 {
   AstNode* pLoopInit = nullptr;
-  AstNode* pLoopCondition = nullptr;
+  AstNode* pLoopConditionStart = nullptr;
+  AstNode* pLoopConditionEnd = nullptr;
   AstNode* pLoopIncrement = nullptr;
 
   AstNode* pLoopNode = connection.m_pCurrent;
@@ -834,7 +881,7 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(const Connection& connection)
 
   if (loopType == ezVisualScriptNodeDescription::Type::Builtin_WhileLoop)
   {
-    pLoopCondition = pLoopNode->m_Inputs[0].m_pSourceNode;
+    pLoopConditionStart = pLoopNode->m_Inputs[0].m_pSourceNode;
   }
   else if (loopType == ezVisualScriptNodeDescription::Type::Builtin_ForLoop)
   {
@@ -848,11 +895,11 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(const Connection& connection)
     }
 
     {
-      pLoopCondition = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, ezVisualScriptDataType::Int);
-      pLoopCondition->m_Value = ezInt64(ezComparisonOperator::LessEqual);
-      AddDataInput(*pLoopCondition, pLoopInit, 0, ezVisualScriptDataType::Int);
-      AddDataInput(*pLoopCondition, lastIndexInput.m_pSourceNode, lastIndexInput.m_uiSourcePinIndex, lastIndexInput.m_DataType);
-      AddDataOutput(*pLoopCondition, ezVisualScriptDataType::Bool);
+      pLoopConditionStart = &CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, ezVisualScriptDataType::Int);
+      pLoopConditionStart->m_Value = ezInt64(ezComparisonOperator::LessEqual);
+      AddDataInput(*pLoopConditionStart, pLoopInit, 0, ezVisualScriptDataType::Int);
+      AddDataInput(*pLoopConditionStart, lastIndexInput.m_pSourceNode, lastIndexInput.m_uiSourcePinIndex, lastIndexInput.m_DataType);
+      AddDataOutput(*pLoopConditionStart, ezVisualScriptDataType::Bool);
     }
 
     {
@@ -871,124 +918,89 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(const Connection& connection)
 
   {
     auto& branchNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Branch);
-    AddDataInput(branchNode, pLoopCondition, 0, ezVisualScriptDataType::Bool);
+    AddDataInput(branchNode, pLoopConditionStart, 0, ezVisualScriptDataType::Bool);
 
-    if (pLoopCondition->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Constant)
+    if (pLoopConditionStart->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Constant)
     {
-      pLoopCondition = &branchNode;
+      pLoopConditionStart = &branchNode;
     }
     else
     {
-      pLoopCondition->m_bImplicitExecution = false;
-      pLoopCondition->m_Next.PushBack(&branchNode);
+      pLoopConditionStart->m_bImplicitExecution = false;
+      pLoopConditionStart->m_Next.PushBack(&branchNode);
     }
 
     branchNode.m_Next.PushBack(pLoopBody);      // True -> LoopBody
     branchNode.m_Next.PushBack(pLoopCompleted); // False -> Completed
+    pLoopConditionEnd = &branchNode;
   }
 
   if (pLoopInit != nullptr)
   {
     connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopInit;
-    pLoopInit->m_Next.PushBack(pLoopCondition);
+    pLoopInit->m_Next.PushBack(pLoopConditionStart);
   }
   else
   {
-    connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopCondition;
+    connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopConditionStart;
   }
 
-  AstNode* pJumpNode = CreateJumpNode(pLoopCondition);
+  AstNode* pJumpNode = CreateJumpNode(pLoopConditionStart);
   if (pLoopIncrement != nullptr)
   {
     pLoopIncrement->m_Next.PushBack(pJumpNode);
     pJumpNode = pLoopIncrement;
   }
 
-  ezHybridArray<Connection, 64> allBodyNodes;
   EZ_SUCCEED_OR_RETURN(TraverseAst(pLoopBody, ConnectionType::All,
-    [&](const Connection& connection)
+    [&](Connection& connection)
     {
+      if (connection.m_pPrev == nullptr)
+      {
+        connection.m_pPrev = pLoopConditionEnd;
+        connection.m_uiPrevPinIndex = 0;
+      }
+
+      if (ezVisualScriptNodeDescription::Type::IsLoop(connection.m_pCurrent->m_Type))
+      {
+        if (ReplaceLoop(connection).Failed())
+          return VisitorResult::Error;
+      }
+
       if (connection.m_Type == ConnectionType::Data && connection.m_pCurrent->m_bImplicitExecution == false)
         return VisitorResult::Skip;
 
-      allBodyNodes.PushBack(connection);
-      return VisitorResult::Continue;
-    }));
+      AstNode* pNode = connection.m_pCurrent;
 
-  for (auto& connection : allBodyNodes)
-  {
-    AstNode* pNode = connection.m_pCurrent;
-
-    if (pNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Break)
-    {
-      connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopCompleted;
-      continue;
-    }
-
-    for (auto& pNext : pNode->m_Next)
-    {
-      if (pNext == nullptr)
+      if (pNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_Break)
       {
-        pNext = pJumpNode;
+        connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = pLoopCompleted;
+        return VisitorResult::Continue;
       }
-    }
 
-    for (auto& dataInput : pNode->m_Inputs)
-    {
-      if (dataInput.m_pSourceNode == pLoopNode)
+      for (auto& pNext : pNode->m_Next)
       {
-        dataInput.m_pSourceNode = pLoopInit;
-        dataInput.m_uiSourcePinIndex = 0;
+        if (pNext == nullptr)
+        {
+          pNext = pJumpNode;
+        }
       }
-    }
-  }
 
-  return EZ_SUCCESS;
-}
-
-ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
-{
-  ezHybridArray<Connection, 64> unsupportedNodes;
-  EZ_SUCCEED_OR_RETURN(TraverseAst(pEntryAstNode, ConnectionType::Execution | ConnectionType::Deduplicate,
-    [&](const Connection& connection)
-    {
-      if (ezVisualScriptNodeDescription::Type::IsLoop(connection.m_pCurrent->m_Type) ||
-          connection.m_pCurrent->m_Type == ezVisualScriptNodeDescription::Type::Builtin_CompareExec)
+      for (auto& dataInput : pNode->m_Inputs)
       {
-        unsupportedNodes.PushBack(connection);
+        if (dataInput.m_pSourceNode == pLoopNode)
+        {
+          dataInput.m_pSourceNode = pLoopInit;
+          dataInput.m_uiSourcePinIndex = 0;
+        }
       }
 
       return VisitorResult::Continue;
     }));
 
-  for (auto& connection : unsupportedNodes)
-  {
-    AstNode* pNode = connection.m_pCurrent;
-
-    if (ezVisualScriptNodeDescription::Type::IsLoop(pNode->m_Type))
-    {
-      EZ_SUCCEED_OR_RETURN(ReplaceLoop(connection));
-    }
-    else if (pNode->m_Type == ezVisualScriptNodeDescription::Type::Builtin_CompareExec)
-    {
-      const auto& dataInputA = pNode->m_Inputs[0];
-      const auto& dataInputB = pNode->m_Inputs[1];
-
-      auto& compareNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Compare, pNode->m_DeductedDataType, false);
-      compareNode.m_Value = pNode->m_Value;
-      AddDataInput(compareNode, dataInputA.m_pSourceNode, dataInputA.m_uiSourcePinIndex, dataInputA.m_DataType);
-      AddDataInput(compareNode, dataInputB.m_pSourceNode, dataInputB.m_uiSourcePinIndex, dataInputB.m_DataType);
-      AddDataOutput(compareNode, ezVisualScriptDataType::Bool);
-
-      auto& branchNode = CreateAstNode(ezVisualScriptNodeDescription::Type::Builtin_Branch);
-      AddDataInput(branchNode, &compareNode, 0, ezVisualScriptDataType::Bool);
-      branchNode.m_Next.PushBack(pNode->m_Next[0]);
-      branchNode.m_Next.PushBack(pNode->m_Next[1]);
-
-      compareNode.m_Next.PushBack(&branchNode);
-      connection.m_pPrev->m_Next[connection.m_uiPrevPinIndex] = &compareNode;
-    }
-  }
+  connection.m_pPrev = pLoopConditionEnd;
+  connection.m_pCurrent = pLoopCompleted;
+  connection.m_uiPrevPinIndex = 1;
 
   return EZ_SUCCESS;
 }
@@ -1464,9 +1476,16 @@ ezResult ezVisualScriptCompiler::TraverseAst(AstNode* pEntryAstNode, ezUInt32 ui
       return EZ_SUCCESS;
     if (res == VisitorResult::Error)
       return EZ_FAILURE;
-  }
 
-  nodeStack.PushBack(pEntryAstNode);
+    if (connection.m_pCurrent != nullptr)
+    {
+      nodeStack.PushBack(connection.m_pCurrent);
+    }
+  }
+  else
+  {
+    nodeStack.PushBack(pEntryAstNode);
+  }
 
   while (nodeStack.IsEmpty() == false)
   {
@@ -1494,7 +1513,10 @@ ezResult ezVisualScriptCompiler::TraverseAst(AstNode* pEntryAstNode, ezUInt32 ui
         if (res == VisitorResult::Error)
           return EZ_FAILURE;
 
-        nodeStack.PushBack(dataInput.m_pSourceNode);
+        if (connection.m_pCurrent != nullptr)
+        {
+          nodeStack.PushBack(connection.m_pCurrent);
+        }
       }
     }
 
@@ -1520,7 +1542,10 @@ ezResult ezVisualScriptCompiler::TraverseAst(AstNode* pEntryAstNode, ezUInt32 ui
         if (res == VisitorResult::Error)
           return EZ_FAILURE;
 
-        nodeStack.PushBack(pNextAstNode);
+        if (connection.m_pCurrent != nullptr)
+        {
+          nodeStack.PushBack(connection.m_pCurrent);
+        }
       }
     }
   }

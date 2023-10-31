@@ -44,6 +44,8 @@ void ezQtVisualScriptPin::SetPin(const ezPin& pin)
 {
   ezQtPin::SetPin(pin);
 
+  m_pLabel->setPlainText(pin.GetName());
+
   UpdateTooltip();
 }
 

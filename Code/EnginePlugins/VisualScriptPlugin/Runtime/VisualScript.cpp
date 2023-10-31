@@ -1,6 +1,7 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
 #include <Core/Scripting/ScriptWorldModule.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>
@@ -258,6 +259,8 @@ ezScriptMessageDesc ezVisualScriptGraphDescription::GetMessageDesc() const
 
 //////////////////////////////////////////////////////////////////////////
 
+ezCVarInt cvar_MaxNodeExecutions("VisualScript.MaxNodeExecutions", 100000, ezCVarFlags::Default, "The maximum number of nodes executed within a script invocation");
+
 ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
   : m_pDesc(pDesc)
 {
@@ -304,6 +307,10 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
   ++m_uiExecutionCounter;
   m_DeltaTimeSinceLastExecution = deltaTimeSinceLastExecution;
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezUInt32 uiCounter = 0;
+#endif
+
   auto pNode = m_pDesc->GetNode(m_uiCurrentNode);
   while (pNode != nullptr)
   {
@@ -312,6 +319,15 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
     {
       return result;
     }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    ++uiCounter;
+    if (uiCounter >= cvar_MaxNodeExecutions)
+    {
+      ezLog::Error("Maximum node executions ({}) reached, execution will be aborted. Does the script contain an infinite loop?", cvar_MaxNodeExecutions);
+      return ExecResult::Error();
+    }
+#endif
 
     m_uiCurrentNode = pNode->GetExecutionIndex(result.m_NextExecAndState);
     m_pCurrentCoroutine = nullptr;
