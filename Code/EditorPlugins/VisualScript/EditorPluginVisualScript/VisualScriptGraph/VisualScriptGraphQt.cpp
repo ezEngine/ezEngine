@@ -42,9 +42,9 @@ ezQtVisualScriptPin::ezQtVisualScriptPin() = default;
 
 void ezQtVisualScriptPin::SetPin(const ezPin& pin)
 {
-  ezQtPin::SetPin(pin);
+  m_bTranslatePinName = false;
 
-  m_pLabel->setPlainText(pin.GetName());
+  ezQtPin::SetPin(pin);
 
   UpdateTooltip();
 }

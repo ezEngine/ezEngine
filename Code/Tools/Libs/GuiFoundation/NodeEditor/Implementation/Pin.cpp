@@ -50,7 +50,15 @@ void ezQtPin::SetPin(const ezPin& pin)
 {
   m_pPin = &pin;
 
-  m_pLabel->setPlainText(ezTranslate(pin.GetName()));
+  if (m_bTranslatePinName)
+  {
+    m_pLabel->setPlainText(ezTranslate(pin.GetName()));
+  }
+  else
+  {
+    m_pLabel->setPlainText(pin.GetName());
+  }
+
   auto rectLabel = m_pLabel->boundingRect();
 
   const int iRadus = rectLabel.height();

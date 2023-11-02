@@ -51,6 +51,8 @@ protected:
   QGraphicsTextItem* m_pLabel;
   QPointF m_PinCenter;
 
+  bool m_bTranslatePinName = true;
+
 private:
   bool m_bIsActive = true;
 

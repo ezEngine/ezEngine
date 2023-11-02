@@ -115,11 +115,8 @@ private:
   {
     enum Enum
     {
-      Execution = EZ_BIT(0),
-      Data = EZ_BIT(1),
-      Deduplicate = EZ_BIT(2),
-
-      All = Execution | Data | Deduplicate,
+      Execution,
+      Data,
     };
   };
 
@@ -159,7 +156,9 @@ private:
   };
 
   using AstNodeVisitorFunc = ezDelegate<VisitorResult(Connection& connection)>;
-  ezResult TraverseAst(AstNode* pEntryAstNode, ezUInt32 uiConnectionTypes, AstNodeVisitorFunc func);
+  ezResult TraverseExecutionConnections(AstNode* pEntryAstNode, AstNodeVisitorFunc func, bool bDeduplicate = true);
+  ezResult TraverseDataConnections(AstNode* pEntryAstNode, AstNodeVisitorFunc func, bool bDeduplicate = true, bool bClearReportedConnections = true);
+  ezResult TraverseAllConnections(AstNode* pEntryAstNode, AstNodeVisitorFunc func, bool bDeduplicate = true);
 
   ezResult FinalizeDataOffsets();
   ezResult FinalizeConstantData();
