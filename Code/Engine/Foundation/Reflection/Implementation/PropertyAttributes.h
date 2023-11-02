@@ -385,7 +385,7 @@ private:
 /// ## Surface on hit prefab: **Package**
 /// * Transforming a surface is not affected if the prefab it spawns on impact changes. Only the reference is stored.
 /// * The set prefab does not show up in the thumbnail so it is not needed.
-/// * We do however need to package it or otherwise the runtime would fail to spawn the prefab on impact.
+/// * We do, however, need to package it or otherwise the runtime would fail to spawn the prefab on impact.
 ///
 /// As a rule of thumb (also the default for each):
 /// * ezFileBrowserAttribute are mostly Transform and Thumbnail.
@@ -399,7 +399,7 @@ struct ezDependencyFlags
     None = 0,              ///< The reference is not needed for anything in production. An example of this is editor references that are only used at edit time, e.g. a default animation clip for a skeleton.
     Thumbnail = EZ_BIT(0), ///< This reference is a dependency to generating a thumbnail. The material references of a mesh for example.
     Transform = EZ_BIT(1), ///< This reference is a dependency to transforming this asset. The input model of a mesh for example.
-    Package = EZ_BIT(2),   ///< This reference is needs to be packaged as it is used at runtime by this asset. All sounds or debris generated on impact of a surface are common examples of this.
+    Package = EZ_BIT(2),   ///< This reference needs to be packaged as it is used at runtime by this asset. All sounds or debris generated on impact of a surface are common examples of this.
     Default = 0
   };
 

@@ -12,7 +12,7 @@ indent_style = space
 trim_trailing_whitespace = true
 
 # MSVC specific
-cpp_generate_documentation_comments = doxygen_triple_slash
+cpp_generate_documentation_comments = none
 
 # additional settings for code files
 [*.{cpp,h,inl,c,d,qrc,lua,cs,ps1,sh}]

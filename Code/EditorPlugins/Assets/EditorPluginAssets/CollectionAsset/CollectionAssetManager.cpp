@@ -30,6 +30,12 @@ ezCollectionAssetDocumentManager::~ezCollectionAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
+
+void ezCollectionAssetDocumentManager::GetAssetTypesRequiringTransformForSceneExport(ezSet<ezTempHashedString>& inout_AssetTypes)
+{
+  inout_AssetTypes.Insert(ezTempHashedString(m_DocTypeDesc.m_sDocumentTypeName));
+}
+
 void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
   switch (e.m_Type)
