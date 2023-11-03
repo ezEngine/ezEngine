@@ -105,12 +105,7 @@ bool ezEditorProcessCommunicationChannel::IsClientAlive() const
 
 void ezEditorProcessCommunicationChannel::CloseConnection()
 {
-  if (m_pProtocol)
-  {
-    m_pProtocol->m_MessageEvent.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
-    m_pProtocol.Clear();
-  }
-  m_pChannel.Clear();
+  CloseConnection();
 
   if (m_pClientProcess)
   {

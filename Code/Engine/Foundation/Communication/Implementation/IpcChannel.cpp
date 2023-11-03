@@ -192,7 +192,7 @@ void ezIpcChannel::ReceiveData(ezArrayPtr<const ezUInt8> data)
     remainingData = remainingData.GetSubArray(remainingMessageData);
 
     {
-      m_ReceiveCallback(ezArrayPtr<const ezUInt8>(m_MessageAccumulator.GetData() + HEADER_SIZE, uiMessageSize - HEADER_SIZE));
+      receiveCallback(ezArrayPtr<const ezUInt8>(m_MessageAccumulator.GetData() + HEADER_SIZE, uiMessageSize - HEADER_SIZE));
       m_IncomingMessages.RaiseSignal();
       m_Events.Broadcast(ezIpcChannelEvent(ezIpcChannelEvent::NewMessages, this));
       m_MessageAccumulator.Clear();
