@@ -147,7 +147,7 @@ protected:
   ezDynamicArray<ezUInt8> m_MessageAccumulator; ///< Message is assembled in here
 
   // Mutex locked
-  ezMutex m_IncomingQueueMutex;
+  ezMutex m_ReceiveCallbackMutex;
   ReceiveCallback m_ReceiveCallback;
   ezThreadSignal m_IncomingMessages;
 };

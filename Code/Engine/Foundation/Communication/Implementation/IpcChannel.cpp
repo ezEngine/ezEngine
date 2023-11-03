@@ -104,7 +104,7 @@ bool ezIpcChannel::Send(ezArrayPtr<const ezUInt8> data)
 
 void ezIpcChannel::SetReceiveCallback(ReceiveCallback callback)
 {
-  EZ_LOCK(m_IncomingQueueMutex);
+  EZ_LOCK(m_ReceiveCallbackMutex);
   m_ReceiveCallback = callback;
 }
 
@@ -136,13 +136,9 @@ void ezIpcChannel::SetConnectionState(ezEnum<ezIpcChannel::ConnectionState> stat
 
 void ezIpcChannel::ReceiveData(ezArrayPtr<const ezUInt8> data)
 {
-  ReceiveCallback receiveCallback;
-  {
-    EZ_LOCK(m_IncomingQueueMutex);
-    receiveCallback = m_ReceiveCallback;
-  }
+  EZ_LOCK(m_ReceiveCallbackMutex);
 
-  if (!receiveCallback.IsValid())
+  if (!m_ReceiveCallback.IsValid())
   {
     m_MessageAccumulator.PushBackRange(data);
     return;
