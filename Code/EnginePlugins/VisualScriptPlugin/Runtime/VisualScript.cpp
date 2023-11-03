@@ -1,6 +1,7 @@
 #include <VisualScriptPlugin/VisualScriptPluginPCH.h>
 
 #include <Core/Scripting/ScriptWorldModule.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>
@@ -32,12 +33,18 @@ namespace
 
     "Builtin_Branch",
     "Builtin_Switch",
-    "Builtin_Loop",
+    "Builtin_WhileLoop",
+    "Builtin_ForLoop",
+    "Builtin_ForEachLoop",
+    "Builtin_ReverseForEachLoop",
+    "Builtin_Break",
+    "Builtin_Jump",
 
     "Builtin_And",
     "Builtin_Or",
     "Builtin_Not",
     "Builtin_Compare",
+    "Builtin_CompareExec",
     "Builtin_IsValid",
     "Builtin_Select",
 
@@ -45,6 +52,7 @@ namespace
     "Builtin_Subtract",
     "Builtin_Multiply",
     "Builtin_Divide",
+    "Builtin_Expression",
 
     "Builtin_ToBool",
     "Builtin_ToByte",
@@ -59,6 +67,17 @@ namespace
     "Builtin_Variant_ConvertTo",
 
     "Builtin_MakeArray",
+    "Builtin_Array_GetElement",
+    "Builtin_Array_SetElement",
+    "Builtin_Array_GetCount",
+    "Builtin_Array_IsEmpty",
+    "Builtin_Array_Clear",
+    "Builtin_Array_Contains",
+    "Builtin_Array_IndexOf",
+    "Builtin_Array_Insert",
+    "Builtin_Array_PushBack",
+    "Builtin_Array_Remove",
+    "Builtin_Array_RemoveAt",
 
     "Builtin_TryGetComponentOfBaseType",
 
@@ -136,7 +155,7 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 2;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 3;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)
@@ -184,9 +203,9 @@ ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScri
 ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_stream)
 {
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptGraphDescriptionVersion);
-  if (uiVersion < 2)
+  if (uiVersion < 3)
   {
-    ezLog::Error("Invalid visual script desc version. Expected >= 2 but got {}. Visual Script needs re-export", uiVersion);
+    ezLog::Error("Invalid visual script desc version. Expected >= 3 but got {}. Visual Script needs re-export", uiVersion);
     return EZ_FAILURE;
   }
 
@@ -251,6 +270,8 @@ ezScriptMessageDesc ezVisualScriptGraphDescription::GetMessageDesc() const
 
 //////////////////////////////////////////////////////////////////////////
 
+ezCVarInt cvar_MaxNodeExecutions("VisualScript.MaxNodeExecutions", 100000, ezCVarFlags::Default, "The maximum number of nodes executed within a script invocation");
+
 ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
   : m_pDesc(pDesc)
 {
@@ -297,6 +318,10 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
   ++m_uiExecutionCounter;
   m_DeltaTimeSinceLastExecution = deltaTimeSinceLastExecution;
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezUInt32 uiCounter = 0;
+#endif
+
   auto pNode = m_pDesc->GetNode(m_uiCurrentNode);
   while (pNode != nullptr)
   {
@@ -305,6 +330,15 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
     {
       return result;
     }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    ++uiCounter;
+    if (uiCounter >= cvar_MaxNodeExecutions)
+    {
+      ezLog::Error("Maximum node executions ({}) reached, execution will be aborted. Does the script contain an infinite loop?", cvar_MaxNodeExecutions);
+      return ExecResult::Error();
+    }
+#endif
 
     m_uiCurrentNode = pNode->GetExecutionIndex(result.m_NextExecAndState);
     m_pCurrentCoroutine = nullptr;

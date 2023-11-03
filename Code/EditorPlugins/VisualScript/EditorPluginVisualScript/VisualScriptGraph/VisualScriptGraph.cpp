@@ -318,6 +318,17 @@ bool ezVisualScriptNodeManager::IsCoroutine(const ezDocumentObject* pObject) con
   return m_CoroutineObjects.Contains(pObject);
 }
 
+bool ezVisualScriptNodeManager::IsLoop(const ezDocumentObject* pObject) const
+{
+  auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
+  if (pNodeDesc != nullptr && ezVisualScriptNodeDescription::Type::IsLoop(pNodeDesc->m_Type))
+  {
+    return true;
+  }
+
+  return false;
+}
+
 bool ezVisualScriptNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
 {
   return pObject->GetType()->IsDerivedFrom(ezVisualScriptNodeRegistry::GetSingleton()->GetNodeBaseType());

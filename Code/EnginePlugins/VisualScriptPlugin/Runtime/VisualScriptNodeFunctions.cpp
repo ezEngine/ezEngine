@@ -1089,6 +1089,23 @@ namespace
     return ExecResult::RunNext(0);
   }
 
+  static ExecResult NodeFunction_Builtin_Array_GetElement(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    ezUInt32 uiIndex = inout_context.GetData<int>(node.GetInputDataOffset(1));
+    inout_context.SetData(node.GetOutputDataOffset(0), a[uiIndex]);
+
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_Array_GetCount(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    const ezVariantArray& a = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(0));
+    inout_context.SetData<int>(node.GetOutputDataOffset(0), a.GetCount());
+
+    return ExecResult::RunNext(0);
+  }
+
   //////////////////////////////////////////////////////////////////////////
 
   static ExecResult NodeFunction_Builtin_TryGetComponentOfBaseType(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
@@ -1251,12 +1268,18 @@ namespace
 
     {&NodeFunction_Builtin_Branch},                 // Builtin_Branch,
     {nullptr, &NodeFunction_Builtin_Switch_Getter}, // Builtin_Switch,
-    {},                                             // Builtin_Loop,
+    {},                                             // Builtin_WhileLoop,
+    {},                                             // Builtin_ForLoop,
+    {},                                             // Builtin_ForEachLoop,
+    {},                                             // Builtin_ReverseForEachLoop,
+    {},                                             // Builtin_Break,
+    {},                                             // Builtin_Jump,
 
     {&NodeFunction_Builtin_And},                     // Builtin_And,
     {&NodeFunction_Builtin_Or},                      // Builtin_Or,
     {&NodeFunction_Builtin_Not},                     // Builtin_Not,
     {nullptr, &NodeFunction_Builtin_Compare_Getter}, // Builtin_Compare,
+    {},                                              // Builtin_CompareExec,
     {nullptr, &NodeFunction_Builtin_IsValid_Getter}, // Builtin_IsValid,
     {},                                              // Builtin_Select,
 
@@ -1264,6 +1287,7 @@ namespace
     {nullptr, &NodeFunction_Builtin_Sub_Getter}, // Builtin_Subtract,
     {nullptr, &NodeFunction_Builtin_Mul_Getter}, // Builtin_Multiply,
     {nullptr, &NodeFunction_Builtin_Div_Getter}, // Builtin_Divide,
+    {},                                          // Builtin_Expression,
 
     {nullptr, &NodeFunction_Builtin_ToBool_Getter},            // Builtin_ToBool,
     {nullptr, &NodeFunction_Builtin_ToByte_Getter},            // Builtin_ToByte,
@@ -1277,7 +1301,18 @@ namespace
     {nullptr, &NodeFunction_Builtin_ToVariant_Getter},         // Builtin_ToVariant,
     {nullptr, &NodeFunction_Builtin_Variant_ConvertTo_Getter}, // Builtin_Variant_ConvertTo,
 
-    {&NodeFunction_Builtin_MakeArray}, // Builtin_MakeArray
+    {&NodeFunction_Builtin_MakeArray},        // Builtin_MakeArray
+    {&NodeFunction_Builtin_Array_GetElement}, // Builtin_Array_GetElement,
+    {},                                       // Builtin_Array_SetElement,
+    {&NodeFunction_Builtin_Array_GetCount},   // Builtin_Array_GetCount,
+    {},                                       // Builtin_Array_IsEmpty,
+    {},                                       // Builtin_Array_Clear,
+    {},                                       // Builtin_Array_Contains,
+    {},                                       // Builtin_Array_IndexOf,
+    {},                                       // Builtin_Array_Insert,
+    {},                                       // Builtin_Array_PushBack,
+    {},                                       // Builtin_Array_Remove,
+    {},                                       // Builtin_Array_RemoveAt,
 
     {&NodeFunction_Builtin_TryGetComponentOfBaseType}, // Builtin_TryGetComponentOfBaseType
 

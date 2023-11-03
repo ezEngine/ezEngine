@@ -24,6 +24,8 @@ void ezGameEngineTestVisualScript::SetupSubTests()
   AddSubTest("Messages", SubTests::Messages);
   AddSubTest("EnumsAndSwitch", SubTests::EnumsAndSwitch);
   AddSubTest("Blackboard", SubTests::Blackboard);
+  AddSubTest("Loops", SubTests::Loops);
+  AddSubTest("Loops2", SubTests::Loops2);
 }
 
 ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
@@ -76,6 +78,28 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Blackboard.ezObjectGraph"));
     return EZ_SUCCESS;
   }
+  else if (iIdentifier == SubTests::Loops)
+  {
+    m_ImgCompFrames.PushBack(1);
+    m_ImgCompFrames.PushBack(8);
+    m_ImgCompFrames.PushBack(9);
+    m_ImgCompFrames.PushBack(41);
+    m_ImgCompFrames.PushBack(42);
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops.ezObjectGraph"));
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::Loops2)
+  {
+    m_ImgCompFrames.PushBack(1);
+    m_ImgCompFrames.PushBack(2);
+    m_ImgCompFrames.PushBack(5);
+    m_pTestLog = EZ_DEFAULT_NEW(TestLog);
+    m_pTestLog->m_Interface.ExpectMessage("Maximum node executions (100000) reached, execution will be aborted. Does the script contain an infinite loop?");
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops2.ezObjectGraph"));
+    return EZ_SUCCESS;
+  }
 
   return EZ_FAILURE;
 }
@@ -86,7 +110,10 @@ ezTestAppRun ezGameEngineTestVisualScript::RunSubTest(ezInt32 iIdentifier, ezUIn
   ++m_iFrame;
 
   if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
+  {
+    m_pTestLog = nullptr;
     return ezTestAppRun::Quit;
+  }
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
@@ -95,6 +122,7 @@ ezTestAppRun ezGameEngineTestVisualScript::RunSubTest(ezInt32 iIdentifier, ezUIn
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())
     {
+      m_pTestLog = nullptr;
       return ezTestAppRun::Quit;
     }
   }

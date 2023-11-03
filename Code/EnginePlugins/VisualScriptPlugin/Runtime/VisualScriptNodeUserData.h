@@ -399,7 +399,12 @@ namespace
     {&NodeUserData_Switch::Serialize,
       &NodeUserData_Switch::Deserialize,
       &NodeUserData_Switch::ToString}, // Builtin_Switch,
-    {},                                // Builtin_Loop,
+    {},                                // Builtin_WhileLoop,
+    {},                                // Builtin_ForLoop,
+    {},                                // Builtin_ForEachLoop,
+    {},                                // Builtin_ReverseForEachLoop,
+    {},                                // Builtin_Break,
+    {},                                // Builtin_Jump,
 
     {}, // Builtin_And,
     {}, // Builtin_Or,
@@ -407,6 +412,7 @@ namespace
     {&NodeUserData_Comparison::Serialize,
       &NodeUserData_Comparison::Deserialize,
       &NodeUserData_Comparison::ToString}, // Builtin_Compare,
+    {},                                    // Builtin_CompareExec,
     {},                                    // Builtin_IsValid,
     {},                                    // Builtin_Select,
 
@@ -414,6 +420,7 @@ namespace
     {}, // Builtin_Subtract,
     {}, // Builtin_Multiply,
     {}, // Builtin_Divide,
+    {}, // Builtin_Expression,
 
     {}, // Builtin_ToBool,
     {}, // Builtin_ToByte,
@@ -428,6 +435,17 @@ namespace
     {}, // Builtin_Variant_ConvertTo,
 
     {}, // Builtin_MakeArray
+    {}, // Builtin_Array_GetElement,
+    {}, // Builtin_Array_SetElement,
+    {}, // Builtin_Array_GetCount,
+    {}, // Builtin_Array_IsEmpty,
+    {}, // Builtin_Array_Clear,
+    {}, // Builtin_Array_Contains,
+    {}, // Builtin_Array_IndexOf,
+    {}, // Builtin_Array_Insert,
+    {}, // Builtin_Array_PushBack,
+    {}, // Builtin_Array_Remove,
+    {}, // Builtin_Array_RemoveAt,
 
     {&NodeUserData_Type::Serialize,
       &NodeUserData_Type::Deserialize,

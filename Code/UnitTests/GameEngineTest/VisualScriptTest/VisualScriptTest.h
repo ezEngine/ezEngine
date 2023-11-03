@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GameEngineTest/GameEngineTestPCH.h>
+#include <TestFramework/Utilities/TestLogInterface.h>
 
 #include "../TestClass/TestClass.h"
 
@@ -21,6 +22,7 @@ protected:
     EnumsAndSwitch,
     Blackboard,
     Loops,
+    Loops2,
     Arrays,
     Maps,
     Expressions
@@ -37,4 +39,17 @@ protected:
 
   ezUInt32 m_uiImgCompIdx = 0;
   ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
+
+  struct TestLog
+  {
+    ezTestLogInterface m_Interface;
+    ezTestLogSystemScope m_Scope;
+
+    TestLog()
+      : m_Scope(&m_Interface, true)
+    {
+    }
+  };
+
+  ezUniquePtr<TestLog> m_pTestLog;
 };

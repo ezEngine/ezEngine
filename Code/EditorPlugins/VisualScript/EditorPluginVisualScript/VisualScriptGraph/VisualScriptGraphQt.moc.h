@@ -43,9 +43,11 @@ public:
   virtual void InitScene(const ezDocumentNodeManager* pManager);
 
   const QPixmap& GetCoroutineIcon() const { return m_CoroutineIcon; }
+  const QPixmap& GetLoopIcon() const { return m_LoopIcon; }
 
 private:
   void NodeChangedHandler(const ezDocumentObject* pObject);
 
   QPixmap m_CoroutineIcon;
+  QPixmap m_LoopIcon;
 };

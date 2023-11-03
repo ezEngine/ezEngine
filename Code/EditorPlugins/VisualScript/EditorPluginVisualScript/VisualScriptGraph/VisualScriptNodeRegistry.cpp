@@ -293,7 +293,8 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
   auto& componentTypesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
   auto& scriptBaseClassesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ScriptBaseClasses");
 
-  ezRTTI::ForEachType([this](const ezRTTI* pRtti) { UpdateNodeType(pRtti); });
+  ezRTTI::ForEachType([this](const ezRTTI* pRtti)
+    { UpdateNodeType(pRtti); });
 }
 
 void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
@@ -515,6 +516,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddOutputExecutionPin("");
     AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
+    nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }
@@ -626,6 +628,91 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     }
   }
 
+  // Builtin_WhileLoop
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_WhileLoop", "Logic", logicColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_WhileLoop;
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("LoopBody");
+    nodeDesc.AddOutputExecutionPin("Completed");
+
+    AddInputDataPin<bool>(typeDesc, nodeDesc, "Condition");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_ForLoop
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_ForLoop", "Logic", logicColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "ForLoop [{FirstIndex}..{LastIndex}]");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_ForLoop;
+    nodeDesc.AddInputExecutionPin("");
+    AddInputDataPin<int>(typeDesc, nodeDesc, "FirstIndex");
+    AddInputDataPin<int>(typeDesc, nodeDesc, "LastIndex");
+
+    nodeDesc.AddOutputExecutionPin("LoopBody");
+    AddOutputDataPin<int>(nodeDesc, "Index");
+    nodeDesc.AddOutputExecutionPin("Completed");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_ForEachLoop
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_ForEachLoop", "Logic", logicColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_ForEachLoop;
+    nodeDesc.AddInputExecutionPin("");
+    AddInputDataPin<ezVariantArray>(typeDesc, nodeDesc, "Array");
+
+    nodeDesc.AddOutputExecutionPin("LoopBody");
+    AddOutputDataPin<ezVariant>(nodeDesc, "Element");
+    AddOutputDataPin<int>(nodeDesc, "Index");
+    nodeDesc.AddOutputExecutionPin("Completed");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_ReverseForEachLoop
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_ReverseForEachLoop", "Logic", logicColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_ReverseForEachLoop;
+    nodeDesc.AddInputExecutionPin("");
+    AddInputDataPin<ezVariantArray>(typeDesc, nodeDesc, "Array");
+
+    nodeDesc.AddOutputExecutionPin("LoopBody");
+    AddOutputDataPin<ezVariant>(nodeDesc, "Element");
+    AddOutputDataPin<int>(nodeDesc, "Index");
+    nodeDesc.AddOutputExecutionPin("Completed");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_Break
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_Break", "Logic", logicColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Break;
+    nodeDesc.AddInputExecutionPin("");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
   // Builtin_And
   {
     ezReflectedTypeDescriptor typeDesc;
@@ -696,6 +783,29 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     AddInputDataPin_Any(typeDesc, nodeDesc, "A", false, true);
     AddInputDataPin_Any(typeDesc, nodeDesc, "B", false, true);
     AddOutputDataPin<bool>(nodeDesc, "");
+
+    m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
+  }
+
+  // Builtin_CompareExec
+  {
+    ezReflectedTypeDescriptor typeDesc;
+    FillDesc(typeDesc, "Builtin_CompareExec", "Logic", logicColor);
+
+    AddInputProperty(typeDesc, "Operator", ezGetStaticRTTI<ezComparisonOperator>(), ezVisualScriptDataType::Int64);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "{A} {Operator} {B}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_CompareExec;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("True");
+    nodeDesc.AddOutputExecutionPin("False");
+    AddInputDataPin_Any(typeDesc, nodeDesc, "A", false, true);
+    AddInputDataPin_Any(typeDesc, nodeDesc, "B", false, true);
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }
@@ -847,26 +957,16 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     ezReflectedTypeDescriptor typeDesc;
     FillDesc(typeDesc, "Builtin_MakeArray", "Array", variantColor);
 
-    ezHashedString sCount = ezMakeHashedString("Count");
-    {
-      auto& propDesc = typeDesc.m_Properties.ExpandAndGetRef();
-      propDesc.m_Category = ezPropertyCategory::Member;
-      propDesc.m_sName = sCount.GetView();
-      propDesc.m_sType = ezGetStaticRTTI<ezUInt32>()->GetTypeName();
-      propDesc.m_Flags = ezPropertyFlags::StandardType;
-
-      auto pNoTempAttr = EZ_DEFAULT_NEW(ezNoTemporaryTransactionsAttribute);
-      propDesc.m_Attributes.PushBack(pNoTempAttr);
-
-      auto pClampAttr = EZ_DEFAULT_NEW(ezClampValueAttribute, 0, 16);
-      propDesc.m_Attributes.PushBack(pClampAttr);
-    }
+    ezHashedString sElements = ezMakeHashedString("Elements");
+    AddInputProperty(typeDesc, sElements, ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Array);
 
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_MakeArray;
 
-    nodeDesc.AddInputDataPin("", ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant, false, sCount);
-    nodeDesc.AddOutputDataPin("", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array);
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin(sElements, ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant, false, sElements);
+    nodeDesc.AddOutputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array);
 
     m_TypeToNodeDescs.Insert(ezPhantomRttiManager::RegisterType(typeDesc), std::move(nodeDesc));
   }
