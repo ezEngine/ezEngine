@@ -127,9 +127,9 @@ void ezJoltCustomShapeInfo::sRegister()
   }
 }
 
-void ezJoltCustomShapeInfo::CollideSoftBodyVertices(JPH::Mat44Arg inCenterOfMassTransform, JPH::Vec3Arg inScale, JPH::SoftBodyVertex* inout_pVertices, JPH::uint inNumVertices, float inDeltaTime, JPH::Vec3Arg inDisplacementDueToGravity, int inCollidingShapeIndex) const
+void ezJoltCustomShapeInfo::CollideSoftBodyVertices(JPH::Mat44Arg centerOfMassTransform, JPH::Vec3Arg scale, JPH::SoftBodyVertex* pVertices, JPH::uint uiNumVertices, float fDeltaTime, JPH::Vec3Arg displacementDueToGravity, int iCollidingShapeIndex) const
 {
-  mInnerShape->CollideSoftBodyVertices(inCenterOfMassTransform, inScale, inout_pVertices, inNumVertices, inDeltaTime, inDisplacementDueToGravity, inCollidingShapeIndex);
+  mInnerShape->CollideSoftBodyVertices(centerOfMassTransform, scale, pVertices, uiNumVertices, fDeltaTime, displacementDueToGravity, iCollidingShapeIndex);
 }
 
 void ezJoltCustomShapeInfo::sCollideUser1VsShape(const JPH::Shape* inShape1, const JPH::Shape* inShape2, JPH::Vec3Arg inScale1, JPH::Vec3Arg inScale2, JPH::Mat44Arg inCenterOfMassTransform1, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, const JPH::CollideShapeSettings& inCollideShapeSettings, JPH::CollideShapeCollector& ioCollector, const JPH::ShapeFilter& inShapeFilter)

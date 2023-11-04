@@ -222,6 +222,10 @@ public:
   ezTransformStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   ezTransformStatus CreateThumbnail(const ezUuid& assetGuid);
 
+  /// Some assets are not automatically updated by the asset dependency detection (mainly Collections) because of their transitive data dependencies.
+  /// So we must update them when the user does something 'significant' like doing TransformAllAssets or a scene export.
+  void TransformAssetsForSceneExport(const ezPlatformProfile* pAssetProfile = nullptr);
+
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTables(const ezPlatformProfile* pAssetProfile = nullptr, bool bForce = false);
 

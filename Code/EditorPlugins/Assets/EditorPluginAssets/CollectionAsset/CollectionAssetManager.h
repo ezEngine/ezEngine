@@ -11,6 +11,8 @@ public:
   ezCollectionAssetDocumentManager();
   ~ezCollectionAssetDocumentManager();
 
+  virtual void GetAssetTypesRequiringTransformForSceneExport(ezSet<ezTempHashedString>& inout_assetTypes) override;
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 

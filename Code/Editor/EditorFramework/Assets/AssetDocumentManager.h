@@ -98,6 +98,12 @@ public:
 
   ezResult TryOpenAssetDocument(const char* szPathOrGuid);
 
+  /// In case this manager deals with types that need to be force transformed on scene export, it can add the asset type names to this list.
+  /// This is only needed for assets that have such special dependencies for their transform step, that the regular dependency tracking doesn't work for them.
+  /// Currently the only known case are Collection assets, because they have to manually go through the Package dependencies transitively, which means
+  /// that the asset curator can't know when they need to be updated.
+  virtual void GetAssetTypesRequiringTransformForSceneExport(ezSet<ezTempHashedString>& inout_assetTypes){};
+
 protected:
   static bool IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion);
   static void GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile, const char* szExtension, bool bPlatformSpecific);
