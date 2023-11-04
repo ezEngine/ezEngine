@@ -31,9 +31,9 @@ ezCollectionAssetDocumentManager::~ezCollectionAssetDocumentManager()
 }
 
 
-void ezCollectionAssetDocumentManager::GetAssetTypesRequiringTransformForSceneExport(ezSet<ezTempHashedString>& inout_AssetTypes)
+void ezCollectionAssetDocumentManager::GetAssetTypesRequiringTransformForSceneExport(ezSet<ezTempHashedString>& inout_assetTypes)
 {
-  inout_AssetTypes.Insert(ezTempHashedString(m_DocTypeDesc.m_sDocumentTypeName));
+  inout_assetTypes.Insert(ezTempHashedString(m_DocTypeDesc.m_sDocumentTypeName));
 }
 
 void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
