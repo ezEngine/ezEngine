@@ -4,7 +4,7 @@ Animation Controller;Animation Controller
 
 # Component Types
 
-ezAnimationControllerComponent;Animation Controller;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-controller/animation-controller-component.html
+ezAnimationControllerComponent;Animation Controller;;https://ezengine.net/pages/docs/animation/skeletal-animation/animation-graphs/animation-controller-component.html
 
 # Properties
 
