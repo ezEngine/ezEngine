@@ -53,7 +53,6 @@
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
-         <widget class="QListWidget" name="ListTypeFilter"/>
          <widget class="eqQtAssetBrowserFolderView" name="TreeFolderFilter">
           <property name="uniformRowHeights">
            <bool>true</bool>
@@ -203,7 +202,6 @@
  </customwidgets>
  <tabstops>
   <tabstop>ListAssets</tabstop>
-  <tabstop>ListTypeFilter</tabstop>
   <tabstop>TreeFolderFilter</tabstop>
   <tabstop>IconSizeSlider</tabstop>
   <tabstop>ButtonListMode</tabstop>

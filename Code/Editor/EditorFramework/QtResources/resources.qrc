@@ -18,7 +18,8 @@
     <file>Icons/Plugins.svg</file>
     <file>Icons/DataDirectory.svg</file>
     <file>Icons/Folder.svg</file>
-    <file>Icons/ImportableFile.svg</file>
+    <file>Icons/ImportableFileType.svg</file>
+	<file>Icons/ImportableFile.svg</file>
     <file>Icons/ImportedFile.svg</file>
     <file>Icons/StoredSettings.svg</file>
     <file>Icons/Input.svg</file>

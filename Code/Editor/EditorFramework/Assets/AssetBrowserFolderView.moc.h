@@ -56,6 +56,8 @@ public:
   /// \brief In dialog mode, any modifications (folder movement, creation and deletion) are disabled.
   void SetDialogMode(bool bDialogMode);
 
+  virtual void mousePressEvent(QMouseEvent* e) override;
+
 public Q_SLOTS:
   /// \brief Creates a new folder under the current selected item and enters edit mode to allow the user to rename it.
   void NewFolder();

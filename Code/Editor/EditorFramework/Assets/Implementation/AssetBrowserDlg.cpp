@@ -43,13 +43,6 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
 
   ButtonSelect->setEnabled(false);
 
-  AssetBrowserWidget->SetSelectedAsset(preselectedAsset);
-
-  if (!ezStringUtils::IsEqual(m_sVisibleFilters, ";;")) // that's an empty filter list
-  {
-    AssetBrowserWidget->ShowOnlyTheseTypeFilters(m_sVisibleFilters);
-  }
-
   QSettings Settings;
   Settings.beginGroup(QLatin1String("AssetBrowserDlg"));
   {
@@ -73,6 +66,13 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
 
   if (!s_TypeFilter[m_sVisibleFilters].IsEmpty())
     AssetBrowserWidget->GetAssetBrowserFilter()->SetTypeFilter(s_TypeFilter[m_sVisibleFilters]);
+
+  if (!ezStringUtils::IsEqual(m_sVisibleFilters, ";;")) // that's an empty filter list
+  {
+    AssetBrowserWidget->ShowOnlyTheseTypeFilters(m_sVisibleFilters);
+  }
+
+  AssetBrowserWidget->SetSelectedAsset(preselectedAsset);
 
   AssetBrowserWidget->SearchWidget->setFocus();
 }
