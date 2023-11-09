@@ -128,7 +128,7 @@ void eqQtAssetBrowserFolderView::NewFolder()
   ezStringBuilder sNewFolder = sPath;
   sNewFolder.AppendFormat("/NewFolder");
 
-  for (ezUInt32 i = 0; ezOSFile::ExistsDirectory(sNewFolder); i++)
+  for (ezUInt32 i = 2; ezOSFile::ExistsDirectory(sNewFolder); i++)
   {
     sNewFolder = sPath;
     sNewFolder.AppendFormat("/NewFolder{}", i);
@@ -149,8 +149,9 @@ void eqQtAssetBrowserFolderView::NewFolder()
         clearSelection();
         pItem->setSelected(true);
         setCurrentItem(pItem);
-        editItem(pItem);
         m_bTreeSelectionChangeInProgress = false;
+        OnItemSelectionChanged(); // make sure the path filter is set to the new folder
+        editItem(pItem);
       }
     }
   }
