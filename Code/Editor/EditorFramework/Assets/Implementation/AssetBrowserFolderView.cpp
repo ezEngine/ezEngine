@@ -422,6 +422,14 @@ void eqQtAssetBrowserFolderView::OnFlushFileSystemEvents()
   m_QueuedFolderEvents.Clear();
 }
 
+void eqQtAssetBrowserFolderView::mousePressEvent(QMouseEvent* e)
+{
+  QModelIndex inx = indexAt(e->pos());
+  if (!inx.isValid())
+    return;
+
+  QTreeWidget::mousePressEvent(e);
+}
 
 void eqQtAssetBrowserFolderView::OnItemSelectionChanged()
 {
@@ -495,6 +503,8 @@ void eqQtAssetBrowserFolderView::UpdateDirectoryTree()
     addTopLevelItem(pNewParent);
 
     pNewParent->setExpanded(true);
+
+    selectionModel()->select(indexFromItem(pNewParent), QItemSelectionModel::SelectionFlag::ClearAndSelect);
   }
 
   auto Folders = ezFileSystemModel::GetSingleton()->GetFolders();

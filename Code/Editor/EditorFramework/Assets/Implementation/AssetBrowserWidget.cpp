@@ -184,7 +184,6 @@ void ezQtAssetBrowserWidget::ProjectEventHandler(const ezToolsProjectEvent& e)
   }
 }
 
-
 void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset)
 {
   if (m_bDialogMode)
@@ -479,10 +478,32 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
   QMenu m;
   m.setToolTipsVisible(true);
 
-  const bool bIsRoot = TreeFolderFilter->currentItem() && TreeFolderFilter->currentItem() == TreeFolderFilter->topLevelItem(0);
-  if (TreeFolderFilter->currentItem() && !bIsRoot)
+  const bool bClickedValid = TreeFolderFilter->indexAt(pt).isValid();
+
+  if (bClickedValid)
   {
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), TreeFolderFilter, SLOT(TreeOpenExplorer()));
+    const bool bIsRoot = TreeFolderFilter->currentItem() && TreeFolderFilter->currentItem() == TreeFolderFilter->topLevelItem(0);
+    if (TreeFolderFilter->currentItem() && !bIsRoot)
+    {
+      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), TreeFolderFilter, SLOT(TreeOpenExplorer()));
+    }
+
+    if (TreeFolderFilter->currentItem() && !bIsRoot)
+    {
+      // Delete
+      const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+      QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"), TreeFolderFilter, &eqQtAssetBrowserFolderView::DeleteFolder);
+      if (itemType.IsSet(ezAssetBrowserItemFlags::DataDirectory))
+      {
+        pDelete->setEnabled(false);
+        pDelete->setToolTip("Data directories can't be deleted.");
+      }
+
+      // Create
+      AddAssetCreatorMenu(&m, false);
+    }
+
+    m.addSeparator();
   }
 
   {
@@ -495,23 +516,9 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
     QAction* pAction = m.addAction(QLatin1String("Show Items in hidden folders"), this, SLOT(OnShowHiddenFolderItemsToggled()));
     pAction->setCheckable(true);
     pAction->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
+    pAction->setEnabled(m_pFilter->GetShowItemsInSubFolders());
+    pAction->setToolTip("Whether to ignore '_data' folders when showing items in sub-folders is enabled.");
   }
-
-  if (TreeFolderFilter->currentItem() && !bIsRoot)
-  {
-    // Delete
-    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
-    QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"), TreeFolderFilter, &eqQtAssetBrowserFolderView::DeleteFolder);
-    if (itemType.IsSet(ezAssetBrowserItemFlags::DataDirectory))
-    {
-      pDelete->setEnabled(false);
-      pDelete->setToolTip("Data directories can't be deleted.");
-    }
-
-    // Create
-    AddAssetCreatorMenu(&m, false);
-  }
-
 
   m.exec(TreeFolderFilter->viewport()->mapToGlobal(pt));
 }
