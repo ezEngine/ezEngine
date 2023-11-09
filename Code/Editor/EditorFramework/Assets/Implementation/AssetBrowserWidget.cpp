@@ -842,6 +842,8 @@ void ezQtAssetBrowserWidget::NewAsset()
     sNewAsset.AppendFormat("/{}{}.{}", sBaseFileName, i, sExtension);
   }
 
+  sNewAsset.MakeCleanPath();
+
   ezDocument* pDoc;
   if (pManager->CreateDocument(sAssetType, sNewAsset, pDoc, ezDocumentFlags::Default).m_Result.Failed())
   {
