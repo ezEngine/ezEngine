@@ -12,7 +12,7 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
-#include<QFile>
+#include <QFile>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   : QWidget(pParent)
@@ -23,10 +23,6 @@ ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
 
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
-
-  const bool bAssetFilterCombobox = true;
-  ListTypeFilter->setVisible(!bAssetFilterCombobox);
-  TypeFilter->setVisible(bAssetFilterCombobox);
 
   m_pFilter = new ezQtAssetBrowserFilter(this);
   TreeFolderFilter->SetFilter(m_pFilter);
@@ -94,38 +90,21 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
   }
 
   {
-    ezQtScopedBlockSignals block(ListTypeFilter);
-
-    ListTypeFilter->clear();
-
-    // 'All' Filter
-    {
-      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/Icons/AllAssets.svg")), QLatin1String("<All>"));
-      pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
-      pItem->setCheckState(Qt::CheckState::Checked);
-      pItem->setData(Qt::UserRole, QLatin1String("<All>"));
-
-      ListTypeFilter->addItem(pItem);
-    }
-
-    for (const auto& it : assetTypes)
-    {
-      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon, ezColorScheme::GetCategoryColor(it.Value()->m_sAssetCategory, ezColorScheme::CategoryColorUsage::AssetMenuIcon)), QString::fromUtf8(it.Key(), it.Key().GetElementCount()));
-      pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
-      pItem->setCheckState(Qt::CheckState::Unchecked);
-      pItem->setData(Qt::UserRole, QLatin1String(it.Value()->m_sDocumentTypeName));
-
-      ListTypeFilter->addItem(pItem);
-    }
-  }
-
-  {
     ezQtScopedBlockSignals block(TypeFilter);
 
     TypeFilter->clear();
 
-    // 'All' Filter
-    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/Icons/AllAssets.svg")), QLatin1String("<All>"));
+    if (!m_bDialogMode)
+    {
+      // '<All Files>' Filter
+      TypeFilter->addItem(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("<All Files>"));
+
+      // '<Importable Files>' Filter
+      TypeFilter->addItem(QIcon(QLatin1String(":/EditorFramework/Icons/ImportableFileType.svg")), QLatin1String("<Importable Files>"));
+    }
+
+    // '<All Assets>' Filter
+    TypeFilter->addItem(QIcon(QLatin1String(":/AssetIcons/Icons/AllAssets.svg")), QLatin1String("<All Assets>"));
 
     for (const auto& it : assetTypes)
     {
@@ -143,11 +122,16 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
 
 void ezQtAssetBrowserWidget::SetDialogMode()
 {
+  if (m_bDialogMode)
+    return;
+
   m_pToolbar->hide();
   m_bDialogMode = true;
 
   TreeFolderFilter->SetDialogMode(true);
   ListAssets->SetDialogMode(true);
+
+  UpdateAssetTypes();
 }
 
 void ezQtAssetBrowserWidget::SaveState(const char* szSettingsName)
@@ -384,27 +368,6 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
   ezStringBuilder sTemp;
   const ezStringBuilder sFilter(";", m_pFilter->GetTypeFilter(), ";");
 
-
-  {
-    ezQtScopedBlockSignals _(ListTypeFilter);
-
-    bool bNoneChecked = true;
-
-    for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
-    {
-      sTemp.Set(";", ListTypeFilter->item(i)->data(Qt::UserRole).toString().toUtf8().data(), ";");
-
-      const bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
-
-      ListTypeFilter->item(i)->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
-
-      if (bChecked)
-        bNoneChecked = false;
-    }
-
-    ListTypeFilter->item(0)->setCheckState(bNoneChecked ? Qt::Checked : Qt::Unchecked);
-  }
-
   {
     ezQtScopedBlockSignals _(TypeFilter);
 
@@ -425,7 +388,11 @@ void ezQtAssetBrowserWidget::OnTypeFilterChanged()
     if (iNumChecked == 1)
       TypeFilter->setCurrentIndex(iCheckedFilter);
     else
-      TypeFilter->setCurrentIndex(0);
+      TypeFilter->setCurrentIndex(m_bDialogMode ? 0 : 2); // "<All Assets>"
+
+    int index = TypeFilter->currentIndex();
+    m_pFilter->SetShowNonImportableFiles(!m_bDialogMode && index == 0);
+    m_pFilter->SetShowFiles(!m_bDialogMode && (index == 0 || index == 1));
   }
 
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
@@ -439,78 +406,6 @@ void ezQtAssetBrowserWidget::OnPathFilterChanged()
 void ezQtAssetBrowserWidget::OnSearchWidgetTextChanged(const QString& text)
 {
   m_pFilter->SetTextFilter(text.toUtf8().data());
-}
-
-void ezQtAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
-{
-  ezQtScopedBlockSignals block(ListTypeFilter);
-
-  if (item->data(Qt::UserRole).toString() == "<All>")
-  {
-    if (item->checkState() == Qt::Checked)
-    {
-      // deactivate all others
-      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
-      {
-        ListTypeFilter->item(i)->setCheckState(Qt::Unchecked);
-      }
-    }
-    else
-    {
-      ezStringBuilder sFilter;
-
-      // activate all others
-      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
-      {
-        if (!m_sAllTypesFilter.IsEmpty())
-        {
-          sFilter.Set(";", ListTypeFilter->item(i)->data(Qt::UserRole).toString().toUtf8().data(), ";");
-
-          if (m_sAllTypesFilter.FindSubString(sFilter) != nullptr)
-            ListTypeFilter->item(i)->setCheckState(Qt::Checked);
-          else
-            ListTypeFilter->item(i)->setCheckState(Qt::Unchecked);
-        }
-        else
-          ListTypeFilter->item(i)->setCheckState(Qt::Checked);
-      }
-    }
-  }
-  else
-  {
-    if (item->checkState() == Qt::Checked)
-    {
-      // deactivate the 'all' button
-      ListTypeFilter->item(0)->setCheckState(Qt::Unchecked);
-    }
-    else
-    {
-      bool bAnyChecked = false;
-
-      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
-      {
-        if (ListTypeFilter->item(i)->checkState() == Qt::Checked)
-          bAnyChecked = true;
-      }
-
-      // activate the 'All' item
-      if (!bAnyChecked)
-        ListTypeFilter->item(0)->setCheckState(Qt::Checked);
-    }
-  }
-
-  ezStringBuilder sFilter;
-
-  for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
-  {
-    if (ListTypeFilter->item(i)->checkState() == Qt::Checked)
-      sFilter.Append(";", ListTypeFilter->item(i)->data(Qt::UserRole).toString().toUtf8().data(), ";");
-  }
-
-  if (sFilter.IsEmpty())         // all filters enabled
-    sFilter = m_sAllTypesFilter; // might be different for dialogs
-
-  m_pFilter->SetTypeFilter(sFilter);
 }
 
 void ezQtAssetBrowserWidget::keyPressEvent(QKeyEvent* e)
@@ -597,18 +492,6 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
   }
 
   {
-    QAction* pAction = m.addAction(QLatin1String("Show files"), this, SLOT(OnShowFilesToggled()));
-    pAction->setCheckable(true);
-    pAction->setChecked(m_pFilter->GetShowFiles());
-  }
-
-  {
-    QAction* pAction = m.addAction(QLatin1String("Show non-importable files"), this, SLOT(OnShowNonImportableFilesToggled()));
-    pAction->setCheckable(true);
-    pAction->setChecked(m_pFilter->GetShowNonImportableFiles());
-  }
-
-  {
     QAction* pAction = m.addAction(QLatin1String("Show Items in hidden folders"), this, SLOT(OnShowHiddenFolderItemsToggled()));
     pAction->setCheckable(true);
     pAction->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
@@ -639,15 +522,22 @@ void ezQtAssetBrowserWidget::on_TypeFilter_currentIndexChanged(int index)
 
   ezStringBuilder sFilter;
 
-  if (index > 0)
+  m_pFilter->SetShowNonImportableFiles(!m_bDialogMode && index == 0);
+  m_pFilter->SetShowFiles(!m_bDialogMode && (index == 0 || index == 1));
+
+  switch (index)
   {
-    sFilter.Set(";", TypeFilter->itemData(index, Qt::UserRole).toString().toUtf8().data(), ";");
-  }
-  else
-  {
-    // all filters enabled
-    // might be different for dialogs
-    sFilter = m_sAllTypesFilter;
+    case 0:
+    case 1:
+    case 2:
+      // all filters enabled
+      // might be different for dialogs
+      sFilter = m_sAllTypesFilter;
+      break;
+
+    default:
+      sFilter.Set(";", TypeFilter->itemData(index, Qt::UserRole).toString().toUtf8().data(), ";");
+      break;
   }
 
   m_pFilter->SetTypeFilter(sFilter);
@@ -656,16 +546,6 @@ void ezQtAssetBrowserWidget::on_TypeFilter_currentIndexChanged(int index)
 void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
 {
   m_pFilter->SetShowItemsInSubFolders(!m_pFilter->GetShowItemsInSubFolders());
-}
-
-void ezQtAssetBrowserWidget::OnShowFilesToggled()
-{
-  m_pFilter->SetShowFiles(!m_pFilter->GetShowFiles());
-}
-
-void ezQtAssetBrowserWidget::OnShowNonImportableFilesToggled()
-{
-  m_pFilter->SetShowNonImportableFiles(!m_pFilter->GetShowNonImportableFiles());
 }
 
 void ezQtAssetBrowserWidget::OnShowHiddenFolderItemsToggled()
@@ -1120,20 +1000,6 @@ void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
     const ezStringBuilder sAllFilters(";", szFilters, ";");
 
     m_sAllTypesFilter = sAllFilters;
-
-    {
-      ezQtScopedBlockSignals block(ListTypeFilter);
-
-      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
-      {
-        sFilter.Set(";", ListTypeFilter->item(i)->data(Qt::UserRole).toString().toUtf8().data(), ";");
-
-        if (sAllFilters.FindSubString(sFilter) == nullptr)
-        {
-          ListTypeFilter->item(i)->setHidden(true);
-        }
-      }
-    }
 
     {
       ezQtScopedBlockSignals block(TypeFilter);

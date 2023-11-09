@@ -49,13 +49,10 @@ private Q_SLOTS:
   void on_IconSizeSlider_valueChanged(int iValue);
   void on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage);
   void OnSearchWidgetTextChanged(const QString& text);
-  void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
   void on_TypeFilter_currentIndexChanged(int index);
   void OnScrollToItem(ezUuid preselectedAsset);
   void OnShowSubFolderItemsToggled();
-  void OnShowFilesToggled();
-  void OnShowNonImportableFilesToggled();
   void OnShowHiddenFolderItemsToggled();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
