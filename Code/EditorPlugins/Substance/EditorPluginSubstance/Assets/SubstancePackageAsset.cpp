@@ -372,7 +372,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSubstanceGraphOutput, ezNoBase, 1, ezRTTIDefaul
     EZ_MEMBER_PROPERTY("Label", m_sLabel),
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezSubstanceUsage, m_Usage),
     EZ_MEMBER_PROPERTY("NumChannels", m_uiNumChannels)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 4)),
-    EZ_MEMBER_PROPERTY("UseHighCompression", m_bUseHighCompression)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode)->AddAttributes(new ezDefaultValueAttribute(ezTexConvCompressionMode::High)),
     EZ_MEMBER_PROPERTY("Uuid", m_Uuid)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
@@ -620,7 +620,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
         if (newOutput.m_sName == existingOutput.m_sName)
         {
           newOutput.m_bEnabled = existingOutput.m_bEnabled;
-          newOutput.m_bUseHighCompression = existingOutput.m_bUseHighCompression;
+          newOutput.m_CompressionMode = existingOutput.m_CompressionMode;
           newOutput.m_uiNumChannels = existingOutput.m_uiNumChannels;
           newOutput.m_Usage = existingOutput.m_Usage;
           newOutput.m_sLabel = existingOutput.m_sLabel;
@@ -663,6 +663,14 @@ static const char* s_szTexConvUsageMapping[] = {
 };
 
 static_assert(EZ_ARRAY_SIZE(s_szTexConvUsageMapping) == ezSubstanceUsage::Count);
+
+static const char* s_szTexConvCompressionMapping[] = {
+  "None",
+  "Medium",
+  "High",
+};
+
+static_assert(EZ_ARRAY_SIZE(s_szTexConvCompressionMapping) == ezTexConvCompressionMode::High + 1);
 
 ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, const char* szTargetFile, const ezAssetFileHeader& assetHeader, const ezSubstanceGraphOutput& graphOutput, ezStringView sThumbnailFile, const ezTextureAssetProfileConfig* pAssetConfig)
 {
@@ -710,7 +718,7 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
   }
 
   arguments << "-compression";
-  arguments << (graphOutput.m_bUseHighCompression ? "High" : "Medium");
+  arguments << s_szTexConvCompressionMapping[graphOutput.m_CompressionMode];
 
   arguments << "-maxRes" << QString::number(pAssetConfig->m_uiMaxResolution);
 

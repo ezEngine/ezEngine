@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <Texture/TexConv/TexConvEnums.h>
 
 struct ezSubstanceUsage
 {
@@ -32,7 +33,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINSUBSTANCE_DLL, ezSubstanceUsage);
 struct ezSubstanceGraphOutput
 {
   bool m_bEnabled = true;
-  bool m_bUseHighCompression = true;
+  ezEnum<ezTexConvCompressionMode> m_CompressionMode;
   ezEnum<ezSubstanceUsage> m_Usage;
   ezUInt8 m_uiNumChannels = 1;
   ezString m_sName;
@@ -42,7 +43,7 @@ struct ezSubstanceGraphOutput
   bool operator==(const ezSubstanceGraphOutput& other) const
   {
     return m_bEnabled == other.m_bEnabled &&
-           m_bUseHighCompression == other.m_bUseHighCompression &&
+           m_CompressionMode == other.m_CompressionMode &&
            m_Usage == other.m_Usage &&
            m_uiNumChannels == other.m_uiNumChannels &&
            m_sName == other.m_sName &&
