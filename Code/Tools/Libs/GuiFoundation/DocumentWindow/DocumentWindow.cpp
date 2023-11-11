@@ -297,14 +297,14 @@ void ezQtDocumentWindow::hideEvent(QHideEvent* event)
 
 bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
 {
-  if (e->type() == QEvent::ShortcutOverride)
+  if (e->type() == QEvent::ShortcutOverride || e->type() == QEvent::KeyPress)
   {
     // This filter is added by ezQtContainerWindow::AddDocumentWindow as that ones is the ony code path that can connect dock container to their content.
     // This filter is necessary as clicking any action in a menu bar sets the focus to the parent CDockWidget at which point further shortcuts would stop working.
     if (qobject_cast<ads::CDockWidget*>(obj))
     {
       QKeyEvent* keyEvent = static_cast<QKeyEvent*>(e);
-      if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent))
+      if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, e->type() == QEvent::ShortcutOverride))
         return true;
     }
   }
@@ -313,10 +313,10 @@ bool ezQtDocumentWindow::eventFilter(QObject* obj, QEvent* e)
 
 bool ezQtDocumentWindow::event(QEvent* event)
 {
-  if (event->type() == QEvent::ShortcutOverride)
+  if (event->type() == QEvent::ShortcutOverride || event->type() == QEvent::KeyPress)
   {
     QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent))
+    if (ezQtProxy::TriggerDocumentAction(m_pDocument, keyEvent, event->type() == QEvent::ShortcutOverride))
       return true;
   }
   return QMainWindow::event(event);
