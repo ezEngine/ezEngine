@@ -88,9 +88,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent)
+bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent, bool bTestOnly)
 {
-  auto CheckActions = [](QKeyEvent* pEvent, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& ref_actions) -> bool {
+  auto CheckActions = [&](QKeyEvent* pEvent, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>& ref_actions) -> bool {
     for (auto weakActionProxy : ref_actions)
     {
       if (auto pProxy = weakActionProxy.Value().toStrongRef())
@@ -110,7 +110,10 @@ bool ezQtProxy::TriggerDocumentAction(ezDocument* pDocument, QKeyEvent* pEvent)
           QKeySequence ks = pQAction->shortcut();
           if (pQAction->isEnabled() && QKeySequence(pEvent->key() | pEvent->modifiers()) == ks)
           {
-            pQAction->trigger();
+            if (!bTestOnly)
+            {
+              pQAction->trigger();
+            }
             pEvent->accept();
             return true;
           }

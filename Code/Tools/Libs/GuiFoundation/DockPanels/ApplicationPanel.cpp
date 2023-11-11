@@ -73,13 +73,13 @@ void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e
   }
 }
 
-bool ezQtApplicationPanel::event(QEvent* event)
+bool ezQtApplicationPanel::event(QEvent* pEvent)
 {
-  if (event->type() == QEvent::ShortcutOverride)
+  if (pEvent->type() == QEvent::ShortcutOverride || pEvent->type() == QEvent::KeyPress)
   {
-    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-    if (ezQtProxy::TriggerDocumentAction(nullptr, keyEvent))
+    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(pEvent);
+    if (ezQtProxy::TriggerDocumentAction(nullptr, keyEvent, pEvent->type() == QEvent::ShortcutOverride))
       return true;
   }
-  return ads::CDockWidget::event(event);
+  return ads::CDockWidget::event(pEvent);
 }
