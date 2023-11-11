@@ -255,6 +255,17 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
   if (inout_sFilePath.EndsWith_NoCase("ezProject"))
     return ezStatus(EZ_SUCCESS);
 
+  {
+    ezStringBuilder tmp = inout_sFilePath;
+    tmp.AppendPath("ezProject");
+
+    if (ezOSFile::ExistsFile(tmp))
+    {
+      inout_sFilePath = tmp;
+      return ezStatus(EZ_SUCCESS);
+    }
+  }
+
   EZ_LOG_BLOCK("Open Remote Project", inout_sFilePath.GetData());
 
   ezStringBuilder sRedirFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder(inout_sFilePath);
