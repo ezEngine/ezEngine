@@ -6,6 +6,7 @@
 #include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <Foundation/Logging/HTMLWriter.h>
 
 class ezEditorEngineProcessApp;
 class ezDocumentOpenMsgToEngine;
@@ -45,6 +46,9 @@ private:
   void ConnectToHost();
   void DisableErrorReport();
   void WaitForDebugger();
+  static bool EditorAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
+  void AddEditorAssertHandler();
+  void RemoveEditorAssertHandler();
 
   bool ProcessIPCMessages(bool bPendingOpInProgress);
   void SendProjectReadyMessage();
@@ -69,6 +73,7 @@ private:
   ezEngineProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorEngineProcessApp> m_pApp;
   ezLongOpWorkerManager m_LongOpWorkerManager;
+  ezLogWriter::HTML m_LogHTML;
 
   ezUInt32 m_uiRedrawCountReceived = 0;
   ezUInt32 m_uiRedrawCountExecuted = 0;

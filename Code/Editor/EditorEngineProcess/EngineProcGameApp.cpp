@@ -19,6 +19,14 @@
 #endif
 #include <Foundation/Profiling/ProfilingUtils.h>
 
+// Will forward assert messages and crash handler messages to the log system and then to the editor.
+// Note that this is unsafe as in some crash situation allocating memory will not be possible but it's better to have some logs compared to none.
+void EditorPrintFunction(const char* szText)
+{
+  ezLog::Info("{}", szText);
+}
+
+static ezAssertHandler g_PreviousAssertHandler = nullptr;
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", nullptr)
@@ -42,6 +50,7 @@ ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
   ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
 #endif
 
+  AddEditorAssertHandler();
   return SUPER::BeforeCoreSystemsStartup();
 }
 
@@ -103,8 +112,34 @@ void ezEngineProcessGameApplication::WaitForDebugger()
   }
 }
 
+bool ezEngineProcessGameApplication::EditorAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+{
+  ezLog::Error("*** Assertion ***:\nFile: \"{}\",\nLine: \"{}\",\nFunction: \"{}\",\nExpression: \"{}\",\nMessage: \"{}\"", szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+  // Wait for flush of IPC messages
+  ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(500));
+
+  if (g_PreviousAssertHandler)
+    return g_PreviousAssertHandler(szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+
+  return true;
+}
+
+void ezEngineProcessGameApplication::AddEditorAssertHandler()
+{
+  g_PreviousAssertHandler = ezGetAssertHandler();
+  ezSetAssertHandler(EditorAssertHandler);
+}
+
+void ezEngineProcessGameApplication::RemoveEditorAssertHandler()
+{
+  ezSetAssertHandler(g_PreviousAssertHandler);
+  g_PreviousAssertHandler = nullptr;
+}
+
 void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 {
+  RemoveEditorAssertHandler();
+
   m_pApp = nullptr;
 
   m_LongOpWorkerManager.Shutdown();
@@ -563,6 +598,14 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites).IgnoreResult();      // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
+
+  {
+    // We need the file system before we can start the html logger.
+    ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
+    ezStringBuilder sLogFile;
+    sLogFile.Format(":appdata/Log_{0}.htm", uiProcessID);
+    m_LogHTML.BeginLog(sLogFile, "EditorEngineProcess");
+  }
 }
 
 bool ezEngineProcessGameApplication::Run_ProcessApplicationInput()
@@ -593,6 +636,9 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
   SUPER::BaseInit_ConfigureLogging();
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
+  ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+
+  ezLog::SetCustomPrintFunction(&EditorPrintFunction);
 
   // used for sending CVar changes over to the editor
   ezCVar::s_AllCVarEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
@@ -601,6 +647,9 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
 void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
 {
+  ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  m_LogHTML.EndLog();
+
   ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
 
   // used for sending CVar changes over to the editor
