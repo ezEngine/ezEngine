@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: repo
           submodules: 'recursive'
@@ -49,7 +49,7 @@ jobs:
           retention-days: 3
 
       - name: Checkout Precompiled Tools Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: ezEngine/precompiled-tools
           ref: main
