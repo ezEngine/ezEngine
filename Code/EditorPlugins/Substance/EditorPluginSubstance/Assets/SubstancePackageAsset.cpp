@@ -200,7 +200,7 @@ namespace
     ezStringBuilder sFileContent;
     EZ_SUCCEED_OR_RETURN(GetSbsContent(sAbsolutePath, sFileContent));
 
-    QXmlStreamReader reader(sFileContent);
+    QXmlStreamReader reader(sFileContent.GetData());
     EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(reader, "dependencies"));
 
     while (reader.readNextStartElement())
@@ -579,7 +579,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
 
   ezHybridArray<ezSubstanceGraph, 2> graphs;
 
-  QXmlStreamReader reader(sFileContent);
+  QXmlStreamReader reader(sFileContent.GetData());
   EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(reader, "content"));
 
   while (reader.atEnd() == false)
